@@ -1,0 +1,20 @@
+==title: The main library==
+
+Well, the front page is currently the ugliest part of the documentation :-)
+
+==section:Modules==
+
+==subsection:The real line==
+
+==toc:realline/==
+==toc:realline/primal==
+==toc:realline/dual==
+
+==subsection:The unit interval==
+
+==toc:interval/dku/==
+==toc:interval/primbs/==
+==toc:interval/dijkema/==
+
+==section:Glossary==
+==toc:../concepts/==

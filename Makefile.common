@@ -1,0 +1,14 @@
+LIBDIRS   = lawa
+EXECDIRS  = tutorial
+SUBDIRS  := $(LIBDIRS) $(EXECDIRS)
+LDFLAGS  += -L$(LAWA_HOME)
+
+# some shell commands
+RM     = rm -f
+RMDIR  = rm -f -r
+MKDIR  = mkdir -p
+MAKE   = make
+CP     = cp
+SILENT =
+
+include $(LAWA_HOME)/config

@@ -1,0 +1,47 @@
+TARGET = OSX
+COMPILER = icc
+BLASLAPACK = platform
+
+ifeq ($(TARGET),OSX)
+  CXXDYLIB  = -dynamiclib
+  DYLIB_EXT = dylib
+  ifeq ($(COMPILER),gcc)
+    CC  = gcc
+    CXX = g++
+    ifeq ($(BLASLAPACK),platform)
+      CPPFLAGS += -DWITH_VECLIB
+      LDFLAGS  += -framework Accelerate
+    endif
+  endif
+  ifeq ($(COMPILER),icc)
+    CC  = icc
+    CXX = icpc
+    ifeq ($(BLASLAPACK),platform)
+      CPPFLAGS += -DWITH_VECLIB
+      LDFLAGS  += -framework Accelerate
+    endif
+  endif
+endif
+
+
+# compilation modes ------------------------------------------------------------
+# --- debug mode -----------------------
+# DEBUGLAWA += -DSOLVER_DEBUG
+# DEBUGLAWA += -DLAMBDA_TILDE_DEBUG
+# DEBUGLAWA += -DPREDICTION_DEBUG
+# DEBUGLAWA += -DQUASI_INTERPOLATION_DEBUG
+# DEBUGLAWA += -DPROJECT_DEBUG
+DEBUGMODE = -g -DDEBUG -D_GLIBCXX_DEBUG_PEDANTIC=1 $(DEBUGLAWA)
+# --- release mode ----------------------
+RELEASEMODE = -O3 -DNDEBUG
+# --- profiling mode --------------------
+PROFILEMODE = -p -g -DNDEBUG
+
+CXXFLAGS += $(DEBUGMODE)
+#CXXFLAGS += $(RELEASEMODE)
+#CXXFLAGS += $(PROFILEMODE)
+
+CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
+CXXFLAGS += -Wfatal-errors -pedantic -Wextra -std=c++98 -Wno-sign-compare 
+CXXFLAGS += -O2 -DCHECK_INTERVAL_CONSTRUCTION 
+CXXFLAGS += -Wreturn-type
