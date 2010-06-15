@@ -23,6 +23,7 @@
 #include <lawa/enum.h>
 #include <lawa/bspline.h>
 #include <lawa/wavelet.h>
+#include <lawa/periodicextension.h>
 
 namespace lawa {
 
@@ -135,6 +136,20 @@ struct IsPeriodic<Wavelet<T,Side,Periodic,Cons> >
 
 template <typename T, FunctionSide Side, Construction Cons>
 struct IsPeriodic<BSpline<T,Side,Periodic,Cons> >
+{
+    static const bool value = true;
+};
+
+//--- IsPeriodicExtension
+
+template <typename X>
+struct IsPeriodicExtension
+{
+    static const bool value = false;  
+};
+
+template <typename T>
+struct IsPeriodicExtension<PeriodicExtension<T> >
 {
     static const bool value = true;
 };

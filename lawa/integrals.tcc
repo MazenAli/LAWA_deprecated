@@ -51,7 +51,7 @@ _integrate(Integral<T,Gauss,First,Second> &integral)
                   iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
     quadrature.setOrder(iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
 
-    // the (minimal) with of the polynomial pieces.
+    // the (minimal) width of the polynomial pieces.
     T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
 
     T ret = 0.;
@@ -72,13 +72,17 @@ template <typename T, QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<IsPrimal<First>::value && !PrimalOrDual<Second>::value, T>::Type
 _integrate(Integral<T,Quad,First,Second> &integral)
 {
+    //assert(!IsPeriodic<First>::value);
+    if(IsPeriodic<First>::value){   
+        assert(IsPeriodicExtension<Second>::value);
+    }
+    
     const First &first = integral.first;
     const Second &second = integral.second;
     static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
-
-    assert(!IsPeriodic<First>::value);
     
     // merge singular points of bspline/wavelet and function to one list.
+    /* -> implizite Annahme: second.singularPoints sind schon sortiert!! */
     DenseVector<Array<T> > firstSingularPoints 
                                = first.singularSupport(integral.j1,integral.k1);
     int nFirst = firstSingularPoints.length(),
@@ -90,10 +94,11 @@ _integrate(Integral<T,Quad,First,Second> &integral)
                second.singularPoints.engine().data(),
                second.singularPoints.engine().data() + nSecond,
                singularPoints.engine().data());
-
+               
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
         ret += quadrature(singularPoints(i),singularPoints(i+1));
+        std::cerr << "Integral[" << singularPoints(1) << ", " << singularPoints(i+1) << "] = " << ret << std::endl;
     }
     return ret;
 }

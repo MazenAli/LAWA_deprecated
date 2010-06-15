@@ -28,6 +28,7 @@
 #include <lawa/mra.h>
 #include <lawa/param.h>
 #include <lawa/periodic/periodic.h>
+#include <lawa/periodicextension.h>
 #include <lawa/quadrature.h>
 #include <lawa/realline/realline.h>
 #include <lawa/support.h>

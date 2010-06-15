@@ -62,7 +62,7 @@ template <typename T, typename Integrand>
 class Quadrature<T,CompositeTrapezoidal,Integrand>
 {    
     public:
-        Quadrature(const Integrand &_integrand, int _n = -1);
+        Quadrature(const Integrand &_integrand, int _n = 100);
 
         const T
         operator()(T a, T b) const;

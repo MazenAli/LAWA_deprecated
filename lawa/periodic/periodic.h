@@ -17,7 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <lawa/periodic/primal/primal.h>
 #include <lawa/periodic/dual/dual.h>
+#include <lawa/periodic/primal/primal.h>
 #include <lawa/periodic/fwt.h>
+#include <lawa/periodic/integrals.h>
 #include <lawa/periodic/refinementmatrix.h>

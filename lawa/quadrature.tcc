@@ -31,7 +31,7 @@ QuadratureParam<Quad>::numEvaluationsPerPiece = 100;
 
 template <typename T, typename Integrand>
 Quadrature<T,Gauss,Integrand>::Quadrature(const Integrand &_integrand, int order)
-    : _order(order), integrand(_integrand)
+    : integrand(_integrand), _order(order)
 {
     _legendre();
 }

@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <lawa/lawa.h>
 
 using namespace lawa;
@@ -18,6 +19,32 @@ typedef BSpline<T,Dual,Periodic,CDF>   DualSpline;
 typedef Wavelet<T,Primal,Periodic,CDF> PrimalWavelet;
 typedef Wavelet<T,Dual,Periodic,CDF>   DualWavelet;
 
+void printSpline( PrimalSpline phi,int j,int k, const char* filename){
+    ofstream plotFile(filename);
+    for(double x = phi.support(j,k).l1; x <= phi.support(j,k).l2; x += 0.001){
+        plotFile << x << " " << phi(x, j, k) << endl;
+    }
+    plotFile.close();
+}
+
+template <typename FctType>
+void printFunction(FctType F, const char* filename, T a, T b, T dx){
+    ofstream plotFile(filename);
+    for(T x = a; x <= b; x += dx ){
+        plotFile << x << " " << F(x) << endl;
+    }
+    plotFile.close();
+}
+
+template <typename IntegralType>
+void printIntegrand(IntegralType I, const char* filename, T a, T b, T dx){
+    
+    ofstream plotFile(filename);
+    for(T x = a; x <= b; x += dx ){
+        plotFile << x << " " << I.integrand(x) << endl;
+    }
+    plotFile.close();
+}
 
 int
 main(int argc, char *argv[])
@@ -27,8 +54,12 @@ main(int argc, char *argv[])
     PrimalWavelet psi1(3,5);
     DualWavelet psi2(3,5);
 
-    DenseVector<Array<double> > singularPoints;
+    DenseVector<Array<double> > singularPoints(2);
+    singularPoints = 0., 1.;
     Function<double> Sin(f,singularPoints);
+    cout << "SingPoints Sin: " << Sin.singularPoints << endl;
+    PeriodicExtension<double> PeriodicSin(Sin);
+    cout << "SingPoints PeriodicSin: " << PeriodicSin.singularPoints << endl;
     
     cout.precision(18);
 {
@@ -57,8 +88,11 @@ main(int argc, char *argv[])
 }
 
 {
-    Integral<double,CompositeTrapezoidal,PrimalSpline,Function<double> > integral(phi1, Sin);
-    cout << integral(0,1) << endl;
+    Integral<double,CompositeTrapezoidal,PrimalSpline,PeriodicExtension<double> > integral(phi1, PeriodicSin);
+    printSpline(phi1, 3, 1,  "Phi1_3_1.txt");
+    printFunction<PeriodicExtension<T> >(PeriodicSin, "PeriodicSin.txt", -1, 1, 0.001);
+    printIntegrand<Integral<double,CompositeTrapezoidal,PrimalSpline,PeriodicExtension<double> > >(integral, "Integrand.txt", -1, 1, 0.001);
+    cout << integral(3,1) << endl;
 }
 
 {
