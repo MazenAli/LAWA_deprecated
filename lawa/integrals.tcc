@@ -46,7 +46,7 @@ _integrate(Integral<T,Gauss,First,Second> &integral)
                  integral.j2, integral.k2);
     }
 
-    static Quadrature<T,Gauss,Integral<T,Gauss,First,Second> > quadrature(
+    /*static*/ Quadrature<T,Gauss,Integral<T,Gauss,First,Second> > quadrature(
                   integral,
                   iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
     quadrature.setOrder(iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
@@ -74,7 +74,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
+    /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
 
     assert(!IsPeriodic<First>::value);
     
@@ -105,7 +105,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
+    /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     
     if (IsPeriodic<First>::value) {
         assert(IsPeriodic<Second>::value);
@@ -134,7 +134,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
+   /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
 
     if (IsPeriodic<First>::value) {
         assert(IsPeriodic<Second>::value);
@@ -170,7 +170,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
+    /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     quadrature.n = pow2i<T>(Param<First>::resolution)*(first.mask().length()-1);
 
     assert(!IsPeriodic<First>::value);
