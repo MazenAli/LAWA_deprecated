@@ -40,16 +40,18 @@ _integrate(Integral<T,Gauss,First,Second> &integral)
     
     if (IsPeriodic<First>::value) {
         assert(IsPeriodic<Second>::value);
+        assert(first.support(integral.j1,integral.k1).length() <= 1.);
+        assert(second.support(integral.j2,integral.k2).length() <= 1.);
         _adapt_k(first.support(integral.j1,integral.k1),
                  second.support(integral.j2,integral.k2),
                  integral.j1, integral.k1,
                  integral.j2, integral.k2);
     }
 
-    static Quadrature<T,Gauss,Integral<T,Gauss,First,Second> > quadrature(
+    Quadrature<T,Gauss,Integral<T,Gauss,First,Second> > quadrature(
                   integral,
                   iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
-    quadrature.setOrder(iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
+    //quadrature.setOrder(iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
 
     // the (minimal) width of the polynomial pieces.
     T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
@@ -73,13 +75,14 @@ typename RestrictTo<IsPrimal<First>::value && !PrimalOrDual<Second>::value, T>::
 _integrate(Integral<T,Quad,First,Second> &integral)
 {
     //assert(!IsPeriodic<First>::value);
-    if(IsPeriodic<First>::value){   
+    if(IsPeriodic<First>::value){  
         assert(IsPeriodicExtension<Second>::value);
+        assert(integral.first.support(integral.j1, integral.k1).length() <= 1.); 
     }
     
     const First &first = integral.first;
     const Second &second = integral.second;
-    static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
+    Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     
     // merge singular points of bspline/wavelet and function to one list.
     /* -> implizite Annahme: second.singularPoints sind schon sortiert!! */
@@ -98,7 +101,6 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
         ret += quadrature(singularPoints(i),singularPoints(i+1));
-        std::cerr << "Integral[" << singularPoints(1) << ", " << singularPoints(i+1) << "] = " << ret << std::endl;
     }
     return ret;
 }
@@ -110,7 +112,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
+    Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     
     if (IsPeriodic<First>::value) {
         assert(IsPeriodic<Second>::value);
@@ -139,7 +141,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
+    Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
 
     if (IsPeriodic<First>::value) {
         assert(IsPeriodic<Second>::value);
@@ -175,7 +177,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    static Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
+    Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     quadrature.n = pow2i<T>(Param<First>::resolution)*(first.mask().length()-1);
 
     assert(!IsPeriodic<First>::value);
