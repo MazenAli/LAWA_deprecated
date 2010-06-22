@@ -38,7 +38,7 @@ _integrate(Integral<T,Gauss,First,Second> &integral)
     const Second &second = integral.second;
     // quadrature with minimal order to guarantee exactness of integrals.
     
-    if (IsPeriodic<First>::value) {
+    /*if (IsPeriodic<First>::value) {
         assert(IsPeriodic<Second>::value);
         assert(first.support(integral.j1,integral.k1).length() <= 1.);
         assert(second.support(integral.j2,integral.k2).length() <= 1.);
@@ -46,7 +46,7 @@ _integrate(Integral<T,Gauss,First,Second> &integral)
                  second.support(integral.j2,integral.k2),
                  integral.j1, integral.k1,
                  integral.j2, integral.k2);
-    }
+    }*/
 
     /*static*/ Quadrature<T,Gauss,Integral<T,Gauss,First,Second> > quadrature(
                   integral,
@@ -75,10 +75,10 @@ typename RestrictTo<IsPrimal<First>::value && !PrimalOrDual<Second>::value, T>::
 _integrate(Integral<T,Quad,First,Second> &integral)
 {
     //assert(!IsPeriodic<First>::value);
-    if(IsPeriodic<First>::value){  
+    /*if(IsPeriodic<First>::value){  
         assert(IsPeriodicExtension<Second>::value);
         assert(integral.first.support(integral.j1, integral.k1).length() <= 1.); 
-    }
+    }*/
     
     const First &first = integral.first;
     const Second &second = integral.second;
@@ -115,13 +115,13 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     const Second &second = integral.second;
     /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     
-    if (IsPeriodic<First>::value) {
+   /* if (IsPeriodic<First>::value) {
         assert(IsPeriodic<Second>::value);
         _adapt_k(first.support(integral.j1,integral.k1),
                  second.support(integral.j2,integral.k2),
                  integral.j1, integral.k1,
                  integral.j2, integral.k2);
-    }
+    }*/
 
     Support<T> common;
 
@@ -144,13 +144,13 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     const Second &second = integral.second;
    /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
 
-    if (IsPeriodic<First>::value) {
+   /* if (IsPeriodic<First>::value) {
         assert(IsPeriodic<Second>::value);
         _adapt_k(first.support(integral.j1,integral.k1),
                  second.support(integral.j2,integral.k2),
                  integral.j1, integral.k1,
                  integral.j2, integral.k2);
-    }
+    }*/
 
     int length = overlap(first.support(0,integral.k1),
                          second.support(0,integral.k2));
@@ -181,7 +181,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     quadrature.n = pow2i<T>(Param<First>::resolution)*(first.mask().length()-1);
 
-    assert(!IsPeriodic<First>::value);
+   // assert(!IsPeriodic<First>::value);
 
     Support<T> supp = first.support(integral.j1,integral.k1);
     DenseVector<Array<T> > firstSupport(2);

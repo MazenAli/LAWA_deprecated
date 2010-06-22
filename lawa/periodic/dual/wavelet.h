@@ -21,6 +21,7 @@
 #define LAWA_PERIODIC_DUAL_WAVELET_H 1
 
 #include <lawa/flensforlawa.h>
+#include <lawa/periodic/periodicsupport.h>
 #include <lawa/periodic/primal/bspline.h>
 #include <lawa/periodic/dual/bspline.h>
 #include <lawa/wavelet.h>
@@ -43,7 +44,7 @@ class Wavelet<T,Dual,Periodic,CDF>
         T
         operator()(T x, int j, int k) const;
 
-        Support<T>
+        PeriodicSupport<T>
         support(int j, int k) const;
 
         const DenseVector<Array<T> > &
@@ -54,9 +55,9 @@ class Wavelet<T,Dual,Periodic,CDF>
         
         const int d, d_, mu;
         const int l1_, l2_;
-        const DenseVector<Array<T> > b_;
-        const BSpline<T,Primal,Periodic,CDF> phi;
-        const BSpline<T,Dual,Periodic,CDF> phi_;        
+        const Wavelet<T, Dual, R, CDF> psiR_;
+        //const BSpline<T,Primal,Periodic,CDF> phi;
+        //const BSpline<T,Dual,Periodic,CDF> phi_;        
 };
 
 } // namespace lawa

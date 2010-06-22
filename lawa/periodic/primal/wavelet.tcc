@@ -25,10 +25,9 @@ using namespace flens;
 
 template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_)
-    : d(_d), d_(_d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_d), d_(_d_), mu(d&1),    
       deriv(0), polynomialOrder(_d),
-      vanishingMoments(_d_), b(mask(d,d_)),
-      phi(d), phi_(d,d_)
+      vanishingMoments(_d_), psiR(_d, _d_)//, phi(d), phi_(d,d_)
 {
     assert(d<=d_);
     assert(((d+d_)&1)==0);
@@ -36,10 +35,9 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_)
 
 template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_, int _deriv)
-    : d(_d), d_(_d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_d), d_(_d_), mu(d&1),     
       deriv(_deriv), polynomialOrder(_d-deriv),
-      vanishingMoments(_d_), b(mask(d,d_)),
-      phi(d), phi_(d,d_)
+      vanishingMoments(_d_), psiR(_d, _d_, _deriv)//, phi(d), phi_(d,d_)
 {
     assert(d<=d_);
     assert(((d+d_)&1)==0);
@@ -49,11 +47,9 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_, int _deriv)
 template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,    
                                  const BSpline<T,Dual,Periodic,CDF> &_phi_)
-    : d(phi.d), d_(phi_.d,phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_phi.d), d_(_phi_.d,_phi_.d_), mu(d&1),    
       deriv(0), polynomialOrder(d),
-      vanishingMoments(d_), b(mask(d,d_)),
-      phi(d), phi_(d_)
-      
+      vanishingMoments(d_), psiR(_phi.phiR, _phi_.phiR_)//, phi(d), phi_(d_)      
 {
 }
 
@@ -61,10 +57,9 @@ template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,    
                                  const BSpline<T,Dual,Periodic,CDF> &_phi_,
                                  int _deriv)
-    : d(phi.d), d_(phi_.d,phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_phi.d), d_(_phi_.d,_phi_.d_), mu(d&1),    
       deriv(_deriv), polynomialOrder(d-deriv),
-      vanishingMoments(d_), b(mask(d,d_)),
-      phi(d), phi_(d_)
+      vanishingMoments(d_), psiR(_phi.phiR, _phi_.phiR_, _deriv)//, phi(d), phi_(d_)
 {    
     assert(deriv>=0);
 }
@@ -73,26 +68,62 @@ template <typename T>
 T
 Wavelet<T,Primal,Periodic,CDF>::operator()(T x, int j, int k) const
 {
-    T ret = T(0);
-    x = pow2i<T>(j)*x-k;
-    for (int i=b.firstIndex(); i<=b.lastIndex(); ++i) {
-        ret += b(i)*phi(2*x-i, 0, 0);
+    // maximal support: [0,1]
+    if((x < 0.) || (x > 1.)){
+        return 0.;
     }
-    return pow2i<T>(deriv*(j+1)) * pow2ih<T>(j) * ret;
+    
+    // sum contributions of original spline on R
+    // = 'wrapping' around [0,1]
+    T val = 0;
+    for(int l = ifloor(psiR.support(j,k).l1); l < iceil(psiR.support(j,k).l2); ++l){
+        val += psiR(l+x, j, k);
+    }
+    return val;
 }
 
 template <typename T>
-Support<T>
+PeriodicSupport<T>
 Wavelet<T,Primal,Periodic,CDF>::support(int j, int k) const
-{
-    return pow2i<T>(-j) * Support<T>(l1+k, l2+k);
+{    
+    Support<T> suppR = psiR.support(j,k);
+    if(suppR.length() >= 1){
+        return PeriodicSupport<T>(0,1);
+    }
+    if(suppR.l1 < 0){
+        return PeriodicSupport<T>(0,1,suppR.l2, suppR.l1 + 1);
+    }
+    if(suppR.l2 > 1){
+        return PeriodicSupport<T>(0,1,suppR.l2 - 1, suppR.l1);
+    }
+    return PeriodicSupport<T>(suppR.l1, suppR.l2);
 }
 
 template <typename T>
 DenseVector<Array<T> >
 Wavelet<T,Primal,Periodic,CDF>::singularSupport(int j, int k) const
-{
-    return linspace(support(j,k).l1, support(j,k).l2, 2*(d+d_)-1);
+{    
+    if((psiR.support(j,k).l1 >= 0) && (psiR.support(j,k).l2 <= 1)){
+         return linspace(support(j,k).l1, support(j,k).l2, 2*(d+d_)-1);
+    }
+    
+    std::list<T> temp;
+    DenseVector<Array<T> > singSuppR = linspace(psiR.support(j,k).l1, psiR.support(j,k).l2, 2*(d+d_)-1);
+    temp.push_back(0.);
+    temp.push_back(1.);
+    for(int i = singSuppR.firstIndex(); i <= singSuppR.lastIndex(); ++i){
+        temp.push_back(singSuppR(i) - ifloor(singSuppR(i)));
+    }
+    temp.sort();
+    temp.unique();
+    
+    DenseVector<Array<T> > singSupp(temp.size());
+    int i = 1;
+    for (typename std::list<T>::const_iterator it = temp.begin(); it != temp.end(); ++it, ++i) {
+        singSupp(i) = *it;
+    }
+    
+    return singSupp;
 }
 
 template <typename T>
@@ -106,13 +137,13 @@ template <typename T>
 const DenseVector<Array<T> > &
 Wavelet<T,Primal,Periodic,CDF>::mask() const
 {
-    return b;
+    return psiR.b;
 }
 
 template <typename T>
 DenseVector<Array<T> >
 Wavelet<T,Primal,Periodic,CDF>::mask(int d, int d_)
-{
+{   
     assert(d<=d_);
     assert(((d+d_)&1)==0);
 

@@ -28,14 +28,8 @@ namespace lawa {
 using namespace flens;
 
 template <typename T>
-    DenseVector<Array<T> >
-    _bspline_mask(int d, int d_);
-
-template <typename T>
 BSpline<T,Dual,Periodic,CDF>::BSpline(int _d, int _d_)
-    : d(_d), d_(_d_), mu(d&1),
-      l1_(.5*(-d+mu)-d_+1), l2_(.5*(d+mu)+d_-1),
-      a_(_bspline_mask<T>(d,d_))
+    : d(_d), d_(_d_), mu(d&1), phiR_(_d, _d_)
 {
     assert(d>0);
     assert(d_>=d);
@@ -51,50 +45,40 @@ template <typename T>
 T
 BSpline<T,Dual,Periodic,CDF>::operator()(T x, int j, int k) const
 {
-    int resolution = Param<BSpline<T,Dual,Periodic,CDF> >::resolution;
-    // we precompute values for dual B-spline on first call ...
-    static DenseVector<Array<T> > values;
-    static int storedD = 0, storedD_ = 0;
-    static int storedResolution = resolution;
-    Support<T> supp = support(j,k);
-    if (!inner(x,supp)) {
-        return 0;
+    if((x < 0.) || (x > 1.)){
+        return 0.;
     }
 
-    // we need to recalculate for different B-spline than stored one.
-    if ((d!=storedD) || (d_!=storedD_) || (storedResolution!=resolution)) {
-        storedD  = d;
-        storedD_ = d_;
-        storedResolution = resolution;
-        BSpline<T,Dual,R,CDF> phi_(d,d_);
-        subdivide(phi_, resolution, values);
+    T val = 0;
+    for(int l = ifloor(phiR_.support(j,k).l1); l < iceil(phiR_.support(j,k).l2); ++l){
+        val += phiR_(l+x, j, k);
     }
-
-    // 'revert to reference B-spline i.e. j=k=0
-    x *= pow2i<T>(j);
-    x -= k;
-    x *= pow2i<T>(resolution);
-
-    assert(x>=pow2i<T>(resolution)*l1_);
-    assert(x<=pow2i<T>(resolution)*l2_);
-
-    // use linear interpolation between neighboring grid points.
-    return pow2ih<T>(j) * values(x);//(ifloor(values(x))+iceil(values(x)))/2;
+    return val;
 }
 
 
 template <typename T>
-Support<T>
+PeriodicSupport<T>
 BSpline<T,Dual,Periodic,CDF>::support(int j, int k) const
-{
-    return pow2i<T>(-j) * Support<T>(l1_+k, l2_+k);
+{    
+    Support<T> suppR = phiR_.support(j,k);
+    if(suppR.length() >= 1){
+        return PeriodicSupport<T>(0,1);
+    }
+    if(suppR.l1 < 0){
+        return PeriodicSupport<T>(0,1,suppR.l2, suppR.l1 + 1);
+    }
+    if(suppR.l2 > 1){
+        return PeriodicSupport<T>(0,1,suppR.l2 - 1, suppR.l1);
+    }
+    return PeriodicSupport<T>(suppR.l1, suppR.l2);
 }
 
 template <typename T>
 const DenseVector<Array<T> > &
 BSpline<T,Dual,Periodic,CDF>::mask() const
 {
-    return a_;
+    return phiR_.a_;
 }
 
 } // namespace lawa

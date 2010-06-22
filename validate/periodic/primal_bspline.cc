@@ -11,10 +11,10 @@ typedef double T;
 int
 main(int argc, char* argv[]){
     
-    int d = 5;
+    int d = 2;
     BSpline<T, Primal, Periodic, CDF> phi(d);
     
-    int j = 5;
+    int j = 3;
     int k = 1;
     double x = 0.5;
     int N = 10000000;

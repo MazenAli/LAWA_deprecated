@@ -22,7 +22,7 @@
 
 #include <lawa/flensforlawa.h>
 
-#include <lawa/support.h>
+#include <lawa/periodic/periodicsupport.h>
 #include <lawa/periodic/dual/bspline.h>
 
 namespace lawa {
@@ -40,15 +40,15 @@ struct BSpline<T,Dual,Periodic,CDF>
     T
     operator()(T x, int j, int k) const;
 
-    Support<T>
+    PeriodicSupport<T>
     support(int j, int k) const;
     
     const DenseVector<Array<T> > &
     mask() const;
 
     const int d, d_, mu;
-    const int l1_, l2_;
-    const DenseVector<Array<T> > a_;
+    //const int l1_, l2_;
+    const BSpline<T, Dual, R, CDF> phiR_;
 };
 
 } // namespace lawa
