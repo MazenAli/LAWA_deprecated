@@ -21,4 +21,5 @@
 #include <lawa/periodic/primal/primal.h>
 #include <lawa/periodic/fwt.h>
 #include <lawa/periodic/integrals.h>
+#include <lawa/periodic/periodicsupport.h>
 #include <lawa/periodic/refinementmatrix.h>

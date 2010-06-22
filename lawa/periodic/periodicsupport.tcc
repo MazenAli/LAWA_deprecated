@@ -33,8 +33,8 @@ PeriodicSupport<T>::PeriodicSupport(const T&a, const T &b, const T &ai, const T 
         assert(l2 == 1.);
     }
     else{
-        li1 = 0.;
-        li2 = 0.;
+        li1 = 0;
+        li2 = 0;
     }
 }
 
