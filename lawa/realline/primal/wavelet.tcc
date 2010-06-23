@@ -49,7 +49,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_, int _deriv)
 template <typename T>
 Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,    
                                  const BSpline<T,Dual,R,CDF> &_phi_)
-    : d(phi.d), d_(phi_.d,phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_phi.d), d_(_phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
       deriv(0), polynomialOrder(d),
       vanishingMoments(d_), b(mask(d,d_)),
       phi(d), phi_(d_)
@@ -61,7 +61,7 @@ template <typename T>
 Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,    
                                  const BSpline<T,Dual,R,CDF> &_phi_,
                                  int _deriv)
-    : d(phi.d), d_(phi_.d,phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_phi.d), d_(_phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
       deriv(_deriv), polynomialOrder(d-deriv),
       vanishingMoments(d_), b(mask(d,d_)),
       phi(d), phi_(d_)
