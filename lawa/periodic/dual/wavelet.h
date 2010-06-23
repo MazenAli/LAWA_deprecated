@@ -54,7 +54,7 @@ class Wavelet<T,Dual,Periodic,CDF>
         mask(int d, int d_);
         
         const int d, d_, mu;
-        const int l1_, l2_;
+        //const int l1_, l2_;
         const Wavelet<T, Dual, R, CDF> psiR_;
         //const BSpline<T,Primal,Periodic,CDF> phi;
         //const BSpline<T,Dual,Periodic,CDF> phi_;        

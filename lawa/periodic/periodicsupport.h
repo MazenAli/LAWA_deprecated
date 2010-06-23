@@ -9,7 +9,7 @@ namespace lawa {
 using namespace flens;
     
 template <typename T>
-struct PeriodicSupport
+struct PeriodicSupport : public Support<T>
 {
     PeriodicSupport();
     
@@ -20,14 +20,12 @@ struct PeriodicSupport
     ~PeriodicSupport();
     
     T
-    length() const;
+    gaplength() const;      // length of possible inner gap in support (= length[li1, li2])
     
-    T
-    gaplength() const;  // length of possible inner gap in support (= length[li1, li2])
-    
-    T l1, l2;       // outer support bounds (maximal support: [0,1])
-    T li1, li2;     // bounds of inner gap if support is [l1, li1] and [li2, l2]
-                    //  if li1 = li2 (= 0), support is [l1, l2]. 
+    using Support<T>::l1;   // outer support bounds (maximal support: [0,1])
+    using Support<T>::l2;       
+    T li1, li2;             // bounds of inner gap if support is [l1, li1] and [li2, l2]
+                            //  if li1 = li2 (= 0), support is [l1, l2]. 
    
 };
  
@@ -86,6 +84,10 @@ template <typename T>
 template <typename T, typename S>
     PeriodicSupport<T>
     operator+(const PeriodicSupport<T> &supp, S shift);
+    
+template <typename S, typename T>
+    PeriodicSupport<T>
+    operator*(S factor, const PeriodicSupport<T> &supp){ assert(0);}
 
 template <typename T>
     std::ostream &

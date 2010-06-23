@@ -22,6 +22,8 @@ main(int arc, char* argv[]){
     
     Support<T> common;
     
+    cout << "======= OVERLAPS =================" << endl;
+    
     cout << "Supports: " << supp1 << " and " << supp2 << endl;
     overlap(supp1, supp2, common);
     cout << "Overlap = " << overlap(supp1, supp2) << " : " << common << endl;
@@ -89,6 +91,9 @@ main(int arc, char* argv[]){
     cout << "Minimal Overlap = " << minimal_overlap(supp2, supp5) << endl << endl;
     
     /* ======= SHIFTS & FACTORS =================*/
+    
+    cout << "======= SHIFTS & FACTORS =================" << endl;
+    
  
     T shift1 = 3;
     T shift2 = 0.75;
@@ -118,6 +123,22 @@ main(int arc, char* argv[]){
     cout << "   + " << shift1 << " : " << supp5 + shift1 << endl;
     cout << "   + " << shift2 << " : " << supp5 + shift2 << endl;
     cout << "   + " << shift3 << " : " << supp5 + shift3 << endl;
+    
+    
+    /* ======= POLYMORPHISM =================*/
+    
+    cout << "======= POLYMORPHISM =================" << endl;
+    
+    
+    Support<T> supp = supp1;
+    cout << "Supports: " << supp << " and " << supp5 << endl;
+    overlap(supp, supp5, common);
+    cout << "Overlap = " << overlap(supp, supp5) << " : " << common << endl;
+    
+    Support<T> supp7(0.3, 0.95);
+    cout << "Supports: " << supp7 << " and " << supp5 << endl;
+    overlap(supp7, supp5, common);
+    cout << "Overlap = " << overlap(supp7, supp5) << " : " << common << endl;
     
     
     PeriodicSupport<T> supp6(0.2, 0.6, 0.1, 0.5);

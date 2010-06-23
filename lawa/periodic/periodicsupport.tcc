@@ -4,22 +4,21 @@ namespace lawa{
     
 template <typename T>
 PeriodicSupport<T>::PeriodicSupport()
-    : l1(0), l2(-1), li1(0), li2(0)
+    : Support<T>(), li1(0), li2(0)
 {
 }
  
 template <typename T>
 PeriodicSupport<T>::PeriodicSupport(const T &a, const T &b)
-   : l1(a), l2(b), li1(0), li2(0)
+   : Support<T>(a,b), li1(0), li2(0)
 {
-    assert(l1 <= l2);
-    assert(0 <= l1);
+    assert(0 <= Support<T>::l1);
     assert(l2 <= 1.);
 }
  
 template <typename T>
 PeriodicSupport<T>::PeriodicSupport(const T&a, const T &b, const T &ai, const T &bi)
-   : l1(a), l2(b), li1(ai), li2(bi)
+   : Support<T>(a,b), li1(ai), li2(bi)
 {
     assert(l1 <= l2);
     assert(0 <= l1);
@@ -41,13 +40,6 @@ PeriodicSupport<T>::PeriodicSupport(const T&a, const T &b, const T &ai, const T 
 template <typename T>
 PeriodicSupport<T>::~PeriodicSupport()
 {
-}
-
-template <typename T>
-T
-PeriodicSupport<T>::length() const
-{
-    return l2 - l1;
 }
 
 template <typename T>
@@ -198,7 +190,7 @@ T
 overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2, Support<T> &common)
 {
     // ''Normal'' supports:
-    if((supp1.gaplength() == 0) && (supp2.gaplength() == 0)){
+    if(supp1.gaplength() == 0){
         common.l1 = std::max(supp1.l1, supp2.l1);
         common.l2 = std::min(supp1.l2, supp2.l2);
         return common.l2 - common.l1;        

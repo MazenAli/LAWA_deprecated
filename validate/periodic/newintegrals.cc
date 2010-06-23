@@ -49,7 +49,7 @@ void printIntegrand(IntegralType I, const char* filename, T a, T b, T dx){
 int
 main(int argc, char *argv[])
 {
-    PrimalSpline phi1(3);
+    PrimalSpline phi1(2);
     DualSpline phi2(3,5);
     PrimalWavelet psi1(3,5);
     DualWavelet psi2(3,5);
@@ -58,13 +58,13 @@ main(int argc, char *argv[])
     singularPoints = 0., 1.;
     Function<double> Sin(f,singularPoints);
     cout << "SingPoints Sin: " << Sin.singularPoints << endl;
-    PeriodicExtension<double> PeriodicSin(Sin);
-    cout << "SingPoints PeriodicSin: " << PeriodicSin.singularPoints << endl;
     
     cout.precision(18);
 {
     Integral<double,Gauss,PrimalSpline,PrimalSpline> integral(phi1, phi1);
-    cout << integral(0,1,0,0) << endl;
+    printSpline(phi1, 1, 1, "Phi1_1_1.txt");
+    printSpline(phi1, 1, 0, "Phi1_1_0.txt");
+    cout << integral(1,1,1,0) << endl;
 }
 {
     Integral<double,CompositeTrapezoidal,DualSpline,DualSpline > integral(phi2, phi2);
@@ -88,10 +88,10 @@ main(int argc, char *argv[])
 }
 
 {
-    Integral<double,CompositeTrapezoidal,PrimalSpline,PeriodicExtension<double> > integral(phi1, PeriodicSin);
+    Integral<double,CompositeTrapezoidal,PrimalSpline,Function<double> > integral(phi1, Sin);
     printSpline(phi1, 3, 1,  "Phi1_3_1.txt");
-    printFunction<PeriodicExtension<T> >(PeriodicSin, "PeriodicSin.txt", -1, 1, 0.001);
-    printIntegrand<Integral<double,CompositeTrapezoidal,PrimalSpline,PeriodicExtension<double> > >(integral, "Integrand.txt", -1, 1, 0.001);
+    printFunction<Function<T> >(Sin, "Sin.txt", -1, 1, 0.001);
+    printIntegrand<Integral<double,CompositeTrapezoidal,PrimalSpline,Function<double> > >(integral, "Integrand.txt", -1, 1, 0.001);
     cout << integral(3,1) << endl;
 }
 
