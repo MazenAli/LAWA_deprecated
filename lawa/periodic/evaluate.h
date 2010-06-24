@@ -15,12 +15,31 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ */
 
-#include <lawa/periodic/dual/dual.h>
-#include <lawa/periodic/primal/primal.h>
-#include <lawa/periodic/evaluate.h>
-#include <lawa/periodic/fwt.h>
-#include <lawa/periodic/integrals.h>
-#include <lawa/periodic/periodicsupport.h>
-#include <lawa/periodic/refinementmatrix.h>
+#ifndef LAWA_INTERVAL_EVALUATE_H
+#define LAWA_INTERVAL_EVALUATE_H 1
+
+#include <lawa/basis.h>
+#include <lawa/enum.h>
+#include <lawa/flensforlawa.h>
+
+namespace lawa {
+
+template <typename X>
+typename X::ElementType   
+    evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, 
+             int j, const DenseVector<X> &coeffs, typename X::ElementType x, 
+             int deriv);
+
+template <typename X>
+typename X::ElementType
+    evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis, 
+             int J, const DenseVector<X> &coeffs, typename X::ElementType x, 
+             int deriv);
+
+} // namespace lawa
+
+#include <lawa/periodic/evaluate.tcc>
+
+#endif // LAWA_INTERVAL_EVALUATE_H
