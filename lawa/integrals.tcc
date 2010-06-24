@@ -125,7 +125,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     if (overlap(first.support(0,integral.k1),
                 second.support(0,integral.k2),
                 common) > 0) {
-        quadrature.n = pow2i<T>(Param<First>::resolution) * length;
+        quadrature.n = pow2i<T>(Param<First>::resolution) * common.length();
         if (IsWavelet<First>::value || IsWavelet<Second>::value) {
             quadrature.n *= 2;
         }
