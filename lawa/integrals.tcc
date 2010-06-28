@@ -83,7 +83,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
                second.singularPoints.engine().data(),
                second.singularPoints.engine().data() + nSecond,
                singularPoints.engine().data());
-
+               
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
         ret += quadrature(singularPoints(i),singularPoints(i+1));

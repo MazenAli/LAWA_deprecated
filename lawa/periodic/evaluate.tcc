@@ -18,6 +18,7 @@
  */
 
 namespace lawa {
+    
 
 template <typename X>
 typename X::ElementType
@@ -31,9 +32,10 @@ evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, int j,
     assert(x<=1.);
     
     //BSpline<T,Primal,Periodic,CDF> phi(mra._d,deriv);
+    int offsetI = mra.rangeI(mra.j0).firstIndex()-coeffs.firstIndex();
     T ret = 0.0;
     for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {
-        ret += coeffs(k) * mra.phi(x,j,k);
+        ret += coeffs(k-offsetI) * mra.phi(x,j,k);
     }
     return ret;
 }
@@ -53,12 +55,14 @@ evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis,
     const int j0 = basis.j0;
     basis.setLevel(j0);
     T ret = 0;
+    int offsetJ = basis.rangeJ(j0).firstIndex()-coeffs.firstIndex();
+    Range<int> range(coeffs.firstIndex(), coeffs.firstIndex() + basis.cardJ(j0) - 1);
     
-    ret += evaluate(basis.mra,j0,coeffs(basis.mra.rangeI(j0)),x,deriv);
+    ret += evaluate(basis.mra,j0,coeffs(range),x,deriv);
     //Wavelet<T,Primal,Periodic,CDF> psi(basis,deriv);
     for (int j=j0; j<=J-1; ++j) {
-        for (int k=1; k<=basis.cardJ(j); ++k) {
-            ret += coeffs(basis.mra.rangeI(j).lastIndex() + k) * basis.psi(x, j, k);
+        for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
+            ret += coeffs(basis.cardJ(j) + k - offsetJ) * basis.psi(x, j, k);
         }
     }
     return ret;

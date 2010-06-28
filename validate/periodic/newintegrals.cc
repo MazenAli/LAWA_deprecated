@@ -9,14 +9,24 @@ using namespace std;
 double
 f(double x)
 {
-    return std::sin(x);
+    return std::sin(2*M_PI*x);
+}
+
+double
+f2(double x)
+{
+    return x;
 }
 
 typedef double T;
 
 typedef BSpline<T,Primal,Periodic,CDF> PrimalSpline;
+typedef BSpline<T,Primal,R,CDF> PrimalRSpline;
+
+
 typedef BSpline<T,Dual,Periodic,CDF>   DualSpline;
 typedef Wavelet<T,Primal,Periodic,CDF> PrimalWavelet;
+typedef Wavelet<T,Primal,R,CDF> PrimalRWavelet;
 typedef Wavelet<T,Dual,Periodic,CDF>   DualWavelet;
 
 void printSpline( PrimalSpline phi,int j,int k, const char* filename){
@@ -49,6 +59,7 @@ void printIntegrand(IntegralType I, const char* filename, T a, T b, T dx){
 int
 main(int argc, char *argv[])
 {
+    
     PrimalSpline phi1(2);
     DualSpline phi2(3,5);
     PrimalWavelet psi1(3,5);
@@ -59,7 +70,18 @@ main(int argc, char *argv[])
     Function<double> Sin(f,singularPoints);
     cout << "SingPoints Sin: " << Sin.singularPoints << endl;
     
+    Function<double> X(f2, singularPoints);
+    
     cout.precision(18);
+    
+{
+    Integral<double, CompositeTrapezoidal, PrimalSpline, Function<double> > integral(phi1, X);
+    cout << integral(0,0) << endl << endl;
+    Integral<double, Gauss, PrimalSpline, Function<double> > integral2(phi1, X);
+    cout << integral2(0,0) << endl << endl;
+}    
+    
+
 {
     Integral<double,Gauss,PrimalSpline,PrimalSpline> integral(phi1, phi1);
     printSpline(phi1, 1, 1, "Phi1_1_1.txt");
@@ -89,16 +111,23 @@ main(int argc, char *argv[])
 
 {
     Integral<double,CompositeTrapezoidal,PrimalSpline,Function<double> > integral(phi1, Sin);
-    printSpline(phi1, 3, 1,  "Phi1_3_1.txt");
-    printFunction<Function<T> >(Sin, "Sin.txt", -1, 1, 0.001);
-    printIntegrand<Integral<double,CompositeTrapezoidal,PrimalSpline,Function<double> > >(integral, "Integrand.txt", -1, 1, 0.001);
-    cout << integral(3,1) << endl;
+    Integral<double, CompositeTrapezoidal, PrimalRSpline, Function<double> > integralR(phi1.phiR, Sin);
+    printSpline(phi1, 0, 1,  "Phi1_0_1.txt");
+    printFunction<Function<T> >(Sin, "Sin.txt", 0, 1, 0.001);
+    printIntegrand<Integral<double,CompositeTrapezoidal,PrimalSpline,Function<double> > >(integral, "Integrand.txt", 0, 1, 0.001);
+
+    cout << "Spline * Sin     : " << integral(1,1) << endl;
+    cout << "Spline * Sin on R: " << integralR(1,1) << endl;
+
 }
 
 {
     Integral<double,CompositeTrapezoidal,PrimalWavelet,Function<double> > integral(psi1, Sin);
-    cout << integral(0,0) << endl;
+    Integral<double,CompositeTrapezoidal,PrimalRWavelet,Function<double> > integralR(psi1.psiR, Sin);
+    cout << "Wavelet * Sin     : " << integral(0,1) << endl;
+    cout << "Wavelet * Sin on R: " << integralR(0,1) << endl;
 }
+
 {
     Integral<double,CompositeTrapezoidal,DualSpline,Function<double> > integral(phi2, Sin);
     cout << integral(0,1) << endl;
