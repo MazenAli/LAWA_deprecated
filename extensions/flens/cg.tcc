@@ -74,8 +74,8 @@ pcg(const Prec &P, const MA &A, VX &x, const VB &b,
     typename _cg<VB>::T pNormSquare, alpha, beta, rHatq, rHatqPrev;
     typename _cg<VB>::AuxVector r, rHat, p, Ap;
 
-    if (x.length()!=dim(A)) {
-        x.resize(dim(A));
+    if (x.length()!=A.numCols()) {
+        x.engine().resize(A.numCols());
     }
     r = b - A*x;
     rHat = transpose(P)*r;
