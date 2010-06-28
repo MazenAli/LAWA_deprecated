@@ -78,7 +78,7 @@ BSpline<T,Primal,R,CDF>::operator()(T x, int j, int k) const
                             * pow(T(d/2.-fabs(x)-p), d-1-deriv);
             }
 
-            return pow2ih<T>(j)* pow(pow2i<T>(j), deriv) * ret/factorial(d-1-deriv);
+            return pow2ih<T>(j)* pow2i<T>(deriv*j) * ret/factorial(d-1-deriv);
         }
         return pow2ih<T>(j)*ret;
     }
