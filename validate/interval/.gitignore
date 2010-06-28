@@ -1,5 +1,9 @@
 basis
 biorthogonality
+<<<<<<< HEAD
+=======
+bspline
+>>>>>>> master
 checksupports
 cio
 dualbspline
@@ -11,5 +15,8 @@ mra_
 primalbspline
 wavelet
 wavelet_
+<<<<<<< HEAD
 bspline
 
+=======
+>>>>>>> master

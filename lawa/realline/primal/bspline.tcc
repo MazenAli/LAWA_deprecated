@@ -77,7 +77,8 @@ BSpline<T,Primal,R,CDF>::operator()(T x, int j, int k) const
                 ret += sign * binomial(d, p)
                             * pow(T(d/2.-fabs(x)-p), d-1-deriv);
             }
-            return pow2ih<T>(j)*pow(pow2i<T>(j), deriv)*ret/factorial(d-1-deriv);
+
+            return pow2ih<T>(j)* pow(pow2i<T>(j), deriv) * ret/factorial(d-1-deriv);
         }
         return pow2ih<T>(j)*ret;
     }
