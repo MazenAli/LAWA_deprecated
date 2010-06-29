@@ -37,21 +37,13 @@ _integrate(Integral<T,Gauss,First,Second> &integral)
     const First &first = integral.first;
     const Second &second = integral.second;
     // quadrature with minimal order to guarantee exactness of integrals.
-    
-    if (IsPeriodic<First>::value) {
-        assert(IsPeriodic<Second>::value);
-        _adapt_k(first.support(integral.j1,integral.k1),
-                 second.support(integral.j2,integral.k2),
-                 integral.j1, integral.k1,
-                 integral.j2, integral.k2);
-    }
 
     /*static*/ Quadrature<T,Gauss,Integral<T,Gauss,First,Second> > quadrature(
                   integral,
                   iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
-    quadrature.setOrder(iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
+    //quadrature.setOrder(iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
 
-    // the (minimal) with of the polynomial pieces.
+    // the (minimal) width of the polynomial pieces.
     T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
 
     T ret = 0.;
@@ -72,13 +64,14 @@ template <typename T, QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<IsPrimal<First>::value && !PrimalOrDual<Second>::value, T>::Type
 _integrate(Integral<T,Quad,First,Second> &integral)
 {
+    
     const First &first = integral.first;
     const Second &second = integral.second;
     /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
 
-    assert(!IsPeriodic<First>::value);
     
     // merge singular points of bspline/wavelet and function to one list.
+    /* -> implizite Annahme: second.singularPoints sind schon sortiert!! */
     DenseVector<Array<T> > firstSingularPoints 
                                = first.singularSupport(integral.j1,integral.k1);
     int nFirst = firstSingularPoints.length(),
@@ -90,7 +83,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
                second.singularPoints.engine().data(),
                second.singularPoints.engine().data() + nSecond,
                singularPoints.engine().data());
-
+               
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
         ret += quadrature(singularPoints(i),singularPoints(i+1));
@@ -107,14 +100,6 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     const Second &second = integral.second;
     /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     
-    if (IsPeriodic<First>::value) {
-        assert(IsPeriodic<Second>::value);
-        _adapt_k(first.support(integral.j1,integral.k1),
-                 second.support(integral.j2,integral.k2),
-                 integral.j1, integral.k1,
-                 integral.j2, integral.k2);
-    }
-
     Support<T> common;
 
     if (overlap(first.support(integral.j1,integral.k1),
@@ -136,28 +121,15 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     const Second &second = integral.second;
    /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
 
-    if (IsPeriodic<First>::value) {
-        assert(IsPeriodic<Second>::value);
-        _adapt_k(first.support(integral.j1,integral.k1),
-                 second.support(integral.j2,integral.k2),
-                 integral.j1, integral.k1,
-                 integral.j2, integral.k2);
-    }
-
-    int length = overlap(first.support(0,integral.k1),
-                         second.support(0,integral.k2));
-    if (length>0) {
-        quadrature.n = pow2i<T>(Param<First>::resolution) * length;
+    Support<T> common;
+    if (overlap(first.support(0,integral.k1),
+                second.support(0,integral.k2),
+                common) > 0) {
+        quadrature.n = pow2i<T>(Param<First>::resolution) * common.length();
         if (IsWavelet<First>::value || IsWavelet<Second>::value) {
             quadrature.n *= 2;
         }
-
-        Support<T> supp1 = first.support(integral.j1,integral.k1);
-        Support<T> supp2 = second.support(integral.j2,integral.k2);
-    
-        T from = std::max(supp1.l1, supp2.l1);
-        T to = std::min(supp1.l2, supp2.l2);
-        return quadrature(from,to);
+        return quadrature(common.l1, common.l2);
     } else {
         return 0;
     }
@@ -172,8 +144,6 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     const Second &second = integral.second;
     /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
     quadrature.n = pow2i<T>(Param<First>::resolution)*(first.mask().length()-1);
-
-    assert(!IsPeriodic<First>::value);
 
     Support<T> supp = first.support(integral.j1,integral.k1);
     DenseVector<Array<T> > firstSupport(2);

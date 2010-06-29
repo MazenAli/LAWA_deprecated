@@ -17,41 +17,29 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_PERIODIC_DUAL_BSPLINE_H
-#define LAWA_PERIODIC_DUAL_BSPLINE_H 1
+#ifndef LAWA_INTERVAL_EVALUATE_H
+#define LAWA_INTERVAL_EVALUATE_H 1
 
+#include <lawa/basis.h>
+#include <lawa/enum.h>
 #include <lawa/flensforlawa.h>
-
-#include <lawa/periodic/periodicsupport.h>
-#include <lawa/periodic/dual/bspline.h>
 
 namespace lawa {
 
-template <typename T>
-struct BSpline<T,Dual,Periodic,CDF>
-{
-    typedef T    ElementType;
+template <typename X>
+typename X::ElementType   
+    evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, 
+             int j, const DenseVector<X> &coeffs, typename X::ElementType x, 
+             int deriv);
 
-    BSpline(int _d, int _d_);
-
-    virtual
-    ~BSpline();
-
-    T
-    operator()(T x, int j, int k) const;
-
-    PeriodicSupport<T>
-    support(int j, int k) const;
-    
-    const DenseVector<Array<T> > &
-    mask() const;
-
-    const int d, d_, mu;
-    const BSpline<T, Dual, R, CDF> phiR_;
-};
+template <typename X>
+typename X::ElementType
+    evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis, 
+             int J, const DenseVector<X> &coeffs, typename X::ElementType x, 
+             int deriv);
 
 } // namespace lawa
 
-#include <lawa/periodic/dual/bspline.tcc>
+#include <lawa/periodic/evaluate.tcc>
 
-#endif // LAWA_PERIODIC_DUAL_BSPLINE_H
+#endif // LAWA_INTERVAL_EVALUATE_H

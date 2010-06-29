@@ -20,6 +20,8 @@
 #ifndef LAWA_PERIODIC_PRIMAL_BSPLINE_H
 #define LAWA_PERIODIC_PRIMAL_BSPLINE_H 1
 
+#include <lawa/periodic/periodicsupport.h>
+
 namespace lawa {
 
 template <typename T>
@@ -27,7 +29,7 @@ struct BSpline<T,Primal,Periodic,CDF>
 {
     typedef T ElementType;
 
-    BSpline(int _d);
+    BSpline(int _d);                        // Periodized Bspline on [0,1]
 
     BSpline(int _d, int _deriv);
 
@@ -35,24 +37,23 @@ struct BSpline<T,Primal,Periodic,CDF>
     ~BSpline();
 
     T
-    operator()(T x, int j, int k) const;
+    operator()(T x, int j, int k) const;    // (cumulated) evaluation on [0,1]
 
-    Support<T>
-    support(int j, int k) const;
+    PeriodicSupport<T>
+    support(int j, int k) const;            // subset of [0,1], may be divided in 2 parts
 
     DenseVector<Array<T> >
-    singularSupport(int j, int k) const;
+    singularSupport(int j, int k) const;    // Points in [0,1]
 
     T
-    tic(int j) const;
+/**/tic(int j) const;                       // -> ???
 
     const DenseVector<Array<T> > &
-    mask() const;
+    mask() const;                           // mask of original Spline on R
 
     const int d, mu;
     const int deriv, polynomialOrder;
-    const int l1, l2;
-    const DenseVector<Array<T> > a;
+    const BSpline<T, Primal, R, CDF> phiR;  // ''original'' Bspline on R    
 };
 
 } // namespace lawa

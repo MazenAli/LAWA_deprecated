@@ -32,8 +32,7 @@ using namespace flens;
 template <typename T>
 BSpline<T,Primal,Periodic,CDF>::BSpline(int _d)
     : d(_d), mu(d&1), deriv(0), polynomialOrder(d),
-      l1(.5*(-d+mu)), l2(.5*(d+mu)),
-      a(_bspline_mask<T>(d))
+      phiR(_d)
 {
     assert(_d>0);
 }
@@ -41,8 +40,7 @@ BSpline<T,Primal,Periodic,CDF>::BSpline(int _d)
 template <typename T>
 BSpline<T,Primal,Periodic,CDF>::BSpline(int _d, int _deriv)
     : d(_d), mu(d&1), deriv(_deriv), polynomialOrder(d-deriv),
-      l1(.5*(-d+mu)), l2(.5*(d+mu)),
-      a(_bspline_mask<T>(d))
+      phiR(_d, _deriv)
 {
     assert(_d>0);
     assert(deriv>=0);
@@ -58,42 +56,64 @@ template <typename T>
 T
 BSpline<T,Primal,Periodic,CDF>::operator()(T x, int j, int k) const
 {
-    if (inner(x,support(j,k))) {
-        T ret = T(0);
-        x = pow2i<T>(j)*x-k - mu/2.;
-        if (deriv==0) {
-            x = fabs(x);
-            for (int p=0; p<=ifloor(d/2.-x); ++p) {
-                int sign = (p&1) ? -1 : 1;
-                ret +=   sign * binomial(d, p) * pow(T(d/2.-x-p), d-1);
-            }
-            ret /= factorial(d - 1);
-        } else {
-            for (int p=0; p<=ifloor(d/2.-fabs(x)); ++p) {
-                int sign = ( (p&1)==( (x>0)&&(deriv&1) ) ) ? 1 : -1;
-                ret += sign * binomial(d, p)
-                            * pow(T(d/2.-fabs(x)-p), d-1-deriv);
-            }
-            return ret/factorial(d-1-deriv);
-        }
-        return pow2ih<T>(j)*ret;
+    // maximal support: [0,1]
+    if((x < 0.) || (x > 1.)){
+        return 0.;
     }
-    return T(0);
+    
+    // add contributions of original spline on R
+    // = 'wrapping' around [0,1]
+    T val = 0;
+    for(int l = ifloor(phiR.support(j,k).l1); l < iceil(phiR.support(j,k).l2); ++l){
+        val += phiR(l+x, j, k);
+    }
+    return val;
+    
 }
 
 template <typename T>
-Support<T>
+PeriodicSupport<T>
 BSpline<T,Primal,Periodic,CDF>::support(int j, int k) const
 {
-    return pow2i<T>(-j) * Support<T>(l1 + k, l2 + k);
+    Support<T> suppR = phiR.support(j,k);
+    if(suppR.length() >= 1){
+        return PeriodicSupport<T>(0,1);
+    }
+    if(suppR.l1 < 0){
+        return PeriodicSupport<T>(0,1,suppR.l2, suppR.l1 + 1);
+    }
+    if(suppR.l2 > 1){
+        return PeriodicSupport<T>(0,1,suppR.l2 - 1, suppR.l1);
+    }
+    return PeriodicSupport<T>(suppR.l1, suppR.l2);
 }
 
 
 template <typename T>
 DenseVector<Array<T> >
 BSpline<T,Primal,Periodic,CDF>::singularSupport(int j, int k) const
-{
-    return linspace(support(j,k).l1, support(j,k).l2, d+1);
+{   
+    if((phiR.support(j,k).l1 >= 0) && (phiR.support(j,k).l2 <= 1)){
+         return linspace(support(j,k).l1, support(j,k).l2, d+1);
+    }
+    
+    std::list<T> temp;
+    DenseVector<Array<T> > singSuppR = linspace(phiR.support(j,k).l1, phiR.support(j,k).l2, d+1);
+    temp.push_back(0.);
+    temp.push_back(1.);
+    for(int i = singSuppR.firstIndex(); i <= singSuppR.lastIndex(); ++i){
+        temp.push_back(singSuppR(i) - ifloor(singSuppR(i)));
+    }
+    temp.sort();
+    temp.unique();
+    
+    DenseVector<Array<T> > singSupp(temp.size());
+    int i = 1;
+    for (typename std::list<T>::const_iterator it = temp.begin(); it != temp.end(); ++it, ++i) {
+        singSupp(i) = *it;
+    }
+    
+    return singSupp;
 }
 
 template <typename T>
@@ -107,7 +127,7 @@ template <typename T>
 const DenseVector<Array<T> > &
 BSpline<T,Primal,Periodic,CDF>::mask() const
 {
-    return a;
+    return phiR.a;
 }
 
 } // namespace lawa
