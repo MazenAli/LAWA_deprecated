@@ -116,7 +116,7 @@ Quadrature<T,CompositeTrapezoidal,Integrand>::operator()(T a, T b) const
     T h = (b-a) / n;
     T ret = .5 * h * integrand.integrand(a);
     a += h;
-    for (int i=2; i<n; ++i, a+=h) {
+    for (int i=1; i<n; ++i, a+=h) {
         ret += h * integrand.integrand(a);
     }
     ret += .5 * h * integrand.integrand(b);
