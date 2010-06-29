@@ -21,7 +21,7 @@ main(int argc, char *argv[])
     MRA<T,Dual,Interval,Dijkema> mra_(d,d_,j);
     mra_.enforceBoundaryCondition<DirichletBC>();
     GeMatrix<FullStorage<T,ColMajor> > DM0_;
-    densify(mra_.M0_,DM0_);
+    densify(cxxblas::NoTrans, mra_.M0_,DM0_);
     std::cerr << DM0_ << std::endl;
 /*
     BSpline<T,Dual,Interval,Dijkema> phi_(mra_);

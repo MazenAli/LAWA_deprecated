@@ -24,9 +24,9 @@
 
 namespace lawa {
 
-typedef double T;	
-typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrixT;
-typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
+// typedef double T;	
+// typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrixT;
+// typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
 extern flens::Underscore<int> _;
 
 } // namespace lawa

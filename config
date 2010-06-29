@@ -1,5 +1,5 @@
 TARGET = OSX
-COMPILER = icc
+COMPILER = gcc
 BLASLAPACK = platform
 
 ifeq ($(TARGET),OSX)
@@ -42,6 +42,6 @@ CXXFLAGS += $(DEBUGMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
-CXXFLAGS += -Wfatal-errors -pedantic -Wextra -std=c++98 -Wno-sign-compare 
+CXXFLAGS += -Wfatal-errors -pedantic -Wextra -std=c++98 -Wno-sign-compare \
+            -Wreturn-type
 CXXFLAGS += -O2 -DCHECK_INTERVAL_CONSTRUCTION 
-CXXFLAGS += -Wreturn-type

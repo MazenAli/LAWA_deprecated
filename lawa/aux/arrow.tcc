@@ -21,8 +21,8 @@ namespace lawa {
 
 template <cxxblas::StorageOrder Order, typename T>
 void
-arrow(const GeMatrix<FullStorage<T, Order> > &In,
-            GeMatrix<FullStorage<T, Order> > &Out)
+arrow(const flens::GeMatrix<flens::FullStorage<T, Order> > &In,
+               flens::GeMatrix<flens::FullStorage<T, Order> > &Out)
 {
     Out.engine().resize(In.numRows(), In.numCols(), In.firstRow(), In.firstCol());
     for (int i=In.firstRow(); i<=In.lastRow(); ++i) {

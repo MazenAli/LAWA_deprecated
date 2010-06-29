@@ -26,11 +26,12 @@ template <typename T>
 Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
     : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
-      min_j0(mra_.min_j0), j0(mra_.j0), _j(j0)
+      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(j0)
 {
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
     M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0);
+    setLevel(_j);
 }
 
 template <typename T>
@@ -42,19 +43,31 @@ Basis<T,Primal,Interval,Dijkema>::level() const
 
 template <typename T>
 void
-Basis<T,Primal,Interval,Dijkema>::setLevel(int j)
+Basis<T,Primal,Interval,Dijkema>::setLevel(int j) const
 {
-    if (j!=_j) {
+//    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
-    }
+        M1.setLevel(_j);
+        mra.setLevel(_j);
+        mra_.setLevel(_j);
+//    }
 }
 
 template <typename T>
 template <BoundaryCondition BC>
 void
-Basis<T,Primal,Interval,Dijkema>::enforceBC()
+Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
 {
+    if ((_bc(0)==0) && (_bc(1)==0)) {
+        _bc(0) = _bc(1) = 1;
+        mra.enforceBoundaryCondition<BC>();
+        mra_.enforceBoundaryCondition<BC>();
+        GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
+        initial_stable_completion(mra,mra_,Mj1,Mj1_);
+        M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0,1);
+        setLevel(_j);
+    }
 }
 
 // cardinalities of whole, left, inner, right index sets (primal).

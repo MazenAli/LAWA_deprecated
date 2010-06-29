@@ -164,12 +164,13 @@ MRA<T,Primal,Interval,Primbs>::level() const
 
 template <typename T>
 void
-MRA<T,Primal,Interval,Primbs>::setLevel(int j)
+MRA<T,Primal,Interval,Primbs>::setLevel(int j) const
 {
-    if (j!=_j) {
+//    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
-    }
+        M0.setLevel(_j);
+//    }
 }
 
 template <typename T>
@@ -208,10 +209,26 @@ MRA<T,Primal,Interval,Primbs>::_calcM0()
     FullColMatrix InvTrans = Transformation(_(Transformation.lastRow()-(d-1)+1,
                                               Transformation.lastRow()), _ );
     //--- inverse(InvTrans)
-    FullColMatrix Trans = InvTrans, TransTmp;
-    DenseVector<Array<int> > p(Trans.numRows());
-    trf(Trans, p);
-    tri(Trans, p);
+    FullColMatrix TransTmp = InvTrans, Trans, TransTmp2;
+    /*    
+        flens::DenseVector<Array<int> > p(Trans.numRows());
+        trf(Trans, p);
+        tri(Trans, p);
+    */
+    // Inversion using QR ... ----------------------------------
+        FullColMatrix I(TransTmp.numRows(),TransTmp.numRows());
+        I.diag(0) = 1;
+        flens::DenseVector<Array<T> > tau;
+        qrf(TransTmp, tau);
+        TransTmp2 = TransTmp;
+        orgqr(TransTmp, tau);
+
+        //Trans = transpose(TransTmp);
+        blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,TransTmp,I,0.,Trans);
+
+        blas::sm(Left,NoTrans,1.,TransTmp2.upper(),Trans);
+    // Inversion using QR done ... ----------------------------------
+
     Trans.engine().changeIndexBase(R.firstRow(),R.firstCol());
     R(_(Trans.firstRow(),Trans.lastRow()),
       _(Trans.firstCol(),Trans.lastCol())) = Trans;
@@ -240,22 +257,43 @@ MRA<T,Primal,Interval,Primbs>::_calcM0()
                                       RjPlus1.lastCol()-TransTmp.numCols()+1);
     RjPlus1(TransTmp) = TransTmp;
 
-    FullColMatrix Mj0(pow2i<T>(min_j0+1)-d+1, pow2i<T>(min_j0)-d+1);
+    FullColMatrix Mj0;
     FullColMatrix M0Tmp, Tmp = RjPlus1;
-    p.engine().resize(Tmp.numRows());
-    trf(Tmp,p);
-    tri(Tmp,p);
+    FullColMatrix TmpTmp = Tmp;
+    /*    
+        flens::DenseVector<Array<int> > p(Trans.numRows());
+        trf(Trans, p);
+        tri(Trans, p);
+    */
+    // Inversion using QR ... ----------------------------------
+        I.engine().resize(Tmp.numRows(),Tmp.numRows());
+        I.diag(0) = 1;
+        qrf(TmpTmp, tau);
+        TransTmp2 = TmpTmp;
+        orgqr(TmpTmp, tau);
+
+        //Trans = transpose(TransTmp);
+        blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,TmpTmp,I,0.,Tmp);
+
+        blas::sm(Left,NoTrans,1.,TransTmp2.upper(),Tmp);
+    // Inversion using QR done ... ----------------------------------
+
     blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,ExtM0,0.,M0Tmp);
     blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,M0Tmp,R,0.,Mj0);
+//    blas::scal(Const<T>::R_SQRT2, Mj0);
 
     // TODO: integrate boundary conditions in calculation process.
     if ((_bc(0)==DirichletBC) && (_bc(1)==DirichletBC)) {
-        FullColMatrix Mj0withBC = Mj0( _ , _(Mj0.firstCol()+1,Mj0.lastCol()-1));
-        Mj0withBC.engine().changeIndexBase(Mj0.firstRow(), Mj0.firstCol()+1);
-        M0 = RefinementMatrix<T,Interval,Primbs>(d-2, d-2, Mj0withBC, min_j0);
+        FullColMatrix Mj0withBC = Mj0( _(Mj0.firstRow()+1,Mj0.lastRow()-1) , 
+                                       _(Mj0.firstCol()+1,Mj0.lastCol()-1));
+        Mj0withBC.engine().changeIndexBase(Mj0.firstRow()+1, Mj0.firstCol()+1);
+        M0 = RefinementMatrix<T,Interval,Primbs>(d-1-_bc(0), d-1-_bc(1), 
+                                                 Mj0withBC, min_j0);
     } else {
-        M0 = RefinementMatrix<T,Interval,Primbs>(d-1, d-1, Mj0, min_j0);
+        M0 = RefinementMatrix<T,Interval,Primbs>(d-1-_bc(0), d-1-_bc(1), 
+                                                 Mj0, min_j0);
     }
+    M0.setLevel(_j);
 }
 
 } // namespace lawa

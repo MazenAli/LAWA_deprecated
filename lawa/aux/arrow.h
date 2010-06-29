@@ -27,8 +27,8 @@ namespace lawa {
 
 template <cxxblas::StorageOrder Order, typename T>
     void
-    arrow(const GeMatrix<FullStorage<T, Order> > &In,
-                GeMatrix<FullStorage<T, Order> > &Out);
+    arrow(const flens::GeMatrix<flens::FullStorage<T, Order> > &In,
+                flens::GeMatrix<flens::FullStorage<T, Order> > &Out);
 
 } // namespace lawa
 

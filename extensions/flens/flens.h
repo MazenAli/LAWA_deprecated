@@ -18,6 +18,13 @@
  */
 
 #include <extensions/flens/cg.h>
+#include <extensions/flens/crs.h>
 #include <extensions/flens/densefunctions.h>
+#include <extensions/flens/gmres.h>
+#include <extensions/flens/inv.h>
 #include <extensions/flens/lapack.h>
 #include <extensions/flens/lapack_flens.h>
+#include <extensions/flens/lapack_generic.h>
+#include <extensions/flens/sparsematrix.h>
+#include <extensions/flens/sparse_blas.h>
+#include <extensions/flens/sparse_blas_flens.h>

@@ -84,13 +84,14 @@ ifwt(const DenseVector<X> &x,
      DenseVector<Y> &y)
 {
     assert(j>=basis.j0);
+    typedef typename X::ElementType T;
     
     int n = x.length() / pow2i<T>(j-basis.j0);
     y = x;
     for (int l=basis.j0; l<=j; ++l) {
         Range<int> r = _(y.firstIndex(),y.firstIndex()+n-1);
         typename DenseVector<Y>::View yview = y(r);
-        DenseVector<Array<typename X::ElementType> > z = y(r);
+        DenseVector<Array<T> > z = y(r);
         reconstruct(z, basis, l, yview);
         n *= 2;
     }

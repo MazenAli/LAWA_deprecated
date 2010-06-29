@@ -58,7 +58,7 @@ Basis<T,Primal,Periodic,CDF>::rangeJ(int j) const
 {
     assert(j>=j0);
 
-    return Range<int>(0,pow2i<T>(j)-1);
+    return Range<int>(1,pow2i<T>(j));
 }
 
 } // namespace lawa

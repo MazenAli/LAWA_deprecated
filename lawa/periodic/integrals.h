@@ -20,4 +20,9 @@
 // periodic integrals can completely be reduced to integrals on R, so
 // we just need some internal routines, no additional interface.
 
+#ifndef LAWA_PERIODIC_INTEGRALS_H
+#define LAWA_PERIODIC_INTEGRALS_H 1
+
 #include <lawa/periodic/integrals.tcc>
+
+#endif // LAWA_PERIODIC_INTEGRALS_H

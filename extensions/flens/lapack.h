@@ -371,6 +371,14 @@ gesdd(SVectorsJob jobz,
       complex<double> *vt, int ldvt,
       complex<double> *work, int lwork, double *rwork, int *iwork);
 
+int
+gecon(char norm,
+    int n, double *a, int lda,
+    double anorm,
+    double *rcond,
+    double *work, int *iwork);
+
+
 } // namespace flens
 
 #endif // EXTENSIONS_FLENS_LAPACK_H

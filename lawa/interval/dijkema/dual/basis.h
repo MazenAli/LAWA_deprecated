@@ -36,11 +36,11 @@ class Basis<T,Dual,Interval,Dijkema>
         level() const;
 
         void
-        setLevel(int j);
+        setLevel(int j) const;
 
         template <BoundaryCondition BC>
             void
-            enforceBC();
+            enforceBoundaryCondition();
 
         // cardinalities of whole, left, inner, right index sets (primal).
         int
@@ -82,7 +82,7 @@ class Basis<T,Dual,Interval,Dijkema>
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 
-        int _j;                // the current level.
+        mutable int _j;                // the current level.
        
 };
  

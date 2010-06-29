@@ -65,7 +65,7 @@ class MRA<T,Dual,Interval,Dijkema>
         level() const;
 
         void
-        setLevel(int j);
+        setLevel(int j) const;
 
         template <BoundaryCondition BC>
             void
@@ -85,12 +85,12 @@ class MRA<T,Dual,Interval,Dijkema>
         
         const int l1, l2;        // support of phi  = [ l1, l2 ] (real line).
         const int l1_, l2_;      // support of phi  = [ l1, l2 ] (real line).
-
+public: // TO BE ELIMINATED !!!!!!!!!!!!!!
         DenseVector<Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 
-        int _j;                // the current level.
+        mutable int _j;                // the current level.
 };
 
 } // namespace lawa

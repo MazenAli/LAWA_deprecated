@@ -47,7 +47,7 @@ Wavelet<T,Primal,Interval,Cons>::operator()(T x, int j, int k) const
     assert(k>=basis.rangeJ(j).firstIndex());
     assert(k<=basis.rangeJ(j).lastIndex());
     assert(deriv>=0);
-    
+
     const typename DenseVector<Array<T> >::ConstView coeffs = basis.M1(j,_,k);
     T ret = 0;
     for (int r=coeffs.firstIndex(); r<=coeffs.lastIndex(); ++r) {
@@ -88,11 +88,11 @@ Wavelet<T,Primal,Interval,Cons>::singularSupport(int j, int k) const
     }
     if (k>pow2i<T>(j)-basis.M1.right.length()) {
         return linspace(1-pow2i<T>(-j-1)*(basis.M1.lengths(k-1-pow2i<T>(j))), 
-                        1., 
+                        1.,
                         2*basis.M1.lengths(k-1-pow2i<T>(j))+1.);
     }
-    return pow2i<T>(-j-1)*linspace(basis.M1.lengths(0)+1-basis.d+2*(k-basis.M1.left.lastIndex()-1), 
-                                   basis.M1.lengths(0)+basis.M1.leftband.length()+2*(k-basis.M1.left.lastIndex()-1),
+    return pow2i<T>(-j-1)*linspace(basis.M1.lengths(0)+1-basis.d+2*(k-basis.M1.left.lastIndex()-1.), 
+                                   basis.M1.lengths(0)+basis.M1.leftband.length()+2*(k-basis.M1.left.lastIndex()-1.),
                                    2*(basis.d+basis.d_)+1.);
 }
 

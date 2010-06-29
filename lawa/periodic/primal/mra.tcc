@@ -55,8 +55,7 @@ Range<int>
 MRA<T,Primal,Periodic,CDF>::rangeI(int j) const
 {
     assert(j>=j0);
-	assert(0);
-    return Range<int>(0,pow2i<T>(j)-1);
+    return Range<int>(1,pow2i<T>(j));
 }
 
 } // namespace lawa
