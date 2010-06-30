@@ -33,9 +33,9 @@ struct Function
 
     T
     operator()(T x) const;
-
-    const DenseVector<Array<T> > singularPoints;
+    
     T (*f)(T);
+    const DenseVector<Array<T> > singularPoints;
 };
 
 } // namespace lawa
