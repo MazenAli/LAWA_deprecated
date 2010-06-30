@@ -52,7 +52,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
     : d(_phi.d), d_(_phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
       deriv(0), polynomialOrder(d),
       vanishingMoments(d_), b(mask(d,d_)),
-      phi(d), phi_(d,d_)
+      phi(_phi), phi_(_phi_)
       
 {
 }
@@ -64,7 +64,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
     : d(_phi.d), d_(_phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
       deriv(_deriv), polynomialOrder(d-deriv),
       vanishingMoments(d_), b(mask(d,d_)),
-      phi(d, deriv), phi_(d,d_)
+      phi(_phi), phi_(_phi_)
 {    
     assert(deriv>=0);
 }

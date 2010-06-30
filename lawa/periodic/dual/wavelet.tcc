@@ -26,7 +26,7 @@ using namespace flens;
 template <typename T>
 Wavelet<T,Dual,Periodic,CDF>::Wavelet(int _d, int _d_)
     : d(_d), d_(_d_), mu(d&1),
-      psiR_(_d, _d_)//, phi(d), phi_(d,d_)
+      psiR_(_d, _d_)
 {
     assert(d<=d_);
     assert(((d+d_)&1)==0);
@@ -34,9 +34,9 @@ Wavelet<T,Dual,Periodic,CDF>::Wavelet(int _d, int _d_)
 
 template <typename T>
 Wavelet<T,Dual,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
-                               const BSpline<T,Dual,Periodic,CDF> &_phi_)
+                                      const BSpline<T,Dual,Periodic,CDF> &_phi_)
     : d(_phi.d), d_(_phi_.d_), mu(d&1), 
-      psiR_(_phi, _phi_) //, phi(d), phi_(d,d_)
+      psiR_(_phi, _phi_)
 {
 }
 

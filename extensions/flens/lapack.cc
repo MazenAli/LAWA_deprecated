@@ -1152,13 +1152,13 @@ gesdd(SVectorsJob jobz,
 
 int
 gecon(char norm,
-      int n, double *a, int lda,                  // A
-      double *anorm,                              // the norm of A
-      double *rcond,                              // reciprocal condition number
+      int n, double *a, int lda,                // A
+      double anorm,                             // the norm of A
+      double *rcond,                            // reciprocal condition number
       double *work, int *iwork)
 {
     int info;
-    dgecon_(&norm, &n, a, &lda, anorm, rcond, work, iwork, &info);
+    dgecon_(&norm, &n, a, &lda, &anorm, rcond, work, iwork, &info);
     return info;
 }
 

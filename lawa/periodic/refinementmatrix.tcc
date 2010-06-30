@@ -63,15 +63,20 @@ mv(Transpose transA, typename X::ElementType alpha,
         }
         int ly = y.length();
         if (la>ly) {
+            // TODO: eliminate z (only needed since y can be a view and 
+            // calculations are 0-based. Thus y can not be re-indexed.
+            DenseVector<Array<T> > z = y;
+            z.engine().changeIndexBase(0);
             for (int k=0; k<lx; ++k, ++xp) {
-                int pos = (y.lastIndex() - (-a.firstIndex() % ly) + 1 + 2*k)%ly;
+                int pos = (z.lastIndex() - (-a.firstIndex() % ly) + 1 + 2*k)%ly;
                 for (int i=a.firstIndex(); i<=a.lastIndex(); ++i) {
-                    if (pos>y.lastIndex()) {
-                        pos = y.firstIndex();
+                    if (pos>z.lastIndex()) {
+                        pos = z.firstIndex();
                     }
-                    y(pos++) += a(i) * *xp;
+                    z(pos++) += a(i) * *xp;
                 }
             }
+            y = z;
         } else {
             for (int k=0; k<lx; ++k, ++xp) {
                 int mMin = a.firstIndex() + 2*k;

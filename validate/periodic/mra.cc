@@ -4,13 +4,18 @@
 using namespace lawa;
 using namespace std;
 
+typedef double T;
+typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
+typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
+
+
 int
 main()
 {
     {
         int nj = 8, njp1 = 16;
         MRA<double,Primal,Periodic,CDF> mra(4,6);
-        FullColMatrixT DM0(njp1,nj,0,0);
+        FullColMatrix DM0(njp1,nj,0,0);
         DenseVectorT e(nj,0);
         for (int c=0; c<nj; ++c) {
             e(c) = 1;
@@ -23,7 +28,7 @@ main()
     {
         int nj = 8, njp1 = 16;
         MRA<double,Dual,Periodic,CDF> mra_(4,6);
-        FullColMatrixT DM0_(njp1,nj,0,0);
+        FullColMatrix DM0_(njp1,nj,0,0);
         DenseVectorT e(nj,0);
         for (int c=0; c<nj; ++c) {
             e(c) = 1;
@@ -36,7 +41,7 @@ main()
     {
         int nj = 32, njp1 = 64;
         Basis<double,Primal,Periodic,CDF> basis(4,6);
-        FullColMatrixT DM1(nj,njp1,0,0);
+        FullColMatrix DM1(nj,njp1,0,0);
         DenseVectorT e(njp1,0);
         for (int c=0; c<njp1; ++c) {
             e(c) = 1;
@@ -49,7 +54,7 @@ main()
     {
         int nj = 32, njp1 = 64;
         Basis<double,Dual,Periodic,CDF> basis_(4,6);
-        FullColMatrixT DM1_(nj,njp1,0,0);
+        FullColMatrix DM1_(nj,njp1,0,0);
         DenseVectorT e(njp1,0);
         for (int c=0; c<njp1; ++c) {
             e(c) = 1;

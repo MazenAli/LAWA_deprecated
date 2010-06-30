@@ -32,92 +32,171 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
 
     const RefinementMatrix<T,Interval,ConsPrimal> &M0 = mra.M0;
-    M0.setLevel(mra_.min_j0);
-    int d = mra.d, d_ = mra_.d_, l1 = mra.l1, l2 = mra.l2;
+    const int j = mra_.min_j0;
+    const int d = mra.d, d_ = mra_.d_;
+    const int l1 = mra.l1, l2 = mra.l2;
+    M0.setLevel(j);
 
-    FullColMatrix H(M0.numRows(), M0.numRows(), 
-                    M0.firstRow(), M0.firstRow());
-    FullColMatrix MM, MMTmp;
-    densify(M0, MM, M0.firstRow(), M0.firstCol());
-    FullColMatrix HHInv(M0.numRows(), M0.numRows(), 
-                        M0.firstRow(), M0.firstRow()),
-                  HHInvTmp;
-
+    
+//    FullColMatrix *MM = new FullColMatrix[d/2];
+    FullColMatrix MM[20];
+    MRA<T,Primal,Interval,ConsPrimal> _mra(mra.d, j); // TO BE ELIMINATED!!!!!!!!!!!!!!!!!!!!
+    densify(cxxblas::NoTrans, _mra.M0, MM[0], 1,1);
+    const int size = MM[0].numRows();
+    
+    FullColMatrix H(size,size);
+    FullColMatrix HInv(size,size);
+    FullColMatrix F(size, pow2i<T>(j));
     H.diag(0) = 1;
-    HHInv.diag(0) = 1;
-    for (int i=0; i<ifloor(mra.d/2.); ++i) {
-        for (int p=MM.firstRow()+d-1-i; p<=MM.lastRow()-1-i; ++p) {
-            if ((p-l1-i)%2==0) {
-                H(p,p+1) = -MM(p,(p-l1-i)/2) / MM(p+1,(p-l1-i)/2);
-            }
-        }
-        for (int p=MM.firstRow()+1+i; p<=MM.lastRow()-d+1+i; ++p) {
-            if ((p-l2+i)%2==0) {
-                H(p,p-1) = -MM(p,(p-l2+i)/2) / MM(p-1,(p-l2+i)/2);
-            }
-        }
+    HInv.diag(0) = 1;
 
-        DenseVector<Array<int> > p(H.numRows());
-        FullColMatrix HInv = H;
-        trf(HInv,p);
-        tri(HInv,p);
-
-        blas::mm(NoTrans, NoTrans, 1., HHInv, HInv, 0., HHInvTmp);
-        HHInv = HHInvTmp;
-
-        blas::mm(NoTrans, NoTrans, 1., H, MM, 0., MMTmp);
-        MM = MMTmp;
-        H.diag(1) = 0;
-        H.diag(-1) = 0;
-    }
-
-    FullColMatrix F(M0.numRows(), pow2i<T>(mra_.min_j0), M0.firstRow(), 0);
     if (d&1) {
-        for (int q=F.firstCol(); q<=F.lastCol(); ++q) {
-            if (q<pow2i<T>(mra_.min_j0-1)) {
-                F(2*q,q) = MM(2*q+1,q);
-                F(2*q+1,q) = -MM(2*q,q);
-            } else {
-                F(2*q,q) = -MM(2*q+1,q);
-                F(2*q+1,q) = MM(2*q,q); 
+        for (int i=0; i<=(d-1)/2-1; ++i) {
+            FullColMatrix Hi(size,size);
+            Hi.diag(0) = 1;
+            for (int p=1; p<=size; ++p) {
+                for (int q=1; q<=size; ++q) {
+                    if ((p==q+1) && ((p&1)==(i&1)) && (i<p) && (p<size-d+i+2)) {
+                        Hi(p,q) = -MM[i](p,(p+i)/2) / MM[i](p-1,(p+i)/2);
+                    }
+                    if ((p==q-1) && ((p&1)==((i-d)&1)) && (d-i<=p) && (p<size-i)) {
+                        Hi(p,q) = -MM[i](p,(p+d-i)/2) / MM[i](p+1,(p+d-i)/2);
+                    }
+                }
             }
+            FullColMatrix HiInv(size,size);
+            for (int p=1; p<=size; ++p) {
+                for (int q=1; q<=size; ++q) {
+                    if (p==q) {
+                        if (((p&1)==(i&1)) && (p>1)) {
+                            HiInv(p,q) = 1 / (1 - Hi(p-1,p)*Hi(p,p-1));
+                        } else if (((p&1)!=(i&1)) && (p<pow2i<T>(j+1)+d-1-1)) {
+                            HiInv(p,q) = 1 / (1 - Hi(p,p+1)*Hi(p+1,p));                            
+                        } else {
+                            HiInv(p,q) = 1;
+                        }
+                    }
+
+                    if ((p==q+1) && ((p&1)==(i&1)) && (p>1)) {
+                        HiInv(p,q) = -Hi(p,q) / (1 - Hi(p-1,p)*Hi(p,p-1));
+                    }
+                    if ((p==q-1) && ((p&1)==((i-d)&1)) && (p<(pow2i<T>(j+1)+d-1)-1)) {
+                        HiInv(p,q) = -Hi(p,q) / (1 - Hi(p,p+1)*Hi(p+1,p));
+                    }
+                }
+            }
+            FullColMatrix HTmp = H, HInvTmp = HInv;
+            blas::mm(NoTrans,NoTrans,1.,Hi,MM[i],0.,MM[i+1]);
+            blas::mm(NoTrans,NoTrans,1.,Hi,HTmp,0.,H);
+            blas::mm(NoTrans,NoTrans,1.,HInvTmp,HiInv,0.,HInv);
+            Hi.engine().fill(0);
         }
-    } else {
-        for (int q=F.firstCol(); q<=F.lastCol(); ++q) {
-            F(2*q+1,q) = 1.;
+
+        for (int p=F.firstRow(); p<=F.lastRow(); ++p) {
+            for (int q=F.firstCol(); q<=F.lastCol(); ++q) {
+                if ((p==2*q-1+(d-1)/2) && (q<=pow2i<T>(j-1))) {
+                    F(p,q) = MM[(d-1)/2](p+1,q+(d-1)/2);
+                }
+                if ((p==2*q-1+(d+1)/2) && (q<=pow2i<T>(j-1))) {
+                    F(p,q) = -MM[(d-1)/2](p-1,q+(d-1)/2);
+                }
+                if ((size-p+1==2*(pow2i<T>(j)-q+1)-1+(d-1)/2) 
+                 && (q>pow2i<T>(j-1))) {
+                    F(p,q) = MM[(d-1)/2](p-1,q+(d-1)/2);
+                }
+                if ((size-p+1==2*(pow2i<T>(j)-q+1)-1+(d+1)/2) 
+                 && (q>pow2i<T>(j-1))) {
+                    F(p,q) = -MM[(d-1)/2](p+1,q+(d-1)/2);
+                }
+            }
         }
     }
 
+    if ((d&1)==0) {
+        for (int i=0; i<=d/2-1; ++i) {
+            FullColMatrix Hi(size,size);
+            Hi.diag(0) = 1;
+            for (int p=1; p<=size; ++p) {
+                for (int q=1; q<=size; ++q) {
+                    if ((p==q+1) && ((p&1)==(i&1)) && (i<p) && (p<=size-d+i+1)) {
+                        Hi(p,q) = -MM[i](p,(p+i)/2) / MM[i](p-1,(p+i)/2);
+                    }
+                    if ((p==q-1) && ((p&1)==((i-d)&1)) && (d-1-i<p) && (p<=size-i)) {
+                        Hi(p,q) = -MM[i](p,(p+d-i)/2) / MM[i](p+1,(p+d-i)/2);
+                    }
+                }
+            }
+            FullColMatrix HiInv(size,size);
+            HiInv.diag(0) = 2;
+            cxxblas::geaxpy(cxxblas::ColMajor,NoTrans,size,size,-1.,
+                            Hi.engine().data(),size,
+                            HiInv.engine().data(),size);
+            FullColMatrix HTmp = H, HInvTmp = HInv;
+            blas::mm(NoTrans,NoTrans,1.,Hi,MM[0],0.,MM[i+1]);
+            blas::mm(NoTrans,NoTrans,1.,Hi,HTmp,0.,H);
+            blas::mm(NoTrans,NoTrans,1.,HInvTmp,HiInv,0.,HInv);
+            Hi.engine().fill(0);
+        }
+        
+        for (int p=F.firstRow(); p<=F.lastRow(); ++p) {
+            for (int q=F.firstCol(); q<=F.lastCol(); ++q) {
+                if (p==2*q-1+d/2) {
+                    F(p,q) = 1.;
+                }
+            }
+        }
+    }
+//    delete[] MM;
+    
     //--- finally setting up M1 and M1_ ----------------------------------------
     //--- M1
-    FullColMatrix Mj1initial;
-    blas::mm(NoTrans,NoTrans, 1., HHInv, F, 0., Mj1initial);
+    FullColMatrix Mj1Tmp, Mj1initial;
+    blas::mm(NoTrans,NoTrans, 1., HInv, F, 0., Mj1Tmp);
+    Mj1initial = Mj1Tmp(_(Mj1Tmp.firstRow()+mra_._bc(0), 
+                          Mj1Tmp.lastRow()-mra_._bc(1)), _ );
 
     FullColMatrix Mj0, Mj0_;
     const RefinementMatrix<T,Interval,ConsDual> &M0_ = mra_.M0_;
-    mra_.M0_.setLevel(mra_.min_j0);
-    
-    densify(M0, Mj0, M0.firstRow(), M0.firstCol());
-    densify(M0_, Mj0_, M0.firstRow(), M0.firstCol());
+    M0_.setLevel(j);
+    densify(cxxblas::NoTrans, M0, Mj0, M0.firstRow(), M0.firstCol());
+    densify(cxxblas::NoTrans, M0_, Mj0_, M0.firstRow(), M0.firstCol());
     FullColMatrix Tmp(M0.numRows(), M0_.numRows());
     Tmp.diag(0) = 1;
-    blas::mm(NoTrans,Trans, -.5, Mj0, Mj0_, 1., Tmp);
+    blas::mm(NoTrans,Trans, -1., Mj0, Mj0_, 1., Tmp);
     blas::mm(NoTrans, NoTrans, 1., Tmp, Mj1initial, 0., M1);
 
     //--- M1_
-    FullColMatrix Mj(pow2i<T>(mra_.min_j0+1)+l2-l1-1, 
-                     pow2i<T>(mra_.min_j0+1)+l2-l1-1);
+    FullColMatrix Mj(pow2i<T>(j+1)+l2-l1-1-mra_._bc(0)-mra_._bc(1),
+                     pow2i<T>(j+1)+l2-l1-1-mra_._bc(0)-mra_._bc(1));
     Mj( _ , _(1,M0.numCols())) = Mj0;
     Mj( _ , _(M0.numCols()+1, Mj.lastCol())) = M1;
-
     DenseVector<Array<int> > p(Mj.numRows());
-    FullColMatrix MjInv = Mj;
-    trf(MjInv,p);
-    tri(MjInv,p);
+    FullColMatrix MjInv, MjInvTmp = Mj, TransTmp2;
 
-    FullColMatrix Mj1_Tmp = MjInv(_(pow2i<T>(mra_.min_j0)+d-1+1,
-                                    pow2i<T>(mra_.min_j0+1)+d-1), _ );
+//    trf(MjInv,p);
+//    tri(MjInv,p);
+
+    // Inversion using QR ... ----------------------------------
+        FullColMatrix I(MjInvTmp.numRows(),MjInvTmp.numRows());
+        I.diag(0) = 1;
+        flens::DenseVector<Array<T> > tau;
+        qrf(MjInvTmp, tau);
+        TransTmp2 = MjInvTmp;
+        orgqr(MjInvTmp, tau);
+
+        //Trans = transpose(TransTmp);
+        blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,MjInvTmp,I,0.,MjInv);
+
+        blas::sm(Left,NoTrans,1.,TransTmp2.upper(),MjInv);
+    // Inversion using QR done ... ----------------------------------
+
+    FullColMatrix Mj1_Tmp = MjInv(_(pow2i<T>(j)+d-1+1-mra_._bc(0)-mra_._bc(1),
+                                    pow2i<T>(j+1)+d-1-mra_._bc(0)-mra_._bc(1)), _ );
     copy(Trans, Mj1_Tmp, M1_);
+//    std::cerr << "M1 = [" << M1 << "];" << std::endl;
+//    std::cerr << "M1_ = [" << M1_ << "];" << std::endl;
+    blas::mm(Trans,NoTrans,1.,M1,M1_,0.,Mj1Tmp);
+//    std::cerr << "ISC = [" << Mj1Tmp << "];" << std::endl;
 }
 
 } // namespace lawa

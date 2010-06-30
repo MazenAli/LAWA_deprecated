@@ -18,3 +18,4 @@
  */
 
 #include <lawa/interval/primbs/primal/mra.h>
+#include <lawa/interval/primbs/primal/basis.h>

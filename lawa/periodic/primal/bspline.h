@@ -53,9 +53,7 @@ struct BSpline<T,Primal,Periodic,CDF>
 
     const int d, mu;
     const int deriv, polynomialOrder;
-    const BSpline<T, Primal, R, CDF> phiR;  // ''original'' Bspline on R
-/**///const int l1, l2;                     // -> extern benötigt? 
-    
+    const BSpline<T, Primal, R, CDF> phiR;  // ''original'' Bspline on R    
 };
 
 } // namespace lawa

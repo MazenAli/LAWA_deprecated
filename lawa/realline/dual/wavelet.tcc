@@ -36,7 +36,7 @@ template <typename T>
 Wavelet<T,Dual,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
                                const BSpline<T,Dual,R,CDF> &_phi_)
     : d(_phi.d), d_(_phi_.d_), mu(d&1), l1_((2-(d+d_))/2), l2_((d+d_)/2),
-      b_(mask(d,d_)), phi(d), phi_(d,d_)
+      b_(mask(d,d_)), phi(_phi), phi_(_phi_)
 {
 }
 

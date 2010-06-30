@@ -27,7 +27,7 @@ template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_)
     : d(_d), d_(_d_), mu(d&1),    
       deriv(0), polynomialOrder(_d),
-      vanishingMoments(_d_), psiR(_d, _d_)//, phi(d), phi_(d,d_)
+      vanishingMoments(_d_), psiR(_d, _d_)
 {
     assert(d<=d_);
     assert(((d+d_)&1)==0);
@@ -37,7 +37,7 @@ template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_, int _deriv)
     : d(_d), d_(_d_), mu(d&1),     
       deriv(_deriv), polynomialOrder(_d-deriv),
-      vanishingMoments(_d_), psiR(_d, _d_, _deriv)//, phi(d), phi_(d,d_)
+      vanishingMoments(_d_), psiR(_d, _d_, _deriv)
 {
     assert(d<=d_);
     assert(((d+d_)&1)==0);
@@ -49,7 +49,7 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_p
                                  const BSpline<T,Dual,Periodic,CDF> &_phi_)
     : d(_phi.d), d_(_phi_.d_), mu(d&1),    
       deriv(0), polynomialOrder(d),
-      vanishingMoments(d_), psiR(_phi.phiR, _phi_.phiR_)//, phi(d), phi_(d_)      
+      vanishingMoments(d_), psiR(_phi.phiR, _phi_.phiR_) 
 {
 }
 
@@ -59,7 +59,7 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_p
                                  int _deriv)
     : d(_phi.d), d_(_phi_.d_), mu(d&1),    
       deriv(_deriv), polynomialOrder(d-deriv),
-      vanishingMoments(d_), psiR(_phi.phiR, _phi_.phiR_, _deriv)//, phi(d), phi_(d_)
+      vanishingMoments(d_), psiR(_phi.phiR, _phi_.phiR_, _deriv)
 {    
     assert(deriv>=0);
 }

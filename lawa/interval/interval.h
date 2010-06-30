@@ -19,7 +19,9 @@
 
 #include <lawa/interval/dijkema/dijkema.h>
 #include <lawa/interval/dku/dku.h>
+#include <lawa/interval/fwt.h>
 #include <lawa/interval/primal/primal.h>
 #include <lawa/interval/primbs/primbs.h>
 #include <lawa/interval/initial_stable_completion.h>
+#include <lawa/interval/evaluate.h>
 #include <lawa/interval/refinementmatrix.h>

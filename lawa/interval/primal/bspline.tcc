@@ -67,9 +67,10 @@ template <typename T, Construction Cons>
 DenseVector<Array<T> >
 BSpline<T,Primal,Interval,Cons>::singularSupport(int j, int k) const
 {
+    const int tics = (k<mra.d) ? k+1 : (k>pow2i<T>(j)) ? pow2i<T>(j)+mra.d-1-k+2 : mra.d+1;
     return linspace(pow2i<T>(-j) * std::max(0,k-mra.d),
                     pow2i<T>(-j) * std::min(T(k),pow2i<T>(j)),
-                    mra.d+1);
+                    tics);
 }
 
 template <typename T, Construction Cons>

@@ -111,6 +111,8 @@ template <typename T, typename Integrand>
 const T
 Quadrature<T,CompositeTrapezoidal,Integrand>::operator()(T a, T b) const
 {
+	assert(n>0);
+	
     T h = (b-a) / n;
     T ret = .5 * h * integrand.integrand(a);
     a += h;

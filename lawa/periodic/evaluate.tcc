@@ -31,11 +31,11 @@ evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, int j,
     assert(x>=0.);
     assert(x<=1.);
     
-    //BSpline<T,Primal,Periodic,CDF> phi(mra._d,deriv);
+    BSpline<T,Primal,Periodic,CDF> phi(mra._d, deriv);
     int offsetI = mra.rangeI(mra.j0).firstIndex()-coeffs.firstIndex();
     T ret = 0.0;
     for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {
-        ret += coeffs(k-offsetI) * mra.phi(x,j,k);
+        ret += coeffs(k-offsetI) * phi(x,j,k);
     }
     return ret;
 }
@@ -59,7 +59,7 @@ evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis,
     Range<int> range(coeffs.firstIndex(), coeffs.firstIndex() + basis.cardJ(j0) - 1);
     
     ret += evaluate(basis.mra,j0,coeffs(range),x,deriv);
-    //Wavelet<T,Primal,Periodic,CDF> psi(basis,deriv);
+    Wavelet<T,Primal,Periodic,CDF> psi(basis.d, basis.d_, deriv);
     for (int j=j0; j<=J-1; ++j) {
         for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
             ret += coeffs(basis.cardJ(j) + k - offsetJ) * basis.psi(x, j, k);

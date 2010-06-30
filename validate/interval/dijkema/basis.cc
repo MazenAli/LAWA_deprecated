@@ -23,7 +23,7 @@ main(int argc, char *argv[])
     Wavelet<T,Primal,Interval,Dijkema> psi(basis,deriv);
     
     GeMatrix<FullStorage<T,ColMajor> > DM1;
-    densify(basis.M1,DM1);
+    densify(cxxblas::NoTrans, basis.M1,DM1);
     std::cerr << DM1 << std::endl;
     
     std::cerr << basis.M1.rows() << "x" << basis.M1.cols() << std::endl;

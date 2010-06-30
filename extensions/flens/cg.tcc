@@ -33,9 +33,7 @@ cg(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     if (x.length()!=A.numCols()) {
         x.engine().resize(A.numCols());
     }
-//    if (x.length()!=dim(A)) {
-//        x.resize(dim(A));
-//    }
+
     r = A*x - b;
     p = -1*r;
     rNormSquare = r*r;

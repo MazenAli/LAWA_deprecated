@@ -48,10 +48,10 @@ class Wavelet<T,Dual,R,CDF>
 
         const DenseVector<Array<T> > &
         mask() const;
-        
+
         static DenseVector<Array<T> >
         mask(int d, int d_);
-        
+
         const int d, d_, mu;
         const int l1_, l2_;
         const DenseVector<Array<T> > b_;

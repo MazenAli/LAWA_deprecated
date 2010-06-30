@@ -20,10 +20,10 @@ main(int argc, char *argv[])
     GeMatrix<FullStorage<T,ColMajor> > DM0;
     
     MRA<T,Primal,Interval,Primbs> mra(d,d_);
-    densify(mra.M0, DM0, mra.M0.firstRow(), mra.M0.firstCol());
+    densify(cxxblas::NoTrans, mra.M0, DM0, mra.M0.firstRow(), mra.M0.firstCol());
     cout << DM0.rows() << "x" << DM0.cols() << DM0 << endl;
     mra.enforceBoundaryCondition<DirichletBC>();
-    densify(mra.M0, DM0, mra.M0.firstRow(), mra.M0.firstCol());
+    densify(cxxblas::NoTrans, mra.M0, DM0, mra.M0.firstRow(), mra.M0.firstCol());
     cout << DM0.rows() << "x" << DM0.cols() << DM0 << endl;
     return 0;
 }

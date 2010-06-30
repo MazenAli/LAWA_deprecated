@@ -47,7 +47,6 @@ struct BSpline<T,Dual,Periodic,CDF>
     mask() const;
 
     const int d, d_, mu;
-    //const int l1_, l2_;
     const BSpline<T, Dual, R, CDF> phiR_;
 };
 

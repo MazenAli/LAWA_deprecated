@@ -33,14 +33,15 @@ template <typename T, Construction Cons>
 RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
                                 int nLeft, int nRight,
                                 const GeMatrix<FullStorage<T, ColMajor> > &A,
-                                int j0)
+                                int j0, int bc)
     : left(nLeft, (nLeft>0) ? A.firstCol() : 1), 
       right(nRight, (nRight>0) ? A.lastCol()-nRight+1 : A.lastCol()+2),
       lengths(_(-nRight, nLeft)),
       _j0(j0), _j(j0),
       _firstRow(A.firstRow()), _firstCol(A.firstCol()),
       _lastRow(A.lastRow()), _lastCol(A.lastCol()),
-      _additionalRows(0), _additionalCols(0)
+      _additionalRows(0), _additionalCols(0),
+      _bc(bc)
 {
     assert(nLeft>=0);
     assert(nRight>=0);
@@ -51,13 +52,13 @@ RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
     _extractMasks(A);
 
     for (int i=left.firstIndex(); i<=left.lastIndex(); ++i) {
-        lengths(1+i-left.firstIndex()) = left(i).length();
+        lengths(1+i-left.firstIndex()) = left(i).length()+_bc;
     }
 
     lengths(0) = leftband.firstIndex()-A.firstRow();
     
     for (int i=right.firstIndex(); i<=right.lastIndex(); ++i) {
-        lengths(-nRight+i-right.firstIndex()) = right(i).length();
+        lengths(-nRight+i-right.firstIndex()) = right(i).length()+_bc;
     }
 }
 
@@ -162,19 +163,18 @@ RefinementMatrix<T,Interval,Cons>::setLevel(int j) const
 {
     if (j<_j) {
         assert(j>=_j0);
-        for (int l=_j0; l>j; --l) {
+        for (int l=_j-1; l>=j; --l) {
             _additionalCols -= pow2i<T>(l);
         }
-        _additionalRows -= 2*_additionalCols;
+        _additionalRows = 2*_additionalCols;
         _j = j;
         return;
     }
     if (j>_j) {
-        assert(j>=_j0);
-        for (int l=_j0; l<j; ++l) {
+        for (int l=_j; l<j; ++l) {
             _additionalCols += pow2i<T>(l);
         }
-        _additionalRows += 2*_additionalCols;
+        _additionalRows = 2*_additionalCols;
         _j = j;
         return;
     }
@@ -193,6 +193,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
             assert(r>=A.firstRow());
         }
         left(c) = A(_(A.firstRow(),r),c);
+        left(c).engine().changeIndexBase(A.firstRow()+_bc);
     }
     
     // extract right block
@@ -203,6 +204,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
             assert(r<=A.lastRow());
         }
         right(c) = A(_(r,A.lastRow()), c);
+        right(c).engine().changeIndexBase(r+_bc);
     }
     
     // extract band (left to middle)
@@ -218,6 +220,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
         assert(last>=A.firstRow());
     }
     leftband = A(_(first,last), c);
+    leftband.engine().changeIndexBase(first+_bc);
 #ifdef CHECK_INTERVAL_CONSTRUCTION
     for (++c; c<=(A.firstCol()+A.lastCol())/2; ++c) {
         int i=leftband.firstIndex();
@@ -241,6 +244,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
         assert(last>=A.firstRow());
     }
     rightband = A(_(first,last), c);
+    rightband.engine().changeIndexBase(first+_bc);
 #ifdef CHECK_INTERVAL_CONSTRUCTION
     for (--c; c>(A.firstCol()+A.lastCol())/2; --c) {
         int i=rightband.firstIndex();
@@ -250,6 +254,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
         }
     }
     assert(leftband.length()==rightband.length());
+//    assert(leftband.firstIndex()-A.firstRow()==rightband.lastIndex()-A.lastRow());
 #endif
 
 }
@@ -288,7 +293,7 @@ mv(Transpose transA, typename X::ElementType alpha,
         }
 
         // central band (up to middle)
-        int iy = A.leftband.firstIndex()-A.firstRow();
+        int iy = A.leftband.firstIndex()-A.firstRow()-A._bc;
         int n = A.leftband.length();
         int middle = x.length()/2;        
         for (int c=A.left.lastIndex()+1; c<=middle; ++c, iy+=2) {
@@ -325,7 +330,6 @@ mv(Transpose transA, typename X::ElementType alpha,
             y.engine().changeIndexBase(A.firstCol());
         }
         int iy = y.firstIndex();
-
         // left upper block
         for (int c=A.left.firstIndex(); c<=A.left.lastIndex(); ++c, ++iy) {
             int n = A.left(c).length();
@@ -336,17 +340,17 @@ mv(Transpose transA, typename X::ElementType alpha,
         }
 
         // central band (up to middle)
-        int middle = x.length()/2;
+        int middle = y.length()/2;
         int ix = A.leftband.firstIndex() - A.firstRow();
-        for (int i=iy; i<=middle; ++i, ix+=2) {
+        for (int i=iy; i<=middle; ++i, ix+=2, ++iy) {
             cxxblas::dot(A.leftband.length(),
                          A.leftband.engine().data(), 1,
                          x.engine().data()+ix, 1,
                          y(iy));
         }
         // central band (right of middle)
-        int end = A.left.firstIndex() + x.length() - A.right.length();
-        for (int i=middle+1; i<end; ++i, ix+=2) {
+        int end = A.left.firstIndex() + y.length() - A.right.length();
+        for (int i=middle+1; i<end; ++i, ix+=2, ++iy) {
             cxxblas::dot(A.rightband.length(),
                          A.rightband.engine().data(), 1,
                          x.engine().data()+ix, 1,
@@ -358,7 +362,7 @@ mv(Transpose transA, typename X::ElementType alpha,
             int n = A.right(c).length();
             cxxblas::dot(n, 
                          A.right(c).engine().data(), 1,
-                         x.engine().data() + A.numRows() - n + 1, 1, 
+                         x.engine().data() + A.numRows() - n, 1, 
                          y(iy));
         }
     }

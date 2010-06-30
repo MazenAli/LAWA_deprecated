@@ -66,13 +66,9 @@ class Wavelet<T,Primal,Periodic,CDF>
         mask(int d, int d_);
 
         const int d, d_, mu;
-        //const int l1, l2;
         const int deriv, polynomialOrder;
         const int vanishingMoments;
         const Wavelet<T, Primal, R, CDF> psiR;
-
-        //const BSpline<T,Primal,Periodic,CDF> phi;
-        //const BSpline<T,Dual,Periodic,CDF> phi_;
 };
 
 } // namespace lawa

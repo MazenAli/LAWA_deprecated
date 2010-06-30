@@ -1,5 +1,5 @@
-#ifndef LAWA_PERIODICSUPPORT_H
-#define LAWA_PERIODICSUPPORT_H 1
+#ifndef LAWA_PERIODIC_PERIODICSUPPORT_H
+#define LAWA_PERIODIC_PERIODICSUPPORT_H 1
 
 #include <lawa/flensforlawa.h>
 #include <lawa/support.h>
@@ -97,4 +97,4 @@ template <typename T>
 
 #include <lawa/periodic/periodicsupport.tcc>
 
-#endif // LAWA_PERIODICSUPPORT_H
+#endif // LAWA_PERIODIC_PERIODICSUPPORT_H

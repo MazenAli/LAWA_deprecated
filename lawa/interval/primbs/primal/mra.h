@@ -67,7 +67,7 @@ class MRA<T,Primal,Interval,Primbs>
         level() const;
 
         void
-        setLevel(int j);
+        setLevel(int j) const;
 
         template <BoundaryCondition BC>
             void
@@ -90,7 +90,7 @@ class MRA<T,Primal,Interval,Primbs>
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 
-        int _j;                // the current level.
+        mutable int _j;                // the current level.
 };
 
 } // namespace lawa
