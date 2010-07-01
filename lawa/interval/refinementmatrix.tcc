@@ -342,21 +342,20 @@ mv(Transpose transA, typename X::ElementType alpha,
         // central band (up to middle)
         int middle = y.length()/2;
         int ix = A.leftband.firstIndex() - A.firstRow();
-        for (int i=iy; i<=middle; ++i, ix+=2, ++iy) {
+        for (int i=A.left.length()+1; i<=middle; ++i, ix+=2, ++iy) {
             cxxblas::dot(A.leftband.length(),
                          A.leftband.engine().data(), 1,
                          x.engine().data()+ix, 1,
                          y(iy));
         }
         // central band (right of middle)
-        int end = A.left.firstIndex() + y.length() - A.right.length();
-        for (int i=middle+1; i<end; ++i, ix+=2, ++iy) {
+        int end = y.length() - A.right.length();
+        for (int i=middle+1; i<=end; ++i, ix+=2, ++iy) {
             cxxblas::dot(A.rightband.length(),
                          A.rightband.engine().data(), 1,
                          x.engine().data()+ix, 1,
                          y(iy));
         }
-
         // right lower block
         for (int c=A.right.firstIndex(); c<=A.right.lastIndex(); ++c, ++iy) {
             int n = A.right(c).length();
@@ -365,6 +364,7 @@ mv(Transpose transA, typename X::ElementType alpha,
                          x.engine().data() + A.numRows() - n, 1, 
                          y(iy));
         }
+		std::cerr << "done" << std::endl;
     }
 }
 

@@ -127,7 +127,7 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
                 }
             }
             FullColMatrix HiInv(size,size);
-            HiInv.diag(0) = 2;
+            HiInv.diag(0) = 2.;
             cxxblas::geaxpy(cxxblas::ColMajor,NoTrans,size,size,-1.,
                             Hi.engine().data(),size,
                             HiInv.engine().data(),size);
@@ -172,10 +172,7 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     Mj( _ , _(M0.numCols()+1, Mj.lastCol())) = M1;
     DenseVector<Array<int> > p(Mj.numRows());
     FullColMatrix MjInv, MjInvTmp = Mj, TransTmp2;
-
-//    trf(MjInv,p);
-//    tri(MjInv,p);
-
+    
     // Inversion using QR ... ----------------------------------
         FullColMatrix I(MjInvTmp.numRows(),MjInvTmp.numRows());
         I.diag(0) = 1;
@@ -193,10 +190,9 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     FullColMatrix Mj1_Tmp = MjInv(_(pow2i<T>(j)+d-1+1-mra_._bc(0)-mra_._bc(1),
                                     pow2i<T>(j+1)+d-1-mra_._bc(0)-mra_._bc(1)), _ );
     copy(Trans, Mj1_Tmp, M1_);
-//    std::cerr << "M1 = [" << M1 << "];" << std::endl;
-//    std::cerr << "M1_ = [" << M1_ << "];" << std::endl;
-    blas::mm(Trans,NoTrans,1.,M1,M1_,0.,Mj1Tmp);
-//    std::cerr << "ISC = [" << Mj1Tmp << "];" << std::endl;
+    blas::scal(.5,M1_);
+    blas::scal(2,M1);
+//    blas::mm(Trans,NoTrans,1.,M1,M1_,0.,Mj1Tmp);
 }
 
 } // namespace lawa

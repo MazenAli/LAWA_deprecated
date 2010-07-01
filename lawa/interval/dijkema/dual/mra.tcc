@@ -36,7 +36,7 @@ MRA<T,Dual,Interval,Dijkema>::MRA(int _d, int _d_, int j)
       l1((mu-d)/2), l2((mu+d)/2),
       l1_(l1-d_+1), l2_(l2+d_-1),
       _bc(2,0), _j(j0)
-{
+{    
     assert(d>1);
     assert((d+d_)%2==0);
     assert(_j>=min_j0);
@@ -474,7 +474,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., Mj0_, ExtM0_, 0., M0_Tmp);
     blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., M0_Tmp, R_, 0., Mj0_);
     Mj0_.engine().changeIndexBase(1+_bc(0),1+_bc(1));
-//    blas::scal(Const<T>::R_SQRT2, Mj0_);
+    blas::scal(Const<T>::R_SQRT2, Mj0_);
     M0_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2-_bc(0), d+d_-2-_bc(1), 
                                                Mj0_, min_j0);
     setLevel(_j);

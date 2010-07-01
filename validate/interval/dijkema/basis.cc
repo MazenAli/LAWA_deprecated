@@ -20,12 +20,12 @@ main(int argc, char *argv[])
     int deriv = atoi(argv[4]);
 
     Basis<T,Primal,Interval,Dijkema> basis(d,d_,j);
-    Wavelet<T,Primal,Interval,Dijkema> psi(basis,deriv);
+    //Wavelet<T,Primal,Interval,Dijkema> psi(basis,deriv);
     
     GeMatrix<FullStorage<T,ColMajor> > DM1;
     densify(cxxblas::NoTrans, basis.M1,DM1);
     std::cerr << DM1 << std::endl;
-    
+/*    
     std::cerr << basis.M1.rows() << "x" << basis.M1.cols() << std::endl;
     std::cerr << basis.M1.leftband.firstIndex() << "," << basis.M1.leftband.lastIndex() << " " << basis.M1.leftband << std::endl;
     cout.precision(18);
@@ -50,5 +50,6 @@ main(int argc, char *argv[])
         std::cerr << "right: " << k << ": " << x << " " << psi.support(j,k) << std::endl;
         assert(fabs(psi.support(j,k).l2-x)<=pow2i<T>(-j-2));
     }
+*/
     return 0;
 }
