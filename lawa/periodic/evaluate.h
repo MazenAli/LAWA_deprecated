@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_INTERVAL_EVALUATE_H
-#define LAWA_INTERVAL_EVALUATE_H 1
+#ifndef LAWA_PERIODIC_EVALUATE_H
+#define LAWA_PERIODIC_EVALUATE_H 1
 
 #include <lawa/basis.h>
 #include <lawa/enum.h>
@@ -42,4 +42,4 @@ typename X::ElementType
 
 #include <lawa/periodic/evaluate.tcc>
 
-#endif // LAWA_INTERVAL_EVALUATE_H
+#endif // LAWA_PERIODIC_EVALUATE_H

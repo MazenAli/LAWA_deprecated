@@ -31,7 +31,7 @@ evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, int j,
     assert(x>=0.);
     assert(x<=1.);
     
-    BSpline<T,Primal,Periodic,CDF> phi(mra._d, deriv);
+    BSpline<T,Primal,Periodic,CDF> phi(mra.d, deriv);
     int offsetI = mra.rangeI(mra.j0).firstIndex()-coeffs.firstIndex();
     T ret = 0.0;
     for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {
