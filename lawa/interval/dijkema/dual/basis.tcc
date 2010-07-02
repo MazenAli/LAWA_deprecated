@@ -64,7 +64,11 @@ Basis<T,Dual,Interval,Dijkema>::enforceBoundaryCondition()
         mra_.enforceBoundaryCondition<BC>();
         GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
-        M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0,1);
+		std::cerr << Mj1_.rows() << "x" << Mj1_.cols() << std::endl;
+		std::cerr << "Mj1_ = [" << Mj1_ << "];" << std::endl;
+		std::cerr << Mj1.rows() << "x" << Mj1.cols() << std::endl;
+		std::cerr << "Mj1 = [" << Mj1 << "];" << std::endl;
+        M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0);
         setLevel(_j);
     }
 }

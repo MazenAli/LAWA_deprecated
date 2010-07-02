@@ -83,7 +83,6 @@ eval(const T* mask, int length, int start, int end, int level)
 
   for(m=1; m<=level; m++)
     {
-      std::cerr << m << std::endl;
       newv->level=m;
       newv->start=start;
       newv->end=end;

@@ -80,9 +80,9 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
 {
     assert(d>1);
     assert(_j>=min_j0);
-    setLevel(_j);
     
     _calcM0();
+    setLevel(_j);
 }
 
 template <typename T>
@@ -280,7 +280,7 @@ MRA<T,Primal,Interval,Primbs>::_calcM0()
 
     blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,ExtM0,0.,M0Tmp);
     blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,M0Tmp,R,0.,Mj0);
-//    blas::scal(Const<T>::R_SQRT2, Mj0);
+    blas::scal(Const<T>::R_SQRT2, Mj0);
 
     // TODO: integrate boundary conditions in calculation process.
     if ((_bc(0)==DirichletBC) && (_bc(1)==DirichletBC)) {
