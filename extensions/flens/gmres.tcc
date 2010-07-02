@@ -26,7 +26,7 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
 {
     typedef typename _gmres<MA>::T              T;
     typedef DenseVector<Array<T> >              DeVector;
-    typedef GeMatrix<FullStorage<T, ColMajor> > DeMatrix;
+    typedef GeMatrix<FullStorage<T, cxxblas::ColMajor> > DeMatrix;
 
     int N = b.length();
     if (maxIterations==-1) {
@@ -147,7 +147,7 @@ int pgmres (const Prec &P, const MA &A, VX &x, const VB &b,
 {
     typedef typename _gmres<MA>::T              T;
     typedef DenseVector<Array<T> >              DeVector;
-    typedef GeMatrix<FullStorage<T, ColMajor> > DeMatrix;
+    typedef GeMatrix<FullStorage<T, cxxblas::ColMajor> > DeMatrix;
 
     int N = b.length();
     if (maxIterations==-1) {
