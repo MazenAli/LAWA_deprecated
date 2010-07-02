@@ -35,11 +35,19 @@ main(int argc, char *argv[])
     std::cerr << basis.M1.leftband << psi.b << std::endl;
     std::cerr << basis_.M1_.leftband << psi_.b_ << std::endl;
 
-    GeMatrix<FullStorage<T,ColMajor> > DM1, DM1_, I;
+    GeMatrix<FullStorage<T,ColMajor> > DM0, DM0_, DM1, DM1_, I;
+    densify(cxxblas::NoTrans, basis.mra.M0, DM0);
+    densify(cxxblas::NoTrans, basis_.mra_.M0_, DM0_);
     densify(cxxblas::NoTrans, basis.M1, DM1);
     densify(cxxblas::NoTrans, basis_.M1_, DM1_);
-    blas::mm(Trans,NoTrans,1.,DM1,DM1_,0.,I);
-    std::cerr << I << std::endl;
+    std::cerr << "M0 = " << DM0 << std::endl;
+    std::cerr << "M0_ = " << DM0_ << std::endl;
+    std::cerr << "M1 = " << DM1 << std::endl;
+    std::cerr << "M1_ = " << DM1_ << std::endl;
+    blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,DM0,DM0_,0.,I);
+    std::cerr << "I0 = " << I << std::endl;
+    blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,DM1,DM1_,0.,I);
+    std::cerr << "I1 = " << I << std::endl;
 
     DenseVectorT coeffs(basis.mra.rangeI(J)), dec;
     coeffs(k) = 1.;
@@ -51,8 +59,6 @@ main(int argc, char *argv[])
     std::cerr << coeffs << std::endl;
         
     fwt(coeffs,basis_,J-1,dec);
-    std::cerr << dec << std::endl;
-    dec(dec.firstIndex()+15) = 0.;
     std::cerr << dec << std::endl;
     x = 0.0, h = 1./1024.;
     for (T x=0.0; x<=1.; x+=h) {
