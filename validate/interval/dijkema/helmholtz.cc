@@ -10,8 +10,8 @@ typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
 
 const Construction Cons = Dijkema;
 
-int nr = 5;
-T c = 0.0;
+int nr = 6;
+T c = 0.1;
 
 extern "C" {
     T
@@ -97,6 +97,34 @@ exact( T x, int deriv ) {
                 return 18;
             } else {
                 return 8;
+            }
+        } else {
+            assert(0);
+        }
+    } else if (nr == 7) {
+        if (deriv==0) {
+            if (x<=0.3) {
+                return 4*x*x;
+            } else if ((x>0.3) && (x<=0.5)) {
+                return 9*(x-0.5)*(x-0.5);
+            } else {
+                return 0;
+            }
+        } else if (deriv==1) {
+            if (x<=0.3) {
+                return 8*x;
+            } else if ((x>0.3) && (x<=0.5)) {
+                return 18*(x-0.5);
+            } else {
+                return 0;
+            }
+        } else if (deriv==2) {
+            if (x<=0.3) {
+                return 8;
+            } else if ((x>0.3) && (x<=0.5)) {
+                return 18;
+            } else {
+                return 0;
             }
         } else {
             assert(0);
@@ -225,6 +253,10 @@ main(int argc, char *argv[])
         rhs_sing_pts.engine().resize(2);
         rhs_sing_pts = 0.3, 0.7;
     }
+    if (nr==7) {
+        rhs_sing_pts.engine().resize(2);
+        rhs_sing_pts = 0.3;
+    }
     Integral<T,Gauss,
              BSpline<T,Primal,Interval,Primbs>,
              Function<T> > integralsff(rhs_phi,rhs_f);
@@ -235,6 +267,8 @@ main(int argc, char *argv[])
         } else if (nr==6) {
             rhs(k1) += 6*rhs_phi(0.3,j0,k1);
             rhs(k1) += 6*rhs_phi(0.7,j0,k1);
+        } else if (nr==7) {
+            rhs(k1) += 6*rhs_phi(0.3,j0,k1);
         }
     }
     cout << "SF rhs end -------------------" << endl;
@@ -245,7 +279,7 @@ main(int argc, char *argv[])
              Wavelet<T,Primal,Interval,Cons>,
              Function<T> >  integralwf(rhs_psi, rhs_f);
     for (int j1 = j0; j1 <= J-1; ++j1) {
-        std::cout << j1 << std::endl;
+        cout << "j = " << j1 << ", ";
         for (int k1 = basis.rangeJ(j1).firstIndex(); k1 <= basis.rangeJ(j1).lastIndex(); ++k1) {
             rhs(mra.rangeI(j1).lastIndex()+k1) = integralwf(j1, k1);
             if (nr == 5) {
@@ -253,10 +287,13 @@ main(int argc, char *argv[])
             } else if (nr==6) {
                 rhs(mra.rangeI(j1).lastIndex()+k1) += 6*rhs_psi(0.3,j1,k1);
                 rhs(mra.rangeI(j1).lastIndex()+k1) += 6*rhs_psi(0.7,j1,k1);
+            } else if (nr==7) {
+                rhs(mra.rangeI(j1).lastIndex()+k1) += 6*rhs_psi(0.3,j1,k1);
             }            
         }
     }
-    cout << "wavelets rhs end -------------" << endl;
+
+    cout << endl << "wavelets rhs end -------------" << endl;
 /*
     DenseVector<Array<T> > diagonal(N);
     for (int k1 = basis.rangeI(j0).firstIndex(); k1 <= basis.rangeI(j0).lastIndex(); ++k1) {
@@ -289,7 +326,7 @@ main(int argc, char *argv[])
     DenseVector<Array<T> > residual = A*u - rhs;
     cout << "residual norm = " << sqrt(residual*residual) << endl << flush;
 
-    int evalN = pow2i<T>(std::max(10,J+6));
+    int evalN = pow2i<T>(std::max(10,J+2));
     T errorH1Norm = 0.0, errorL2Norm = 0.0;
     ofstream plotFile("helmholtz.txt");
     DenseVector<Array<T> > x = linspace(0.0,1.0,evalN+1);
@@ -308,6 +345,7 @@ main(int argc, char *argv[])
             << exact(x(i),1) << endl;
     }
     plotFile.close();
+
     errorH1Norm += errorL2Norm;
     errorH1Norm = sqrt(errorH1Norm);
     errorL2Norm = sqrt(errorL2Norm);
@@ -345,6 +383,7 @@ main(int argc, char *argv[])
     errorH1Norm += errorL2Norm;
     errorH1Norm = sqrt(errorH1Norm);
     errorL2Norm = sqrt(errorL2Norm);
+    cerr << "helmholtz(" << J << ",:) = [" << A.numRows() << "," << iterations << "," << errorH1Norm << "," << errorL2Norm << "];" << std::endl;
 
     cout << "Singlescale H^1 error = \t" << errorH1Norm << ", L_2 error = \t" << errorL2Norm << endl;
 

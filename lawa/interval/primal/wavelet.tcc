@@ -67,9 +67,11 @@ Wavelet<T,Primal,Interval,Cons>::support(int j, int k) const
         return Support<T>(0.,pow2i<T>(-j-1)*basis.M1.lengths(k));
     }
     if (k>pow2i<T>(j)-basis.M1.right.length()) {
-        return Support<T>(1-pow2i<T>(-j-1)*(basis.M1.lengths(k-1-pow2i<T>(j))), 1.);
+        return Support<T>(1-pow2i<T>(-j-1)
+                        *(basis.M1.lengths(k-1-pow2i<T>(j))), 1.);
     }
-    return pow2i<T>(-j-1)*Support<T>(basis.M1.lengths(0)+1-basis.d+2*(k-basis.M1.left.lastIndex()-1), 
+    // FIXME: remove std::max: left support end cannot be less than 0. Check for error (Primbs!!!)
+    return pow2i<T>(-j-1)*Support<T>(std::max(0,basis.M1.lengths(0)+1-basis.d+2*(k-basis.M1.left.lastIndex()-1)),
                                      basis.M1.lengths(0)+basis.M1.leftband.length()+2*(k-basis.M1.left.lastIndex()-1));
 }
 
@@ -91,7 +93,8 @@ Wavelet<T,Primal,Interval,Cons>::singularSupport(int j, int k) const
                         1.,
                         2*basis.M1.lengths(k-1-pow2i<T>(j))+1.);
     }
-    return pow2i<T>(-j-1)*linspace(basis.M1.lengths(0)+1-basis.d+2*(k-basis.M1.left.lastIndex()-1.), 
+    // FIXME: remove std::max: left support end cannot be less than 0. Check for error (Primbs!!!)
+    return pow2i<T>(-j-1)*linspace(std::max(0.,basis.M1.lengths(0)+1-basis.d+2*(k-basis.M1.left.lastIndex()-1.)),
                                    basis.M1.lengths(0)+basis.M1.leftband.length()+2*(k-basis.M1.left.lastIndex()-1.),
                                    2*(basis.d+basis.d_)+1.);
 }
@@ -105,7 +108,7 @@ Wavelet<T,Primal,Interval,Cons>::vanishingMoments(int j, int k) const
     assert(k<=basis.rangeJ(j).lastIndex());
 
     assert(0);
-	return 0;
+    return 0;
 }
 
 template <typename T, Construction Cons>

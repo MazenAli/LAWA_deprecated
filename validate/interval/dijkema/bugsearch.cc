@@ -20,10 +20,14 @@ main(int argc, char *argv[])
         j0 = atoi(argv[3]), J  = atoi(argv[4]),
         k  = atoi(argv[5]);
 
-    Basis<T,Primal,Interval,Dijkema> basis(d,d_);
-    Basis<T,Dual,Interval,Dijkema> basis_(d,d_);
+    Basis<T,Primal,Interval,Cons> basis(d,d_);
+    Basis<T,Dual,Interval,Cons> basis_(d,d_);
     basis.enforceBoundaryCondition<DirichletBC>();
+	std::cerr << basis_.mra_.M0_.rows() << "x" << basis_.mra_.M0_.cols() << std::endl;
+	std::cerr << basis_.mra_.M0_.leftband.range() << std::endl;
     basis_.enforceBoundaryCondition<DirichletBC>();
+	std::cerr << basis_.mra_.M0_.rows() << "x" << basis_.mra_.M0_.cols() << std::endl;
+	std::cerr << basis_.mra_.M0_.leftband.range() << std::endl;
 
     BSpline<T,Primal,R,CDF> phi(d);
     BSpline<T,Dual,R,CDF> phi_(d,d_);
@@ -48,6 +52,7 @@ main(int argc, char *argv[])
     std::cerr << "I0 = " << I << std::endl;
     blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,DM1,DM1_,0.,I);
     std::cerr << "I1 = " << I << std::endl;
+
 
     DenseVectorT coeffs(basis.mra.rangeI(J)), dec;
     coeffs(k) = 1.;

@@ -33,6 +33,8 @@ struct BSpline<T,Dual,Periodic,CDF>
     typedef T    ElementType;
 
     BSpline(int _d, int _d_);
+    
+    BSpline(const MRA<T,Dual,Periodic,CDF> &mra);
 
     virtual
     ~BSpline();

@@ -29,14 +29,16 @@ template <typename T>
 class MRA<T,Dual,Periodic,CDF>
 {
     public:
+        typedef BSpline<T,Dual,Periodic,CDF> BSplineType;
+
         MRA(int _d, int _d_, int j=0);
-        
+
         int
         level() const;
-        
+
         void
         setLevel(int j) const;
-        
+
         int
         cardI_(int j) const;
 

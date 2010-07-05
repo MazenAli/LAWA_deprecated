@@ -33,6 +33,10 @@ struct BSpline<T,Primal,Periodic,CDF>
 
     BSpline(int _d, int _deriv);
 
+    BSpline(const MRA<T,Primal,Periodic,CDF> &mra);
+
+    BSpline(const MRA<T,Primal,Periodic,CDF> &mra, int _deriv);
+
     virtual
     ~BSpline();
 

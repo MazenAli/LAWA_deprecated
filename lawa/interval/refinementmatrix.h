@@ -39,7 +39,7 @@ class RefinementMatrix<T, Interval, Cons>
         
         RefinementMatrix(int nLeft, int nRight,
                          const GeMatrix<FullStorage<T, ColMajor> > &A,
-                         int j0, int bc=0);
+                         int j0);
 
         const typename DenseVector<Array<T> >::ConstView
         operator()(int j, const Underscore<int> &u, int col) const;
@@ -86,8 +86,6 @@ class RefinementMatrix<T, Interval, Cons>
         mutable int _j;
         int _firstRow, _firstCol, _lastRow, _lastCol;
         mutable int _additionalRows, _additionalCols;
-    public: // TO BE ELIMINATED !!!!
-        int _bc;
 };
 
 template <typename T, Construction Cons>

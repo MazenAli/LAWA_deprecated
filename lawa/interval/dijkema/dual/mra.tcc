@@ -30,17 +30,19 @@ namespace lawa {
 template <typename T>
 MRA<T,Dual,Interval,Dijkema>::MRA(int _d, int _d_, int j)
     : d(_d), d_(_d_), mu(d&1),
-      min_j0(iceil(log2(2*d_+d-3+((d==2) ? 2 : 0)))), // TODO: +2 only if DirichletBC!
-      j0((j==-1) ? min_j0 : j),
-      phi_R(_d,_d_),
       l1((mu-d)/2), l2((mu+d)/2),
       l1_(l1-d_+1), l2_(l2+d_-1),
+      // FIXME: reduce minimal level for d==2, i.e. the "+2" which means
+      // we have at least 2 inner functions (otherwise trouble with ref.mat.)
+      min_j0(iceil(log2(-2*l1_-1+mu+2))),
+      j0((j==-1) ? min_j0 : j),
+      phi_R(_d,_d_),
       _bc(2,0), _j(j0)
-{    
+{
     assert(d>1);
     assert((d+d_)%2==0);
     assert(_j>=min_j0);
-    
+
     _calcM0_();
 }
 
@@ -125,11 +127,11 @@ template <typename T>
 void
 MRA<T,Dual,Interval,Dijkema>::setLevel(int j) const
 {
-//    if (j!=_j) {
+    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         M0_.setLevel(_j);
-//    }
+    }
 }
 
 template <typename T>
@@ -141,7 +143,7 @@ MRA<T,Dual,Interval,Dijkema>::enforceBoundaryCondition()
 
     _bc(0) = DirichletBC;
     _bc(1) = DirichletBC;
-    
+
     _calcM0_();
 }
 
@@ -167,10 +169,10 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     ev(false, true, A, r, i, VL, VR);
 
     DenseVector r_sorted = r;
-    std::sort(r_sorted.engine().data(), 
-              r_sorted.engine().data()+r_sorted.length(), 
+    std::sort(r_sorted.engine().data(),
+              r_sorted.engine().data()+r_sorted.length(),
               descending_by_magnitude<T>());
-    
+
     DenseVector positions(r.length());
     for (int i=r.firstIndex(); i<=r.lastIndex(); ++i) {
         int j=0;
@@ -207,15 +209,15 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
         } else if ((d==2) && (d_==4)) {
             indices.engine().resize(4);
             indices = 1, 1, 6, 4;
-        } else { // for d=2 we need all, for others these selection is not optimized!
+        } else { // for d=2 we need all, for others not necessarily optimal!
             indices.engine().resize(d+d_-2);
             for (int i=indices.firstIndex(); i<=indices.lastIndex(); ++i) {
                 indices(i) = i;
             }
         }
     } else {
-        assert(_bc(0)==0); 
-        assert(_bc(1)==0); 
+        assert(_bc(0)==0);
+        assert(_bc(1)==0);
         if ((d==3) && (d_==3)) {
             indices.engine().resize(4);
             indices = 2,4,5,6;
@@ -243,7 +245,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
         } else if ((d==2) && (d_==4)) {
             indices.engine().resize(4);
             indices = 1, 4, 5, 2;
-        } else { // for d=2 we need all, for others these selection is not optimized!
+        } else { // for d=2 we need all, for others not necessarily optimal!
             indices.engine().resize(d+d_-2);
             for (int i=indices.firstIndex(); i<=indices.lastIndex(); ++i) {
                 indices(i) = i;
@@ -255,37 +257,39 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     for (int i=1+_bc(0); i<=indices.length(); ++i) {
         C_L(_,i-_bc(0)) = VR(_,positions(indices(i)));
     }
-    
+
     FullColMatrix C_R;
     arrow(C_L,C_R);
-    
+
     FullColMatrix R_init(pow2i<T>(min_j0)+l2_-l1_-1,
                          pow2i<T>(min_j0)+l2-l1-1-_bc(0)-_bc(1),
                          -l2_+1, -l2+1+_bc(0));
-     for (int c=R_init.firstCol(); c<=R_init.lastCol(); ++c) {
-         R_init(c,c) = 1.;
-     }
+    for (int c=R_init.firstCol(); c<=R_init.lastCol(); ++c) {
+        R_init(c,c) = 1.;
+    }
     C_L.engine().changeIndexBase(-l2_+1, -l2+1+_bc(0));
     R_init(C_L) = C_L;
     C_R.engine().changeIndexBase(R_init.lastRow()-C_R.numRows()+1,
                                  R_init.lastCol()-C_R.numCols()+1);
     R_init(C_R) = C_R;
-    
+
     BSpline<T,Primal,R,CDF> phi(d);
     int kmin = -l2+1, mmin = -l2_+1, pmin = -l2+1, qmin = -l2_+1,
         kmax = -l1-1, mmax = -l1_-1, pmax = -l1-1, qmax = -l1_-1;
     FullColMatrix C(_(pmin,pmax), _(qmin,qmax));
     int ZLength = C.numRows()*C.numCols();
-    FullColMatrix Z(_(pmin*(qmax-qmin+1)+qmin, pmin*(qmax-qmin+1)+qmin+ZLength-1),
-                    _(pmin*(qmax-qmin+1)+qmin, pmin*(qmax-qmin+1)+qmin+ZLength-1));
+    FullColMatrix Z(_(pmin*(qmax-qmin+1)+qmin,
+                      pmin*(qmax-qmin+1)+qmin+ZLength-1),
+                    _(pmin*(qmax-qmin+1)+qmin, 
+                      pmin*(qmax-qmin+1)+qmin+ZLength-1));
     for (int p=pmin; p<=pmax; ++p) {
         for (int q=qmin; q<=qmax; ++q) {
             for (int k=kmin; k<=kmax; ++k) {
                 for (int m=mmin; m<=mmax; ++m) {
                     if (l1<=k-2*p && k-2*p<=l2 &&
                         l1_<=m-2*q && m-2*q<=l2_) {
-                            Z(p*(qmax-qmin+1)+q, k*(mmax-mmin+1)+m) = 
-                                            0.5 * phi.a(k-2*p) * phi_R.a_(m-2*q);
+                            Z(p*(qmax-qmin+1)+q, k*(mmax-mmin+1)+m) =
+                                           0.5 * phi.a(k-2*p) * phi_R.a_(m-2*q);
                     }
                 }
             }
@@ -301,7 +305,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
         for (int q=qmin; q<=qmax; ++q) {
             T sum = 0.;
             for (int k=std::max(-l2+1,l1+2*p); k<=l2+2*p; ++k) {
-                for (int m=std::max(std::max(-l2_+1,l1_+2*q),l1-l2_+1+k); 
+                for (int m=std::max(std::max(-l2_+1,l1_+2*q),l1-l2_+1+k);
                      m<=std::min(l2_+2*q, l2-l1_-1+k); ++m) {
                     if (!((kmin<=k && k<=kmax) && (mmin<=m && m<=mmax))) {
                         sum += 0.5 * phi.a(k-2*p) * phi_R.a_(m-2*q) * (k==m);
@@ -318,7 +322,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
             C(p,q) = f(p*(qmax-qmin+1)+q);
         }
     }
-    FullColMatrix ExtMass(pow2i<T>(min_j0)+d-1, 
+    FullColMatrix ExtMass(pow2i<T>(min_j0)+d-1,
                           pow2i<T>(min_j0)+l2_-l1_-1,
                           -l2+1, -l2_+1);
     for (int r=ExtMass.firstRow(); r<=ExtMass.lastRow(); ++r) {
@@ -330,7 +334,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     CR.engine().changeIndexBase(ExtMass.lastRow()-C.numRows()+1,
                                 ExtMass.lastCol()-C.numCols()+1);
     ExtMass(CR) = CR;
-    
+
     //--- duplicate code from primal Primbs-MRA method _calc_M0 ----------------
     FullColMatrix R(_(1-l2, pow2i<T>(min_j0)-l1-1),
                     _(1-l2+_bc(0), pow2i<T>(min_j0)-l1-1-_bc(1)));
@@ -349,43 +353,27 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
                  1.,Tmp,Transformation,0.,Tmp2);
         Transformation = Tmp2;
     }
-    
+
     FullColMatrix InvTrans = Transformation(_(Transformation.firstRow()+(d-1),
-                                              Transformation.lastRow()), 
+                                              Transformation.lastRow()),
                                             _(Transformation.firstCol(),
                                               Transformation.lastCol()) );
 
     //--- inverse(InvTrans)
     FullColMatrix TransTmp = InvTrans, Trans, TransTmp2;
-/*    
-    flens::DenseVector<Array<int> > p(Trans.numRows());
-    trf(Trans, p);
-    tri(Trans, p);
-*/
-// Inversion using QR ... ----------------------------------
-    FullColMatrix I(TransTmp.numRows(),TransTmp.numRows());
-    I.diag(0) = 1;
-    flens::DenseVector<Array<T> > tau;
-    qrf(TransTmp, tau);
-    TransTmp2 = TransTmp;
-    orgqr(TransTmp, tau);
+    Trans = inv(InvTrans);
     
-    //Trans = transpose(TransTmp);
-    blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,TransTmp,I,0.,Trans);
-    
-    blas::sm(Left,NoTrans,1.,TransTmp2.upper(),Trans);
-// Inversion using QR done ... ----------------------------------
     Trans.engine().changeIndexBase(R.firstRow(),R.firstCol());
     if (d>2) {
         R(_(Trans.firstRow(),Trans.lastRow()),
-          _(Trans.firstCol(),Trans.lastCol()-_bc(0))) 
+          _(Trans.firstCol(),Trans.lastCol()-_bc(0)))
               = Trans( _ , _(Trans.firstCol()+_bc(0),Trans.lastCol()));
 
         arrow(Trans,TransTmp);
         TransTmp.engine().changeIndexBase(R.lastRow()-TransTmp.numRows()+1,
                                           R.lastCol()-TransTmp.numCols()+1);
         R(_(TransTmp.firstRow(),TransTmp.lastRow()),
-          _(TransTmp.firstCol()+_bc(1),TransTmp.lastCol())) 
+          _(TransTmp.firstCol()+_bc(1),TransTmp.lastCol()))
               = TransTmp( _ , _(TransTmp.firstCol(),TransTmp.lastCol()-_bc(1)));
     }
 
@@ -407,40 +395,26 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     if (d>2) {
         Trans.engine().changeIndexBase(RjPlus1.firstRow(),RjPlus1.firstCol());
         RjPlus1(_(Trans.firstRow(),Trans.lastRow()),
-                _(Trans.firstCol(),Trans.lastCol()-_bc(0))) 
+                _(Trans.firstCol(),Trans.lastCol()-_bc(0)))
             = Trans( _ , _(Trans.firstCol()+_bc(0), Trans.lastCol()));
-        TransTmp.engine().changeIndexBase(RjPlus1.lastRow()-TransTmp.numRows()+1,
-                                          RjPlus1.lastCol()-TransTmp.numCols()+1);
+        TransTmp.engine().changeIndexBase(
+                                         RjPlus1.lastRow()-TransTmp.numRows()+1,
+                                         RjPlus1.lastCol()-TransTmp.numCols()+1
+                                         );
         RjPlus1(_(TransTmp.firstRow(),TransTmp.lastRow()),
-                _(TransTmp.firstCol()+_bc(1),TransTmp.lastCol())) 
+                _(TransTmp.firstCol()+_bc(1),TransTmp.lastCol()))
             = TransTmp( _ , _(TransTmp.firstCol(), TransTmp.lastCol()-_bc(1)));
     }
     //--------------------------------------------------------------------------
     FullColMatrix Mass, MassTmp;
     blas::mm(cxxblas::NoTrans, cxxblas::NoTrans,
              1., ExtMass, R_init, 0., MassTmp);
-    
-    blas::mm(cxxblas::Trans, cxxblas::NoTrans, 
+
+    blas::mm(cxxblas::Trans, cxxblas::NoTrans,
              1., R, MassTmp, 0., Mass);
 
     FullColMatrix InvMass, InvMassTmp = Mass;
-/*    flens::DenseVector<Array<int> > q(InvMass.numRows());
-    trf(InvMass, q);
-    tri(InvMass, q);
-*/    
-// Inversion using QR ... ----------------------------------
-    I.engine().resize(Mass.numRows(),Mass.numRows());
-    I.diag(0) = 1;
-    qrf(InvMassTmp, tau);
-    TransTmp2 = InvMassTmp;
-    orgqr(InvMassTmp, tau);
-    
-    //Trans = transpose(TransTmp);
-    blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,InvMassTmp,I,0.,InvMass);
-    
-    blas::sm(Left,NoTrans,1.,TransTmp2.upper(),InvMass);
-// Inversion using QR done ... ----------------------------------
-
+    InvMass = inv(Mass);
 
     FullColMatrix R_(R_init.numRows(), R_init.numCols(),
                      R_init.firstRow(), R_init.firstCol());
@@ -454,13 +428,14 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     FullColMatrix ExtM0_(_(-l2_+1,pow2i<T>(min_j0+1)-l1_-1),
                          _(-l2_+1,pow2i<T>(min_j0)-l1_-1));
     for (int q=ExtM0_.firstCol(); q<=ExtM0_.lastCol(); ++q) {
-        for (int p=std::max(l1_+2*q, ExtM0_.firstRow()); 
+        for (int p=std::max(l1_+2*q, ExtM0_.firstRow());
              p<=std::min(l2_+2*q, ExtM0_.lastRow()); ++p) {
             ExtM0_(p,q) = phi_R.a_(p-2*q);
         }
     }
-    
-    FullColMatrix ExtMassjPlus1(pow2i<T>(min_j0+1)+d-1, pow2i<T>(min_j0+1)+l2_-l1_-1,
+
+    FullColMatrix ExtMassjPlus1(pow2i<T>(min_j0+1)+d-1, 
+                                pow2i<T>(min_j0+1)+l2_-l1_-1,
                                 -l2+1, -l2_+1);
     for (int r=ExtMassjPlus1.firstRow(); r<=ExtMassjPlus1.lastRow(); ++r) {
         ExtMassjPlus1(r,r) = 1.;
@@ -470,12 +445,12 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
                                 ExtMassjPlus1.lastCol()-C.numCols()+1);
     ExtMassjPlus1(CR) = CR;
     FullColMatrix Mj0_, M0_Tmp;
-    blas::mm(cxxblas::Trans, cxxblas::NoTrans, 1., RjPlus1, ExtMassjPlus1, 0., Mj0_);    
+    blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,RjPlus1,ExtMassjPlus1,0.,Mj0_);
     blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., Mj0_, ExtM0_, 0., M0_Tmp);
     blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., M0_Tmp, R_, 0., Mj0_);
     Mj0_.engine().changeIndexBase(1+_bc(0),1+_bc(1));
     blas::scal(Const<T>::R_SQRT2, Mj0_);
-    M0_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2-_bc(0), d+d_-2-_bc(1), 
+    M0_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2-_bc(0), d+d_-2-_bc(1),
                                                Mj0_, min_j0);
     setLevel(_j);
 }

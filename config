@@ -6,8 +6,8 @@ ifeq ($(TARGET),OSX)
   CXXDYLIB  = -dynamiclib
   DYLIB_EXT = dylib
   ifeq ($(COMPILER),gcc)
-    CC  = gcc
-    CXX = g++
+    CC  = gcc-4.2
+    CXX = g++-4.2
     ifeq ($(BLASLAPACK),platform)
       CPPFLAGS += -DWITH_VECLIB
       LDFLAGS  += -framework Accelerate
@@ -44,4 +44,4 @@ CXXFLAGS += $(DEBUGMODE)
 CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
 CXXFLAGS += -Wfatal-errors -pedantic -Wextra -std=c++98 -Wno-sign-compare \
             -Wreturn-type
-#CXXFLAGS += -O2 -DCHECK_INTERVAL_CONSTRUCTION 
+CXXFLAGS += -O2 -DCHECK_INTERVAL_CONSTRUCTION 

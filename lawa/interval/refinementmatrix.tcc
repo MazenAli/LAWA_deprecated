@@ -33,15 +33,14 @@ template <typename T, Construction Cons>
 RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
                                 int nLeft, int nRight,
                                 const GeMatrix<FullStorage<T, ColMajor> > &A,
-                                int j0, int bc)
-    : left(nLeft, (nLeft>0) ? A.firstCol() : 1), 
+                                int j0)
+    : left(nLeft, (nLeft>0) ? A.firstCol() : 1),
       right(nRight, (nRight>0) ? A.lastCol()-nRight+1 : A.lastCol()+2),
       lengths(_(-nRight, nLeft)),
       _j0(j0), _j(j0),
       _firstRow(A.firstRow()), _firstCol(A.firstCol()),
       _lastRow(A.lastRow()), _lastCol(A.lastCol()),
-      _additionalRows(0), _additionalCols(0),
-      _bc(bc)
+      _additionalRows(0), _additionalCols(0)
 {
     assert(nLeft>=0);
     assert(nRight>=0);
@@ -52,13 +51,13 @@ RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
     _extractMasks(A);
 
     for (int i=left.firstIndex(); i<=left.lastIndex(); ++i) {
-        lengths(1+i-left.firstIndex()) = left(i).length()+_bc;
+        lengths(1+i-left.firstIndex()) = left(i).length();
     }
 
     lengths(0) = leftband.firstIndex()-A.firstRow();
     
     for (int i=right.firstIndex(); i<=right.lastIndex(); ++i) {
-        lengths(-nRight+i-right.firstIndex()) = right(i).length()+_bc;
+        lengths(-nRight+i-right.firstIndex()) = right(i).length();
     }
 }
 
@@ -157,6 +156,7 @@ RefinementMatrix<T,Interval,Cons>::level() const
     return _j;
 }
 
+// TODO: consider setLevel as private(!) friend method or mra/basis.
 template <typename T, Construction Cons>
 void
 RefinementMatrix<T,Interval,Cons>::setLevel(int j) const
@@ -193,7 +193,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
             assert(r>=A.firstRow());
         }
         left(c) = A(_(A.firstRow(),r),c);
-        left(c).engine().changeIndexBase(A.firstRow()+_bc);
+        left(c).engine().changeIndexBase(A.firstRow());
     }
     
     // extract right block
@@ -204,7 +204,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
             assert(r<=A.lastRow());
         }
         right(c) = A(_(r,A.lastRow()), c);
-        right(c).engine().changeIndexBase(r+_bc);
+        right(c).engine().changeIndexBase(r);
     }
     
     // extract band (left to middle)
@@ -220,7 +220,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
         assert(last>=A.firstRow());
     }
     leftband = A(_(first,last), c);
-    leftband.engine().changeIndexBase(first+_bc);
+    leftband.engine().changeIndexBase(first);
 #ifdef CHECK_INTERVAL_CONSTRUCTION
     for (++c; c<=(A.firstCol()+A.lastCol())/2; ++c) {
         int i=leftband.firstIndex();
@@ -244,7 +244,7 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
         assert(last>=A.firstRow());
     }
     rightband = A(_(first,last), c);
-    rightband.engine().changeIndexBase(first+_bc);
+    rightband.engine().changeIndexBase(first);
 #ifdef CHECK_INTERVAL_CONSTRUCTION
     for (--c; c>(A.firstCol()+A.lastCol())/2; --c) {
         int i=rightband.firstIndex();
@@ -293,7 +293,7 @@ mv(Transpose transA, typename X::ElementType alpha,
         }
 
         // central band (up to middle)
-        int iy = A.leftband.firstIndex()-A.firstRow()-A._bc;
+        int iy = A.leftband.firstIndex()-A.firstRow();
         int n = A.leftband.length();
         int middle = x.length()/2;        
         for (int c=A.left.lastIndex()+1; c<=middle; ++c, iy+=2) {
@@ -310,7 +310,6 @@ mv(Transpose transA, typename X::ElementType alpha,
                           A.rightband.engine().data(), 1,
                           y.engine().data()+iy, 1);
         }
-
 
         // right lower block
         for (int c=A.right.firstIndex(); c<=A.right.lastIndex(); ++c) {
@@ -364,7 +363,6 @@ mv(Transpose transA, typename X::ElementType alpha,
                          x.engine().data() + A.numRows() - n, 1, 
                          y(iy));
         }
-		std::cerr << "done" << std::endl;
     }
 }
 
