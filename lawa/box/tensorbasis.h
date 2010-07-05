@@ -6,10 +6,13 @@ namespace lawa{
 template<typename FirstBasis, typename SecondBasis>
 struct TensorBasis
 {
-    TensorBasis(const FirstBasis &_basis1, SecondBasis &_basis2);
+    typedef FirstBasis FirstBasisType;
+    typedef SecondBasis SecondBasisType;
+    
+    TensorBasis(const FirstBasis &_basis1, const SecondBasis &_basis2);
 
-    FirstBasis basis1;
-    SecondBasis basis2;
+    const FirstBasis &first;
+    const SecondBasis &second;
 };
     
     
