@@ -62,7 +62,7 @@ evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis,
     Wavelet<T,Primal,Periodic,CDF> psi(basis.d, basis.d_, deriv);
     for (int j=j0; j<=J-1; ++j) {
         for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
-            ret += coeffs(basis.cardJ(j) + k - offsetJ) * basis.psi(x, j, k);
+            ret += coeffs(basis.cardJ(j) + k - offsetJ) * psi(x, j, k);
         }
     }
     return ret;

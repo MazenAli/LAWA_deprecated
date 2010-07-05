@@ -73,7 +73,7 @@ insertKnot(int d, DenseVector<Array<T> > &knots, T x)
 template <typename T>
 MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
     : d(_d), mu(d&1),
-      min_j0(d),
+      min_j0(iceil(log2(2*d))),
       j0((j==-1) ? min_j0 : j), phiR(d),
       l1((mu-d)/2), l2((mu+d)/2),
       _bc(2,0), _j(j0)
@@ -166,11 +166,11 @@ template <typename T>
 void
 MRA<T,Primal,Interval,Primbs>::setLevel(int j) const
 {
-//    if (j!=_j) {
+    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         M0.setLevel(_j);
-//    }
+    }
 }
 
 template <typename T>
@@ -210,24 +210,7 @@ MRA<T,Primal,Interval,Primbs>::_calcM0()
                                               Transformation.lastRow()), _ );
     //--- inverse(InvTrans)
     FullColMatrix TransTmp = InvTrans, Trans, TransTmp2;
-    /*    
-        flens::DenseVector<Array<int> > p(Trans.numRows());
-        trf(Trans, p);
-        tri(Trans, p);
-    */
-    // Inversion using QR ... ----------------------------------
-        FullColMatrix I(TransTmp.numRows(),TransTmp.numRows());
-        I.diag(0) = 1;
-        flens::DenseVector<Array<T> > tau;
-        qrf(TransTmp, tau);
-        TransTmp2 = TransTmp;
-        orgqr(TransTmp, tau);
-
-        //Trans = transpose(TransTmp);
-        blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,TransTmp,I,0.,Trans);
-
-        blas::sm(Left,NoTrans,1.,TransTmp2.upper(),Trans);
-    // Inversion using QR done ... ----------------------------------
+    Trans = inv(InvTrans);
 
     Trans.engine().changeIndexBase(R.firstRow(),R.firstCol());
     R(_(Trans.firstRow(),Trans.lastRow()),
@@ -260,23 +243,8 @@ MRA<T,Primal,Interval,Primbs>::_calcM0()
     FullColMatrix Mj0;
     FullColMatrix M0Tmp, Tmp = RjPlus1;
     FullColMatrix TmpTmp = Tmp;
-    /*    
-        flens::DenseVector<Array<int> > p(Trans.numRows());
-        trf(Trans, p);
-        tri(Trans, p);
-    */
-    // Inversion using QR ... ----------------------------------
-        I.engine().resize(Tmp.numRows(),Tmp.numRows());
-        I.diag(0) = 1;
-        qrf(TmpTmp, tau);
-        TransTmp2 = TmpTmp;
-        orgqr(TmpTmp, tau);
-
-        //Trans = transpose(TransTmp);
-        blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,TmpTmp,I,0.,Tmp);
-
-        blas::sm(Left,NoTrans,1.,TransTmp2.upper(),Tmp);
-    // Inversion using QR done ... ----------------------------------
+    
+    Tmp = inv(TmpTmp);
 
     blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,ExtM0,0.,M0Tmp);
     blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,M0Tmp,R,0.,Mj0);
@@ -290,8 +258,7 @@ MRA<T,Primal,Interval,Primbs>::_calcM0()
         M0 = RefinementMatrix<T,Interval,Primbs>(d-1-_bc(0), d-1-_bc(1), 
                                                  Mj0withBC, min_j0);
     } else {
-        M0 = RefinementMatrix<T,Interval,Primbs>(d-1-_bc(0), d-1-_bc(1), 
-                                                 Mj0, min_j0);
+        M0 = RefinementMatrix<T,Interval,Primbs>(d-1, d-1, Mj0, min_j0);
     }
     M0.setLevel(_j);
 }

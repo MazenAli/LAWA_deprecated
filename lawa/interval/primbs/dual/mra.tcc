@@ -31,15 +31,15 @@ namespace lawa {
 template <typename T>
 MRA<T,Dual,Interval,Primbs>::MRA(int _d, int _d_, int j)
     : d(_d), d_(_d_), mu(d&1),
-      min_j0(4),//iceil(log(d+d_-2)/log(2))+1),
+      min_j0(std::max(3,iceil(log(d+d_-2)/log(2))+1)),
       j0((j==-1) ? min_j0 : j), phi_R(d,d_),
       _bc(2,0), _j(j0)
 {
     assert(d>1);
     assert(_j>=min_j0);
-    setLevel(_j);
     
     _calcM0_();
+    setLevel(_j);
 }
 
 template <typename T>
@@ -123,11 +123,11 @@ template <typename T>
 void
 MRA<T,Dual,Interval,Primbs>::setLevel(int j) const
 {
-//    if (j!=_j) {
+    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         M0_.setLevel(_j);
-//    }
+    }
 }
 
 template <typename T>
@@ -200,7 +200,7 @@ MRA<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
     Mj0_(_(Mj0_.lastRow()-Mj0_Right.numRows()+1,Mj0_.lastRow()),
          _(Mj0_.lastCol()-Mj0_Right.numCols()+1,Mj0_.lastCol())) = Mj0_Right;
     M0_ = RefinementMatrix<T,Interval,Primbs>(Mj0_Right.numCols(),Mj0_Right.numCols(), 
-                                              Mj0_, min_j0, 1);
+                                              Mj0_, min_j0);
     M0_.setLevel(_j);
 }
 
@@ -500,20 +500,7 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_2(int d, int d_)
             }
         }
 
-    // C = inv(B);
-    // Inversion using QR ... ----------------------------------
-        GeMatrix<FullStorage<T,ColMajor> > I(B.numRows(),B.numRows()), TmpB = B, TmpB2;
-        I.diag(0) = 1;
-        flens::DenseVector<Array<T> > tau;
-        qrf(TmpB, tau);
-        TmpB2 = TmpB;
-        orgqr(TmpB, tau);
-
-        //Trans = transpose(TransTmp);
-        blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,TmpB,I,0.,C);
-
-        blas::sm(Left,NoTrans,1.,TmpB2.upper(),C);
-    // Inversion using QR done ... ----------------------------------
+        C = inv(B);
 
         MDD(k,k) = 0;
         DenseVector<Array<T> > x(d+k-1), y(d+k-1);

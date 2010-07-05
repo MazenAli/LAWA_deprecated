@@ -45,13 +45,13 @@ template <typename T>
 void
 Basis<T,Primal,Interval,Dijkema>::setLevel(int j) const
 {
-//    if (j!=_j) {
+    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         M1.setLevel(_j);
         mra.setLevel(_j);
         mra_.setLevel(_j);
-//    }
+    }
 }
 
 template <typename T>
@@ -65,7 +65,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         mra_.enforceBoundaryCondition<BC>();
         GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
-        M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0,1);
+        M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0);
         setLevel(_j);
     }
 }
@@ -126,7 +126,6 @@ Basis<T,Primal,Interval,Dijkema>::rangeJI(int j) const
 {
     assert(j>=min_j0);
     return _(d+d_-1,pow2i<T>(j)-(d+d_-3));
-    
 }
 
 template <typename T>
@@ -135,7 +134,6 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 {
     assert(j>=min_j0);
     return _(pow2i<T>(j)-(d+d_-2),pow2i<T>(j));
-    
 }
 
 } // namespace lawa

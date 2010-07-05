@@ -41,13 +41,13 @@ template <typename T>
 void
 Basis<T,Dual,Interval,Primbs>::setLevel(int j) const
 {
-//    if (j!=_j) {
+    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         mra.setLevel(_j);
         mra_.setLevel(_j);
         M1_.setLevel(_j);
-//    }
+    }
 }
 
 template <typename T>
@@ -55,7 +55,9 @@ template <BoundaryCondition BC>
 void
 Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
 {
-    typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
+    typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > 
+            FullColMatrix;
+
     BSpline<T,Primal,R,CDF> phiR(d);
 
     if ((_bc(0)==0) && (_bc(1)==0)) {
@@ -206,8 +208,8 @@ Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
             numDualCols += 1;
         }
 
-//        blas::scal(Const<T>::R_SQRT2, Mjj1);
-        M1_ = RefinementMatrix<T,Interval,Primbs>(numDualCols, numDualCols, Mjj1, min_j0, 1);
+        blas::scal(Const<T>::R_SQRT2*.5, Mjj1);
+        M1_ = RefinementMatrix<T,Interval,Primbs>(numDualCols, numDualCols, Mjj1, min_j0);
         setLevel(_j);
     }
 }
@@ -433,8 +435,8 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
         numDualCols += 1;
     }
 
-//    blas::scal(Const<T>::R_SQRT2, Mjj1);
-    M1_ = RefinementMatrix<T,Interval,Primbs>(numDualCols,numDualCols,Mjj1,min_j0,0);
+    blas::scal(Const<T>::R_SQRT2*.5, Mjj1);
+    M1_ = RefinementMatrix<T,Interval,Primbs>(numDualCols,numDualCols,Mjj1,min_j0);
     setLevel(_j);
 }
 

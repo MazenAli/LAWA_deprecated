@@ -173,26 +173,18 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     DenseVector<Array<int> > p(Mj.numRows());
     FullColMatrix MjInv, MjInvTmp = Mj, TransTmp2;
     
-    // Inversion using QR ... ----------------------------------
-        FullColMatrix I(MjInvTmp.numRows(),MjInvTmp.numRows());
-        I.diag(0) = 1;
-        flens::DenseVector<Array<T> > tau;
-        qrf(MjInvTmp, tau);
-        TransTmp2 = MjInvTmp;
-        orgqr(MjInvTmp, tau);
-
-        //Trans = transpose(TransTmp);
-        blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,MjInvTmp,I,0.,MjInv);
-
-        blas::sm(Left,NoTrans,1.,TransTmp2.upper(),MjInv);
-    // Inversion using QR done ... ----------------------------------
+    MjInv = inv(Mj);
 
     FullColMatrix Mj1_Tmp = MjInv(_(pow2i<T>(j)+d-1+1-mra_._bc(0)-mra_._bc(1),
                                     pow2i<T>(j+1)+d-1-mra_._bc(0)-mra_._bc(1)), _ );
     copy(Trans, Mj1_Tmp, M1_);
+
+    M1.engine().changeIndexBase(1+mra_._bc(0),1);
+    M1_.engine().changeIndexBase(1+mra_._bc(0),1);
+
+    // TODO: theoretical foundation for scaling this way!
     blas::scal(.5,M1_);
     blas::scal(2,M1);
-//    blas::mm(Trans,NoTrans,1.,M1,M1_,0.,Mj1Tmp);
 }
 
 } // namespace lawa

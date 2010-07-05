@@ -23,10 +23,10 @@ namespace lawa {
 
 template <typename T>
 Basis<T,Dual,Interval,Dijkema>::Basis(int _d, int _d_, int j)
-    : mra(_d, j), mra_(_d, _d_, j), 
+    : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
       min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(j0)
-{    
+{
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
     M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0);
@@ -44,13 +44,13 @@ template <typename T>
 void
 Basis<T,Dual,Interval,Dijkema>::setLevel(int j) const
 {
-//    if (j!=_j) {
+    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         M1_.setLevel(_j);
         mra.setLevel(_j);
         mra_.setLevel(_j);
-//    }
+    }
 }
 
 template <typename T>
@@ -64,11 +64,8 @@ Basis<T,Dual,Interval,Dijkema>::enforceBoundaryCondition()
         mra_.enforceBoundaryCondition<BC>();
         GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
-		std::cerr << Mj1_.rows() << "x" << Mj1_.cols() << std::endl;
-		std::cerr << "Mj1_ = [" << Mj1_ << "];" << std::endl;
-		std::cerr << Mj1.rows() << "x" << Mj1.cols() << std::endl;
-		std::cerr << "Mj1 = [" << Mj1 << "];" << std::endl;
-        M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0);
+        M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, 
+                                                   Mj1_, min_j0);
         setLevel(_j);
     }
 }
