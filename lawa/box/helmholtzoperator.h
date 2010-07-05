@@ -65,9 +65,9 @@ class HelmholtzOperator{
     
         T
         operator()(bool FirstXisSpline, bool FirstYisSpline,
+                   int j1_x, int k1_x, int j1_y, int k1_y,
                    bool SecondXisSpline, bool SecondYisSpline,
-                   int j1_x, int k1_x, int j2_x, int k2_x,
-                   int j1_y, int k1_y, int j2_y, int k2_y) const;
+                   int j2_x, int k2_x, int j2_y, int k2_y) const;
     
 };
     
