@@ -32,6 +32,9 @@ template <typename T>
 class Basis<T,Primal,Periodic,CDF>
 {
     public:
+        typedef Wavelet<T,Primal,Periodic,CDF> WaveletType;
+        typedef BSpline<T,Primal,Periodic,CDF> BSplineType;
+        
         Basis(int _d, int _d_, int j=0);
 
         int

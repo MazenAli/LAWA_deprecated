@@ -30,6 +30,9 @@ template <typename T>
 class Basis<T,Dual,Interval,Dijkema>
 {
     public:
+        typedef Wavelet<T,Dual,Interval,Dijkema> WaveletType;
+        typedef BSpline<T,Dual,Interval,Dijkema> BSplineType;
+        
         Basis(int _d, int _d_, int j=-1);
 
         int

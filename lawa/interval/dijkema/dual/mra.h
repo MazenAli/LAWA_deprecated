@@ -31,6 +31,8 @@ template <typename T>
 class MRA<T,Dual,Interval,Dijkema>
 {
     public:
+        typedef BSpline<T,Dual,Interval,Dijkema> BSplineType;
+        
         MRA(int d, int d_, int j=-1);
 
         ~MRA();

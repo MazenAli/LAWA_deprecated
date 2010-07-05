@@ -47,6 +47,13 @@ class Wavelet<T,Primal,Periodic,CDF>
                 const BSpline<T,Dual,Periodic,CDF> &_phi_,
                 int _deriv);
 
+        Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
+                const MRA<T,Dual,Periodic,CDF> &mra_);
+
+        Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
+                const MRA<T,Dual,Periodic,CDF> &mra_,
+                int _deriv);
+
         T
         operator()(T x, int j, int k) const;
 

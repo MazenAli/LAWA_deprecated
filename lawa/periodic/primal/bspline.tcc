@@ -29,14 +29,6 @@ namespace lawa {
 
 using namespace flens;
 
-/*template <typename T>
-BSpline<T,Primal,Periodic,CDF>::BSpline(int _d)
-    : d(_d), mu(d&1), deriv(0), polynomialOrder(d),
-      phiR(_d), l1(.5*(-d+mu)), l2(.5*(d+mu))
-{
-    assert(_d>0);
-}*/
-
 template <typename T>
 BSpline<T,Primal,Periodic,CDF>::BSpline(int _d)
     : d(_d), mu(d&1), deriv(0), polynomialOrder(d),
@@ -51,6 +43,25 @@ BSpline<T,Primal,Periodic,CDF>::BSpline(int _d, int _deriv)
       phiR(_d, _deriv)
 {
     assert(_d>0);
+    assert(deriv>=0);
+    assert(deriv<d);
+}
+
+template <typename T>
+BSpline<T,Primal,Periodic,CDF>::BSpline(const MRA<T,Primal,Periodic,CDF> &mra)
+    : d(mra.d), mu(d&1), deriv(0), polynomialOrder(d),
+      phiR(d)
+{
+    assert(d>0);
+}
+
+template <typename T>
+BSpline<T,Primal,Periodic,CDF>::BSpline(const MRA<T,Primal,Periodic,CDF> &mra,
+                                        int _deriv)
+    : d(mra.d), mu(d&1), deriv(_deriv), polynomialOrder(d-deriv),
+      phiR(d, _deriv)
+{
+    assert(d>0);
     assert(deriv>=0);
     assert(deriv<d);
 }

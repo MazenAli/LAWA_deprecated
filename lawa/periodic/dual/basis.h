@@ -31,11 +31,14 @@ template <typename T>
 class Basis<T,Dual,Periodic,CDF>
 {
     public:
+        typedef Wavelet<T,Dual,Periodic,CDF> WaveletType;
+        typedef BSpline<T,Dual,Periodic,CDF> BSplineType;
+
         Basis(int _d, int _d_, int j=0);
 
         int
         level() const;
-        
+
         void
         setLevel(int j) const;
 

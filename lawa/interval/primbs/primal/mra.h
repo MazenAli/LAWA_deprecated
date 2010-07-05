@@ -33,6 +33,8 @@ template <typename T>
 class MRA<T,Primal,Interval,Primbs>
 {
     public:
+        typedef BSpline<T,Primal,Interval,Primbs> BSplineType;
+        
         MRA(int d, int j=-1);
 
         ~MRA();

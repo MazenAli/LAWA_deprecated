@@ -36,7 +36,7 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_)
 template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_, int _deriv)
     : d(_d), d_(_d_), mu(d&1),     
-      deriv(_deriv), polynomialOrder(_d-deriv),
+      deriv(_deriv), polynomialOrder(_d-_deriv),
       vanishingMoments(_d_), psiR(_d, _d_, _deriv)
 {
     assert(d<=d_);
@@ -45,21 +45,41 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_, int _deriv)
 }
 
 template <typename T>
-Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,    
-                                 const BSpline<T,Dual,Periodic,CDF> &_phi_)
-    : d(_phi.d), d_(_phi_.d_), mu(d&1),    
+Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
+                                        const BSpline<T,Dual,Periodic,CDF> &_phi_)
+    : d(_phi.d), d_(_phi_.d_), mu(d&1),
       deriv(0), polynomialOrder(d),
-      vanishingMoments(d_), psiR(_phi.phiR, _phi_.phiR_) 
+      vanishingMoments(d_), psiR(d, d_)
 {
 }
 
 template <typename T>
-Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,    
-                                 const BSpline<T,Dual,Periodic,CDF> &_phi_,
-                                 int _deriv)
+Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
+                                        const BSpline<T,Dual,Periodic,CDF> &_phi_,
+                                        int _deriv)
     : d(_phi.d), d_(_phi_.d_), mu(d&1),    
-      deriv(_deriv), polynomialOrder(d-deriv),
-      vanishingMoments(d_), psiR(_phi.phiR, _phi_.phiR_, _deriv)
+      deriv(_deriv), polynomialOrder(d-_deriv),
+      vanishingMoments(d_), psiR(d, d_, _deriv)
+{    
+    assert(deriv>=0);
+}
+
+template <typename T>
+Wavelet<T,Primal,Periodic,CDF>::Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
+                                        const MRA<T,Dual,Periodic,CDF> &mra_)
+    : d(mra.d), d_(mra_.d_), mu(d&1),    
+      deriv(0), polynomialOrder(d),
+      vanishingMoments(d_), psiR(d,d_) 
+{
+}
+
+template <typename T>
+Wavelet<T,Primal,Periodic,CDF>::Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
+                                        const MRA<T,Dual,Periodic,CDF> &mra_,
+                                        int _deriv)
+    : d(mra.d), d_(mra_.d_), mu(d&1),    
+      deriv(_deriv), polynomialOrder(d-_deriv),
+      vanishingMoments(d_), psiR(d, d_, _deriv)
 {    
     assert(deriv>=0);
 }

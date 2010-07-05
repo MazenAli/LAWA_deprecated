@@ -35,8 +35,14 @@ Wavelet<T,Dual,Periodic,CDF>::Wavelet(int _d, int _d_)
 template <typename T>
 Wavelet<T,Dual,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
                                       const BSpline<T,Dual,Periodic,CDF> &_phi_)
-    : d(_phi.d), d_(_phi_.d_), mu(d&1), 
-      psiR_(_phi, _phi_)
+    : d(_phi.d), d_(_phi_.d_), mu(d&1), psiR_(_phi, _phi_)
+{
+}
+
+template <typename T>
+Wavelet<T,Dual,Periodic,CDF>::Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
+                                      const MRA<T,Dual,Periodic,CDF> &mra_)
+    : d(mra.d), d_(mra_.d_), mu(d&1), psiR_(d, d_)
 {
 }
 
