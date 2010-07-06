@@ -48,7 +48,7 @@ class SeparableRHS
         Integral<T, CompositeTrapezoidal, PrimalWavelet_y, Function<T> > integral_wf_y;
         
     public:
-        SeparableRHS(Basis& _basis, SeparableFunction<T> _F);
+        SeparableRHS(const Basis& _basis, const SeparableFunction<T> _F);
         
         T
         operator()(bool XisSpline, int j_x, int k_x,
