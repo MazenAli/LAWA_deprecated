@@ -30,6 +30,19 @@ T f_y(T y)
     return 2.0;
 }
 
+void
+printU(const DenseVectorT u, const PeriodicTensorBasis& basis, const int J_x, const int J_y, 
+       const char* filename, const double deltaX=0.01, const double deltaY=0.01)
+{
+    ofstream file(filename);
+    for(double x = 0.; x <= 1.; x += deltaX){
+        for(double y = 0; y <= 1.; y += deltaY){
+            file << x << " " << y << " " << evaluate(basis, J_x, J_y, u, x, y, 0) << endl; 
+        }
+    }
+    file.close();
+}
+
 int main (int argc, char*argv[])
 {
     if(argc != 7){
@@ -75,7 +88,14 @@ int main (int argc, char*argv[])
     Dfile << D << endl;
     Dfile.close();
     
+    DenseVectorT u(basis.dim(J_x, J_y));
+    DenseVectorT u_prec(basis.dim(J_x, J_y));
     
+    cout << lawa::cg(A, u, f) << " cg iterations " << endl;
+    cout << lawa::pcg(D, A, u_prec, f) << " pcg iterations" << endl;
+    
+    printU(u, basis, J_x, J_y, "u.txt");
+    printU(u_prec, basis, J_x, J_y, "u_prec.txt");
     
     return 0;
 }
