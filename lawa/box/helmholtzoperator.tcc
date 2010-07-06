@@ -22,10 +22,10 @@ namespace lawa{
 template <typename T, typename Basis>    
 HelmholtzOperator<T, Basis>::HelmholtzOperator(Basis _basis, T _c)
     : basis(_basis), c(_c), 
-      phi_x(basis.first.d), d_phi_x(basis.first.d, 1),
-      phi_y(basis.second.d), d_phi_y(basis.second.d, 1),
-      psi_x(basis.first.d, basis.first.d_), d_psi_x(basis.first.d, basis.first.d_, 1),
-      psi_y(basis.second.d, basis.second.d_), d_psi_y(basis.second.d, basis.second.d_, 1),
+      phi_x(basis.first.mra), d_phi_x(basis.first.mra, 1),
+      phi_y(basis.second.mra), d_phi_y(basis.second.mra, 1),
+      psi_x(basis.first.mra, basis.first.mra_), d_psi_x(basis.first.mra, basis.first.mra_, 1),
+      psi_y(basis.second.mra, basis.second.mra_), d_psi_y(basis.second.mra, basis.second.mra_, 1),
       integral_sfsf_x(phi_x, phi_x), dd_integral_sfsf_x(d_phi_x, d_phi_x),
       integral_sfsf_y(phi_y, phi_y), dd_integral_sfsf_y(d_phi_y, d_phi_y),
       integral_sfw_x(phi_x, psi_x), dd_integral_sfw_x(d_phi_x, d_psi_x),
