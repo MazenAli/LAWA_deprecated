@@ -32,6 +32,9 @@ struct TensorBasis
 
     const FirstBasis &first;
     const SecondBasis &second;
+    
+    int
+    dim(int J_x, int J_y) const;
 };
     
     

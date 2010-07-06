@@ -24,5 +24,12 @@ TensorBasis<FirstBasis, SecondBasis>::TensorBasis(const FirstBasis &_basis1, con
     : first(_basis1), second(_basis2)
 {
 }
+
+template<typename FirstBasis, typename SecondBasis>
+int
+TensorBasis<FirstBasis, SecondBasis>::dim(int J_x, int J_y) const
+{
+    return first.mra.cardI(J_x) * second.mra.cardI(J_y);
+}
     
 } // namespace lawa
