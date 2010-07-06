@@ -30,8 +30,8 @@ class HelmholtzOperator{
     
     private:
         
-        Basis basis;
-        T c;
+        const Basis& basis;
+        const T c;
         
         typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_x;
         typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_y;
@@ -61,7 +61,7 @@ class HelmholtzOperator{
                                                              dd_integral_ww_y;
             
     public:
-        HelmholtzOperator(Basis _basis, T _c);
+        HelmholtzOperator(const Basis& _basis, const T _c);
     
         T
         operator()(bool FirstXisSpline, bool FirstYisSpline,

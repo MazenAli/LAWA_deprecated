@@ -29,8 +29,8 @@ template<typename T, typename Basis>
 class SeparableRHS
 {
     private:
-        Basis& basis;
-        SeparableFunction<T> F;
+        const Basis& basis;
+        const SeparableFunction<T> F;
         
         typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_x;
         typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_y;

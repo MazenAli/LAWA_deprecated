@@ -20,7 +20,7 @@
 namespace lawa{
     
 template <typename T, typename Basis>    
-HelmholtzOperator<T, Basis>::HelmholtzOperator(Basis _basis, T _c)
+HelmholtzOperator<T, Basis>::HelmholtzOperator(const Basis& _basis, const T _c)
     : basis(_basis), c(_c), 
       phi_x(basis.first.mra), d_phi_x(basis.first.mra, 1),
       phi_y(basis.second.mra), d_phi_y(basis.second.mra, 1),

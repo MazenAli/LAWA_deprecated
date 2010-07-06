@@ -20,7 +20,7 @@
 namespace lawa {
 
 template<typename T, typename Basis>
-SeparableRHS<T, Basis>::SeparableRHS(Basis& _basis, SeparableFunction<T> _F)
+SeparableRHS<T, Basis>::SeparableRHS(const Basis& _basis, const SeparableFunction<T> _F)
     : basis(_basis), F(_F), phi_x(_basis.first.mra), phi_y(_basis.second.mra),
       psi_x(_basis.first.mra, _basis.first.mra_), 
       psi_y(_basis.second.mra, _basis.second.mra_),
