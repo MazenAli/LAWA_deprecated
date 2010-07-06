@@ -12,7 +12,8 @@ typedef Basis<T, Primal, Periodic, CDF> PrimalBasis;
 typedef TensorBasis<PrimalBasis, PrimalBasis> PeriodicTensorBasis;
 typedef HelmholtzOperator<T, PeriodicTensorBasis> HelmholtzOp;
 typedef SeparableRHS<T, PeriodicTensorBasis> PeriodicRHS;
-typedef BoxProblem<T, PeriodicTensorBasis, HelmholtzOp, PeriodicRHS > PeriodicBoxProblem; 
+typedef ScalFactorPreconditioner<T> Prec;
+typedef BoxProblem<T, PeriodicTensorBasis, HelmholtzOp, PeriodicRHS, Prec> PeriodicBoxProblem; 
 
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > FullColMatrixT;
 typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
@@ -55,7 +56,9 @@ int main (int argc, char*argv[])
     SeparableFunction<T> rhs_fct(f_x, singularSupport, f_y, singularSupport);
     SeparableRHS<T, PeriodicTensorBasis> rhs(basis, rhs_fct);
     
-    PeriodicBoxProblem problem(basis, a, rhs);
+    Prec P;
+    
+    PeriodicBoxProblem problem(basis, a, rhs, P);
     
     FullColMatrixT A = problem.getStiffnessMatrix(J_x, J_y);
     ofstream Afile("A.txt");
@@ -66,6 +69,11 @@ int main (int argc, char*argv[])
     ofstream ffile("f.txt");
     ffile << f << endl;
     ffile.close();
+    
+    FullColMatrixT D = problem.getPreconditioner(J_x, J_y);
+    ofstream Dfile("D.txt");
+    Dfile << D << endl;
+    Dfile.close();
     
     
     

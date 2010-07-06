@@ -1,21 +1,34 @@
+/*
+  LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
 namespace lawa{
     
-/*template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
-BoxProblem::BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs, Preconditioner _P)
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
+BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs, Preconditioner _P)
     : basis(_basis), a(_a), rhs(_rhs), P(_P)
-{        
-}*/
-
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-BoxProblem<T, Basis, BilinearForm, RHSIntegral>::BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs)
-    : basis(_basis), a(_a), rhs(_rhs)
 {        
 }
 
 
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
-BoxProblem<T, Basis, BilinearForm, RHSIntegral>::getStiffnessMatrix(int J_x, int J_y, T tol)
+BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getStiffnessMatrix(int J_x, int J_y, T tol)
 {   
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
@@ -402,9 +415,9 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral>::getStiffnessMatrix(int J_x, int
 }  
 
 
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
 flens::DenseVector<flens::Array<T> >
-BoxProblem<T, Basis, BilinearForm, RHSIntegral>::getRHS(int J_x, int J_y)
+BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x, int J_y)
 {
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
@@ -494,13 +507,91 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral>::getRHS(int J_x, int J_y)
 }
 
 
-
-
-/*flens::GeMatrix<flens::FullStorage<T, flens::ColMajor> >    
-getPreconditioner(basis, P, int J_x, int J_y)
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
+flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    
+BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getPreconditioner(int J_x, int J_y)
 {
+    typedef typename Basis::FirstBasisType FirstBasis;
+    typedef typename Basis::SecondBasisType SecondBasis;
+    FirstBasis b1 = basis.first;
+    SecondBasis b2 = basis.second;
+    
+    flens::DenseVector<flens::Array<T> >  N(2);
+    N = b1.mra.cardI(J_x), b2.mra.cardI(J_y);
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > D(N(1)*N(2), N(1)*N(2));
+    
+    int osJx = b1.rangeJ(b1.j0).firstIndex() - 1;
+    int osJy = b2.rangeJ(b2.j0).firstIndex() - 1;
+    int osIx = b1.mra.rangeI(b1.j0).firstIndex() - 1;
+    int osIy = b2.mra.rangeI(b2.j0).firstIndex() - 1;
+    
+    bool spline = true;
+    bool wavelet = false;
+
+    /* SF x SF */
+    Range<int> Rx = b1.mra.rangeI(b1.j0);
+    Range<int> Ry = b2.mra.rangeI(b2.j0);
+    int Cx = b1.mra.cardI(b1.j0);
+    int Cy = b2.mra.cardI(b2.j0);    
+    for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
+        for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
+            
+            int index = (kx-osIx-1)*Cy + ky-osIy;
+            D(index, index) = P(spline, b1.j0, kx, spline, b2.j0, ky);
+            
+        }
+    }
+    
+    /* SF x W */
+    for(int jy = b2.j0; jy <= J_y-1; ++jy){
+        Ry = b2.rangeJ(jy);
+        Cy = b2.mra.cardI(jy);
+        for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
+            for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
+                
+                int index = Cx*Cy + (kx-osIx-1)*Cy + ky-osJy;
+                D(index, index) = P(spline, b1.j0, kx, wavelet, jy, ky);
+                
+            }
+        }
+    }
+    
+    /* W x SF */
+    Ry = b2.mra.rangeI(b2.j0);
+    Cy = b2.mra.cardI(b2.j0);
+    for(int jx = b1.j0; jx <= J_x -1; ++jx){
+        Rx = b1.rangeJ(jx);
+        Cx = b1.mra.cardI(jx);
+        for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
+            for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
+                
+                int index = Cx*b2.mra.cardI(J_y) + (kx-osJx-1)*Cy + ky-osIy;
+                D(index, index) = P(wavelet, jx, kx, spline, b2.j0, ky);
+            
+            }
+        }      
+    }
+    
+    /* W x W */
+    for(int jx = b1.j0; jx <= J_x - 1; ++jx){
+        Rx = b1.rangeJ(jx);
+        Cx = b1.mra.cardI(jx);
+        for(int jy = b2.j0; jy <= J_y - 1; ++jy){
+            Ry = b2.rangeJ(jy);
+            Cy = b2.mra.cardI(jy);
+            for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
+                for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
+                    
+                    int index = Cx*b2.mra.cardI(J_y) + Cx*Cy + (kx-osJx-1)*Cy + ky-osJy;
+                    D(index, index) = P(wavelet, jx, kx, wavelet, jy, ky);
+                
+                }
+            } 
+        }
+    }
+    
+    return D;
     
 }
-*/
     
 } // namespace lawa
