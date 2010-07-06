@@ -3,28 +3,29 @@
 
 namespace lawa{    
 
-template<typename T, typename Basis, typename BilinearForm>
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 //template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
 class BoxProblem
 {
     private:
         Basis basis;
         BilinearForm a;
-        //RHSIntegral rhs;
+        RHSIntegral rhs;
         //Preconditioner P;
    
     public: 
-        BoxProblem(Basis _basis, BilinearForm _a);
+        BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs);
         //BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs, Preconditioner _P);
     
         flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
         getStiffnessMatrix(int J_x, int J_y, T tol = 10e-15);
     
+        flens::DenseVector<flens::Array<T> >
+        getRHS(int J_x, int J_y);
+        
         //flens::GeMatrix<flens::FullStorage<T, flens::ColMajor> >    
         //getPreconditioner(basis, P, int J_x, int J_y);
     
-        //flens::DenseVector<flens::Array<T> >
-        //getRHS(basis, rhs, int J_x, int J_y);
 
 };
 

@@ -10,8 +10,24 @@ typedef BSpline<T,Primal,Periodic,CDF> PrimalSpline;
 typedef Wavelet<T,Primal,Periodic,CDF> PrimalWavelet;
 typedef Basis<T, Primal, Periodic, CDF> PrimalBasis;
 typedef TensorBasis<PrimalBasis, PrimalBasis> PeriodicTensorBasis;
+typedef HelmholtzOperator<T, PeriodicTensorBasis> HelmholtzOp;
+typedef SeparableRHS<T, PeriodicTensorBasis> PeriodicRHS;
+typedef BoxProblem<T, PeriodicTensorBasis, HelmholtzOp, PeriodicRHS > PeriodicBoxProblem; 
 
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > FullColMatrixT;
+typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
+
+#define c  2.0
+
+T f_x(T x)
+{
+    return (4.*M_PI*M_PI + c) * std::cos(2.*M_PI*x);
+}
+
+T f_y(T y)
+{
+    return 2.0;
+}
 
 int main (int argc, char*argv[])
 {
@@ -32,17 +48,24 @@ int main (int argc, char*argv[])
     PrimalBasis b1(d, d_, j0_x);
     PrimalBasis b2(d, d_, j0_y);
     PeriodicTensorBasis basis(b1, b2);
-    
-    T c = 2.0;
-    
+        
     HelmholtzOperator<T, PeriodicTensorBasis> a(basis, c);
     
-    BoxProblem<T, PeriodicTensorBasis, HelmholtzOperator<T, PeriodicTensorBasis> > problem(basis, a);
+    DenseVectorT singularSupport;
+    SeparableFunction<T> rhs_fct(f_x, singularSupport, f_y, singularSupport);
+    SeparableRHS<T, PeriodicTensorBasis> rhs(basis, rhs_fct);
+    
+    PeriodicBoxProblem problem(basis, a, rhs);
     
     FullColMatrixT A = problem.getStiffnessMatrix(J_x, J_y);
     ofstream Afile("A.txt");
     Afile << A << endl;
     Afile.close();
+    
+    DenseVectorT f = problem.getRHS(J_x, J_y);
+    ofstream ffile("f.txt");
+    ffile << f << endl;
+    ffile.close();
     
     
     

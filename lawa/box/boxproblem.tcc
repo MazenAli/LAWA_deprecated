@@ -6,16 +6,16 @@ BoxProblem::BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs, Precondi
 {        
 }*/
 
-template<typename T, typename Basis, typename BilinearForm>
-BoxProblem<T, Basis, BilinearForm>::BoxProblem(Basis _basis, BilinearForm _a)
-    : basis(_basis), a(_a)
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
+BoxProblem<T, Basis, BilinearForm, RHSIntegral>::BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs)
+    : basis(_basis), a(_a), rhs(_rhs)
 {        
 }
 
 
-template<typename T, typename Basis, typename BilinearForm>
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
-BoxProblem<T, Basis, BilinearForm>::getStiffnessMatrix(int J_x, int J_y, T tol)
+BoxProblem<T, Basis, BilinearForm, RHSIntegral>::getStiffnessMatrix(int J_x, int J_y, T tol)
 {   
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
@@ -401,16 +401,106 @@ BoxProblem<T, Basis, BilinearForm>::getStiffnessMatrix(int J_x, int J_y, T tol)
  
 }  
 
+
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
+flens::DenseVector<flens::Array<T> >
+BoxProblem<T, Basis, BilinearForm, RHSIntegral>::getRHS(int J_x, int J_y)
+{
+    typedef typename Basis::FirstBasisType FirstBasis;
+    typedef typename Basis::SecondBasisType SecondBasis;
+    FirstBasis b1 = basis.first;
+    SecondBasis b2 = basis.second;
+    
+    flens::DenseVector<flens::Array<T> >  N(2);
+    N = b1.mra.cardI(J_x), b2.mra.cardI(J_y);
+    
+    int osJx = b1.rangeJ(b1.j0).firstIndex() - 1;
+    int osJy = b2.rangeJ(b2.j0).firstIndex() - 1;
+    int osIx = b1.mra.rangeI(b1.j0).firstIndex() - 1;
+    int osIy = b2.mra.rangeI(b2.j0).firstIndex() - 1;
+    
+    bool spline = true;
+    bool wavelet = false;
+     
+    flens::DenseVector<flens::Array<T> > f(b1.mra.cardI(J_x)* b2.mra.cardI(J_y));
+
+    /*  ============  v = Scaling Fct x Scaling Fct ==========================*/
+    // cout << "SF x SF : " << endl;
+    Range<int> Rvx = b1.mra.rangeI(b1.j0);
+    Range<int> Rvy = b2.mra.rangeI(b2.j0);
+    int Cvx = b1.mra.cardI(b1.j0);
+    int Cvy = b2.mra.cardI(b2.j0);
+    for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
+      for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
+          
+          f((kvx-osIx-1)*Cvy + kvy-osIy) = rhs(true, b1.j0, kvx, true, b2.j0, kvy);
+
+      }
+    }
+
+    /* ============  v = Scaling Fct x Wavelet ==========================*/
+    //cout << "SF x W : " << endl;
+    Rvx = b1.mra.rangeI(b1.j0);
+    Cvx = b1.mra.cardI(b1.j0);
+    for(int jvy = b2.j0; jvy <= J_y - 1; ++jvy){
+      Rvy = b2.rangeJ(jvy);
+      Cvy = b2.mra.cardI(jvy);
+      for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
+        for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
+          
+          f(Cvx*Cvy + (kvx-osIx-1)*Cvy + kvy-osJy) = rhs(true, b1.j0, kvx, false, jvy, kvy);
+           
+        }
+      }  
+    }
+
+    /* ============  v = Wavelet x Scaling Fct ==========================*/
+    // cout << "W x SF : " << endl;
+    Rvy = b2.mra.rangeI(b2.j0);
+    Cvy = b2.mra.cardI(b2.j0);
+    for(int jvx = b1.j0; jvx <= J_x - 1; ++jvx){
+      Rvx = b1.rangeJ(jvx);
+      Cvx = b1.mra.cardI(jvx);
+      for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
+        for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
+          
+          f(Cvx*b2.mra.cardI(J_y) + (kvx-osJx-1)*Cvy + kvy-osIy) 
+          = rhs(false, jvx, kvx, true, b2.j0, kvy);
+          
+        }
+      }  
+    }
+
+    /*  ============  v = Wavelet x Wavelet ==========================*/
+    //cout << "W x W : " << endl;
+    for(int jvx = b1.j0; jvx <= J_x -1; ++jvx){
+      Rvx = b1.rangeJ(jvx);
+      Cvx = b1.mra.cardI(jvx);
+      for(int jvy = b2.j0; jvy <= J_y - 1; ++jvy){
+        Rvy = b2.rangeJ(jvy);
+        Cvy = b2.mra.cardI(jvy);
+        for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
+          for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
+             
+            f(Cvx*b2.mra.cardI(J_y) + Cvx*Cvy + (kvx-osJx-1)*Cvy + kvy-osJy) 
+            = rhs(false, jvx, kvx, false, jvy, kvy);
+
+          }
+        }
+      }
+    }
+    
+    return f;
+}
+
+
+
+
 /*flens::GeMatrix<flens::FullStorage<T, flens::ColMajor> >    
 getPreconditioner(basis, P, int J_x, int J_y)
 {
     
 }
-
-flens::DenseVector<flens::Array<T> >
-getRHS(basis, rhs, int J_x, int J_y)
-{
-    
-}*/
+*/
     
 } // namespace lawa
