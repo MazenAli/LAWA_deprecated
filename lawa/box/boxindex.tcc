@@ -20,7 +20,7 @@
 namespace lawa {
     
 template<typename Basis>
-BoxIndex<Basis>::BoxIndex(Basis _basis, int _J_x, int _J_y)
+BoxIndex<Basis>::BoxIndex(const Basis& _basis, const int _J_x, const int _J_y)
     : basis(_basis), J_x(_J_x), J_y(_J_y),
       offsetIx(_basis.first.mra.rangeI(_basis.first.j0).firstIndex() - 1), 
       offsetIy(_basis.second.mra.rangeI(_basis.second.j0).firstIndex() - 1), 

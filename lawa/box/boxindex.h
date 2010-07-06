@@ -26,16 +26,16 @@ template<typename Basis>
 class BoxIndex
 {
     private:
-        Basis basis;
-        int J_x, J_y;
+        const Basis& basis;
+        const int J_x, J_y;
         
-        int offsetJx;
-        int offsetJy;
-        int offsetIx;
-        int offsetIy;
+        const int offsetJx;
+        const int offsetJy;
+        const int offsetIx;
+        const int offsetIy;
     
     public:
-        BoxIndex(Basis _basis, int _J_x, int _J_y);
+        BoxIndex(const Basis& _basis, const int _J_x, const int _J_y);
         
         int
         operator()(bool XisSpline, int jx, int kx,
