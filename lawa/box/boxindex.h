@@ -29,10 +29,10 @@ class BoxIndex
         const Basis& basis;
         const int J_x, J_y;
         
-        const int offsetJx;
-        const int offsetJy;
         const int offsetIx;
         const int offsetIy;
+        const int offsetJx;
+        const int offsetJy;
     
     public:
         BoxIndex(const Basis& _basis, const int _J_x, const int _J_y);
