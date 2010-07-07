@@ -24,8 +24,8 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     typedef typename Basis::SecondBasisType::WaveletType PrimalWavelet_y;
     PrimalSpline_x phi_x(basis.first.mra, deriv);
     PrimalSpline_y phi_y(basis.second.mra, deriv);
-    PrimalWavelet_x psi_x(basis.first.mra, basis.first.mra_, deriv);             
-    PrimalWavelet_y psi_y(basis.second.mra, basis.second.mra_, deriv);
+    PrimalWavelet_x psi_x(basis.first, deriv);             
+    PrimalWavelet_y psi_y(basis.second, deriv);
     
     BoxIndex<Basis> I(basis, J_x, J_y);   
     
