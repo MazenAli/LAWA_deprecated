@@ -47,6 +47,18 @@ class Wavelet<T,Primal,Periodic,CDF>
                 const BSpline<T,Dual,Periodic,CDF> &_phi_,
                 int _deriv);
 
+        // TODO: muss man Wavelets aus der MRA konstruieren können?
+        Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
+                const MRA<T,Dual,Periodic,CDF> &mra_);
+
+        Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
+                const MRA<T,Dual,Periodic,CDF> &mra_,
+                int _deriv);
+                
+        Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis);
+
+        Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis, int _deriv);
+
         T
         operator()(T x, int j, int k) const;
 
