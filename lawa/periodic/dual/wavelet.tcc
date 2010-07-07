@@ -47,6 +47,13 @@ Wavelet<T,Dual,Periodic,CDF>::Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
 }
 
 template <typename T>
+Wavelet<T,Dual,Periodic,CDF>::Wavelet(const Basis<T,Dual,Periodic,CDF> &_basis)
+    : d(_basis.d), d_(_basis.d_), mu(d&1), psiR_(d,d_) 
+{
+}
+
+
+template <typename T>
 T
 Wavelet<T,Dual,Periodic,CDF>::operator()(T x, int j, int k) const
 {
