@@ -404,7 +404,7 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x,
     flens::DenseVector<flens::Array<T> > f(b1.mra.cardI(J_x)* b2.mra.cardI(J_y));
 
     /*  ============  v = Scaling Fct x Scaling Fct ==========================*/
-    // cout << "SF x SF : " << endl;
+    //std::cout << "SF x SF : " << std::endl;
     Range<int> Rvx = b1.mra.rangeI(b1.j0);
     Range<int> Rvy = b2.mra.rangeI(b2.j0);
     for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
@@ -417,22 +417,22 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x,
     }
 
     /* ============  v = Scaling Fct x Wavelet ==========================*/
-    //cout << "SF x W : " << endl;
+    //std::cout << "SF x W : " << std::endl;
     Rvx = b1.mra.rangeI(b1.j0);
     for(int jvy = b2.j0; jvy <= J_y - 1; ++jvy){
       Rvy = b2.rangeJ(jvy);
       for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
         for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
-            
+        
           f(I(spline, b1.j0, kvx, wavelet, jvy, kvy)) 
-              = rhs(spline, b1.j0, kvx, wavelet, b2.j0, kvy);
+              = rhs(spline, b1.j0, kvx, wavelet, jvy, kvy);
                      
         }
       }  
     }
 
     /* ============  v = Wavelet x Scaling Fct ==========================*/
-    // cout << "W x SF : " << endl;
+    //std::cout << "W x SF : " << std::endl;
     Rvy = b2.mra.rangeI(b2.j0);
     for(int jvx = b1.j0; jvx <= J_x - 1; ++jvx){
       Rvx = b1.rangeJ(jvx);
@@ -447,7 +447,7 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x,
     }
 
     /*  ============  v = Wavelet x Wavelet ==========================*/
-    //cout << "W x W : " << endl;
+    //std::cout << "W x W : " << std::endl;
     for(int jvx = b1.j0; jvx <= J_x -1; ++jvx){
       Rvx = b1.rangeJ(jvx);
       for(int jvy = b2.j0; jvy <= J_y - 1; ++jvy){
