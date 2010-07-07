@@ -30,7 +30,7 @@ class SeparableRHS
 {
     private:
         const Basis& basis;
-        const SeparableFunction<T> F;
+        const SeparableFunction<T>& F; 
         
         typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_x;
         typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_y;
@@ -48,11 +48,12 @@ class SeparableRHS
         Integral<T, CompositeTrapezoidal, PrimalWavelet_y, Function<T> > integral_wf_y;
         
     public:
-        SeparableRHS(const Basis& _basis, const SeparableFunction<T> _F);
+        SeparableRHS(const Basis& _basis, const SeparableFunction<T>& _F);
         
         T
         operator()(bool XisSpline, int j_x, int k_x,
                    bool YisSpline, int j_y, int k_y) const;
+                           
 };   
     
 } // namespace lawa

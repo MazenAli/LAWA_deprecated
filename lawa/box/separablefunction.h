@@ -29,7 +29,7 @@ using namespace flens;
 template<typename T>
 struct SeparableFunction
 {
-    SeparableFunction(Function<T> _F_x, Function<T> _F_y);
+    SeparableFunction(Function<T> _F_x, Function<T>  _F_y);
     
     SeparableFunction(T (*_f_x)(T), const DenseVector<Array<T> > &_singularPts_x,
                       T (*_f_y)(T), const DenseVector<Array<T> > &_singularPts_y);
