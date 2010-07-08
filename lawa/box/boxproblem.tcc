@@ -39,15 +39,13 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
     
     BoxIndex<Basis> I(basis, J_x, J_y);
     
-    flens::DenseVector<flens::Array<T> >  N(2);
-    N = b1.mra.cardI(J_x), b2.mra.cardI(J_y);
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A(N(1)*N(2), N(1)*N(2));
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A(basis.dim(J_x,J_y), basis.dim(J_x,J_y));
     
     bool spline = true;
     bool wavelet = false;
                                                  
      /* ============  v = Scaling Fct x Scaling Fct ==========================*/
-     //cout << "===== v = SF * SF =======" << endl;
+     //std::cout << "===== v = SF * SF =======" << std::endl;
      Range<int> Rvx = b1.mra.rangeI(b1.j0);
      Range<int> Rvy = b2.mra.rangeI(b2.j0);
      Range<int> Rux = b1.mra.rangeI(b1.j0);
@@ -73,7 +71,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
          /* u = Scaling Fct x Wavelet */ 
          Rux = b1.mra.rangeI(b1.j0);
-         for(int juy = b2.j0; juy <= J_y - 1; ++juy){
+         for(int juy = b2.j0; juy <= basis.Jy_max(J_x, J_y, b1.j0-1) - 1; ++juy){
            Ruy = b2.rangeJ(juy); 
            for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
              for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -91,7 +89,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
          /* u = Wavelet x Scaling Function */ 
          Ruy = b2.mra.rangeI(b2.j0);
-         for(int jux = b1.j0; jux <= J_x - 1; ++jux){
+         for(int jux = b1.j0; jux <= basis.Jx_max(J_x, J_y, b2.j0-1) - 1; ++jux){
            Rux = b1.rangeJ(jux); 
            for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
              for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -108,9 +106,9 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
          }
 
          /* u = Wavelet x Wavelet */ 
-         for(int jux = b1.j0; jux <= J_x - 1; ++jux){
+         for(int jux = b1.j0; jux <= basis.Jx_max(J_x, J_y, b2.j0) - 1; ++jux){
            Rux = b1.rangeJ(jux); 
-           for(int juy = b2.j0; juy <= J_y - 1; ++juy){    
+           for(int juy = b2.j0; juy <= basis.Jy_max(J_x, J_y, jux) - 1; ++juy){    
              Ruy = b2.rangeJ(juy); 
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -130,10 +128,10 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
      }    
 
      /* ============  v = Scaling Fct x Wavelet ==========================*/
-    // cout << "===== v = SF * W =======" << endl;
+    //std::cout << "===== v = SF * W =======" << std::endl;
 
      Rvx = b1.mra.rangeI(b1.j0);
-     for(int jvy = b2.j0; jvy <= J_y - 1; jvy++){
+     for(int jvy = b2.j0; jvy <= basis.Jy_max(J_x, J_y, b1.j0-1) - 1; jvy++){
        Rvy = b2.rangeJ(jvy);
        for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
          for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
@@ -156,7 +154,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
            /* u = Scaling Fct x Wavelet */ 
            Rux = b1.mra.rangeI(b1.j0);
-           for(int juy = b2.j0; juy <= J_y - 1; ++juy){
+           for(int juy = b2.j0; juy <= basis.Jy_max(J_x, J_y, b1.j0-1) - 1; ++juy){
              Ruy = b2.rangeJ(juy); 
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -174,7 +172,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
            /* u = Wavelet x Scaling Function */ 
            Ruy = b2.mra.rangeI(b2.j0);
-           for(int jux = b1.j0; jux <= J_x - 1; ++jux){
+           for(int jux = b1.j0; jux <= basis.Jx_max(J_x, J_y, b2.j0-1) - 1; ++jux){
              Rux = b1.rangeJ(jux); 
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -191,9 +189,9 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
            }
 
            /* u = Wavelet x Wavelet */ 
-           for(int jux = b1.j0; jux <= J_x -1; ++jux){
+           for(int jux = b1.j0; jux <= basis.Jx_max(J_x, J_y, b2.j0) -1; ++jux){
              Rux = b1.rangeJ(jux);
-             for(int juy = b2.j0; juy <= J_y -1; ++juy){
+             for(int juy = b2.j0; juy <= basis.Jy_max(J_x, J_y, jux) -1; ++juy){
                Ruy = b2.rangeJ(juy);
                for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                  for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -217,7 +215,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
      //cout << "===== v = W * SF =======" << endl;
 
      Rvy = b2.mra.rangeI(b2.j0);
-     for(int jvx = b1.j0; jvx <= J_x - 1; jvx++){
+     for(int jvx = b1.j0; jvx <= basis.Jx_max(J_x, J_y, b2.j0-1) - 1; jvx++){
        Rvx = b1.rangeJ(jvx);
        for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
          for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
@@ -240,7 +238,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
            /* u = Scaling Fct x Wavelet */ 
            Rux = b1.mra.rangeI(b1.j0);
-           for(int juy = b2.j0; juy <= J_y - 1; ++juy){
+           for(int juy = b2.j0; juy <= basis.Jy_max(J_x, J_y, b1.j0-1) - 1; ++juy){
              Ruy = b2.rangeJ(juy); 
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -258,7 +256,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
            /* u = Wavelet x Scaling Function */ 
            Ruy = b2.mra.rangeI(b2.j0);
-           for(int jux = b1.j0; jux <= J_x - 1; ++jux){
+           for(int jux = b1.j0; jux <= basis.Jx_max(J_x, J_y, b2.j0-1) - 1; ++jux){
              Rux = b1.rangeJ(jux); 
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -275,9 +273,9 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
            }
 
            /* u = Wavelet x Wavelet */ 
-           for(int jux = b1.j0; jux <= J_x -1; ++jux){
+           for(int jux = b1.j0; jux <= basis.Jx_max(J_x, J_y, b2.j0) -1; ++jux){
              Rux = b1.rangeJ(jux);
-             for(int juy = b2.j0; juy <= J_y -1; ++juy){
+             for(int juy = b2.j0; juy <= basis.Jy_max(J_x, J_y, jux) -1; ++juy){
                Ruy = b2.rangeJ(juy);
                for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                  for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -299,9 +297,9 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
      /* ============  v = Wavelet x Wavelet ==========================*/
      //cout << "===== v = W * W =======" << endl;  
-     for(int jvx = b1.j0; jvx <= J_x -1; ++jvx){
+     for(int jvx = b1.j0; jvx <= basis.Jx_max(J_x, J_y, b2.j0) -1; ++jvx){
        Rvx = b1.rangeJ(jvx);
-       for(int jvy = b2.j0; jvy <= J_y -1; ++jvy){
+       for(int jvy = b2.j0; jvy <= basis.Jy_max(J_x, J_y, jvx) -1; ++jvy){
          Rvy = b2.rangeJ(jvy);
          for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
            for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
@@ -324,7 +322,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
              /* u = Scaling Fct x Wavelet */ 
              Rux = b1.mra.rangeI(b1.j0);
-             for(int juy = b2.j0; juy <= J_y - 1; ++juy){
+             for(int juy = b2.j0; juy <= basis.Jy_max(J_x, J_y, b1.j0-1) - 1; ++juy){
                Ruy = b2.rangeJ(juy); 
                for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                  for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -342,7 +340,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 
              /* u = Wavelet x Scaling Function */ 
              Ruy = b2.mra.rangeI(b2.j0);
-             for(int jux = b1.j0; jux <= J_x - 1; ++jux){
+             for(int jux = b1.j0; jux <= basis.Jx_max(J_x, J_y, b2.j0-1) - 1; ++jux){
                Rux = b1.rangeJ(jux); 
                for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                  for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -359,9 +357,9 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
              }
 
              /* u = Wavelet x Wavelet */ 
-             for(int jux = b1.j0; jux <= J_x -1; ++jux){
+             for(int jux = b1.j0; jux <= basis.Jx_max(J_x, J_y, b2.j0) -1; ++jux){
                Rux = b1.rangeJ(jux);
-               for(int juy = b2.j0; juy <= J_y -1; ++juy){
+               for(int juy = b2.j0; juy <= basis.Jy_max(J_x, J_y, jux) -1; ++juy){
                  Ruy = b2.rangeJ(juy);
                  for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                    for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
@@ -401,7 +399,7 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x,
     bool spline = true;
     bool wavelet = false;
      
-    flens::DenseVector<flens::Array<T> > f(b1.mra.cardI(J_x)* b2.mra.cardI(J_y));
+    flens::DenseVector<flens::Array<T> > f(basis.dim(J_x, J_y));
 
     /*  ============  v = Scaling Fct x Scaling Fct ==========================*/
     //std::cout << "SF x SF : " << std::endl;
@@ -419,7 +417,7 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x,
     /* ============  v = Scaling Fct x Wavelet ==========================*/
     //std::cout << "SF x W : " << std::endl;
     Rvx = b1.mra.rangeI(b1.j0);
-    for(int jvy = b2.j0; jvy <= J_y - 1; ++jvy){
+    for(int jvy = b2.j0; jvy <= basis.Jy_max(J_x, J_y, b1.j0-1) - 1; ++jvy){
       Rvy = b2.rangeJ(jvy);
       for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
         for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
@@ -434,7 +432,7 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x,
     /* ============  v = Wavelet x Scaling Fct ==========================*/
     //std::cout << "W x SF : " << std::endl;
     Rvy = b2.mra.rangeI(b2.j0);
-    for(int jvx = b1.j0; jvx <= J_x - 1; ++jvx){
+    for(int jvx = b1.j0; jvx <= basis.Jx_max(J_x, J_y, b2.j0-1) - 1; ++jvx){
       Rvx = b1.rangeJ(jvx);
       for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
         for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
@@ -448,9 +446,9 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x,
 
     /*  ============  v = Wavelet x Wavelet ==========================*/
     //std::cout << "W x W : " << std::endl;
-    for(int jvx = b1.j0; jvx <= J_x -1; ++jvx){
+    for(int jvx = b1.j0; jvx <= basis.Jx_max(J_x, J_y, b2.j0) -1; ++jvx){
       Rvx = b1.rangeJ(jvx);
-      for(int jvy = b2.j0; jvy <= J_y - 1; ++jvy){
+      for(int jvy = b2.j0; jvy <= basis.Jy_max(J_x, J_y, jvx) - 1; ++jvy){
         Rvy = b2.rangeJ(jvy);
         for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
           for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
@@ -479,9 +477,7 @@ getPreconditioner(int J_x, int J_y)
     
     BoxIndex<Basis> I(basis, J_x, J_y);
     
-    flens::DenseVector<flens::Array<T> >  N(2);
-    N = b1.mra.cardI(J_x), b2.mra.cardI(J_y);
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > D(N(1)*N(2), N(1)*N(2));
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > D(basis.dim(J_x, J_y), basis.dim(J_x, J_y));
     
     bool spline = true;
     bool wavelet = false;
@@ -499,7 +495,7 @@ getPreconditioner(int J_x, int J_y)
     }
     
     /* SF x W */
-    for(int jy = b2.j0; jy <= J_y-1; ++jy){
+    for(int jy = b2.j0; jy <= basis.Jy_max(J_x, J_y, b1.j0-1)-1; ++jy){
         Ry = b2.rangeJ(jy);
         for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
@@ -513,7 +509,7 @@ getPreconditioner(int J_x, int J_y)
     
     /* W x SF */
     Ry = b2.mra.rangeI(b2.j0);
-    for(int jx = b1.j0; jx <= J_x -1; ++jx){
+    for(int jx = b1.j0; jx <= basis.Jx_max(J_x, J_y, b2.j0-1) -1; ++jx){
         Rx = b1.rangeJ(jx);
         for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
@@ -526,9 +522,9 @@ getPreconditioner(int J_x, int J_y)
     }
     
     /* W x W */
-    for(int jx = b1.j0; jx <= J_x - 1; ++jx){
+    for(int jx = b1.j0; jx <= basis.Jx_max(J_x, J_y, b2.j0) - 1; ++jx){
         Rx = b1.rangeJ(jx);
-        for(int jy = b2.j0; jy <= J_y - 1; ++jy){
+        for(int jy = b2.j0; jy <= basis.Jy_max(J_x, J_y, jx) - 1; ++jy){
             Ry = b2.rangeJ(jy);
             for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
                 for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){

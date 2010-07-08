@@ -34,7 +34,13 @@ struct TensorBasis
     const SecondBasis &second;
     
     int
-    dim(int J_x, int J_y) const;
+    dim(const int J_x, const int J_y) const;
+    
+    int 
+    Jx_max(const int J_x, const int J_y, const int jy) const;
+    
+    int 
+    Jy_max(const int J_x, const int J_y, const int jx) const;
 };
     
     

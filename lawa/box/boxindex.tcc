@@ -41,21 +41,21 @@ BoxIndex<Basis>::operator()(bool XisSpline, int jx, int kx,
         }
         else{
             return  basis.first.mra.cardI(basis.first.j0) * basis.second.mra.cardI(jy)
-                    + (kx-offsetIx-1)*basis.second.mra.cardI(jy)
+                    + (kx-offsetIx-1)*basis.second.cardJ(jy)
                     +  ky-offsetJy;
         }
     }
     else{
         if(YisSpline){
-            return  basis.first.mra.cardI(jx) * basis.second.mra.cardI(J_y)
+            return  basis.dim(jx, J_y)
                     + (kx-offsetJx-1)*basis.second.mra.cardI(basis.second.j0)
                     +  ky-offsetIy;
 
         }
         else{
-            return  basis.first.mra.cardI(jx) * basis.second.mra.cardI(J_y)
-                    + basis.first.mra.cardI(jx) * basis.second.mra.cardI(jy)
-                    + (kx-offsetJx-1)*basis.second.mra.cardI(jy)
+            return  basis.dim(jx, J_y)
+                    + basis.first.cardJ(jx) * basis.second.mra.cardI(jy)
+                    + (kx-offsetJx-1)*basis.second.cardJ(jy)
                     +  ky-offsetJy;
         }
     }

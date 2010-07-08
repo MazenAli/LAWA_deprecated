@@ -43,7 +43,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     
     /* SF * W */
     Rx = basis.first.mra.rangeI(j0_x);
-    for(int jy = j0_y; jy <= J_y-1; ++jy){ // volle TensorBasis
+    for(int jy = j0_y; jy <= basis.Jy_max(J_x, J_y, j0_x - 1) -1; ++jy){
         Ry = basis.second.mra.rangeI(jy);
         for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
@@ -55,7 +55,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     
     /* W * SF */
     Ry = basis.second.mra.rangeI(j0_y);
-    for(int jx = j0_x; jx <= J_x-1; ++jx){ // volle TensorBasis
+    for(int jx = j0_x; jx <= basis.Jx_max(J_x, J_y, j0_y - 1) - 1; ++jx){
         Rx = basis.first.mra.rangeI(jx);
         for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){  
@@ -66,9 +66,9 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     }
     
     /* W * W */
-    for(int jx = j0_x; jx <= J_x-1; ++jx){ // volle TensorBasis
+    for(int jx = j0_x; jx <= basis.Jx_max(J_x, J_y, j0_y)-1; ++jx){
         Rx = basis.first.mra.rangeI(jx);
-        for(int jy = j0_y; jy <= J_y-1; ++jy){ // volle TensorBasis
+        for(int jy = j0_y; jy <= basis.Jy_max(J_x, J_y, jx)-1; ++jy){
             Ry = basis.second.mra.rangeI(jy);
             for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
                 for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
