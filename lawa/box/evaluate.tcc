@@ -5,7 +5,8 @@ namespace lawa {
 template <typename X, typename Basis>
 typename X::ElementType
 evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVector<X> &coeffs,
-        const typename X::ElementType x, const typename X::ElementType y, const int deriv)
+        const typename X::ElementType x, const typename X::ElementType y, const int deriv_x, 
+        const int deriv_y)
 {
     assert(J_x>=basis.first.j0);
     assert(J_y>=basis.second.j0);
@@ -22,10 +23,10 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_y;
     typedef typename Basis::FirstBasisType::WaveletType PrimalWavelet_x;
     typedef typename Basis::SecondBasisType::WaveletType PrimalWavelet_y;
-    PrimalSpline_x phi_x(basis.first.mra, deriv);
-    PrimalSpline_y phi_y(basis.second.mra, deriv);
-    PrimalWavelet_x psi_x(basis.first, deriv);             
-    PrimalWavelet_y psi_y(basis.second, deriv);
+    PrimalSpline_x phi_x(basis.first.mra, deriv_x);
+    PrimalSpline_y phi_y(basis.second.mra, deriv_y);
+    PrimalWavelet_x psi_x(basis.first, deriv_x);             
+    PrimalWavelet_y psi_y(basis.second, deriv_y);
     
     BoxIndex<Basis> I(basis, J_x, J_y);   
     
