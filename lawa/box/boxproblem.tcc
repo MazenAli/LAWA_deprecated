@@ -28,7 +28,7 @@ BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs, Preconditioner _P)
 
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
-flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
+flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
 BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::
 getStiffnessMatrix(int J_x, int J_y, T tol)
 {   
@@ -39,7 +39,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
     
     BoxIndex<Basis> I(basis, J_x, J_y);
     
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A(basis.dim(J_x,J_y), basis.dim(J_x,J_y));
+    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A(basis.dim(J_x,J_y), basis.dim(J_x,J_y));
     
     bool spline = true;
     bool wavelet = false;
@@ -380,6 +380,7 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
        }
      }
     
+    A.finalize();
     return A;
  
 }  

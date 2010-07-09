@@ -42,7 +42,7 @@ class BoxProblem
     public: 
         BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs, Preconditioner _P);
     
-        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
+        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
         getStiffnessMatrix(int J_x, int J_y, T tol = 10e-15);
     
         flens::DenseVector<flens::Array<T> >
