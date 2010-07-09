@@ -10,8 +10,8 @@ typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
 
 const Construction Cons = Dijkema;
 
-int nr = 6;
-T c = 0.1;
+int nr = 4;
+T c = 2.0;
 
 extern "C" {
     T
@@ -154,9 +154,11 @@ main(int argc, char *argv[])
     Basis<T,Primal,Interval,Cons> basis(d,d_,j0);
     const MRA<T,Primal,Interval,Primbs> &mra = basis.mra;
     basis.enforceBoundaryCondition<DirichletBC>();
+    
 
     SparseGeMatrix<CRS<T, CRS_General> > A(mra.cardI(J),mra.cardI(J));
     int offset = -mra.rangeI(j0).firstIndex()+1;
+    cout << "A dim " << mra.cardI(J) << " x " << mra.cardI(J) << endl;
 
     cout << "SF*SF begin ------------------" << endl;
     BSpline<T,Primal,Interval,Primbs> phi1(mra,0), d_phi1(mra,1),
@@ -239,13 +241,18 @@ main(int argc, char *argv[])
     }
     cout << "W*W end ----------------------" << endl;
     
-    A.finalize();
+    //A.finalize();
+    ofstream Afile("A.txt");
+    Afile << A << endl;
+    Afile.close();
+    
 //    FullColMatrix DA;
 //    densify(cxxblas::NoTrans, A, DA);
 //    std::cerr << DA << std::endl;
 
     cout << "SF rhs -----------------------" << endl;
     DenseVector<Array<T> > rhs(mra.rangeI(J));
+    cout << "RHS dim = " << mra.rangeI(J) << endl;
     BSpline<T,Primal,Interval,Primbs> rhs_phi(mra,0);
     DenseVector<Array<T> > rhs_sing_pts;
     Function<T> rhs_f(f, rhs_sing_pts);
@@ -294,6 +301,8 @@ main(int argc, char *argv[])
     }
 
     cout << endl << "wavelets rhs end -------------" << endl;
+
+    
 /*
     DenseVector<Array<T> > diagonal(N);
     for (int k1 = basis.rangeI(j0).firstIndex(); k1 <= basis.rangeI(j0).lastIndex(); ++k1) {
@@ -317,6 +326,7 @@ main(int argc, char *argv[])
 //    cout << rhs << endl;
 
     DenseVector<Array<T> > u(mra.rangeI(J));
+    cout << " u dim: "<< mra.rangeI(J) << endl;
     int iterations = flens::cg(A,u,rhs);
     cout << iterations << " cg iterations, ";
     // cout << lawa::pcg(P,A,u,rhs) << " pcg iterations, ";
