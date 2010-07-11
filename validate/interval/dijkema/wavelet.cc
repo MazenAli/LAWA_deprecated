@@ -21,6 +21,7 @@ main(int argc, char *argv[])
     int deriv = atoi(argv[5]);
 
     Basis<T,Primal,Interval,Dijkema> basis(d,d_);
+    basis.enforceBoundaryCondition<DirichletBC>();
     Wavelet<T,Primal,Interval,Dijkema> psi(basis,deriv);
     cout.precision(18);
     for (T x = 0.; x<=1.; x+=1./10240) {

@@ -20,12 +20,25 @@ main(int argc, char *argv[])
     int deriv = atoi(argv[4]);
 
     Basis<T,Primal,Interval,Dijkema> basis(d,d_,j);
+	basis.enforceBoundaryCondition<DirichletBC>();
+    Basis<T,Dual,Interval,Dijkema> basis_(d,d_,j);
+	basis_.enforceBoundaryCondition<DirichletBC>();
+
     //Wavelet<T,Primal,Interval,Dijkema> psi(basis,deriv);
-    
-    GeMatrix<FullStorage<T,ColMajor> > DM1;
-    densify(cxxblas::NoTrans, basis.M1,DM1);
-    std::cerr << DM1 << std::endl;
 /*    
+    GeMatrix<FullStorage<T,ColMajor> > DM1;
+    densify(cxxblas::NoTrans, basis.M1, DM1);
+    std::cerr << DM1 << std::endl;
+    GeMatrix<FullStorage<T,ColMajor> > DM0;
+    densify(cxxblas::NoTrans, basis.mra.M0, DM0);
+    std::cerr << DM0 << std::endl;
+    GeMatrix<FullStorage<T,ColMajor> > DM1_;
+    densify(cxxblas::NoTrans, basis_.M1_, DM1_);
+    std::cerr << DM1_ << std::endl;
+    GeMatrix<FullStorage<T,ColMajor> > DM0_;
+    densify(cxxblas::NoTrans, basis_.mra_.M0_, DM0_);
+    std::cerr << DM0_ << std::endl;
+    
     std::cerr << basis.M1.rows() << "x" << basis.M1.cols() << std::endl;
     std::cerr << basis.M1.leftband.firstIndex() << "," << basis.M1.leftband.lastIndex() << " " << basis.M1.leftband << std::endl;
     cout.precision(18);

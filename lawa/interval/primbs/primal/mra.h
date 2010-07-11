@@ -93,6 +93,10 @@ class MRA<T,Primal,Interval,Primbs>
                                            // bc(1) = 1 -> Dirichlet BC right.
 
         mutable int _j;                // the current level.
+
+    public:
+        BSpline<T,Primal,Interval,Primbs> phi;
+
 };
 
 } // namespace lawa

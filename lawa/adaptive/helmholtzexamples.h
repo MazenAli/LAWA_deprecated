@@ -15,58 +15,40 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+*/
 
-#ifndef LAWA_ENUM_H
-#define LAWA_ENUM_H 1
+#ifndef LAWA_ADAPTIVE_HELMHOLTZEXAMPLES_H
+#define LAWA_ADAPTIVE_HELMHOLTZEXAMPLES_H 1
 
 namespace lawa {
 
-enum FunctionSide {
-    Primal,
-    Dual
-};
+template <typename T>
+struct HelmholtzExamples
+{
+    static void
+    setExample(int _nr, T _alpha, T _beta);
 
-enum DomainType {
-    Periodic,
-    R,
-    Interval
-};
+    static T
+    exact(T x);
+    
+    static T
+    exact(T x, int deriv);
 
-enum XType {
-    XBSpline,
-    XWavelet
-};
+    static T
+    rhs(T x);
+    
+    static DenseVector<Array<T> >
+    u_sing_pts;
 
-enum Construction {
-    CDF,
-    AnyInterval,
-    DKU,
-    Primbs,
-    Dijkema
-};
-
-enum BoundaryCondition {
-    NoBC = 0,
-    DirichletBC = 1
-};
-
-enum QuadratureType { 
-    Gauss, 
-    CompositeTrapezoidal 
-};
-
-enum SortingCriterion {
-	AbsoluteValue,
-	Lexicographical,
-	Uniform
-};
-
-enum RecoveryType {
-	BU,
-	CDD
+    static T alpha;
+    static T beta;
+    static T energyNorm;
+    static T energyFunctional;
+    static int nr;
 };
 
 } // namespace lawa
 
-#endif // LAWA_ENUM_H
+#include <lawa/adaptive/helmholtzexamples.tcc>
+
+#endif // LAWA_ADAPTIVE_HELMHOLTZEXAMPLES_H

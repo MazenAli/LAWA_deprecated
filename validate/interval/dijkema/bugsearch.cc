@@ -54,11 +54,11 @@ main(int argc, char *argv[])
     std::cerr << "I1 = " << I << std::endl;
 
 
-    DenseVectorT coeffs(basis.mra.rangeI(J)), dec;
+    DenseVectorT coeffs(basis.mra.rangeI(J)), dec(basis.mra.rangeI(J));
     coeffs(k) = 1.;
     T x = 0.0, h = 1./1024.;
     for (T x=0.0; x<=1.; x+=h) {
-        cout << evaluate(basis.mra,J,coeffs,x,0) << endl;
+        cout << evaluate(basis.mra,J,coeffs,x,1) << endl;
     }
     cout << endl << endl;
     std::cerr << coeffs << std::endl;
@@ -67,7 +67,7 @@ main(int argc, char *argv[])
     std::cerr << dec << std::endl;
     x = 0.0, h = 1./1024.;
     for (T x=0.0; x<=1.; x+=h) {
-        cout << evaluate(basis,J,dec,x,0) << endl;
+        cout << evaluate(basis,J,dec,x,1) << endl;
     }
     cout << endl << endl;
     ifwt(dec,basis,J-1,coeffs);
@@ -75,9 +75,16 @@ main(int argc, char *argv[])
 
     x = 0.0, h = 1./1024.;
     for (T x=0.0; x<=1.; x+=h) {
-        cout << evaluate(basis.mra,J,coeffs,x,0) << endl;
+        cout << evaluate(basis.mra,J,coeffs,x,1) << endl;
     }
     cout << endl << endl;
+
+    {
+		BSpline<T,Primal,Interval,Primbs> phi(basis.mra);
+		std::cerr << phi.support(j0,k) << phi.singularSupport(j0,k) << std::endl;
+		Wavelet<T,Primal,Interval,Dijkema> psi(basis);
+		std::cerr << psi.support(j0,1) << psi.singularSupport(j0,1)  << std::endl;
+	}
 
     return 0;
 }

@@ -25,7 +25,7 @@
 namespace lawa {
 
 template <typename T>
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     linspace(T from, T to, int numTicks);
 
 } // namespace lawa

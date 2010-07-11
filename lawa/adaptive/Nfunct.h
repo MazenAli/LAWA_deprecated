@@ -15,58 +15,25 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+*/
 
-#ifndef LAWA_ENUM_H
-#define LAWA_ENUM_H 1
+#ifndef LAWA_ADAPTIVE_NFUNCT_H
+#define LAWA_ADAPTIVE_NFUNCT_H 1
+
+#include <lawa/adaptive/waveletcoefficient.h>
 
 namespace lawa {
 
-enum FunctionSide {
-    Primal,
-    Dual
-};
+template <typename T,Construction Cons>
+Coefficient<Lexicographical,T,Cons>
+THRESH(const Coefficient<Lexicographical,T,Cons> &v, T eta);
 
-enum DomainType {
-    Periodic,
-    R,
-    Interval
-};
-
-enum XType {
-    XBSpline,
-    XWavelet
-};
-
-enum Construction {
-    CDF,
-    AnyInterval,
-    DKU,
-    Primbs,
-    Dijkema
-};
-
-enum BoundaryCondition {
-    NoBC = 0,
-    DirichletBC = 1
-};
-
-enum QuadratureType { 
-    Gauss, 
-    CompositeTrapezoidal 
-};
-
-enum SortingCriterion {
-	AbsoluteValue,
-	Lexicographical,
-	Uniform
-};
-
-enum RecoveryType {
-	BU,
-	CDD
-};
+template <typename T,Construction Cons>
+Coefficient<Lexicographical,T,Cons>
+THRESH(const Coefficient<AbsoluteValue,T,Cons> &v, T eta);
 
 } // namespace lawa
 
-#endif // LAWA_ENUM_H
+#include <lawa/adaptive/Nfunct.tcc>
+
+#endif // LAWA_ADAPTIVE_NFUNCT_H 

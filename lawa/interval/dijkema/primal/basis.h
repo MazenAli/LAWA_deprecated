@@ -32,7 +32,7 @@ class Basis<T,Primal,Interval,Dijkema>
     public:
         typedef Wavelet<T,Primal,Interval,Dijkema> WaveletType;
         typedef BSpline<T,Primal,Interval,Primbs> BSplineType;
-        
+
         Basis(int _d, int _d_, int j=-1);
 
         int
@@ -71,6 +71,20 @@ class Basis<T,Primal,Interval,Dijkema>
         const Range<int>
         rangeJR(int j=-1) const;
 
+// TODO: get rid of the following!!!!
+// support of underlying primal functions, e=0 scaling, e=1 wavelet
+const Support<T>
+support(int j, int k, int e) const;
+
+// support of underlying dual functions, e=0 scaling, e=1 wavelet
+const Support<T>
+support_(int j, int k, int e) const;
+
+// support of underlying functions, e=0 scaling, e=1 wavelet
+const DenseVector<Array<T> >
+singularSupport(int j, int k, int e) const;
+
+
         MRA<T,Primal,Interval,Primbs> mra;
         MRA<T,Dual,Interval,Dijkema>  mra_;
 
@@ -86,6 +100,11 @@ class Basis<T,Primal,Interval,Dijkema>
                                            // bc(1) = 1 -> Dirichlet BC right.
 
         mutable int _j;                // the current level.
+
+
+    public:
+        Wavelet<T,Primal,Interval,Dijkema> psi;
+
 
 };
 

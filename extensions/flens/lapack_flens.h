@@ -100,7 +100,7 @@ template <typename MA, typename VT, typename MC>
     ormqr(cxxblas::Side side, cxxblas::Transpose trans,
           const GeMatrix<MA> &A, const DenseVector<VT> &tau,
           GeMatrix<MC> &C);
-/*
+
 //== gels ----------------------------------------------------------------------
 template <typename MA, typename MB>
     int
@@ -141,7 +141,7 @@ template <typename MA, typename VW, typename MVS>
        GeMatrix<MA> &A, int &sdim,
        DenseVector<VW> &w,
        GeMatrix<MVS> &VS);
-*/
+
 //== geev,real -----------------------------------------------------------------
 template <typename MA, typename WR, typename WI, typename VL, typename VR>
     int

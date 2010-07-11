@@ -21,6 +21,7 @@ main(int argc, char *argv[])
     int deriv = atoi(argv[5]);
 
     Basis<T,Primal,Interval,Dijkema> basis(d,d_);    
+    basis.enforceBoundaryCondition<DirichletBC>();
     BSpline<T,Primal,Interval,Primbs> phi(basis.mra);
     cout.precision(18);
     for (T x = 0.; x<=1.; x+=1./1024) {

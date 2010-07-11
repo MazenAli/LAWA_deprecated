@@ -8,10 +8,10 @@ using namespace lawa;
 typedef double T;
 typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
 
-const Construction Cons = Dijkema;
+const Construction Cons = Primbs;
 
 int nr = 6;
-T c = 0.1;
+T c = 0.0;
 
 extern "C" {
     T
@@ -129,6 +129,8 @@ exact( T x, int deriv ) {
         } else {
             assert(0);
         }
+    } else if (nr == 8) {
+        return 0;
     }
 
     assert(0);
@@ -244,6 +246,7 @@ main(int argc, char *argv[])
 //    densify(cxxblas::NoTrans, A, DA);
 //    std::cerr << DA << std::endl;
 
+//------------------------------------------ MS APPROACH -----------------------
     cout << "SF rhs -----------------------" << endl;
     DenseVector<Array<T> > rhs(mra.rangeI(J));
     BSpline<T,Primal,Interval,Primbs> rhs_phi(mra,0);
@@ -257,7 +260,7 @@ main(int argc, char *argv[])
         rhs_sing_pts.engine().resize(2);
         rhs_sing_pts = 0.3;
     }
-    Integral<T,Gauss,
+    Integral<T,CompositeTrapezoidal,
              BSpline<T,Primal,Interval,Primbs>,
              Function<T> > integralsff(rhs_phi,rhs_f);
     for (int k1 = mra.rangeI(j0).firstIndex(); k1 <= mra.rangeI(j0).lastIndex(); ++k1) {
@@ -275,7 +278,7 @@ main(int argc, char *argv[])
 
     cout << "wavelets rhs -----------------" << endl;
     Wavelet<T,Primal,Interval,Cons> rhs_psi(basis,0);
-    Integral<T,Gauss,
+    Integral<T,CompositeTrapezoidal,
              Wavelet<T,Primal,Interval,Cons>,
              Function<T> >  integralwf(rhs_psi, rhs_f);
     for (int j1 = j0; j1 <= J-1; ++j1) {
@@ -293,7 +296,49 @@ main(int argc, char *argv[])
         }
     }
 
+//------------------------------------------ MS APPROACH -----------------------
+/*
+    cout << "SF rhs -----------------------" << endl;
+    DenseVector<Array<T> > rhs(mra.rangeI(J)), ssrhs;
+    BSpline<T,Primal,Interval,Primbs> rhs_phi(mra,0);
+    DenseVector<Array<T> > rhs_sing_pts;
+    Function<T> rhs_f(f, rhs_sing_pts);
+    if (nr==6) {
+        rhs_sing_pts.engine().resize(2);
+        rhs_sing_pts = 0.3, 0.7;
+    }
+    if (nr==7) {
+        rhs_sing_pts.engine().resize(2);
+        rhs_sing_pts = 0.3;
+    }
+    Integral<T,CompositeTrapezoidal,
+             BSpline<T,Primal,Interval,Primbs>,
+             Function<T> > integralsff(rhs_phi,rhs_f);
+    for (int k1 = mra.rangeI(J).firstIndex(); k1 <= mra.rangeI(J).lastIndex(); ++k1) {
+        rhs(k1) = integralsff(J,k1);
+        if (nr == 5) {
+            rhs(k1) += 8 * rhs_phi(0.5, J, k1);
+        } else if (nr==6) {
+            rhs(k1) += 6*rhs_phi(0.3,J,k1);
+            rhs(k1) += 6*rhs_phi(0.7,J,k1);
+        } else if (nr==7) {
+            rhs(k1) += 6*rhs_phi(0.3,J,k1);
+        }
+    }
+    cout << "SF rhs end -------------------" << endl;
+
+    Basis<T,Dual,Interval,Cons> basis_(d,d_,j0);
+    basis_.enforceBoundaryCondition<DirichletBC>();
+	ssrhs = rhs;
+	if (J>j0) {
+    	fwt(ssrhs,basis_,J-1,rhs);
+	} 	else {
+		rhs = ssrhs;
+	}
     cout << endl << "wavelets rhs end -------------" << endl;
+*/
+ Basis<T,Dual,Interval,Cons> basis_(d,d_,j0);
+ basis_.enforceBoundaryCondition<DirichletBC>();
 /*
     DenseVector<Array<T> > diagonal(N);
     for (int k1 = basis.rangeI(j0).firstIndex(); k1 <= basis.rangeI(j0).lastIndex(); ++k1) {
@@ -309,7 +354,11 @@ main(int argc, char *argv[])
         }
     }
     DiagonalMatrix<T> P(diagonal);
-*/    
+*/  
+//    Basis<T,Dual,Interval,Cons> basis_(d,d_,j0);
+//    basis_.enforceBoundaryCondition<DirichletBC>();
+
+  
 //    cout << "Condition of multiscale matrix = " << lawa::condition(A) << endl;
 //    cout << "Condition of prec. m.s. matrix = " << lawa::condition(P,A) << endl;
     cout.precision(18);
@@ -389,8 +438,6 @@ main(int argc, char *argv[])
 
     cout << "Test FWT" << endl;
     DenseVector<Array<T> > multiscale;
-    Basis<T,Dual,Interval,Cons> basis_(d,d_,j0);
-    basis_.enforceBoundaryCondition<DirichletBC>();
     if (j0<J) {
         fwt(singlescale,basis_,J-1,multiscale);
     } else {
