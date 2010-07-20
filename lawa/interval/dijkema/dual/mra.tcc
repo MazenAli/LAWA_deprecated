@@ -180,11 +180,14 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
         positions(i) = j;
     }
 
+//    if (_bc(0)==1) std::cerr << "VR = " << VR << std::endl;
+//    if (_bc(0)==1) std::cerr << "positions = " << positions << std::endl;
+
     DenseVector indices;
     if ((_bc(0)==1) && (_bc(1)==1)) {
         if ((d==3) && (d_==3)) {
             indices.engine().resize(3);
-            indices = 2,4,6;
+            indices = 1, 2, 1;
         } else if ((d==3) && (d_==5)) {
             indices.engine().resize(5);
             indices = 1, 3, 6, 8, 10;
@@ -206,9 +209,18 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
         } else if ((d==5) && (d_==9)) {
             indices.engine().resize(11);
             indices = 1, 2, 4, 7, 9, 12, 13, 15, 16, 17, 20;
+        } else if ((d==2) && (d_==2)) {
+            indices.engine().resize(2);
+            indices = 1, 1;
         } else if ((d==2) && (d_==4)) {
             indices.engine().resize(4);
-            indices = 1, 1, 6, 4;
+            indices = 1, 1, 4, 6;
+        } else if ((d==2) && (d_==6)) {
+            indices.engine().resize(6);
+            indices = 1, 6, 8, 12, 9, 11;
+        } else if ((d==2) && (d_==8)) {
+            indices.engine().resize(8);
+            indices = 1, 5, 4, 16, 11, 12, 9, 13;
         } else { // for d=2 we need all, for others not necessarily optimal!
             indices.engine().resize(d+d_-2);
             for (int i=indices.firstIndex(); i<=indices.lastIndex(); ++i) {
@@ -272,7 +284,6 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     C_R.engine().changeIndexBase(R_init.lastRow()-C_R.numRows()+1,
                                  R_init.lastCol()-C_R.numCols()+1);
     R_init(C_R) = C_R;
-
     BSpline<T,Primal,R,CDF> phi(d);
     int kmin = -l2+1, mmin = -l2_+1, pmin = -l2+1, qmin = -l2_+1,
         kmax = -l1-1, mmax = -l1_-1, pmax = -l1-1, qmax = -l1_-1;
@@ -450,6 +461,8 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., M0_Tmp, R_, 0., Mj0_);
     Mj0_.engine().changeIndexBase(1+_bc(0),1+_bc(1));
     blas::scal(Const<T>::R_SQRT2, Mj0_);
+    R_Left.engine().changeIndexBase(1,1+_bc(0));
+    R_Right.engine().changeIndexBase(1,1);
     M0_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2-_bc(0), d+d_-2-_bc(1),
                                                Mj0_, min_j0);
     setLevel(_j);

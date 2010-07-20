@@ -241,7 +241,7 @@ ormqr(cxxblas::Side side, cxxblas::Transpose trans,
                  C.engine().data(), C.engine().leadingDimension(),
                  work.engine().data(), work.length());
 }
-/*
+
 //-- gels ----------------------------------------------------------------------
 
 template <typename MA, typename MB>
@@ -387,7 +387,7 @@ es(bool CalcEv, bool sort,
                 vs_data, ldvs,
                 work.engine().data(), work.length(), rwork.engine().data(), bwork_data );
 }
-*/
+
 //-- geev ----------------------------------------------------------------------
 
 template <typename MA, typename WR, typename WI, typename VL, typename VR>

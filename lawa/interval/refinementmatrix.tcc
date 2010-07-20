@@ -51,13 +51,13 @@ RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
     _extractMasks(A);
 
     for (int i=left.firstIndex(); i<=left.lastIndex(); ++i) {
-        lengths(1+i-left.firstIndex()) = left(i).length();
+        lengths(1+i-left.firstIndex()) = left(i).length()+(A.firstRow()-1);
     }
 
-    lengths(0) = leftband.firstIndex()-A.firstRow();
+	lengths(0) = leftband.firstIndex() - 1;//-A.firstRow();
     
     for (int i=right.firstIndex(); i<=right.lastIndex(); ++i) {
-        lengths(-nRight+i-right.firstIndex()) = right(i).length();
+        lengths(-nRight+i-right.firstIndex()) = right(i).length()+(A.firstRow()-1);
     }
 }
 

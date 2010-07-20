@@ -41,7 +41,7 @@ BSpline<T,Dual,Interval,Dijkema>::operator()(T x, int j, int k) const
         for (int r=mra_.R_Left.firstRow(); r<=mra_.R_Left.lastRow(); ++r, ++l) {
             value += mra_.R_Left(r,k) * mra_.phi_R(x,j,l);
         }
-        assert(l==-mra_.phi_R.a_.firstIndex());
+//        assert(l==-mra_.phi_R.a_.firstIndex());
         return value;
     }
 

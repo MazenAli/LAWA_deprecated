@@ -31,7 +31,7 @@ namespace lawa {
 template <typename T>
 MRA<T,Dual,Interval,Primbs>::MRA(int _d, int _d_, int j)
     : d(_d), d_(_d_), mu(d&1),
-      min_j0(std::max(3,iceil(log(d+d_-2)/log(2))+1)),
+      min_j0(iceil(log(d+2*d_-3)/log(2))+1),
       j0((j==-1) ? min_j0 : j), phi_R(d,d_),
       _bc(2,0), _j(j0)
 {

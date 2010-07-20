@@ -16,21 +16,13 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-namespace lawa {
-
-template <typename T>
-flens::DenseVector<flens::Array<T> >
-linspace(T from, T to, int numTicks)
-{
-    T step = (to-from) / (numTicks-1);
-    flens::DenseVector<flens::Array<T> > x(numTicks,0);
-    x(0) = from;
-    for (int i=1; i<numTicks-1; ++i) {
-        x(i) = from + i*step;
-    }
-    x(x.lastIndex()) = to;
-    return x;
-}
-
-} // namespace lawa
+ 
+#include <lawa/adaptive/evaluate.h>
+#include <lawa/adaptive/helmholtz.h>
+#include <lawa/adaptive/helmholtzexamples.h>
+#include <lawa/adaptive/mergevectors.h>
+#include <lawa/adaptive/Nfunct.h>
+#include <lawa/adaptive/problem.h>
+#include <lawa/adaptive/recovery.h>
+#include <lawa/adaptive/waveletindex.h>
+#include <lawa/adaptive/waveletcoefficient.h>

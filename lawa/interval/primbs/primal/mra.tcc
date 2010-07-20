@@ -76,7 +76,7 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
       min_j0(iceil(log2(2*d))),
       j0((j==-1) ? min_j0 : j), phiR(d),
       l1((mu-d)/2), l2((mu+d)/2),
-      _bc(2,0), _j(j0)
+      _bc(2,0), _j(j0), phi(*this)
 {
     assert(d>1);
     assert(_j>=min_j0);

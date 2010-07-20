@@ -72,6 +72,7 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
     
     // merge singular points of bspline/wavelet and function to one list.
     /* -> implizite Annahme: second.singularPoints sind schon sortiert!! */
+    T unit = first.tic(integral.j1);
     DenseVector<Array<T> > firstSingularPoints 
                                = first.singularSupport(integral.j1,integral.k1);
     int nFirst = firstSingularPoints.length(),
@@ -143,7 +144,8 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
     const First &first = integral.first;
     const Second &second = integral.second;
     /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
-    quadrature.n = pow2i<T>(Param<First>::resolution)*(first.mask().length()-1);
+    // FIXME: separate integrals and quadrature settings.
+    quadrature.n = pow2i<T>(Param<First>::resolution)*1;//(first.mask().length()-1);
 
     Support<T> supp = first.support(integral.j1,integral.k1);
     DenseVector<Array<T> > firstSupport(2);

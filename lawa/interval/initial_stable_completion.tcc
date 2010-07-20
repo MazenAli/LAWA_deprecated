@@ -33,7 +33,7 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
 
     const RefinementMatrix<T,Interval,ConsPrimal> &M0 = mra.M0;
     const int j = mra_.min_j0;
-    const int d = mra.d, d_ = mra_.d_;
+    const int d = mra.d;
     const int l1 = mra.l1, l2 = mra.l2;
     M0.setLevel(j);
 
@@ -181,10 +181,12 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
 
     M1.engine().changeIndexBase(1+mra_._bc(0),1);
     M1_.engine().changeIndexBase(1+mra_._bc(0),1);
-
+//	std::cerr << M1 << std::endl;
     // TODO: theoretical foundation for scaling this way!
-    blas::scal(.5,M1_);
-    blas::scal(2,M1);
+    blas::scal(Const<T>::R_SQRT2,M1_);
+    blas::scal(2*Const<T>::R_SQRT2,M1);
+//    blas::scal(.5,M1_);
+//    blas::scal(2,M1);
 }
 
 } // namespace lawa
