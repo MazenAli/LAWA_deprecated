@@ -19,10 +19,10 @@ class SpaceTimeHeatOperator{
         typedef typename Basis::FirstBasisType::WaveletType PrimalWavelet_t;
         typedef typename Basis::SecondBasisType::WaveletType PrimalWavelet_x;
         
-        PrimalSpline_x phi_t, d_phi_t;
-        PrimalSpline_y phi_x, d_phi_x;
-        PrimalWavelet_x psi_t, d_psi_t;
-        PrimalWavelet_y psi_x, d_psi_x;
+        PrimalSpline_t phi_t, d_phi_t;
+        PrimalSpline_x phi_x, d_phi_x;
+        PrimalWavelet_t psi_t, d_psi_t;
+        PrimalWavelet_x psi_x, d_psi_x;
         
         Integral<T, Gauss, PrimalSpline_t, PrimalSpline_t> integral_sfsf_t,
                                                         d_integral_sfsf_t;
