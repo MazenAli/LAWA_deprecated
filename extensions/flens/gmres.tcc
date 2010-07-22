@@ -40,7 +40,9 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
     }
 
     DeMatrix  V(N, maxIterations+1);
-    V(_,1) = r / beta;
+    //V(_,1) = r / beta;
+    V(_,1) = 1./beta * r;
+    
     DeMatrix  H(maxIterations+1, maxIterations  );
 
     DeVector w_j(N);
@@ -88,7 +90,8 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
 
         nu = sqrt(H(_(j,j+1),j) * H(_(j,j+1),j));
         if (nu!=0.0) {
-            V(_,j+1) = w_j / H(j+1,j);
+            //V(_,j+1) = w_j / H(j+1,j);
+            V(_,j+1) = 1. / H(j+1,j) * w_j;
         }
 
         if (nu!=0.0) {
@@ -99,7 +102,7 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
             g(j+1) = -s(j)*g(j);
             g(j) = c(j)*g(j);
         }
-        rho = absolute(g(j+1));
+        rho = fabs(g(j+1));
     }
 
     if (j>=1) {
@@ -161,7 +164,8 @@ int pgmres (const Prec &P, const MA &A, VX &x, const VB &b,
     }
 
     DeMatrix  V(N,maxIterations + 1);
-    V(_,1) = r / beta;
+    //V(_,1) = r / beta;
+    V(_,1) = 1. / beta * r;
     DeMatrix  H(maxIterations + 1,maxIterations    );
 
     DeVector w_j(N);
@@ -212,7 +216,8 @@ int pgmres (const Prec &P, const MA &A, VX &x, const VB &b,
 
         nu = sqrt(H(_(j,j+1),j) * H(_(j,j+1),j));
         if (nu!=0.0) {
-            V(_,j+1) = w_j / H(j+1,j);
+            //V(_,j+1) = w_j / H(j+1,j);
+            V(_,j+1) = 1. / H(j+1,j) * w_j;
         }
 
         if (nu!=0.0) {
@@ -223,7 +228,7 @@ int pgmres (const Prec &P, const MA &A, VX &x, const VB &b,
             g(j+1) = -s(j)*g(j);
             g(j) = c(j)*g(j);
         }
-        rho = absolute(g(j+1));
+        rho = fabs(g(j+1));
     }
 
     if (j >= 1 ) {
