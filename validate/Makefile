@@ -1,6 +1,6 @@
 include $(LAWA_HOME)/Makefile.common
 
-SUBDIRS := realline periodic interval box
+SUBDIRS := realline periodic interval adaptive box 
 
 SOURCEFILES  = $(wildcard *.cc)
 TARGETS     = $(patsubst %.cc,%,$(SOURCEFILES))
