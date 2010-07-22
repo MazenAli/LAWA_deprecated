@@ -37,10 +37,10 @@ struct SparseTensorBasis
     dim(const int J_x, const  int J_y) const;
     
     int 
-    Jx_max(const int J_x, const int J_y, const int jy) const;
+    J1_max(const int J_x, const int J_y, const int jy) const;
     
     int 
-    Jy_max(const int J_x, const int J_y, const int jx) const;
+    J2_max(const int J_x, const int J_y, const int jx) const;
 };
     
     

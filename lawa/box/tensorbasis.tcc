@@ -34,14 +34,14 @@ TensorBasis<FirstBasis, SecondBasis>::dim(int J_x, int J_y) const
 
 template<typename FirstBasis, typename SecondBasis>
 int 
-TensorBasis<FirstBasis, SecondBasis>::Jx_max(const int J_x, const int J_y, const int jy) const
+TensorBasis<FirstBasis, SecondBasis>::J1_max(const int J_x, const int J_y, const int jy) const
 {
     return J_x;
 }
 
 template<typename FirstBasis, typename SecondBasis>
 int 
-TensorBasis<FirstBasis, SecondBasis>::Jy_max(const int J_x, const int J_y, const int jx) const
+TensorBasis<FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
 {
     return J_y;
 }

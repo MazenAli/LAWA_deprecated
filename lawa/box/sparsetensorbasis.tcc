@@ -30,10 +30,10 @@ template<typename FirstBasis, typename SecondBasis>
 int
 SparseTensorBasis<FirstBasis, SecondBasis>::dim(const int J_x, const int J_y) const
 {
-    int d = first.mra.cardI(first.j0) * second.mra.cardI(Jy_max(J_x, J_y, first.j0 - 1));
-    for(int jx = first.j0; jx <= Jx_max(J_x, J_y, second.j0-1) - 1; ++jx){
+    int d = first.mra.cardI(first.j0) * second.mra.cardI(J2_max(J_x, J_y, first.j0 - 1));
+    for(int jx = first.j0; jx <= J1_max(J_x, J_y, second.j0-1) - 1; ++jx){
         d += first.cardJ(jx)*second.mra.cardI(second.j0);
-        for(int jy = second.j0; jy <= Jy_max(J_x,J_y, jx) - 1; ++jy){
+        for(int jy = second.j0; jy <= J2_max(J_x,J_y, jx) - 1; ++jy){
             d += first.cardJ(jx) * second.cardJ(jy);
         }
     }
@@ -42,14 +42,14 @@ SparseTensorBasis<FirstBasis, SecondBasis>::dim(const int J_x, const int J_y) co
 
 template<typename FirstBasis, typename SecondBasis>
 int 
-SparseTensorBasis<FirstBasis, SecondBasis>::Jx_max(const int J_x, const int J_y, const int jy) const
+SparseTensorBasis<FirstBasis, SecondBasis>::J1_max(const int J_x, const int J_y, const int jy) const
 {
     return std::min(J_x, std::max(J_x + second.j0 - 2, J_y + first.j0 - 2) - jy + 1);
 } 
 
 template<typename FirstBasis, typename SecondBasis>
 int 
-SparseTensorBasis<FirstBasis, SecondBasis>::Jy_max(const int J_x, const int J_y, const int jx) const
+SparseTensorBasis<FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
 {
     return std::min(J_y, std::max(J_x + second.j0 - 2, J_y + first.j0 - 2)- jx  + 1);
 }
