@@ -72,6 +72,7 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
     
     // merge singular points of bspline/wavelet and function to one list.
     /* -> implizite Annahme: second.singularPoints sind schon sortiert!! */
+   // T unit = first.tic(integral.j1);
     DenseVector<Array<T> > firstSingularPoints 
                                = first.singularSupport(integral.j1,integral.k1);
     int nFirst = firstSingularPoints.length(),
