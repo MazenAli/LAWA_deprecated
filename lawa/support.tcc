@@ -51,7 +51,7 @@ Support<T>::length() const
 template <typename T>
 bool
 inner(T x, const Support<T> &supp) {
-    return (x>supp.l1) && (x<supp.l2);
+    return (x>=supp.l1) && (x<=supp.l2);
 }
 
 template <typename T>
