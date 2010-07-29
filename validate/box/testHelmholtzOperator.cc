@@ -7,13 +7,14 @@ using namespace lawa;
 typedef double T;
 typedef BSpline<T,Primal,Periodic,CDF> PrimalSpline;
 typedef Wavelet<T,Primal,Periodic,CDF> PrimalWavelet;
-typedef Basis<T, Primal, Periodic, CDF> PrimalBasis;
-typedef TensorBasis<PrimalBasis, PrimalBasis> PeriodicTensorBasis;
+typedef Basis<T, Primal, Periodic, CDF> PrimalBasis_x;
+typedef Basis<T, Primal, Interval, Dijkema> PrimalBasis_y;
+typedef TensorBasis<PrimalBasis_x, PrimalBasis_y> BoxTensorBasis;
 
 int main (int argc, char*argv[])
 {
-    if(argc != 7){
-        cerr << "Usage: " << argv[0] << " j0_x J_x j0_y J_y d d_" << endl;
+    if(argc != 19){
+        cerr << "Usage: " << argv[0] << " j0_x J_x j0_y J_y d d_ :: uXIsSpline jux kux :: uYIsSpline juy kuy :: vXIsSpline jvx kvx :: vYIsSpline jvy kvy" << endl;
         return 0;
     }
     
@@ -26,19 +27,74 @@ int main (int argc, char*argv[])
     int d = atoi(argv[5]);
     int d_ = atoi(argv[6]);
     
-    PrimalBasis b1(d, d_, j0_x);
-    PrimalBasis b2(d, d_, j0_y);
-    PeriodicTensorBasis basis(b1, b2);
+    int j_ux = atoi(argv[8]);
+    int k_ux = atoi(argv[9]);
+    int j_uy = atoi(argv[11]);
+    int k_uy = atoi(argv[12]);
+    
+    int j_vx = atoi(argv[14]);
+    int k_vx = atoi(argv[15]);
+    int j_vy = atoi(argv[17]);
+    int k_vy = atoi(argv[18]);
+    
+    PrimalBasis_x b1(d, d_, j0_x);
+    PrimalBasis_y b2(d, d_, j0_y);
+    b2.enforceBoundaryCondition<DirichletBC>();
+    
+    BoxTensorBasis basis(b1, b2);
     
     T c = 2.0;
     
-    HelmholtzOperator<T, PeriodicTensorBasis> a(basis, c);
+    bool uxisSpline, uyisSpline, vxisSpline, vyisSpline;
     
-    cout << "a( Phi_[0,0] x Phi_[0,0], Phi_[0,0] x Phi_[0,0]) = " 
-        << a(true, true, true, true, j0_x, 1, j0_x, 1, j0_y, 1, j0_y, 1) << endl;
-        
-    cout << "a( Phi_[0,0] x Psi_[0,0], Phi_[0,0] x Psi_[0,0]) = " 
-        << a(true, false, true, false, j0_x, 1, j0_x, 1, j0_y, 1, j0_y, 1) << endl;
+    HelmholtzOperator<T, BoxTensorBasis> a(basis, c);
+    cout << "u = ";
+    if(atoi(argv[7]) == 1){
+        uxisSpline = true;
+        cout << "Phi(";
+    }
+    else{
+        uxisSpline = false;
+        cout << "Psi(";
+    }
+    cout << j_ux << ", " << k_ux << ") x ";
     
+    if(atoi(argv[10]) == 1){
+        uyisSpline = true;
+        cout << "Phi(";
+    }
+    else{
+        uyisSpline = false;
+        cout << "Psi(";
+    }
+    cout << j_uy << ", " << k_uy << ")" << endl;
+    
+    cout << argv[13] << endl;
+    cout << "v = ";
+    if(atoi(argv[13]) == 1){
+        vxisSpline = true;
+        cout << "Phi(";
+    }
+    else{
+        vxisSpline = false;
+        cout << "Psi(";
+    }
+    cout << j_vx << ", " << k_vx << ") x ";
+    
+    if(atoi(argv[16]) == 1){
+        vyisSpline = true;
+        cout << "Phi(";
+    }
+    else{
+        vyisSpline = false;
+        cout << "Psi(";
+    }
+    cout << j_vy << ", " << k_vy << ")" << endl;
+    
+    cout << "a(u,v) = " << a(uxisSpline, uyisSpline, j_ux, k_ux, j_uy, k_uy, 
+        vxisSpline, vyisSpline, j_vx, k_vx, j_vy, k_vy) << endl;
+    
+    cout << "a(v,u) = " << a(vxisSpline, vyisSpline, j_vx, k_vx, j_vy, k_vy, 
+        uxisSpline, uyisSpline, j_ux, k_ux, j_uy, k_uy) << endl;
     return 0;
 }

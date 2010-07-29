@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_BOX_SEPARABLERHS_H
-#define LAWA_BOX_SEPARABLERHS_H 1
+#ifndef LAWA_BOX_SEPARABLERHSWITHPEAKS_H
+#define LAWA_BOX_SEPARABLERHSWITHPEAKS_H 1
 
 #include <lawa/box/separablefunction.h>
 #include <lawa/integrals.h>
@@ -26,11 +26,16 @@
 namespace lawa {
     
 template<typename T, typename Basis>
-class SeparableRHS
+class SeparableRHSwithPeaks
 {
     private:
         const Basis& basis;
         const SeparableFunction<T>& F; 
+        const flens::DenseVector<flens::Array<T> > peaks_x;
+        const flens::DenseVector<flens::Array<T> > peaksigns_x;
+        const flens::DenseVector<flens::Array<T> > peaks_y;
+        const flens::DenseVector<flens::Array<T> > peaksigns_y;
+        const SeparableFunction<T>& peakF; 
         
         typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_x;
         typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_y;
@@ -42,13 +47,18 @@ class SeparableRHS
         PrimalWavelet_x psi_x;
         PrimalWavelet_y psi_y;
         
-        Integral<T, CompositeTrapezoidal, PrimalSpline_x, Function<T> > integral_sff_x;
-        Integral<T, CompositeTrapezoidal, PrimalSpline_y, Function<T> > integral_sff_y;
-        Integral<T, CompositeTrapezoidal, PrimalWavelet_x, Function<T> > integral_wf_x;
-        Integral<T, CompositeTrapezoidal, PrimalWavelet_y, Function<T> > integral_wf_y;
+        Integral<T, CompositeTrapezoidal, PrimalSpline_x, Function<T> > integral_sff_x, peak_integral_sff_x;
+        Integral<T, CompositeTrapezoidal, PrimalSpline_y, Function<T> > integral_sff_y, peak_integral_sff_y;
+        Integral<T, CompositeTrapezoidal, PrimalWavelet_x, Function<T> > integral_wf_x, peak_integral_wf_x;
+        Integral<T, CompositeTrapezoidal, PrimalWavelet_y, Function<T> > integral_wf_y, peak_integral_wf_y;
                 
     public:
-        SeparableRHS(const Basis& _basis, const SeparableFunction<T>& _F);
+        SeparableRHSwithPeaks(const Basis& _basis, const SeparableFunction<T>& _F, 
+            const flens::DenseVector<flens::Array<T> > _peaks_x,
+            const flens::DenseVector<flens::Array<T> > _peaksigns_x,
+            const flens::DenseVector<flens::Array<T> > _peaks_y,
+            const flens::DenseVector<flens::Array<T> > _peaksigns_y,
+            const SeparableFunction<T>& _peakF);
         
         T
         operator()(bool XisSpline, int j_x, int k_x,
@@ -58,6 +68,6 @@ class SeparableRHS
     
 } // namespace lawa
 
-#include <lawa/box/separablerhs.tcc>
+#include <lawa/box/separablerhswithpeaks.tcc>
 
-#endif // LAWA_BOX_SEPARABLERHS_H
+#endif // LAWA_BOX_SEPARABLERHSWITHPEAKS_H

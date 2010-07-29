@@ -21,8 +21,8 @@ namespace lawa {
 
 template<typename T, typename Basis>
 SeparableRHS<T, Basis>::SeparableRHS(const Basis& _basis, const SeparableFunction<T>& _F)
-    : basis(_basis), F(_F), phi_x(_basis.first.mra), phi_y(_basis.second.mra),
-      psi_x(_basis.first), psi_y(_basis.second),
+    : basis(_basis), F(_F), phi_x(_basis.first.mra), 
+      phi_y(_basis.second.mra), psi_x(_basis.first), psi_y(_basis.second),
       integral_sff_x(phi_x, _F.F_x), integral_sff_y(phi_y, _F.F_y),
       integral_wf_x(psi_x, _F.F_x), integral_wf_y(psi_y, _F.F_y)
 {  
