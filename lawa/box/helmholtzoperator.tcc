@@ -46,33 +46,27 @@ HelmholtzOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSpline
 {
     T val_x = 0;
     T dd_val_x = 0;
-    T bval_x = 0;
     T val_y = 0;
     T dd_val_y = 0;
-    T bval_y = 0;
     
     if(FirstXisSpline){
          if(SecondXisSpline){
              val_x = integral_sfsf_x(j1_x, k1_x, j2_x, k2_x);
              dd_val_x = dd_integral_sfsf_x(j1_x, k1_x, j2_x, k2_x);
-             bval_x = d_phi_x(1.0-1e-10, j1_x, k1_x)*phi_x(1.0-1e-10, j2_x, k2_x) - d_phi_x(0.0+1e-10, j1_x, k1_x)*phi_x(0.0+1e-10, j2_x, k2_x);
          }
          else{
              val_x = integral_sfw_x(j1_x, k1_x, j2_x, k2_x);
              dd_val_x = dd_integral_sfw_x(j1_x, k1_x, j2_x, k2_x);
-             bval_x = d_phi_x(1.0-1e-10, j1_x, k1_x)*psi_x(1.0-1e-10, j2_x, k2_x) - d_phi_x(0.0+1e-10, j1_x, k1_x)*psi_x(0.0+1e-10, j2_x, k2_x);
          }
     }
     else{
          if(SecondXisSpline){
              val_x = integral_wsf_x(j1_x, k1_x, j2_x, k2_x);
              dd_val_x = dd_integral_wsf_x(j1_x, k1_x, j2_x, k2_x);
-             bval_x = d_psi_x(1.0-1e-10, j1_x, k1_x)*phi_x(1.0-1e-10, j2_x, k2_x) - d_psi_x(0.0+1e-10, j1_x, k1_x)*phi_x(0.0+1e-10, j2_x, k2_x);
          }
          else{
              val_x = integral_ww_x(j1_x, k1_x, j2_x, k2_x);
              dd_val_x = dd_integral_ww_x(j1_x, k1_x, j2_x, k2_x);
-             bval_x = d_psi_x(1.0-1e-10, j1_x, k1_x)*psi_x(1.0-1e-10, j2_x, k2_x) - d_psi_x(0.0+1e-10, j1_x, k1_x)*psi_x(0.0+1e-10, j2_x, k2_x);
          }
     }
     
@@ -80,28 +74,24 @@ HelmholtzOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSpline
          if(SecondYisSpline){
              val_y = integral_sfsf_y(j1_y, k1_y, j2_y, k2_y);
              dd_val_y = dd_integral_sfsf_y(j1_y, k1_y, j2_y, k2_y);
-             bval_y = d_phi_y(1.0-1e-10, j1_y, k1_y)*phi_y(1.0-1e-10, j2_y, k2_y) - d_phi_y(0.0+1e-10, j1_y, k1_y)*phi_y(0.0+1e-10, j2_y, k2_y);
          }
          else{
              val_y = integral_sfw_y(j1_y, k1_y, j2_y, k2_y);
              dd_val_y = dd_integral_sfw_y(j1_y, k1_y, j2_y, k2_y);
-             bval_y = d_phi_y(1.0-1e-10, j1_y, k1_y)*psi_y(1.0-1e-10, j2_y, k2_y) - d_phi_y(0.0+1e-10, j1_y, k1_y)*psi_y(0.0+1e-10, j2_y, k2_y);
          }
     }
     else{
          if(SecondYisSpline){
              val_y = integral_wsf_y(j1_y, k1_y, j2_y, k2_y);
              dd_val_y = dd_integral_wsf_y(j1_y, k1_y, j2_y, k2_y);
-             bval_y = d_psi_y(1.0-1e-10, j1_y, k1_y)*phi_y(1.0-1e-10, j2_y, k2_y) - d_psi_y(0.0+1e-10, j1_y, k1_y)*phi_y(0.0+1e-10, j2_y, k2_y);
          }
          else{
              val_y = integral_ww_y(j1_y, k1_y, j2_y, k2_y);
              dd_val_y = dd_integral_ww_y(j1_y, k1_y, j2_y, k2_y);
-             bval_y = d_psi_y(1.0-1e-10, j1_y, k1_y)*psi_y(1.0-1e-10, j2_y, k2_y) - d_psi_y(0.0+1e-10, j1_y, k1_y)*psi_y(0.0+1e-10, j2_y, k2_y);
          }
     }
     
-    return dd_val_x * val_y - bval_x*val_y + val_x * dd_val_y - bval_y*val_x + c * val_x * val_y;
+    return dd_val_x * val_y + val_x * dd_val_y + c * val_x * val_y;
 }
     
 } // namespace lawa
