@@ -12,7 +12,7 @@ typedef Basis<T, Primal, Periodic, CDF> PrimalBasis;
 typedef TensorBasis<PrimalBasis, PrimalBasis> PeriodicTensorBasis;
 typedef HelmholtzOperator<T, PeriodicTensorBasis> HelmholtzOp;
 typedef SeparableRHS<T, PeriodicTensorBasis> PeriodicRHS;
-typedef ScalFactorPreconditioner<T> Prec;
+typedef DiagonalScalingPreconditioner<T> Prec;
 typedef BoxProblem<T, PeriodicTensorBasis, HelmholtzOp, PeriodicRHS, Prec> PeriodicBoxProblem; 
 
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > FullColMatrixT;
