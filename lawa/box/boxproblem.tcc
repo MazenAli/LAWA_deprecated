@@ -59,8 +59,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
          for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
            for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){    
                          
-             T val = a(spline, spline, b1.j0, kux, b2.j0, kuy, 
-                       spline, spline, b1.j0, kvx, b2.j0, kvy);
+             T val = a(spline, b1.j0, kux, spline, b2.j0, kuy, 
+                       spline, b1.j0, kvx, spline, b2.j0, kvy);
              if(fabs(val) > tol){
                  A(I(spline, b1.j0, kvx, spline, b2.j0, kvy), 
                    I(spline, b1.j0, kux, spline, b2.j0, kuy)) = val;
@@ -76,8 +76,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
            for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
              for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                  
-               T val = a(spline, wavelet, b1.j0, kux, juy, kuy, 
-                         spline, spline, b1.j0, kvx, b2.j0, kvy);
+               T val = a(spline, b1.j0, kux, wavelet, juy, kuy, 
+                         spline, b1.j0, kvx, spline,  b2.j0, kvy);
                if(fabs(val) > tol){
                    A(I(spline, b1.j0, kvx, spline, b2.j0, kvy),
                      I(spline, b1.j0, kux, wavelet, juy, kuy)) = val;
@@ -94,8 +94,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
            for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
              for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                
-               T val = a(wavelet, spline, jux, kux, b2.j0, kuy, 
-                         spline, spline, b1.j0, kvx, b2.j0, kvy);
+               T val = a(wavelet,  jux, kux, spline, b2.j0, kuy, 
+                         spline, b1.j0, kvx, spline, b2.j0, kvy);
                if(fabs(val) > tol){
                    A(I(spline, b1.j0, kvx, spline, b2.j0, kvy),
                      I(wavelet, jux, kux, spline, b2.j0, kuy)) = val;
@@ -113,8 +113,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                  
-                 T val = a(wavelet, wavelet, jux, kux, juy, kuy, 
-                           spline, spline, b1.j0, kvx, b2.j0, kvy);
+                 T val = a(wavelet, jux, kux,  wavelet, juy, kuy, 
+                           spline,  b1.j0, kvx, spline, b2.j0, kvy);
                  if(fabs(val) > tol){
                      A(I(spline, b1.j0, kvx, spline, b2.j0, kvy),
                        I(wavelet, jux, kux, wavelet, juy, kuy)) = val;
@@ -142,8 +142,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
            for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
              for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                
-               T val = a(spline, spline, b1.j0, kux, b2.j0, kuy, 
-                         spline, wavelet, b1.j0, kvx, jvy, kvy);
+               T val = a(spline, b1.j0, kux, spline,  b2.j0, kuy, 
+                         spline, b1.j0, kvx, wavelet, jvy, kvy);
                if(fabs(val) > tol){
                    A(I(spline, b1.j0, kvx, wavelet, jvy, kvy),
                      I(spline, b1.j0, kux, spline, b2.j0, kuy)) = val;
@@ -159,8 +159,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                 
-                 T val = a(spline, wavelet, b1.j0, kux, juy, kuy, 
-                           spline, wavelet, b1.j0, kvx, jvy, kvy);
+                 T val = a(spline, b1.j0, kux, wavelet, juy, kuy, 
+                           spline, b1.j0, kvx, wavelet, jvy, kvy);
                  if(fabs(val) > tol){  
                      A(I(spline, b1.j0, kvx, wavelet, jvy, kvy),
                        I(spline, b1.j0, kux, wavelet, juy, kuy)) = val;
@@ -177,8 +177,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                    
-                 T val = a(wavelet, spline, jux, kux, b2.j0, kuy, 
-                           spline, wavelet, b1.j0, kvx, jvy, kvy);
+                 T val = a(wavelet, jux, kux,   spline, b2.j0, kuy, 
+                           spline,  b1.j0, kvx, wavelet, jvy, kvy);
                  if(fabs(val) > tol){
                      A(I(spline, b1.j0, kvx, wavelet, jvy, kvy), 
                        I(wavelet, jux, kux, spline, b2.j0, kuy)) = val;
@@ -196,8 +196,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
                for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                  for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
 
-                   T val = a(wavelet, wavelet, jux, kux, juy, kuy, 
-                             spline, wavelet, b1.j0, kvx, jvy, kvy);
+                   T val = a(wavelet, jux, kux,   wavelet, juy, kuy, 
+                             spline,  b1.j0, kvx, wavelet, jvy, kvy);
                    if(fabs(val) > tol){
                        A(I(spline, b1.j0, kvx, wavelet, jvy, kvy), 
                          I(wavelet, jux, kux, wavelet, juy, kuy)) = val;
@@ -226,8 +226,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
            for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
              for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                
-               T val = a(spline, spline, b1.j0, kux, b2.j0, kuy, 
-                         wavelet, spline, jvx, kvx, b2.j0, kvy);
+               T val = a(spline,  b1.j0, kux, spline, b2.j0, kuy, 
+                         wavelet, jvx, kvx,   spline, b2.j0, kvy);
                if(fabs(val) > tol){
                    A(I(wavelet, jvx, kvx, spline, b2.j0, kvy),
                      I(spline, b1.j0, kux, spline, b2.j0, kuy)) = val;
@@ -243,8 +243,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                  
-                 T val = a(spline, wavelet, b1.j0, kux, juy, kuy, 
-                           wavelet, spline, jvx, kvx, b2.j0, kvy);
+                 T val = a(spline,  b1.j0, kux, wavelet, juy, kuy, 
+                           wavelet, jvx, kvx,   spline, b2.j0, kvy);
                  if(fabs(val) > tol){
                      A(I(wavelet, jvx, kvx, spline, b2.j0, kvy),
                        I(spline, b1.j0, kux, wavelet, juy, kuy)) = val;
@@ -261,8 +261,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                  
-                 T val = a(wavelet, spline, jux, kux, b2.j0, kuy, 
-                           wavelet, spline, jvx, kvx, b2.j0, kvy);
+                 T val = a(wavelet, jux, kux, spline, b2.j0, kuy, 
+                           wavelet, jvx, kvx, spline, b2.j0, kvy);
                  if(fabs(val) > tol){
                      A(I(wavelet, jvx, kvx, spline, b2.j0, kvy),
                        I(wavelet, jux, kux, spline, b2.j0, kuy)) = val;
@@ -280,8 +280,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
                for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                  for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                    
-                   T val = a(wavelet, wavelet, jux, kux, juy, kuy, 
-                             wavelet, spline, jvx, kvx, b2.j0, kvy);
+                   T val = a(wavelet, jux, kux, wavelet, juy, kuy, 
+                             wavelet, jvx, kvx, spline,  b2.j0, kvy);
                    if(fabs(val) > tol){
                        A(I(wavelet, jvx, kvx, spline, b2.j0, kvy),
                          I(wavelet, jux, kux, wavelet, juy, kuy)) = val;
@@ -310,8 +310,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
              for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
 
-                 T val = a(spline, spline, b1.j0, kux, b2.j0, kuy, 
-                           wavelet, wavelet, jvx, kvx, jvy, kvy);
+                 T val = a(spline,  b1.j0, kux, spline,  b2.j0, kuy, 
+                           wavelet, jvx, kvx,   wavelet, jvy, kvy);
                  if(fabs(val) > tol){
                      A(I(wavelet, jvx, kvx, wavelet, jvy, kvy),
                        I(spline,  b1.j0, kux, spline, b2.j0, kuy)) = val;
@@ -327,8 +327,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
                for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                  for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                    
-                   T val = a(spline, wavelet, b1.j0, kux, juy, kuy, 
-                             wavelet, wavelet, jvx, kvx, jvy, kvy);
+                   T val = a(spline, b1.j0, kux, wavelet, juy, kuy, 
+                             wavelet, jvx, kvx,  wavelet, jvy, kvy);
                    if(fabs(val) > tol){
                        A(I(wavelet, jvx, kvx, wavelet, jvy, kvy),
                          I(spline, b1.j0, kux, wavelet, juy, kuy)) = val;
@@ -345,8 +345,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
                for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                  for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
                  
-                   T val = a(wavelet, spline, jux, kux, b2.j0, kuy, 
-                             wavelet, wavelet, jvx, kvx, jvy, kvy);
+                   T val = a(wavelet, jux, kux, spline,  b2.j0, kuy, 
+                             wavelet, jvx, kvx, wavelet, jvy, kvy);
                    if(fabs(val) > tol){
                        A(I(wavelet, jvx, kvx, wavelet, jvy, kvy),
                          I(wavelet, jux, kux, spline, b2.j0, kuy)) = val;
@@ -364,8 +364,8 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
                  for(int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); ++kux){
                    for(int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); ++kuy){
 
-                     T val = a(wavelet, wavelet, jux, kux, juy, kuy, 
-                               wavelet, wavelet, jvx, kvx, jvy, kvy);
+                     T val = a(wavelet, jux, kux, wavelet, juy, kuy, 
+                               wavelet, jvx, kvx, wavelet, jvy, kvy);
                      if(fabs(val) > tol){
                          A(I(wavelet, jvx, kvx, wavelet, jvy, kvy),
                            I(wavelet, jux, kux, wavelet, juy, kuy)) = val;
@@ -496,6 +496,7 @@ getPreconditioner(int J_x, int J_y)
     }
     
     /* SF x W */
+    Rx = b1.mra.rangeI(b1.j0);
     for(int jy = b2.j0; jy <= basis.J2_max(J_x, J_y, b1.j0-1)-1; ++jy){
         Ry = b2.rangeJ(jy);
         for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
