@@ -19,7 +19,6 @@
 
 #include <lawa/flensforlawa.h>
 
-#include <lawa/adaptive/adaptive.h>
 #include <lawa/aux/aux.h>
 #include <lawa/box/box.h>
 #include <lawa/bspline.h>
