@@ -45,7 +45,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     /* SF * W */
     Rx = basis.first.mra.rangeI(j0_x);
     for(int jy = j0_y; jy <= basis.J2_max(J_x, J_y, j0_x - 1) -1; ++jy){
-        Ry = basis.second.mra.rangeI(jy);
+        Ry = basis.second.rangeJ(jy);
         for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
                 ret += coeffs(I(spline, j0_x, kx, wavelet, jy, ky)) 
@@ -57,7 +57,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     /* W * SF */
     Ry = basis.second.mra.rangeI(j0_y);
     for(int jx = j0_x; jx <= basis.J1_max(J_x, J_y, j0_y - 1) - 1; ++jx){
-        Rx = basis.first.mra.rangeI(jx);
+        Rx = basis.first.rangeJ(jx);
         for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){  
                 ret += coeffs(I(wavelet, jx, kx, spline, j0_y, ky)) 
@@ -68,9 +68,9 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     
     /* W * W */
     for(int jx = j0_x; jx <= basis.J1_max(J_x, J_y, j0_y)-1; ++jx){
-        Rx = basis.first.mra.rangeI(jx);
+        Rx = basis.first.rangeJ(jx);
         for(int jy = j0_y; jy <= basis.J2_max(J_x, J_y, jx)-1; ++jy){
-            Ry = basis.second.mra.rangeI(jy);
+            Ry = basis.second.rangeJ(jy);
             for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
                 for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
                     ret += coeffs(I(wavelet, jx, kx, wavelet, jy, ky)) 
