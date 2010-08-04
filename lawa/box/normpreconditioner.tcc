@@ -1,7 +1,7 @@
 namespace lawa{
 
 template<typename T, typename Norm>
-NormPreconditioner<T,Norm>::NormPreconditioner(Norm _norm)
+NormPreconditioner<T,Norm>::NormPreconditioner(Norm& _norm)
 	: norm(_norm)
 {
 }

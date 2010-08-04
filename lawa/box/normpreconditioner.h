@@ -6,13 +6,13 @@ namespace lawa{
 template<typename T, typename Norm>
 struct NormPreconditioner
 {
-    Norm norm;  /* has to provide a function 
+    Norm& norm;  /* has to provide a function 
                     T
                     operator()(bool XisSpline, int j_x, int k_x,
                                bool YisSpline, int j_y, int k_y) const;
                 */
     
-    NormPreconditioner(Norm _norm);
+    NormPreconditioner(Norm& _norm);
     
     T
     operator()(bool XisSpline, int j_x, int k_x,

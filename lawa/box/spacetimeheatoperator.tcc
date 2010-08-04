@@ -72,8 +72,8 @@ SpaceTimeHeatOperator<T, Basis>::operator()(bool FirstXisSpline, int j1_t, int k
          }
     }
     
-    
-    return d_val_t * val_x  + c * val_t * dd_val_x;
+    return d_val_t * val_x  + c * val_t * dd_val_x;        
+
 }
 
 template <typename T, typename Basis>  
