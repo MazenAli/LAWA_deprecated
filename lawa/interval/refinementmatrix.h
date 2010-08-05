@@ -39,7 +39,7 @@ class RefinementMatrix<T, Interval, Cons>
         
         RefinementMatrix(int nLeft, int nRight,
                          const GeMatrix<FullStorage<T, ColMajor> > &A,
-                         int j0);
+                         int _min_j0, int cons_j);
 
         const typename DenseVector<Array<T> >::ConstView
         operator()(int j, const Underscore<int> &u, int col) const;
@@ -77,12 +77,13 @@ class RefinementMatrix<T, Interval, Cons>
         DenseVector<Array<DenseVector<Array<T> > > > left, right;
         DenseVector<Array<T> > leftband, rightband;
         DenseVector<Array<int> > lengths;
+        int min_j0;
 
     private:
         void
         _extractMasks(const GeMatrix<FullStorage<T,ColMajor> > &A);        
         
-        int _j0;
+        int _cons_j;
         mutable int _j;
         int _firstRow, _firstCol, _lastRow, _lastCol;
         mutable int _additionalRows, _additionalCols;

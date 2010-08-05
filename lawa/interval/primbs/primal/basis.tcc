@@ -209,7 +209,7 @@ Basis<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         
         blas::scal(Const<T>::R_SQRT2*2, Mj1);
 		Mj1.engine().changeIndexBase(2,1);
-        M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols, numPrimalCols, Mj1, min_j0);
+        M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols, numPrimalCols, Mj1, min_j0, min_j0);
         setLevel(_j);
     }
 }
@@ -429,7 +429,7 @@ Basis<T,Primal,Interval,Primbs>::_calcM1()
     }
 
     blas::scal(Const<T>::R_SQRT2*2, Mj1);
-    M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols,numPrimalCols,Mj1,min_j0);
+    M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols,numPrimalCols,Mj1,min_j0,min_j0);
     setLevel(_j);
 }
 

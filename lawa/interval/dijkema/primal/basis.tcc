@@ -26,12 +26,13 @@ template <typename T>
 Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
     : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
-      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(j0), psi(*this)
+      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1), psi(*this)
 {
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
-    M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0);
-    setLevel(_j);
+    const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
+    M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0, cons_j);
+    setLevel(j);
 }
 
 template <typename T>
@@ -45,13 +46,11 @@ template <typename T>
 void
 Basis<T,Primal,Interval,Dijkema>::setLevel(int j) const
 {
-    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         M1.setLevel(_j);
         mra.setLevel(_j);
         mra_.setLevel(_j);
-    }
 }
 
 template <typename T>
@@ -65,7 +64,8 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         mra_.enforceBoundaryCondition<BC>();
         GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
-        M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0);
+        const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
+        M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0, cons_j);
         setLevel(_j);
     }
 }

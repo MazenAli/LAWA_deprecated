@@ -37,9 +37,8 @@ MRA<T,Dual,Interval,Primbs>::MRA(int _d, int _d_, int j)
 {
     assert(d>1);
     assert(_j>=min_j0);
-    
+
     _calcM0_();
-    setLevel(_j);
 }
 
 template <typename T>
@@ -200,7 +199,7 @@ MRA<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
     Mj0_(_(Mj0_.lastRow()-Mj0_Right.numRows()+1,Mj0_.lastRow()),
          _(Mj0_.lastCol()-Mj0_Right.numCols()+1,Mj0_.lastCol())) = Mj0_Right;
     M0_ = RefinementMatrix<T,Interval,Primbs>(Mj0_Right.numCols(),Mj0_Right.numCols(), 
-                                              Mj0_, min_j0);
+                                              Mj0_, min_j0, min_j0);
     M0_.setLevel(_j);
 }
 
@@ -546,8 +545,8 @@ MRA<T,Dual,Interval,Primbs>::_calcM0_()
          _(Mj0_.lastCol()-Mj0_Right.numCols()+1,Mj0_.lastCol())) = Mj0_Right;
 
     M0_ = RefinementMatrix<T,Interval,Primbs>(Mj0_Right.numCols(),Mj0_Right.numCols(), 
-                                              Mj0_, min_j0);
-    M0_.setLevel(_j);
+                                              Mj0_, min_j0, min_j0);
+    setLevel(_j);
 }
 
 } // namespace lawa

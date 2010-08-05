@@ -32,8 +32,9 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
 
     const RefinementMatrix<T,Interval,ConsPrimal> &M0 = mra.M0;
-    const int j = mra_.min_j0;
     const int d = mra.d;
+    const int d_ = mra_.d_;
+    const int j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
     const int l1 = mra.l1, l2 = mra.l2;
     M0.setLevel(j);
 

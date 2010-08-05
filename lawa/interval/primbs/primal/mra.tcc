@@ -25,50 +25,9 @@
 #include <lawa/math/math.h>
 #include <lawa/realline/primal/bspline.h>
 #include <extensions/flens/lapack_flens.h>
+#include <lawa/interval/primbs/primal/spline_helper.h>
 
 namespace lawa {
-
-template <typename T>
-T
-w(int i, int d, const DenseVector<Array<T> > &knots, T x)
-{
-    assert(1<=i);
-    assert(i<=knots.length()-d+1);
-    
-    if (x<=knots(i)) {
-        return 0.0;
-    } else if (x>=knots(i+d-1)) {
-        return 1.0;
-    } else {
-        return (x-knots(i)) / (knots(i+d-1)-knots(i));
-    }
-}
-
-template <typename T>
-GeMatrix<FullStorage<T,cxxblas::ColMajor> >
-insertKnot(int d, DenseVector<Array<T> > &knots, T x)
-{
-    assert(knots.length()-d-1>=1);
-    
-    GeMatrix<FullStorage<T,cxxblas::ColMajor> > ret(knots.length()-d, 
-                                                    knots.length()-d-1);
-    for (int i=ret.firstCol(); i<=ret.lastCol(); ++i) {
-        ret(i,i) = w(i,d+1,knots,x);
-        ret(i+1,i) = 1-w(i+1,d+1,knots,x);
-    }
-    std::list<T> temp;
-    for (int i=knots.firstIndex(); i<=knots.lastIndex(); ++i) {
-        temp.push_back(knots(i));
-    }
-    temp.push_back(x);
-    temp.sort();
-    knots.engine().resize(knots.length()+1);
-    typename std::list<T>::const_iterator it=temp.begin();
-    for (int i=1; it!=temp.end(); ++it, ++i) {
-        knots(i) = *it;
-    }
-    return ret;
-}
 
 template <typename T>
 MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
@@ -256,9 +215,9 @@ MRA<T,Primal,Interval,Primbs>::_calcM0()
                                        _(Mj0.firstCol()+1,Mj0.lastCol()-1));
         Mj0withBC.engine().changeIndexBase(Mj0.firstRow()+1, Mj0.firstCol()+1);
         M0 = RefinementMatrix<T,Interval,Primbs>(d-1-_bc(0), d-1-_bc(1), 
-                                                 Mj0withBC, min_j0);
+                                                 Mj0withBC, min_j0, min_j0);
     } else {
-        M0 = RefinementMatrix<T,Interval,Primbs>(d-1, d-1, Mj0, min_j0);
+        M0 = RefinementMatrix<T,Interval,Primbs>(d-1, d-1, Mj0, min_j0, min_j0);
     }
     M0.setLevel(_j);
 }

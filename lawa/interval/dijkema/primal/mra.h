@@ -28,5 +28,6 @@
 #define Primbs Dijkema
 #include <lawa/interval/primbs/primal/mra.h>
 #undef Primbs
+#undef LAWA_INTERVAL_PRIMBS_PRIMAL_MRA_H
 
 #endif //LAWA_INTERVAL_DIJKEMA_PRIMAL_MRA_H
