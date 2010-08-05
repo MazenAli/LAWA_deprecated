@@ -71,7 +71,7 @@ class Basis<T,Dual,Interval,Dijkema>
         const Range<int>
         rangeJ_R(int j=-1) const;
 
-        MRA<T,Primal,Interval,Primbs> mra;
+        MRA<T,Primal,Interval,Dijkema> mra;
         MRA<T,Dual,Interval,Dijkema>  mra_;
 
         RefinementMatrix<T,Interval,Dijkema> M1_;

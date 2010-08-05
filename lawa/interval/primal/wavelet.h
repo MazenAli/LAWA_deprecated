@@ -51,7 +51,7 @@ struct Wavelet<T,Primal,Interval,Cons>
     tic(int j) const;
 
     const Basis<T,Primal,Interval,Cons> &basis;
-    const BSpline<T,Primal,Interval,Primbs> phi;
+    const BSpline<T,Primal,Interval,Cons> phi;
     const int deriv, polynomialOrder;
 };
 

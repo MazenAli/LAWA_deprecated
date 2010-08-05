@@ -144,7 +144,7 @@ const Support<T>
 Basis<T,Primal,Interval,Dijkema>::support(int j, int k, int e) const
 {
     assert(j>=min_j0);
-	BSpline<T,Primal,Interval,Primbs> phi(this->mra);
+	BSpline<T,Primal,Interval,Dijkema> phi(this->mra);
 	Wavelet<T,Primal,Interval,Dijkema> psi(*this);
     if (e==0) {
         return phi.support(j,k);

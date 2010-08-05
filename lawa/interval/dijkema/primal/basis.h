@@ -31,7 +31,7 @@ class Basis<T,Primal,Interval,Dijkema>
 {
     public:
         typedef Wavelet<T,Primal,Interval,Dijkema> WaveletType;
-        typedef BSpline<T,Primal,Interval,Primbs> BSplineType;
+        typedef BSpline<T,Primal,Interval,Dijkema> BSplineType;
 
         Basis(int _d, int _d_, int j=-1);
 
@@ -85,7 +85,7 @@ const DenseVector<Array<T> >
 singularSupport(int j, int k, int e) const;
 
 
-        MRA<T,Primal,Interval,Primbs> mra;
+        MRA<T,Primal,Interval,Dijkema> mra;
         MRA<T,Dual,Interval,Dijkema>  mra_;
 
         RefinementMatrix<T,Interval,Dijkema> M1;

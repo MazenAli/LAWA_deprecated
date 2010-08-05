@@ -22,6 +22,11 @@
 
 // Since the primal MRA for the interval construction of Dijkema is
 // identical to the one of the Primbs construction, we just reuse that one.
+// Note: this is not a very nice solution. It depends on the fact, that the
+//       Primbs MRA implementation does NOT include other files where this
+//       macro substitution could be really dangerous!
+#define Primbs Dijkema
 #include <lawa/interval/primbs/primal/mra.h>
+#undef Primbs
 
 #endif //LAWA_INTERVAL_DIJKEMA_PRIMAL_MRA_H
