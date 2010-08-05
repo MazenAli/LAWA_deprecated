@@ -182,12 +182,10 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
 
     M1.engine().changeIndexBase(1+mra_._bc(0),1);
     M1_.engine().changeIndexBase(1+mra_._bc(0),1);
-//	std::cerr << M1 << std::endl;
+
     // TODO: theoretical foundation for scaling this way!
     blas::scal(Const<T>::R_SQRT2,M1_);
     blas::scal(2*Const<T>::R_SQRT2,M1);
-//    blas::scal(.5,M1_);
-//    blas::scal(2,M1);
 }
 
 } // namespace lawa

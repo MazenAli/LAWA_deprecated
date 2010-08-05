@@ -178,9 +178,6 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
         positions(i) = j;
     }
 
-//    if (_bc(0)==1) std::cerr << "VR = " << VR << std::endl;
-//    if (_bc(0)==1) std::cerr << "positions = " << positions << std::endl;
-
     DenseVector indices;
     if ((_bc(0)==1) && (_bc(1)==1)) {
         if ((d==3) && (d_==3)) {
