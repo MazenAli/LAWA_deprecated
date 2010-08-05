@@ -125,11 +125,9 @@ template <typename T>
 void
 MRA<T,Primal,Interval,Primbs>::setLevel(int j) const
 {
-    if (j!=_j) {
-        assert(j>=min_j0);
-        _j = j;
-        M0.setLevel(_j);
-    }
+    assert(j>=min_j0);
+    _j = j;
+    M0.setLevel(_j);
 }
 
 template <typename T>
