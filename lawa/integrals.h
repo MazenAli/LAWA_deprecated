@@ -30,17 +30,17 @@ struct Integral
     Integral(const First &_first, const Second &_second);
 
     T
-    operator()(int _j1, int _k1, int _j2, int _k2);
+    operator()(int _j1, int _k1, int _j2, int _k2) const;
 
     T
-    operator()(int _j1, int _k1);
+    operator()(int _j1, int _k1) const;
 
     T
     integrand(T x) const;
 
     const First &first;
     const Second &second;
-    int j1, k1, j2, k2;
+    mutable int j1, k1, j2, k2;
 };
 
 } // namespace lawa

@@ -32,7 +32,7 @@ namespace lawa {
 //--- primal * primal
 template <typename T, typename First, typename Second>
 typename RestrictTo<BothPrimal<First,Second>::value, T>::Type
-_integrate(Integral<T,Gauss,First,Second> &integral)
+_integrate(const Integral<T,Gauss,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
@@ -62,7 +62,7 @@ _integrate(Integral<T,Gauss,First,Second> &integral)
 //--- primal * function
 template <typename T, QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<IsPrimal<First>::value && !PrimalOrDual<Second>::value, T>::Type
-_integrate(Integral<T,Quad,First,Second> &integral)
+_integrate(const Integral<T,Quad,First,Second> &integral)
 {
     
     const First &first = integral.first;
@@ -72,7 +72,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
     
     // merge singular points of bspline/wavelet and function to one list.
     /* -> implizite Annahme: second.singularPoints sind schon sortiert!! */
-    T unit = first.tic(integral.j1);
+   // T unit = first.tic(integral.j1);
     DenseVector<Array<T> > firstSingularPoints 
                                = first.singularSupport(integral.j1,integral.k1);
     int nFirst = firstSingularPoints.length(),
@@ -95,7 +95,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 //--- primal * dual
 template <typename T, QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<IsPrimal<First>::value && IsDual<Second>::value, T>::Type
-_integrate(Integral<T,Quad,First,Second> &integral)
+_integrate(const Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
@@ -116,7 +116,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 //--- dual * dual
 template <typename T, QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<BothDual<First,Second>::value, T>::Type
-_integrate(Integral<T,Quad,First,Second> &integral)
+_integrate(const Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
@@ -139,7 +139,7 @@ _integrate(Integral<T,Quad,First,Second> &integral)
 //--- dual * function
 template <typename T, QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<IsDual<First>::value && !PrimalOrDual<Second>::value, T>::Type
-_integrate(Integral<T,Quad,First,Second> &integral)
+_integrate(const Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
@@ -203,7 +203,7 @@ Integral<T,Quad,First,Second>::Integral(const First &_first,
 
 template <typename T, QuadratureType Quad, typename First, typename Second>
 T
-Integral<T,Quad,First,Second>::operator()(int _j1, int _k1, int _j2, int _k2)
+Integral<T,Quad,First,Second>::operator()(int _j1, int _k1, int _j2, int _k2) const
 {
     j1 = _j1; k1 = _k1; j2 = _j2; k2 = _k2;
     return _integrate(*this);
@@ -211,7 +211,7 @@ Integral<T,Quad,First,Second>::operator()(int _j1, int _k1, int _j2, int _k2)
 
 template <typename T, QuadratureType Quad, typename First, typename Second>
 T
-Integral<T,Quad,First,Second>::operator()(int _j1, int _k1)
+Integral<T,Quad,First,Second>::operator()(int _j1, int _k1) const
 {
     j1 = _j1; k1 = _k1;
     return _integrate(*this);

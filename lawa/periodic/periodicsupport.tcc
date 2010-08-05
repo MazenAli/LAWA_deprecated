@@ -55,10 +55,10 @@ template <typename T>
 bool
 inner(T x, const PeriodicSupport<T> &supp) {
     if(supp.gaplength() > 0){
-        return (x >= supp.l1) && (x < supp.li1) && (x <= supp.l2) && (x > supp.li2);
+        return (x >= supp.l1) && (x <= supp.li1) && (x <= supp.l2) && (x >= supp.li2);
     }
     else{
-        return (x > supp.l1) && (x < supp.l2);
+        return (x >= supp.l1) && (x <= supp.l2);
     }
 }
 

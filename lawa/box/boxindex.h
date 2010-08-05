@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,29 +17,34 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_PERIODIC_EVALUATE_H
-#define LAWA_PERIODIC_EVALUATE_H 1
-
-#include <lawa/basis.h>
-#include <lawa/enum.h>
-#include <lawa/flensforlawa.h>
+#ifndef BOXINDEX_H
+#define BOXINDEX_H 1
 
 namespace lawa {
-
-template <typename X>
-typename X::ElementType   
-    evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, 
-             int j, const DenseVector<X> &coeffs, typename X::ElementType x, 
-             int deriv);
-
-template <typename X>
-typename X::ElementType
-    evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis, 
-             int J, const DenseVector<X> &coeffs, typename X::ElementType x, 
-             int deriv);
-
+  
+template<typename Basis>    
+class BoxIndex
+{
+    private:
+        const Basis& basis;
+        const int J_x, J_y;
+        
+        const int offsetIx;
+        const int offsetIy;
+        const int offsetJx;
+        const int offsetJy;
+    
+    public:
+        BoxIndex(const Basis& _basis, const int _J_x, const int _J_y);
+        
+        int
+        operator()(bool XisSpline, int jx, int kx,
+                   bool YisSpline, int jy, int ky) const;
+};
+    
+    
 } // namespace lawa
 
-#include <lawa/periodic/evaluate.tcc>
+#include <lawa/box/boxindex.tcc>
 
-#endif // LAWA_PERIODIC_EVALUATE_H
+#endif // BOXINDEX_H

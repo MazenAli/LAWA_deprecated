@@ -85,6 +85,24 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
 }
 
 template <typename T>
+Wavelet<T,Primal,Periodic,CDF>::Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis)
+    : d(_basis.d), d_(_basis.d_), mu(d&1),    
+      deriv(0), polynomialOrder(d),
+      vanishingMoments(d_), psiR(d,d_) 
+{
+}
+
+
+template <typename T>
+Wavelet<T,Primal,Periodic,CDF>::Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis, int _deriv)
+    : d(_basis.d), d_(_basis.d_), mu(d&1),    
+      deriv(_deriv), polynomialOrder(d-_deriv),
+      vanishingMoments(d_), psiR(d, d_, _deriv)
+{    
+    assert(deriv>=0);
+}
+
+template <typename T>
 T
 Wavelet<T,Primal,Periodic,CDF>::operator()(T x, int j, int k) const
 {

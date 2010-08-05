@@ -33,7 +33,7 @@ evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, int j,
 
     BSpline<T,Primal,Interval,Cons> phi(mra,deriv);
     T ret = 0.0;
-    for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {
+    for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {        
         ret += coeffs(k) * phi(x,j,k);
     }
     return ret;
