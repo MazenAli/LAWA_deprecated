@@ -33,18 +33,18 @@ template <typename T, Construction Cons>
 RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
                                 int nLeft, int nRight,
                                 const GeMatrix<FullStorage<T, ColMajor> > &A,
-                                int j0)
+                                int _min_j0, int cons_j)
     : left(nLeft, (nLeft>0) ? A.firstCol() : 1),
       right(nRight, (nRight>0) ? A.lastCol()-nRight+1 : A.lastCol()+2),
       lengths(_(-nRight, nLeft)),
-      _j0(j0), _j(j0),
+      min_j0(_min_j0), _cons_j(cons_j), _j(cons_j),
       _firstRow(A.firstRow()), _firstCol(A.firstCol()),
       _lastRow(A.lastRow()), _lastCol(A.lastCol()),
       _additionalRows(0), _additionalCols(0)
 {
     assert(nLeft>=0);
     assert(nRight>=0);
-    assert(j0>=0);
+    assert(_cons_j>=min_j0);
     
     assert(_firstCol>=1);
 
@@ -54,8 +54,8 @@ RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
         lengths(1+i-left.firstIndex()) = left(i).length()+(A.firstRow()-1);
     }
 
-	lengths(0) = leftband.firstIndex() - 1;//-A.firstRow();
-    
+    lengths(0) = leftband.firstIndex() - 1;//-A.firstRow();
+
     for (int i=right.firstIndex(); i<=right.lastIndex(); ++i) {
         lengths(-nRight+i-right.firstIndex()) = right(i).length()+(A.firstRow()-1);
     }
@@ -66,12 +66,17 @@ const typename DenseVector<Array<T> >::ConstView
 RefinementMatrix<T,Interval,Cons>::operator()(int j, const Underscore<int> &u,
                                               int col) const
 {
-    assert(j>=_j0);
+    assert(j>=min_j0);
 
     int additionalCols = 0, additionalRows = 0;
-    if (j>_j0) {
-        for (int l=_j0; l<j; ++l) {
+    if (j>_cons_j) {
+        for (int l=_cons_j; l<j; ++l) {
             additionalCols += pow2i<T>(l);
+        }
+        additionalRows = 2*additionalCols;
+    } else if (j<_cons_j) {
+        for (int l=_cons_j-1; l>=j; --l) {
+            additionalCols -= pow2i<T>(l);
         }
         additionalRows = 2*additionalCols;
     }
@@ -162,7 +167,7 @@ void
 RefinementMatrix<T,Interval,Cons>::setLevel(int j) const
 {
     if (j<_j) {
-        assert(j>=_j0);
+        assert(j>=min_j0);
         for (int l=_j-1; l>=j; --l) {
             _additionalCols -= pow2i<T>(l);
         }
@@ -284,10 +289,10 @@ mv(Transpose transA, typename X::ElementType alpha,
 
         // left upper block
         int ix = x.firstIndex();
-        for (int c=A.left.firstIndex(); c<=A.left.lastIndex(); ++c) {
+        for (int c=A.left.firstIndex(); c<=A.left.lastIndex(); ++c, ++ix) {
             int n = A.left(c).length();
             cxxblas::axpy(n, 
-                          x(ix++),
+                          x(ix),
                           A.left(c).engine().data(), 1,
                           y.engine().data(), 1);
         }
@@ -295,27 +300,27 @@ mv(Transpose transA, typename X::ElementType alpha,
         // central band (up to middle)
         int iy = A.leftband.firstIndex()-A.firstRow();
         int n = A.leftband.length();
-        int middle = x.length()/2;        
-        for (int c=A.left.lastIndex()+1; c<=middle; ++c, iy+=2) {
+        int middle = iceil(x.length()/2.);
+        for (int c=A.left.lastIndex()+1; c<=middle; ++c, iy+=2, ++ix) {
             cxxblas::axpy(n,
-                          x(ix++),
+                          x(ix),
                           A.leftband.engine().data(), 1,
                           y.engine().data()+iy, 1);
         }
         // central band (right of middle)
         int end = A.left.firstIndex() + x.length() - A.right.length();
-        for (int c=middle+1; c<end; ++c, iy+=2) {
+        for (int c=middle+1; c<end; ++c, iy+=2, ++ix) {
             cxxblas::axpy(n,
-                          x(ix++),
+                          x(ix),
                           A.rightband.engine().data(), 1,
                           y.engine().data()+iy, 1);
         }
 
         // right lower block
-        for (int c=A.right.firstIndex(); c<=A.right.lastIndex(); ++c) {
+        for (int c=A.right.firstIndex(); c<=A.right.lastIndex(); ++c, ++ix) {
             int n = A.right(c).length();
             cxxblas::axpy(n, 
-                          x(ix++),
+                          x(ix),
                           A.right(c).engine().data(), 1,
                           y.engine().data()+y.length()-1-n+1, 1);
         }

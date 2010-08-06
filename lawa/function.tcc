@@ -20,6 +20,12 @@
 namespace lawa {
 
 template <typename T>
+Function<T>::Function(T (*_f)(T))
+    : f(_f)
+{
+}
+
+template <typename T>
 Function<T>::Function(T (*_f)(T), 
                       const DenseVector<Array<T> > &_singularPoints)
     : f(_f), singularPoints(_singularPoints)

@@ -29,7 +29,8 @@ Basis<T,Dual,Interval,Dijkema>::Basis(int _d, int _d_, int j)
 {
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
-    M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0);
+    const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
+    M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0, cons_j);
     setLevel(_j);
 }
 
@@ -44,13 +45,11 @@ template <typename T>
 void
 Basis<T,Dual,Interval,Dijkema>::setLevel(int j) const
 {
-    if (j!=_j) {
-        assert(j>=min_j0);
-        _j = j;
-        M1_.setLevel(_j);
-        mra.setLevel(_j);
-        mra_.setLevel(_j);
-    }
+    assert(j>=min_j0);
+    _j = j;
+    M1_.setLevel(_j);
+    mra.setLevel(_j);
+    mra_.setLevel(_j);
 }
 
 template <typename T>
@@ -64,8 +63,9 @@ Basis<T,Dual,Interval,Dijkema>::enforceBoundaryCondition()
         mra_.enforceBoundaryCondition<BC>();
         GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
+        const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
         M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, 
-                                                   Mj1_, min_j0);
+                                                   Mj1_, min_j0, cons_j);
         setLevel(_j);
     }
 }

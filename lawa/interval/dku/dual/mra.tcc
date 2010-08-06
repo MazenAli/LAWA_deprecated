@@ -246,41 +246,41 @@ MRA<T,Dual,Interval,DKU>::_calcM0_()
     }
 
     Mj0_(ML_c) = ML_c;
-	arrow(ML_c,MR_c);
-	MR_c.engine().changeIndexBase(Mj0_.lastRow()-MR_c.numRows()+1,
-	                              Mj0_.lastCol()-MR_c.numCols()+1);
-	Mj0_(MR_c) = MR_c;
+    arrow(ML_c,MR_c);
+    MR_c.engine().changeIndexBase(Mj0_.lastRow()-MR_c.numRows()+1,
+                                  Mj0_.lastCol()-MR_c.numCols()+1);
+    Mj0_(MR_c) = MR_c;
     Mj0_.engine().changeIndexBase(1,1);
 
     // central band (vertical)
-	BSpline<T,Dual,R,CDF> phi_(d,d_);
-	for (int c=l_, r=2*l_+l1_; c<=pow2i<T>(min_j0)-q_-1; ++c, r+=2) {
-		Mj0_(_(r,r+phi_.a_.length()-1),c) = Const<T>::R_SQRT2 * phi_.a_; 
-	}
+    BSpline<T,Dual,R,CDF> phi_(d,d_);
+    for (int c=l_, r=2*l_+l1_; c<=pow2i<T>(min_j0)-q_-1; ++c, r+=2) {
+        Mj0_(_(r,r+phi_.a_.length()-1),c) = Const<T>::R_SQRT2 * phi_.a_; 
+    }
 
-	for (int c=l_, r=2*l_+l1_; c<=pow2i<T>(min_j0)-q_-1; ++c, r+=2) {
-		Mj0_(_(r,r+phi_.a_.length()-1),c) = Const<T>::R_SQRT2 * phi_.a_; 
-	}
-	
-	M0_ = RefinementMatrix<T,Interval,DKU>(d_,d_,Mj0_,min_j0);
+    for (int c=l_, r=2*l_+l1_; c<=pow2i<T>(min_j0)-q_-1; ++c, r+=2) {
+        Mj0_(_(r,r+phi_.a_.length()-1),c) = Const<T>::R_SQRT2 * phi_.a_; 
+    }
+    
+    M0_ = RefinementMatrix<T,Interval,DKU>(d_,d_,Mj0_,min_j0);
 }
 
 template <typename T>
 T
 chi(T x)
 {
-	return (x>=0 && x<=1) ? 1 : 0;
+    return (x>=0 && x<=1) ? 1 : 0;
 }
 
 template <typename T>
 GeMatrix<FullStorage<T, ColMajor> >
 MRA<T,Dual,Interval,DKU>::_integral0toInfPhiPhi_()
 {
-	
+
     GeMatrix<FullStorage<T,ColMajor> > I(_(-l2 +1, l-d+d_-1),
                                          _(-l2_+1, l_-1));
-	BSpline<T,Primal,R,CDF> phi(d);
-	BSpline<T,Dual,R,CDF> phi_(d,d_);
+    BSpline<T,Primal,R,CDF> phi(d);
+    BSpline<T,Dual,R,CDF> phi_(d,d_);
 
     return I;
 }

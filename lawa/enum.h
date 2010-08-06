@@ -53,7 +53,7 @@ enum BoundaryCondition {
 
 enum QuadratureType { 
     Gauss, 
-    CompositeTrapezoidal 
+    Trapezoidal 
 };
 
 enum SortingCriterion {

@@ -59,7 +59,7 @@ class Quadrature<T,Gauss,Integrand>
 };
 
 template <typename T, typename Integrand>
-class Quadrature<T,CompositeTrapezoidal,Integrand>
+class Quadrature<T,Trapezoidal,Integrand>
 {    
     public:
         Quadrature(const Integrand &_integrand, int _n = 1024);

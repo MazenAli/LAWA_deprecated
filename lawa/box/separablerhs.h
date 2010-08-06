@@ -42,10 +42,10 @@ class SeparableRHS
         PrimalWavelet_x psi_x;
         PrimalWavelet_y psi_y;
         
-        Integral<T, Gauss, PrimalSpline_x, Function<T> > integral_sff_x;
-        Integral<T, Gauss, PrimalSpline_y, Function<T> > integral_sff_y;
-        Integral<T, Gauss, PrimalWavelet_x, Function<T> > integral_wf_x;
-        Integral<T, Gauss, PrimalWavelet_y, Function<T> > integral_wf_y;
+        Integral<T, Trapezoidal, PrimalSpline_x, Function<T> > integral_sff_x;
+        Integral<T, Trapezoidal, PrimalSpline_y, Function<T> > integral_sff_y;
+        Integral<T, Trapezoidal, PrimalWavelet_x, Function<T> > integral_wf_x;
+        Integral<T, Trapezoidal, PrimalWavelet_y, Function<T> > integral_wf_y;
                 
     public:
         SeparableRHS(const Basis& _basis, const SeparableFunction<T>& _F);
