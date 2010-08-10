@@ -19,7 +19,6 @@ using namespace std;
 
 int main()
 {
-
 	Index1d index1;
 	Index1d index2(3,4,XWavelet);
 
@@ -32,8 +31,10 @@ int main()
 	cout << indexset1 << endl;
 	Basis<T,Primal,Interval,Dijkema> basis_interval(2,2,2);
 	Basis<T,Primal,Periodic,CDF> basis_periodic(2,2,2);
-	indexset2 = C(indexset1,0.5,basis_interval);
-	indexset2 = C(indexset1,0.5,basis_periodic);
+
+	indexset2 = C_interval(indexset1,0.5);
+	indexset2 = C_realline(indexset1,0.5);
+	indexset2 = C_periodic(indexset1,0.5);
 
 	return 0;
 

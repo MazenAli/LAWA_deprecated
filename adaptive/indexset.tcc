@@ -1,8 +1,20 @@
 /*
- * indexset.tcc
- *
- *  Created on: 10.08.2010
- *      Author: sebastian
+  LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #ifndef INDEXSET_TCC_
@@ -52,23 +64,37 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i)
 
 template <typename T>
 IndexSet<Index1d>
-C(const IndexSet<Index1d> &lambda, T c, const Basis<T,Primal,R,CDF> &basis) {
-	IndexSet<Index1d> indexset;
-	return indexset;
-}
-
-template <typename T, Construction Cons>
-IndexSet<Index1d>
-C(const IndexSet<Index1d> &lambda, T c, const Basis<T,Primal,Interval,Cons> &basis) {
-	std::cout << "Security zone for interval basis!" << std::endl;
+C(const Index1d &lambda, T c, const BSpline<T,Primal,R,CDF> &basis) {
+	std::cout << "Security zone for realline BSpline!" << std::endl;
 	IndexSet<Index1d> indexset;
 	return indexset;
 }
 
 template <typename T>
 IndexSet<Index1d>
-C(const IndexSet<Index1d> &lambda, T c, const Basis<T,Primal,Periodic,CDF> &basis) {
-	std::cout << "Security zone for periodic basis!" << std::endl;
+C(const Index1d &lambda, T c, const Wavelet<T,Primal,R,CDF> &basis) {
+	std::cout << "Security zone for realline wavelet!" << std::endl;
+	IndexSet<Index1d> indexset;
+	return indexset;
+}
+
+template <typename T>
+IndexSet<Index1d>
+C_interval(const IndexSet<Index1d> &Lambda, T c) {
+	IndexSet<Index1d> indexset;
+	return indexset;
+}
+
+template <typename T>
+IndexSet<Index1d>
+C_realline(const IndexSet<Index1d> &Lambda, T c) {
+	IndexSet<Index1d> indexset;
+	return indexset;
+}
+
+template <typename T>
+IndexSet<Index1d>
+C_periodic(const IndexSet<Index1d> &Lambda, T c) {
 	IndexSet<Index1d> indexset;
 	return indexset;
 }

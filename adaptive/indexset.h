@@ -42,8 +42,23 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1d>
-C(const IndexSet<Index1d> &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
+C(const Index1d &lambda, T c, const BSpline<T,Primal,Domain,Cons> &phi);
 
+template <typename T, DomainType Domain, Construction Cons>
+IndexSet<Index1d>
+C(const Index1d &lambda, T c, const Wavelet<T,Primal,Domain,Cons> &psi);
+
+template <typename T>
+IndexSet<Index1d>
+C_interval(const IndexSet<Index1d> &Lambda, T c);
+
+template <typename T>
+IndexSet<Index1d>
+C_realline(const IndexSet<Index1d> &Lambda, T c);
+
+template <typename T>
+IndexSet<Index1d>
+C_periodic(const IndexSet<Index1d> &Lambda, T c);
 
 }   // namespace lawa
 
