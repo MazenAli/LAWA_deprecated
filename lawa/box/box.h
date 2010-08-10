@@ -6,6 +6,7 @@
 #include <lawa/box/separablefunction.h>
 #include <lawa/box/separablerhs.h>
 #include <lawa/box/separablerhswithpeaks.h>
+#include <lawa/box/spacetimeerrorcalculation.h>
 #include <lawa/box/spacetimeheatoperator.h>
 #include <lawa/box/spacetimeh1norm.h>
 #include <lawa/box/sparsetensorbasis.h>
