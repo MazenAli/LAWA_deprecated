@@ -19,28 +19,19 @@
 
 namespace lawa {
 
-Index::Index(int _d, int _d_)
-: d(_d), d_(_d_), j(0), k(0), xtype(XBSpline)
+Index1d::Index1d(void)
+: j(0), k(0), xtype(XBSpline)
 {
 
 }
 
-Index::Index(int _d, int _d_, int _j, int _k, XType _xtype)
-: d(_d), d_(_d_), j(_j), k(_k), xtype(_xtype)
+Index1d::Index1d(int _j, int _k, XType _xtype)
+: j(_j), k(_k), xtype(_xtype)
 {
 
 }
 
-Index&
-Index::operator= (const Index &_index)
-{
-    j     = _index.j;
-    k     = _index.k;
-    xtype = _index.xtype;
-    return *this;
-}
-
-std::ostream& operator<<(std::ostream &s, const Index &_i)
+std::ostream& operator<<(std::ostream &s, const Index1d &_i)
 {
     if (_i.xtype==XBSpline) {
         s << "scaling, (" << _i.j << " , " << _i.k << ")";
@@ -50,45 +41,26 @@ std::ostream& operator<<(std::ostream &s, const Index &_i)
     return s;
 }
 
-ReallineIndex::ReallineIndex(int d, int d_)
-: Index(d, d_)
+
+template <>
+struct lt<Lexicographical, Index1d>
 {
-
-}
-
-ReallineIndex::ReallineIndex(int d, int d_, int j, int k, XType xtype)
-: Index(d, d_, j, k, xtype)
-{
-
-}
-
-template <typename Basis>
-IntervalIndex<Basis>::IntervalIndex(const Basis &_basis, int d, int d_)
-: Index(d, d_), basis(_basis)
-{
-
-}
-
-template <typename Basis>
-IntervalIndex<Basis>::IntervalIndex(const Basis &_basis, int d, int d_, int j, int k, XType xtype)
-: Index(d, d_, j, k, xtype), basis(_basis)
-{
-
-}
-
-template <typename Basis>
-PeriodicIndex<Basis>::PeriodicIndex(const Basis &_basis, int d, int d_)
-: Index(d, d_), basis(_basis)
-{
-
-}
-
-template <typename Basis>
-PeriodicIndex<Basis>::PeriodicIndex(const Basis &_basis, int d, int d_, int j, int k, XType xtype)
-: Index(d, d_, j, k, xtype), basis(_basis)
-{
-
-}
+    inline
+    bool operator()(const Index1d &left, const Index1d &right) const
+    {
+        if (left.j!=right.j) {
+            return (left.j<right.j);
+        } else {
+            if ((left.xtype==XBSpline)&&(right.xtype==XWavelet)) {
+                return true;
+            } else if ((left.xtype==XWavelet)&&(right.xtype==XBSpline)) {
+                return false;
+            } else {
+                return (left.k<right.k);
+            }
+        }
+    }
+};
 
 
 } //namespace lawa

@@ -17,34 +17,38 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef INDEX_H
-#define INDEX_H 1
+#ifndef INDEXSET_H_
+#define INDEXSET_H_ 1
 
+#include <set>
 #include <lawa/enum.h>
+#include <adaptive/index.h>
+#include <lawa/lawa.h>
 
 namespace lawa {
 
-class Index1d
+template <typename Index>
+struct IndexSet : std::set<Index, lt<Lexicographical,Index > >
 {
-public:
-	int j, k;
-	XType xtype;
+    IndexSet<Index>&
+    operator= (const IndexSet<Index> &_set);
 
-	Index1d(void);
-    Index1d(int j, int k, XType _xtype);
+    IndexSet<Index>
+    operator+ (const IndexSet<Index> &_set) const;
 };
 
-std::ostream& operator<<(std::ostream &s, const Index1d &_Index);
+template <typename Index>
+std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 
-template <SortingCriterion S, typename Index>
-struct lt
-{
-};
+template <typename T, DomainType Domain, Construction Cons>
+IndexSet<Index1d>
+C(const IndexSet<Index1d> &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
 
 
+}   // namespace lawa
 
-} //namespace lawa
 
-#include "index.tcc"
+#include "indexset.tcc"
 
-#endif
+
+#endif /* INDEXSET_H_ */
