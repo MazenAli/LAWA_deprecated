@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef BOXINDEX_H
-#define BOXINDEX_H 1
+#ifndef LAWA_BOX_BOXINDEX_H
+#define LAWA_BOX_BOXINDEX_H 1
 
 namespace lawa {
   
@@ -47,4 +47,4 @@ class BoxIndex
 
 #include <lawa/box/boxindex.tcc>
 
-#endif // BOXINDEX_H
+#endif // LAWA_BOX_BOXINDEX_H
