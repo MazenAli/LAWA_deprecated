@@ -1,5 +1,5 @@
 LIBDIRS   = lawa
-EXECDIRS  = tutorial
+EXECDIRS  = tutorial adaptive
 SUBDIRS  := $(LIBDIRS) $(EXECDIRS)
 LDFLAGS  += -L$(LAWA_HOME)
 
