@@ -353,6 +353,34 @@ operator+(const PeriodicSupport<T> &supp, S shift)
     return newsupp;
 }
 
+template <typename S, typename T>
+PeriodicSupport<T>
+operator*(S factor, const PeriodicSupport<T> &supp)
+{
+    assert(factor >= 0);
+    PeriodicSupport<T> newsupp(supp.l1, supp.l2);
+    if(supp.gaplength() > 0){
+        newsupp.l1 = supp.li2;
+        newsupp.l2 = supp.li1;
+    }
+    newsupp.l1 = factor * newsupp.l1;
+    newsupp.l2 = factor * newsupp.l2;
+    if(newsupp.l2 - newsupp.l1 >= 1){
+        newsupp.l1 = 0;
+        newsupp.l2 = 1;
+    }
+    else{
+        newsupp.l1 = newsupp.l1 - ifloor(newsupp.l1);
+        newsupp.l2 = newsupp.l2 - ifloor(newsupp.l2);
+        if(newsupp.l2 < newsupp.l1){
+            newsupp.li1 = newsupp.l2;
+            newsupp.li2 = newsupp.l1;
+            newsupp.l1 = 0.;
+            newsupp.l2 = 1.;
+        }
+    }
+    return newsupp;
+}
 
 template <typename T>
 std::ostream &
