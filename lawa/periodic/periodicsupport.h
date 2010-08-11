@@ -87,7 +87,7 @@ template <typename T, typename S>
     
 template <typename S, typename T>
     PeriodicSupport<T>
-    operator*(S factor, const PeriodicSupport<T> &supp){ assert(0);}
+    operator*(S factor, const PeriodicSupport<T> &supp);
 
 template <typename T>
     std::ostream &
