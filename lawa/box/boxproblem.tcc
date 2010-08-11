@@ -19,18 +19,19 @@
 
 namespace lawa{
     
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
-BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::
-BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs, Preconditioner _P)
-    : basis(_basis), a(_a), rhs(_rhs), P(_P)
+template<typename T, typename Basis>
+BoxProblem<T, Basis>::
+BoxProblem(Basis _basis)
+    : basis(_basis)
 {        
 }
 
 
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
+template<typename T, typename Basis>
+template<typename BilinearForm>
 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::
-getStiffnessMatrix(int J_x, int J_y, T tol)
+BoxProblem<T, Basis>::
+getStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol)
 {   
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
@@ -386,9 +387,10 @@ getStiffnessMatrix(int J_x, int J_y, T tol)
 }  
 
 
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
+template<typename T, typename Basis>
+template<typename RHSIntegral>
 flens::DenseVector<flens::Array<T> >
-BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x, int J_y)
+BoxProblem<T, Basis>::getRHS(RHSIntegral& rhs, int J_x, int J_y)
 {
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
@@ -466,10 +468,11 @@ BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::getRHS(int J_x,
 }
 
 
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
+template<typename T, typename Basis>
+template<typename Preconditioner>
 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    
-BoxProblem<T, Basis, BilinearForm, RHSIntegral, Preconditioner>::
-getPreconditioner(int J_x, int J_y)
+BoxProblem<T, Basis>::
+getPreconditioner(Preconditioner& P, int J_x, int J_y)
 {
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
