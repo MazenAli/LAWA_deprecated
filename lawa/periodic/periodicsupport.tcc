@@ -44,6 +44,18 @@ PeriodicSupport<T>::~PeriodicSupport()
 
 template <typename T>
 T
+PeriodicSupport<T>::length() const
+{
+    if(gaplength() > 0){
+        return (li1 - l1) + (l2 -li2);
+    }
+    else{
+        return l2-l1;
+    }
+}
+
+template <typename T>
+T
 PeriodicSupport<T>::gaplength() const
 {
     return li2 - li1;
@@ -58,7 +70,7 @@ inner(T x, const PeriodicSupport<T> &supp) {
         return (x >= supp.l1) && (x <= supp.li1) && (x <= supp.l2) && (x >= supp.li2);
     }
     else{
-        return (x >= supp.l1) && (x =< supp.l2);
+        return (x >= supp.l1) && (x <= supp.l2);
     }
 }
 

@@ -20,6 +20,9 @@ struct PeriodicSupport : public Support<T>
     ~PeriodicSupport();
     
     T
+    length() const;
+    
+    T
     gaplength() const;      // length of possible inner gap in support (= length[li1, li2])
     
     using Support<T>::l1;   // outer support bounds (maximal support: [0,1])
