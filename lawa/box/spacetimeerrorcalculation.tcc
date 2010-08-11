@@ -27,7 +27,9 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
         }
     }
     // SF x W
-    for(int jx = b2.j0; jx <= std::min(J_x_approx, J_x_exact) - 1; ++jx){
+    int J_x_approx_max = basis.J2_max(J_t_approx, J_x_approx, b1.j0-1);
+    int J_x_exact_max = basis.J2_max(J_t_exact, J_x_exact, b1.j0-1);
+    for(int jx = b2.j0; jx <= std::min(J_x_approx_max, J_x_exact_max) - 1; ++jx){
         for(int kt = b1.mra.rangeI(b1.j0).firstIndex(); kt <= b1.mra.rangeI(b1.j0).lastIndex(); ++kt){
             for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
                 int i_a = I_approx(spline, b1.j0, kt, wavelet, jx, kx);
@@ -37,8 +39,8 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
             }
         } 
     }
-    for(int jx = std::min(J_x_approx, J_x_exact); jx <= std::max(J_x_approx, J_x_exact) - 1; ++jx){
-        if(J_x_exact > J_x_approx){
+    for(int jx = std::min(J_x_approx_max, J_x_exact_max); jx <= std::max(J_x_approx_max, J_x_exact_max) - 1; ++jx){
+        if(J_x_exact_max > J_x_approx_max){
             // approx coefficients are zero
             for(int kt = b1.mra.rangeI(b1.j0).firstIndex(); kt <= b1.mra.rangeI(b1.j0).lastIndex(); ++kt){
                 for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
@@ -61,7 +63,9 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
     }
 
     // W x SF
-    for(int jt = b1.j0; jt <= std::min(J_t_approx, J_t_exact) - 1; ++jt){
+    int J_t_approx_max = basis.J1_max(J_t_approx, J_x_approx, b2.j0-1);
+    int J_t_exact_max = basis.J1_max(J_t_exact, J_x_exact, b2.j0-1);
+    for(int jt = b1.j0; jt <= std::min(J_t_approx_max, J_t_exact_max) - 1; ++jt){
         for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
             for(int kx = b2.mra.rangeI(b2.j0).firstIndex(); kx <= b2.mra.rangeI(b2.j0).lastIndex(); ++kx){
                 int i_a = I_approx(wavelet, jt, kt, spline, b2.j0, kx);
@@ -71,8 +75,8 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
             }
         } 
     }
-    for(int jt = std::min(J_t_approx, J_t_exact); jt <= std::max(J_t_approx, J_t_exact) - 1; ++jt){
-        if(J_t_exact > J_t_approx){
+    for(int jt = std::min(J_t_approx_max, J_t_exact_max); jt <= std::max(J_t_approx_max, J_t_exact_max) - 1; ++jt){        
+        if(J_t_exact_max > J_t_approx_max){
             // approx coefficients are zero
             for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                 for(int kx = b2.mra.rangeI(b2.j0).firstIndex(); kx <= b2.mra.rangeI(b2.j0).lastIndex(); ++kx){
@@ -94,9 +98,13 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
         }
     }
 
-    // W x W
-    for(int jt = b1.j0; jt <= std::min(J_t_approx, J_t_exact) - 1; ++jt){
-        for(int jx = b2.j0; jx <= std::min(J_x_approx, J_x_exact) - 1; ++jx){
+    // W x W    
+    J_t_approx_max = basis.J1_max(J_t_approx, J_x_approx, b2.j0);
+    J_t_exact_max = basis.J1_max(J_t_exact, J_x_exact, b2.j0);
+    for(int jt = b1.j0; jt <= std::min(J_t_approx_max, J_t_exact_max) - 1; ++jt){
+        J_x_approx_max = basis.J2_max(J_t_approx, J_x_approx, jt);
+        J_x_exact_max = basis.J2_max(J_t_exact, J_x_exact, jt);
+        for(int jx = b2.j0; jx <= std::min(J_x_approx_max, J_x_exact_max) - 1; ++jx){
             for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                 for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
                     int i_a = I_approx(wavelet, jt, kt, wavelet, jx, kx);
@@ -106,8 +114,8 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
                 }
             }
         }
-        for(int jx = std::min(J_x_approx, J_x_exact); jx <= std::max(J_x_approx, J_x_exact) - 1; ++jx){            
-            if(J_t_exact > J_t_approx){
+        for(int jx = std::min(J_x_approx_max, J_x_exact_max); jx <= std::max(J_x_approx_max, J_x_exact_max) - 1; ++jx){  
+            if(J_t_exact_max > J_t_approx_max){
                 // approx coefficients are zero
                 for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                     for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
@@ -130,10 +138,12 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
         } 
     }
 
-    for(int jt = std::min(J_t_approx, J_t_exact); jt <= std::max(J_t_approx, J_t_exact) - 1; ++jt){        
-        if(J_t_exact > J_t_approx){
+    for(int jt = std::min(J_t_approx_max, J_t_exact_max); jt <= std::max(J_t_approx_max, J_t_exact_max) - 1; ++jt){          
+        J_x_approx_max = basis.J2_max(J_t_approx, J_x_approx, jt);
+        J_x_exact_max = basis.J2_max(J_t_exact, J_x_exact, jt);      
+        if(J_t_exact_max > J_t_approx_max){
             // approx coefficients are zero
-            for(int jx = b2.j0; jx <= J_x_exact - 1; ++jx){                
+            for(int jx = b2.j0; jx <= J_x_exact_max - 1; ++jx){                                
                 for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                     for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
                         int i_e = I_exact(wavelet, jt, kt, wavelet, jx, kx);
@@ -145,7 +155,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
         }
         else{
             // exact coefficients are zero
-            for(int jx = b2.j0; jx <= J_x_approx - 1; ++jx){                
+            for(int jx = b2.j0; jx <= J_x_approx_max - 1; ++jx){                                
                 for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                     for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
                         int i_a = I_approx(wavelet, jt, kt, wavelet, jx, kx);
