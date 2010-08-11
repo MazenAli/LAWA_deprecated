@@ -51,7 +51,7 @@ Support<T>::length() const
 template <typename T>
 bool
 inner(T x, const Support<T> &supp) {
-    return (x>supp.l1) && (x<supp.l2);
+    return (x>=supp.l1) && (x<=supp.l2);
 }
 
 template <typename T>
@@ -74,7 +74,40 @@ template <typename T>
 T
 distance(const Support<T> &supp1, const Support<T> &supp2)
 {
-    return std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2);
+    return std::max(0.0, std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2));
+}
+
+template <typename T>
+T
+distance(const Support<T> &supp1, const Support<T> &supp2, Support<T> &common)
+{
+    common.l1 = std::max(supp1.l1, supp2.l1);
+    common.l2 = std::min(supp1.l2, supp2.l2);
+    return std::max(0.0, common.l1 - common.l2);
+}
+
+template <typename T>
+T
+distance(const DenseVector<Array<T> > &singsupp1, const Support<T> &supp2)
+{
+    T first=singsupp1(singsupp1.firstIndex()), last=singsupp1(singsupp1.lastIndex());
+    if (distance(Support<T>(first,last),supp2)>0) {
+        return distance(Support<T>(first,last),supp2);
+    }
+
+    for (int i=singsupp1.firstIndex(); i<=singsupp1.lastIndex()-1; ++i) {
+        if (singsupp1(i)<supp2.l1 && supp2.l2<singsupp1(i+1)) {
+            return std::min(supp2.l1-singsupp1(i), singsupp1(i+1)-supp2.l2);
+        }
+    }
+    return 0.0;
+}
+
+template <typename T>
+T
+distance(const Support<T> &supp1, const DenseVector<Array<T> > &singsupp2)
+{
+    return distance(singsupp2, supp1);
 }
 
 template <typename T, typename S>

@@ -53,7 +53,18 @@ enum BoundaryCondition {
 
 enum QuadratureType { 
     Gauss, 
-    CompositeTrapezoidal 
+    Trapezoidal 
+};
+
+enum SortingCriterion {
+	AbsoluteValue,
+	Lexicographical,
+	Uniform
+};
+
+enum RecoveryType {
+	BU,
+	CDD
 };
 
 } // namespace lawa

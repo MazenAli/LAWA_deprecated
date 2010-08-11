@@ -41,13 +41,13 @@ template <typename T>
 void
 Basis<T,Primal,Interval,Primbs>::setLevel(int j) const
 {
-//    if (j!=_j) {
+    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         mra.setLevel(_j);
         mra_.setLevel(_j);
         M1.setLevel(_j);
-//    }
+    }
 }
 
 template <typename T>
@@ -207,8 +207,9 @@ Basis<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
             numDualCols += 1;
         }
         
-        blas::scal(Const<T>::R_SQRT2, Mj1);
-        M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols, numPrimalCols, Mj1, min_j0, 1);
+        blas::scal(Const<T>::R_SQRT2*2, Mj1);
+		Mj1.engine().changeIndexBase(2,1);
+        M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols, numPrimalCols, Mj1, min_j0, min_j0);
         setLevel(_j);
     }
 }
@@ -427,8 +428,8 @@ Basis<T,Primal,Interval,Primbs>::_calcM1()
         numDualCols += 1;
     }
 
-//    blas::scal(Const<T>::R_SQRT2, Mj1);
-    M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols,numPrimalCols,Mj1,min_j0,0);
+    blas::scal(Const<T>::R_SQRT2*2, Mj1);
+    M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols,numPrimalCols,Mj1,min_j0,min_j0);
     setLevel(_j);
 }
 

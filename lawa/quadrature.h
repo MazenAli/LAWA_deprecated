@@ -40,7 +40,7 @@ template <typename T, typename Integrand>
 class Quadrature<T,Gauss,Integrand>
 {    
     public:
-        Quadrature(const Integrand &_integrand, int order = 4);
+        Quadrature(const Integrand &_integrand, int order = 10);
 
         const T
         operator()(T a, T b) const;
@@ -59,10 +59,10 @@ class Quadrature<T,Gauss,Integrand>
 };
 
 template <typename T, typename Integrand>
-class Quadrature<T,CompositeTrapezoidal,Integrand>
+class Quadrature<T,Trapezoidal,Integrand>
 {    
     public:
-        Quadrature(const Integrand &_integrand, int _n = 100);
+        Quadrature(const Integrand &_integrand, int _n = 1024);
 
         const T
         operator()(T a, T b) const;

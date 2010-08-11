@@ -33,6 +33,8 @@ template <typename T>
 class MRA<T,Primal,Interval,Primbs>
 {
     public:
+        typedef BSpline<T,Primal,Interval,Primbs> BSplineType;
+        
         MRA(int d, int j=-1);
 
         ~MRA();
@@ -91,6 +93,10 @@ class MRA<T,Primal,Interval,Primbs>
                                            // bc(1) = 1 -> Dirichlet BC right.
 
         mutable int _j;                // the current level.
+
+    public:
+        BSpline<T,Primal,Interval,Primbs> phi;
+
 };
 
 } // namespace lawa

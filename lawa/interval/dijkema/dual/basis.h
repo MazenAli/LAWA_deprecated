@@ -30,6 +30,9 @@ template <typename T>
 class Basis<T,Dual,Interval,Dijkema>
 {
     public:
+        typedef Wavelet<T,Dual,Interval,Dijkema> WaveletType;
+        typedef BSpline<T,Dual,Interval,Dijkema> BSplineType;
+        
         Basis(int _d, int _d_, int j=-1);
 
         int
@@ -68,7 +71,7 @@ class Basis<T,Dual,Interval,Dijkema>
         const Range<int>
         rangeJ_R(int j=-1) const;
 
-        MRA<T,Primal,Interval,Primbs> mra;
+        MRA<T,Primal,Interval,Dijkema> mra;
         MRA<T,Dual,Interval,Dijkema>  mra_;
 
         RefinementMatrix<T,Interval,Dijkema> M1_;

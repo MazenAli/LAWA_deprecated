@@ -31,6 +31,8 @@ template <typename T>
 class MRA<T,Dual,Interval,Dijkema>
 {
     public:
+        typedef BSpline<T,Dual,Interval,Dijkema> BSplineType;
+        
         MRA(int d, int d_, int j=-1);
 
         ~MRA();
@@ -72,9 +74,15 @@ class MRA<T,Dual,Interval,Dijkema>
             enforceBoundaryCondition();
 
         const int d, d_, mu;   // mu = mu(d) = d&1.
+
+    private:
+        const int l1, l2;        // support of phi  = [ l1, l2 ] (real line).
+        const int l1_, l2_;      // support of phi  = [ l1, l2 ] (real line).
+
+    public:
         const int min_j0;      // minimal allowed(!) level;
         const int j0;          // minimal used(!) level.
-        
+
         GeMatrix<FullStorage<T,cxxblas::ColMajor> > R_Left, R_Right;
         RefinementMatrix<T,Interval,Dijkema> M0_;
         BSpline<T,Dual,R,CDF> phi_R;
@@ -82,10 +90,8 @@ class MRA<T,Dual,Interval,Dijkema>
     private:
         void
         _calcM0_();
-        
-        const int l1, l2;        // support of phi  = [ l1, l2 ] (real line).
-        const int l1_, l2_;      // support of phi  = [ l1, l2 ] (real line).
-public: // TO BE ELIMINATED !!!!!!!!!!!!!!
+
+    public: // FIXME: "public: " TO BE ELIMINATED !!!!!!!!!!!!!!
         DenseVector<Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.

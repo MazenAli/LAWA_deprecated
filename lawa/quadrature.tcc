@@ -98,10 +98,10 @@ Quadrature<T,Gauss,Integrand>::_legendre()
     }
 }
 
-//--- Composite Trapezoidal rule -----------------------------------------------
+//---  Trapezoidal rule -----------------------------------------------
 
 template <typename T, typename Integrand>
-Quadrature<T,CompositeTrapezoidal,Integrand>::
+Quadrature<T,Trapezoidal,Integrand>::
 Quadrature(const Integrand &_integrand, int _n)
     : n(_n), integrand(_integrand)
 {
@@ -109,7 +109,7 @@ Quadrature(const Integrand &_integrand, int _n)
 
 template <typename T, typename Integrand>
 const T
-Quadrature<T,CompositeTrapezoidal,Integrand>::operator()(T a, T b) const
+Quadrature<T,Trapezoidal,Integrand>::operator()(T a, T b) const
 {
 	assert(n>0);
 	

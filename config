@@ -6,8 +6,8 @@ ifeq ($(TARGET),OSX)
   CXXDYLIB  = -dynamiclib
   DYLIB_EXT = dylib
   ifeq ($(COMPILER),gcc)
-    CC  = gcc
-    CXX = g++
+    CC  = gcc-4.2
+    CXX = g++-4.2
     ifeq ($(BLASLAPACK),platform)
       CPPFLAGS += -DWITH_VECLIB
       LDFLAGS  += -framework Accelerate
@@ -37,11 +37,11 @@ RELEASEMODE = -O3 -DNDEBUG
 # --- profiling mode --------------------
 PROFILEMODE = -p -g -DNDEBUG
 
-#CXXFLAGS += $(DEBUGMODE)
-CXXFLAGS += $(RELEASEMODE)
+CXXFLAGS += $(DEBUGMODE)
+#CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
 CXXFLAGS += -Wfatal-errors -pedantic -Wextra -std=c++98 -Wno-sign-compare \
             -Wreturn-type
-#CXXFLAGS += -O2 -DCHECK_INTERVAL_CONSTRUCTION 
+CXXFLAGS += -O2 -DCHECK_INTERVAL_CONSTRUCTION 

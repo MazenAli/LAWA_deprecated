@@ -96,7 +96,7 @@ myCopy(const FS_A &A, FS_B &B)
 
 ==section:Naming Conventions==
 
-==subsection:Composite Names==
+==subsection: Names==
 In general we compose names without underscores.  Instead an uppercase letter
 indicates that a name was glues together:
 ==code:.cc==

@@ -26,12 +26,13 @@ template <typename T>
 Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
     : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
-      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(j0)
+      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1), psi(*this)
 {
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
-    M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0);
-    setLevel(_j);
+    const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
+    M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0, cons_j);
+    setLevel(j);
 }
 
 template <typename T>
@@ -45,13 +46,11 @@ template <typename T>
 void
 Basis<T,Primal,Interval,Dijkema>::setLevel(int j) const
 {
-//    if (j!=_j) {
         assert(j>=min_j0);
         _j = j;
         M1.setLevel(_j);
         mra.setLevel(_j);
         mra_.setLevel(_j);
-//    }
 }
 
 template <typename T>
@@ -65,7 +64,8 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         mra_.enforceBoundaryCondition<BC>();
         GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
-        M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0,1);
+        const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
+        M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0, cons_j);
         setLevel(_j);
     }
 }
@@ -137,5 +137,40 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
     return _(pow2i<T>(j)-(d+d_-2),pow2i<T>(j));
     
 }
+
+// TODO: get rid of the following support functions.
+template <typename T>
+const Support<T>
+Basis<T,Primal,Interval,Dijkema>::support(int j, int k, int e) const
+{
+    assert(j>=min_j0);
+	BSpline<T,Primal,Interval,Dijkema> phi(this->mra);
+	Wavelet<T,Primal,Interval,Dijkema> psi(*this);
+    if (e==0) {
+        return phi.support(j,k);
+    } else if (e==1) {
+        return psi.support(j,k);
+    } else {
+        assert(0);
+    }
+}
+
+template <typename T>
+const DenseVector<Array<T> >
+Basis<T,Primal,Interval,Dijkema>::singularSupport(int j, int k, int e) const
+{
+    assert(j>=min_j0);
+	BSpline<T,Primal,Interval,Primbs> phi(this->mra);
+	Wavelet<T,Primal,Interval,Dijkema> psi(*this);
+    if (e==0) {
+        return phi.singularSupport(j,k);
+    } else if (e==1) {
+        return psi.singularSupport(j,k);
+    } else {
+        assert(0);
+    }
+}
+
+
 
 } // namespace lawa

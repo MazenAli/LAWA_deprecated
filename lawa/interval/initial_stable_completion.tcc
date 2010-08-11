@@ -32,8 +32,9 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
 
     const RefinementMatrix<T,Interval,ConsPrimal> &M0 = mra.M0;
-    const int j = mra_.min_j0;
-    const int d = mra.d, d_ = mra_.d_;
+    const int d = mra.d;
+    const int d_ = mra_.d_;
+    const int j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
     const int l1 = mra.l1, l2 = mra.l2;
     M0.setLevel(j);
 
@@ -173,26 +174,18 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     DenseVector<Array<int> > p(Mj.numRows());
     FullColMatrix MjInv, MjInvTmp = Mj, TransTmp2;
     
-    // Inversion using QR ... ----------------------------------
-        FullColMatrix I(MjInvTmp.numRows(),MjInvTmp.numRows());
-        I.diag(0) = 1;
-        flens::DenseVector<Array<T> > tau;
-        qrf(MjInvTmp, tau);
-        TransTmp2 = MjInvTmp;
-        orgqr(MjInvTmp, tau);
-
-        //Trans = transpose(TransTmp);
-        blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,MjInvTmp,I,0.,MjInv);
-
-        blas::sm(Left,NoTrans,1.,TransTmp2.upper(),MjInv);
-    // Inversion using QR done ... ----------------------------------
+    MjInv = inv(Mj);
 
     FullColMatrix Mj1_Tmp = MjInv(_(pow2i<T>(j)+d-1+1-mra_._bc(0)-mra_._bc(1),
                                     pow2i<T>(j+1)+d-1-mra_._bc(0)-mra_._bc(1)), _ );
     copy(Trans, Mj1_Tmp, M1_);
-    blas::scal(.5,M1_);
-    blas::scal(2,M1);
-//    blas::mm(Trans,NoTrans,1.,M1,M1_,0.,Mj1Tmp);
+
+    M1.engine().changeIndexBase(1+mra_._bc(0),1);
+    M1_.engine().changeIndexBase(1+mra_._bc(0),1);
+
+    // TODO: theoretical foundation for scaling this way!
+    blas::scal(Const<T>::R_SQRT2,M1_);
+    blas::scal(2*Const<T>::R_SQRT2,M1);
 }
 
 } // namespace lawa

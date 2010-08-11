@@ -20,11 +20,11 @@
 namespace lawa {
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 linspace(T from, T to, int numTicks)
 {
     T step = (to-from) / (numTicks-1);
-    DenseVector<Array<T> > x(numTicks,0);
+    flens::DenseVector<flens::Array<T> > x(numTicks,0);
     x(0) = from;
     for (int i=1; i<numTicks-1; ++i) {
         x(i) = from + i*step;

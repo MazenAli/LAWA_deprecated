@@ -29,6 +29,8 @@ using namespace flens;
 template <typename T>
 struct Function
 {
+    Function(T (*_f)(T));
+
     Function(T (*_f)(T), const DenseVector<Array<T> > &_singularPoints);
 
     T

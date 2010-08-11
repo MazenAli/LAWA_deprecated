@@ -37,6 +37,15 @@ BSpline<T,Dual,Periodic,CDF>::BSpline(int _d, int _d_)
 }
 
 template <typename T>
+BSpline<T,Dual,Periodic,CDF>::BSpline(const MRA<T,Dual,Periodic,CDF> &mra)
+    : d(mra.d), d_(mra.d_), mu(d&1), phiR_(d,d_)
+{
+    assert(d>0);
+    assert(d_>=d);
+    assert(((d+d_)&1)==0);
+}
+
+template <typename T>
 BSpline<T,Dual,Periodic,CDF>::~BSpline()
 {
 }
