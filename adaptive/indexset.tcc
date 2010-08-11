@@ -22,6 +22,11 @@
 
 namespace lawa {
 
+template <typename Index>
+IndexSet<Index>::IndexSet(int _d, int _d_)
+: d(_d), d_(_d_)
+{
+}
 
 template <typename Index>
 IndexSet<Index>&
@@ -63,39 +68,72 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i)
 }
 
 template <typename T>
-IndexSet<Index1d>
-C(const Index1d &lambda, T c, const BSpline<T,Primal,R,CDF> &basis) {
-	std::cout << "Security zone for realline BSpline!" << std::endl;
-	IndexSet<Index1d> indexset;
-	return indexset;
-}
+void
+C(const Index1d &lambda, T c, const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi, IndexSet<Index1d> &ret) {
+	int j=lambda.j, k=lambda.k;
+	XType xtype=lambda.xtype;
+	if (xtype==XBSpline) {
+		ret.insert(Index1d(j,k,xtype));
+		ret.insert(Index1d(j,k-1,xtype));
+		ret.insert(Index1d(j,k+1,xtype));
+		ret.insert(Index1d(j,k-2,xtype));
+		ret.insert(Index1d(j,k+2,xtype));
 
-template <typename T>
-IndexSet<Index1d>
-C(const Index1d &lambda, T c, const Wavelet<T,Primal,R,CDF> &basis) {
-	std::cout << "Security zone for realline wavelet!" << std::endl;
-	IndexSet<Index1d> indexset;
-	return indexset;
-}
+		Support<T> contractedSupp, supp = phi.support(j,k);
+		T center = 0.5*(supp.l1 + supp.l2);
+		contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+		contractedSupp.l2 = c*supp.l2 + (1-c)*center;
 
-template <typename T>
-IndexSet<Index1d>
-C_interval(const IndexSet<Index1d> &Lambda, T c) {
-	IndexSet<Index1d> indexset;
-	return indexset;
+		int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.support(0,0).l2);
+		int kMax =  ceil( pow2i<T>(j)*contractedSupp.l2 - psi.support(0,0).l1);
+		for (int k1=kMin; k1<=kMax; ++k1) {
+			if (overlap(contractedSupp, psi.support(j,k1))>0) ret.insert(Index1d(j,k1,XWavelet));
+		}
+	}
+	else {
+		Support<T> contractedSupp, supp = psi.support(j,k);
+		T center = 0.5*(supp.l1 + supp.l2);
+		contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+		contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+		long int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.support(0,0).l2);
+		long int kMax = ceil(pow2i<T>(j)*contractedSupp.l2 - psi.support(0,0).l1);
+		for (long int k1=kMin; k1<=kMax; ++k1) {
+			if (overlap(contractedSupp, psi.support(j,k1))>0) ret.insert(Index1d(j,k1,XWavelet));
+		}
+		kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - psi.support(0,0).l2);
+		kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - psi.support(0,0).l1);
+		for (long int k1=kMin; k1<=kMax; ++k1) {
+			if (overlap(contractedSupp, psi.support(j+1,k1))>0) ret.insert(Index1d(j+1,k1,XWavelet));
+		}
+	}
 }
 
 template <typename T>
 IndexSet<Index1d>
 C_realline(const IndexSet<Index1d> &Lambda, T c) {
-	IndexSet<Index1d> indexset;
+	IndexSet<Index1d> ret(Lambda.d,Lambda.d_);
+	typedef typename IndexSet<Index1d>::const_iterator const_it;
+
+	const BSpline<T,Primal,R,CDF> phi(Lambda.d,0);
+    const Wavelet<T,Primal,R,CDF> psi(Lambda.d,Lambda.d_,0);
+
+    for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		C((*lambda),c,phi,psi,ret);
+    }
+    return ret;
+}
+
+template <typename T>
+IndexSet<Index1d>
+C_interval(const IndexSet<Index1d> &Lambda, T c) {
+	IndexSet<Index1d> indexset(Lambda.d,Lambda.d_);
 	return indexset;
 }
 
 template <typename T>
 IndexSet<Index1d>
 C_periodic(const IndexSet<Index1d> &Lambda, T c) {
-	IndexSet<Index1d> indexset;
+	IndexSet<Index1d> indexset(Lambda.d,Lambda.d_);
 	return indexset;
 }
 

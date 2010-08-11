@@ -21,32 +21,32 @@
 #define INDEXSET_H_ 1
 
 #include <set>
-#include <lawa/enum.h>
 #include <adaptive/index.h>
 #include <lawa/lawa.h>
 
 namespace lawa {
 
 template <typename Index>
-struct IndexSet : std::set<Index, lt<Lexicographical,Index > >
+struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
 {
+	IndexSet(int d, int d_);
+
     IndexSet<Index>&
     operator= (const IndexSet<Index> &_set);
 
     IndexSet<Index>
     operator+ (const IndexSet<Index> &_set) const;
+
+    const int d,d_;
 };
 
 template <typename Index>
 std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 
+//Security zone for an index following Urban:2009, p.235 and KU:2010.
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1d>
-C(const Index1d &lambda, T c, const BSpline<T,Primal,Domain,Cons> &phi);
-
-template <typename T, DomainType Domain, Construction Cons>
-IndexSet<Index1d>
-C(const Index1d &lambda, T c, const Wavelet<T,Primal,Domain,Cons> &psi);
+C(const Index1d &lambda, T c, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi, IndexSet<Index1d> &ret);
 
 template <typename T>
 IndexSet<Index1d>
@@ -63,7 +63,7 @@ C_periodic(const IndexSet<Index1d> &Lambda, T c);
 }   // namespace lawa
 
 
-#include "indexset.tcc"
+#include <adaptive/indexset.tcc>
 
 
 #endif /* INDEXSET_H_ */

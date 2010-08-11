@@ -36,7 +36,7 @@ public:
 
 std::ostream& operator<<(std::ostream &s, const Index1d &_Index);
 
-template <SortingCriterion S, typename Index>
+template <SortingCriterion S, typename SortingType>
 struct lt
 {
 };

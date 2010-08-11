@@ -62,5 +62,14 @@ struct lt<Lexicographical, Index1d>
     }
 };
 
+template <typename SortingType>
+struct lt<AbsoluteValue, SortingType>
+{
+    bool operator()(const SortingType &left, const SortingType &right) const
+        {
+            return (fabs(left) > fabs(right));	//todo: Is this the right call for fabs (template?)
+        }
+};
+
 
 } //namespace lawa
