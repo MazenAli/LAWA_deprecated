@@ -373,7 +373,7 @@ operator*(S factor, const PeriodicSupport<T> &supp)
     PeriodicSupport<T> newsupp(supp.l1, supp.l2);
     if(supp.gaplength() > 0){
         newsupp.l1 = supp.li2;
-        newsupp.l2 = supp.li1;
+        newsupp.l2 = supp.li1 + 1;
     }
     newsupp.l1 = factor * newsupp.l1;
     newsupp.l2 = factor * newsupp.l2;
