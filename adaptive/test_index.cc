@@ -17,9 +17,26 @@ typedef double T;
 using namespace lawa;
 using namespace std;
 
+struct Timer
+{
+    void
+    start()	{	_start = clock(); }
+
+    void
+    stop() {	_stop = clock(); }
+
+    double
+    elapsed() {	return double(_stop - _start) / CLOCKS_PER_SEC; }
+
+    clock_t _start;
+    clock_t _stop;
+};
+
 
 int main()
 {
+
+	cout.precision(16);
 	int d=2,d_=2;
 	Index1d index1;
 	Index1d index2(3,4,XWavelet);
@@ -53,6 +70,20 @@ int main()
 
 	FillWithZeros(indexset2, w);
 	cout << "w filled with zeros = " << w << endl;
+
+	BSpline<T,Primal,R,CDF> phi(d,0);
+	Wavelet<T,Primal,R,CDF> psi(d,d_,0);
+	Timer time;
+	time.start();
+	IndexSet<Index1d> Lambda1 = lambdaTilde1d_PDE(Index1d(0,0,XBSpline), phi, psi, 25, 0, 25, false);
+	IndexSet<Index1d> Lambda2 = lambdaTilde1d_PDE(Index1d(0,0,XWavelet), phi, psi, 25, 0, 25, false);
+	time.stop();
+	T lambdaTildeTime = time.elapsed();
+
+	//cout << "Output of lamdaTilde for BSpline with support " << phi.support(0,0)  << " = " << Lambda << endl;
+	cout << "Size of lambdaTilde: " << Lambda1.size() << endl;
+	cout << "Size of lambdaTilde: " << Lambda2.size() << endl;
+	cout << "Time for lambdaTilde: " << lambdaTildeTime << endl;
 
 	Coefficients<AbsoluteValue,T,Index1d> u_abs(d,d_);
 	u_abs = u;
