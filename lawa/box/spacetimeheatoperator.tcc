@@ -20,10 +20,10 @@ SpaceTimeHeatOperator<T, Basis>::SpaceTimeHeatOperator(const Basis& _basis, cons
     
 template <typename T, typename Basis>      
 T
-SpaceTimeHeatOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSpline,
-                                        int j1_t, int k1_t, int j1_x, int k1_x,
-                                        bool SecondXisSpline, bool SecondYisSpline,
-                                        int j2_t, int k2_t, int j2_x, int k2_x) const
+SpaceTimeHeatOperator<T, Basis>::operator()(bool FirstXisSpline, int j1_t, int k1_t, 
+                                            bool FirstYisSpline, int j1_x, int k1_x,
+                                            bool SecondXisSpline,int j2_t, int k2_t, 
+                                            bool SecondYisSpline,int j2_x, int k2_x) const
 {
     T val_t = 0;
     T d_val_t = 0;
@@ -72,8 +72,17 @@ SpaceTimeHeatOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSp
          }
     }
     
-    
-    return d_val_t * val_x  + c * val_t * dd_val_x;
+    return d_val_t * val_x  + c * val_t * dd_val_x;        
+
+}
+
+template <typename T, typename Basis>  
+T
+SpaceTimeHeatOperator<T, Basis>::operator()(bool XisSpline, int j_t, int k_t, 
+                                            bool YisSpline, int j_x, int k_x) const
+{
+    return operator()(XisSpline, j_t, k_t, YisSpline, j_x, k_x, 
+                      XisSpline, j_t, k_t, YisSpline, j_x, k_x);
 }
     
 } // namespace lawa

@@ -17,23 +17,24 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef SCALFACTORPRECONDITIONER_H
-#define SCALFACTORPRECONDITIONER_H 1
-
 namespace lawa {
     
 template<typename T>
-struct ScalFactorPreconditioner
+DiagonalScalingPreconditioner<T>::DiagonalScalingPreconditioner(int _s_x, int _s_y)
+    : s_x(_s_x), s_y(_s_y)
 {
-    ScalFactorPreconditioner();
+    assert(s_x >= 0);
+    assert(s_y >= 0);
+}
+
+template<typename T>
+T
+DiagonalScalingPreconditioner<T>::operator()(bool XisSpline, int j_x, int k_x,
+                                        bool YisSpline, int j_y, int k_y) const
+{
+    return pow2i<T>(- s_x*j_x - s_y*j_y);
+}
     
-    T
-    operator()(bool XisSpline, int j_x, int k_x,
-               bool YisSpline, int j_y, int k_y) const;
-};
+    
     
 } // namespace lawa
-
-#include <lawa/box/scalfactorpreconditioner.tcc>
-
-#endif // SCALFACTORPRECONDITIONER_H

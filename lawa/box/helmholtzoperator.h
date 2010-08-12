@@ -64,10 +64,10 @@ class HelmholtzOperator{
         HelmholtzOperator(const Basis& _basis, const T _c);
     
         T
-        operator()(bool FirstXisSpline, bool FirstYisSpline,
-                   int j1_x, int k1_x, int j1_y, int k1_y,
-                   bool SecondXisSpline, bool SecondYisSpline,
-                   int j2_x, int k2_x, int j2_y, int k2_y) const;
+        operator()(bool FirstXisSpline, int j1_x, int k1_x, 
+                   bool FirstYisSpline, int j1_y, int k1_y,
+                   bool SecondXisSpline,int j2_x, int k2_x, 
+                   bool SecondYisSpline,int j2_y, int k2_y) const;
     
 };
     

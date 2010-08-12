@@ -27,29 +27,30 @@
 #define LAWA_BOX_BOXPROBLEM_H 1
 
 #include <lawa/box/boxindex.h>
+#include <extensions/extensions.h>
 
 namespace lawa{    
 
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral, typename Preconditioner>
+template<typename T, typename Basis>
 class BoxProblem
 {
     private:
         Basis basis;
-        BilinearForm a;
-        RHSIntegral rhs;
-        Preconditioner P;
    
     public: 
-        BoxProblem(Basis _basis, BilinearForm _a, RHSIntegral _rhs, Preconditioner _P);
+        BoxProblem(Basis _basis);
     
+        template <typename BilinearForm>
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-        getStiffnessMatrix(int J_x, int J_y, T tol = 10e-15);
+        getStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol = 10e-15);
     
+        template <typename RHSIntegral>
         flens::DenseVector<flens::Array<T> >
-        getRHS(int J_x, int J_y);
+        getRHS(RHSIntegral& rhs, int J_x, int J_y);
         
-        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    
-        getPreconditioner(int J_x, int J_y);
+        template <typename Preconditioner>
+        flens::DiagonalMatrix<T>    
+        getPreconditioner(Preconditioner& P, int J_x, int J_y);
 };
 
 } // namespace lawa

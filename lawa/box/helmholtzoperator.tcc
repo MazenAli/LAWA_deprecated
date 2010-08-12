@@ -39,10 +39,10 @@ HelmholtzOperator<T, Basis>::HelmholtzOperator(const Basis& _basis, const T _c)
     
 template <typename T, typename Basis>      
 T
-HelmholtzOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSpline,
-                                        int j1_x, int k1_x, int j1_y, int k1_y,
-                                        bool SecondXisSpline, bool SecondYisSpline,
-                                        int j2_x, int k2_x, int j2_y, int k2_y) const
+HelmholtzOperator<T, Basis>::operator()(bool FirstXisSpline, int j1_x, int k1_x, 
+                                        bool FirstYisSpline, int j1_y, int k1_y,
+                                        bool SecondXisSpline,int j2_x, int k2_x, 
+                                        bool SecondYisSpline,int j2_y, int k2_y) const
 {
     T val_x = 0;
     T dd_val_x = 0;

@@ -44,12 +44,14 @@ class SpaceTimeHeatOperator{
     public:
         SpaceTimeHeatOperator(const Basis& _basis, const T _c);
     
-        T
-        operator()(bool FirstXisSpline, bool FirstYisSpline,
-                   int j1_t, int k1_t, int j1_x, int k1_x,
-                   bool SecondXisSpline, bool SecondYisSpline,
-                   int j2_t, int k2_t, int j2_x, int k2_x) const;
-    
+        T                                                           // returns a(u,v)
+        operator()(bool FirstXisSpline, int j1_t, int k1_t, 
+                   bool FirstYisSpline, int j1_x, int k1_x,
+                   bool SecondXisSpline,int j2_t, int k2_t, 
+                   bool SecondYisSpline,int j2_x, int k2_x) const;
+       T
+       operator()(bool XisSpline, int j_t, int k_t,                 // returns a(u,u)
+                  bool YisSpline, int j_x, int k_x) const;
 };
     
     
