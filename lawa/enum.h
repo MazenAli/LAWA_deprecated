@@ -33,6 +33,11 @@ enum DomainType {
     Interval
 };
 
+enum Dimension {
+    OneD = 1,
+    TwoD = 2
+};
+
 enum XType {
     XBSpline,
     XWavelet
@@ -57,14 +62,9 @@ enum QuadratureType {
 };
 
 enum SortingCriterion {
-	AbsoluteValue,
-	Lexicographical,
-	Uniform
-};
-
-enum RecoveryType {
-	BU,
-	CDD
+    AbsoluteValue,
+    Lexicographical,
+    Uniform
 };
 
 } // namespace lawa

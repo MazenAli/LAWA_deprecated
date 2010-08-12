@@ -19,6 +19,7 @@
 
 #include <extensions/flens/cg.h>
 #include <extensions/flens/crs.h>
+#include <extensions/flens/diagonalmatrix.h>
 #include <extensions/flens/densefunctions.h>
 #include <extensions/flens/gmres.h>
 #include <extensions/flens/inv.h>

@@ -116,8 +116,8 @@ qrsolv(GeMatrix<MX> &A, DenseVector<VX> &c,
 
 template <typename T>
 void
-qrinv(GeMatrix<FullStorage<T,ColMajor> > &A,
-      GeMatrix<FullStorage<T,ColMajor> > &InvA)
+qrinv(GeMatrix<FullStorage<T,cxxblas::ColMajor> > &A,
+      GeMatrix<FullStorage<T,cxxblas::ColMajor> > &InvA)
 {
     bool singular;
     DenseVector<Array<T> > c, d;
@@ -155,7 +155,7 @@ pythag(const T a, const T b)
     }
 }
 
-template <typename T, StorageOrder Order>
+template <typename T, cxxblas::StorageOrder Order>
 void
 svdGMP(const GeMatrix<FullStorage<T,Order> > &A,
     DenseVector<Array<T> > &s,
@@ -389,7 +389,7 @@ svdGMP(const GeMatrix<FullStorage<T,Order> > &A,
         }
     }
     // TODO: incorporate transpose in algorithm.
-    GeMatrix<FullStorage<T,ColMajor> > Dummy;
+    GeMatrix<FullStorage<T,cxxblas::ColMajor> > Dummy;
     Dummy = transpose(V);
     V = Dummy;
 }
