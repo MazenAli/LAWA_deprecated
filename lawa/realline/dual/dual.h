@@ -17,5 +17,7 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <lawa/realline/dual/basis.h>
 #include <lawa/realline/dual/bspline.h>
+#include <lawa/realline/dual/mra.h>
 #include <lawa/realline/dual/wavelet.h>
