@@ -60,6 +60,10 @@ template <typename T>
 IndexSet<Index1d>
 C_periodic(const IndexSet<Index1d> &Lambda, T c);
 
+template <typename T, DomainType Domain, Construction Cons>
+IndexSet<Index1d>
+lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi, int s_tilde, int jmin, int jmax, bool update);
+
 }   // namespace lawa
 
 
