@@ -470,7 +470,7 @@ BoxProblem<T, Basis>::getRHS(RHSIntegral& rhs, int J_x, int J_y)
 
 template<typename T, typename Basis>
 template<typename Preconditioner>
-flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    
+flens::DiagonalMatrix<T>    
 BoxProblem<T, Basis>::
 getPreconditioner(Preconditioner& P, int J_x, int J_y)
 {
@@ -481,7 +481,7 @@ getPreconditioner(Preconditioner& P, int J_x, int J_y)
     
     BoxIndex<Basis> I(basis, J_x, J_y);
     
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > D(basis.dim(J_x, J_y), basis.dim(J_x, J_y));
+    flens::DenseVector<flens::Array<T> > D(basis.dim(J_x, J_y));
     
     bool spline = true;
     bool wavelet = false;
@@ -491,9 +491,7 @@ getPreconditioner(Preconditioner& P, int J_x, int J_y)
     Range<int> Ry = b2.mra.rangeI(b2.j0);   
     for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
         for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
-            
-            int index = I(spline, b1.j0, kx, spline, b2.j0, ky);
-            D(index, index) = P(spline, b1.j0, kx, spline, b2.j0, ky);
+            D(I(spline, b1.j0, kx, spline, b2.j0, ky)) = P(spline, b1.j0, kx, spline, b2.j0, ky);
             
         }
     }
@@ -504,10 +502,7 @@ getPreconditioner(Preconditioner& P, int J_x, int J_y)
         Ry = b2.rangeJ(jy);
         for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
-                
-                int index = I(spline, b1.j0, kx, wavelet, jy, ky);
-                D(index, index) = P(spline, b1.j0, kx, wavelet, jy, ky);
-                
+                D(I(spline, b1.j0, kx, wavelet, jy, ky)) = P(spline, b1.j0, kx, wavelet, jy, ky);                
             }
         }
     }
@@ -518,10 +513,7 @@ getPreconditioner(Preconditioner& P, int J_x, int J_y)
         Rx = b1.rangeJ(jx);
         for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
-                
-                int index = I(wavelet, jx, kx, spline, b2.j0, ky);
-                D(index, index) = P(wavelet, jx, kx, spline, b2.j0, ky);
-            
+                D(I(wavelet, jx, kx, spline, b2.j0, ky)) = P(wavelet, jx, kx, spline, b2.j0, ky);            
             }
         }      
     }
@@ -533,16 +525,13 @@ getPreconditioner(Preconditioner& P, int J_x, int J_y)
             Ry = b2.rangeJ(jy);
             for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
                 for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
-                    
-                    int index = I(wavelet, jx, kx, wavelet, jy, ky);
-                    D(index, index) = P(wavelet, jx, kx, wavelet, jy, ky);
-                
+                    D(I(wavelet, jx, kx, wavelet, jy, ky)) = P(wavelet, jx, kx, wavelet, jy, ky);                
                 }
             } 
         }
     }
     
-    return D;
+    return flens::DiagonalMatrix<T>(D);
     
 }
     

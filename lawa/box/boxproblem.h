@@ -27,6 +27,7 @@
 #define LAWA_BOX_BOXPROBLEM_H 1
 
 #include <lawa/box/boxindex.h>
+#include <extensions/extensions.h>
 
 namespace lawa{    
 
@@ -48,7 +49,7 @@ class BoxProblem
         getRHS(RHSIntegral& rhs, int J_x, int J_y);
         
         template <typename Preconditioner>
-        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    
+        flens::DiagonalMatrix<T>    
         getPreconditioner(Preconditioner& P, int J_x, int J_y);
 };
 
