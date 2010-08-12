@@ -22,13 +22,13 @@
 
 #include <flens/flens.h>
 
-namespace lawa {
+namespace flens {
 
 // typedef double T;	
 // typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrixT;
 // typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
-extern flens::Underscore<int> _;
+    extern Underscore<int> _;
 
-} // namespace lawa
+} // namespace flens
 
 #endif // LAWA_FLENSFORLAWA_H

@@ -38,8 +38,8 @@
 namespace flens {
 
 template <typename T>
-    GeMatrix<FullStorage<T,ColMajor> >
-    inv(const GeMatrix<FullStorage<T,ColMajor> > &A);
+    GeMatrix<FullStorage<T,cxxblas::ColMajor> >
+    inv(const GeMatrix<FullStorage<T,cxxblas::ColMajor> > &A);
 
 } // namespace flens
 
