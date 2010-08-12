@@ -11,7 +11,6 @@
 #include <adaptive/coefficients.h>
 #include <lawa/lawa.h>
 
-
 typedef double T;
 
 using namespace lawa;
@@ -41,10 +40,17 @@ int main()
 	Index1d index1;
 	Index1d index2(3,4,XWavelet);
 	Index1d index3(4,5,XWavelet);
+	Index1d index4(index1);
+
+	Entry<Index1d> entry1(index1, index2);
+	Entry<Index1d> entry2(index1, index3);
 
 	lt<Lexicographical,Index1d> compare;
 	if (compare(index1,index2))	cout << index1 << endl;
 	else						cout << index2 << endl;
+
+	if (compare(entry1,entry2))	cout << entry1 << endl;
+	else						cout << entry2 << endl;
 
 	IndexSet<Index1d> indexset1(d,d_), indexset2(d,d_);
 	indexset1.insert(index1); indexset1.insert(Index1d()); indexset1.insert(index2);

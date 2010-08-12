@@ -28,7 +28,11 @@ Index1d::Index1d(void)
 Index1d::Index1d(int _j, int _k, XType _xtype)
 : j(_j), k(_k), xtype(_xtype)
 {
+}
 
+Index1d::Index1d(const Index1d &index)
+: j(index.j), k(index.k), xtype(index.xtype)
+{
 }
 
 std::ostream& operator<<(std::ostream &s, const Index1d &_i)
@@ -41,6 +45,17 @@ std::ostream& operator<<(std::ostream &s, const Index1d &_i)
     return s;
 }
 
+template <typename Index>
+Entry<Index>::Entry(const Index &_index1, const Index &_index2)
+: row_index(_index1), col_index(_index2)
+{
+}
+
+template <typename Index>
+std::ostream& operator<<(std::ostream &s, const Entry<Index> &entry) {
+	s << "[" << entry.row_index << ", " << entry.col_index  << "]";
+	return s;
+}
 
 template <>
 struct lt<Lexicographical, Index1d>
@@ -59,6 +74,18 @@ struct lt<Lexicographical, Index1d>
                 return (left.k<right.k);
             }
         }
+    }
+
+    inline
+    bool operator()(const Entry<Index1d> &left, const Entry<Index1d> &right) const
+    {
+    	// sort Operator row-wise
+    	if ( !(operator()(left.row_index,right.row_index)) && !(operator()(right.row_index,left.row_index))) {
+    		return operator()(left.col_index, right.col_index);
+    	}
+    	else {
+    	    return operator()(left.row_index,right.row_index);
+    	}
     }
 };
 

@@ -17,46 +17,20 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef INDEX_H
-#define INDEX_H 1
 
-#include <lawa/enum.h>
+#ifndef BILINEARFORM_H
+#define BILINEARFORM_H 1
+
 
 namespace lawa {
 
-class Index1d
+template <typename T, typename Basis>
+class BilinearForm
 {
-public:
-	int j, k;
-	XType xtype;
 
-	Index1d(void);
-    Index1d(int j, int k, XType _xtype);
-    Index1d(const Index1d &index);
-};
-
-std::ostream& operator<<(std::ostream &s, const Index1d &_Index);
-
-template <typename Index>
-class Entry
-{
-public:
-    Entry(const Index &row_index, const Index &col_index);
-    const Index row_index, col_index;	//todo: no copy, but only a reference possible ?!
-};
-
-template <typename Index>
-std::ostream& operator<<(std::ostream &s, const Entry<Index> &entry);
-
-template <SortingCriterion S, typename SortingType>
-struct lt
-{
 };
 
 
+}
 
-} //namespace lawa
-
-#include "index.tcc"
-
-#endif
+#endif // BILINEARFORM_H
