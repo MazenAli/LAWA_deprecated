@@ -35,13 +35,14 @@
 namespace flens {
 
 template <typename T>
-GeMatrix<FullStorage<T,ColMajor> >
-inv(const GeMatrix<FullStorage<T,ColMajor> > &A)
+GeMatrix<FullStorage<T,cxxblas::ColMajor> >
+inv(const GeMatrix<FullStorage<T,cxxblas::ColMajor> > &A)
 {
     assert(A.numRows()==A.numCols());
     
     // inversion using QR ...
-    GeMatrix<FullStorage<T,ColMajor> > I(A.numRows(),A.numCols()), Tmp1 = A, Tmp2, InvA;
+    GeMatrix<FullStorage<T,cxxblas::ColMajor> > I(A.numRows(),A.numCols()), 
+                                                Tmp1 = A, Tmp2, InvA;
     I.diag(0) = 1;
     flens::DenseVector<Array<T> > tau;
     qrf(Tmp1, tau);
@@ -49,7 +50,7 @@ inv(const GeMatrix<FullStorage<T,ColMajor> > &A)
     orgqr(Tmp1, tau);
 
     blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,Tmp1,I,0.,InvA);
-    blas::sm(Left,NoTrans,1.,Tmp2.upper(),InvA);
+    blas::sm(cxxblas::Left,cxxblas::NoTrans,1.,Tmp2.upper(),InvA);
 
     return InvA;
 }

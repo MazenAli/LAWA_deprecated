@@ -19,8 +19,8 @@
 
 #include <lawa/flensforlawa.h>
 
-namespace lawa {
+namespace flens {
 
-flens::Underscore<int> _;
+    Underscore<int> _;
 
-} // namespace lawa
+} // namespace flens
