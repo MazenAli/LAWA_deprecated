@@ -53,6 +53,28 @@ BSpline<T,Primal,R,CDF>::BSpline(int _d, int _deriv)
 }
 
 template <typename T>
+BSpline<T,Primal,R,CDF>::BSpline(const MRA<T,Primal,R,CDF> &mra)
+    : d(mra.d), mu(mra.d&1), deriv(0), polynomialOrder(d-deriv),
+      l1(.5*(-d+mu)), l2(.5*(d+mu)),
+      a(_bspline_mask<T>(d))
+{
+    assert(mra.d>0);
+    assert(deriv>=0);
+    assert(deriv<d);
+}
+
+template <typename T>
+BSpline<T,Primal,R,CDF>::BSpline(const MRA<T,Primal,R,CDF> &mra, int _deriv)
+    : d(mra.d), mu(mra.d&1), deriv(_deriv), polynomialOrder(d-deriv),
+      l1(.5*(-d+mu)), l2(.5*(d+mu)),
+      a(_bspline_mask<T>(d))
+{
+    assert(mra.d>0);
+    assert(deriv>=0);
+    assert(deriv<d);
+}
+
+template <typename T>
 BSpline<T,Primal,R,CDF>::~BSpline()
 {
 }
