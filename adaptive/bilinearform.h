@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,16 +21,43 @@
 #ifndef BILINEARFORM_H
 #define BILINEARFORM_H 1
 
+#include <adaptive/index.h>
 
 namespace lawa {
 
-template <typename T, typename Basis>
+/* Minimal structure of a BilinearForm
+
+template <typename T, typename Index, typename Basis>
 class BilinearForm
 {
+public:
+	BilinearForm(const BilinearForm<T,Index,Basis> &_a);
 
+	T
+	operator()(const Index &row_index, const Index &col_index);
+};
+
+*/
+
+template <typename T, typename Basis>
+class HelmholtzOperator1d
+{
+private:
+	const T c;	//reaction term
+
+public:
+	HelmholtzOperator1d(const T &c);
+	HelmholtzOperator1d(const HelmholtzOperator1d<T,Basis> &a);
+
+	T getc() const;
+
+	T
+	operator()(const Index1d &row_index, const Index1d &col_index);
 };
 
 
-}
+}	// namespace lawa
+
+#include <adaptive/bilinearform.tcc>
 
 #endif // BILINEARFORM_H

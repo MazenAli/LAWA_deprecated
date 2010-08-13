@@ -32,7 +32,6 @@
 
 namespace lawa {
 
-
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 class MapMatrix
 {
@@ -41,12 +40,12 @@ private:
 	typedef typename EntryMap::value_type val_type;
 	EntryMap data;
 
-	//const BilinearForm a;
-	//const Preconditioner p;
+	const Preconditioner p;
+	const BilinearForm a;
 	//const Compression c;
 
 public:
-	MapMatrix(void);
+	MapMatrix(const BilinearForm &a);
 
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!

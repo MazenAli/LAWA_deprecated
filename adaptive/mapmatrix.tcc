@@ -20,7 +20,8 @@
 namespace lawa {
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(void)
+MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a)
+: p(), a(_a)
 {
 }
 

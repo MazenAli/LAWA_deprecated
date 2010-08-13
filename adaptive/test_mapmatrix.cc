@@ -14,15 +14,15 @@ typedef double T;
 using namespace lawa;
 using namespace std;
 
-
 typedef Basis<T,Primal,Interval,Dijkema> MyBasis;
-typedef BilinearForm<T,MyBasis> MyBilinearForm;
+typedef HelmholtzOperator1d<T,MyBasis> MyBilinearForm;
 typedef Preconditioner<T,Index1d,MyBasis, MyBilinearForm > MyPreconditioner;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > FullColMatrixT;
 
 int main() {
 	int d=2, d_=4;
-	MapMatrix<T,Index1d,MyBilinearForm,MyBilinearForm,MyPreconditioner> A;
+	MyBilinearForm bil(0.5);
+	MapMatrix<T,Index1d,MyBilinearForm,MyBilinearForm,MyPreconditioner> A(bil);
 	Index1d index1(2,2,XBSpline), index2(2,2,XWavelet);
 	cout << A(index1,index2) << endl;
 
@@ -39,6 +39,8 @@ int main() {
 	FullColMatrixT A_dense;
 	densify(NoTrans,A_flens,A_dense);
 	cout << A_dense << endl;
+
+	Preconditioner<T,Index1d,MyBasis,MyBilinearForm> prec;
 
 	return 0;
 }
