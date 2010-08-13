@@ -114,7 +114,6 @@ C(const Index1d &lambda, T c, const MRA<T,Primal,Periodic,CDF> &mra, const Basis
 	int j=lambda.j, k=lambda.k;
 	XType xtype=lambda.xtype; 
 	if (xtype==XBSpline) {
-        std::cout << mra.rangeI(j) << std::endl;
 		ret.insert(Index1d(j,k,xtype));
 		ret.insert(Index1d(j,(k-1 >= mra.rangeI(j).firstIndex()) ? k-1 : mra.rangeI(j).lastIndex() 
 		                            + ((1 - (mra.rangeI(j).firstIndex() - k+1))%mra.cardI(j)),xtype));
