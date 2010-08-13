@@ -20,4 +20,5 @@
 #include <lawa/realline/cascade.h>
 #include <lawa/realline/dual/dual.h>
 #include <lawa/realline/primal/primal.h>
+#include <lawa/realline/refinementmatrix.h>
 #include <lawa/realline/subdivision.h>

@@ -25,12 +25,13 @@ template <typename T>
 Basis<T,Dual,Interval,Dijkema>::Basis(int _d, int _d_, int j)
     : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
-      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(j0)
+      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1)
 {
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
     const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
     M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0, cons_j);
+    _j = std::max(min_j0,j);
     setLevel(_j);
 }
 
