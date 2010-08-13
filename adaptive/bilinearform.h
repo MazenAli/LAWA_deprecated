@@ -15,13 +15,15 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+*/
 
 
-#ifndef BILINEARFORM_H
-#define BILINEARFORM_H 1
+#ifndef ADAPTIVE_BILINEARFORM_H
+#define ADAPTIVE_BILINEARFORM_H 1
 
 #include <adaptive/index.h>
+#include <adaptive/bilinearform.h>
+#include <lawa/lawa.h>
 
 namespace lawa {
 
@@ -43,16 +45,29 @@ template <typename T, typename Basis>
 class HelmholtzOperator1d
 {
 private:
+	const Basis& basis;
 	const T c;	//reaction term
 
+	typedef typename Basis::BSplineType PrimalSpline;
+	typedef typename Basis::WaveletType PrimalWavelet;
+
+	PrimalSpline  phi, d_phi;
+	PrimalWavelet psi, d_psi;
+
+    Integral<T, Gauss, PrimalSpline, PrimalSpline>   integral_sfsf, dd_integral_sfsf;
+    Integral<T, Gauss, PrimalSpline, PrimalWavelet>  integral_sfw,  dd_integral_sfw;
+    Integral<T, Gauss, PrimalWavelet, PrimalSpline>  integral_wsf,  dd_integral_wsf;
+    Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww,   dd_integral_ww;
+
 public:
-	HelmholtzOperator1d(const T &c);
+	HelmholtzOperator1d(const Basis &basis, const T &c);
 	HelmholtzOperator1d(const HelmholtzOperator1d<T,Basis> &a);
 
 	T getc() const;
+	const Basis& getBasis() const;
 
 	T
-	operator()(const Index1d &row_index, const Index1d &col_index);
+	operator()(const Index1d &row_index, const Index1d &col_index) const;
 };
 
 
@@ -60,4 +75,4 @@ public:
 
 #include <adaptive/bilinearform.tcc>
 
-#endif // BILINEARFORM_H
+#endif // ADAPTIVE_BILINEARFORM_H

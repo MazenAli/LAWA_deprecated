@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  */
 
 
-#ifndef MAPMATRIX_H
-#define MAPMATRIX_H 1
+#ifndef ADAPTIVE_MAPMATRIX_H
+#define ADAPTIVE_MAPMATRIX_H 1
 
 #include <utility>
 #include <adaptive/index.h>
@@ -65,4 +65,4 @@ mv(const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,
 #include <adaptive/mapmatrix.tcc>
 
 
-#endif // MAPMATRIX_H
+#endif // ADAPTIVE_MAPMATRIX_H

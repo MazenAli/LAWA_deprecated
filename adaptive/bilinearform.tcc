@@ -20,14 +20,24 @@
 namespace lawa {
 
 template <typename T, typename Basis>
-HelmholtzOperator1d<T,Basis>::HelmholtzOperator1d(const T &_c)
-: c(_c)
+HelmholtzOperator1d<T,Basis>::HelmholtzOperator1d(const Basis &_basis, const T &_c)
+: 	basis(_basis), c(_c),
+	phi(basis.mra), d_phi(basis.mra, 1), psi(basis), d_psi(basis, 1),
+    integral_sfsf(phi, phi), dd_integral_sfsf(d_phi, d_phi),
+    integral_sfw(phi, psi),  dd_integral_sfw(d_phi, d_psi),
+    integral_wsf(psi, phi),  dd_integral_wsf(d_psi, d_phi),
+    integral_ww(psi, psi),   dd_integral_ww(d_psi, d_psi)
 {
 }
 
 template <typename T, typename Basis>
 HelmholtzOperator1d<T,Basis>::HelmholtzOperator1d(const HelmholtzOperator1d<T,Basis> &_a)
-: c(_a.getc())
+: 	basis(_a.getBasis()), c(_a.getc()),
+	phi(basis.mra), d_phi(basis.mra, 1), psi(basis), d_psi(basis, 1),
+	integral_sfsf(phi, phi), dd_integral_sfsf(d_phi, d_phi),
+	integral_sfw(phi, psi),  dd_integral_sfw(d_phi, d_psi),
+	integral_wsf(psi, phi),  dd_integral_wsf(d_psi, d_phi),
+	integral_ww(psi, psi),   dd_integral_ww(d_psi, d_psi)
 {
 }
 
@@ -38,5 +48,38 @@ HelmholtzOperator1d<T,Basis>::getc() const
 	return c;
 }
 
+template <typename T, typename Basis>
+const Basis&
+HelmholtzOperator1d<T,Basis>::getBasis() const
+{
+	return basis;
+}
+
+template <typename T, typename Basis>
+T
+HelmholtzOperator1d<T,Basis>::operator()(const Index1d &row_index, const Index1d &col_index) const
+{
+	T    val = 0.;
+	T dd_val = 0.;
+	int j_row = row_index.j, k_row = row_index.k, j_col = col_index.j, k_col = col_index.k;
+
+	if ((row_index.xtype == XBSpline) && (col_index.xtype == XBSpline)) {
+		dd_val = dd_integral_sfsf(j_row,k_row,j_col,k_col);
+		if (c!=0) val = c*integral_sfsf(j_row,k_row,j_col,k_col);
+	}
+	else if ((row_index.xtype == XBSpline) && (col_index.xtype == XWavelet)) {
+		dd_val = dd_integral_sfw(j_row,k_row,j_col,k_col);
+		if (c!=0) val = c*integral_sfw(j_row,k_row,j_col,k_col);
+	}
+	else if ((row_index.xtype == XWavelet) && (col_index.xtype == XBSpline)) {
+		dd_val = dd_integral_wsf(j_row,k_row,j_col,k_col);
+		if (c!=0) val = c*integral_wsf(j_row,k_row,j_col,k_col);
+	}
+	else {
+		dd_val = dd_integral_ww(j_row,k_row,j_col,k_col);
+		if (c!=0) val = c*integral_ww(j_row,k_row,j_col,k_col);
+	}
+	return val+dd_val;
+}
 
 } // namespace lawa

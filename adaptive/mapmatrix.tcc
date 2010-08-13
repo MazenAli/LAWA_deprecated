@@ -32,7 +32,7 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
 	Entry<Index> entry(row_index,col_index);
 	if (data.count(entry)==0) {
 	    T val;
-	    val = 1.;//problem.matrixentry(l1,l2);
+	    val = a(row_index,col_index);
 	    data.insert(val_type(entry,val));
 	}
 	return data[entry];
