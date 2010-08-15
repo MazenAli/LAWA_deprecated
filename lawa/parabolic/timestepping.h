@@ -10,7 +10,7 @@ struct TimeStepping
         Solver& solver;
 
     public:
-        TimeStepping(Solver& _solver)
+        TimeStepping(Solver& _solver);
     
         flens::DenseVector<flens::Array<T> > 
         solve(flens::DenseVector<flens::Array<T> >& u_0, T deltaT, int timesteps, int levelX);
