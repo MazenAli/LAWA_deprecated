@@ -37,8 +37,8 @@ public:
 	rescale(const Index &index) const;
 };
 
-template <typename T, typename Basis, typename BilinearForm>
-class Preconditioner<T,Index1d,Basis,BilinearForm>
+template <typename T, typename Basis>
+class Preconditioner<T,Index1d,Basis,HelmholtzOperator1d<T,Basis> >
 {
 public:
 	T

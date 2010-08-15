@@ -8,6 +8,8 @@
 #include <iostream>
 #include <adaptive/mapmatrix.h>
 #include <adaptive/referencesolutions.h>
+#include <adaptive/problem.h>
+#include <adaptive/rhs.h>
 #include <lawa/lawa.h>
 
 typedef double T;
@@ -55,6 +57,13 @@ int main() {
 
 	cout << refsol.sing_pts << endl;
 	cout << refsol.deltas << endl;
+
+	Problem1d<T,MyBasis,MyBilinearForm>(basis, 1, bil, R);
+
+	RHS<T,Index1d,MyBasis,MyPreconditioner> F(basis,refsol.rhs,refsol.sing_pts, refsol.deltas);
+	Coefficients<Lexicographical,T,Index1d> f_Lambda = F(LambdaRow);
+	cout << f_Lambda << endl;
+
 
 	return 0;
 }

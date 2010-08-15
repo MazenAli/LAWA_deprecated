@@ -20,6 +20,7 @@
 #ifndef ADAPTIVE_PROBLEM_H
 #define ADAPTIVE_PROBLEM_H 1
 
+#include <adaptive/coefficients.h>
 #include <adaptive/bilinearform.h>
 
 namespace lawa {
@@ -29,12 +30,31 @@ class Problem1d
 {
 };
 
+/*  Not to be used!! Structure not yet clear...
+ *
 template <typename T, typename Basis>
 class Problem1d<T,Basis,HelmholtzOperator1d<T,Basis> >
 {
+private:
+	const Basis &basis;
+	const int d,d_;
+	Coefficients<Lexicographical,T,Index1d> u, f;
+	ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> > refsol;
+
+public:
+	Problem1d(const Basis &basis, int example_nr, const HelmholtzOperator1d<T,Basis> &a, DomainType domain);
+
+	Coefficients<Lexicographical,T,Index1d>
+	RHS(const IndexSet<Index1d> Lambda);
+
+	Coefficients<Lexicographical,T,Index1d>
+	RHS(T tol);
 };
 
+*/
 
 }  //namespace lawa
+
+#include <adaptive/problem.tcc>
 
 #endif // ADAPTIVE_PROBLEM_H

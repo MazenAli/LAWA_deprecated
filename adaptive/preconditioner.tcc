@@ -20,16 +20,16 @@
 
 namespace lawa {
 
-template <typename T, typename Basis, typename BilinearForm>
+template <typename T, typename Basis>
 T
-Preconditioner<T,Index1d,Basis,BilinearForm>::operator()(const Index1d &index) const
+Preconditioner<T,Index1d,Basis,HelmholtzOperator1d<T,Basis> >::operator()(const Index1d &index) const
 {
 	return pow2i<T>(-index.j);
 }
 
-template <typename T, typename Basis, typename BilinearForm>
+template <typename T, typename Basis>
 T
-Preconditioner<T,Index1d,Basis,BilinearForm>::rescale(const Index1d &index) const
+Preconditioner<T,Index1d,Basis,HelmholtzOperator1d<T,Basis> >::rescale(const Index1d &index) const
 {
 	return pow2i<T>(index.j);
 }

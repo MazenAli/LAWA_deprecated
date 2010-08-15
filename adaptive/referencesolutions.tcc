@@ -88,8 +88,8 @@ ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::exact(T x, int deriv
 				if (x > 0.01) 		return 0.1*std::exp(-0.1*(x-0.01));
 				else	  			return 0.1*std::exp( 0.1*(x-0.01));
 			}
-			else { std::cout << "ReferenceSolution<1d> exits!" << std::endl; exit(1); }
 		}
+		else { std::cout << "ReferenceSolution<1d> exits!" << std::endl; exit(1); }
 	}
 	else {		   std::cout << "ReferenceSolution<1d> exits!" << std::endl; exit(1);  }
 }
