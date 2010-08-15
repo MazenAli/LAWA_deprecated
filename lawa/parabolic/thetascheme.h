@@ -11,28 +11,18 @@ class ThetaScheme
     private:
         class Operator_LHSMatrix{
             private:
+                ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* scheme;
                 const Basis& basis;
                 const BilinearForm& a;
                 T timestep;
                 T time;
-                
-                typedef typename Basis::BSplineType PrimalSpline;
-                typedef typename Basis::WaveletType PrimalWavelet;
-    
-                PrimalSpline phi;
-                PrimalWavelet psi;
-        
-                Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf;
-                Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw;
-                Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf;
-                Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww;
             
             public:                
-                Operator_LHSMatrix(const Basis& _basis, const BilinearForm& _a, T _timestep);
+                Operator_LHSMatrix(ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, const Basis& _basis, const BilinearForm& _a, T _timestep);
                 
                 T 
                 operator()(XType xtype1, int j1, int k1,
-                XType xtype2, int j2, int k2) const;
+                           XType xtype2, int j2, int k2) const;
 
                 
                 void setTime(T t){ time = t;}
@@ -41,24 +31,14 @@ class ThetaScheme
         
         class Operator_RHSMatrix{
             private:
+                const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* scheme; 
                 const Basis& basis;
                 const BilinearForm& a;
                 T timestep;
                 T time;
-                
-                typedef typename Basis::BSplineType PrimalSpline;
-                typedef typename Basis::WaveletType PrimalWavelet;
-    
-                PrimalSpline phi;
-                PrimalWavelet psi;
-        
-                Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf;
-                Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw;
-                Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf;
-                Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww;
             
             public:                
-                Operator_RHSMatrix(const Basis& _basis, const BilinearForm& _a, T _timestep);
+                Operator_RHSMatrix(const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, const Basis& _basis, const BilinearForm& _a, T _timestep);
                 
                 T 
                 operator()(XType xtype1, int j1, int k1,
@@ -71,13 +51,14 @@ class ThetaScheme
         
         class Operator_RHSVector{
             private:
+                const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* scheme; 
                 const Basis& basis;
                 const RHSIntegral& rhs;
                 T timestep;
                 T time;
                 
             public:                
-                Operator_RHSVector(const Basis& _basis, const RHSIntegral& _rhs, T _timestep);
+                Operator_RHSVector(const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, const Basis& _basis, const RHSIntegral& _rhs, T _timestep);
                 
                 T operator()(XType xtype, int j, int k) const;
                 
@@ -93,6 +74,16 @@ class ThetaScheme
         T theta;
         const Basis& basis;
         Problem problem;
+        
+        typedef typename Basis::BSplineType PrimalSpline;
+        typedef typename Basis::WaveletType PrimalWavelet;
+        PrimalSpline phi;
+        PrimalWavelet psi;
+        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf;
+        Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw;
+        Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf;
+        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww;
+        
         Operator_LHSMatrix op_LHSMatrix;
         Operator_RHSMatrix op_RHSMatrix;
         Operator_RHSVector op_RHSVector;
