@@ -67,65 +67,101 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i)
     return s << std::endl;
 }
 
-template <typename T>
+// Security zone interval
+template <typename T, Construction Cons>
+IndexSet<Index1D>
+C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Interval,Cons> &basis) {
+	IndexSet<Index1D> ret(Lambda.d,Lambda.d_);
+	typedef typename IndexSet<Index1D>::const_iterator const_it;
+
+	const BSpline<T,Primal,Interval,Cons> phi(basis.mra,0);
+    const Wavelet<T,Primal,Interval,Cons> psi(basis,0);
+
+    for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		C((*lambda),c,phi,psi,basis.mra,basis,ret);
+    }
+
+    return ret;
+}
+
+template <typename T, Construction Cons>
 void
-C(const Index1d &lambda, T c, const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi, IndexSet<Index1d> &ret) {
-	int j=lambda.j, k=lambda.k;
-	XType xtype=lambda.xtype;
-	if (xtype==XBSpline) {
-		ret.insert(Index1d(j,k,xtype));
-		ret.insert(Index1d(j,k-1,xtype));
-		ret.insert(Index1d(j,k+1,xtype));
-		ret.insert(Index1d(j,k-2,xtype));
-		ret.insert(Index1d(j,k+2,xtype));
+C(const Index1D &lambda, T c,
+  const BSpline<T,Primal,Interval,Cons> &phi, const Wavelet<T,Primal,Interval,Cons> &psi,
+  const MRA<T,Primal,Interval,Cons> &mra, const Basis<T,Primal,Interval,Cons> &basis, IndexSet<Index1D> &ret)
+{
+	using std::min;
+	using std::max;
 
-		Support<T> contractedSupp, supp = phi.support(j,k);
-		T center = 0.5*(supp.l1 + supp.l2);
-		contractedSupp.l1 = c*supp.l1 + (1-c)*center;
-		contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+	int j=lambda.j, jP1, k=lambda.k;
+	if (lambda.xtype==XBSpline) {
+		jP1=j;
+	} else {
+	    jP1=j+1;
+	}
+	Support<T> supp;
+	if (lambda.xtype==XBSpline)  supp=phi.support(j,k);
+	else						 supp=psi.support(j,k);
 
-		int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.support(0,0).l2);
-		int kMax =  ceil( pow2i<T>(j)*contractedSupp.l2 - psi.support(0,0).l1);
-		for (int k1=kMin; k1<=kMax; ++k1) {
-			if (overlap(contractedSupp, psi.support(j,k1))>0) ret.insert(Index1d(j,k1,XWavelet));
-		}
+	T zLambda=0.5*(supp.l2+supp.l1);
+	Support<T> contractedSupp(c*supp.l1 + (1-c)*zLambda, c*supp.l2 + (1-c)*zLambda);
+
+	int kMin = basis.rangeJ(jP1).firstIndex(), kMax = basis.rangeJ(jP1).lastIndex();
+	int kStart = std::min(std::max(iceil(contractedSupp.l1 * pow2i<T>(jP1)), kMin), kMax);
+	assert((overlap(contractedSupp, basis.psi.support(jP1,kStart))>0));
+	while ((kStart-1 >= kMin) && (overlap(supp, basis.psi.support(jP1,std::max(kStart-1, kMin)))>0)) {
+		--kStart;
 	}
-	else {
-		Support<T> contractedSupp, supp = psi.support(j,k);
-		T center = 0.5*(supp.l1 + supp.l2);
-		contractedSupp.l1 = c*supp.l1 + (1-c)*center;
-		contractedSupp.l2 = c*supp.l2 + (1-c)*center;
-		long int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.support(0,0).l2);
-		long int kMax = ceil(pow2i<T>(j)*contractedSupp.l2 - psi.support(0,0).l1);
-		for (long int k1=kMin; k1<=kMax; ++k1) {
-			if (overlap(contractedSupp, psi.support(j,k1))>0) ret.insert(Index1d(j,k1,XWavelet));
-		}
-		kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - psi.support(0,0).l2);
-		kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - psi.support(0,0).l1);
-		for (long int k1=kMin; k1<=kMax; ++k1) {
-			if (overlap(contractedSupp, psi.support(j+1,k1))>0) ret.insert(Index1d(j+1,k1,XWavelet));
-		}
+	int kEnd = std::max(std::min(ifloor(contractedSupp.l2 * pow2i<T>(jP1)), kMax), kMin);
+	assert((overlap(contractedSupp, basis.psi.support(jP1,kEnd))>0));
+	while ((kEnd+1 <= kMax) && (overlap(supp, basis.psi.support(jP1,std::min(kEnd+1, kMax)))>0)) {
+		++kEnd;
 	}
+
+	for (int k=kStart; k<=kEnd; ++k) {
+		ret.insert(Index1D(jP1,k,XWavelet));
+	}
+}
+
+
+// Security zone periodic
+template <typename T>
+IndexSet<Index1D>
+C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Periodic,CDF> &basis) {
+	IndexSet<Index1D> ret(Lambda.d,Lambda.d_);
+	typedef typename IndexSet<Index1D>::const_iterator const_it;
+
+	const MRA<T,Primal,Periodic,CDF>	  mra(Lambda.d,Lambda.d_);
+	const BSpline<T,Primal,Periodic,CDF> phi(Lambda.d,0);
+    const Wavelet<T,Primal,Periodic,CDF> psi(Lambda.d,Lambda.d_,0);
+
+    for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		C((*lambda),c,phi,psi,mra,basis,ret);
+    }
+    return ret;
 }
 
 template <typename T>
 void
-C(const Index1d &lambda, T c, const MRA<T,Primal,Periodic,CDF> &mra, const Basis<T,Primal,Periodic,CDF> &basis, IndexSet<Index1d> &ret) {
+C(const Index1D &lambda, T c,
+  const BSpline<T,Primal,Periodic,CDF> &phi, const Wavelet<T,Primal,Periodic,CDF> &psi,
+  const MRA<T,Primal,Periodic,CDF> &mra, const Basis<T,Primal,Periodic,CDF> &basis, IndexSet<Index1D> &ret)
+{
 	int j=lambda.j, k=lambda.k;
-	XType xtype=lambda.xtype; 
+	XType xtype=lambda.xtype;
 	if (xtype==XBSpline) {
-		ret.insert(Index1d(j,k,xtype));
-		ret.insert(Index1d(j,(k-1 >= mra.rangeI(j).firstIndex()) ? k-1 : mra.rangeI(j).lastIndex() 
+		ret.insert(Index1D(j,k,xtype));
+		ret.insert(Index1D(j,(k-1 >= mra.rangeI(j).firstIndex()) ? k-1 : mra.rangeI(j).lastIndex()
 		                            + ((1 - (mra.rangeI(j).firstIndex() - k+1))%mra.cardI(j)),xtype));
-		ret.insert(Index1d(j,k+1 <= mra.rangeI(j).lastIndex() ? k+1 : mra.rangeI(j).firstIndex() 
-		                            - ((1 - (k+1 - mra.rangeI(j).lastIndex()))%mra.cardI(j)),xtype));     
-		ret.insert(Index1d(j,k-2 >= mra.rangeI(j).firstIndex() ? k-2 : mra.rangeI(j).lastIndex() 
+		ret.insert(Index1D(j,k+1 <= mra.rangeI(j).lastIndex() ? k+1 : mra.rangeI(j).firstIndex()
+		                            - ((1 - (k+1 - mra.rangeI(j).lastIndex()))%mra.cardI(j)),xtype));
+		ret.insert(Index1D(j,k-2 >= mra.rangeI(j).firstIndex() ? k-2 : mra.rangeI(j).lastIndex()
 		                            + ((1 - (mra.rangeI(j).firstIndex() - k+2))%mra.cardI(j)),xtype));
-        ret.insert(Index1d(j,k+2 <= mra.rangeI(j).lastIndex() ? k+2 : mra.rangeI(j).firstIndex() 
+        ret.insert(Index1D(j,k+2 <= mra.rangeI(j).lastIndex() ? k+2 : mra.rangeI(j).firstIndex()
                                     - ((1 - (k+2 - mra.rangeI(j).lastIndex()))%mra.cardI(j)),xtype));
 		Support<T> contractedSupp, supp = mra.phi.phiR.support(j,k);
 		T center = 0.5*(supp.l1 + supp.l2);
-		contractedSupp = c*supp + (1-c)*center;	
+		contractedSupp = c*supp + (1-c)*center;
 
 		int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - basis.psi.psiR.support(0,0).l2);
 		int kMax =  ceil( pow2i<T>(j)*contractedSupp.l2 - basis.psi.psiR.support(0,0).l1);
@@ -139,7 +175,7 @@ C(const Index1d &lambda, T c, const MRA<T,Primal,Periodic,CDF> &mra, const Basis
                 if(k > basis.rangeJ(j).lastIndex()){
                     k = basis.rangeJ(j).firstIndex() - ((1 - (k - basis.rangeJ(j).lastIndex()))%basis.cardJ(j));
                 }
-			    ret.insert(Index1d(j,k,XWavelet));
+			    ret.insert(Index1D(j,k,XWavelet));
 			}
 		}
 	}
@@ -150,7 +186,7 @@ C(const Index1d &lambda, T c, const MRA<T,Primal,Periodic,CDF> &mra, const Basis
 
 		long int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - basis.psi.psiR.support(0,0).l2);
 		long int kMax = ceil(pow2i<T>(j)*contractedSupp.l2 - basis.psi.psiR.support(0,0).l1);
-        
+
 		for (long int k1=kMin; k1<=kMax; ++k1) {
 			if (overlap(contractedSupp, basis.psi.psiR.support(j,k1))>0){
 			    int k = k1;
@@ -160,13 +196,13 @@ C(const Index1d &lambda, T c, const MRA<T,Primal,Periodic,CDF> &mra, const Basis
                 if(k > basis.rangeJ(j).lastIndex()){
                     k = basis.rangeJ(j).firstIndex() - ((1 - (k - basis.rangeJ(j).lastIndex()))%basis.cardJ(j));
                 }
-			    ret.insert(Index1d(j,k,XWavelet));
+			    ret.insert(Index1D(j,k,XWavelet));
 			}
 		}
-		
+
 		kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - basis.psi.psiR.support(0,0).l2);
 		kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - basis.psi.psiR.support(0,0).l1);
-        
+
 		for (long int k1=kMin; k1<=kMax; ++k1) {
 			if (overlap(contractedSupp, basis.psi.psiR.support(j+1,k1))>0)
 			{
@@ -177,48 +213,73 @@ C(const Index1d &lambda, T c, const MRA<T,Primal,Periodic,CDF> &mra, const Basis
                 if(k > basis.rangeJ(j+1).lastIndex()){
                     k = basis.rangeJ(j+1).firstIndex() - ((1 - (k - basis.rangeJ(j+1).lastIndex()))%basis.cardJ(j+1));
                 }
-			    ret.insert(Index1d(j+1,k,XWavelet));
+			    ret.insert(Index1D(j+1,k,XWavelet));
 			}
 		}
 
 	}
 }
 
+// Security zone realline
 template <typename T>
-IndexSet<Index1d>
-C_realline(const IndexSet<Index1d> &Lambda, T c) {
-	IndexSet<Index1d> ret(Lambda.d,Lambda.d_);
-	typedef typename IndexSet<Index1d>::const_iterator const_it;
+void
+C(const Index1D &lambda, T c,
+  const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi,
+  const MRA<T,Primal,R,CDF> &mra, const Basis<T,Primal,R,CDF> &basis, IndexSet<Index1D> &ret)
+{
+	int j=lambda.j, k=lambda.k;
+	XType xtype=lambda.xtype;
+	if (xtype==XBSpline) {
+		ret.insert(Index1D(j,k,xtype));
+		ret.insert(Index1D(j,k-1,xtype));
+		ret.insert(Index1D(j,k+1,xtype));
+		ret.insert(Index1D(j,k-2,xtype));
+		ret.insert(Index1D(j,k+2,xtype));
 
+		Support<T> contractedSupp, supp = phi.support(j,k);
+		T center = 0.5*(supp.l1 + supp.l2);
+		contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+		contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+
+		int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.support(0,0).l2);
+		int kMax =  ceil( pow2i<T>(j)*contractedSupp.l2 - psi.support(0,0).l1);
+		for (int k1=kMin; k1<=kMax; ++k1) {
+			if (overlap(contractedSupp, psi.support(j,k1))>0) ret.insert(Index1D(j,k1,XWavelet));
+		}
+	}
+	else {
+		Support<T> contractedSupp, supp = psi.support(j,k);
+		T center = 0.5*(supp.l1 + supp.l2);
+		contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+		contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+		long int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.support(0,0).l2);
+		long int kMax = ceil(pow2i<T>(j)*contractedSupp.l2 - psi.support(0,0).l1);
+		for (long int k1=kMin; k1<=kMax; ++k1) {
+			if (overlap(contractedSupp, psi.support(j,k1))>0) ret.insert(Index1D(j,k1,XWavelet));
+		}
+		kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - psi.support(0,0).l2);
+		kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - psi.support(0,0).l1);
+		for (long int k1=kMin; k1<=kMax; ++k1) {
+			if (overlap(contractedSupp, psi.support(j+1,k1))>0) ret.insert(Index1D(j+1,k1,XWavelet));
+		}
+	}
+}
+
+template <typename T>
+IndexSet<Index1D>
+C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis) {
+	IndexSet<Index1D> ret(Lambda.d,Lambda.d_);
+	typedef typename IndexSet<Index1D>::const_iterator const_it;
+
+	//const Basis<T,Primal,R,CDF>   basis(Lambda.d,Lambda.d_);
+	const MRA<T,Primal,R,CDF>	  mra(Lambda.d);
 	const BSpline<T,Primal,R,CDF> phi(Lambda.d,0);
     const Wavelet<T,Primal,R,CDF> psi(Lambda.d,Lambda.d_,0);
 
     for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-		C((*lambda),c,phi,psi,ret);
+		C((*lambda),c,phi,psi,mra,basis,ret);
     }
     return ret;
-}
-
-template <typename T>
-IndexSet<Index1d>
-C_interval(const IndexSet<Index1d> &Lambda, T c) {
-	IndexSet<Index1d> indexset(Lambda.d,Lambda.d_);
-	return indexset;
-}
-
-template <typename T>
-IndexSet<Index1d>
-C_periodic(const IndexSet<Index1d> &Lambda, T c) {
-	IndexSet<Index1d> indexset(Lambda.d,Lambda.d_);
-	typedef typename IndexSet<Index1d>::const_iterator const_it;
-
-	const MRA<T,Primal,Periodic,CDF> mra(Lambda.d, Lambda.d_);
-    const Basis<T,Primal,Periodic,CDF> basis(Lambda.d, Lambda.d_);
-
-    for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-		C((*lambda), c, mra, basis, indexset);
-    }
-	return indexset;
 }
 
 /*
@@ -226,12 +287,12 @@ C_periodic(const IndexSet<Index1d> &Lambda, T c) {
  */
 
 template <typename T>
-IndexSet<Index1d>
-lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi, int s_tilde, int jmin, int jmax, bool update)
+IndexSet<Index1D>
+lambdaTilde1d_PDE(const Index1D &lambda, const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi, int s_tilde, int jmin, int jmax, bool update)
 {
 	int j = lambda.j, k = lambda.k;
 	int d = psi.d, d_= psi.d_;
-	IndexSet<Index1d> ret(d,d_);
+	IndexSet<Index1D> ret(d,d_);
 	Support<T> support_refbspline = phi.support(0,0);
 	Support<T> support_refwavelet = psi.support(0,0);
 
@@ -248,7 +309,7 @@ lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,R,CDF> &phi, con
 			for (int k_row=kMin; k_row<=kMax; ++k_row) {
 				if (overlap(supp, phi.support(j,k_row)) > 0) {
 					//std::cout << "lambdaTilde: BSpline (" << j << ", " << k_row << "): " << phi_row.support(j,k_row) << " " << supp  << std::endl;
-					ret.insert(Index1d(j,k_row,XBSpline));
+					ret.insert(Index1D(j,k_row,XBSpline));
 				}
 			}
 
@@ -267,7 +328,7 @@ lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,R,CDF> &phi, con
 							Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
 							if (((overlap(supp_row, supp) > 0)) && (!(distance(singsupp,supp_row) > 0 ))) {
 								//std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp  << std::endl;
-								ret.insert(Index1d(j_row,k_row,XWavelet));
+								ret.insert(Index1D(j_row,k_row,XWavelet));
 							}
 						}
 					}
@@ -277,7 +338,7 @@ lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,R,CDF> &phi, con
 						Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
 						if (overlap(supp, supp_row) > 0)  {
 							//std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
-							ret.insert(Index1d(j_row,k_row,XWavelet));
+							ret.insert(Index1D(j_row,k_row,XWavelet));
 						}
 					}
 				}
@@ -295,7 +356,7 @@ lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,R,CDF> &phi, con
 				for (int k_row=kMin; k_row<=kMax; ++k_row) {
 					if (overlap(supp, phi.support(jmin,k_row)) > 0) {
 						//std::cout << "lambdaTilde: BSpline (" << jmin << ", " << k_row << "): " << phi.support(jmin,k_row) << " " << supp  << std::endl;
-						ret.insert(Index1d(jmin,k_row,XBSpline));
+						ret.insert(Index1D(jmin,k_row,XBSpline));
 					}
 				}
 			}
@@ -315,7 +376,7 @@ lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,R,CDF> &phi, con
 							Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
 							if ((overlap(supp, supp_row) > 0) && (!(distance(singsupp,supp_row) > 0 ))){
 								//std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
-								ret.insert(Index1d(j_row,k_row,XWavelet));
+								ret.insert(Index1D(j_row,k_row,XWavelet));
 							}
 						}
 					}
@@ -328,7 +389,7 @@ lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,R,CDF> &phi, con
 						Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
 						if (overlap(supp, supp_row) > 0) {
 							//std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
-							ret.insert(Index1d(j_row,k_row,XWavelet));
+							ret.insert(Index1D(j_row,k_row,XWavelet));
 						}
 					}
 				}

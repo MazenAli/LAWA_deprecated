@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,23 +15,16 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-
+*/
 
 namespace lawa {
 
 template <typename T, typename Basis>
-T
-Preconditioner<T,Index1d,Basis,HelmholtzOperator1d<T,Basis> >::operator()(const Index1d &index) const
+Problem1d<T,Basis,HelmholtzOperator1d<T,Basis> >::Problem1d(const Basis &_basis, int example_nr, const HelmholtzOperator1d<T,Basis> &a, DomainType domain)
+	: basis(_basis), d(basis.d), d_(basis.d_), u(d,d_), f(d,d_), refsol()
 {
-	return pow2i<T>(-index.j);
+	refsol.setExample(example_nr,a,domain);
 }
 
-template <typename T, typename Basis>
-T
-Preconditioner<T,Index1d,Basis,HelmholtzOperator1d<T,Basis> >::rescale(const Index1d &index) const
-{
-	return pow2i<T>(index.j);
-}
 
 } // namespace lawa

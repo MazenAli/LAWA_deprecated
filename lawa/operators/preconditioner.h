@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,46 +17,41 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef INDEX_H
-#define INDEX_H 1
 
-#include <lawa/enum.h>
+#ifndef PRECONDITIONER_H
+#define PRECONDITIONER_H 1
+
+#include <lawa/adaptive/index.h>
+#include <lawa/operators/operators.h>
 
 namespace lawa {
 
-class Index1d
+template <typename T, typename Index, typename Basis, typename BilinearForm>
+class Preconditioner
 {
 public:
-	int j, k;
-	XType xtype;
+	T
+	operator()(const Index &index) const;
 
-	Index1d(void);
-    Index1d(int j, int k, XType _xtype);
-    Index1d(const Index1d &index);
+	T
+	rescale(const Index &index) const;
 };
 
-std::ostream& operator<<(std::ostream &s, const Index1d &_Index);
-
-template <typename Index>
-class Entry
+template <typename T, typename Basis>
+class Preconditioner<T,Index1D,Basis,HelmholtzOperator1D<T,Basis> >
 {
 public:
-    Entry(const Index &row_index, const Index &col_index);
-    const Index row_index, col_index;	//todo: no copy, but only a reference possible ?!
+	T
+	operator()(const Index1D &index) const;
+
+	T
+	rescale(const Index1D &index) const;
+
 };
 
-template <typename Index>
-std::ostream& operator<<(std::ostream &s, const Entry<Index> &entry);
+}
 
-template <SortingCriterion S, typename SortingType>
-struct lt
-{
-};
+#include <lawa/operators/preconditioner.tcc>
 
 
-
-} //namespace lawa
-
-#include "index.tcc"
-
-#endif
+#endif /* PRECONDITIONER_H_ */

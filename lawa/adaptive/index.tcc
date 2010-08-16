@@ -19,23 +19,23 @@
 
 namespace lawa {
 
-Index1d::Index1d(void)
+Index1D::Index1D(void)
 : j(0), k(0), xtype(XBSpline)
 {
 
 }
 
-Index1d::Index1d(int _j, int _k, XType _xtype)
+Index1D::Index1D(int _j, int _k, XType _xtype)
 : j(_j), k(_k), xtype(_xtype)
 {
 }
 
-Index1d::Index1d(const Index1d &index)
+Index1D::Index1D(const Index1D &index)
 : j(index.j), k(index.k), xtype(index.xtype)
 {
 }
 
-std::ostream& operator<<(std::ostream &s, const Index1d &_i)
+std::ostream& operator<<(std::ostream &s, const Index1D &_i)
 {
     if (_i.xtype==XBSpline) {
         s << "scaling, (" << _i.j << " , " << _i.k << ")";
@@ -58,10 +58,10 @@ std::ostream& operator<<(std::ostream &s, const Entry<Index> &entry) {
 }
 
 template <>
-struct lt<Lexicographical, Index1d>
+struct lt<Lexicographical, Index1D>
 {
     inline
-    bool operator()(const Index1d &left, const Index1d &right) const
+    bool operator()(const Index1D &left, const Index1D &right) const
     {
         if (left.j!=right.j) {
             return (left.j<right.j);
@@ -77,7 +77,7 @@ struct lt<Lexicographical, Index1d>
     }
 
     inline
-    bool operator()(const Entry<Index1d> &left, const Entry<Index1d> &right) const
+    bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const
     {
     	// sort Operator row-wise
     	if ( !(operator()(left.row_index,right.row_index)) && !(operator()(right.row_index,left.row_index))) {

@@ -20,7 +20,7 @@
 namespace lawa {
 
 template <typename T, typename Basis, typename Preconditioner>
-RHS<T,Index1d,Basis,Preconditioner>::RHS(const Basis &_basis,T (*_f)(T), const DenseVector<Array<T> > &_singularPoints, GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > _deltas)
+RHS<T,Index1D,Basis,Preconditioner>::RHS(const Basis &_basis,T (*_f)(T), const DenseVector<Array<T> > &_singularPoints, const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas)
 	: basis(_basis),  phi(basis.mra), psi(basis),
 	  f(_f,_singularPoints), deltas(_deltas),
 	  integral_sff(phi, f), integral_wf(psi, f),
@@ -30,22 +30,22 @@ RHS<T,Index1d,Basis,Preconditioner>::RHS(const Basis &_basis,T (*_f)(T), const D
 }
 
 template <typename T, typename Basis, typename Preconditioner>
-Coefficients<Lexicographical,T,Index1d>
-RHS<T,Index1d,Basis,Preconditioner>::operator()(const IndexSet<Index1d> &Lambda) {
-	typedef typename IndexSet<Index1d>::iterator const_set_it;
-	Coefficients<Lexicographical,T,Index1d> ret(Lambda.d,Lambda.d_);
+Coefficients<Lexicographical,T,Index1D>
+RHS<T,Index1D,Basis,Preconditioner>::operator()(const IndexSet<Index1D> &Lambda) {
+	typedef typename IndexSet<Index1D>::iterator const_set_it;
+	Coefficients<Lexicographical,T,Index1D> ret(Lambda.d,Lambda.d_);
 	for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
 		if (rhs.count((*lambda)) == 0) {
 			T tmp = 0.;
 			int j=(*lambda).j, k=(*lambda).k;
 			if ((*lambda).xtype == XBSpline)  {
 				tmp = integral_sff(j,k);
-				for (int i=1; i<=deltas.numRows(); ++i) tmp += deltas(i,1) * phi(deltas(i,2),j,k);
+				for (int i=1; i<=deltas.numRows(); ++i) tmp += deltas(i,2) * phi(deltas(i,1),j,k);
 				tmp *= P(*lambda);
 			}
 			else {
 				tmp = integral_wf(j,k);
-				for (int i=1; i<=deltas.numRows(); ++i) tmp += deltas(i,1) * psi(deltas(i,2),j,k);
+				for (int i=1; i<=deltas.numRows(); ++i) tmp += deltas(i,2) * psi(deltas(i,1),j,k);
 				tmp *= P(*lambda);
 			}
 			ret[*lambda] = tmp;

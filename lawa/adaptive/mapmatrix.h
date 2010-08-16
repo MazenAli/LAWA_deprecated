@@ -22,12 +22,9 @@
 #define ADAPTIVE_MAPMATRIX_H 1
 
 #include <utility>
-#include <adaptive/index.h>
-#include <adaptive/indexset.h>
-#include <adaptive/coefficients.h>
-#include <adaptive/bilinearform.h>
-#include <adaptive/compression.h>
-#include <adaptive/preconditioner.h>
+#include <lawa/adaptive/index.h>
+#include <lawa/adaptive/indexset.h>
+#include <lawa/adaptive/coefficients.h>
 
 
 namespace lawa {
@@ -59,10 +56,14 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 Coefficients<Lexicographical,T,Index>
 mv(const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,Preconditioner> &A, const Coefficients<Lexicographical,T,Index > &v);
 
+template <typename T, typename Index, typename MA>
+int
+CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6, int maxIterations = 1000);
+
 
 } // namespace lawa
 
-#include <adaptive/mapmatrix.tcc>
+#include <lawa/adaptive/mapmatrix.tcc>
 
 
 #endif // ADAPTIVE_MAPMATRIX_H

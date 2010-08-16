@@ -21,28 +21,28 @@ namespace lawa {
 
 template <typename T, typename Basis>
 flens::DenseVector<Array<T> >
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::sing_pts;
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::sing_pts;
 
 template <typename T, typename Basis>
 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::deltas;
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::deltas;
 
 template <typename T, typename Basis>
 T
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::c;
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::c;
 
 template <typename T, typename Basis>
 int
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::nr;
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::nr;
 
 template <typename T, typename Basis>
 DomainType
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::domain;
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::domain;
 
 
 template <typename T, typename Basis>
 void
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::setExample(int _nr, const HelmholtzOperator1d<T,Basis> &a, DomainType _domain)
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::setExample(int _nr, const HelmholtzOperator1D<T,Basis> &a, DomainType _domain)
 {
     c=a.getc();
     assert(c>=0);
@@ -55,24 +55,43 @@ ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::setExample(int _nr, 
     else if (domain == Periodic) {
 
     }
-    else if (domain == R) {
-    	if (nr==2) {
+    else { 	//domain == R
+    	if (nr==1) {
+    	//	deltas.engine().resize(1,2);
+    	//	deltas(1,1) = 0.01; deltas(1,2) = 0.;
+    	}
+    	else if (nr==2) {
     		sing_pts.engine().resize(1);
     		sing_pts(1) = 0.01;
     		deltas.engine().resize(1,2);
-    		deltas(1,1) = 0.01; deltas(1,2) = -2.;
+    		deltas(1,1) = 0.01; deltas(1,2) = 2.;
     	}
-    }
-    else {
-    	std::cerr << "ReferenceSolution<1d> exits!" << std::endl; exit(1);
     }
 }
 
 template <typename T, typename Basis>
 T
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::exact(T x, int deriv)
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(T x, int deriv)
 {
-	if (domain==R) {
+	if (domain==Interval) {
+		if (nr==1) {
+			T a = 100;
+			if (deriv==0) 		return exp(-a*(x-0.5)*(x-0.5));
+			else if (deriv==1)	return -exp(-a*(x-0.5)*(x-0.5))*(2*a*(x-0.5));
+			else if (deriv==2)	return exp(-a*(x-0.5)*(x-0.5)) * ((2*a*(x-0.5))*(2*a*(x-0.5))-2*a);
+			else				assert(0);
+		}
+		else 					assert(0);
+	}
+	else if (domain==Periodic) {
+		if (nr==1) {
+			if (deriv == 0)		 {	return std::cos(2*M_PI*x);		}
+			else if (deriv == 1) {	return -2*M_PI*std::sin(2*M_PI*x); }
+			else if (deriv == 2) {	return -4*M_PI*M_PI*std::cos(2*M_PI*x);  }
+		}
+		else { std::cout << "ReferenceSolution<1d> exits!" << std::endl; exit(1); }
+	}
+	else { //domain == R
 		if (nr==1) {
 			if (deriv == 0)		 {	return 10.*std::exp(-0.1*(x-0.1)*(x-0.1));		}
 			else if (deriv == 1) {	return -2*(x-0.1)*std::exp(-0.1*(x-0.1)*(x-0.1)); }
@@ -91,26 +110,25 @@ ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::exact(T x, int deriv
 		}
 		else { std::cout << "ReferenceSolution<1d> exits!" << std::endl; exit(1); }
 	}
-	else {		   std::cout << "ReferenceSolution<1d> exits!" << std::endl; exit(1);  }
 }
 
 template <typename T, typename Basis>
 T
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::exact(T x)
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(T x)
 {
-    return ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::exact(x, 0);
+    return ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(x, 0);
 }
 
 template <typename T, typename Basis>
 T
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::rhs(T x)
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::rhs(T x)
 {
     return -exact(x,2) + c * exact(x,0);
 }
 
 template <typename T, typename Basis>
 T
-ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >::H1norm()
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::H1norm()
 {
 	if (domain==R) {
 		if (nr==1) 			{ return std::sqrt(100*std::sqrt(0.5*M_PI/(0.1)) + std::sqrt(0.5*M_PI)/std::pow(0.1,(T)1.5) );	}

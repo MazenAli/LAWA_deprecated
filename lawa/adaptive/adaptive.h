@@ -17,52 +17,17 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef ADAPTIVE_REFERENCESOLUTIONS_H
-#define ADAPTIVE_REFERENCESOLUTIONS_H 1
 
-#include <iostream>
-#include <lawa/enum.h>
+#ifndef ADAPTIVE_ADAPTIVE_H
+#define ADAPTIVE_ADAPTIVE_H 1
 
-namespace lawa {
-
-template <typename T, typename Basis, typename BilinearForm>
-struct ReferenceSolution1d
-{
-};
-
-template<typename T, typename Basis>
-struct ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> >
-{
-	static int nr;
-	static T c;
-	static DomainType domain;
-
-	static T
-	exact(T x, int deriv);
-
-	static DenseVector<Array<T> >
-	sing_pts;
-
-    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
-    deltas;
-
-	static void
-	setExample(int _nr, const HelmholtzOperator1d<T,Basis> &a, DomainType domain);
-
-	static T
-	exact(T x);
-
-	static T
-	rhs(T x);
-
-	static T
-	H1norm();
-};
+#include <lawa/adaptive/index.h>
+#include <lawa/adaptive/indexset.h>
+#include <lawa/adaptive/coefficients.h>
+#include <lawa/adaptive/compression.h>
+#include <lawa/adaptive/mapmatrix.h>
+#include <lawa/adaptive/rhs.h>
+#include <lawa/adaptive/referencesolutions.h>
 
 
-} // namespace lawa
-
-#include <adaptive/referencesolutions.tcc>
-
-
-#endif // ADAPTIVE_REFERENCESOLUTIONS_H
+#endif // ADAPTIVE_ADAPTIVE_H

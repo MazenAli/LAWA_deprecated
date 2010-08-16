@@ -21,11 +21,10 @@
 #ifndef ADAPTIVE_RHS_H
 #define ADAPTIVE_RHS_H 1
 
-#include <adaptive/index.h>
-#include <adaptive/indexset.h>
-#include <adaptive/coefficients.h>
-#include <adaptive/referencesolutions.h>
-#include <adaptive/preconditioner.h>
+#include <lawa/adaptive/index.h>
+#include <lawa/adaptive/indexset.h>
+#include <lawa/adaptive/coefficients.h>
+#include <lawa/adaptive/referencesolutions.h>
 
 namespace lawa {
 
@@ -37,18 +36,18 @@ class RHS
 
 
 template <typename T, typename Basis, typename Preconditioner>
-class RHS<T,Index1d,Basis,Preconditioner>
+class RHS<T,Index1D,Basis,Preconditioner>
 {
 	typedef typename Basis::BSplineType PrimalSpline;
 	typedef typename Basis::WaveletType PrimalWavelet;
 
 public:
-	RHS(const Basis &basis,T (*f)(T), const DenseVector<Array<T> > &_singularPoints, GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas);
+	RHS(const Basis &basis,T (*f)(T), const DenseVector<Array<T> > &_singularPoints, const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas);
 
-	Coefficients<Lexicographical,T,Index1d>
-	operator()(const IndexSet<Index1d> &Lambda);
+	Coefficients<Lexicographical,T,Index1D>
+	operator()(const IndexSet<Index1D> &Lambda);
 
-	Coefficients<Lexicographical,T,Index1d>
+	Coefficients<Lexicographical,T,Index1D>
 	operator()(T tol);
 
 private:
@@ -56,12 +55,12 @@ private:
 	PrimalSpline phi;
 	PrimalWavelet psi;
 	Function<T> f;
-	GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >	deltas;
+	const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >	&deltas;
 	Integral<T, Trapezoidal, PrimalSpline,  Function<T> > integral_sff;
 	Integral<T, Trapezoidal, PrimalWavelet, Function<T> > integral_wf;
 	Preconditioner P;
-	Coefficients<Lexicographical,T,Index1d> rhs;
-	Coefficients<AbsoluteValue,T,Index1d>   rhs_abs;
+	Coefficients<Lexicographical,T,Index1D> rhs;
+	Coefficients<AbsoluteValue,T,Index1D>   rhs_abs;
 
 
 };
@@ -69,6 +68,6 @@ private:
 
 } // namespace lawa
 
-#include <adaptive/rhs.tcc>
+#include <lawa/adaptive/rhs.tcc>
 
 #endif // ADAPTIVE_RHS_H

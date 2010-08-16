@@ -75,5 +75,40 @@ mv(const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,
 	return w;
 }
 
+template <typename T, typename Index, typename MA>
+int
+CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6, int maxIterations = 1000)
+{
+	typedef typename IndexSet<Index >::const_iterator const_set_it;
+	typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
+	typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
+
+	int N = Lambda.size();
+	SparseGeMatrix<CRS<T,CRS_General> > A_flens = A.toFlensSparseMatrix(Lambda, Lambda);
+
+	if (Lambda.size() > 0) {
+		DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+	    int row_count=1;
+	    for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
+	    	if (f.count((*row)) > 0) {
+	    		const_coeff_it it = f.find(*row);
+	    		rhs(row_count) = (*it).second;
+//	    		rhs(row_count) = f[(*row)];
+	    	}
+	        else 					 rhs(row_count) = 0.;
+	    }
+	    int number_of_iterations = lawa::cg(A_flens,x,rhs, tol, maxIterations);
+	    Ax = A_flens*x;
+	    res= Ax-rhs;
+	    res = std::sqrt(res*res);
+	    row_count = 1;
+	    for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
+	    	u[*row] = x(row_count);
+	    }
+	    return number_of_iterations;
+	}
+	else return -1;
+
+}
 
 }  // namespace lawa

@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,40 +18,19 @@
  */
 
 
-#ifndef PRECONDITIONER_H
-#define PRECONDITIONER_H 1
+#ifndef COMPRESSION_H
+#define COMPRESSION_H 1
 
-#include <adaptive/index.h>
-#include <adaptive/bilinearform.h>
 
 namespace lawa {
 
-template <typename T, typename Index, typename Basis, typename BilinearForm>
-class Preconditioner
+template <typename T, typename Basis, typename BilinearForm>
+class Compression
 {
-public:
-	T
-	operator()(const Index &index) const;
-
-	T
-	rescale(const Index &index) const;
-};
-
-template <typename T, typename Basis>
-class Preconditioner<T,Index1d,Basis,HelmholtzOperator1d<T,Basis> >
-{
-public:
-	T
-	operator()(const Index1d &index) const;
-
-	T
-	rescale(const Index1d &index) const;
 
 };
 
-}
 
-#include <adaptive/preconditioner.tcc>
+} // namespace lawa
 
-
-#endif /* PRECONDITIONER_H_ */
+#endif // COMPRESSION_H
