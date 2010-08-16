@@ -45,6 +45,6 @@ class HelmholtzOperator1D{
     
 } // namespace lawa
 
-#include <lawa/parabolic/helmholtzoperator1d.tcc>
+#include <lawa/operators/helmholtzoperator1d.tcc>
 
 #endif // LAWA_PARABOLIC_HELMHOLTZOPERATOR1D_H
