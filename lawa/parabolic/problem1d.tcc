@@ -1,7 +1,7 @@
 namespace lawa{
 
 template<typename T, typename Basis>
-Problem<T, Basis>::Problem(const Basis& _basis)
+Problem1D<T, Basis>::Problem1D(const Basis& _basis)
 	: basis(_basis)
 {
 }
@@ -9,7 +9,7 @@ Problem<T, Basis>::Problem(const Basis& _basis)
 template<typename T, typename Basis>
 template <typename BilinearForm>
 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-Problem<T, Basis>::getStiffnessMatrix(BilinearForm& a, int J, T tol)
+Problem1D<T, Basis>::getStiffnessMatrix(BilinearForm& a, int J, T tol)
 {   
     int j0 = basis.j0;
     int offsetJ = basis.rangeJ(j0).firstIndex()-1;
@@ -74,7 +74,7 @@ Problem<T, Basis>::getStiffnessMatrix(BilinearForm& a, int J, T tol)
 template<typename T, typename Basis>
 template <typename RHSIntegral>
 flens::DenseVector<flens::Array<T> >
-Problem<T, Basis>::getRHS(RHSIntegral& rhs, int J)
+Problem1D<T, Basis>::getRHS(RHSIntegral& rhs, int J)
 {
     int j0 = basis.j0;
     int offsetJ = basis.rangeJ(j0).firstIndex()-1;
@@ -101,7 +101,7 @@ Problem<T, Basis>::getRHS(RHSIntegral& rhs, int J)
 template<typename T, typename Basis>
 template <typename Preconditioner>
 flens::DiagonalMatrix<T>    
-Problem<T, Basis>::getPreconditioner(Preconditioner& P, int J)
+Problem1D<T, Basis>::getPreconditioner(Preconditioner& P, int J)
 {
     int j0 = basis.j0;
     int offsetJ = basis.rangeJ(j0).firstIndex()-1;

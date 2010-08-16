@@ -1,18 +1,18 @@
-#ifndef LAWA_PARABOLIC_PROBLEM_H
-#define LAWA_PARABOLIC_PROBLEM_H 1
+#ifndef LAWA_PARABOLIC_PROBLEM1D_H
+#define LAWA_PARABOLIC_PROBLEM1D_H 1
 
 #include <extensions/extensions.h>
 
 namespace lawa{    
 
 template<typename T, typename Basis>
-class Problem
+class Problem1D
 {
     private:
         const Basis& basis;
    
     public: 
-        Problem(const Basis& _basis);
+        Problem1D(const Basis& _basis);
     
         template <typename BilinearForm>
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
@@ -29,6 +29,6 @@ class Problem
 
 } // namespace lawa
 
-#include <lawa/parabolic/problem.tcc>
+#include <lawa/parabolic/problem1d.tcc>
 
-#endif // LAWA_PARABOLIC_PROBLEM_H
+#endif // LAWA_PARABOLIC_PROBLEM1D_H
