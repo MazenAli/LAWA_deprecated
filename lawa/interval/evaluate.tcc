@@ -68,7 +68,7 @@ evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
          int deriv)
 {
     assert(J>=basis.j0);
-    assert(coeffs.length()==basis.mra.cardI(J));
+    assert(coeffs.range()==basis.mra.rangeI(J));
     assert(x>=0.);
     assert(x<=1.);
 
@@ -110,8 +110,8 @@ evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
 */
     const int j0 = basis.j0;
     basis.setLevel(j0);
+
     T ret = 0;
-    
     ret += evaluate(basis.mra,j0,coeffs(basis.mra.rangeI(j0)),x,deriv);
     Wavelet<T,Primal,Interval,Cons> psi(basis,deriv);
     for (int j=j0; j<=J-1; ++j) {
