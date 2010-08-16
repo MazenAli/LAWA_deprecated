@@ -28,6 +28,7 @@
 #include <lawa/interval/interval.h>
 #include <lawa/math/math.h>
 #include <lawa/mra.h>
+#include <lawa/operators/operators.h>
 #include <lawa/param.h>
 #include <lawa/periodic/periodic.h>
 #include <lawa/quadrature.h>
