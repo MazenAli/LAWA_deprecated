@@ -1,5 +1,5 @@
-#ifndef LAWA_PERIODIC_TIMESTEPPING_H
-#define LAWA_PERIODIC_TIMESTEPPING_H 1
+#ifndef LAWA_SOLVERS_TIMESTEPPING_H
+#define LAWA_SOLVERS_TIMESTEPPING_H 1
 
 namespace lawa{
 
@@ -18,6 +18,6 @@ struct TimeStepping
 
 } // namespace lawa
 
-#include <lawa/parabolic/timestepping.tcc>
+#include <lawa/solvers/timestepping.tcc>
 
-#endif // LAWA_PERIODIC_TIMESTEPPING_H
+#endif // LAWA_SOLVERS_TIMESTEPPING_H

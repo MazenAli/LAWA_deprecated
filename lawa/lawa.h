@@ -33,5 +33,6 @@
 #include <lawa/periodic/periodic.h>
 #include <lawa/quadrature.h>
 #include <lawa/realline/realline.h>
+#include <lawa/solvers/solvers.h>
 #include <lawa/support.h>
 #include <lawa/wavelet.h>

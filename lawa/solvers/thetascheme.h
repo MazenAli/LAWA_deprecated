@@ -1,5 +1,5 @@
-#ifndef LAWA_PARABOLIC_THETASCHEME_H
-#define LAWA_PARABOLIC_THETASCHEME_H 1
+#ifndef LAWA_SOLVERS_THETASCHEME_H
+#define LAWA_SOLVERS_THETASCHEME_H 1
 
 #include <lawa/enum.h>
 
@@ -104,6 +104,6 @@ class ThetaScheme
       
 } // namespace lawa
 
-#include <lawa/parabolic/thetascheme.tcc>
+#include <lawa/solvers/thetascheme.tcc>
 
-#endif // LAWA_PARABOLIC_THETASCHEME_H
+#endif // LAWA_SOLVERS_THETASCHEME_H
