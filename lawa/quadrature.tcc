@@ -19,40 +19,35 @@
 
 #include <cassert>
 #include <cmath>
-#include <lawa/math/const.h>
+#include <lawa/math/math.h>
 
 namespace lawa {
 
-template <QuadratureType Quad>
-int
-QuadratureParam<Quad>::numEvaluationsPerPiece = 100;
+//--- Gauss-Legendre Quadrature---------------------------------------------------------------------
 
-//--- Gauss-Legendre Quadrature-------------------------------------------------
-
-template <typename T, typename Integrand>
-Quadrature<T,Gauss,Integrand>::Quadrature(const Integrand &_integrand, int order)
-    : integrand(_integrand), _order(order)
+template <typename T, typename First, typename Second>
+Quadrature<T,Gauss,First,Second>::Quadrature(const Integral<T,Gauss,First,Second> &_integral)
+    : integral(_integral), _order(-1)
 {
-    _legendre();
+    setOrder(defaultGaussOrder(_integral.first, _integral.second));
 }
 
-template <typename T, typename Integrand>
+template <typename T, typename First, typename Second>
 const T
-Quadrature<T,Gauss,Integrand>::operator()(T a, T b) const
+Quadrature<T,Gauss,First,Second>::operator()(T a, T b) const
 {
     T ret = 0.0;
     for (int i=1; i<=_order; ++i) {
-        ret += _weights(_order,i) 
-               * integrand.integrand(0.5*(b-a)*_knots(_order,i)+0.5*(b+a));
+        ret += _weights(_order,i) * integral.integrand(0.5*(b-a)*_knots(_order,i)+0.5*(b+a));
     }
     ret *= 0.5*(b-a);
 
     return ret;
 }
 
-template <typename T, typename Integrand>
+template <typename T, typename First, typename Second>
 void
-Quadrature<T,Gauss,Integrand>::setOrder(int order)
+Quadrature<T,Gauss,First,Second>::setOrder(int order)
 {
     assert(order>0);
     if (_order!=order) {
@@ -61,10 +56,18 @@ Quadrature<T,Gauss,Integrand>::setOrder(int order)
     }
 }
 
-template <typename T, typename Integrand>
-void
-Quadrature<T,Gauss,Integrand>::_legendre()
+template <typename T, typename First, typename Second>
+int
+Quadrature<T,Gauss,First,Second>::order() const
 {
+    return _order;
+}
+
+template <typename T, typename First, typename Second>
+void
+Quadrature<T,Gauss,First,Second>::_legendre()
+{
+    std::cerr << "called for order = " << _order << std::endl;
     T eps = Const<T>::EQUALITY_EPS;
     _knots.engine().resize(_order, _order);
     _weights.engine().resize(_order, _order);
@@ -98,30 +101,96 @@ Quadrature<T,Gauss,Integrand>::_legendre()
     }
 }
 
-//---  Trapezoidal rule -----------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
-template <typename T, typename Integrand>
-Quadrature<T,Trapezoidal,Integrand>::
-Quadrature(const Integrand &_integrand, int _n)
-    : n(_n), integrand(_integrand)
+template <typename First, typename Second>
+int
+defaultGaussOrder(const First &first, const Second &second)
 {
+    return 4;
 }
 
-template <typename T, typename Integrand>
-const T
-Quadrature<T,Trapezoidal,Integrand>::operator()(T a, T b) const
+// --- the four cases where we can guarantuee exact integration for Gauss-Quadrature ---------------
+
+template <typename T, DomainType Domain, Construction Cons>
+int
+defaultGaussOrder(const BSpline<T,Primal, Domain, Cons> &first,
+                  const BSpline<T,Primal, Domain, Cons> &second)
 {
-	assert(n>0);
-	
-    T h = (b-a) / n;
-    T ret = .5 * h * integrand.integrand(a);
+    return iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1;
+}
+
+template <typename T, DomainType Domain, Construction Cons>
+int
+defaultGaussOrder(const Wavelet<T,Primal, Domain, Cons> &first,
+                  const BSpline<T,Primal, Domain, Cons> &second)
+{
+    return iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1;
+}
+
+template <typename T, DomainType Domain, Construction Cons>
+int
+defaultGaussOrder(const BSpline<T,Primal, Domain, Cons> &first,
+                  const Wavelet<T,Primal, Domain, Cons> &second)
+{
+    return iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1;
+}
+
+template <typename T, DomainType Domain, Construction Cons>
+int
+defaultGaussOrder(const Wavelet<T,Primal, Domain, Cons> &first,
+                  const Wavelet<T,Primal, Domain, Cons> &second)
+{
+    return iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1;
+}
+
+//---  Trapezoidal rule -------------------------------------------------------
+template <typename T, typename First, typename Second>
+Quadrature<T,Trapezoidal,First,Second>::Quadrature(
+                                              const Integral<T,Trapezoidal,First,Second> &_integral)
+    : _n(-1), integral(_integral)
+{
+    setN(defaultTrapezoidalN(_integral.first, _integral.second));
+}
+
+template <typename T, typename First, typename Second>
+const T
+Quadrature<T,Trapezoidal,First,Second>::operator()(T a, T b) const
+{
+    T h = (b-a) / _n;
+    T ret = .5 * h * integral.integrand(a);
     a += h;
-    for (int i=1; i<n; ++i, a+=h) {
-        ret += h * integrand.integrand(a);
+    for (int i=1; i<_n; ++i, a+=h) {
+        ret += h * integral.integrand(a);
     }
-    ret += .5 * h * integrand.integrand(b);
+    ret += .5 * h * integral.integrand(b);
 
     return ret;
+}
+
+template <typename T, typename First, typename Second>
+int
+Quadrature<T,Trapezoidal,First,Second>::n() const
+{
+    return _n;
+}
+
+
+template <typename T, typename First, typename Second>
+void
+Quadrature<T,Trapezoidal,First,Second>::setN(const int n)
+{
+    assert(n>0);
+
+    _n = n;
+}
+
+//-----------------------------------------------------------------------------
+template <typename First, typename Second>
+int
+defaultTrapezoidalN(const First &first, const Second &second)
+{
+    return 100;
 }
 
 } // namespace lawa

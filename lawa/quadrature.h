@@ -25,30 +25,32 @@
 
 namespace lawa {
 
-template <typename T, QuadratureType Quad, typename Integrand>
+template <typename T, QuadratureType Quad, typename First, typename Second>
+    class Integral;
+
+//-----------------------------------------------------------------------------
+
+template <typename T, QuadratureType Quad, typename First, typename Second>
 class Quadrature
 {
 };
 
-template <QuadratureType Quad>
-struct QuadratureParam
+template <typename T, typename First, typename Second>
+class Quadrature<T,Gauss,First,Second>
 {
-    static int numEvaluationsPerPiece;
-};
-
-template <typename T, typename Integrand>
-class Quadrature<T,Gauss,Integrand>
-{    
     public:
-        Quadrature(const Integrand &_integrand, int order = 10);
+        Quadrature(const Integral<T,Gauss,First,Second> &_integral);
 
         const T
         operator()(T a, T b) const;
-        
+
+        int
+        order() const;
+
         void
         setOrder(int order);
 
-        const Integrand &integrand;
+        const Integral<T,Gauss,First,Second> &integral;
     private:
         void
         _legendre();
@@ -58,20 +60,35 @@ class Quadrature<T,Gauss,Integrand>
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
 };
 
-template <typename T, typename Integrand>
-class Quadrature<T,Trapezoidal,Integrand>
-{    
+template <typename First, typename Second>
+    int
+    defaultGaussOrder(const First &first, const Second &second);
+
+//-----------------------------------------------------------------------------
+
+template <typename T, typename First, typename Second>
+class Quadrature<T,Trapezoidal,First,Second>
+{
     public:
-        Quadrature(const Integrand &_integrand, int _n = 1024);
+        Quadrature(const Integral<T,Trapezoidal,First,Second> &_integral);
 
         const T
         operator()(T a, T b) const;
 
-        int n;
+        int
+        n() const;
 
-        const Integrand &integrand;
+        void
+        setN(int n);
+
+        const Integral<T,Trapezoidal,First,Second>  &integral;
     private:
+        int _n;
 };
+
+template <typename First, typename Second>
+    int
+    defaultTrapezoidalN(const First &first, const Second &second);
 
 } // namespace lawa
 
