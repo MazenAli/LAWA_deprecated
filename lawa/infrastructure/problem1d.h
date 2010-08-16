@@ -1,5 +1,5 @@
-#ifndef LAWA_PARABOLIC_PROBLEM1D_H
-#define LAWA_PARABOLIC_PROBLEM1D_H 1
+#ifndef LAWA_INFRASTRUCTURE_PROBLEM1D_H
+#define LAWA_INFRASTRUCTURE_PROBLEM1D_H 1
 
 #include <extensions/extensions.h>
 
@@ -29,6 +29,6 @@ class Problem1D
 
 } // namespace lawa
 
-#include <lawa/parabolic/problem1d.tcc>
+#include <lawa/infrastructure/problem1d.tcc>
 
-#endif // LAWA_PARABOLIC_PROBLEM1D_H
+#endif // LAWA_INFRASTRUCTURE_PROBLEM1D_H

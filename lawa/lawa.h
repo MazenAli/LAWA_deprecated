@@ -24,6 +24,7 @@
 #include <lawa/bspline.h>
 #include <lawa/enum.h>
 #include <lawa/function.h>
+#include <lawa/infrastructure/infrastructure.h>
 #include <lawa/integrals.h>
 #include <lawa/interval/interval.h>
 #include <lawa/math/math.h>
