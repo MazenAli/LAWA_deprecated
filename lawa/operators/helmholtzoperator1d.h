@@ -1,5 +1,5 @@
-#ifndef LAWA_PARABOLIC_HELMHOLTZOPERATOR1D_H
-#define LAWA_PARABOLIC_HELMHOLTZOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_HELMHOLTZOPERATOR1D_H
+#define LAWA_OPERATORS_HELMHOLTZOPERATOR1D_H 1
 
 
 #include <lawa/integrals.h>
@@ -47,4 +47,4 @@ class HelmholtzOperator1D{
 
 #include <lawa/operators/helmholtzoperator1d.tcc>
 
-#endif // LAWA_PARABOLIC_HELMHOLTZOPERATOR1D_H
+#endif // LAWA_OPERATORS_HELMHOLTZOPERATOR1D_H
