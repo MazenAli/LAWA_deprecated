@@ -1,1 +1,1 @@
-#include <lawa/problem1d.h>
+#include <lawa/infrastructure/problem1d.h>
