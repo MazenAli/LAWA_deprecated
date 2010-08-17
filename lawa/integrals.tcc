@@ -30,18 +30,12 @@
 namespace lawa {
 
 //--- primal * primal
-template <typename T, typename First, typename Second>
+template <typename T, QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<BothPrimal<First,Second>::value, T>::Type
-_integrate(const Integral<T,Gauss,First,Second> &integral)
+_integrate(const Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    // quadrature with minimal order to guarantee exactness of integrals.
-
-    /*static*/ Quadrature<T,Gauss,Integral<T,Gauss,First,Second> > quadrature(
-                  integral,
-                  iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
-    //quadrature.setOrder(iceil((first.polynomialOrder+second.polynomialOrder-1)/2.)+1);
 
     // the (minimal) width of the polynomial pieces.
     T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
@@ -52,7 +46,7 @@ _integrate(const Integral<T,Gauss,First,Second> &integral)
                second.support(integral.j2,integral.k2),common)) {
         T a = common.l1;
         for (T b=a+unit; b<=common.l2; b+=unit) {
-            ret += quadrature(a,b);
+            ret += integral.quadrature(a,b);
             a = b;
          }
      }
@@ -64,15 +58,11 @@ template <typename T, QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<IsPrimal<First>::value && !PrimalOrDual<Second>::value, T>::Type
 _integrate(const Integral<T,Quad,First,Second> &integral)
 {
-    
     const First &first = integral.first;
     const Second &second = integral.second;
-    /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
 
-    
     // merge singular points of bspline/wavelet and function to one list.
-    /* -> implizite Annahme: second.singularPoints sind schon sortiert!! */
-   // T unit = first.tic(integral.j1);
+    // -> implicit assumption: second.singularPoints are sorted!!
     DenseVector<Array<T> > firstSingularPoints 
                                = first.singularSupport(integral.j1,integral.k1);
     int nFirst = firstSingularPoints.length(),
@@ -87,7 +77,7 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
                
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
-        ret += quadrature(singularPoints(i),singularPoints(i+1));
+        ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
     }
     return ret;
 }
@@ -99,15 +89,12 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
-    
-    Support<T> common;
 
+    Support<T> common;
     if (overlap(first.support(integral.j1,integral.k1),
                 second.support(integral.j2,integral.k2),
                 common)) {
-        quadrature.n =  pow2i<T>(Param<Second>::resolution) * 1./first.tic(integral.j1);
-        return quadrature(common.l1, common.l2);
+        return integral.quadrature(common.l1, common.l2);
     } else {
         return 0;
     }
@@ -120,17 +107,12 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-   /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
 
     Support<T> common;
-    if (overlap(first.support(0,integral.k1),
-                second.support(0,integral.k2),
+    if (overlap(first.support(integral.j1,integral.k1),
+                second.support(integral.j2,integral.k2),
                 common) > 0) {
-        quadrature.n = pow2i<T>(Param<First>::resolution) * common.length();
-        if (IsWavelet<First>::value || IsWavelet<Second>::value) {
-            quadrature.n *= 2;
-        }
-        return quadrature(common.l1, common.l2);
+        return integral.quadrature(common.l1, common.l2);
     } else {
         return 0;
     }
@@ -143,9 +125,6 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
 {
     const First &first = integral.first;
     const Second &second = integral.second;
-    /*static*/ Quadrature<T,Quad,Integral<T,Quad,First,Second> > quadrature(integral);
-    // FIXME: separate integrals and quadrature settings.
-    quadrature.n = pow2i<T>(Param<First>::resolution)*1;//(first.mask().length()-1);
 
     Support<T> supp = first.support(integral.j1,integral.k1);
     DenseVector<Array<T> > firstSupport(2);
@@ -163,17 +142,16 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
 
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
-        ret += quadrature(singularPoints(i),singularPoints(i+1));
+        ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
     }
     return ret;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-//--- primal * primal  or  dual * dual
+//--- primal/dual * primal/dual
 template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<PrimalOrDual<First>::value
-                 && PrimalOrDual<Second>::value, T>::Type
+typename RestrictTo<PrimalOrDual<First>::value && PrimalOrDual<Second>::value, T>::Type
 _integrand(const Integral<T,Quad,First,Second> &integral, T x)
 {
     const First &first = integral.first;
@@ -181,10 +159,9 @@ _integrand(const Integral<T,Quad,First,Second> &integral, T x)
     return first(x,integral.j1,integral.k1) * second(x,integral.j2,integral.k2);
 }
 
-//--- primal or dual * anything else
+//--- primal/dual * anything else
 template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<PrimalOrDual<First>::value
-                && !PrimalOrDual<Second>::value, T>::Type
+typename RestrictTo<PrimalOrDual<First>::value && !PrimalOrDual<Second>::value, T>::Type
 _integrand(const Integral<T,Quad,First,Second> &integral, T x)
 {
     const First &first = integral.first;
@@ -192,12 +169,11 @@ _integrand(const Integral<T,Quad,First,Second> &integral, T x)
     return first(x,integral.j1,integral.k1) * second(x);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 template <typename T, QuadratureType Quad, typename First, typename Second>
-Integral<T,Quad,First,Second>::Integral(const First &_first,
-                                        const Second &_second)
-    : first(_first), second(_second)
+Integral<T,Quad,First,Second>::Integral(const First &_first, const Second &_second)
+    : first(_first), second(_second), quadrature(*this)
 {
 }
 
