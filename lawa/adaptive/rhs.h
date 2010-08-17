@@ -42,7 +42,8 @@ class RHS<T,Index1D,Basis,Preconditioner>
 	typedef typename Basis::WaveletType PrimalWavelet;
 
 public:
-	RHS(const Basis &basis, const Preconditioner &P, T (*f)(T), const DenseVector<Array<T> > &_singularPoints, const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas);
+	RHS(const Basis &basis, const Preconditioner &P, T (*f)(T), const DenseVector<Array<T> > &_singularPoints,
+        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas, int order);
 
 	Coefficients<Lexicographical,T,Index1D>
 	operator()(const IndexSet<Index1D> &Lambda);
@@ -57,8 +58,8 @@ private:
 	PrimalWavelet psi;
 	Function<T> f;
 	const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >	&deltas;
-	Integral<T, Trapezoidal, PrimalSpline,  Function<T> > integral_sff;
-	Integral<T, Trapezoidal, PrimalWavelet, Function<T> > integral_wf;
+	Integral<T, Gauss, PrimalSpline,  Function<T> > integral_sff;
+	Integral<T, Gauss, PrimalWavelet, Function<T> > integral_wf;
 	Coefficients<Lexicographical,T,Index1D> rhs;
 	Coefficients<AbsoluteValue,T,Index1D>   rhs_abs;
 

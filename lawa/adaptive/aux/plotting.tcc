@@ -85,5 +85,106 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 	plotfile.close();
 }
 
+template <typename T>
+void
+plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,R,CDF> &basis, const char* filename)
+{
+    typedef typename Coefficients<AbsoluteValue,T,Index1D>::const_iterator const_it;
+    if (coeff.size() == 0) {
+        return;
+    }
+
+    std::stringstream gpsFilename;
+    gpsFilename << filename << ".gps";
+    std::ofstream gps(gpsFilename.str().c_str());
+
+    gps << "reset" << std::endl;
+    gps << "set terminal postscript eps enh color; set output '" << filename << ".eps'" << std::endl;
+    gps << "set palette color; set colorbox vertical" << std::endl;
+
+    BSpline<T,Primal,R> phi(basis.mra);
+    Wavelet<T,Primal,R> psi(basis);
+
+    T maxCoeffSca = -1.0;
+    T maxCoeffWav = -1.0;
+    int j = (*coeff.begin()).second.j, k = (*coeff.begin()).second.k;
+    int j0 = j;
+    int J  = j;
+    T a_sca = 5000.0, a_wav = 5000.0;
+    T b_sca = -5000.0, b_wav = -5000.0;
+    for (const_it it = coeff.begin(); it != coeff.end(); ++it) {
+    	j = (*it).second.j; k = (*it).second.k;
+    	j0 = std::min(j0, j);
+        J  = std::max(J, j);
+        if ((*it).second.xtype == XBSpline) {
+        	maxCoeffSca = std::max(maxCoeffSca, fabs((*it).first));
+        	a_sca = std::min(a_sca, phi.support(j,k).l1);
+            b_sca = std::max(b_sca, phi.support(j,k).l2);
+        }
+        else {
+        	maxCoeffWav = std::max(maxCoeffWav, fabs((*it).first));
+        	a_wav = std::min(a_wav, psi.support(j,k).l1);
+        	b_wav = std::max(b_wav, psi.support(j,k).l2);
+        }
+    }
+    T maxCoeff = std::max(maxCoeffWav,maxCoeffSca);
+    T l1_sca = phi.support(0,0).l1, l2_sca = phi.support(0,0).l2;
+    T l1_wav = psi.support(0,0).l1, l2_wav = psi.support(0,0).l2;
+
+    for (const_it it = coeff.begin(); it != coeff.end(); ++it) {
+        T lineWidth = 0.1;
+        T ctr, fromX, toX, fromY, toY;
+        T color = 0.0;
+
+        if ((*it).second.xtype==XBSpline) {
+        	int k1 = ceil(pow2i<T>((*it).second.j)*a_sca - l1_sca), k2 = floor(pow2i<T>((*it).second.j)*b_sca - l2_sca);
+        	int N = k2 - k1 + 1;
+            fromX = a_sca + ((*it).second.k-k1)*(b_sca-a_sca)/(T)N;
+            toX   = a_sca + ((*it).second.k-k1+1)*(b_sca-a_sca)/(T)N;
+
+            fromY = (*it).second.j-1.5;
+            toY   = (*it).second.j-0.5;
+            color = fabs((*it).first) / maxCoeffSca;
+        }
+
+        else {
+        	long int k1 = ceil(pow2i<T>((*it).second.j)*a_wav - l1_wav), k2 = floor(pow2i<T>((*it).second.j)*b_wav - l2_wav);
+        	long int N = k2 - k1 + 1;
+        	fromX = a_wav + ((*it).second.k-k1)*(b_wav-a_wav)/(T)N;
+        	toX   = fromX + std::max((b_wav-a_wav)/N,0.01);  //was 0.05
+
+        	fromY = (*it).second.j-0.5;
+            toY   = (*it).second.j+0.5;
+            color = fabs((*it).first) / maxCoeffWav;
+
+        }
+
+        gps << "set object rectangle from " << fromX << ", " << fromY
+            << " to " << toX << "," << toY << " fc rgb";
+        if (color > 0.5) gps << " 'black' ";
+        else if ((0.5 >= color) && (color > 0.25)) gps << " 'purple' ";
+        else if ((0.25 >= color) && (color > 0.125)) gps << " 'magenta' ";
+        else if ((0.125 >= color) && (color > 0.0625)) gps << " 'red' ";
+        else if ((0.0625 >= color) && (color > 0.03125)) gps << " 'orangered' ";
+        else if ((0.03125 >= color) && (color > 0.015625)) gps << " 'orange' ";
+        else if ((0.015625 >= color) && (color > 0.0078125)) gps << " 'yellow' ";
+        else gps << " 'grey' ";
+        gps << " linewidth " << 0.1 << " fillstyle solid" << std::endl;
+
+    }
+
+    gps << "set xrange["<< std::min(a_sca, a_wav) <<":"<< std::max(b_sca, b_wav) <<"]" << std::endl;
+    gps << "set yrange[" << j0-1.5 << ":" << J+0.5 << "]" << std::endl;
+    //gps << "set xtics 1" << endl;
+    gps << "set ytics ('" << j0 << "' " << j0-1;
+    gps << ", '" << j0 << "' " << j0;
+    for (int j = j0+1; j <= J; ++j) {
+        gps << ", '" << j << "' " << j;
+    }
+    gps << ")" << std::endl;
+    gps << "plot " << j0-1.5 << " with lines linecolor rgb 'black' notitle" << std::endl;
+    gps << "reset; set terminal pop" << std::endl;
+    gps.close();
+}
 
 }  // namespace lawa

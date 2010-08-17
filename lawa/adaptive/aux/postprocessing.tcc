@@ -28,7 +28,7 @@ estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> 
 	Au = mv(LambdaCol,A,u);
 	f  = F(LambdaCol);
 	res = Au-f;
-	return res.norm(2.);
+	return res.norm(2.)/f.norm(2.);
 }
 
 template <typename T, typename Index, typename MA, typename RHS>

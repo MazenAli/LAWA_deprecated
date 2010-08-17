@@ -22,13 +22,15 @@ namespace lawa {
 template <typename T, typename Basis, typename Preconditioner>
 RHS<T,Index1D,Basis,Preconditioner>::RHS(const Basis &_basis, const Preconditioner &_P,
 										 T (*_f)(T), const DenseVector<Array<T> > &_singularPoints,
-										 const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas)
+										 const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
+										 int order)
 	: basis(_basis),  P(_P), phi(basis.mra), psi(basis),
 	  f(_f,_singularPoints), deltas(_deltas),
 	  integral_sff(phi, f), integral_wf(psi, f),
 	  rhs(basis.d_,basis.d_), rhs_abs(basis.d_,basis.d_)
 {
-
+	integral_sff.quadrature.setOrder(order);
+	integral_wf.quadrature.setOrder(order);
 }
 
 template <typename T, typename Basis, typename Preconditioner>

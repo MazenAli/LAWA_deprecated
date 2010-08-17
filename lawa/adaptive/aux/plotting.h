@@ -37,6 +37,9 @@ void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 	 const Preconditioner &P, T (*u)(T), const char* filename);
 
+template <typename T, DomainType Domain, Construction Cons>
+void
+plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,Domain,Cons> &basis, const char* filename);
 
 
 }  // namespace lawa
