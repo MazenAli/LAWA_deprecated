@@ -45,31 +45,19 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 
 //Security zone for an index following Urban:2009, p.235 and KU:2010.
 template <typename T, DomainType Domain, Construction Cons>
+IndexSet<Index1D>
+C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
+
+template <typename T, DomainType Domain, Construction Cons>
+IndexSet<Index1D>
+C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
+
+template <typename T, DomainType Domain, Construction Cons>
 void
 C(const Index1D &lambda, T c, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi,
   const MRA<T,Primal,Domain,Cons> &mra, const Basis<T,Primal,Domain,Cons> &basis, IndexSet<Index1D> &ret);
 
-template <typename T, DomainType Domain, Construction Cons>
-IndexSet<Index1D>
-C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
 
-/*
-template <typename T>
-IndexSet<Index1D>
-C_interval(const IndexSet<Index1D> &Lambda, T c);
-
-template <typename T>
-IndexSet<Index1D>
-C_periodic(const IndexSet<Index1D> &Lambda, T c);
-
-template <typename T>
-IndexSet<Index1D>
-C_realline(const IndexSet<Index1D> &Lambda, T c);
-
-template <typename T, DomainType Domain, Construction Cons>
-IndexSet<Index1D>
-C_realline(const Index1D &lambda, T c, const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi, IndexSet<Index1D> &ret);
-*/
 
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
