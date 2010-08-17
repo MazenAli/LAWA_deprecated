@@ -28,6 +28,7 @@ operator()(XType xtype1, int j1, int k1,
     else{
         if(xtype2 == XBSpline){
             return scheme->integral_wsf(j1,k1,j2,k2) + timestep*scheme->theta*a(time, xtype1,j1,k1, xtype2, j2,k2);
+            
         }
         else{
             return scheme->integral_ww(j1,k1,j2,k2) + timestep*scheme->theta*a(time, xtype1,j1,k1, xtype2, j2,k2);
@@ -88,7 +89,7 @@ ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::Operator_RHSVector::
 operator()(XType xtype, int j, int k) const
 {   
     // deltaT * (theta*f_k+1 - (1-theta)*f_k)
-    return timestep*(scheme->theta * rhs(time, xtype, j, k)- (1. - scheme->theta)*rhs(time-timestep, xtype, j, k));
+    return timestep*(scheme->theta * rhs(time, xtype, j, k) + (1. - scheme->theta)*rhs(time-timestep, xtype, j, k));
 }
 
 
@@ -97,7 +98,7 @@ operator()(XType xtype, int j, int k) const
 template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
 ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::
 ThetaScheme(const T _theta, const Basis& _basis, const BilinearForm& _a, const RHSIntegral& _rhs, T _timestep)
-    : basis(_basis), problem(basis), phi(basis.mra), psi(basis),
+    : theta(_theta), basis(_basis), problem(basis), phi(basis.mra), psi(basis),
       integral_sfsf(phi, phi), integral_sfw(phi, psi), integral_wsf(psi, phi), integral_ww(psi, psi),
       op_LHSMatrix(this, basis, _a, _timestep), op_RHSMatrix(this, basis, _a, _timestep),
       op_RHSVector(this, basis, _rhs, _timestep)
@@ -107,7 +108,7 @@ ThetaScheme(const T _theta, const Basis& _basis, const BilinearForm& _a, const R
 template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
 flens::DenseVector<flens::Array<T> > 
 ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::solve(T time, flens::DenseVector<flens::Array<T> > u_init, int level)
-{
+{   
     op_LHSMatrix.setTime(time);
     op_RHSMatrix.setTime(time);
     op_RHSVector.setTime(time);
@@ -115,7 +116,7 @@ ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::solve(T time, flens::
     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
     flens::DenseVector<flens::Array<T> > rhsvector = problem.getRHS(op_RHSVector, level);
     flens::DenseVector<flens::Array<T> > rhsvector_total = rhsmatrix * u_init + rhsvector;
-    flens::DenseVector<flens::Array<T> > u;
+    flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
     cg(lhsmatrix, u, rhsvector_total);
     
     std::cout << "u(" << time << "): " << u << std::endl; 
