@@ -40,6 +40,7 @@ struct Integral
 
     const First &first;
     const Second &second;
+    Quadrature<T,Quad,First,Second> quadrature; 
     mutable int j1, k1, j2, k2;
 };
 
