@@ -154,6 +154,26 @@ operator*(T alpha, const Coefficients<Lexicographical,T,Index> &_coeff) {
 }
 
 template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index >
+THRESH(const Coefficients<Lexicographical,T,Index > &v, T eta) {
+    typedef typename Coefficients<AbsoluteValue,T,Index >::iterator it;
+    Coefficients<AbsoluteValue,T,Index > temp(v.d,v.d_);
+    temp = v;
+    if (temp.size() > 0) {
+        it lambda = temp.begin();
+        T sum = 0, bound = temp.norm()*temp.norm() - eta*eta;
+        do {
+            sum += ((*lambda).first)*((*lambda).first);
+            ++lambda;
+        } while ((lambda != temp.end()) && (sum < bound));
+        temp.erase(lambda, temp.end());
+    }
+    Coefficients<Lexicographical,T,Index > ret(v.d,v.d_);
+    ret = temp;
+    return ret;
+}
+
+template <typename T, typename Index>
 IndexSet<Index>
 supp(const Coefficients<Lexicographical,T,Index> &v)
 {
@@ -230,7 +250,7 @@ Coefficients<AbsoluteValue,T,Index>::norm(T tau) const
     if (Coefficients<AbsoluteValue,T,Index>::size() > 0) {
         for (const_it mu=Coefficients<AbsoluteValue,T,Index>::begin();
              mu!=Coefficients<AbsoluteValue,T,Index>::end(); ++mu) {
-            result+=std::pow((T)absolute((*mu).first),(T) tau);
+            result+=std::pow((T)fabs((*mu).first),(T) tau);
         }
     }
 
@@ -245,7 +265,7 @@ Coefficients<AbsoluteValue,T,Index>::wtauNorm(T tau) const
     T result=0.0, temp=0.0;
     int n=1;
     for (const_it lambda=Coefficients<AbsoluteValue,T,Index>::begin(); lambda!=Coefficients<AbsoluteValue,T,Index>::end(); ++lambda) {
-        temp=std::pow(T(n),1.0/tau) * absolute((*lambda).first);
+        temp=std::pow(T(n),1.0/tau) * fabs((*lambda).first);
         if (temp>result) {
             result=temp;
         }

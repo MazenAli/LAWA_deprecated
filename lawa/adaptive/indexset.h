@@ -21,7 +21,7 @@
 #define INDEXSET_H_ 1
 
 #include <set>
-#include <adaptive/index.h>
+#include <lawa/adaptive/index.h>
 #include <lawa/lawa.h>
 
 namespace lawa {
@@ -45,29 +45,40 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 
 //Security zone for an index following Urban:2009, p.235 and KU:2010.
 template <typename T, DomainType Domain, Construction Cons>
-IndexSet<Index1d>
-C(const Index1d &lambda, T c, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi, IndexSet<Index1d> &ret);
-
-template <typename T>
-IndexSet<Index1d>
-C_interval(const IndexSet<Index1d> &Lambda, T c);
-
-template <typename T>
-IndexSet<Index1d>
-C_realline(const IndexSet<Index1d> &Lambda, T c);
-
-template <typename T>
-IndexSet<Index1d>
-C_periodic(const IndexSet<Index1d> &Lambda, T c);
+void
+C(const Index1D &lambda, T c, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi,
+  const MRA<T,Primal,Domain,Cons> &mra, const Basis<T,Primal,Domain,Cons> &basis, IndexSet<Index1D> &ret);
 
 template <typename T, DomainType Domain, Construction Cons>
-IndexSet<Index1d>
-lambdaTilde1d_PDE(const Index1d &lambda, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi, int s_tilde, int jmin, int jmax, bool update);
+IndexSet<Index1D>
+C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
+
+/*
+template <typename T>
+IndexSet<Index1D>
+C_interval(const IndexSet<Index1D> &Lambda, T c);
+
+template <typename T>
+IndexSet<Index1D>
+C_periodic(const IndexSet<Index1D> &Lambda, T c);
+
+template <typename T>
+IndexSet<Index1D>
+C_realline(const IndexSet<Index1D> &Lambda, T c);
+
+template <typename T, DomainType Domain, Construction Cons>
+IndexSet<Index1D>
+C_realline(const Index1D &lambda, T c, const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi, IndexSet<Index1D> &ret);
+*/
+
+template <typename T, DomainType Domain, Construction Cons>
+IndexSet<Index1D>
+lambdaTilde1d_PDE(const Index1D &lambda, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi, int s_tilde, int jmin, int jmax, bool update);
 
 }   // namespace lawa
 
 
-#include <adaptive/indexset.tcc>
+#include <lawa/adaptive/indexset.tcc>
 
 
 #endif /* INDEXSET_H_ */

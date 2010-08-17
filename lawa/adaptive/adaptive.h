@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,20 +18,16 @@
  */
 
 
-#ifndef COMPRESSION_H
-#define COMPRESSION_H 1
+#ifndef ADAPTIVE_ADAPTIVE_H
+#define ADAPTIVE_ADAPTIVE_H 1
 
-#include <adaptive/bilinearform.h>
-
-namespace lawa {
-
-template <typename T, typename Basis, typename BilinearForm>
-class Compression
-{
-
-};
+#include <lawa/adaptive/index.h>
+#include <lawa/adaptive/indexset.h>
+#include <lawa/adaptive/coefficients.h>
+#include <lawa/adaptive/compression.h>
+#include <lawa/adaptive/mapmatrix.h>
+#include <lawa/adaptive/rhs.h>
+#include <lawa/adaptive/referencesolutions.h>
 
 
-} // namespace lawa
-
-#endif // COMPRESSION_H
+#endif // ADAPTIVE_ADAPTIVE_H

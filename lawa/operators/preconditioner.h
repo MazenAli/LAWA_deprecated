@@ -18,20 +18,40 @@
  */
 
 
+#ifndef PRECONDITIONER_H
+#define PRECONDITIONER_H 1
+
+#include <lawa/adaptive/index.h>
+#include <lawa/operators/operators.h>
+
 namespace lawa {
 
-template <typename T, typename Basis, typename BilinearForm>
-T
-Preconditioner<T,Index1d,Basis,BilinearForm>::operator()(const Index1d &index) const
+template <typename T, typename Index, typename Basis, typename BilinearForm>
+class Preconditioner
 {
-	return pow2i<T>(-index.j);
+public:
+	T
+	operator()(const Index &index) const;
+
+	T
+	rescale(const Index &index) const;
+};
+
+template <typename T, typename Basis>
+class Preconditioner<T,Index1D,Basis,HelmholtzOperator1D<T,Basis> >
+{
+public:
+	T
+	operator()(const Index1D &index) const;
+
+	T
+	rescale(const Index1D &index) const;
+
+};
+
 }
 
-template <typename T, typename Basis, typename BilinearForm>
-T
-Preconditioner<T,Index1d,Basis,BilinearForm>::rescale(const Index1d &index) const
-{
-	return pow2i<T>(index.j);
-}
+#include <lawa/operators/preconditioner.tcc>
 
-} // namespace lawa
+
+#endif /* PRECONDITIONER_H_ */

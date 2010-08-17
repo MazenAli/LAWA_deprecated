@@ -70,6 +70,28 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
 }
 
 template <typename T>
+Wavelet<T,Primal,R,CDF>::Wavelet(const Basis<T,Primal,R,CDF> &basis)
+	: d(basis.d), d_(basis.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),
+	  deriv(0), polynomialOrder(basis.d),
+	  vanishingMoments(basis.d_), b(mask(d,d_)),
+	  phi(d), phi_(d,d_)
+{
+	assert(d<=d_);
+	assert(((d+d_)&1)==0);
+}
+
+template <typename T>
+Wavelet<T,Primal,R,CDF>::Wavelet(const Basis<T,Primal,R,CDF> &basis, int _deriv)
+	: d(basis.d), d_(basis.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),
+	  deriv(_deriv), polynomialOrder(basis.d),
+	  vanishingMoments(basis.d_), b(mask(d,d_)),
+	  phi(d, deriv), phi_(d,d_)
+{
+	assert(d<=d_);
+	assert(((d+d_)&1)==0);
+}
+
+template <typename T>
 T
 Wavelet<T,Primal,R,CDF>::operator()(T x, int j, int k) const
 {

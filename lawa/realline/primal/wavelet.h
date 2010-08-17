@@ -46,6 +46,10 @@ class Wavelet<T,Primal,R,CDF>
                 const BSpline<T,Dual,R,CDF> &_phi_,
                 int _deriv);
 
+        Wavelet(const Basis<T,Primal,R,CDF> &_basis);
+
+        Wavelet(const Basis<T,Primal,R,CDF> &_basis, int _deriv);
+
         T
         operator()(T x, int j, int k) const;
 

@@ -1,7 +1,7 @@
-#ifndef LAWA_PARABOLIC_HELMHOLTZOPERATOR1D_H
-#define LAWA_PARABOLIC_HELMHOLTZOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_HELMHOLTZOPERATOR1D_H
+#define LAWA_OPERATORS_HELMHOLTZOPERATOR1D_H 1
 
-
+#include <lawa/adaptive/index.h>
 #include <lawa/integrals.h>
 #include <lawa/enum.h>
 
@@ -33,10 +33,17 @@ class HelmholtzOperator1D{
             
     public:
         HelmholtzOperator1D(const Basis& _basis, const T _c);
+        HelmholtzOperator1D(const HelmholtzOperator1D<T,Basis> &a);
+
+        T getc() const;
+        const Basis& getBasis() const;
     
         T
         operator()(XType xtype1, int j1, int k1, 
                    XType xtype2, int j2, int k2) const;
+
+        T
+        operator()(const Index1D &row_index, const Index1D &col_index) const;
     
         T
         operator()(T time, 
@@ -52,4 +59,4 @@ class HelmholtzOperator1D{
 
 #include <lawa/operators/helmholtzoperator1d.tcc>
 
-#endif // LAWA_PARABOLIC_HELMHOLTZOPERATOR1D_H
+#endif // LAWA_OPERATORS_HELMHOLTZOPERATOR1D_H

@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,43 +15,16 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-
-
-#ifndef PRECONDITIONER_H
-#define PRECONDITIONER_H 1
-
-#include <adaptive/index.h>
-#include <adaptive/bilinearform.h>
+*/
 
 namespace lawa {
 
-template <typename T, typename Index, typename Basis, typename BilinearForm>
-class Preconditioner
+template <typename T, typename Basis>
+Problem1d<T,Basis,HelmholtzOperator1d<T,Basis> >::Problem1d(const Basis &_basis, int example_nr, const HelmholtzOperator1d<T,Basis> &a, DomainType domain)
+	: basis(_basis), d(basis.d), d_(basis.d_), u(d,d_), f(d,d_), refsol()
 {
-public:
-	T
-	operator()(const Index &index) const;
-
-	T
-	rescale(const Index &index) const;
-};
-
-template <typename T, typename Basis, typename BilinearForm>
-class Preconditioner<T,Index1d,Basis,BilinearForm>
-{
-public:
-	T
-	operator()(const Index1d &index) const;
-
-	T
-	rescale(const Index1d &index) const;
-
-};
-
+	refsol.setExample(example_nr,a,domain);
 }
 
-#include <adaptive/preconditioner.tcc>
 
-
-#endif /* PRECONDITIONER_H_ */
+} // namespace lawa
