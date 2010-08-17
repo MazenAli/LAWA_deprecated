@@ -7,6 +7,11 @@
 
 namespace lawa {
     
+/* HELMHOLTZ OPERATOR 
+ *
+ *    a(u,v) =  Integral(u_x * v_x) + c * Integral(u * v)
+ *
+ */
 template <typename T, typename Basis>
 class HelmholtzOperator1D{
     

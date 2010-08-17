@@ -2,7 +2,7 @@ namespace lawa{
     
 template <typename T, typename Basis>    
 HelmholtzOperator1D<T, Basis>::HelmholtzOperator1D(const Basis& _basis, const T _c)
-    : basis(_basis), c(_c), phi(basis.mra), psi(basis), d_phi(basis.mra, 1), d_psi(basis, 1),
+    : basis(_basis), c(_c), phi(basis.mra), d_phi(basis.mra, 1), psi(basis), d_psi(basis, 1),
       integral_sfsf(phi, phi), dd_integral_sfsf(d_phi, d_phi), 
       integral_sfw(phi, psi), dd_integral_sfw(d_phi, d_psi),
       integral_wsf(psi, phi), dd_integral_wsf(d_psi, d_phi), 
