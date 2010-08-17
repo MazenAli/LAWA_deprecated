@@ -29,7 +29,7 @@ namespace lawa {
 template <Construction Cons, typename X>
     typename X::ElementType
     evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, 
-             int j, const DenseVector<X> &coeffs, typename X::ElementType x, 
+             int j, const DenseVector<X>& coeffs, typename X::ElementType x, 
              int deriv);
 
 template <Construction Cons, typename X>

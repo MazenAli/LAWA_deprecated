@@ -34,7 +34,7 @@ Problem1D<T, Basis>::getStiffnessMatrix(BilinearForm& a, int J, T tol)
             for(int k2 = basis.rangeJ(j).firstIndex(); k2 <= basis.rangeJ(j).lastIndex(); ++k2){
                 T val = a(XBSpline, j0, k1, XWavelet, j, k2);            
                 if(fabs(val) > tol){
-                    A(k1-offsetI,  basis.cardJ(j) + k2 - offsetJ) = val;              
+                    A(k1-offsetI,  basis.mra.cardI(j) + k2 - offsetJ) = val;              
                 }
             }
         }
@@ -46,7 +46,7 @@ Problem1D<T, Basis>::getStiffnessMatrix(BilinearForm& a, int J, T tol)
             for(int k1 = basis.rangeJ(j).firstIndex(); k1 <= basis.rangeJ(j).lastIndex(); ++k1){
                 T val = a(XWavelet, j, k1, XBSpline, j0, k2);            
                 if(fabs(val) > tol){
-                    A(basis.cardJ(j) + k1 - offsetJ, k2 - offsetI) = val;              
+                    A(basis.mra.cardI(j) + k1 - offsetJ, k2 - offsetI) = val;              
                 }
             }
         }
@@ -59,7 +59,7 @@ Problem1D<T, Basis>::getStiffnessMatrix(BilinearForm& a, int J, T tol)
                 for(int k2 = basis.rangeJ(j_).firstIndex(); k2 <= basis.rangeJ(j_).lastIndex(); ++k2){
                     T val = a(XWavelet, j, k1, XWavelet, j_, k2);            
                     if(fabs(val) > tol){
-                        A(basis.cardJ(j) + k1 - offsetJ, basis.cardJ(j_) + k2 - offsetJ) = val;              
+                        A(basis.mra.cardI(j) + k1 - offsetJ, basis.mra.cardI(j_) + k2 - offsetJ) = val;              
                     }
                 }
             }
@@ -82,7 +82,6 @@ Problem1D<T, Basis>::getRHS(RHSIntegral& rhs, int J)
     
     int N = basis.mra.cardI(J);
     flens::DenseVector<flens::Array<T> > f(N);
-    
     // SF x F
     for(int k1 = basis.mra.rangeI(j0).firstIndex(); k1 <= basis.mra.rangeI(j0).lastIndex(); ++k1){
         f(k1 - offsetI) = rhs(XBSpline, j0, k1);
@@ -91,7 +90,7 @@ Problem1D<T, Basis>::getRHS(RHSIntegral& rhs, int J)
     // W x F
     for(int j = j0; j <= J-1; ++j){
         for(int k1 = basis.rangeJ(j).firstIndex(); k1 <= basis.rangeJ(j).lastIndex(); ++k1){
-            f(basis.cardJ(j) + k1 - offsetJ) = rhs(XWavelet, j, k1);
+            f(basis.mra.cardI(j) + k1 - offsetJ) = rhs(XWavelet, j, k1);
         }
     }
     
