@@ -16,8 +16,11 @@ an add on.
 
 ==section:Spacing and Indentation==
 
-==subsection: No More Than 80 Characters per Line==
-Whenever possible, lines are no longer than 80 characters in FLENS.
+==subsection: No More Than 80 Characters per Line?!?==
+Whenever possible, lines are no longer than 80 characters in FLENS. But for LAWA we are a litte 
+more relaxed. Since lines can get very long and cannot easily be wrapped without losing convience
+when reading, we allow at about 100 characters per line. Whenever easily possible, shorter lines
+are preferable.
 
 ==subsection:No Tabs, Use Four Spaces==
 We do not use tabs but spaces.  In fact, we use <b>four spaces</b>.
