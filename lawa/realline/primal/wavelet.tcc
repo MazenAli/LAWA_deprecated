@@ -25,7 +25,7 @@ using namespace flens;
 
 template <typename T>
 Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_)
-    : d(_d), d_(_d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_d), d_(_d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),
       deriv(0), polynomialOrder(_d),
       vanishingMoments(_d_), b(mask(d,d_)),
       phi(d), phi_(d,d_)
@@ -36,7 +36,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_)
 
 template <typename T>
 Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_, int _deriv)
-    : d(_d), d_(_d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_d), d_(_d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),
       deriv(_deriv), polynomialOrder(_d-deriv),
       vanishingMoments(_d_), b(mask(d,d_)),
       phi(d, deriv), phi_(d,d_)
@@ -47,9 +47,9 @@ Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_, int _deriv)
 }
 
 template <typename T>
-Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,    
+Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
                                  const BSpline<T,Dual,R,CDF> &_phi_)
-    : d(_phi.d), d_(_phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_phi.d), d_(_phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),
       deriv(0), polynomialOrder(d),
       vanishingMoments(d_), b(mask(d,d_)),
       phi(_phi), phi_(_phi_)
@@ -58,14 +58,14 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
 }
 
 template <typename T>
-Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,    
+Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
                                  const BSpline<T,Dual,R,CDF> &_phi_,
                                  int _deriv)
-    : d(_phi.d), d_(_phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),    
+    : d(_phi.d), d_(_phi_.d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),
       deriv(_deriv), polynomialOrder(d-deriv),
       vanishingMoments(d_), b(mask(d,d_)),
       phi(_phi), phi_(_phi_)
-{    
+{
     assert(deriv>=0);
 }
 

@@ -13,7 +13,7 @@ struct MRA;
 with template parameters
 ==list:begin==
 ->[T]:    the (numerical) element type (e.g. double)
-->[Type]:    the kind of B-spline ([Primal] or [Dual])
+->[FunctionSide]:    the kind of B-spline ([Primal] or [Dual])
 ->[Domain]:    the domain (e.g. [R], [Interval])
 ->[Cons]:    the underlying construction.
 ==list:end==

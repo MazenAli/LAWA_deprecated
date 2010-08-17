@@ -2,7 +2,7 @@
 
 The construction by W. Dahmen, A. Kunoth and K. Urban (DKU) yields primal and dual
 multiresolution analyses (MRAs) on the interval based on biorthogonal B-splines
-and the associated dual scaling functions. The MRAs are themselves the base for
+and associated dual scaling functions. The MRAs are themselves the base for
 the construction of biorthogonal B-spline wavelet bases on the interval).
 
 The class realizing the primal MRA on the interval using the DKU construction is
