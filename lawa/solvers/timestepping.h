@@ -20,10 +20,10 @@ class TimeStepping
 
         T getDeltaT(){ return deltaT;}
         T getSteps(){ return timesteps;}
-        T setLevelX(){ return levelX;}        
+        T getLevel(){ return levelX;}        
         void setDeltaT(T delta){ deltaT = delta;}
         void setSteps(int steps){ timesteps = steps;}
-        void setLevelX(int J){ levelX = J;}
+        void setLevel(int J){ levelX = J;}
 };
 
 } // namespace lawa
