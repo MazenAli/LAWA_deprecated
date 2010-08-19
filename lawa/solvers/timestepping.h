@@ -17,6 +17,9 @@ class TimeStepping
     
         flens::DenseVector<flens::Array<T> > 
         solve(flens::DenseVector<flens::Array<T> >& u_0);
+        
+        flens::DenseVector<flens::Array<T> > 
+        getResiduum(flens::DenseVector<flens::Array<T> >& u);
 
         T getDeltaT(){ return deltaT;}
         T getSteps(){ return timesteps;}

@@ -19,5 +19,13 @@ TimeStepping<T,Solver>::solve(flens::DenseVector<flens::Array<T> >& u_0)
     
     return u;
 } 
-    
+
+template <typename T, typename Solver>
+flens::DenseVector<flens::Array<T> > 
+TimeStepping<T,Solver>::getResiduum(flens::DenseVector<flens::Array<T> >& u)
+{
+    flens::DenseVector<flens::Array<T> > Su = solve(u);
+    return u - Su;
 }
+    
+} // namespace lawa
