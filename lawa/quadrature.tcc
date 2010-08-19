@@ -148,7 +148,7 @@ defaultGaussOrder(const Wavelet<T,Primal, Domain, Cons> &first,
 template <typename T, typename First, typename Second>
 Quadrature<T,Trapezoidal,First,Second>::Quadrature(
                                               const Integral<T,Trapezoidal,First,Second> &_integral)
-    : _n(-1), integral(_integral)
+    : integral(_integral), _n(-1)
 {
     setN(defaultTrapezoidalN(_integral.first, _integral.second));
 }
