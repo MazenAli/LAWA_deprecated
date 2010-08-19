@@ -3,23 +3,28 @@
 
 namespace lawa{
 
-template<typename T, typename Solver>
+template<typename T, typename PrimalBasis, typename DualBasis, typename Smoother, typename Solver>
 class MultigridSolver{
     
     typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
     
   private:
+      PrimalBasis& primalbasis;
+      DualBasis& dualbasis;
+      Smoother& smoother;
       Solver& solver; 
+      int nu1, nu2;                 
       int minLevel; 
-      // Prolong ?
-      // Restr ?
     
   public:
-      MultigridSolver(Solver& _solver, int _minLevel = 0);
+      MultigridSolver(PrimalBasis& _primalbasis, DualBasis& _dualbasis, Smoother& _smoother, 
+                      Solver& _solver, int _nu1, int _nu2, int _minLevel = 0);
       
       DenseVectorT
-      multigrid(int i, int level, DenseVectorT& u, DenseVectorT& f);      
+      wCycle(int i, int level, DenseVectorT& u, DenseVectorT& f);      
         
+      DenseVectorT
+      vCycle(int i, int level, DenseVectorT& u, DenseVectorT& f);
 };
 
 } //  namespace lawa
