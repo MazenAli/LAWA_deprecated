@@ -5,8 +5,8 @@ namespace lawa{
 template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
 ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::Operator_LHSMatrix::
 Operator_LHSMatrix(ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, 
-                  const Basis& _basis, const BilinearForm& _a)
-    : basis(_basis), a(_a)
+                   const BilinearForm& _a)
+    : a(_a)
 {   
     scheme = _scheme;
 }
@@ -48,8 +48,8 @@ operator()(XType xtype1, int j1, int k1,
 template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
 ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::Operator_RHSMatrix::
 Operator_RHSMatrix(const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, 
-                   const Basis& _basis, const BilinearForm& _a)
-    : basis(_basis), a(_a)
+                   const BilinearForm& _a)
+    : a(_a)
 {
      scheme = _scheme;
 }
@@ -90,8 +90,8 @@ operator()(XType xtype1, int j1, int k1,
 template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
 ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::Operator_RHSVector::
 Operator_RHSVector(const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, 
-                   const Basis& _basis, const RHSIntegral& _rhs)
-    : basis(_basis), rhs(_rhs)
+                   const RHSIntegral& _rhs)
+    : rhs(_rhs)
 {
      scheme = _scheme;
 }
@@ -115,7 +115,7 @@ ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::
 ThetaScheme(const T _theta, const Basis& _basis, const BilinearForm& _a, const RHSIntegral& _rhs)
     : theta(_theta), basis(_basis), problem(basis), phi(basis.mra), psi(basis),
       integral_sfsf(phi, phi), integral_sfw(phi, psi), integral_wsf(psi, phi), integral_ww(psi, psi),
-      op_LHSMatrix(this, basis, _a), op_RHSMatrix(this, basis, _a), op_RHSVector(this, basis, _rhs)
+      op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs)
 {   
 }
  

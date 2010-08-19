@@ -12,14 +12,13 @@ class ThetaScheme
         class Operator_LHSMatrix{
             private:
                 ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* scheme;
-                const Basis& basis;
                 const BilinearForm& a;
                 T time_old;
                 T time_new;
             
             public:                
                 Operator_LHSMatrix(ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, 
-                                  const Basis& _basis, const BilinearForm& _a);
+                                   const BilinearForm& _a);
                 
                 T 
                 operator()(XType xtype1, int j1, int k1,
@@ -34,14 +33,13 @@ class ThetaScheme
         class Operator_RHSMatrix{
             private:
                 const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* scheme; 
-                const Basis& basis;
                 const BilinearForm& a;
                 T time_old;
                 T time_new;
             
             public:                
                 Operator_RHSMatrix(const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, 
-                                   const Basis& _basis, const BilinearForm& _a);
+                                   const BilinearForm& _a);
                 
                 T 
                 operator()(XType xtype1, int j1, int k1,
@@ -55,14 +53,13 @@ class ThetaScheme
         class Operator_RHSVector{
             private:
                 const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* scheme; 
-                const Basis& basis;
                 const RHSIntegral& rhs;
                 T time_old;
                 T time_new;
                 
             public:                
                 Operator_RHSVector(const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, 
-                                   const Basis& _basis, const RHSIntegral& _rhs);
+                                   const RHSIntegral& _rhs);
                 
                 T operator()(XType xtype, int j, int k) const;
                 
@@ -100,7 +97,7 @@ class ThetaScheme
     
         flens::DenseVector<flens::Array<T> > 
         solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
-        
+                
         // Adaptive Erweiterung: Timestep in jedem Lösungsschritt neu setzen,
         //flens::DenseVector<flens::Array<T> > 
         //solve(T time, flens::DenseVector<flens::Array<T> > u_init, int level, T timestep);
