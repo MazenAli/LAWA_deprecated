@@ -21,7 +21,7 @@ namespace lawa{
     
 template<typename T, typename Basis>
 BoxProblem<T, Basis>::
-BoxProblem(Basis _basis)
+BoxProblem(Basis& _basis)
     : basis(_basis)
 {        
 }

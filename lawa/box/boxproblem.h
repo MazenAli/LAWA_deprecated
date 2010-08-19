@@ -35,10 +35,10 @@ template<typename T, typename Basis>
 class BoxProblem
 {
     private:
-        Basis basis;
+        Basis& basis;
    
     public: 
-        BoxProblem(Basis _basis);
+        BoxProblem(Basis& _basis);
     
         template <typename BilinearForm>
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
