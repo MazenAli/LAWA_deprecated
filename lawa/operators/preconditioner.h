@@ -25,29 +25,66 @@
 #include <lawa/operators/operators.h>
 
 namespace lawa {
-
+/*  A preconditioner for a 1D problem must have the following form:
+ *
 template <typename T, typename Index, typename Basis, typename BilinearForm>
 class Preconditioner
 {
 public:
+	Preconditioner(const BilinearForm &basis);
+
+	T
+	operator()(XType xtype1, int j1, int k1) const;
+
 	T
 	operator()(const Index &index) const;
 
-	T
-	rescale(const Index &index) const;
 };
+*/
 
-template <typename T, typename Basis>
-class Preconditioner<T,Index1D,Basis,HelmholtzOperator1D<T,Basis> >
+template <typename T, typename Basis, typename BilinearForm>
+class DiagonalMatrixPreconditioner1D
 {
+
 public:
+	DiagonalMatrixPreconditioner1D(const BilinearForm &a);
+
+	T
+	operator()(XType xtype1, int j1, int k1) const;
+
 	T
 	operator()(const Index1D &index) const;
 
+private:
+	const BilinearForm &a;
+};
+
+template <typename T, typename Basis, typename BilinearForm>
+class H1Preconditioner1D
+{
+	typedef typename Basis::BSplineType PrimalSpline;
+	typedef typename Basis::WaveletType PrimalWavelet;
+
+public:
+	H1Preconditioner1D(const BilinearForm &a);
+
 	T
-	rescale(const Index1D &index) const;
+	operator()(XType xtype1, int j1, int k1) const;
+
+	T
+	operator()(const Index1D &index) const;
+
+private:
+	const Basis &basis;
+
+	PrimalSpline phi, d_phi;
+	PrimalWavelet psi, d_psi;
+
+	Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf;
+	Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww;
 
 };
+
 
 }
 

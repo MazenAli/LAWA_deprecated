@@ -17,33 +17,32 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef ADAPTIVE_AUX_PLOTTING_H
-#define ADAPTIVE_AUX_PLOTTING_H 1
+#ifndef ADAPTIVE_AUX_POSTPROCESSING_H
+#define ADAPTIVE_AUX_POSTPROCESSING_H 1
 
 #include <iostream>
 #include <fstream>
-#include <lawa/adaptive/index.h>
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
+#include <lawa/adaptive/adaptive.h>
+#include <vector>
 
 namespace lawa {
 
-template <typename T, typename Basis>
-void
-getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff, DenseVector<Array<T> > &sing_pts);
+//todo: Use APPLY if possible!
+// Calculates an estimate for ||Au_{\Lambda}-f||_{ell2}
+template <typename T, typename Index, typename MA, typename RHS>
+T
+estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> & u,
+					 const IndexSet<Index> &LambdaCol);
 
-template <typename T, typename Basis, typename Preconditioner>
-void
-plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-	 const Preconditioner &P, T (*u)(T), const char* filename);
-
-template <typename T, DomainType Domain, Construction Cons>
-void
-plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,Domain,Cons> &basis, const char* filename);
+// Calculates ||u - u_{\Lambda}-f||_H via energy norm ansatz
+template <typename T, typename Index, typename MA, typename RHS>
+T
+estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
+					   T HNormOfExactSolution);
 
 
-}  // namespace lawa
+}	//namespace lawa
 
-#include <lawa/adaptive/aux/plotting.tcc>
+#include <lawa/adaptive/aux/postprocessing.tcc>
 
-#endif // ADAPTIVE_AUX_PLOTTING_H
+#endif
