@@ -54,7 +54,7 @@ class Wavelet<T,Primal,R,CDF>
 
         DenseVector<Array<T> >
         singularSupport(int j, int k) const;
-        
+
         T
         tic(int j) const;
 

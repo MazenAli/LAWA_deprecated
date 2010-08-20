@@ -21,17 +21,17 @@
 #define SCALFACTORPRECONDITIONER_H 1
 
 namespace lawa {
-    
+
 template<typename T>
 struct ScalFactorPreconditioner
 {
     ScalFactorPreconditioner();
-    
+
     T
     operator()(bool XisSpline, int j_x, int k_x,
                bool YisSpline, int j_y, int k_y) const;
 };
-    
+
 } // namespace lawa
 
 #include <lawa/box/scalfactorpreconditioner.tcc>

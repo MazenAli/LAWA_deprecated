@@ -28,12 +28,12 @@ evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, int j,
     assert(coeffs.length()==mra.cardI(j));
     assert(x>=0.);
     assert(x<=1.);
-    
+
     typedef typename X::ElementType T;
 
     BSpline<T,Primal,Interval,Cons> phi(mra,deriv);
     T ret = 0.0;
-    for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {        
+    for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {
         ret += coeffs(k) * phi(x,j,k);
     }
     return ret;
@@ -64,7 +64,7 @@ evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, int j,
 template <Construction Cons, typename X>
 typename X::ElementType
 evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
-         int J, const DenseVector<X> &coeffs, typename X::ElementType x, 
+         int J, const DenseVector<X> &coeffs, typename X::ElementType x,
          int deriv)
 {
     assert(J>=basis.j0);
@@ -102,7 +102,7 @@ evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
             int from = std::max(basis.rangeJI(j).firstIndex(),pos-(basis.d+basis.d_));
             int to   = std::min(basis.rangeJI(j).lastIndex(), pos+(basis.d+basis.d_));
             for (int k=from; k<=to; ++k) {
-                ret += coeffs(basis.rangeI(j).lastIndex()+k) * psi(x,j,k);                
+                ret += coeffs(basis.rangeI(j).lastIndex()+k) * psi(x,j,k);
             }
         }
     }

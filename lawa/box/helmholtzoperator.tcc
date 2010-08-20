@@ -16,12 +16,12 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 namespace lawa{
-    
-template <typename T, typename Basis>    
+
+template <typename T, typename Basis>
 HelmholtzOperator<T, Basis>::HelmholtzOperator(const Basis& _basis, const T _c)
-    : basis(_basis), c(_c), 
+    : basis(_basis), c(_c),
       phi_x(basis.first.mra), d_phi_x(basis.first.mra, 1),
       phi_y(basis.second.mra), d_phi_y(basis.second.mra, 1),
       psi_x(basis.first), d_psi_x(basis.first, 1),
@@ -36,8 +36,8 @@ HelmholtzOperator<T, Basis>::HelmholtzOperator(const Basis& _basis, const T _c)
       integral_ww_y(psi_y, psi_y), dd_integral_ww_y(d_psi_y, d_psi_y)
 {
 }
-    
-template <typename T, typename Basis>      
+
+template <typename T, typename Basis>
 T
 HelmholtzOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSpline,
                                         int j1_x, int k1_x, int j1_y, int k1_y,
@@ -48,7 +48,7 @@ HelmholtzOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSpline
     T dd_val_x = 0;
     T val_y = 0;
     T dd_val_y = 0;
-    
+
     if(FirstXisSpline){
          if(SecondXisSpline){
              val_x = integral_sfsf_x(j1_x, k1_x, j2_x, k2_x);
@@ -69,7 +69,7 @@ HelmholtzOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSpline
              dd_val_x = dd_integral_ww_x(j1_x, k1_x, j2_x, k2_x);
          }
     }
-    
+
     if(FirstYisSpline){
          if(SecondYisSpline){
              val_y = integral_sfsf_y(j1_y, k1_y, j2_y, k2_y);
@@ -90,8 +90,8 @@ HelmholtzOperator<T, Basis>::operator()(bool FirstXisSpline, bool FirstYisSpline
              dd_val_y = dd_integral_ww_y(j1_y, k1_y, j2_y, k2_y);
          }
     }
-    
+
     return dd_val_x * val_y + val_x * dd_val_y + c * val_x * val_y;
 }
-    
+
 } // namespace lawa

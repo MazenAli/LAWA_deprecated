@@ -21,28 +21,28 @@
 #define BOXINDEX_H 1
 
 namespace lawa {
-  
-template<typename Basis>    
+
+template<typename Basis>
 class BoxIndex
 {
     private:
         const Basis& basis;
         const int J_x, J_y;
-        
+
         const int offsetIx;
         const int offsetIy;
         const int offsetJx;
         const int offsetJy;
-    
+
     public:
         BoxIndex(const Basis& _basis, const int _J_x, const int _J_y);
-        
+
         int
         operator()(bool XisSpline, int jx, int kx,
                    bool YisSpline, int jy, int ky) const;
 };
-    
-    
+
+
 } // namespace lawa
 
 #include <lawa/box/boxindex.tcc>

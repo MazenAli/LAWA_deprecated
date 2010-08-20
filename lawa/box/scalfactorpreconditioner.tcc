@@ -18,7 +18,7 @@
  */
 
 namespace lawa {
-    
+
 template<typename T>
 ScalFactorPreconditioner<T>::ScalFactorPreconditioner()
 {
@@ -31,7 +31,7 @@ ScalFactorPreconditioner<T>::operator()(bool XisSpline, int j_x, int k_x,
 {
     return pow2i<T>(- j_x - j_y);
 }
-    
-    
-    
+
+
+
 } // namespace lawa
