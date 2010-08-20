@@ -18,8 +18,8 @@
  */
 
 
-#ifndef ADAPTIVE_MAPMATRIX_H
-#define ADAPTIVE_MAPMATRIX_H 1
+#ifndef LAWA_ADAPTIVE_MAPMATRIX_H
+#define LAWA_ADAPTIVE_MAPMATRIX_H 1
 
 #include <utility>
 #include <lawa/adaptive/index.h>
@@ -32,17 +32,17 @@ namespace lawa {
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 class MapMatrix
 {
-private:
+public:
 	typedef typename std::map<Entry<Index>,T,lt<Lexicographical,Index > > EntryMap;
 	typedef typename EntryMap::value_type val_type;
 	EntryMap data;
 
-	const Preconditioner p;
-	const BilinearForm a;
-	//const Compression c;
+	const BilinearForm &a;
+	const Preconditioner &p;
+	//const Compression &c;
 
 public:
-	MapMatrix(const BilinearForm &a);
+	MapMatrix(const BilinearForm &a, const Preconditioner &p);
 
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
@@ -66,4 +66,4 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 #include <lawa/adaptive/mapmatrix.tcc>
 
 
-#endif // ADAPTIVE_MAPMATRIX_H
+#endif // LAWA_ADAPTIVE_MAPMATRIX_H

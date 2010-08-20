@@ -15,46 +15,42 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ */
 
-#ifndef LAWA_ADAPTIVE_PROBLEM_H
-#define LAWA_ADAPTIVE_PROBLEM_H 1
-
+#include <iostream>
+#include <vector>
+#include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
-#include <lawa/operators/operators.h>
+#include <lawa/adaptive/mapmatrix.h>
+
+#ifndef ADAPTIVE_ALGORITHMS_S_ADWAV_H
+#define ADAPTIVE_ALGORITHMS_S_ADWAV_H 1
 
 namespace lawa {
 
-template <typename T, typename Basis, typename BilinearForm>
-class Problem1d
-{
-};
+template <typename T, typename Index, typename Basis, typename MA, typename RHS>
+class S_ADWAV {
+public:
+	S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
+			T start_linTol, T start_resTol, int max_iters, T eps);
 
-/*  Not to be used!! Structure not yet clear...
- *
-template <typename T, typename Basis>
-class Problem1d<T,Basis,HelmholtzOperator1d<T,Basis> >
-{
+	void solve_cg(const IndexSet<Index> &Initial_Lambda);
+
+	std::vector<Coefficients<Lexicographical,T,Index> > solutions;
+	std::vector<T> 			  residuals;
+
 private:
 	const Basis &basis;
-	const int d,d_;
-	Coefficients<Lexicographical,T,Index1d> u, f;
-	ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> > refsol;
+	MA &A;
+	RHS &F;
+	T contraction, threshTol, linTol, resTol;
+	int NumOfIterations;
+	T eps;
 
-public:
-	Problem1d(const Basis &basis, int example_nr, const HelmholtzOperator1d<T,Basis> &a, DomainType domain);
-
-	Coefficients<Lexicographical,T,Index1d>
-	RHS(const IndexSet<Index1d> Lambda);
-
-	Coefficients<Lexicographical,T,Index1d>
-	RHS(T tol);
 };
 
-*/
+} //namespace lawa
 
-}  //namespace lawa
+#include <lawa/adaptive/algorithms/s_adwav.tcc>
 
-//#include <adaptive/problem.tcc>
-
-#endif // LAWA_ADAPTIVE_PROBLEM_H
+#endif //ADAPTIVE_ALGORITHMS_S_ADWAV_H

@@ -67,52 +67,58 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i)
     return s << std::endl;
 }
 
-// Security zone interval
-template <typename T, Construction Cons>
+template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
-C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Interval,Cons> &basis) {
-	IndexSet<Index1D> ret(Lambda.d,Lambda.d_);
+C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis) {
+	IndexSet<Index1D> ret(Lambda.d,Lambda.d_), tmp(Lambda.d, Lambda.d_);
 	typedef typename IndexSet<Index1D>::const_iterator const_it;
 
-	const BSpline<T,Primal,Interval,Cons> phi(basis.mra,0);
-    const Wavelet<T,Primal,Interval,Cons> psi(basis,0);
-
     for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-		C((*lambda),c,phi,psi,basis.mra,basis,ret);
+    	tmp = C((*lambda),c,basis);
+    	for (const_it mu=tmp.begin(); mu!=tmp.end(); ++mu) {
+    		if (Lambda.count(*mu) == 0) ret.insert(*mu);
+    	}
     }
-
     return ret;
 }
 
-template <typename T, Construction Cons>
+template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
-C(const Index1D &lambda, T c, const Basis<T,Primal,Interval,Cons> &basis) {
+C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis) {
 	IndexSet<Index1D> ret(basis.d,basis.d_);
-	const BSpline<T,Primal,Interval,Cons> phi(basis.mra,0);
-    const Wavelet<T,Primal,Interval,Cons> psi(basis,0);
+	const BSpline<T,Primal,Domain,Cons> phi(basis.mra,0);
+    const Wavelet<T,Primal,Domain,Cons> psi(basis,0);
 
-	C(lambda,c,phi,psi,basis.mra,basis,ret);
+	C(lambda,c,basis.mra,basis,ret);
     return ret;
 }
 
+
+// Security zone interval
 template <typename T, Construction Cons>
 void
-C(const Index1D &lambda, T c,
-  const BSpline<T,Primal,Interval,Cons> &phi, const Wavelet<T,Primal,Interval,Cons> &psi,
-  const MRA<T,Primal,Interval,Cons> &mra, const Basis<T,Primal,Interval,Cons> &basis, IndexSet<Index1D> &ret)
+C(const Index1D &lambda, T c, const MRA<T,Primal,Interval,Cons> &mra,
+  const Basis<T,Primal,Interval,Cons> &basis, IndexSet<Index1D> &ret)
 {
 	using std::min;
 	using std::max;
+	//ret.insert(Index1D(lambda.j,lambda.k,lambda.xtype));
 
 	int j=lambda.j, jP1, k=lambda.k;
+	XType xtype = lambda.xtype;
+	int kMin_mra = basis.mra.rangeI(j).firstIndex(), kMax_mra = basis.mra.rangeI(j).lastIndex();
 	if (lambda.xtype==XBSpline) {
 		jP1=j;
+		ret.insert(Index1D(j,std::max(k-2,kMin_mra),xtype));
+		ret.insert(Index1D(j,std::max(k-1,kMin_mra),xtype));
+		ret.insert(Index1D(j,std::min(k+1,kMax_mra),xtype));
+		ret.insert(Index1D(j,std::min(k+2,kMax_mra),xtype));
 	} else {
 	    jP1=j+1;
 	}
 	Support<T> supp;
-	if (lambda.xtype==XBSpline)  supp=phi.support(j,k);
-	else						 supp=psi.support(j,k);
+	if (xtype==XBSpline)  supp=  mra.phi.support(j,k);
+	else				  supp=basis.psi.support(j,k);
 
 	T zLambda=0.5*(supp.l2+supp.l1);
 	Support<T> contractedSupp(c*supp.l1 + (1-c)*zLambda, c*supp.l2 + (1-c)*zLambda);
@@ -134,47 +140,16 @@ C(const Index1D &lambda, T c,
 	}
 }
 
-
 // Security zone periodic
 template <typename T>
-IndexSet<Index1D>
-C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Periodic,CDF> &basis) {
-	IndexSet<Index1D> ret(Lambda.d,Lambda.d_);
-	typedef typename IndexSet<Index1D>::const_iterator const_it;
-
-	const MRA<T,Primal,Periodic,CDF>	  mra(Lambda.d,Lambda.d_);
-	const BSpline<T,Primal,Periodic,CDF> phi(Lambda.d,0);
-    const Wavelet<T,Primal,Periodic,CDF> psi(Lambda.d,Lambda.d_,0);
-
-    for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-		C((*lambda),c,phi,psi,mra,basis,ret);
-    }
-    return ret;
-}
-
-template <typename T>
-IndexSet<Index1D>
-C(const Index1D &lambda, T c, const Basis<T,Primal,Periodic,CDF> &basis) {
-	IndexSet<Index1D> ret(basis.d,basis.d_);
-
-	const MRA<T,Primal,Periodic,CDF>	  mra(basis.d,basis.d_);
-	const BSpline<T,Primal,Periodic,CDF> phi(basis.d,0);
-    const Wavelet<T,Primal,Periodic,CDF> psi(basis.d,basis.d_,0);
-
-    C(lambda,c,phi,psi,mra,basis,ret);
-    return ret;
-}
-
-template <typename T>
 void
-C(const Index1D &lambda, T c,
-  const BSpline<T,Primal,Periodic,CDF> &phi, const Wavelet<T,Primal,Periodic,CDF> &psi,
-  const MRA<T,Primal,Periodic,CDF> &mra, const Basis<T,Primal,Periodic,CDF> &basis, IndexSet<Index1D> &ret)
+C(const Index1D &lambda, T c, const MRA<T,Primal,Periodic,CDF> &mra,
+  const Basis<T,Primal,Periodic,CDF> &basis, IndexSet<Index1D> &ret)
 {
 	int j=lambda.j, k=lambda.k;
 	XType xtype=lambda.xtype;
+	//ret.insert(Index1D(j,k,xtype));
 	if (xtype==XBSpline) {
-		ret.insert(Index1D(j,k,xtype));
 		ret.insert(Index1D(j,(k-1 >= mra.rangeI(j).firstIndex()) ? k-1 : mra.rangeI(j).lastIndex()
 		                            + ((1 - (mra.rangeI(j).firstIndex() - k+1))%mra.cardI(j)),xtype));
 		ret.insert(Index1D(j,k+1 <= mra.rangeI(j).lastIndex() ? k+1 : mra.rangeI(j).firstIndex()
@@ -247,77 +222,89 @@ C(const Index1D &lambda, T c,
 
 // Security zone realline
 template <typename T>
-IndexSet<Index1D>
-C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis) {
-	IndexSet<Index1D> ret(Lambda.d,Lambda.d_);
-	typedef typename IndexSet<Index1D>::const_iterator const_it;
-
-	//const Basis<T,Primal,R,CDF>   basis(Lambda.d,Lambda.d_);
-	const MRA<T,Primal,R,CDF>	  mra(Lambda.d);
-	const BSpline<T,Primal,R,CDF> phi(Lambda.d,0);
-    const Wavelet<T,Primal,R,CDF> psi(Lambda.d,Lambda.d_,0);
-
-    for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-		C((*lambda),c,phi,psi,mra,basis,ret);
-    }
-    return ret;
-}
-
-template <typename T>
-IndexSet<Index1D>
-C(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis) {
-	IndexSet<Index1D> ret(basis.d,basis.d_);
-	const MRA<T,Primal,R,CDF>	  mra(basis.d);
-	const BSpline<T,Primal,R,CDF> phi(basis.d,0);
-    const Wavelet<T,Primal,R,CDF> psi(basis.d,basis.d_,0);
-    C(lambda,c,phi,psi,mra,basis,ret);
-    return ret;
-}
-
-template <typename T>
 void
-C(const Index1D &lambda, T c,
-  const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi,
-  const MRA<T,Primal,R,CDF> &mra, const Basis<T,Primal,R,CDF> &basis, IndexSet<Index1D> &ret)
+C(const Index1D &lambda, T c, const MRA<T,Primal,R,CDF> &mra,
+  const Basis<T,Primal,R,CDF> &basis, IndexSet<Index1D> &ret)
 {
 	int j=lambda.j, k=lambda.k;
 	XType xtype=lambda.xtype;
 	if (xtype==XBSpline) {
-		ret.insert(Index1D(j,k,xtype));
 		ret.insert(Index1D(j,k-1,xtype));
 		ret.insert(Index1D(j,k+1,xtype));
 		ret.insert(Index1D(j,k-2,xtype));
 		ret.insert(Index1D(j,k+2,xtype));
 
-		Support<T> contractedSupp, supp = phi.support(j,k);
+		Support<T> contractedSupp, supp = mra.phi.support(j,k);
 		T center = 0.5*(supp.l1 + supp.l2);
 		contractedSupp.l1 = c*supp.l1 + (1-c)*center;
 		contractedSupp.l2 = c*supp.l2 + (1-c)*center;
 
-		int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.support(0,0).l2);
-		int kMax =  ceil( pow2i<T>(j)*contractedSupp.l2 - psi.support(0,0).l1);
+		int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - basis.psi.support(0,0).l2);
+		int kMax =  ceil( pow2i<T>(j)*contractedSupp.l2 - basis.psi.support(0,0).l1);
 		for (int k1=kMin; k1<=kMax; ++k1) {
-			if (overlap(contractedSupp, psi.support(j,k1))>0) ret.insert(Index1D(j,k1,XWavelet));
+			if (overlap(contractedSupp, basis.psi.support(j,k1))>0) ret.insert(Index1D(j,k1,XWavelet));
 		}
 	}
 	else {
-		Support<T> contractedSupp, supp = psi.support(j,k);
+		Support<T> contractedSupp, supp = basis.psi.support(j,k);
 		T center = 0.5*(supp.l1 + supp.l2);
 		contractedSupp.l1 = c*supp.l1 + (1-c)*center;
 		contractedSupp.l2 = c*supp.l2 + (1-c)*center;
 		/*
-		long int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.support(0,0).l2);
-		long int kMax = ceil(pow2i<T>(j)*contractedSupp.l2 - psi.support(0,0).l1);
+		long int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - basis.psi.support(0,0).l2);
+		long int kMax = ceil(pow2i<T>(j)*contractedSupp.l2 - basis.psi.support(0,0).l1);
 		for (long int k1=kMin; k1<=kMax; ++k1) {
-			if (overlap(contractedSupp, psi.support(j,k1))>0) ret.insert(Index1D(j,k1,XWavelet));
+			if (overlap(contractedSupp, basis.psi.support(j,k1))>0) ret.insert(Index1D(j,k1,XWavelet));
 		}
 		*/
-		long int kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - psi.support(0,0).l2);
-		long int kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - psi.support(0,0).l1);
+		long int kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - basis.psi.support(0,0).l2);
+		long int kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - basis.psi.support(0,0).l1);
 		for (long int k1=kMin; k1<=kMax; ++k1) {
-			if (overlap(contractedSupp, psi.support(j+1,k1))>0) ret.insert(Index1D(j+1,k1,XWavelet));
+			if (overlap(contractedSupp, basis.psi.support(j+1,k1))>0) ret.insert(Index1D(j+1,k1,XWavelet));
 		}
 	}
+}
+
+
+//Security zone 2D
+template <typename T, typename Basis2D>
+IndexSet<Index2D>
+C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
+{
+	typedef typename IndexSet<Index2D>::const_iterator const_it_2d;
+	typedef typename IndexSet<Index1D>::const_iterator const_it;
+
+	int d = Lambda.d, d_ = Lambda.d_;
+
+	IndexSet<Index2D>  ret(d,d_);
+
+	//Security zone of Lambda should not contain indices which are already in Lambda
+	for (const_it_2d lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		IndexSet<Index1D > C_index1(d,d_), C_index2(d,d_);
+		C_index1 = C((*lambda).index1, c, basis.first);
+		C_index2 = C((*lambda).index2, c, basis.second);
+
+		for (const_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+			if (Lambda.count(Index2D((*it_C_index1), (*lambda).index2))==0) {
+				ret.insert(Index2D((*it_C_index1), (*lambda).index2));
+			}
+		}
+		for (const_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+			if (Lambda.count(Index2D((*lambda).index1, (*it_C_index2)))==0) {
+				ret.insert(Index2D((*lambda).index1, (*it_C_index2)));
+			}
+		}
+/*
+		for (const_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+			for (const_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+				if (Lambda.count(Index2D((*it_C_index1), (*it_C_index2)))==0) {
+					ret.insert(Index2D((*it_C_index1), (*it_C_index2)));
+				}
+			}
+		}
+*/
+	}
+	return ret;
 }
 
 /*

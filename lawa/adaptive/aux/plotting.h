@@ -37,6 +37,11 @@ void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 	 const Preconditioner &P, T (*u)(T), const char* filename);
 
+template <typename T, typename Basis2D, typename Preconditioner>
+void
+plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
+	   const Preconditioner &P, T (*u)(T,T), const char* filename);
+
 template <typename T, DomainType Domain, Construction Cons>
 void
 plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,Domain,Cons> &basis, const char* filename);

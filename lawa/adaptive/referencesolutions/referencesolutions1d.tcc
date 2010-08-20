@@ -42,7 +42,8 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::domain;
 
 template <typename T, typename Basis>
 void
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::setExample(int _nr, const HelmholtzOperator1D<T,Basis> &a, DomainType _domain)
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::setExample(int _nr,
+						const HelmholtzOperator1D<T,Basis> &a, DomainType _domain)
 {
     c=a.getc();
     assert(c>=0);
@@ -136,7 +137,7 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::H1norm()
 		else {	std::cerr << "ReferenceSolution<1d> exits!" << std::endl; exit(1);	}
 	}
 	else {
-		std::cerr << "ReferenceSolution<1d> exits!" << std::endl; exit(1);
+		return 0.;
 	}
 }
 

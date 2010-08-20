@@ -18,57 +18,46 @@
  */
 
 
-#ifndef ADAPTIVE_RHS_H
-#define ADAPTIVE_RHS_H 1
+#ifndef LAWA_ADAPTIVE_RHSWITHPEAKS1D_H
+#define LAWA_ADAPTIVE_RHSWITHPEAKS1D_H 1
 
 #include <lawa/adaptive/index.h>
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
-#include <lawa/adaptive/referencesolutions.h>
 
 namespace lawa {
 
-template <typename T, typename Index, typename Basis, typename Preconditioner>
-class RHS
-{
 
-};
-
-
-template <typename T, typename Basis, typename Preconditioner>
-class RHS<T,Index1D,Basis,Preconditioner>
+template <typename T, typename Basis>
+class RHSWithPeaks1D
 {
 	typedef typename Basis::BSplineType PrimalSpline;
 	typedef typename Basis::WaveletType PrimalWavelet;
 
 public:
-	RHS(const Basis &basis, const Preconditioner &P, T (*f)(T), const DenseVector<Array<T> > &_singularPoints,
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas, int order);
+	RHSWithPeaks1D(const Basis &basis, T (*f)(T), const DenseVector<Array<T> > &_singularPoints,
+				   const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas, int order);
 
-	Coefficients<Lexicographical,T,Index1D>
-	operator()(const IndexSet<Index1D> &Lambda);
+	T
+	operator()(XType xtype, int j, int k) const;
 
-	Coefficients<Lexicographical,T,Index1D>
-	operator()(T tol);
+	T
+	operator()(const Index1D &lambda) const;
 
 private:
 	const Basis &basis;
-	const Preconditioner &P;
 	PrimalSpline phi;
 	PrimalWavelet psi;
 	Function<T> f;
 	const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >	&deltas;
 	Integral<T, Gauss, PrimalSpline,  Function<T> > integral_sff;
 	Integral<T, Gauss, PrimalWavelet, Function<T> > integral_wf;
-	Coefficients<Lexicographical,T,Index1D> rhs;
-	Coefficients<AbsoluteValue,T,Index1D>   rhs_abs;
-
 
 };
 
 
 } // namespace lawa
 
-#include <lawa/adaptive/rhs.tcc>
+#include <lawa/righthandsides/rhswithpeaks1d.tcc>
 
-#endif // ADAPTIVE_RHS_H
+#endif // LAWA_ADAPTIVE_RHSWITHPEAKS1D_H

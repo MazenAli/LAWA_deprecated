@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef COEFFICIENTS_H
-#define COEFFICIENTS_H 1
+#ifndef LAWA_ADAPTIVE_COEFFICIENTS_H
+#define LAWA_ADAPTIVE_COEFFICIENTS_H 1
 
 #include <set>
 #include <lawa/adaptive/index.h>
@@ -35,7 +35,7 @@ struct Coefficients
 template <typename T, typename Index>
 struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
 {
-	Coefficients();		//todo: where is this required?
+	Coefficients();		//required in rhs.h
 
 	Coefficients(const int d, const int d_);
 
@@ -83,6 +83,8 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
 template <typename T, typename Index>
 struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteValue,T> >
 {
+	Coefficients();		//required in rhs.h
+
 	Coefficients(const int d, const int d_);
 
 	Coefficients<AbsoluteValue,T,Index>&

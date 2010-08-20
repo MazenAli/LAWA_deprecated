@@ -25,9 +25,13 @@ estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> 
 					 const IndexSet<Index> &LambdaCol)
 {
 	Coefficients<Lexicographical,T,Index> Au(u.d,u.d_), f(u.d,u.d_), res(u.d,u.d_);
+	std::cout << "PostProcessing: Size of LambdaCol: " << LambdaCol.size() << std::endl;
 	Au = mv(LambdaCol,A,u);
+	std::cout << "PostProcessing: A*u finished." << std::endl;
 	f  = F(LambdaCol);
+	std::cout << "F finished." << std::endl;
 	res = Au-f;
+	std::cout << "res finished." << std::endl;
 	return res.norm(2.)/f.norm(2.);
 }
 

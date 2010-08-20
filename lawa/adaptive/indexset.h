@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef INDEXSET_H_
-#define INDEXSET_H_ 1
+#ifndef LAWA_ADAPTIVE_INDEXSET_H_
+#define LAWA_ADAPTIVE_INDEXSET_H_ 1
 
 #include <set>
 #include <lawa/adaptive/index.h>
@@ -43,7 +43,7 @@ struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
 template <typename Index>
 std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 
-//Security zone for an index following Urban:2009, p.235 and KU:2010.
+//Security zone for an 1d-index following Urban:2009, p.235 and KU:2010.
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
 C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
@@ -54,11 +54,16 @@ C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
 
 template <typename T, DomainType Domain, Construction Cons>
 void
-C(const Index1D &lambda, T c, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi,
-  const MRA<T,Primal,Domain,Cons> &mra, const Basis<T,Primal,Domain,Cons> &basis, IndexSet<Index1D> &ret);
+C(const Index1D &lambda, T c, const MRA<T,Primal,Domain,Cons> &mra,
+  const Basis<T,Primal,Domain,Cons> &basis, IndexSet<Index1D> &ret);
+
+// Computation of a security zone for 2d-tensor basis
+template <typename T, typename Basis2D>
+IndexSet<Index2D>
+C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
 
 
-
+// Realizations of lambdaTilde for different Basis
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
 lambdaTilde1d_PDE(const Index1D &lambda, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi, int s_tilde, int jmin, int jmax, bool update);
@@ -69,4 +74,4 @@ lambdaTilde1d_PDE(const Index1D &lambda, const BSpline<T,Primal,Domain,Cons> &ph
 #include <lawa/adaptive/indexset.tcc>
 
 
-#endif /* INDEXSET_H_ */
+#endif // LAWA_ADAPTIVE_INDEXSET_H_ */
