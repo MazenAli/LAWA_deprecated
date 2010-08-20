@@ -1,6 +1,77 @@
 namespace lawa{
 
+// THETASCHEME
+template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
+ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::
+ThetaScheme(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs)
+    : theta(_theta), basis(_basis), problem(basis), phi(basis.mra), psi(basis),
+      integral_sfsf(phi, phi), integral_sfw(phi, psi), integral_wsf(psi, phi), integral_ww(psi, psi),
+      op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs)
+{   
+}
+ 
+template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
+flens::DenseVector<flens::Array<T> > 
+ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::
+solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level)
+{   
+    op_LHSMatrix.setTimes(time_old, time_new);
+    op_RHSMatrix.setTimes(time_old, time_new);
+    op_RHSVector.setTimes(time_old, time_new);
     
+    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
+    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
+    flens::DenseVector<flens::Array<T> > rhsvector = problem.getRHS(op_RHSVector, level);
+    flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
+    flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
+    cg(lhsmatrix, u, rhs);
+    
+    //std::cout << "u(" << time_new << "): " << u << std::endl; 
+    return u;
+}
+
+template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
+flens::DenseVector<flens::Array<T> > 
+ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::
+solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, 
+      flens::DenseVector<flens::Array<T> > f, int level)
+{
+     op_LHSMatrix.setTimes(time_old, time_new);
+     op_RHSMatrix.setTimes(time_old, time_new);
+     op_RHSVector.setTimes(time_old, time_new);
+
+     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
+     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
+     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + f;
+     flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
+     cg(lhsmatrix, u, rhs);
+
+     //std::cout << "u(" << time_new << "): " << u << std::endl; 
+     return u;     
+}
+
+
+template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
+void
+ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::
+setRHS(RHSIntegral& _rhs)
+{
+    op_RHSVector.setRHS(_rhs);
+}
+
+template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
+flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
+ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::
+getLHSMatrix(T time_old, T time_new, int level)
+{
+    op_LHSMatrix.setTimes(time_old, time_new);
+    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
+    
+    return lhsmatrix;
+}
+
+
+/*======================================================================================*/    
 // OPERATOR_LHSMATRIX
 template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
 ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::Operator_LHSMatrix::
@@ -90,7 +161,7 @@ operator()(XType xtype1, int j1, int k1,
 template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
 ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::Operator_RHSVector::
 Operator_RHSVector(const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, 
-                   const RHSIntegral& _rhs)
+                   RHSIntegral& _rhs)
     : rhs(_rhs)
 {
      scheme = _scheme;
@@ -105,36 +176,6 @@ operator()(XType xtype, int j, int k) const
     T timestep = time_new - time_old;
     return timestep*(scheme->theta * rhs(time_new, xtype, j, k) 
                     + (1. - scheme->theta)*rhs(time_old, xtype, j, k));
-}
-
-
-
-// THETASCHEME
-template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
-ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::
-ThetaScheme(const T _theta, const Basis& _basis, const BilinearForm& _a, const RHSIntegral& _rhs)
-    : theta(_theta), basis(_basis), problem(basis), phi(basis.mra), psi(basis),
-      integral_sfsf(phi, phi), integral_sfw(phi, psi), integral_wsf(psi, phi), integral_ww(psi, psi),
-      op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs)
-{   
-}
- 
-template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
-flens::DenseVector<flens::Array<T> > 
-ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>::solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level)
-{   
-    op_LHSMatrix.setTimes(time_old, time_new);
-    op_RHSMatrix.setTimes(time_old, time_new);
-    op_RHSVector.setTimes(time_old, time_new);
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
-    flens::DenseVector<flens::Array<T> > rhsvector = problem.getRHS(op_RHSVector, level);
-    flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
-    flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
-    cg(lhsmatrix, u, rhs);
-    
-    //std::cout << "u(" << time_new << "): " << u << std::endl; 
-    return u;
 } 
   
 }

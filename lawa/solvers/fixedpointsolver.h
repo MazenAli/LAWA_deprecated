@@ -6,19 +6,29 @@ namespace lawa{
 template<typename T, typename Method>
 class FixedPointSolver
 {
+    public:
+        typedef typename Method::RHSType RHSType;
+        
+        FixedPointSolver(Method& _method);
+        
+        flens::DenseVector<flens::Array<T> >
+        solve(flens::DenseVector<flens::Array<T> > u_0, int maxIterations = 1000, T tol = 10e-10);
+        
+        flens::DenseVector<flens::Array<T> >
+        solve(flens::DenseVector<flens::Array<T> > u_0,
+                flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >& fmatrix,
+                int maxIterations = 1000, T tol = 10e-10);
+    
+        void setLevel(int level){ method.setLevel(level);}
+        void setRHS(RHSType& rhs);
+        
+        
     private:
         Method& method;
         
         T
         getError(flens::DenseVector<flens::Array<T> >& u1, flens::DenseVector<flens::Array<T> >& u2);
     
-    public:
-        FixedPointSolver(Method& _method);
-        
-        flens::DenseVector<flens::Array<T> >
-        solve(flens::DenseVector<flens::Array<T> > u_0, int maxIterations = 1000, T tol = 10e-10);
-    
-        void setLevel(int level){ method.setLevel(level);}
 };    
   
 } // namespace lawa

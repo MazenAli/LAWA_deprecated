@@ -38,6 +38,32 @@ FixedPointSolver<T, Method>::solve(flens::DenseVector<flens::Array<T> > u_0,
     
     return u_T;
 }
+
+template<typename T, typename Method>
+flens::DenseVector<flens::Array<T> >
+FixedPointSolver<T, Method>::solve(flens::DenseVector<flens::Array<T> > u_0,
+        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >& fmatrix,
+        int maxIterations, T tol)
+{
+    flens::DenseVector<flens::Array<T> > u_T;
+    int countIterations = 0;
+    T error = 0;
+    do{
+        u_T = method.solve(u_0, fmatrix); 
+        error = getError(u_0, u_T);
+        u_0 = u_T;
+        countIterations++; 
+        std::cerr << "Iteration " << countIterations << " : error = " << error << std::endl;
+    }while((countIterations < maxIterations) && (error > tol));
+    
+    return u_T;
+}
+
+template<typename T, typename Method>
+void
+FixedPointSolver<T, Method>::setRHS(RHSType& rhs){
+    method.setRHS(rhs);
+}
     
     
 } // namespace lawa

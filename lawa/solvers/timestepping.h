@@ -6,18 +6,19 @@ namespace lawa{
 template <typename T, typename Solver>
 class TimeStepping
 {
-    private:
-        Solver& solver;
-        T deltaT;
-        int timesteps;
-        int levelX;
-
     public:
+        
+        typedef typename Solver::RHSType RHSType;
+        
         TimeStepping(Solver& _solver, T _deltaT, int _timesteps, int _levelX);
-    
+
         flens::DenseVector<flens::Array<T> > 
         solve(flens::DenseVector<flens::Array<T> >& u_0);
-        
+    
+        flens::DenseVector<flens::Array<T> > 
+        solve(flens::DenseVector<flens::Array<T> >& u_0, 
+              flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >& fmatrix);
+    
         flens::DenseVector<flens::Array<T> > 
         getResiduum(flens::DenseVector<flens::Array<T> >& u);
 
@@ -27,6 +28,15 @@ class TimeStepping
         void setDeltaT(T delta){ deltaT = delta;}
         void setSteps(int steps){ timesteps = steps;}
         void setLevel(int J){ levelX = J;}
+        
+        void setRHS(RHSType& rhs){ solver.setRHS(rhs);}
+        
+    private:
+        Solver& solver;
+        T deltaT;
+        int timesteps;
+        int levelX;
+
 };
 
 } // namespace lawa

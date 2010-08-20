@@ -8,6 +8,29 @@ namespace lawa{
 template<typename T, typename Basis, typename Problem, typename BilinearForm, typename RHSIntegral>
 class ThetaScheme
 {
+    public: 
+        typedef RHSIntegral RHSType;       
+        
+        ThetaScheme(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs);
+    
+        flens::DenseVector<flens::Array<T> > 
+        solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
+        
+        flens::DenseVector<flens::Array<T> > 
+        solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, 
+              flens::DenseVector<flens::Array<T> > f, int level);
+        
+        void
+        setRHS(RHSIntegral& _rhs);
+        
+        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
+        getLHSMatrix(T time_old, T time_new, int level);
+                           
+        // Adaptive Erweiterung: Timestep in jedem Lösungsschritt neu setzen,
+        //flens::DenseVector<flens::Array<T> > 
+        //solve(T time, flens::DenseVector<flens::Array<T> > u_init, int level, T timestep);
+        
+        
     private:
         class Operator_LHSMatrix{
             private:
@@ -53,18 +76,20 @@ class ThetaScheme
         class Operator_RHSVector{
             private:
                 const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* scheme; 
-                const RHSIntegral& rhs;
+                RHSIntegral& rhs;
                 T time_old;
                 T time_new;
                 
             public:                
                 Operator_RHSVector(const ThetaScheme<T, Basis, Problem, BilinearForm, RHSIntegral>* _scheme, 
-                                   const RHSIntegral& _rhs);
+                                   RHSIntegral& _rhs);
                 
                 T operator()(XType xtype, int j, int k) const;
                 
                 void setTimes(T t1, T t2){ time_old = t1;
                                            time_new = t2;}
+                                           
+                void setRHS(RHSIntegral& _rhs){ rhs = _rhs;}
                 
             
         };
@@ -89,18 +114,6 @@ class ThetaScheme
         Operator_LHSMatrix op_LHSMatrix;
         Operator_RHSMatrix op_RHSMatrix;
         Operator_RHSVector op_RHSVector;
-
-        
-    public:        
-        
-        ThetaScheme(const T _theta, const Basis& _basis, const BilinearForm& _a, const RHSIntegral& _rhs);
-    
-        flens::DenseVector<flens::Array<T> > 
-        solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
-                
-        // Adaptive Erweiterung: Timestep in jedem Lösungsschritt neu setzen,
-        //flens::DenseVector<flens::Array<T> > 
-        //solve(T time, flens::DenseVector<flens::Array<T> > u_init, int level, T timestep);
 
 };
       
