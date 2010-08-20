@@ -131,13 +131,18 @@ template <typename T, typename Basis>
 T
 ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::H1norm()
 {
-	if (domain==R) {
+	if (domain==Interval) {
+		if (nr==1)			{ return sqrt(0.12533141373155 + 12.533141373155); }
+		else				return 0.;
+	}
+	else if (domain==Periodic) {
+		if (nr==1)			{ return sqrt(0.5 + 2.*M_PI*M_PI); }
+		else				return 0.;
+	}
+	else  {	// (domain==R)
 		if (nr==1) 			{ return std::sqrt(100*std::sqrt(0.5*M_PI/(0.1)) + std::sqrt(0.5*M_PI)/std::pow(0.1,(T)1.5) );	}
 		else if (nr ==2 )	{ return std::sqrt(1000. + 10.); }
 		else {	std::cerr << "ReferenceSolution<1d> exits!" << std::endl; exit(1);	}
-	}
-	else {
-		return 0.;
 	}
 }
 

@@ -80,7 +80,44 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 				appr  += prec * coeff * psi(x,j,k);
 			}
 		}
-		plotfile << x << " " << exact << " " << appr  << " " << fabs(exact-appr) << std::endl;
+		plotfile << x << " " << exact << " " << appr  << std::endl;
+	}
+	plotfile.close();
+}
+
+template <typename T, typename Basis, typename Preconditioner>
+void
+plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
+	 const Preconditioner &P, T (*u)(T), T a, T b, T h, const char* filename)
+{
+	typedef typename Basis::BSplineType PrimalSpline;
+	typedef typename Basis::WaveletType PrimalWavelet;
+	typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
+
+	PrimalSpline phi(basis.mra);
+	PrimalWavelet psi(basis);
+
+	std::stringstream PlotFileName;
+	PlotFileName << filename << ".dat";
+	std::ofstream plotfile(PlotFileName.str().c_str());
+
+	DenseVector<Array<T> > sing_pts;
+	getSingularPoints(basis, coeff, sing_pts);
+
+	for (T x=a; x<=b; x+=h) {
+		T appr = 0.0;
+		T exact= u(x);
+		for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+			int j = (*it).first.j, k = (*it).first.k;
+			T coeff = (*it).second, prec = P((*it).first);
+			if ((*it).first.xtype == XBSpline) {
+				appr  += prec * coeff * phi(x,j,k);
+			}
+			else {
+				appr  += prec * coeff * psi(x,j,k);
+			}
+		}
+		plotfile << x << " " << exact << " " << appr  << std::endl;
 	}
 	plotfile.close();
 }
@@ -88,7 +125,7 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 template <typename T, typename Basis2D, typename Preconditioner>
 void
 plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
-	   const Preconditioner &P, T (*u)(T,T), const char* filename)
+	   const Preconditioner &P, T (*u)(T,T), T a1, T b1, T a2, T b2, T h, const char* filename)
 {
 	typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
 	typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
@@ -106,8 +143,8 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
 	PlotFileName << filename << ".dat";
 	std::ofstream plotfile(PlotFileName.str().c_str());
 
-	for (T x=0.; x<=1.; x+=pow2i<T>(-5)) {
-		for (T y=0.; y<=1.; y+=pow2i<T>(-5)) {
+	for (T x=a1; x<=b1; x+=h) {
+		for (T y=a2; y<=b2; y+=h) {
 			T appr = 0.0;
 			T exact= u(x,y);
 			for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
