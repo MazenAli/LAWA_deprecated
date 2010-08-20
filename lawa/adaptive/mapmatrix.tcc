@@ -20,8 +20,8 @@
 namespace lawa {
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a)
-: p(_a), a(_a)
+MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a, const Preconditioner &_p)
+: a(_a), p(_p)
 {
 }
 
@@ -33,7 +33,9 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
 	if (data.count(entry)==0) {
 	    T val;
 	    val = p(row_index)*a(row_index,col_index)*p(col_index);
-	    data.insert(val_type(entry,val));
+	    if (fabs(val) > 0) {		//store only non-zero entries!!
+	    	data.insert(val_type(entry,val));
+	    }
 	}
 	return data[entry];
 }
@@ -85,6 +87,8 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 
 	int N = Lambda.size();
 	SparseGeMatrix<CRS<T,CRS_General> > A_flens = A.toFlensSparseMatrix(Lambda, Lambda);
+	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+	densify(NoTrans,A_flens,A_dense);
 
 	if (Lambda.size() > 0) {
 		DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);

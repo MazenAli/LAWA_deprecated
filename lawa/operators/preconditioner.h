@@ -18,8 +18,8 @@
  */
 
 
-#ifndef PRECONDITIONER_H
-#define PRECONDITIONER_H 1
+#ifndef LAWA_OPERATORS_PRECONDITIONER_H
+#define LAWA_OPERATORS_PRECONDITIONER_H 1
 
 #include <lawa/adaptive/index.h>
 #include <lawa/operators/operators.h>
@@ -83,6 +83,24 @@ private:
 	Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf;
 	Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww;
 
+};
+
+
+template <typename T, typename Basis2D, typename BilinearForm>
+class DiagonalMatrixPreconditioner2D
+{
+
+public:
+	DiagonalMatrixPreconditioner2D(const BilinearForm &a);
+
+	T
+	operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
+
+	T
+	operator()(const Index2D &index) const;
+
+private:
+	const BilinearForm &a;
 };
 
 

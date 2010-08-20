@@ -85,6 +85,62 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 	plotfile.close();
 }
 
+template <typename T, typename Basis2D, typename Preconditioner>
+void
+plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
+	   const Preconditioner &P, T (*u)(T,T), const char* filename)
+{
+	typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
+	typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
+	typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_y;
+	typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_y;
+
+	typedef typename Coefficients<Lexicographical,T,Index2D >::const_iterator coeff_it;
+
+	PrimalSpline_x  phi_x(basis.first.mra);
+	PrimalWavelet_x psi_x(basis.first);
+	PrimalSpline_y  phi_y(basis.second.mra);
+	PrimalWavelet_y psi_y(basis.second);
+
+	std::stringstream PlotFileName;
+	PlotFileName << filename << ".dat";
+	std::ofstream plotfile(PlotFileName.str().c_str());
+
+	for (T x=0.; x<=1.; x+=pow2i<T>(-5)) {
+		for (T y=0.; y<=1.; y+=pow2i<T>(-5)) {
+			T appr = 0.0;
+			T exact= u(x,y);
+			for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+				XType xtype_x = (*it).first.index1.xtype;
+				XType xtype_y = (*it).first.index2.xtype;
+				int j_x = (*it).first.index1.j, k_x = (*it).first.index1.k;
+				int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
+
+				T coeff = (*it).second, prec = P((*it).first);
+				if (xtype_x == XBSpline) {
+					if (xtype_y == XBSpline) {
+						appr  += prec * coeff * phi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
+					}
+					else {
+						appr  += prec * coeff * phi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
+					}
+				}
+				else {
+					if (xtype_y == XBSpline) {
+						appr  += prec * coeff * psi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
+					}
+					else {
+						appr  += prec * coeff * psi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
+					}
+				}
+			}
+			plotfile << x << " " << y << " " << exact << " " << appr  << std::endl;
+		}
+		plotfile << std::endl;
+	}
+	plotfile.close();
+}
+
 template <typename T>
 void
 plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,R,CDF> &basis, const char* filename)

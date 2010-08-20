@@ -15,46 +15,58 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ */
 
-#ifndef LAWA_ADAPTIVE_PROBLEM_H
-#define LAWA_ADAPTIVE_PROBLEM_H 1
-
-#include <lawa/adaptive/coefficients.h>
-#include <lawa/operators/operators.h>
+#ifndef LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H
+#define LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H 1
 
 namespace lawa {
 
 template <typename T, typename Basis, typename BilinearForm>
-class Problem1d
+struct ReferenceSolutionTensor2D
 {
 };
 
-/*  Not to be used!! Structure not yet clear...
- *
-template <typename T, typename Basis>
-class Problem1d<T,Basis,HelmholtzOperator1d<T,Basis> >
+template<typename T, typename Basis2D>
+struct ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >
 {
-private:
-	const Basis &basis;
-	const int d,d_;
-	Coefficients<Lexicographical,T,Index1d> u, f;
-	ReferenceSolution1d<T,Basis,HelmholtzOperator1d<T,Basis> > refsol;
+	static int nr;
+	static T c;
+	static DomainType domain1, domain2;
 
-public:
-	Problem1d(const Basis &basis, int example_nr, const HelmholtzOperator1d<T,Basis> &a, DomainType domain);
+	static DenseVector<Array<T> > sing_pts_x, sing_pts_y;
 
-	Coefficients<Lexicographical,T,Index1d>
-	RHS(const IndexSet<Index1d> Lambda);
+	static void
+	setExample(int _nr, const HelmholtzOperator2D<T,Basis2D> &a, DomainType domain1, DomainType domain2);
 
-	Coefficients<Lexicographical,T,Index1d>
-	RHS(T tol);
+	static T
+	exact(T x, T y);
+
+	static T
+	exact_x(T x);
+
+	static T
+	exact_x(T x, int deriv_x);
+
+	static T
+	exact_y(T y);
+
+	static T
+	exact_y(T y, int deriv_y);
+
+	static T
+	rhs_x(T x);
+
+	static T
+	rhs_y(T y);
+
+	static T
+	H1norm();
 };
 
-*/
+}	//namespace lawa
 
-}  //namespace lawa
+#include <lawa/adaptive/referencesolutions/referencesolutions2d.tcc>
 
-//#include <adaptive/problem.tcc>
 
-#endif // LAWA_ADAPTIVE_PROBLEM_H
+#endif // LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H

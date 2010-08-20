@@ -79,6 +79,7 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
         ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
     }
+
     return ret;
 }
 

@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,36 +17,32 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_BOX_TENSORBASIS_H
-#define LAWA_BOX_TENSORBASIS_H 1
+#ifndef LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION_H
+#define LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION_H 1
 
-namespace lawa{
+#include <lawa/function.h>
+
+namespace lawa {
     
-template<typename FirstBasis, typename SecondBasis>
-struct TensorBasis
+using namespace flens;
+    
+template<typename T>
+struct SeparableFunction2D
 {
-    typedef FirstBasis FirstBasisType;
-    typedef SecondBasis SecondBasisType;
+    SeparableFunction2D(Function<T> _F_x, Function<T>  _F_y);
     
-    TensorBasis(const FirstBasis &_basis1, const SecondBasis &_basis2);
-
-    const FirstBasis &first;
-    const SecondBasis &second;
+    SeparableFunction2D(T (*_f_x)(T), const DenseVector<Array<T> > &_singularPts_x,
+                        T (*_f_y)(T), const DenseVector<Array<T> > &_singularPts_y);
     
-    int
-    dim(const int J_x, const int J_y) const;
+    T
+    operator()(T x, T y) const;
     
-    int 
-    J1_max(const int J_x, const int J_y, const int jy) const;
-    
-    int 
-    J2_max(const int J_x, const int J_y, const int jx) const;
-};
-    
+    Function<T> F_x;
+    Function<T> F_y;
+};    
     
 } // namespace lawa
 
-#include <lawa/box/tensorbasis.tcc>
+#include <lawa/righthandsides/separablefunction2d.tcc>
 
-
-#endif // LAWA_BOX_TENSORBASIS_H
+#endif // LAWA_BOX_SEPARABLEFUNCTION_H

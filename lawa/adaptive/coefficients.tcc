@@ -202,6 +202,11 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
 /*
  * Coefficient vector ordered by absolute value
  */
+template <typename T, typename Index>
+Coefficients<AbsoluteValue,T,Index>::Coefficients()
+	: d(0), d_(0)
+{
+}
 
 template <typename T, typename Index>
 Coefficients<AbsoluteValue,T,Index>::Coefficients(const int _d, const int _d_)

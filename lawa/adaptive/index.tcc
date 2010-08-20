@@ -22,7 +22,10 @@ namespace lawa {
 Index1D::Index1D(void)
 : j(0), k(0), xtype(XBSpline)
 {
+}
 
+Index1D::~Index1D(void)
+{
 }
 
 Index1D::Index1D(int _j, int _k, XType _xtype)
@@ -44,6 +47,23 @@ std::ostream& operator<<(std::ostream &s, const Index1D &_i)
     }
     return s;
 }
+
+
+Index2D::Index2D(const Index1D &_index1, const Index1D &_index2)
+	: index1(_index1), index2(_index2)
+{
+}
+
+Index2D::~Index2D(void)
+{
+}
+
+std::ostream& operator<<(std::ostream &s, const Index2D &_i)
+{
+    s << "(" << _i.index1 << ", " << _i.index2 << ")";
+    return s;
+}
+
 
 template <typename Index>
 Entry<Index>::Entry(const Index &_index1, const Index &_index2)
@@ -87,6 +107,51 @@ struct lt<Lexicographical, Index1D>
     	    return operator()(left.row_index,right.row_index);
     	}
     }
+};
+
+template <>
+struct lt<Lexicographical, Index2D >
+{
+	inline
+	bool operator()(const Index2D &left, const Index2D &right) const
+	{
+        if 		((left.index1.xtype==XBSpline)&&(right.index1.xtype==XWavelet)) {
+            return true;
+        }
+        else if ((left.index1.xtype==XWavelet)&&(right.index1.xtype==XBSpline)) {
+            return false;
+        }
+        else if ((left.index2.xtype==XBSpline)&&(right.index2.xtype==XWavelet)) {
+            return true;
+        }
+        else if ((left.index2.xtype==XWavelet)&&(right.index2.xtype==XBSpline)) {
+            return false;
+        }
+        else if (left.index1.j!=right.index1.j) {
+            return (left.index1.j<right.index1.j);
+        }
+        else if (left.index1.k!=right.index1.k) {
+            return (left.index1.k<right.index1.k);
+        }
+        else if (left.index2.j!=right.index2.j) {
+            return (left.index2.j<right.index2.j);
+        }
+        else {
+        	return (left.index2.k<right.index2.k);
+        }
+    }
+
+	inline
+	bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const
+	{
+	// sort Operator row-wise
+		if ( !(operator()(left.row_index,right.row_index)) && !(operator()(right.row_index,left.row_index))) {
+			return operator()(left.col_index, right.col_index);
+	    }
+	    else {
+	    	return operator()(left.row_index,right.row_index);
+	    }
+	}
 };
 
 template <typename SortingType>

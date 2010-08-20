@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef INDEX_H
-#define INDEX_H 1
+#ifndef LAWA_ADAPTIVE_INDEX_H
+#define LAWA_ADAPTIVE_INDEX_H 1
 
 #include <lawa/enum.h>
 
@@ -31,11 +31,24 @@ public:
 	XType xtype;
 
 	Index1D(void);
+	~Index1D();
     Index1D(int j, int k, XType _xtype);
     Index1D(const Index1D &index);
 };
 
+
 std::ostream& operator<<(std::ostream &s, const Index1D &_Index);
+
+struct Index2D
+{
+    Index2D(const Index1D &index1, const Index1D &index2);
+    ~Index2D();
+    Index1D index1, index2;
+
+};
+
+std::ostream& operator<<(std::ostream &s, const Index2D &_Index);
+
 
 template <typename Index>
 class Entry
@@ -59,4 +72,4 @@ struct lt
 
 #include "index.tcc"
 
-#endif
+#endif //LAWA_ADAPTIVE_INDEX_H

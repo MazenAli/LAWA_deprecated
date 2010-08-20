@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,22 +15,38 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+*/
 
-
-#ifndef LAWA_ADAPTIVE_COMPRESSION_H
-#define LAWA_ADAPTIVE_COMPRESSION_H 1
-
+#ifndef LAWA_RIGHTHANDSIDES_RHS_H
+#define LAWA_RIGHTHANDSIDES_RHS_H 1
 
 namespace lawa {
 
-template <typename T, typename Basis, typename BilinearForm>
-class Compression
+template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
+class RHS
 {
+public:
+	const RHSINTEGRAL &rhsintegral;
+	const Preconditioner &P;
+	Coefficients<Lexicographical,T,Index> rhs_data;
+	Coefficients<AbsoluteValue,T,Index>   rhs_abs_data;
+
+//public:
+	RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P);
+
+	T
+	operator()(const Index &lambda);
+
+	Coefficients<Lexicographical,T,Index>
+	operator()(const IndexSet<Index> &Lambda);
+
+	Coefficients<Lexicographical,T,Index>
+	operator()(T tol);
 
 };
 
+}	//namespace lawa
 
-} // namespace lawa
+#include <lawa/righthandsides/rhs.tcc>
 
-#endif // LAWA_ADAPTIVE_COMPRESSION_H
+#endif // LAWA_RIGHTHANDSIDES_RHS_H
