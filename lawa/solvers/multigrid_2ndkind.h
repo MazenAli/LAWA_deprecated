@@ -22,9 +22,9 @@ class MultiGrid_2ndKind{
         
         PrimalBasis& b;
         DualBasis& b_;
-        typedef ThetaScheme<T, PrimalBasis, Problem1D<T,PrimalBasis>, BilinearForm, RHSIntegral> FullThetaScheme;
+        typedef ThetaScheme1D<T, PrimalBasis, BilinearForm, RHSIntegral> FullThetaScheme;
         typedef TimeStepping<T, FullThetaScheme> FullTimeStepMethod;    
-        typedef ThetaScheme<T, PrimalBasis, Problem1D<T,PrimalBasis>, BilinearForm, HomogeneousRHS<T> > HomThetaScheme;
+        typedef ThetaScheme1D<T, PrimalBasis, BilinearForm, HomogeneousRHS<T> > HomThetaScheme;
         typedef TimeStepping<T, HomThetaScheme> HomTimeStepMethod;
         typedef FixedPointSolver<T, HomTimeStepMethod> ThetaFPSolver;
         
