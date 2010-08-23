@@ -1,3 +1,4 @@
+#include <lawa/righthandsides/homogeneousrhs.h>
 #include <lawa/righthandsides/rhs.h>
 #include <lawa/righthandsides/rhswithpeaks1d.h>
 #include <lawa/righthandsides/separablefunction2d.h>
