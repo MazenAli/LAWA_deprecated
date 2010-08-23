@@ -32,15 +32,22 @@ template <typename T, typename Basis>
 void
 getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff, DenseVector<Array<T> > &sing_pts);
 
+//Plot solution only on singular  points of the solution
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 	 const Preconditioner &P, T (*u)(T), const char* filename);
 
+//Plot solution on a fixed grid
+template <typename T, typename Basis, typename Preconditioner>
+void
+plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
+	 const Preconditioner &P, T (*u)(T), T a, T b, T h, const char* filename);
+
 template <typename T, typename Basis2D, typename Preconditioner>
 void
 plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
-	   const Preconditioner &P, T (*u)(T,T), const char* filename);
+	   const Preconditioner &P, T (*u)(T,T), T a1, T b1, T a2, T b2, T h, const char* filename);
 
 template <typename T, DomainType Domain, Construction Cons>
 void
