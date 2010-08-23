@@ -14,17 +14,19 @@ class MultigridSolver{
       Smoother& smoother;
       Solver& solver; 
       int nu1, nu2;                 
-      int minLevel; 
+      int minLevel;
     
   public:
       MultigridSolver(PrimalBasis& _primalbasis, DualBasis& _dualbasis, Smoother& _smoother, 
                       Solver& _solver, int _nu1, int _nu2, int _minLevel = 0);
       
       DenseVectorT
-      wCycle(int i, int level, DenseVectorT& u, DenseVectorT& f);      
-        
-      DenseVectorT
       vCycle(int i, int level, DenseVectorT& u, DenseVectorT& f);
+                  
+      DenseVectorT
+      wCycle(int i, int level, DenseVectorT& u, DenseVectorT& f);      
+      
+      int getMinLevel(){ return minLevel;}
 };
 
 } //  namespace lawa
