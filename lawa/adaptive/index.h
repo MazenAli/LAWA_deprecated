@@ -21,6 +21,7 @@
 #define LAWA_ADAPTIVE_INDEX_H 1
 
 #include <lawa/enum.h>
+#include <iostream>
 
 namespace lawa {
 
