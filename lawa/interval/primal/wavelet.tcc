@@ -96,10 +96,10 @@ Wavelet<T,Primal,Interval,Cons>::singularSupport(int j, int k) const
     // FIXME: remove std::max: left support end cannot be less than 0. Check for error (Primbs!!!)
     return pow2i<T>(-j-1)*linspace(std::max(0.,basis.M1.lengths(0)+1-basis.d+2*(k-basis.M1.left.lastIndex()-1.)),
                                    basis.M1.lengths(0)+basis.M1.leftband.length()+2*(k-basis.M1.left.lastIndex()-1.),
-								   // FIXME: understand why value in last line is too large
-								   2*(basis.d+basis.d_)+1);
-								   // FIXME: understand why 2*n instead of 2*n-1  ... (+d+1)
-								   //2*(basis.M1.leftband.length())+basis.d+1.);
+                                   // FIXME: understand why value in last line is too large
+                                   2*(basis.d+basis.d_)+1);
+                                   // FIXME: understand why 2*n instead of 2*n-1  ... (+d+1)
+                                   //2*(basis.M1.leftband.length())+basis.d+1.);
 }
 
 template <typename T, Construction Cons>

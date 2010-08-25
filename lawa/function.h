@@ -36,7 +36,7 @@ struct Function
     T
     operator()(T x) const;
 
-	T (*f)(T);
+    T (*f)(T);
     const DenseVector<Array<T> > singularPoints;
 };
 

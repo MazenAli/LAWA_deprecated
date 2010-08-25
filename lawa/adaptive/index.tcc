@@ -50,7 +50,7 @@ std::ostream& operator<<(std::ostream &s, const Index1D &_i)
 
 
 Index2D::Index2D(const Index1D &_index1, const Index1D &_index2)
-	: index1(_index1), index2(_index2)
+    : index1(_index1), index2(_index2)
 {
 }
 
@@ -73,8 +73,8 @@ Entry<Index>::Entry(const Index &_index1, const Index &_index2)
 
 template <typename Index>
 std::ostream& operator<<(std::ostream &s, const Entry<Index> &entry) {
-	s << "[" << entry.row_index << ", " << entry.col_index  << "]";
-	return s;
+    s << "[" << entry.row_index << ", " << entry.col_index  << "]";
+    return s;
 }
 
 template <>
@@ -99,23 +99,23 @@ struct lt<Lexicographical, Index1D>
     inline
     bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const
     {
-    	// sort Operator row-wise
-    	if ( !(operator()(left.row_index,right.row_index)) && !(operator()(right.row_index,left.row_index))) {
-    		return operator()(left.col_index, right.col_index);
-    	}
-    	else {
-    	    return operator()(left.row_index,right.row_index);
-    	}
+        // sort Operator row-wise
+        if ( !(operator()(left.row_index,right.row_index)) && !(operator()(right.row_index,left.row_index))) {
+            return operator()(left.col_index, right.col_index);
+        }
+        else {
+            return operator()(left.row_index,right.row_index);
+        }
     }
 };
 
 template <>
 struct lt<Lexicographical, Index2D >
 {
-	inline
-	bool operator()(const Index2D &left, const Index2D &right) const
-	{
-        if 		((left.index1.xtype==XBSpline)&&(right.index1.xtype==XWavelet)) {
+    inline
+    bool operator()(const Index2D &left, const Index2D &right) const
+    {
+        if         ((left.index1.xtype==XBSpline)&&(right.index1.xtype==XWavelet)) {
             return true;
         }
         else if ((left.index1.xtype==XWavelet)&&(right.index1.xtype==XBSpline)) {
@@ -137,21 +137,21 @@ struct lt<Lexicographical, Index2D >
             return (left.index2.j<right.index2.j);
         }
         else {
-        	return (left.index2.k<right.index2.k);
+            return (left.index2.k<right.index2.k);
         }
     }
 
-	inline
-	bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const
-	{
-	// sort Operator row-wise
-		if ( !(operator()(left.row_index,right.row_index)) && !(operator()(right.row_index,left.row_index))) {
-			return operator()(left.col_index, right.col_index);
-	    }
-	    else {
-	    	return operator()(left.row_index,right.row_index);
-	    }
-	}
+    inline
+    bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const
+    {
+    // sort Operator row-wise
+        if ( !(operator()(left.row_index,right.row_index)) && !(operator()(right.row_index,left.row_index))) {
+            return operator()(left.col_index, right.col_index);
+        }
+        else {
+            return operator()(left.row_index,right.row_index);
+        }
+    }
 };
 
 template <typename SortingType>
@@ -159,7 +159,7 @@ struct lt<AbsoluteValue, SortingType>
 {
     bool operator()(const SortingType &left, const SortingType &right) const
         {
-            return (fabs(left) > fabs(right));	//todo: Is this the right call for fabs (template?)
+            return (fabs(left) > fabs(right));    //todo: Is this the right call for fabs (template?)
         }
 };
 

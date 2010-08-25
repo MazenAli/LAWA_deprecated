@@ -24,7 +24,7 @@
 
 namespace flens {
 
-// typedef double T;	
+// typedef double T;    
 // typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrixT;
 // typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
     extern Underscore<int> _;

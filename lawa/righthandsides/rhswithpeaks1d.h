@@ -24,6 +24,7 @@
 #include <lawa/adaptive/index.h>
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
+#include <lawa/function.h>
 
 namespace lawa {
 
@@ -31,27 +32,27 @@ namespace lawa {
 template <typename T, typename Basis>
 class RHSWithPeaks1D
 {
-	typedef typename Basis::BSplineType PrimalSpline;
-	typedef typename Basis::WaveletType PrimalWavelet;
+    typedef typename Basis::BSplineType PrimalSpline;
+    typedef typename Basis::WaveletType PrimalWavelet;
 
 public:
-	RHSWithPeaks1D(const Basis &basis, T (*f)(T), const DenseVector<Array<T> > &_singularPoints,
-				   const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas, int order);
+    RHSWithPeaks1D(const Basis &basis, T (*f)(T), const DenseVector<Array<T> > &_singularPoints,
+                   const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas, int order);
 
-	T
-	operator()(XType xtype, int j, int k) const;
+    T
+    operator()(XType xtype, int j, int k) const;
 
-	T
-	operator()(const Index1D &lambda) const;
+    T
+    operator()(const Index1D &lambda) const;
 
 private:
-	const Basis &basis;
-	PrimalSpline phi;
-	PrimalWavelet psi;
-	Function<T> f;
-	const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >	&deltas;
-	Integral<T, Gauss, PrimalSpline,  Function<T> > integral_sff;
-	Integral<T, Gauss, PrimalWavelet, Function<T> > integral_wf;
+    const Basis &basis;
+    PrimalSpline phi;
+    PrimalWavelet psi;
+    Function<T> f;
+    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    &deltas;
+    Integral<T, Gauss, PrimalSpline,  Function<T> > integral_sff;
+    Integral<T, Gauss, PrimalWavelet, Function<T> > integral_wf;
 
 };
 

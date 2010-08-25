@@ -148,7 +148,7 @@ operator*(T alpha, const Coefficients<Lexicographical,T,Index> &_coeff) {
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
     Coefficients<Lexicographical,T,Index> ret(_coeff.d,_coeff.d_);
     for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-    	ret.operator[]((*lambda).first) = alpha*(*lambda).second;
+        ret.operator[]((*lambda).first) = alpha*(*lambda).second;
     }
     return ret;
 }
@@ -192,10 +192,10 @@ template <typename T, typename Index>
 void
 FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Index> &u)
 {
-	typedef typename IndexSet<Index>::const_iterator const_it;
-	for (const_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
-		if (u.count((*lambda)) == 0) u[*lambda] = 0.0;
-	}
+    typedef typename IndexSet<Index>::const_iterator const_it;
+    for (const_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+        if (u.count((*lambda)) == 0) u[*lambda] = 0.0;
+    }
 }
 
 
@@ -204,13 +204,13 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
  */
 template <typename T, typename Index>
 Coefficients<AbsoluteValue,T,Index>::Coefficients()
-	: d(0), d_(0)
+    : d(0), d_(0)
 {
 }
 
 template <typename T, typename Index>
 Coefficients<AbsoluteValue,T,Index>::Coefficients(const int _d, const int _d_)
-	: d(_d), d_(_d_)
+    : d(_d), d_(_d_)
 {
 }
 
@@ -218,32 +218,32 @@ template <typename T, typename Index>
 Coefficients<AbsoluteValue,T,Index>&
 Coefficients<AbsoluteValue,T,Index>::operator= (const Coefficients<Lexicographical,T,Index> &_coeff)
 {
-	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
-	typedef typename Coefficients<AbsoluteValue,T,Index>::value_type val_type;
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    typedef typename Coefficients<AbsoluteValue,T,Index>::value_type val_type;
 
-	erase(Coefficients<AbsoluteValue,T,Index>::begin(), Coefficients<AbsoluteValue,T,Index>::end());
-	if (_coeff.size() > 0) {
-	    for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-	        insert(val_type((*lambda).second, (*lambda).first));
-	    }
-	}
-	return *this;
+    erase(Coefficients<AbsoluteValue,T,Index>::begin(), Coefficients<AbsoluteValue,T,Index>::end());
+    if (_coeff.size() > 0) {
+        for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
+            insert(val_type((*lambda).second, (*lambda).first));
+        }
+    }
+    return *this;
 }
 
 template <typename T, typename Index>
 Coefficients<AbsoluteValue,T,Index>&
 Coefficients<AbsoluteValue,T,Index>::operator= (const Coefficients<AbsoluteValue,T,Index> &_coeff)
 {
-	typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_it;
-	typedef typename Coefficients<AbsoluteValue,T,Index>::value_type val_type;
+    typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_it;
+    typedef typename Coefficients<AbsoluteValue,T,Index>::value_type val_type;
 
-	erase(Coefficients<AbsoluteValue,T,Index>::begin(), Coefficients<AbsoluteValue,T,Index>::end());
-	if (_coeff.size() > 0) {
-	    for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-	        insert(val_type((*lambda).first, (*lambda).second));
-	    }
-	}
-	return *this;
+    erase(Coefficients<AbsoluteValue,T,Index>::begin(), Coefficients<AbsoluteValue,T,Index>::end());
+    if (_coeff.size() > 0) {
+        for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
+            insert(val_type((*lambda).first, (*lambda).second));
+        }
+    }
+    return *this;
 }
 
 template <typename T, typename Index>

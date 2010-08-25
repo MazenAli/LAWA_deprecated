@@ -31,21 +31,21 @@ namespace lawa {
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 class S_ADWAV {
 public:
-	S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
-			T start_linTol, T start_resTol, int max_iters, T eps);
+    S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
+            T start_linTol, T start_resTol, int max_iters, T eps);
 
-	void solve_cg(const IndexSet<Index> &Initial_Lambda);
+    void solve_cg(const IndexSet<Index> &Initial_Lambda);
 
-	std::vector<Coefficients<Lexicographical,T,Index> > solutions;
-	std::vector<T> 			  residuals;
+    std::vector<Coefficients<Lexicographical,T,Index> > solutions;
+    std::vector<T>               residuals;
 
 private:
-	const Basis &basis;
-	MA &A;
-	RHS &F;
-	T contraction, threshTol, linTol, resTol;
-	int NumOfIterations;
-	T eps;
+    const Basis &basis;
+    MA &A;
+    RHS &F;
+    T contraction, threshTol, linTol, resTol;
+    int NumOfIterations;
+    T eps;
 
 };
 

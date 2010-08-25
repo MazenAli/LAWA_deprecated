@@ -27,11 +27,11 @@ namespace lawa {
 class Index1D
 {
 public:
-	int j, k;
-	XType xtype;
+    int j, k;
+    XType xtype;
 
-	Index1D(void);
-	~Index1D();
+    Index1D(void);
+    ~Index1D();
     Index1D(int j, int k, XType _xtype);
     Index1D(const Index1D &index);
 };
@@ -47,15 +47,15 @@ struct Index2D
 
 };
 
-std::ostream& operator<<(std::ostream &s, const Index2D &_Index);
 
+std::ostream& operator<<(std::ostream &s, const Index2D &_Index);
 
 template <typename Index>
 class Entry
 {
 public:
     Entry(const Index &row_index, const Index &col_index);
-    const Index row_index, col_index;	//todo: no copy, but only a reference possible ?!
+    const Index row_index, col_index;    //todo: no copy, but only a reference possible ?!
 };
 
 template <typename Index>
@@ -66,10 +66,8 @@ struct lt
 {
 };
 
-
-
 } //namespace lawa
 
-#include "index.tcc"
+#include <lawa/adaptive/index.tcc>
 
 #endif //LAWA_ADAPTIVE_INDEX_H

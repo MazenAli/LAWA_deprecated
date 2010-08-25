@@ -42,8 +42,8 @@ MRA<T,Dual,Interval,DKU>::MRA(int _d, int _d_, int j)
     assert((d+d_)%2==0);
     setLevel(_j);
 
-	_alpha();
-	_beta();
+    _alpha();
+    _beta();
     
     _calcM0_();
 
@@ -221,17 +221,17 @@ template <typename T>
 void
 MRA<T,Dual,Interval,DKU>::_calcM0_()
 {
-	GeMatrix<FullStorage<T,ColMajor> > Mj0_(rangeI_(min_j0+1), rangeI_(min_j0));
-	
+    GeMatrix<FullStorage<T,ColMajor> > Mj0_(rangeI_(min_j0+1), rangeI_(min_j0));
+    
     // left upper block
     int upper = l2_+2*l_-2;
     int low   = l_-d_;
     int hi    = l_-1;
-	GeMatrix<FullStorage<T,ColMajor> > ML_c(_(low,upper), _(low,hi)), MR_c;
+    GeMatrix<FullStorage<T,ColMajor> > ML_c(_(low,upper), _(low,hi)), MR_c;
 
     //     setup ML_c
     for (int m=low; m<=hi; ++m) {
-		ML_c(m,m) = Const<T>::R_SQRT2 * pow2i<T>(-m+low);
+        ML_c(m,m) = Const<T>::R_SQRT2 * pow2i<T>(-m+low);
     }
     for (int m=hi+1; m<=2*l_+l1_-1; ++m) {
         for (int k=low; k<=hi; ++k) {

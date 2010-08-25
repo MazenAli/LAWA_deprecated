@@ -22,14 +22,18 @@
 
 #include <set>
 #include <lawa/adaptive/index.h>
-#include <lawa/lawa.h>
+#include <lawa/basis.h>
+#include <lawa/bspline.h>
+#include <lawa/enum.h>
+#include <lawa/mra.h>
+#include <lawa/wavelet.h>
 
 namespace lawa {
 
 template <typename Index>
 struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
 {
-	IndexSet(int d, int d_);
+    IndexSet(int d, int d_);
 
     IndexSet<Index>&
     operator= (const IndexSet<Index> &_set);
@@ -66,7 +70,10 @@ C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
 // Realizations of lambdaTilde for different Basis
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
-lambdaTilde1d_PDE(const Index1D &lambda, const BSpline<T,Primal,Domain,Cons> &phi, const Wavelet<T,Primal,Domain,Cons> &psi, int s_tilde, int jmin, int jmax, bool update);
+lambdaTilde1d_PDE(const Index1D &lambda, 
+                  const BSpline<T,Primal,Domain,Cons> &phi, 
+                  const Wavelet<T,Primal,Domain,Cons> &psi, 
+                  int s_tilde, int jmin, int jmax, bool update);
 
 }   // namespace lawa
 

@@ -21,43 +21,43 @@ namespace lawa {
 
 template <typename T, typename Basis>
 RHSWithPeaks1D<T,Basis>::RHSWithPeaks1D(const Basis &_basis, T (*_f)(T),
-								    const DenseVector<Array<T> > &_singularPoints,
-								    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
-								    int order)
-	: basis(_basis),  phi(basis.mra), psi(basis),
-	  f(_f,_singularPoints), deltas(_deltas),
-	  integral_sff(phi, f), integral_wf(psi, f)
+                                    const DenseVector<Array<T> > &_singularPoints,
+                                    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
+                                    int order)
+    : basis(_basis),  phi(basis.mra), psi(basis),
+      f(_f,_singularPoints), deltas(_deltas),
+      integral_sff(phi, f), integral_wf(psi, f)
 {
-	integral_sff.quadrature.setOrder(order);
-	integral_wf.quadrature.setOrder(order);
+    integral_sff.quadrature.setOrder(order);
+    integral_wf.quadrature.setOrder(order);
 }
 
 template <typename T, typename Basis>
 T
 RHSWithPeaks1D<T,Basis>::operator()(XType xtype, int j, int k) const
 {
-	T ret = 0.;
-	if (xtype == XBSpline)  {
-		ret = integral_sff(j,k);
-		for (int i=1; i<=deltas.numRows(); ++i) {
-			ret += deltas(i,2) * phi(deltas(i,1),j,k);
-		}
-	}
-	else {
-		ret = integral_wf(j,k);
-		for (int i=1; i<=deltas.numRows(); ++i) {
-			ret += deltas(i,2) * psi(deltas(i,1),j,k);
-		}
-	}
+    T ret = 0.;
+    if (xtype == XBSpline)  {
+        ret = integral_sff(j,k);
+        for (int i=1; i<=deltas.numRows(); ++i) {
+            ret += deltas(i,2) * phi(deltas(i,1),j,k);
+        }
+    }
+    else {
+        ret = integral_wf(j,k);
+        for (int i=1; i<=deltas.numRows(); ++i) {
+            ret += deltas(i,2) * psi(deltas(i,1),j,k);
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
 template <typename T, typename Basis>
 T
 RHSWithPeaks1D<T,Basis>::operator()(const Index1D &lambda) const
 {
-	return RHSWithPeaks1D<T,Basis>::operator()(lambda.xtype, lambda.j, lambda.k);
+    return RHSWithPeaks1D<T,Basis>::operator()(lambda.xtype, lambda.j, lambda.k);
 }
 
 }  //namespace lawa

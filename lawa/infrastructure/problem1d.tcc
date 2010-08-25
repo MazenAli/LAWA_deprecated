@@ -2,7 +2,7 @@ namespace lawa{
 
 template<typename T, typename Basis>
 Problem1D<T, Basis>::Problem1D(const Basis& _basis)
-	: basis(_basis)
+    : basis(_basis)
 {
 }
 

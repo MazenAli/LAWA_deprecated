@@ -34,30 +34,30 @@ struct ReferenceSolution1D
 template<typename T, typename Basis>
 struct ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >
 {
-	static int nr;
-	static T c;
-	static DomainType domain;
+    static int nr;
+    static T c;
+    static DomainType domain;
 
-	static T
-	exact(T x, int deriv);
+    static T
+    exact(T x, int deriv);
 
-	static DenseVector<Array<T> >
-	sing_pts;
+    static DenseVector<Array<T> >
+    sing_pts;
 
     static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
     deltas;
 
-	static void
-	setExample(int _nr, const HelmholtzOperator1D<T,Basis> &a, DomainType domain);
+    static void
+    setExample(int _nr, const HelmholtzOperator1D<T,Basis> &a, DomainType domain);
 
-	static T
-	exact(T x);
+    static T
+    exact(T x);
 
-	static T
-	rhs(T x);
+    static T
+    rhs(T x);
 
-	static T
-	H1norm();
+    static T
+    H1norm();
 };
 
 

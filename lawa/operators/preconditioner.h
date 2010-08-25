@@ -31,13 +31,13 @@ template <typename T, typename Index, typename Basis, typename BilinearForm>
 class Preconditioner
 {
 public:
-	Preconditioner(const BilinearForm &basis);
+    Preconditioner(const BilinearForm &basis);
 
-	T
-	operator()(XType xtype1, int j1, int k1) const;
+    T
+    operator()(XType xtype1, int j1, int k1) const;
 
-	T
-	operator()(const Index &index) const;
+    T
+    operator()(const Index &index) const;
 
 };
 */
@@ -47,41 +47,41 @@ class DiagonalMatrixPreconditioner1D
 {
 
 public:
-	DiagonalMatrixPreconditioner1D(const BilinearForm &a);
+    DiagonalMatrixPreconditioner1D(const BilinearForm &a);
 
-	T
-	operator()(XType xtype1, int j1, int k1) const;
+    T
+    operator()(XType xtype1, int j1, int k1) const;
 
-	T
-	operator()(const Index1D &index) const;
+    T
+    operator()(const Index1D &index) const;
 
 private:
-	const BilinearForm &a;
+    const BilinearForm &a;
 };
 
 template <typename T, typename Basis, typename BilinearForm>
 class H1Preconditioner1D
 {
-	typedef typename Basis::BSplineType PrimalSpline;
-	typedef typename Basis::WaveletType PrimalWavelet;
+    typedef typename Basis::BSplineType PrimalSpline;
+    typedef typename Basis::WaveletType PrimalWavelet;
 
 public:
-	H1Preconditioner1D(const BilinearForm &a);
+    H1Preconditioner1D(const BilinearForm &a);
 
-	T
-	operator()(XType xtype1, int j1, int k1) const;
+    T
+    operator()(XType xtype1, int j1, int k1) const;
 
-	T
-	operator()(const Index1D &index) const;
+    T
+    operator()(const Index1D &index) const;
 
 private:
-	const Basis &basis;
+    const Basis &basis;
 
-	PrimalSpline phi, d_phi;
-	PrimalWavelet psi, d_psi;
+    PrimalSpline phi, d_phi;
+    PrimalWavelet psi, d_psi;
 
-	Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf;
-	Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww;
+    Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf;
+    Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww;
 
 };
 
@@ -91,16 +91,16 @@ class DiagonalMatrixPreconditioner2D
 {
 
 public:
-	DiagonalMatrixPreconditioner2D(const BilinearForm &a);
+    DiagonalMatrixPreconditioner2D(const BilinearForm &a);
 
-	T
-	operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
+    T
+    operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
 
-	T
-	operator()(const Index2D &index) const;
+    T
+    operator()(const Index2D &index) const;
 
 private:
-	const BilinearForm &a;
+    const BilinearForm &a;
 };
 
 

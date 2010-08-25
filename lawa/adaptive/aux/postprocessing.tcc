@@ -22,31 +22,31 @@ namespace lawa {
 template <typename T, typename Index, typename MA, typename RHS>
 T
 estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> & u,
-					 const IndexSet<Index> &LambdaCol)
+                     const IndexSet<Index> &LambdaCol)
 {
-	Coefficients<Lexicographical,T,Index> Au(u.d,u.d_), f(u.d,u.d_), res(u.d,u.d_);
-	std::cout << "PostProcessing: Size of LambdaCol: " << LambdaCol.size() << std::endl;
-	Au = mv(LambdaCol,A,u);
-	std::cout << "PostProcessing: A*u finished." << std::endl;
-	f  = F(LambdaCol);
-	std::cout << "F finished." << std::endl;
-	res = Au-f;
-	std::cout << "res finished." << std::endl;
-	return res.norm(2.)/f.norm(2.);
+    Coefficients<Lexicographical,T,Index> Au(u.d,u.d_), f(u.d,u.d_), res(u.d,u.d_);
+    std::cout << "PostProcessing: Size of LambdaCol: " << LambdaCol.size() << std::endl;
+    Au = mv(LambdaCol,A,u);
+    std::cout << "PostProcessing: A*u finished." << std::endl;
+    f  = F(LambdaCol);
+    std::cout << "F finished." << std::endl;
+    res = Au-f;
+    std::cout << "res finished." << std::endl;
+    return res.norm(2.)/f.norm(2.);
 }
 
 template <typename T, typename Index, typename MA, typename RHS>
 T
 estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
-					   T HNormOfExactSolution)
+                       T HNormOfExactSolution)
 {
-	Coefficients<Lexicographical,T,Index> Au(u.d,u.d_), f_H(u.d,u.d_);
-	Au = mv(supp(u),A_H,u);
-	T uAu = u*Au;
-	f_H   = F_H(supp(u));
-	T fu  = f_H*u;
+    Coefficients<Lexicographical,T,Index> Au(u.d,u.d_), f_H(u.d,u.d_);
+    Au = mv(supp(u),A_H,u);
+    T uAu = u*Au;
+    f_H   = F_H(supp(u));
+    T fu  = f_H*u;
 
-	return std::sqrt(fabs(std::pow(HNormOfExactSolution,2)- 2*fu + uAu));
+    return std::sqrt(fabs(std::pow(HNormOfExactSolution,2)- 2*fu + uAu));
 
 }
 

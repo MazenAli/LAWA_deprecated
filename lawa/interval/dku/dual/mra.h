@@ -73,19 +73,19 @@ class MRA<T,Dual,Interval,DKU>
 
         const int d, d_, mu;   // mu = mu(d) = d&1.
 
-	private:
+    private:
         const int l1, l2;     // support of phi  = [ l1, l2 ] (real line).
         const int l1_, l2_;   // support of phi  = [ l1, l2 ] (real line).
 
-    	const int l_, q_;     // defining index sets left and right (dual), i.e.
-                          	  // I_L = { 1-l2_, ..., l_+1 } with l_ >= -l1_ and
+        const int l_, q_;     // defining index sets left and right (dual), i.e.
+                                // I_L = { 1-l2_, ..., l_+1 } with l_ >= -l1_ and
                               // I_R = { 2^-q_, ..., 2^-l1-1 } with q_ >= l2_.
 
         const int l, q;        // defining index sets left and right, i.e.
                                // I_L = { 1-l2, ..., l+1 } with l >= -l1 and
                                // I_R = { 2^-q, ..., 2^-l1-1 } with q >= l2.
 
-	public:
+    public:
         const int min_j0;      // minimal allowed(!) level;
         const int j0;          // minimal used(!) level.
         
@@ -103,8 +103,8 @@ class MRA<T,Dual,Interval,DKU>
         void
         _calcM0_();
 
-	    GeMatrix<FullStorage<T,ColMajor> >
-	    _integral0toInfPhiPhi_();
+        GeMatrix<FullStorage<T,ColMajor> >
+        _integral0toInfPhiPhi_();
         
         GeMatrix<FullStorage<T,cxxblas::ColMajor> > _Alpha, _Beta;
 

@@ -41,14 +41,14 @@ template <typename T, typename Basis2D>
 T
 HelmholtzOperator2D<T,Basis2D>::getc() const
 {
-	return c;
+    return c;
 }
 
 template <typename T, typename Basis2D>
 const Basis2D&
 HelmholtzOperator2D<T,Basis2D>::getBasis() const
 {
-	return basis;
+    return basis;
 }
 
 template <typename T, typename Basis2D>
@@ -74,15 +74,15 @@ HelmholtzOperator2D<T, Basis2D>::operator()(XType row_xtype_x, int j1_x, int k1_
          }
     }
     else{
-    	if(col_xtype_x == XBSpline){
-    		val_x = integral_wsf_x(j1_x, k1_x, j2_x, k2_x);
-    		dd_val_x = dd_integral_wsf_x(j1_x, k1_x, j2_x, k2_x);
-    	}
-    	else{
-    		val_x =       integral_ww_x(j1_x, k1_x, j2_x, k2_x);
-    		dd_val_x = dd_integral_ww_x(j1_x, k1_x, j2_x, k2_x);
-    		//std::cout << j1_x << " " << k1_x << " " << j2_x << " " << k2_x << " : " << val_x << ", " << dd_val_x << std::endl;
-    	}
+        if(col_xtype_x == XBSpline){
+            val_x = integral_wsf_x(j1_x, k1_x, j2_x, k2_x);
+            dd_val_x = dd_integral_wsf_x(j1_x, k1_x, j2_x, k2_x);
+        }
+        else{
+            val_x =       integral_ww_x(j1_x, k1_x, j2_x, k2_x);
+            dd_val_x = dd_integral_ww_x(j1_x, k1_x, j2_x, k2_x);
+            //std::cout << j1_x << " " << k1_x << " " << j2_x << " " << k2_x << " : " << val_x << ", " << dd_val_x << std::endl;
+        }
     }
     if(row_xtype_y == XBSpline){
          if(col_xtype_y == XBSpline){
@@ -112,10 +112,10 @@ template <typename T, typename Basis2D>
 T
 HelmholtzOperator2D<T, Basis2D>::operator()(const Index2D &row_index, const Index2D &col_index) const
 {
-	return HelmholtzOperator2D<T, Basis2D>::operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
-												   	   row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
-												       col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
-												       col_index.index2.xtype, col_index.index2.j, col_index.index2.k);
+    return HelmholtzOperator2D<T, Basis2D>::operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
+                                                          row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
+                                                       col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
+                                                       col_index.index2.xtype, col_index.index2.j, col_index.index2.k);
 }
 
-}	//namespace lawa
+}    //namespace lawa

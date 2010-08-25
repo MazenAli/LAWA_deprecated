@@ -74,8 +74,8 @@ class MRA<T,Primal,Interval,DKU>
             enforceBoundaryCondition();
 
         const int d, d_, mu;    // mu = mu(d) = d&1.
-		const int l1, l2;     // support phi  = [ l1, l2 ] (real line).
-		const int l1_, l2_;   // support phi_  = [ l1_, l2_ ] (real line).
+        const int l1, l2;     // support phi  = [ l1, l2 ] (real line).
+        const int l1_, l2_;   // support phi_  = [ l1_, l2_ ] (real line).
         const int min_j0;   // minimal allowed(!) level;
         const int j0;       // minimal used(!) level.
 
@@ -83,16 +83,16 @@ class MRA<T,Primal,Interval,DKU>
 //        BSpline<T,Primal,R,CDF> phi_R;
 //        RefinementMatrix<T,Interval,Primbs> M0;
 
-		RefinementMatrix<T,Interval,DKU> M0;
+        RefinementMatrix<T,Interval,DKU> M0;
     private:
-	    void
-	    _alpha_();
+        void
+        _alpha_();
 
-	    void
-	    _beta_();
-	
-		void
-		_calcM0();
+        void
+        _beta_();
+    
+        void
+        _calcM0();
 
         const int l, q;        // defining index sets left and right, i.e.
                                // I_L = { 1-l2, ..., l+1 } with l >= -l1 and

@@ -56,7 +56,7 @@ Range<int>
 MRA<T,Dual,Periodic,CDF>::rangeI_(int j) const
 {
     assert(j>=j0);
-	assert(0);
+    assert(0);
     return Range<int>(0,pow2i<T>(j)-1);
 }
 

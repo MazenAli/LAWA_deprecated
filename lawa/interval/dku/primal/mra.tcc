@@ -38,10 +38,10 @@ MRA<T,Primal,Interval,DKU>::MRA(int _d, int _d_, int j)
     assert((d+d_)%2==0);
     setLevel(_j);
 
-	_alpha_();
-	_beta_();
+    _alpha_();
+    _beta_();
 
-	_calcM0();
+    _calcM0();
 }
 
 template <typename T>
@@ -215,8 +215,8 @@ template <typename T>
 void
 MRA<T,Primal,Interval,DKU>::_calcM0()
 {
-	GeMatrix<FullStorage<T,ColMajor> > Mj0(rangeI(min_j0+1), rangeI(min_j0)),
-	                                   Left(_(l-d,2*l+l2-2),_(l-d,l-1)), Right;
+    GeMatrix<FullStorage<T,ColMajor> > Mj0(rangeI(min_j0+1), rangeI(min_j0)),
+                                       Left(_(l-d,2*l+l2-2),_(l-d,l-1)), Right;
 
     for (int r=0; r<d; ++r) {
         Left(l-d+r, l-d+r) = Const<T>::R_SQRT2 * pow2i<T>(-r);
@@ -233,24 +233,24 @@ MRA<T,Primal,Interval,DKU>::_calcM0()
             Left(m,l-d+k) = _Beta_(m,k);
         }
     }
-	Mj0(Left) = Left;
-	arrow(Left,Right);
-	Right.engine().changeIndexBase(Mj0.lastRow()-Right.numRows()+1,
-	                               Mj0.lastCol()-Right.numCols()+1);
-	Mj0(Right) = Right;
+    Mj0(Left) = Left;
+    arrow(Left,Right);
+    Right.engine().changeIndexBase(Mj0.lastRow()-Right.numRows()+1,
+                                   Mj0.lastCol()-Right.numCols()+1);
+    Mj0(Right) = Right;
     
-	Mj0.engine().changeIndexBase(1,1);
+    Mj0.engine().changeIndexBase(1,1);
 
     BSpline<T,Primal,R,CDF> phi(d);
-	for (int c=l, r=2*l+l1; c<=pow2i<T>(min_j0)-q-1; ++c, r+=2) {
-		Mj0(_(r,r+phi.a.length()-1),c) = Const<T>::R_SQRT2 * phi.a; 
-	}
+    for (int c=l, r=2*l+l1; c<=pow2i<T>(min_j0)-q-1; ++c, r+=2) {
+        Mj0(_(r,r+phi.a.length()-1),c) = Const<T>::R_SQRT2 * phi.a; 
+    }
 
-	for (int c=l, r=2*l+l1; c<=pow2i<T>(min_j0)-q-1; ++c, r+=2) {
-		Mj0(_(r,r+phi.a.length()-1),c) = Const<T>::R_SQRT2 * phi.a; 
-	}
-	
-	M0 = RefinementMatrix<T,Interval,DKU>(d,d,Mj0,min_j0);
+    for (int c=l, r=2*l+l1; c<=pow2i<T>(min_j0)-q-1; ++c, r+=2) {
+        Mj0(_(r,r+phi.a.length()-1),c) = Const<T>::R_SQRT2 * phi.a; 
+    }
+    
+    M0 = RefinementMatrix<T,Interval,DKU>(d,d,Mj0,min_j0);
 }
 
 } // namespace lawa

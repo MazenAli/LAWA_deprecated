@@ -145,8 +145,8 @@ const Support<T>
 Basis<T,Primal,Interval,Dijkema>::support(int j, int k, int e) const
 {
     assert(j>=min_j0);
-	BSpline<T,Primal,Interval,Dijkema> phi(this->mra);
-	Wavelet<T,Primal,Interval,Dijkema> psi(*this);
+    BSpline<T,Primal,Interval,Dijkema> phi(this->mra);
+    Wavelet<T,Primal,Interval,Dijkema> psi(*this);
     if (e==0) {
         return phi.support(j,k);
     } else if (e==1) {
@@ -161,8 +161,8 @@ const DenseVector<Array<T> >
 Basis<T,Primal,Interval,Dijkema>::singularSupport(int j, int k, int e) const
 {
     assert(j>=min_j0);
-	BSpline<T,Primal,Interval,Primbs> phi(this->mra);
-	Wavelet<T,Primal,Interval,Dijkema> psi(*this);
+    BSpline<T,Primal,Interval,Primbs> phi(this->mra);
+    Wavelet<T,Primal,Interval,Dijkema> psi(*this);
     if (e==0) {
         return phi.singularSupport(j,k);
     } else if (e==1) {
