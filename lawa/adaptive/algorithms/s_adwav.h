@@ -16,15 +16,14 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#ifndef ADAPTIVE_ALGORITHMS_S_ADWAV_H
+#define ADAPTIVE_ALGORITHMS_S_ADWAV_H 1
 
 #include <iostream>
 #include <vector>
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
 #include <lawa/adaptive/mapmatrix.h>
-
-#ifndef ADAPTIVE_ALGORITHMS_S_ADWAV_H
-#define ADAPTIVE_ALGORITHMS_S_ADWAV_H 1
 
 namespace lawa {
 
@@ -34,7 +33,8 @@ public:
     S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
             T start_linTol, T start_resTol, int max_iters, T eps);
 
-    void solve_cg(const IndexSet<Index> &Initial_Lambda);
+	void solve_cg(const IndexSet<Index> &Initial_Lambda);
+	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
 
     std::vector<Coefficients<Lexicographical,T,Index> > solutions;
     std::vector<T>               residuals;

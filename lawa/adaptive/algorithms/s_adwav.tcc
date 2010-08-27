@@ -90,6 +90,67 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
     }
 }
 
+template <typename T, typename Index, typename Basis, typename MA, typename RHS>
+void
+S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
+{
+	int d=InitialLambda.d, d_=InitialLambda.d_;
+	IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_), DeltaLambda(d,d_);
+	Coefficients<Lexicographical,T, Index> u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
+
+	LambdaActive = InitialLambda;
+	T old_res = 0.;
+	std::cout << "Simple adaptive solver started." << std::endl;
+	for (int its=0; its<NumOfIterations; ++its) {
+		//Initialization step
+		FillWithZeros(LambdaActive,u);
+		f = F(LambdaActive);
+		T f_norm_LambdaActive = f.norm(2.);
+
+		//Galerkin step
+		T r_norm_LambdaActive = 0.0;
+		std::cout << "   GMRES solver started with N = " << LambdaActive.size() << std::endl;
+		int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
+		std::cout << "   ...finished." << std::endl;
+
+		//Threshold step
+		u = THRESH(u,threshTol);
+		solutions[its] = u;
+		LambdaThresh = supp(u);
+
+		//Computing residual
+		DeltaLambda = C(LambdaThresh, contraction, basis);
+		std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
+		f = F(DeltaLambda);
+		std::cout << "   ...finished" << std::endl;
+		T f_norm_DeltaLambda = f.norm(2.);
+		std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
+		Au = mv(DeltaLambda,A,u);
+		r  = Au-f;
+		T r_norm_DeltaLambda = r.norm(2.);
+		T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
+		T denominator = f_norm_DeltaLambda*f_norm_DeltaLambda + f_norm_LambdaActive*f_norm_LambdaActive;
+		T estim_res   = std::sqrt(numerator/denominator);
+		std::cout << "   ...finished" << std::endl;
+		residuals[its] = estim_res;
+
+		r = THRESH(r,threshTol);
+		//LambdaActive = LambdaThresh+supp(r);
+		LambdaActive = LambdaActive+supp(r);
+
+		//Check if residual is decreasing, if not decrease threshold tolerance
+		if (fabs(estim_res-old_res)<resTol) {
+		//if(old_res - estim_res < resTol){
+			threshTol *= 0.5;
+			linTol	  *= 0.5;
+			resTol    *= 0.5;
+		}
+		old_res = estim_res;
+		std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", gmres-its = " << iterations;
+		std::cout << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl;
+	}
+}
+
 
 
 }    //namespace lawa
