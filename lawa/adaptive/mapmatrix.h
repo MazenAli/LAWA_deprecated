@@ -44,11 +44,14 @@ public:
 public:
     MapMatrix(const BilinearForm &a, const Preconditioner &p);
 
-    T
-    operator()(const Index &row_index, const Index &col_index);        //todo: writes into data -> no const declaration -> better solution?!
-
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-    toFlensSparseMatrix(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol);
+	T
+	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
+	
+	T
+    operator()(T t, const  Index &row_index, const Index &col_index);
+	
+	flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
+	toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol);
 };
 
 
@@ -56,11 +59,17 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 Coefficients<Lexicographical,T,Index>
 mv(const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,Preconditioner> &A, const Coefficients<Lexicographical,T,Index > &v);
 
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+Coefficients<Lexicographical,T,Index>
+mv(T t, const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,Preconditioner> &A, const Coefficients<Lexicographical,T,Index > &v);
+
 template <typename T, typename Index, typename MA>
 int
 CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6, int maxIterations = 1000);
 
-
+template <typename T, typename Index, typename MA>
+int
+GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6, int maxIterations = 1000);
 } // namespace lawa
 
 #include <lawa/adaptive/mapmatrix.tcc>
