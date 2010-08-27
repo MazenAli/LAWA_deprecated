@@ -18,6 +18,10 @@
  */
 
 namespace lawa {
+    
+/* ================================================================================
+ *        HELMHOLTZ EXAMPLES 2D
+ * ================================================================================*/
 
 template <typename T, typename Basis2D>
 flens::DenseVector<Array<T> >
@@ -175,4 +179,181 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
     return ret;
 }
 
-}    //namespace lawa
+/* ================================================================================
+ *        SPACE-TIME HEAT EXAMPLES 2D
+ * ================================================================================*/
+ 
+template <typename T, typename Basis2D>
+flens::DenseVector<Array<T> >
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::sing_pts_t;
+
+template <typename T, typename Basis2D>
+flens::DenseVector<Array<T> >
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::sing_pts_x;
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::c;
+
+template <typename T, typename Basis2D>
+int
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::nr;
+
+template <typename T, typename Basis2D>
+DomainType
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::domain1;
+
+template <typename T, typename Basis2D>
+DomainType
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::domain2;
+
+template <typename T, typename Basis2D>
+void
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::setExample(int _nr,
+															const SpaceTimeHeatOperator1D<T,Basis2D> &a,
+															DomainType _domain1, DomainType _domain2)
+{
+    c=a.getc();
+    assert(c>=0);
+    nr=_nr;
+    domain1 = _domain1;
+    domain2 = _domain2;
+
+    if ((domain1 == Periodic) && (domain2 == Interval)) {
+        switch(nr){
+            case 1:
+                sing_pts_x.engine().resize(2);
+                sing_pts_x = 0., 1.;
+                break;
+            case 2: 
+                sing_pts_x.engine().resize(3);
+                sing_pts_x = 0., 0.5, 1.;
+            default: break;
+        }
+    }
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::exact(T t, T x)
+{
+	return exact_t(t,0)*exact_x(x,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::dx_exact(T t, T x)
+{
+    return exact_t(t,0) * exact_x(x,1);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::_exact_t(T t)
+{
+	return exact_t(t,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::exact_t(T t)
+{
+	return exact_t(t,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::exact_x(T x)
+{
+	return exact_x(x,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::rhs_t(T t)
+{
+	return exact_t(t,1);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::rhs_x(T x)
+{
+	return -c*exact_x(x,2);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::dd_exact_x(T x)
+{
+    return exact_x(x,2);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::exact_t(T t, int deriv_t)
+{
+    if ((domain1 == Periodic) && (domain2 == Interval)) {
+		switch(nr){
+		    case 1:
+    			if (deriv_t==0) 		return  			std::cos(2*M_PI*t);
+    			else if (deriv_t==1)	return 		-2*M_PI*std::sin(2*M_PI*t);
+                break;
+            case 2:
+                if (deriv_t==0){
+                    if(t < 0.5) return  t + 0.25;
+                    else        return -t + 0.75;
+                }
+    			else if (deriv_t==1){
+    			    if(t < 0.5) return  1;
+                    else        return -1;
+    			}
+                break;
+            default: std::cerr << "Example does not exist!" << std::endl; exit(1);
+		}
+	}
+	else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
+    return 0;
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::exact_x(T x, int deriv_x)
+{
+    if ((domain1 == Periodic) && (domain2 == Interval)) {
+		switch(nr){
+		    case 1:
+    			if (deriv_x==0) 		return  -4*(x-0.5)*(x-0.5)+1;
+    			else if (deriv_x==1)	return	-8*(x-0.5);
+    			else 					return  -8;
+                break;
+            case 2:
+                if (deriv_x==0) 		return  8*std::pow(x-0.5, 3) - 2*x*x +1;
+    			else if (deriv_x==1)	return	24*(x-0.5)*(x-0.5) -4*x;
+    			else 					return  48*(x-0.5) - 4;
+                break;
+            default: std::cerr << "Example does not exist!" << std::endl; exit(1); 
+		}
+	}
+	else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
+    return 0;
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::H1_t_norm(T t){
+    T ret = 0.0;
+    if ((domain1 == Periodic) && (domain2 == Interval)) {
+		switch(nr){
+		    case 1:
+                ret = exact_t(t) * sqrt(5.866666666);
+                break;
+            case 2:
+                break;
+            default: break; 
+		}
+	}
+	return ret;
+}
+
+}	//namespace lawa

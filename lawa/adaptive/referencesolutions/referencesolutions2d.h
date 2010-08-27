@@ -64,7 +64,54 @@ struct ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >
     H1norm();
 };
 
-}    //namespace lawa
+template<typename T, typename Basis2D>
+struct ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >
+{
+	static int nr;
+	static T c;
+	static DomainType domain1, domain2;
+
+	static DenseVector<Array<T> > sing_pts_t, sing_pts_x;
+
+	static void
+	setExample(int _nr, const SpaceTimeHeatOperator1D<T,Basis2D> &a, DomainType domain1, DomainType domain2);
+
+	static T
+	exact(T t, T x);
+		
+    static T
+    dx_exact(T t, T x);
+
+	static T
+	exact_t(T t);
+	
+	static T
+	_exact_t(T t);
+
+	static T
+	exact_t(T t, int deriv_t);
+
+	static T
+	exact_x(T x);
+
+	static T
+	exact_x(T x, int deriv_x);
+
+    static T
+    dd_exact_x(T x);
+
+	static T
+	rhs_t(T t);
+
+	static T
+	rhs_x(T x);
+	
+	static T
+	H1_t_norm(T t);
+
+};
+
+}	//namespace lawa
 
 #include <lawa/adaptive/referencesolutions/referencesolutions2d.tcc>
 
