@@ -114,7 +114,8 @@ class ThetaScheme1D
         Operator_LHSMatrix op_LHSMatrix;
         Operator_RHSMatrix op_RHSMatrix;
         Operator_RHSVector op_RHSVector;
-
+        
+        DiagonalMatrixPreconditioner1D<T, Basis, Operator_LHSMatrix> prec;
 };
       
 } // namespace lawa

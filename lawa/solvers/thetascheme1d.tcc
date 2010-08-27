@@ -6,7 +6,7 @@ ThetaScheme1D<T, Basis, BilinearForm, RHSIntegral>::
 ThetaScheme1D(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs)
     : theta(_theta), basis(_basis), problem(basis), phi(basis.mra), psi(basis),
       integral_sfsf(phi, phi), integral_sfw(phi, psi), integral_wsf(psi, phi), integral_ww(psi, psi),
-      op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs)
+      op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs), prec(op_LHSMatrix)
 {   
 }
  
@@ -23,8 +23,9 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
     flens::DenseVector<flens::Array<T> > rhsvector = problem.getRHS(op_RHSVector, level);
     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
+    flens::DiagonalMatrix<T> P = problem.getPreconditioner(prec, level);
     flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
-    cg(lhsmatrix, u, rhs);
+    pcg(P, lhsmatrix, u, rhs);
     
     //std::cout << "u(" << time_new << "): " << u << std::endl; 
     return u;
@@ -43,8 +44,9 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init,
      flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
      flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
      flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + f;
+     flens::DiagonalMatrix<T> P = problem.getPreconditioner(prec, level);
      flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
-     cg(lhsmatrix, u, rhs);
+     pcg(P, lhsmatrix, u, rhs);
 
      //std::cout << "u(" << time_new << "): " << u << std::endl; 
      return u;     
