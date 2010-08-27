@@ -40,6 +40,15 @@ T
 estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
                        T HNormOfExactSolution);
 
+template<typename T>
+T
+estimate_SpaceTimeError_L0T_H1(const Coefficients<Lexicographical,T,Index2D> & u, 
+                               const Coefficients<Lexicographical,T,Index2D> & u_exact);
+                            
+template<typename T>
+T
+estimate_SpaceTimeError_W0T(const Coefficients<Lexicographical,T,Index2D> & u,
+                            const Coefficients<Lexicographical,T,Index2D> & u_exact);
 
 }    //namespace lawa
 

@@ -50,4 +50,56 @@ estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,I
 
 }
 
+template<typename T>
+T
+estimate_SpaceTimeError_L0T_H1(const Coefficients<Lexicographical,T,Index2D> & u, 
+                               const Coefficients<Lexicographical,T,Index2D> & u_exact)
+{
+    T error_est = 0.0;
+    IndexSet<Index2D> Lambda = supp(u);
+    IndexSet<Index2D> ExpandedLambda = supp(u_exact);
+    
+    typedef typename IndexSet<Index2D>::const_iterator const_set_it;
+	
+	for (const_set_it it=ExpandedLambda.begin(); it!=ExpandedLambda.end(); ++it) {
+        if( Lambda.count(*it) > 0){
+            //std::cout << (*it) << " u - u_exact = " << (u[*it] - u_exact[*it]) << std::endl;
+            error_est += pow2i<T>(2*(*it).index2.j) * (u[*it] - u_exact[*it]) * (u[*it] - u_exact[*it]);
+        }
+        else{
+            //std::cout << (*it) << " u_exact = " << u_exact[*it] << std::endl;
+            error_est += pow2i<T>(2*(*it).index2.j) * u_exact[*it] * u_exact[*it];
+        }
+    }
+    
+    return std::sqrt(error_est);
+}
+
+template<typename T>
+T
+estimate_SpaceTimeError_W0T(Coefficients<Lexicographical,T,Index2D> & u, 
+                            Coefficients<Lexicographical,T,Index2D> & u_exact)
+{
+    T error_est = 0.0;
+    IndexSet<Index2D> Lambda = supp(u);
+    IndexSet<Index2D> ExpandedLambda = supp(u_exact);
+    
+    typedef typename IndexSet<Index2D>::const_iterator const_set_it;
+	
+	for (const_set_it it=ExpandedLambda.begin(); it!=ExpandedLambda.end(); ++it) {
+        if( Lambda.count(*it) > 0){
+            //std::cout << (*it) << " u - u_exact = " << (u[*it] - u_exact[*it]) << std::endl;
+            error_est += (pow2i<T>(2*(*it).index1.j - 2*(*it).index2.j) + pow2i<T>(2*(*it).index2.j)) 
+                            * (u[*it] - u_exact[*it]) * (u[*it] - u_exact[*it]);
+        }
+        else{
+            //std::cout << (*it) << " u_exact = " << u_exact[*it] << std::endl;
+            error_est += (pow2i<T>(2*(*it).index1.j - 2*(*it).index2.j) + pow2i<T>(2*(*it).index2.j)) 
+                            * u_exact[*it] * u_exact[*it];
+        }
+    }
+    
+    return std::sqrt(error_est);
+}
+
 } // namespace lawa
