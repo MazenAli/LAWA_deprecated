@@ -18,6 +18,7 @@
  */
 
 #include <extensions/flens/cg.h>
+#include <extensions/flens/gmres.h>
 
 namespace lawa {
 
@@ -162,8 +163,8 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
 
     	int N = Lambda.size();
     	SparseGeMatrix<CRS<T,CRS_General> > A_flens = A.toFlensSparseMatrix(Lambda, Lambda);
-    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
-    	densify(NoTrans,A_flens,A_dense);
+    	//flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+    	//densify(NoTrans,A_flens,A_dense);
 
     	if (Lambda.size() > 0) {
     		DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
