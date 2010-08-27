@@ -20,6 +20,8 @@
 #ifndef LAWA_RIGHTHANDSIDES_RHS_H
 #define LAWA_RIGHTHANDSIDES_RHS_H 1
 
+#include <lawa/adaptive/coefficients.h>
+
 namespace lawa {
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
@@ -42,6 +44,12 @@ public:
 
 	Coefficients<Lexicographical,T,Index>
 	operator()(T tol);
+	
+	T
+	operator()(T t, const Index &lambda);
+
+	Coefficients<Lexicographical,T,Index>
+	operator()(T t, const IndexSet<Index> &Lambda);
 
 };
 

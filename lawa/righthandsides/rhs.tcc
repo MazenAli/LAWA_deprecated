@@ -53,6 +53,34 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const IndexSet<Index> &Lambd
 	return ret;
 }
 
+template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
+T
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(T t, const Index &lambda)
+{
+	T ret;
+	if (rhs_data.count(lambda) == 0) {
+		ret = P(lambda) * rhsintegral(t, lambda);
+		rhs_data[lambda] = ret;
+	}
+	else {
+		ret = rhs_data[lambda];
+	}
+	return ret;
+}
+
+template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
+Coefficients<Lexicographical,T,Index>
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(T t, const IndexSet<Index> &Lambda)
+{
+	typedef typename IndexSet<Index>::iterator const_set_it;
+	Coefficients<Lexicographical,T,Index> ret(Lambda.d,Lambda.d_);
+	for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+		T tmp = RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(t, *lambda);
+		ret[*lambda] = tmp;
+	}
+	return ret;
+}
+
 
 
 }	//namespace lawa
