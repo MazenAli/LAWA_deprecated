@@ -52,6 +52,12 @@ class HelmholtzOperator1D{
         {
             return operator()(xtype1, j1, k1, xtype2, j2, k2);
         }
+        
+        T
+        operator()(T time, const Index1D &row_index, const Index1D &col_index) const
+        {
+            return operator()(row_index, col_index);
+        }
 };
     
     
