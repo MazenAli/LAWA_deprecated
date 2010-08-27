@@ -58,7 +58,7 @@ class SeparableRHS2D
 
         T
         operator()(const Index2D &index) const;
-                           
+
 };
 
 template <typename T, typename RHS2D>

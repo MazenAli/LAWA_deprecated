@@ -64,6 +64,7 @@ SeparableRHS2D<T, Basis2D>::operator()(const Index2D &index) const
 			                                      index.index2.xtype, index.index2.j, index.index2.k);
 }
 
+//==========================================================================================//
 
 template<typename T, typename RHS2D>
 SumOfRHS2D<T, RHS2D>::SumOfRHS2D(const RHS2D &_rhs1, const RHS2D &_rhs2)
@@ -74,10 +75,10 @@ SumOfRHS2D<T, RHS2D>::SumOfRHS2D(const RHS2D &_rhs1, const RHS2D &_rhs2)
 template<typename T, typename RHS2D>
 T
 SumOfRHS2D<T, RHS2D>::operator()(XType xtype_x, int j_x, int k_x,
-                                          XType xtpye_y, int j_y, int k_y) const
+                                 XType xtype_y, int j_y, int k_y) const
 {
-	return rhs1(xtype_x, j_x, k_x, xtpye_y, j_y, k_y)
-		  +rhs2(xtype_x, j_x, k_x, xtpye_y, j_y, k_y);
+	return rhs1(xtype_x, j_x, k_x, xtype_y, j_y, k_y)
+		  +rhs2(xtype_x, j_x, k_x, xtype_y, j_y, k_y);
 }
 
 template<typename T, typename RHS2D>

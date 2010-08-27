@@ -67,7 +67,7 @@ template <typename T, typename First, typename Second>
 void
 Quadrature<T,Gauss,First,Second>::_legendre()
 {
-    std::cerr << "called for order = " << _order << std::endl;
+    //std::cerr << "called for order = " << _order << std::endl;
     T eps = Const<T>::EQUALITY_EPS;
     _knots.engine().resize(_order, _order);
     _weights.engine().resize(_order, _order);
