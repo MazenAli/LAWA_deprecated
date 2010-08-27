@@ -1,13 +1,13 @@
 #include <cassert>
 
 namespace lawa{
-    
+
 template <typename T>
 PeriodicSupport<T>::PeriodicSupport()
     : Support<T>(), li1(0), li2(0)
 {
 }
- 
+
 template <typename T>
 PeriodicSupport<T>::PeriodicSupport(const T &a, const T &b)
    : Support<T>(a,b), li1(0), li2(0)
@@ -15,7 +15,7 @@ PeriodicSupport<T>::PeriodicSupport(const T &a, const T &b)
     assert(0 <= Support<T>::l1);
     assert(l2 <= 1.);
 }
- 
+
 template <typename T>
 PeriodicSupport<T>::PeriodicSupport(const T&a, const T &b, const T &ai, const T &bi)
    : Support<T>(a,b), li1(ai), li2(bi)
@@ -23,7 +23,7 @@ PeriodicSupport<T>::PeriodicSupport(const T&a, const T &b, const T &ai, const T 
     assert(l1 <= l2);
     assert(0 <= l1);
     assert(l2 <= 1.);
-    
+
     if(li1 != li2){
         assert(li1 < li2);
         assert(li1 >= l1);
@@ -80,15 +80,15 @@ overlap(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2)
 {
     // ''Normal'' supports:
     if((supp1.gaplength() == 0) && (supp2.gaplength() == 0)){
-        return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);        
+        return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);
     }
-    // Two divided supports: 
+    // Two divided supports:
     if((supp1.gaplength() > 0) && (supp2.gaplength() > 0)){
         assert((supp1.l1 == 0) && (supp1.l2 == 1));
         assert((supp2.l1 == 0) && (supp2.l2 == 1));
         return 1;
     }
-    // Supp1 is divided, Supp2 not: 
+    // Supp1 is divided, Supp2 not:
     if(supp1.gaplength() > 0){
         // Overlaps both right and left -> return interval covering both
         if((supp2.l2 - supp1.li2 > 0) && (supp1.li1 - supp2.l1 > 0)){
@@ -99,8 +99,8 @@ overlap(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2)
             return std::max(std::max(0., supp2.l2 - supp1.li2), std::max(0., supp1.li1 - supp2.l1));
         }
     }
-    
-    // Supp2 is divided, Supp1 not: 
+
+    // Supp2 is divided, Supp1 not:
     if((supp1.l2 - supp2.li2 > 0) && (supp2.li1 - supp1.l1 > 0)){
         return supp1.length();
     }
@@ -115,7 +115,7 @@ overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2)
 {
     // ''Normal'' supports:
     if(supp1.gaplength() == 0){
-        return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);        
+        return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);
     }
     else{
         // Overlaps both right and left -> return interval covering both
@@ -143,7 +143,7 @@ overlap(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2, Suppor
     if((supp1.gaplength() == 0) && (supp2.gaplength() == 0)){
         common.l1 = std::max(supp1.l1, supp2.l1);
         common.l2 = std::min(supp1.l2, supp2.l2);
-        return common.l2 - common.l1;        
+        return common.l2 - common.l1;
     }
     if((supp1.gaplength() > 0) && (supp2.gaplength() > 0)){
         common.l1 = 0.;
@@ -162,19 +162,19 @@ overlap(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2, Suppor
                 common.l2 = supp2.l2;
                 return common.l2 - common.l1;
             }
-            
+
             if(supp1.li1 - supp2.l1 > 0){
                 common.l1 = supp2.l1;
                 common.l2 = supp1.li1;
                 return common.l2 - common.l1;
             }
-            
+
             common.l1 = 0;
             common.l2 = -1;
             return 0;
         }
     }
-    
+
     if((supp1.l2 - supp2.li2 > 0) && (supp2.li1 - supp1.l1 > 0)){
         common.l1 = supp1.l1;
         common.l2 = supp1.l2;
@@ -205,7 +205,7 @@ overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2, Support<T> &co
     if(supp1.gaplength() == 0){
         common.l1 = std::max(supp1.l1, supp2.l1);
         common.l2 = std::min(supp1.l2, supp2.l2);
-        return common.l2 - common.l1;        
+        return common.l2 - common.l1;
     }
     else{
         // Overlaps both right and left -> return interval covering both
@@ -221,13 +221,12 @@ overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2, Support<T> &co
                 common.l2 = supp2.l2;
                 return common.l2 - common.l1;
             }
-            
+
             if(supp1.li1 - supp2.l1 > 0){
                 common.l1 = supp2.l1;
                 common.l2 = supp1.li1;
                 return common.l2 - common.l1;
-            }
-            
+
             common.l1 = 0;
             common.l2 = -1;
             return 0;
@@ -248,18 +247,18 @@ minimal_overlap(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2
 {
     // ''Normal'' supports:
     if((supp1.gaplength() == 0) && (supp2.gaplength() == 0)){
-        return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);        
+        return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);
     }
-    // Two divided supports: 
+    // Two divided supports:
     if((supp1.gaplength() > 0) && (supp2.gaplength() > 0)){
         return 1 - std::max(supp1.li2, supp2.li2) + std::min(supp1.li1, supp2.li1);
     }
-    // Supp1 is divided, Supp2 not: 
+    // Supp1 is divided, Supp2 not:
     if(supp1.gaplength() > 0){
         return std::max(0., supp2.l2 - supp1.li2) + std::max(0., supp1.li1 - supp2.l1);
     }
-    
-    // Supp2 is divided, Supp1 not: 
+
+    // Supp2 is divided, Supp1 not:
     return std::max(0., supp1.l2 - supp2.li2) + std::max(0., supp2.li1 - supp1.l1);
 }
 
@@ -269,7 +268,7 @@ minimal_overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2)
 {
     // ''Normal'' supports:
     if(supp1.gaplength() == 0){
-        return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);        
+        return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);
     }
     // Supp1 is divided
     else{
@@ -290,13 +289,13 @@ distance(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2)
 {
     // ''Normal'' supports:
     if((supp1.gaplength() == 0) && (supp2.gaplength() == 0)){
-        return std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2);       
+        return std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2);
     }
-    // Two divided supports: 
+    // Two divided supports:
     if((supp1.gaplength() > 0) && (supp2.gaplength() > 0)){
         return 0;
     }
-    // Supp1 is divided, Supp2 not: 
+    // Supp1 is divided, Supp2 not:
     if(supp1.gaplength() > 0){
         // Overlaps right or left -> distance = 0
         if( (supp2.l2 - supp1.li2 >= 0) || (supp1.li1 - supp2.l1 >= 0)){
@@ -306,7 +305,7 @@ distance(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2)
             return std::min(supp2.l1 - supp1.li1, supp1.li2 - supp2.l2);
         }
     }
-    
+
     // Supp2 is divided, Supp1 not:
     if( (supp1.l2 - supp2.li2 >= 0) || (supp2.li1 - supp1.l1 >= 0)){
         return 0;
@@ -314,7 +313,7 @@ distance(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2)
     else{
         return std::min(supp1.l1 - supp2.li1, supp2.li2 - supp1.l2);
     }
-    
+
 }
 
 template <typename T>
@@ -323,7 +322,7 @@ distance(const PeriodicSupport<T> &supp1, const Support<T> &supp2)
 {
     // ''Normal'' supports:
     if(supp1.gaplength() == 0){
-        return std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2);       
+        return std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2);
     }
     else{
         // Overlaps right or left -> distance = 0
@@ -399,7 +398,8 @@ std::ostream &
 operator<<(std::ostream &out, const PeriodicSupport<T> &supp)
 {
     if(supp.gaplength() > 0){
-        out << "[" << supp.l1 << "," << supp.li1 << "]" << " v " << "[" << supp.li2 << "," << supp.l2 << "]";        
+        out << "[" << supp.l1 << "," << supp.li1 << "]" << " v "
+            << "[" << supp.li2 << "," << supp.l2 << "]";
     }
     else{
         out << "[" << supp.l1 << "," << supp.l2 << "]";

@@ -41,7 +41,7 @@ Wavelet<T,Dual,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi
 
 template <typename T>
 Wavelet<T,Dual,Periodic,CDF>::Wavelet(const Basis<T,Dual,Periodic,CDF> &_basis)
-    : d(_basis.d), d_(_basis.d_), mu(d&1), psiR_(d,d_) 
+    : d(_basis.d), d_(_basis.d_), mu(d&1), psiR_(d,d_)
 {
 }
 
@@ -54,7 +54,7 @@ Wavelet<T,Dual,Periodic,CDF>::operator()(T x, int j, int k) const
     if((x < 0.) || (x > 1.)){
         return 0.;
     }
-    
+
     // sum contributions of original spline on R
     // = 'wrapping' around [0,1]
     T val = 0;
@@ -67,7 +67,7 @@ Wavelet<T,Dual,Periodic,CDF>::operator()(T x, int j, int k) const
 template <typename T>
 PeriodicSupport<T>
 Wavelet<T,Dual,Periodic,CDF>::support(int j, int k) const
-{    
+{
     Support<T> suppR = psiR_.support(j,k);
     if(suppR.length() >= 1){
         return PeriodicSupport<T>(0,1);

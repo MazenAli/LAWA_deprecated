@@ -22,7 +22,6 @@
 
 namespace lawa {
 
-    
 template<typename T>
 struct DiagonalScalingPreconditioner
 {
@@ -34,7 +33,7 @@ struct DiagonalScalingPreconditioner
     operator()(bool XisSpline, int j_x, int k_x,
                bool YisSpline, int j_y, int k_y) const;
 };
-    
+
 } // namespace lawa
 
 #include <lawa/box/diagonalscalingpreconditioner.tcc>
