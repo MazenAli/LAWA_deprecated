@@ -46,7 +46,7 @@ SeparableRHS2DwithPeaks<T, Basis2D>::operator()(XType xtype_x, int j_x, int k_x,
     T val_peaks = 0;
     if(xtype_x == XBSpline){
         val_x = integral_sff_x(j_x, k_x);
-        if(xtype_y == XBSPline){
+        if(xtype_y == XBSpline){
             val_y = integral_sff_y(j_y, k_y);
             for(int i = peaks_x.firstIndex(); i <= peaks_x.lastIndex(); ++i){
                 val_peaks += peaksigns_x(i)* phi_x(peaks_x(i), j_x, k_x) * peak_integral_sff_y(j_y, k_y);    
@@ -95,7 +95,7 @@ template<typename T, typename Basis2D>
 T
 SeparableRHS2DwithPeaks<T, Basis2D>::operator()(const Index2D &index) const
 {
-	return SeparableRHS2DwithPeaks<T, Basis2D>::operator()(index.index1.xtype, index.index1.j, index.index1.k,
+    return SeparableRHS2DwithPeaks<T, Basis2D>::operator()(index.index1.xtype, index.index1.j, index.index1.k,
                                                            index.index2.xtype, index.index2.j, index.index2.k);
 }
 

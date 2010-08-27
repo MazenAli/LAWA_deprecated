@@ -26,10 +26,10 @@ SeparableRHS2D<T, Basis2D>::SeparableRHS2D(const Basis2D& _basis, const Separabl
       integral_sff_x(phi_x, _F.F_x), integral_sff_y(phi_y, _F.F_y),
       integral_wf_x(psi_x, _F.F_x), integral_wf_y(psi_y, _F.F_y)
 {
-	integral_sff_x.quadrature.setOrder(order);
-	integral_sff_y.quadrature.setOrder(order);
-	integral_wf_x.quadrature.setOrder(order);
-	integral_wf_y.quadrature.setOrder(order);
+    integral_sff_x.quadrature.setOrder(order);
+    integral_sff_y.quadrature.setOrder(order);
+    integral_wf_x.quadrature.setOrder(order);
+    integral_wf_y.quadrature.setOrder(order);
 }
 
 template<typename T, typename Basis2D>
@@ -60,8 +60,8 @@ template<typename T, typename Basis2D>
 T
 SeparableRHS2D<T, Basis2D>::operator()(const Index2D &index) const
 {
-	return SeparableRHS2D<T, Basis2D>::operator()(index.index1.xtype, index.index1.j, index.index1.k,
-			                                      index.index2.xtype, index.index2.j, index.index2.k);
+    return SeparableRHS2D<T, Basis2D>::operator()(index.index1.xtype, index.index1.j, index.index1.k,
+                                                  index.index2.xtype, index.index2.j, index.index2.k);
 }
 
 //==========================================================================================//
@@ -85,23 +85,23 @@ template<typename T, typename RHS2D>
 T
 SumOfRHS2D<T, RHS2D>::operator()(const Index2D &index) const
 {
-	return rhs1(index.index1.xtype, index.index1.j, index.index1.k,
-				index.index2.xtype, index.index2.j, index.index2.k)
-		  +rhs2(index.index1.xtype, index.index1.j, index.index1.k,
-				index.index2.xtype, index.index2.j, index.index2.k);
+    return rhs1(index.index1.xtype, index.index1.j, index.index1.k,
+                index.index2.xtype, index.index2.j, index.index2.k)
+          +rhs2(index.index1.xtype, index.index1.j, index.index1.k,
+                index.index2.xtype, index.index2.j, index.index2.k);
 }
 
 template<typename T, typename RHS2D>
 Coefficients<Lexicographical,T,Index2D>
 SumOfRHS2D<T, RHS2D>::operator()(const IndexSet<Index2D> &Lambda) const
 {
-	typedef typename IndexSet<Index2D>::iterator const_set_it;
-	Coefficients<Lexicographical,T,Index2D> ret(Lambda.d,Lambda.d_);
-	for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
-		T tmp = SumOfRHS2D<T, RHS2D>::operator()(*lambda);
-		ret[*lambda] = tmp;
-	}
-	return ret;
+    typedef typename IndexSet<Index2D>::iterator const_set_it;
+    Coefficients<Lexicographical,T,Index2D> ret(Lambda.d,Lambda.d_);
+    for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+        T tmp = SumOfRHS2D<T, RHS2D>::operator()(*lambda);
+        ret[*lambda] = tmp;
+    }
+    return ret;
 }
 
 } // namespace lawa

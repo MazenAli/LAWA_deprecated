@@ -21,9 +21,9 @@ namespace lawa {
 
 template <typename T, typename Basis>
 Problem1d<T,Basis,HelmholtzOperator1d<T,Basis> >::Problem1d(const Basis &_basis, int example_nr, const HelmholtzOperator1d<T,Basis> &a, DomainType domain)
-	: basis(_basis), d(basis.d), d_(basis.d_), u(d,d_), f(d,d_), refsol()
+    : basis(_basis), d(basis.d), d_(basis.d_), u(d,d_), f(d,d_), refsol()
 {
-	refsol.setExample(example_nr,a,domain);
+    refsol.setExample(example_nr,a,domain);
 }
 
 

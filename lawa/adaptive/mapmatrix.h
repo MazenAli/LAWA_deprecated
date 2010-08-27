@@ -33,22 +33,22 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 class MapMatrix
 {
 public:
-	typedef typename std::map<Entry<Index>,T,lt<Lexicographical,Index > > EntryMap;
-	typedef typename EntryMap::value_type val_type;
-	EntryMap data;
+    typedef typename std::map<Entry<Index>,T,lt<Lexicographical,Index > > EntryMap;
+    typedef typename EntryMap::value_type val_type;
+    EntryMap data;
 
-	const BilinearForm &a;
-	const Preconditioner &p;
-	//const Compression &c;
+    const BilinearForm &a;
+    const Preconditioner &p;
+    //const Compression &c;
 
 public:
-	MapMatrix(const BilinearForm &a, const Preconditioner &p);
+    MapMatrix(const BilinearForm &a, const Preconditioner &p);
 
-	T
-	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
+    T
+    operator()(const Index &row_index, const Index &col_index);        //todo: writes into data -> no const declaration -> better solution?!
 
-	flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-	toFlensSparseMatrix(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol);
+    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
+    toFlensSparseMatrix(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol);
 };
 
 

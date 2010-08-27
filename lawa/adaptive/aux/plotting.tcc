@@ -17,165 +17,167 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <list>
+
 namespace lawa {
 
 template <typename T, typename Basis>
 void
 getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff, DenseVector<Array<T> > &sing_pts)
 {
-	typedef typename Basis::BSplineType PrimalSpline;
-	typedef typename Basis::WaveletType PrimalWavelet;
-	PrimalSpline phi(basis.mra);
-	PrimalWavelet psi(basis);
+    typedef typename Basis::BSplineType PrimalSpline;
+    typedef typename Basis::WaveletType PrimalWavelet;
+    PrimalSpline phi(basis.mra);
+    PrimalWavelet psi(basis);
 
-	typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
-	std::list<T> temp;
-	for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-		DenseVector<Array<T> > phi_singpts;
-		if ((*it).first.xtype == XBSpline) phi_singpts = phi.singularSupport((*it).first.j, (*it).first.k);
-		else							   phi_singpts = psi.singularSupport((*it).first.j, (*it).first.k);
+    typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
+    std::list<T> temp;
+    for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+        DenseVector<Array<T> > phi_singpts;
+        if ((*it).first.xtype == XBSpline) phi_singpts = phi.singularSupport((*it).first.j, (*it).first.k);
+        else                               phi_singpts = psi.singularSupport((*it).first.j, (*it).first.k);
 
-		for (int i = phi_singpts.firstIndex(); i <= phi_singpts.lastIndex(); ++i) {
-			temp.push_back(phi_singpts(i));
-		}
-	}
-	temp.sort(); temp.unique();
-	sing_pts.engine().resize((int)temp.size());
-	int i = 1;
-	for (typename std::list<T>::const_iterator it = temp.begin(); it != temp.end(); ++it ) {
-	    sing_pts(i) = *it; ++i;
-	}
+        for (int i = phi_singpts.firstIndex(); i <= phi_singpts.lastIndex(); ++i) {
+            temp.push_back(phi_singpts(i));
+        }
+    }
+    temp.sort(); temp.unique();
+    sing_pts.engine().resize((int)temp.size());
+    int i = 1;
+    for (typename std::list<T>::const_iterator it = temp.begin(); it != temp.end(); ++it ) {
+        sing_pts(i) = *it; ++i;
+    }
 }
 
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-	 const Preconditioner &P, T (*u)(T), const char* filename)
+     const Preconditioner &P, T (*u)(T), const char* filename)
 {
-	typedef typename Basis::BSplineType PrimalSpline;
-	typedef typename Basis::WaveletType PrimalWavelet;
-	typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
+    typedef typename Basis::BSplineType PrimalSpline;
+    typedef typename Basis::WaveletType PrimalWavelet;
+    typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
 
-	PrimalSpline phi(basis.mra);
-	PrimalWavelet psi(basis);
+    PrimalSpline phi(basis.mra);
+    PrimalWavelet psi(basis);
 
-	std::stringstream PlotFileName;
-	PlotFileName << filename << ".dat";
-	std::ofstream plotfile(PlotFileName.str().c_str());
+    std::stringstream PlotFileName;
+    PlotFileName << filename << ".dat";
+    std::ofstream plotfile(PlotFileName.str().c_str());
 
-	DenseVector<Array<T> > sing_pts;
-	getSingularPoints(basis, coeff, sing_pts);
+    DenseVector<Array<T> > sing_pts;
+    getSingularPoints(basis, coeff, sing_pts);
 
-	for (int i=sing_pts.firstIndex(); i<=sing_pts.lastIndex(); ++i) {
-		T x = sing_pts(i);
-		T appr = 0.0;
-		T exact= u(x);
-		for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-			int j = (*it).first.j, k = (*it).first.k;
-			T coeff = (*it).second, prec = P((*it).first);
-			if ((*it).first.xtype == XBSpline) {
-				appr  += prec * coeff * phi(x,j,k);
-			}
-			else {
-				appr  += prec * coeff * psi(x,j,k);
-			}
-		}
-		plotfile << x << " " << exact << " " << appr  << std::endl;
-	}
-	plotfile.close();
+    for (int i=sing_pts.firstIndex(); i<=sing_pts.lastIndex(); ++i) {
+        T x = sing_pts(i);
+        T appr = 0.0;
+        T exact= u(x);
+        for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+            int j = (*it).first.j, k = (*it).first.k;
+            T coeff = (*it).second, prec = P((*it).first);
+            if ((*it).first.xtype == XBSpline) {
+                appr  += prec * coeff * phi(x,j,k);
+            }
+            else {
+                appr  += prec * coeff * psi(x,j,k);
+            }
+        }
+        plotfile << x << " " << exact << " " << appr  << std::endl;
+    }
+    plotfile.close();
 }
 
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-	 const Preconditioner &P, T (*u)(T), T a, T b, T h, const char* filename)
+     const Preconditioner &P, T (*u)(T), T a, T b, T h, const char* filename)
 {
-	typedef typename Basis::BSplineType PrimalSpline;
-	typedef typename Basis::WaveletType PrimalWavelet;
-	typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
+    typedef typename Basis::BSplineType PrimalSpline;
+    typedef typename Basis::WaveletType PrimalWavelet;
+    typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
 
-	PrimalSpline phi(basis.mra);
-	PrimalWavelet psi(basis);
+    PrimalSpline phi(basis.mra);
+    PrimalWavelet psi(basis);
 
-	std::stringstream PlotFileName;
-	PlotFileName << filename << ".dat";
-	std::ofstream plotfile(PlotFileName.str().c_str());
+    std::stringstream PlotFileName;
+    PlotFileName << filename << ".dat";
+    std::ofstream plotfile(PlotFileName.str().c_str());
 
-	DenseVector<Array<T> > sing_pts;
-	getSingularPoints(basis, coeff, sing_pts);
+    DenseVector<Array<T> > sing_pts;
+    getSingularPoints(basis, coeff, sing_pts);
 
-	for (T x=a; x<=b; x+=h) {
-		T appr = 0.0;
-		T exact= u(x);
-		for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-			int j = (*it).first.j, k = (*it).first.k;
-			T coeff = (*it).second, prec = P((*it).first);
-			if ((*it).first.xtype == XBSpline) {
-				appr  += prec * coeff * phi(x,j,k);
-			}
-			else {
-				appr  += prec * coeff * psi(x,j,k);
-			}
-		}
-		plotfile << x << " " << exact << " " << appr  << std::endl;
-	}
-	plotfile.close();
+    for (T x=a; x<=b; x+=h) {
+        T appr = 0.0;
+        T exact= u(x);
+        for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+            int j = (*it).first.j, k = (*it).first.k;
+            T coeff = (*it).second, prec = P((*it).first);
+            if ((*it).first.xtype == XBSpline) {
+                appr  += prec * coeff * phi(x,j,k);
+            }
+            else {
+                appr  += prec * coeff * psi(x,j,k);
+            }
+        }
+        plotfile << x << " " << exact << " " << appr  << std::endl;
+    }
+    plotfile.close();
 }
 
 template <typename T, typename Basis2D, typename Preconditioner>
 void
 plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
-	   const Preconditioner &P, T (*u)(T,T), T a1, T b1, T a2, T b2, T h, const char* filename)
+       const Preconditioner &P, T (*u)(T,T), T a1, T b1, T a2, T b2, T h, const char* filename)
 {
-	typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
-	typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
-	typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_y;
-	typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_y;
+    typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
+    typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
+    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_y;
+    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_y;
 
-	typedef typename Coefficients<Lexicographical,T,Index2D >::const_iterator coeff_it;
+    typedef typename Coefficients<Lexicographical,T,Index2D >::const_iterator coeff_it;
 
-	PrimalSpline_x  phi_x(basis.first.mra);
-	PrimalWavelet_x psi_x(basis.first);
-	PrimalSpline_y  phi_y(basis.second.mra);
-	PrimalWavelet_y psi_y(basis.second);
+    PrimalSpline_x  phi_x(basis.first.mra);
+    PrimalWavelet_x psi_x(basis.first);
+    PrimalSpline_y  phi_y(basis.second.mra);
+    PrimalWavelet_y psi_y(basis.second);
 
-	std::stringstream PlotFileName;
-	PlotFileName << filename << ".dat";
-	std::ofstream plotfile(PlotFileName.str().c_str());
+    std::stringstream PlotFileName;
+    PlotFileName << filename << ".dat";
+    std::ofstream plotfile(PlotFileName.str().c_str());
 
-	for (T x=a1; x<=b1; x+=h) {
-		for (T y=a2; y<=b2; y+=h) {
-			T appr = 0.0;
-			T exact= u(x,y);
-			for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-				XType xtype_x = (*it).first.index1.xtype;
-				XType xtype_y = (*it).first.index2.xtype;
-				int j_x = (*it).first.index1.j, k_x = (*it).first.index1.k;
-				int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
+    for (T x=a1; x<=b1; x+=h) {
+        for (T y=a2; y<=b2; y+=h) {
+            T appr = 0.0;
+            T exact= u(x,y);
+            for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+                XType xtype_x = (*it).first.index1.xtype;
+                XType xtype_y = (*it).first.index2.xtype;
+                int j_x = (*it).first.index1.j, k_x = (*it).first.index1.k;
+                int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
 
-				T coeff = (*it).second, prec = P((*it).first);
-				if (xtype_x == XBSpline) {
-					if (xtype_y == XBSpline) {
-						appr  += prec * coeff * phi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
-					}
-					else {
-						appr  += prec * coeff * phi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
-					}
-				}
-				else {
-					if (xtype_y == XBSpline) {
-						appr  += prec * coeff * psi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
-					}
-					else {
-						appr  += prec * coeff * psi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
-					}
-				}
-			}
-			plotfile << x << " " << y << " " << exact << " " << appr  << std::endl;
-		}
-		plotfile << std::endl;
-	}
-	plotfile.close();
+                T coeff = (*it).second, prec = P((*it).first);
+                if (xtype_x == XBSpline) {
+                    if (xtype_y == XBSpline) {
+                        appr  += prec * coeff * phi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
+                    }
+                    else {
+                        appr  += prec * coeff * phi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
+                    }
+                }
+                else {
+                    if (xtype_y == XBSpline) {
+                        appr  += prec * coeff * psi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
+                    }
+                    else {
+                        appr  += prec * coeff * psi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
+                    }
+                }
+            }
+            plotfile << x << " " << y << " " << exact << " " << appr  << std::endl;
+        }
+        plotfile << std::endl;
+    }
+    plotfile.close();
 }
 
 template <typename T>
@@ -206,18 +208,18 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Pri
     T a_sca = 5000.0, a_wav = 5000.0;
     T b_sca = -5000.0, b_wav = -5000.0;
     for (const_it it = coeff.begin(); it != coeff.end(); ++it) {
-    	j = (*it).second.j; k = (*it).second.k;
-    	j0 = std::min(j0, j);
+        j = (*it).second.j; k = (*it).second.k;
+        j0 = std::min(j0, j);
         J  = std::max(J, j);
         if ((*it).second.xtype == XBSpline) {
-        	maxCoeffSca = std::max(maxCoeffSca, fabs((*it).first));
-        	a_sca = std::min(a_sca, phi.support(j,k).l1);
+            maxCoeffSca = std::max(maxCoeffSca, fabs((*it).first));
+            a_sca = std::min(a_sca, phi.support(j,k).l1);
             b_sca = std::max(b_sca, phi.support(j,k).l2);
         }
         else {
-        	maxCoeffWav = std::max(maxCoeffWav, fabs((*it).first));
-        	a_wav = std::min(a_wav, psi.support(j,k).l1);
-        	b_wav = std::max(b_wav, psi.support(j,k).l2);
+            maxCoeffWav = std::max(maxCoeffWav, fabs((*it).first));
+            a_wav = std::min(a_wav, psi.support(j,k).l1);
+            b_wav = std::max(b_wav, psi.support(j,k).l2);
         }
     }
     T maxCoeff = std::max(maxCoeffWav,maxCoeffSca);
@@ -230,8 +232,8 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Pri
         T color = 0.0;
 
         if ((*it).second.xtype==XBSpline) {
-        	int k1 = ceil(pow2i<T>((*it).second.j)*a_sca - l1_sca), k2 = floor(pow2i<T>((*it).second.j)*b_sca - l2_sca);
-        	int N = k2 - k1 + 1;
+            int k1 = ceil(pow2i<T>((*it).second.j)*a_sca - l1_sca), k2 = floor(pow2i<T>((*it).second.j)*b_sca - l2_sca);
+            int N = k2 - k1 + 1;
             fromX = a_sca + ((*it).second.k-k1)*(b_sca-a_sca)/(T)N;
             toX   = a_sca + ((*it).second.k-k1+1)*(b_sca-a_sca)/(T)N;
 
@@ -241,12 +243,12 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Pri
         }
 
         else {
-        	long int k1 = ceil(pow2i<T>((*it).second.j)*a_wav - l1_wav), k2 = floor(pow2i<T>((*it).second.j)*b_wav - l2_wav);
-        	long int N = k2 - k1 + 1;
-        	fromX = a_wav + ((*it).second.k-k1)*(b_wav-a_wav)/(T)N;
-        	toX   = fromX + std::max((b_wav-a_wav)/N,0.01);  //was 0.05
+            long int k1 = ceil(pow2i<T>((*it).second.j)*a_wav - l1_wav), k2 = floor(pow2i<T>((*it).second.j)*b_wav - l2_wav);
+            long int N = k2 - k1 + 1;
+            fromX = a_wav + ((*it).second.k-k1)*(b_wav-a_wav)/(T)N;
+            toX   = fromX + std::max((b_wav-a_wav)/N,0.01);  //was 0.05
 
-        	fromY = (*it).second.j-0.5;
+            fromY = (*it).second.j-0.5;
             toY   = (*it).second.j+0.5;
             color = fabs((*it).first) / maxCoeffWav;
 

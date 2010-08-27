@@ -30,41 +30,41 @@ struct ReferenceSolutionTensor2D
 template<typename T, typename Basis2D>
 struct ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >
 {
-	static int nr;
-	static T c;
-	static DomainType domain1, domain2;
+    static int nr;
+    static T c;
+    static DomainType domain1, domain2;
 
-	static DenseVector<Array<T> > sing_pts_x, sing_pts_y;
+    static DenseVector<Array<T> > sing_pts_x, sing_pts_y;
 
-	static void
-	setExample(int _nr, const HelmholtzOperator2D<T,Basis2D> &a, DomainType domain1, DomainType domain2);
+    static void
+    setExample(int _nr, const HelmholtzOperator2D<T,Basis2D> &a, DomainType domain1, DomainType domain2);
 
-	static T
-	exact(T x, T y);
+    static T
+    exact(T x, T y);
 
-	static T
-	exact_x(T x);
+    static T
+    exact_x(T x);
 
-	static T
-	exact_x(T x, int deriv_x);
+    static T
+    exact_x(T x, int deriv_x);
 
-	static T
-	exact_y(T y);
+    static T
+    exact_y(T y);
 
-	static T
-	exact_y(T y, int deriv_y);
+    static T
+    exact_y(T y, int deriv_y);
 
-	static T
-	rhs_x(T x);
+    static T
+    rhs_x(T x);
 
-	static T
-	rhs_y(T y);
+    static T
+    rhs_y(T y);
 
-	static T
-	H1norm();
+    static T
+    H1norm();
 };
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/adaptive/referencesolutions/referencesolutions2d.tcc>
 

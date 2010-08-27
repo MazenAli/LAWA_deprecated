@@ -17,9 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_BOX_SEPARABLERHSWITHPEAKS_H
-#define LAWA_BOX_SEPARABLERHSWITHPEAKS_H 1
+#ifndef LAWA_RIGHTHANDSIDES_SEPARABLERHSWITHPEAKS_H
+#define LAWA_RIGHTHANDSIDES_SEPARABLERHSWITHPEAKS_H 1
 
+#include <lawa/righthandsides/separablefunction2d.h>
 #include <lawa/righthandsides/separablefunction2d.h>
 #include <lawa/integrals.h>
 
@@ -58,11 +59,11 @@ class SeparableRHS2DwithPeaks
             const flens::DenseVector<flens::Array<T> > _peaksigns_x,
             const flens::DenseVector<flens::Array<T> > _peaks_y,
             const flens::DenseVector<flens::Array<T> > _peaksigns_y,
-            const SeparableFunction<T>& _peakF);
+            const SeparableFunction2D<T>& _peakF);
         
         T
-        operator()(bool XisSpline, int j_x, int k_x,
-                   bool YisSpline, int j_y, int k_y) const;
+        operator()(XType XisSpline, int j_x, int k_x,
+                   XType YisSpline, int j_y, int k_y) const;
 
         T
         operator()(const Index2D &index) const;
@@ -72,4 +73,4 @@ class SeparableRHS2DwithPeaks
 
 #include <lawa/righthandsides/separablerhswithpeaks2d.tcc>
 
-#endif // LAWA_BOX_SEPARABLERHSWITHPEAKS_H
+#endif // LAWA_RIGHTHANDSIDES_SEPARABLERHSWITHPEAKS_H

@@ -21,7 +21,7 @@ namespace lawa {
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, const Preconditioner &_P)
-	:	rhsintegral(_rhsintegral), P(_P), rhs_data(), rhs_abs_data()
+    :    rhsintegral(_rhsintegral), P(_P), rhs_data(), rhs_abs_data()
 {
 }
 
@@ -29,28 +29,28 @@ template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditio
 T
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
 {
-	T ret;
-	if (rhs_data.count(lambda) == 0) {
-		ret = P(lambda) * rhsintegral(lambda);
-		rhs_data[lambda] = ret;
-	}
-	else {
-		ret = rhs_data[lambda];
-	}
-	return ret;
+    T ret;
+    if (rhs_data.count(lambda) == 0) {
+        ret = P(lambda) * rhsintegral(lambda);
+        rhs_data[lambda] = ret;
+    }
+    else {
+        ret = rhs_data[lambda];
+    }
+    return ret;
 }
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
 Coefficients<Lexicographical,T,Index>
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const IndexSet<Index> &Lambda)
 {
-	typedef typename IndexSet<Index>::iterator const_set_it;
-	Coefficients<Lexicographical,T,Index> ret(Lambda.d,Lambda.d_);
-	for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
-		T tmp = RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(*lambda);
-		ret[*lambda] = tmp;
-	}
-	return ret;
+    typedef typename IndexSet<Index>::iterator const_set_it;
+    Coefficients<Lexicographical,T,Index> ret(Lambda.d,Lambda.d_);
+    for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+        T tmp = RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(*lambda);
+        ret[*lambda] = tmp;
+    }
+    return ret;
 }
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
@@ -83,5 +83,5 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(T t, const IndexSet<Index> &
 
 
 
-}	//namespace lawa
+}    //namespace lawa
 

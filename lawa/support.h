@@ -59,16 +59,16 @@ template <typename T>
     distance(const Support<T> &supp1, const Support<T> &supp2);
 
 template <typename T>
-	T
-	distance(const Support<T> &supp1, const Support<T> &supp2, Support<T> &common);
+    T
+    distance(const Support<T> &supp1, const Support<T> &supp2, Support<T> &common);
 
 template <typename T>
-	T
-	distance(const DenseVector<Array<T> > &singsupp1, const Support<T> &supp2);
+    T
+    distance(const DenseVector<Array<T> > &singsupp1, const Support<T> &supp2);
 
 template <typename T>
-	T
-	distance(const Support<T> &supp1, const DenseVector<Array<T> > &singsupp2);
+    T
+    distance(const Support<T> &supp1, const DenseVector<Array<T> > &singsupp2);
 
 template <typename T, typename S>
     Support<T>

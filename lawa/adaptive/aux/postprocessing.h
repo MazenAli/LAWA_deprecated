@@ -32,16 +32,16 @@ namespace lawa {
 template <typename T, typename Index, typename MA, typename RHS>
 T
 estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> & u,
-					 const IndexSet<Index> &LambdaCol);
+                     const IndexSet<Index> &LambdaCol);
 
 // Calculates ||u - u_{\Lambda}-f||_H via energy norm ansatz
 template <typename T, typename Index, typename MA, typename RHS>
 T
 estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
-					   T HNormOfExactSolution);
+                       T HNormOfExactSolution);
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/adaptive/aux/postprocessing.tcc>
 

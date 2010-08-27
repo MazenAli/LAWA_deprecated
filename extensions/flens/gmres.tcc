@@ -62,7 +62,7 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
         if (rho <= tol) {
             break;
         } else {
-       	    ++j;
+               ++j;
         }
 
         w_j =  A * V(_,j);
@@ -72,15 +72,15 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
             H(i,j) = w_j * V(_,i);
             w_j = w_j - H(i,j) * V(_, i);
         }
-      	H(j+1,j) = sqrt(w_j*w_j);
+          H(j+1,j) = sqrt(w_j*w_j);
 
-    	if (H(j+1,j) / normInitialWj < 1.0) {
-    	    for (int i=1; i<=j; ++i) {
-            	Htemp = w_j * V(_, i) ;
-            	w_j = w_j - Htemp * V(_, i);
+        if (H(j+1,j) / normInitialWj < 1.0) {
+            for (int i=1; i<=j; ++i) {
+                Htemp = w_j * V(_, i) ;
+                w_j = w_j - Htemp * V(_, i);
             }
-    	    H(j+1, j) = sqrt(w_j * w_j);
-      	}
+            H(j+1, j) = sqrt(w_j * w_j);
+          }
 
         for (int i=1; i<=j-1; ++i) {
             h_ij =      c(i) * H(i,j) + s(i) * H(i+1,j);
@@ -107,14 +107,14 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
 
     if (j>=1) {
         DeVector y(j);
-	    for (int i=j; i>=1; --i) {
-    	    y(i) = g(i) / H(i,i);
-	        for (int l=j; l>i; --l) {
-            	y(i) -= H(i,l) * y(l) / H(i,i);
+        for (int i=j; i>=1; --i) {
+            y(i) = g(i) / H(i,i);
+            for (int l=j; l>i; --l) {
+                y(i) -= H(i,l) * y(l) / H(i,i);
             }
-      	}
+          }
 
-      	x += V(_,_(1,j)) * y;
+          x += V(_,_(1,j)) * y;
     }
     return j;
 }
@@ -185,28 +185,28 @@ int pgmres (const Prec &P, const MA &A, VX &x, const VB &b,
         if (rho <= tol) {
             break;
         } else {
-       	    ++j;
+               ++j;
         }
-      	
-      	w_j = P*V(_,j);
+          
+          w_j = P*V(_,j);
         temp = A*w_j;
-	    w_j = transpose(P)*temp;
-	    
+        w_j = transpose(P)*temp;
+        
         T normInitialWj = sqrt(w_j * w_j);
 
         for (int i=1; i<=j; ++i) {
             H(i, j) = w_j * V(_,i);
             w_j = w_j - H(i, j) * V(_, i);
         }
-      	H(j+1, j) = sqrt(w_j * w_j);
+          H(j+1, j) = sqrt(w_j * w_j);
 
-    	if ( H(j+1, j) / normInitialWj < 1.0) {
-    	    for (int i=1; i<=j; ++i) {
-            	Htemp = w_j * V(_, i) ;
-            	w_j = w_j - Htemp * V(_, i);
+        if ( H(j+1, j) / normInitialWj < 1.0) {
+            for (int i=1; i<=j; ++i) {
+                Htemp = w_j * V(_, i) ;
+                w_j = w_j - Htemp * V(_, i);
             }
-    	    H(j+1, j) = sqrt(w_j*w_j);
-      	}
+            H(j+1, j) = sqrt(w_j*w_j);
+          }
 
         for (int i=1; i<=j-1; ++i) {
             h_ij =      c(i) * H(i,j) + s(i) * H(i+1,j);
@@ -233,15 +233,15 @@ int pgmres (const Prec &P, const MA &A, VX &x, const VB &b,
 
     if (j >= 1 ) {
         DeVector y(j);
-	    for (int i=j; i>=1; --i) {
-    	    y(i) = g(i) / H(i,i);
-	        for (int l=j; l>i; --l) {
-            	y(i) -= H(i,l) * y(l) / H(i,i);
+        for (int i=j; i>=1; --i) {
+            y(i) = g(i) / H(i,i);
+            for (int l=j; l>i; --l) {
+                y(i) -= H(i,l) * y(l) / H(i,i);
             }
-      	}
+          }
 
         temp = V(_,_(1,j)) * y;
-      	x += P * temp;
+          x += P * temp;
     }
     return j;
 }

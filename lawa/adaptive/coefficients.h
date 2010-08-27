@@ -20,10 +20,9 @@
 #ifndef LAWA_ADAPTIVE_COEFFICIENTS_H
 #define LAWA_ADAPTIVE_COEFFICIENTS_H 1
 
-#include <set>
+#include <map>
 #include <lawa/adaptive/index.h>
 #include <lawa/adaptive/indexset.h>
-#include <lawa/lawa.h>
 
 namespace lawa {
 
@@ -35,29 +34,29 @@ struct Coefficients
 template <typename T, typename Index>
 struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
 {
-	Coefficients();		//required in rhs.h
+    Coefficients();        //required in rhs.h
 
-	Coefficients(const int d, const int d_);
+    Coefficients(const int d, const int d_);
 
-	Coefficients<Lexicographical,T,Index>&
-	operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
+    Coefficients<Lexicographical,T,Index>&
+    operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
 
-	Coefficients<Lexicographical,T,Index>&
-	operator=(const Coefficients<AbsoluteValue,T,Index> &_coeff);
+    Coefficients<Lexicographical,T,Index>&
+    operator=(const Coefficients<AbsoluteValue,T,Index> &_coeff);
 
-	Coefficients<Lexicographical,T,Index>
-	operator-(const Coefficients<Lexicographical,T,Index> &_coeff) const;
+    Coefficients<Lexicographical,T,Index>
+    operator-(const Coefficients<Lexicographical,T,Index> &_coeff) const;
 
-	Coefficients<Lexicographical,T,Index>
-	operator+(const Coefficients<Lexicographical,T,Index> &_coeff) const;
+    Coefficients<Lexicographical,T,Index>
+    operator+(const Coefficients<Lexicographical,T,Index> &_coeff) const;
 
-	T
-	operator*(const Coefficients<Lexicographical,T,Index> &_coeff) const;
+    T
+    operator*(const Coefficients<Lexicographical,T,Index> &_coeff) const;
 
-	T
-	norm(T tau=2.0) const;
+    T
+    norm(T tau=2.0) const;
 
-	const int d, d_;
+    const int d, d_;
 };
 
 template <typename T, typename Index>
@@ -83,26 +82,26 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
 template <typename T, typename Index>
 struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteValue,T> >
 {
-	Coefficients();		//required in rhs.h
+    Coefficients();        //required in rhs.h
 
-	Coefficients(const int d, const int d_);
+    Coefficients(const int d, const int d_);
 
-	Coefficients<AbsoluteValue,T,Index>&
-	operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
+    Coefficients<AbsoluteValue,T,Index>&
+    operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
 
-	Coefficients<AbsoluteValue,T,Index>&
-	operator=(const Coefficients<AbsoluteValue,T,Index> &_coeff);
+    Coefficients<AbsoluteValue,T,Index>&
+    operator=(const Coefficients<AbsoluteValue,T,Index> &_coeff);
 
-	T
-	norm(T tau=2.0) const;
+    T
+    norm(T tau=2.0) const;
 
-	T
-	wtauNorm(T tau) const;
+    T
+    wtauNorm(T tau) const;
 
-	DenseVector<Array<T> >
-	norm_sections() const;
+    DenseVector<Array<T> >
+    norm_sections() const;
 
-	const int d, d_;
+    const int d, d_;
 };
 
 template <typename T, typename Index>

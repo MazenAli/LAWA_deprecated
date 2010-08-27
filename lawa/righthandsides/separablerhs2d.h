@@ -65,11 +65,11 @@ template <typename T, typename RHS2D>
 class SumOfRHS2D
 {
 private:
-	const RHS2D &rhs1;
-	const RHS2D &rhs2;
+    const RHS2D &rhs1;
+    const RHS2D &rhs2;
 
 public:
-	SumOfRHS2D(const RHS2D &rhs1, const RHS2D &rhs2);
+    SumOfRHS2D(const RHS2D &rhs1, const RHS2D &rhs2);
 
     T
     operator()(XType xtype_x, int j_x, int k_x,

@@ -19,6 +19,7 @@
 
 #include <lawa/flensforlawa.h>
 
+#include <lawa/adaptive/adaptive.h>
 #include <lawa/aux/aux.h>
 #include <lawa/box/box.h>
 #include <lawa/bspline.h>
@@ -34,6 +35,7 @@
 #include <lawa/periodic/periodic.h>
 #include <lawa/quadrature.h>
 #include <lawa/realline/realline.h>
+#include <lawa/righthandsides/righthandsides.h>
 #include <lawa/solvers/solvers.h>
 #include <lawa/support.h>
 #include <lawa/wavelet.h>

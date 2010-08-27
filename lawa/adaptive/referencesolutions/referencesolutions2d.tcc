@@ -46,8 +46,8 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::domain2;
 template <typename T, typename Basis2D>
 void
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample(int _nr,
-															const HelmholtzOperator2D<T,Basis2D> &a,
-															DomainType _domain1, DomainType _domain2)
+                                                            const HelmholtzOperator2D<T,Basis2D> &a,
+                                                            DomainType _domain1, DomainType _domain2)
 {
     c=a.getc();
     assert(c>=0);
@@ -67,108 +67,112 @@ template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact(T x, T y)
 {
-	return exact_x(x,0)*exact_y(y,0);
+    return exact_x(x,0)*exact_y(y,0);
 }
 
 template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_x(T x)
 {
-	return exact_x(x,0);
+    return exact_x(x,0);
 }
 
 template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_y(T y)
 {
-	return exact_y(y,0);
+    return exact_y(y,0);
 }
 
 template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::rhs_x(T x)
 {
-	return -exact_x(x,2) + 0.5*c*exact_x(x,0);
+    return -exact_x(x,2) + 0.5*c*exact_x(x,0);
 }
 
 template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::rhs_y(T y)
 {
-	return -exact_y(y,2) + 0.5*c*exact_y(y,0);
+    return -exact_y(y,2) + 0.5*c*exact_y(y,0);
 }
 
 template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_x(T x, int deriv_x)
 {
-	if ((domain1==R) && (domain2==R)) {
-		if (nr==1) {
-			if (deriv_x==0) 		return  std::exp(-0.1*(x+0.1)*(x+0.1));
-			else if (deriv_x==1)	return -std::exp(-0.1*(x+0.1)*(x+0.1)) * 2*0.1*(x+0.1);
-			else 					return  std::exp(-0.1*(x+0.1)*(x+0.1)) * (4*0.1*0.1*(x+0.1)*(x+0.1)-2*0.1);
-		}
-	}
-	else if ((domain1 == Periodic) && (domain2 == Interval)) {
-		if (nr==1) {
-			if (deriv_x==0) 		return  			std::cos(2*M_PI*x);
-			else if (deriv_x==1)	return 		-2*M_PI*std::sin(2*M_PI*x);
-			else 					return -4*M_PI*M_PI*std::cos(2*M_PI*x);
-		}
-		else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
-	}
-	else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
+    if ((domain1==R) && (domain2==R)) {
+        if (nr==1) {
+            if (deriv_x==0)         return  std::exp(-0.1*(x+0.1)*(x+0.1));
+            else if (deriv_x==1)    return -std::exp(-0.1*(x+0.1)*(x+0.1)) * 2*0.1*(x+0.1);
+            else                     return  std::exp(-0.1*(x+0.1)*(x+0.1)) * (4*0.1*0.1*(x+0.1)*(x+0.1)-2*0.1);
+        }
+    }
+    else if ((domain1 == Periodic) && (domain2 == Interval)) {
+        if (nr==1) {
+            if (deriv_x==0)         return              std::cos(2*M_PI*x);
+            else if (deriv_x==1)    return         -2*M_PI*std::sin(2*M_PI*x);
+            else                     return -4*M_PI*M_PI*std::cos(2*M_PI*x);
+        }
+        else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
+        return 0;
+    }
+    else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
+    return 0;
 }
 
 template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_y(T y, int deriv_y)
 {
-	if ((domain1==R) && (domain2==R)) {
-		if (nr==1) {
-			if (deriv_y==0) 		return  std::exp(-0.5*(y-0.1)*(y-0.1));
-			else if (deriv_y==1)	return -std::exp(-0.5*(y-0.1)*(y-0.1)) * 2*0.5*(y-0.1);
-			else 					return  std::exp(-0.5*(y-0.1)*(y-0.1)) * (4*0.5*0.5*(y-0.1)*(y-0.1)-2*0.5);
-		}
-	}
-	else if ((domain1 == Periodic) && (domain2 == Interval)) {
-		if (nr==1) {
-			if (deriv_y==0) 		return  -4*(y-0.5)*(y-0.5)+1;
-			else if (deriv_y==1)	return	-8*(y-0.5);
-			else 					return  -8;
-		}
-		else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
-	}
-	else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
+    if ((domain1==R) && (domain2==R)) {
+        if (nr==1) {
+            if (deriv_y==0)         return  std::exp(-0.5*(y-0.1)*(y-0.1));
+            else if (deriv_y==1)    return -std::exp(-0.5*(y-0.1)*(y-0.1)) * 2*0.5*(y-0.1);
+            else                     return  std::exp(-0.5*(y-0.1)*(y-0.1)) * (4*0.5*0.5*(y-0.1)*(y-0.1)-2*0.5);
+        }
+    }
+    else if ((domain1 == Periodic) && (domain2 == Interval)) {
+        if (nr==1) {
+            if (deriv_y==0)         return  -4*(y-0.5)*(y-0.5)+1;
+            else if (deriv_y==1)    return    -8*(y-0.5);
+            else                     return  -8;
+        }
+        else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
+        return 0; 
+    }
+    else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
+    return 0;
 }
 
 template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
 {
-	T ret = 0.;
-	if ((domain1==R) && (domain2==R)) {
-		if (nr==1) 			{
-			T a1 = -0.1;
-			T a2 = 0.1;
-			T b1 = 0.1;
-			T b2 = 0.5;
-			T c1=1., c2= 1.;
-			ret += c1*c1*std::sqrt(0.5*M_PI/(b1)) * c2*c2*std::sqrt(0.5*M_PI/(b2));
-			ret += c1*c1*b1*b1*std::sqrt(0.5*M_PI)/std::pow(b1,1.5) * c2*c2*std::sqrt(0.5*M_PI/(b2));
-			ret += c1*c1*std::sqrt(0.5*M_PI/(b1)) * c2*c2*b2*b2*std::sqrt(0.5*M_PI)/std::pow(b2,1.5);
-			ret = sqrt(ret);
-		}
-	}
-	else if ((domain1 == Periodic) && (domain2 == Interval)) {
-		if (nr==1) {
-			ret +=  0.2666666666666666;
-			ret += 10.527578027828639;
-			ret +=  2.666666666666666;
-			ret = sqrt(ret);
-		}
-	}
-	return ret;
+    T ret = 0.;
+    if ((domain1==R) && (domain2==R)) {
+        if (nr==1)             {
+            T a1 = -0.1;
+            T a2 = 0.1;
+            T b1 = 0.1;
+            T b2 = 0.5;
+            T c1=1., c2= 1.;
+            ret += c1*c1*std::sqrt(0.5*M_PI/(b1)) * c2*c2*std::sqrt(0.5*M_PI/(b2));
+            ret += c1*c1*b1*b1*std::sqrt(0.5*M_PI)/std::pow(b1,1.5) * c2*c2*std::sqrt(0.5*M_PI/(b2));
+            ret += c1*c1*std::sqrt(0.5*M_PI/(b1)) * c2*c2*b2*b2*std::sqrt(0.5*M_PI)/std::pow(b2,1.5);
+            ret = sqrt(ret);
+        }
+    }
+    else if ((domain1 == Periodic) && (domain2 == Interval)) {
+        if (nr==1) {
+            ret +=  0.2666666666666666;
+            ret += 10.527578027828639;
+            ret +=  2.666666666666666;
+            ret = sqrt(ret);
+        }
+    }
+    return ret;
 }
 
-}	//namespace lawa
+}    //namespace lawa

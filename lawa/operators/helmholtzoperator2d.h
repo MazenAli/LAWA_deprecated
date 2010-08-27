@@ -78,7 +78,7 @@ class HelmholtzOperator2D{
         operator()(const Index2D &row_index, const Index2D &col_index) const;
 };
 
-}	// namespace lawa
+}    // namespace lawa
 
 #include <lawa/operators/helmholtzoperator2d.tcc>
 
