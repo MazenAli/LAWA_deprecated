@@ -1,4 +1,4 @@
-#include <lawa/box/boxindex.h>
+#include <lawa/infrastructure/uniformindex2d.h>
 
 namespace lawa{
     
@@ -8,8 +8,8 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
         const flens::DenseVector<flens::Array<T> >& u_approx,const int J_t_approx, const int J_x_approx, 
         const flens::DenseVector<flens::Array<T> >& u_exact, const int J_t_exact, const int J_x_exact)
 {
-    BoxIndex<BoxBasis>  I_approx(basis, J_t_approx, J_x_approx);
-    BoxIndex<BoxBasis>  I_exact(basis, J_t_exact, J_x_exact);
+    UniformIndex2D<BoxBasis>  I_approx(basis, J_t_approx, J_x_approx);
+    UniformIndex2D<BoxBasis>  I_exact(basis, J_t_exact, J_x_exact);
 
     typename BoxBasis::FirstBasisType b1 = basis.first;
     typename BoxBasis::SecondBasisType b2 = basis.second;

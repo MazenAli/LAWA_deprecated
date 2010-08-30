@@ -1,4 +1,4 @@
-#include <lawa/box/boxindex.h>
+#include <lawa/infrastructure/uniformindex2d.h>
 
 namespace lawa {
     
@@ -28,7 +28,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     PrimalWavelet_x psi_x(basis.first, deriv_x);             
     PrimalWavelet_y psi_y(basis.second, deriv_y);
     
-    BoxIndex<Basis> I(basis, J_x, J_y);   
+    UniformIndex2D<Basis> I(basis, J_x, J_y);   
     
     T ret = 0;     
 
