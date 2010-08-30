@@ -13,7 +13,7 @@ class TimeStepping
         TimeStepping(Solver& _solver, T _deltaT, int _timesteps, int _levelX);
 
         flens::DenseVector<flens::Array<T> > 
-        solve(flens::DenseVector<flens::Array<T> >& u_0);
+        solve(flens::DenseVector<flens::Array<T> >& u_0, bool saveSols = false);
     
         flens::DenseVector<flens::Array<T> > 
         solve(flens::DenseVector<flens::Array<T> >& u_0, 
@@ -24,7 +24,14 @@ class TimeStepping
 
         T getDeltaT(){ return deltaT;}
         T getSteps(){ return timesteps;}
-        T getLevel(){ return levelX;}        
+        T getLevel(){ return levelX;}
+        
+        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >&
+        getSolutions();
+               
+        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >&
+        getSolutions(flens::DenseVector<flens::Array<T> >& u);
+           
         void setDeltaT(T delta){ deltaT = delta;}
         void setSteps(int steps){ timesteps = steps;}
         void setLevel(int J){ levelX = J;}
@@ -36,6 +43,8 @@ class TimeStepping
         T deltaT;
         int timesteps;
         int levelX;
+        
+        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U;
 
 };
 

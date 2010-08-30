@@ -12,12 +12,16 @@ class FixedPointSolver
         FixedPointSolver(Method& _method);
         
         flens::DenseVector<flens::Array<T> >
-        solve(flens::DenseVector<flens::Array<T> > u_0, int maxIterations = 1000, T tol = 10e-10);
+        solve(flens::DenseVector<flens::Array<T> > u_0, bool saveSols = false, 
+              int maxIterations = 1000, T tol = 10e-10);
         
         flens::DenseVector<flens::Array<T> >
         solve(flens::DenseVector<flens::Array<T> > u_0,
                 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >& fmatrix,
                 int maxIterations = 1000, T tol = 10e-10);
+        
+        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >&
+        getSolutions(){ return method.getSolutions();}
     
         void setLevel(int level){ method.setLevel(level);}
         void setRHS(RHSType& rhs);

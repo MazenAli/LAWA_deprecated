@@ -22,19 +22,20 @@ FixedPointSolver<T, Method>::getError(flens::DenseVector<flens::Array<T> >& u1,
     
 template<typename T, typename Method>
 flens::DenseVector<flens::Array<T> >
-FixedPointSolver<T, Method>::solve(flens::DenseVector<flens::Array<T> > u_0,
+FixedPointSolver<T, Method>::solve(flens::DenseVector<flens::Array<T> > u_0, bool saveSols,
                                    int maxIterations, T tol)
 {
     flens::DenseVector<flens::Array<T> > u_T;
     int countIterations = 0;
     T error = 0;
     do{
-        u_T = method.solve(u_0); 
+        u_T = method.solve(u_0, saveSols); 
         error = getError(u_0, u_T);
         u_0 = u_T;
         countIterations++; 
-        std::cerr << "Iteration " << countIterations << " : error = " << error << std::endl;
+        //std::cerr << "Iteration " << countIterations << " : error = " << error << std::endl;
     }while((countIterations < maxIterations) && (error > tol));
+    std::cerr << "N = " << u_0.length() << ": " << countIterations << " Iterations" << std::endl;
     
     return u_T;
 }
@@ -53,9 +54,10 @@ FixedPointSolver<T, Method>::solve(flens::DenseVector<flens::Array<T> > u_0,
         error = getError(u_0, u_T);
         u_0 = u_T;
         countIterations++; 
-        std::cerr << "Iteration " << countIterations << " : error = " << error << std::endl;
+        //std::cerr << "Iteration " << countIterations << " : error = " << error << std::endl;
     }while((countIterations < maxIterations) && (error > tol));
     
+    std::cerr << "N = " << u_0.length() << ": " << countIterations << " Iterations" << std::endl;
     return u_T;
 }
 

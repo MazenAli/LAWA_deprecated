@@ -8,13 +8,20 @@ TimeStepping<T,Solver>::TimeStepping(Solver& _solver, T _deltaT, int _timesteps,
     
 template <typename T, typename Solver>
 flens::DenseVector<flens::Array<T> > 
-TimeStepping<T,Solver>::solve(flens::DenseVector<flens::Array<T> >& u_0)
+TimeStepping<T,Solver>::solve(flens::DenseVector<flens::Array<T> >& u_0, bool saveSols)
 {
     flens::DenseVector<flens::Array<T> > u_next, u(u_0);
+    if(saveSols){
+        U.engine().resize(u_0.length(), timesteps+1, u_0.range().firstIndex(), 0);
+        U(flens::_, 1) = u_0;
+    }
     
     for(int k = 1; k <= timesteps; ++k){
         u_next = solver.solve((k-1)*deltaT, k*deltaT, u, levelX);
         u = u_next;
+        if(saveSols){
+            U(flens::_, k) = u;
+        }
     }
     
     return u;
@@ -46,6 +53,22 @@ TimeStepping<T,Solver>::getResiduum(flens::DenseVector<flens::Array<T> >& u)
 {
     flens::DenseVector<flens::Array<T> > Su = solve(u);
     return u - Su;
+}
+
+
+template <typename T, typename Solver>
+flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >&
+TimeStepping<T,Solver>::getSolutions()
+{ 
+    return U;
+} 
+       
+template <typename T, typename Solver>
+flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >&
+TimeStepping<T,Solver>::getSolutions(flens::DenseVector<flens::Array<T> >& u)
+{
+    solve(u, true);
+    return U;
 }
     
 } // namespace lawa
