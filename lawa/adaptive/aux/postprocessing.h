@@ -40,15 +40,17 @@ T
 estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
                        T HNormOfExactSolution);
 
-template<typename T>
+template<typename T, typename Preconditioner>
 T
-estimate_SpaceTimeError_L0T_H1(const Coefficients<Lexicographical,T,Index2D> & u, 
-                               const Coefficients<Lexicographical,T,Index2D> & u_exact);
+estimate_SpaceTimeError_L0T_H1(Coefficients<Lexicographical,T,Index2D> & u, 
+                               Coefficients<Lexicographical,T,Index2D> & u_exact,
+                               const Preconditioner &P);
                             
-template<typename T>
+template<typename T, typename Preconditioner>
 T
-estimate_SpaceTimeError_W0T(const Coefficients<Lexicographical,T,Index2D> & u,
-                            const Coefficients<Lexicographical,T,Index2D> & u_exact);
+estimate_SpaceTimeError_W0T(Coefficients<Lexicographical,T,Index2D> & u,
+                            Coefficients<Lexicographical,T,Index2D> & u_exact,
+                            const Preconditioner &P);
 
 }    //namespace lawa
 
