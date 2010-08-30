@@ -226,7 +226,7 @@ overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2, Support<T> &co
                 common.l1 = supp2.l1;
                 common.l2 = supp1.li1;
                 return common.l2 - common.l1;
-
+            }
             common.l1 = 0;
             common.l2 = -1;
             return 0;

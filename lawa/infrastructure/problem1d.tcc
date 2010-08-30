@@ -117,7 +117,7 @@ Problem1D<T, Basis>::getPreconditioner(Preconditioner& P, int J)
     // W x F
     for(int j = j0; j <= J-1; ++j){
         for(int k1 = basis.rangeJ(j).firstIndex(); k1 <= basis.rangeJ(j).lastIndex(); ++k1){
-            D(basis.cardJ(j) + k1 - offsetJ) = P(XWavelet, j, k1);
+            D(basis.mra.cardI(j) + k1 - offsetJ) = P(XWavelet, j, k1);
         }
     }
     
