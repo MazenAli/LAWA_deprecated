@@ -19,6 +19,7 @@
 
 #include <cassert>
 #include <limits>
+#include <iomanip>
 
 namespace lawa {
 
@@ -76,6 +77,9 @@ pcg(const Prec &P, const MA &A, VX &x, const VB &b,
         x.engine().resize(A.numCols());
     }
     r = b - A*x;
+    if(r*r == 0){
+        return 0;
+    }    
     rHat = transpose(P)*r;
     p = P*rHat;
     rHatq = rHat*rHat;
@@ -91,7 +95,7 @@ pcg(const Prec &P, const MA &A, VX &x, const VB &b,
         p += P*rHat;
         pNormSquare = p*p;
         #ifdef SOLVER_DEBUG
-            std::cerr << "k = " << k << ", rho = " << sqrt(pNormSquare)
+            std::cerr << "k = " << k << ", rho = " <<  sqrt(pNormSquare) 
                 << std::endl;
         #endif
         if (sqrt(pNormSquare)<=tol) {

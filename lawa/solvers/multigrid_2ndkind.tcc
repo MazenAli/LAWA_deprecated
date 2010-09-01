@@ -24,7 +24,6 @@ run_MG_2ndKind(flens::DenseVector<flens::Array<T> >& u0, int maxLevel)
         zeros.engine().resize(b.mra.cardI(i), b.mra.rangeI(i).firstIndex());
         full_ts.setLevel(i);
         flens::DenseVector<flens::Array<T> > f = full_ts.solve(zeros);                  
-                          
         u = mg.wCycle(1, i, u_prol, f);
     }
     
@@ -73,7 +72,7 @@ solve(flens::DenseVector<flens::Array<T> > u0, flens::DenseVector<flens::Array<T
     
     flens::DenseVector<flens::Array<T> > rhsvector = lhsmatrix * f;
     fmatrix(flens::_, steps) = rhsvector;
-        
+    
     flens::DenseVector<flens::Array<T> > u = mg_ptr->fp.solve(u0, fmatrix);
     
     return u;

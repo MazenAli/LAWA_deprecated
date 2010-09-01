@@ -13,7 +13,7 @@ TimeStepping<T,Solver>::solve(flens::DenseVector<flens::Array<T> >& u_0, bool sa
     flens::DenseVector<flens::Array<T> > u_next, u(u_0);
     if(saveSols){
         U.engine().resize(u_0.length(), timesteps+1, u_0.range().firstIndex(), 0);
-        U(flens::_, 1) = u_0;
+        U(flens::_, 0) = u_0;
     }
     
     for(int k = 1; k <= timesteps; ++k){
