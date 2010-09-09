@@ -302,7 +302,7 @@ ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::exact_
             case 2:
                 if (deriv_t==0){
                     if(t < 0.5) return  t + 0.25;
-                    else        return -t + 0.75;
+                    else        return -t + 1.25;
                 }
     			else if (deriv_t==1){
     			    if(t < 0.5) return  1;
