@@ -10,7 +10,7 @@ template <typename T, typename Solver>
 flens::DenseVector<flens::Array<T> > 
 TimeStepping<T,Solver>::solve(flens::DenseVector<flens::Array<T> >& u_0, bool saveSols)
 {
-    flens::DenseVector<flens::Array<T> > u_next, u(u_0);
+    flens::DenseVector<flens::Array<T> > u_next(u_0.range()), u(u_0);
     if(saveSols){
         U.engine().resize(u_0.length(), timesteps+1, u_0.range().firstIndex(), 0);
         U(flens::_, 0) = u_0;
@@ -35,7 +35,7 @@ TimeStepping<T,Solver>::solve(flens::DenseVector<flens::Array<T> >& u_0,
     assert(fmatrix.numCols() == timesteps);
     assert(fmatrix.numRows() == u_0.length());
     
-    flens::DenseVector<flens::Array<T> > u_next, u(u_0);
+    flens::DenseVector<flens::Array<T> > u_next(u_0), u(u_0);
     
     for(int k = 1; k <= timesteps; ++k){
         flens::DenseVector<flens::Array<T> > f = fmatrix(flens::_, k);
