@@ -180,6 +180,72 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
     plotfile.close();
 }
 
+template <typename T, typename Basis2D, typename Preconditioner>
+void
+plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
+       const Preconditioner &P, T (*u)(T,T), T (*dy_u)(T,T), T a1, T b1, T a2, T b2, 
+       T h1, T h2, const char* filename)
+{
+    typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
+    typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
+    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_y;
+    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_y;
+
+    typedef typename Coefficients<Lexicographical,T,Index2D >::const_iterator coeff_it;
+
+    PrimalSpline_x  phi_x(basis.first.mra);
+    PrimalWavelet_x psi_x(basis.first);
+    PrimalSpline_y  phi_y(basis.second.mra);
+    PrimalSpline_y  d_phi_y(basis.second.mra,1);
+    PrimalWavelet_y psi_y(basis.second);
+    PrimalWavelet_y d_psi_y(basis.second,1);
+
+    std::stringstream PlotFileName;
+    PlotFileName << filename << ".dat";
+    std::ofstream plotfile(PlotFileName.str().c_str());
+
+    for (T x=a1; x<=b1; x+=h1) {
+        for (T y=a2; y<=b2; y+=h2) {
+            T appr = 0.0;
+            T dy_appr = 0.0;
+            T exact= u(x,y);
+            T dy_exact = dy_u(x,y);
+            for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+                XType xtype_x = (*it).first.index1.xtype;
+                XType xtype_y = (*it).first.index2.xtype;
+                int j_x = (*it).first.index1.j, k_x = (*it).first.index1.k;
+                int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
+
+                T coeff = (*it).second, prec = P((*it).first);
+                if (xtype_x == XBSpline) {
+                    if (xtype_y == XBSpline) {
+                        appr  += prec * coeff * phi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
+                        dy_appr += prec * coeff * phi_x(x,j_x,k_x) * d_phi_y(y,j_y,k_y);
+                    }
+                    else {
+                        appr  += prec * coeff * phi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
+                        dy_appr  += prec * coeff * phi_x(x,j_x,k_x) * d_psi_y(y,j_y,k_y);
+                    }
+                }
+                else {
+                    if (xtype_y == XBSpline) {
+                        appr  += prec * coeff * psi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
+                        dy_appr  += prec * coeff * psi_x(x,j_x,k_x) * d_phi_y(y,j_y,k_y);
+                    }
+                    else {
+                        appr  += prec * coeff * psi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
+                        dy_appr  += prec * coeff * psi_x(x,j_x,k_x) * d_psi_y(y,j_y,k_y);
+                    }
+                }
+            }
+            plotfile << x << " " << y << " " << exact << " " << appr  << " "
+                     << dy_exact << " " << dy_appr << std::endl;
+        }
+        plotfile << std::endl;
+    }
+    plotfile.close();
+}
+
 template <typename T>
 void
 plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,R,CDF> &basis, const char* filename)

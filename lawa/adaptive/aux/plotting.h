@@ -48,6 +48,12 @@ template <typename T, typename Basis2D, typename Preconditioner>
 void
 plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
        const Preconditioner &P, T (*u)(T,T), T a1, T b1, T a2, T b2, T h, const char* filename);
+       
+template <typename T, typename Basis2D, typename Preconditioner>
+void
+plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
+       const Preconditioner &P, T (*u)(T,T), T (*dy_u)(T,T), T a1, T b1, T a2, T b2, 
+       T h1, T h2, const char* filename);
 
 template <typename T, DomainType Domain, Construction Cons>
 void
