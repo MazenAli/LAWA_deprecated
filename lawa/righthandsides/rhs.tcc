@@ -29,7 +29,19 @@ template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditio
 T
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
 {
-    T ret;
+	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
+	const_coeff_it it_end       = rhs_data.end();
+	const_coeff_it it_index     = rhs_data.find(lambda);
+
+	if (it_index != it_end) {
+	    return (*it_index).second;
+	}
+	else {
+		T ret = P(lambda) * rhsintegral(lambda);
+		rhs_data[lambda] = ret;
+		return ret;
+	}
+/*
     if (rhs_data.count(lambda) == 0) {
         ret = P(lambda) * rhsintegral(lambda);
         rhs_data[lambda] = ret;
@@ -38,6 +50,7 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
         ret = rhs_data[lambda];
     }
     return ret;
+*/
 }
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>

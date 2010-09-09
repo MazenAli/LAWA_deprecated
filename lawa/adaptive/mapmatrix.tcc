@@ -24,7 +24,7 @@ namespace lawa {
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a, const Preconditioner &_p)
-: a(_a), p(_p)
+:  a(_a), p(_p), P_data()
 {
 }
 
@@ -33,14 +33,70 @@ T
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Index &row_index, const Index &col_index)
 {
     Entry<Index> entry(row_index,col_index);
-    if (data.count(entry)==0) {
-        T val;
-        val = p(row_index)*a(row_index,col_index)*p(col_index);
-        if (fabs(val) > 0) {        //store only non-zero entries!!
-            data.insert(val_type(entry,val));
-        }
+
+    typedef typename EntryMap::const_iterator const_map_it;
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
+    const_map_it it_end = data.end();
+    const_map_it it_entry = data.find(entry);
+
+    if (it_entry != it_end) {
+    	return (*it_entry).second;
     }
-    return data[entry];
+    else {
+    	T prec = 1.;
+    	const_coeff_it it_P_end       = P_data.end();
+    	const_coeff_it it_row_index = P_data.find(row_index);
+    	if (it_row_index != it_P_end) {
+    		prec *= (*it_row_index).second;
+    	}
+    	else {
+    		T tmp = p(row_index);
+    		P_data[row_index] = tmp;
+    		prec *= tmp;
+    	}
+    	it_P_end       = P_data.end();
+    	const_coeff_it it_col_index   = P_data.find(col_index);
+    	if (it_row_index != it_P_end) {
+    		prec *= (*it_col_index).second;
+    	}
+    	else {
+    		T tmp = p(col_index);
+    		P_data[col_index] = tmp;
+    		prec *= tmp;
+    	}
+    	T val = prec * a(row_index,col_index);
+    	data.insert(val_type(entry,val));
+    	return val;
+    }
+
+/*
+    if (data.count(entry)==0) {
+
+    	T prec = 1.;
+    	if (P_data.count(row_index) == 0) {
+    	    	T tmp = p(row_index);
+    	    	P_data[row_index] = tmp;
+    	    	prec *= tmp;
+    	    }
+    	    else {
+    	    	prec *= P_data[row_index];
+    	    }
+    	    if (P_data.count(col_index) == 0) {
+    	        T tmp = p(col_index);
+    	        P_data[col_index] = tmp;
+    	        prec *= tmp;
+    	    }
+    	    else {
+    	    	prec *= P_data[col_index];
+    	}
+
+        T val = prec * a(row_index,col_index);
+        data.insert(val_type(entry,val));
+    }
+    T ret = data[entry];
+
+    return ret;
+*/
 }
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
@@ -63,6 +119,7 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol)
 {
+	//std::cout << "LambdaRow = " << LambdaRow << std::endl;
     typedef typename IndexSet<Index>::const_iterator const_set_it;
     int row_count = 1, col_count = 1;
     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A_flens(LambdaRow.size(),LambdaCol.size());
@@ -74,6 +131,11 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix(
         }
     }
     A_flens.finalize();
+    /*
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > A_dense(LambdaRow.size(),LambdaCol.size());
+    densify(cxxblas::NoTrans,A_flens,A_dense);
+    std::cout << A_dense << std::endl;
+    */
     return A_flens;
 }
 
@@ -132,8 +194,6 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 
     int N = Lambda.size();
     SparseGeMatrix<CRS<T,CRS_General> > A_flens = A.toFlensSparseMatrix(Lambda, Lambda);
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
-    densify(cxxblas::NoTrans,A_flens,A_dense);
 
     if (Lambda.size() > 0) {
         DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
@@ -142,7 +202,6 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
             if (f.count((*row)) > 0) {
                 const_coeff_it it = f.find(*row);
                 rhs(row_count) = (*it).second;
-//                rhs(row_count) = f[(*row)];
             }
             else                      rhs(row_count) = 0.;
         }
