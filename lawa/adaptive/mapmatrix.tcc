@@ -78,6 +78,13 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix(
 }
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+void
+MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::clear()
+{
+    data.clear();
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 Coefficients<Lexicographical,T,Index>
 mv(const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,Preconditioner> &A, const Coefficients<Lexicographical,T,Index > &v)
 {

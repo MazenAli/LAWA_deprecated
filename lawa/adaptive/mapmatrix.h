@@ -52,6 +52,9 @@ public:
 	
 	flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
 	toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol);
+	
+	void
+    clear();
 };
 
 
