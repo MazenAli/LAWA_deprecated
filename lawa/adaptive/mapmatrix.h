@@ -40,6 +40,8 @@ public:
     const BilinearForm &a;
     const Preconditioner &p;
     //const Compression &c;
+    Coefficients<Lexicographical,T,Index> P_data;
+
 
 public:
     MapMatrix(const BilinearForm &a, const Preconditioner &p);
