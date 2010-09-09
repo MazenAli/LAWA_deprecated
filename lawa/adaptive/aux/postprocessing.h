@@ -39,6 +39,12 @@ template <typename T, typename Index, typename MA, typename RHS>
 T
 estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
                        T HNormOfExactSolution);
+                       
+template<typename T, typename Preconditioner>
+T
+estimate_SpaceTimeError_L0T_L2(Coefficients<Lexicographical,T,Index2D> & u, 
+                               Coefficients<Lexicographical,T,Index2D> & u_exact,
+                               const Preconditioner &P);                    
 
 template<typename T, typename Preconditioner>
 T
