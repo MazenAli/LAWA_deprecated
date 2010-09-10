@@ -64,44 +64,5 @@ SeparableRHS2D<T, Basis2D>::operator()(const Index2D &index) const
                                                   index.index2.xtype, index.index2.j, index.index2.k);
 }
 
-//==========================================================================================//
-
-template<typename T, typename RHS2D>
-SumOfRHS2D<T, RHS2D>::SumOfRHS2D(const RHS2D &_rhs1, const RHS2D &_rhs2)
-    : rhs1(_rhs1), rhs2(_rhs2)
-{
-}
-
-template<typename T, typename RHS2D>
-T
-SumOfRHS2D<T, RHS2D>::operator()(XType xtype_x, int j_x, int k_x,
-                                 XType xtype_y, int j_y, int k_y) const
-{
-	return rhs1(xtype_x, j_x, k_x, xtype_y, j_y, k_y)
-		  +rhs2(xtype_x, j_x, k_x, xtype_y, j_y, k_y);
-}
-
-template<typename T, typename RHS2D>
-T
-SumOfRHS2D<T, RHS2D>::operator()(const Index2D &index) const
-{
-    return rhs1(index.index1.xtype, index.index1.j, index.index1.k,
-                index.index2.xtype, index.index2.j, index.index2.k)
-          +rhs2(index.index1.xtype, index.index1.j, index.index1.k,
-                index.index2.xtype, index.index2.j, index.index2.k);
-}
-
-template<typename T, typename RHS2D>
-Coefficients<Lexicographical,T,Index2D>
-SumOfRHS2D<T, RHS2D>::operator()(const IndexSet<Index2D> &Lambda) const
-{
-    typedef typename IndexSet<Index2D>::iterator const_set_it;
-    Coefficients<Lexicographical,T,Index2D> ret(Lambda.d,Lambda.d_);
-    for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
-        T tmp = SumOfRHS2D<T, RHS2D>::operator()(*lambda);
-        ret[*lambda] = tmp;
-    }
-    return ret;
-}
 
 } // namespace lawa
