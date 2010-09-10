@@ -41,6 +41,7 @@ public:
     const Preconditioner &p;
     //const Compression &c;
     Coefficients<Lexicographical,T,Index> P_data;
+    std::set<Entry<Index>, lt<Lexicographical, Index > > Zeros;
 
 
 public:

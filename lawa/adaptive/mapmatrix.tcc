@@ -34,6 +34,8 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
 {
     Entry<Index> entry(row_index,col_index);
 
+    if (Zeros.count(entry) > 0) return 0;
+
     typedef typename EntryMap::const_iterator const_map_it;
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
     const_map_it it_end = data.end();
@@ -65,38 +67,12 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
     		prec *= tmp;
     	}
     	T val = prec * a(row_index,col_index);
-    	data.insert(val_type(entry,val));
+    	//data.insert(val_type(entry,val));
+    	if (fabs(val) > 0) data.insert(val_type(entry,val));
+    	else 			   Zeros.insert(entry);
     	return val;
     }
 
-/*
-    if (data.count(entry)==0) {
-
-    	T prec = 1.;
-    	if (P_data.count(row_index) == 0) {
-    	    	T tmp = p(row_index);
-    	    	P_data[row_index] = tmp;
-    	    	prec *= tmp;
-    	    }
-    	    else {
-    	    	prec *= P_data[row_index];
-    	    }
-    	    if (P_data.count(col_index) == 0) {
-    	        T tmp = p(col_index);
-    	        P_data[col_index] = tmp;
-    	        prec *= tmp;
-    	    }
-    	    else {
-    	    	prec *= P_data[col_index];
-    	}
-
-        T val = prec * a(row_index,col_index);
-        data.insert(val_type(entry,val));
-    }
-    T ret = data[entry];
-
-    return ret;
-*/
 }
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
