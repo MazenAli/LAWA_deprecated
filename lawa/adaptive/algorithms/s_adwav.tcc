@@ -50,8 +50,10 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
 
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
+        //std::cout << "LambdaActive = " << LambdaActive << std::endl;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
+        //std::cout << "u = " << u << std::endl;
         std::cout << "   ...finished." << std::endl;
 
         //Threshold step
@@ -61,6 +63,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
 
         //Computing residual
         DeltaLambda = C(LambdaThresh, contraction, basis);
+        //std::cout << "DeltaLambda = " << DeltaLambda << std::endl;
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         f = F(DeltaLambda);
         std::cout << "   ...finished" << std::endl;
