@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION_H
-#define LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION_H 1
+#ifndef LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H
+#define LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H 1
 
 #include <lawa/function.h>
 
@@ -45,4 +45,4 @@ struct SeparableFunction2D
 
 #include <lawa/righthandsides/separablefunction2d.tcc>
 
-#endif // LAWA_BOX_SEPARABLEFUNCTION_H
+#endif // LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H
