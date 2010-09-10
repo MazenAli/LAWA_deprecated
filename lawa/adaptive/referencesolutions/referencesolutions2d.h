@@ -34,7 +34,7 @@ struct ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >
     static T c;
     static DomainType domain1, domain2;
 
-    static DenseVector<Array<T> > sing_pts_x, sing_pts_y;
+    static DenseVector<Array<T> > sing_pts_x, sing_pts_y;	//aligned singularities
 
     static void
     setExample(int _nr, const HelmholtzOperator2D<T,Basis2D> &a, DomainType domain1, DomainType domain2);
@@ -63,6 +63,45 @@ struct ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >
     static T
     H1norm();
 };
+
+
+template <typename T, typename Basis, typename BilinearForm>
+struct ReferenceSolution2D
+{
+};
+
+template<typename T, typename Basis2D>
+struct ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >
+{
+    static int nr;
+    static T c;
+    static DomainType domain1, domain2;
+
+    static DenseVector<Array<T> > sing_pts_x, sing_pts_y;
+
+    static void
+    setExample(int _nr, const HelmholtzOperator2D<T,Basis2D> &a, DomainType domain1, DomainType domain2);
+
+    static T
+    exact(T x, T y);
+
+    static T
+    exact_dx(T x, T y);
+
+    static T
+    exact_dy(T x, T y);
+
+    static T
+    rhs(T x, T y);
+
+    static T
+    exact(T x, T y, int deriv_x, int deriv_y);
+
+    static T
+    H1norm();
+
+};
+
 
 template<typename T, typename Basis2D>
 struct ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >
