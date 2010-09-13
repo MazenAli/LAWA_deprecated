@@ -16,6 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+#include <lawa/adaptive/aux/timer.h>
 
 namespace lawa {
 
@@ -29,12 +30,15 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
 {
     solutions.resize(NumOfIterations);
     residuals.resize(NumOfIterations);
+    times.resize(NumOfIterations);
 }
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
 {
+    Timer timer;
+    
     int d=InitialLambda.d, d_=InitialLambda.d_;
     IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_), DeltaLambda(d,d_);
     Coefficients<Lexicographical,T, Index> u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
@@ -43,6 +47,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
     T old_res = 0.;
     std::cout << "Simple adaptive solver started." << std::endl;
     for (int its=0; its<NumOfIterations; ++its) {
+        
+        timer.start();
+        
         //Initialization step
         FillWithZeros(LambdaActive,u);
         f = F(LambdaActive);
@@ -85,6 +92,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
             resTol    *= 0.5;
         }
         old_res = estim_res;
+        timer.stop();
+        times[its] = timer.elapsed();
+        
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations;
         std::cout << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl;
     }
@@ -94,6 +104,8 @@ template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 {
+    Timer timer;
+    
 	int d=InitialLambda.d, d_=InitialLambda.d_;
 	IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_), DeltaLambda(d,d_);
 	Coefficients<Lexicographical,T, Index> u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
@@ -102,6 +114,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 	T old_res = 0.;
 	std::cout << "Simple adaptive solver started." << std::endl;
 	for (int its=0; its<NumOfIterations; ++its) {
+       
+        timer.start();
+	
 		//Initialization step
 		FillWithZeros(LambdaActive,u);
 		f = F(LambdaActive);
@@ -146,6 +161,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 			resTol    *= 0.5;
 		}
 		old_res = estim_res;
+        timer.stop();
+        times[its] = timer.elapsed();
+        
 		std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", gmres-its = " << iterations;
 		std::cout << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl;
 	}

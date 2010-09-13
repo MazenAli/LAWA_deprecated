@@ -38,7 +38,8 @@ public:
 
     std::vector<Coefficients<Lexicographical,T,Index> > solutions;
     std::vector<T>               residuals;
-
+    std::vector<T>               times;
+    
 private:
     const Basis &basis;
     MA &A;
