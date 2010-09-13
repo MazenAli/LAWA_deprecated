@@ -214,18 +214,24 @@ struct lt<Lexicographical, Index2D >
 		else									 return left.index2.val < right.index2.val;
 	}
 
-
     inline
     bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const
     {
     // sort Operator row-wise
-        if ( !(operator()(left.row_index,right.row_index)) && !(operator()(right.row_index,left.row_index))) {
-            return operator()(left.col_index, right.col_index);
+        if (left.row_index.index1.val != right.row_index.index1.val) {
+        	return left.row_index.index1.val < right.row_index.index1.val;
+        }
+        else if (left.row_index.index2.val != right.row_index.index2.val) {
+        	return left.row_index.index2.val < right.row_index.index2.val;
+        }
+        if (left.col_index.index1.val != right.col_index.index1.val) {
+            return left.col_index.index1.val < right.col_index.index1.val;
         }
         else {
-            return operator()(left.row_index,right.row_index);
+            return left.col_index.index2.val < right.col_index.index2.val;
         }
     }
+
 };
 
 template <typename SortingType>
