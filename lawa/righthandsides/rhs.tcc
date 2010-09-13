@@ -41,8 +41,8 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
 		rhs_data[lambda] = ret;
 		return ret;
 	}
-/*
-    if (rhs_data.count(lambda) == 0) {
+    
+/*    if (rhs_data.count(lambda) == 0) {
         ret = P(lambda) * rhsintegral(lambda);
         rhs_data[lambda] = ret;
     }
