@@ -61,26 +61,6 @@ class SeparableRHS2D
 
 };
 
-template <typename T, typename RHS2D>
-class SumOfRHS2D
-{
-private:
-    const RHS2D &rhs1;
-    const RHS2D &rhs2;
-
-public:
-    SumOfRHS2D(const RHS2D &rhs1, const RHS2D &rhs2);
-
-    T
-    operator()(XType xtype_x, int j_x, int k_x,
-               XType xtpye_y, int j_y, int k_y) const;
-
-    T
-    operator()(const Index2D &index) const;
-
-    Coefficients<Lexicographical,T,Index2D>
-    operator()(const IndexSet<Index2D> &Lambda) const;
-};
     
 } // namespace lawa
 

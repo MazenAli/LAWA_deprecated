@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,58 +17,30 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ENUM_H
-#define LAWA_ENUM_H 1
+#ifndef LAWA_RIGHTHANDSIDES_FUNCTION2D_H
+#define LAWA_RIGHTHANDSIDES_FUNCTION2D_H 1
 
 namespace lawa {
 
-enum FunctionSide {
-    Primal,
-    Dual
-};
+using namespace flens;
 
-enum DomainType {
-    Periodic,
-    R,
-    Interval
-};
+template<typename T>
+struct Function2D
+{
+public:
+    Function2D(T (*_f)(T,T), const DenseVector<Array<T> > &_singularPts_x,
+							 const DenseVector<Array<T> > &_singularPts_y);
 
-enum Dimension {
-    OneD = 1,
-    TwoD = 2
-};
+    T
+    operator()(T x, T y) const;
 
-enum XType {
-    XBSpline,
-    XWavelet
-};
-
-enum Construction {
-    CDF,
-    AnyInterval,
-    DKU,
-    Primbs,
-    Dijkema
-};
-
-enum BoundaryCondition {
-    NoBC = 0,
-    DirichletBC = 1
-};
-
-enum QuadratureType { 
-    Gauss, 
-    Trapezoidal,
-    SparseGridGP,	//Gauss-Patterson quadrature on a sparse grid
-    FullGridGL,	    //Gauss-Legendre  quadrature on a full grid
-};
-
-enum SortingCriterion {
-    AbsoluteValue,
-    Lexicographical,
-    Uniform
+    const DenseVector<Array<T> > singularPts_x;	//x-aligned singularities
+    const DenseVector<Array<T> > singularPts_y;	//y-aligned singularities
+    T (*f)(T,T);
 };
 
 } // namespace lawa
 
-#endif // LAWA_ENUM_H
+#include <lawa/righthandsides/function2d.tcc>
+
+#endif // LAWA_RIGHTHANDSIDES_FUNCTION2D_H

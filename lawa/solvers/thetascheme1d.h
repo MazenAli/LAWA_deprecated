@@ -120,6 +120,6 @@ class ThetaScheme1D
       
 } // namespace lawa
 
-#include <lawa/solvers/thetascheme1D.tcc>
+#include <lawa/solvers/thetascheme1d.tcc>
 
 #endif // LAWA_SOLVERS_THETASCHEME1D_H

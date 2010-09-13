@@ -28,8 +28,10 @@ namespace lawa {
 class Index1D
 {
 public:
-    int j, k;
+    short j;
+    int k;
     XType xtype;
+    long val;
 
     Index1D(void);
     ~Index1D();

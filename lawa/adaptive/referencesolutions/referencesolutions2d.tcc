@@ -20,7 +20,7 @@
 namespace lawa {
     
 /* ================================================================================
- *        HELMHOLTZ EXAMPLES 2D
+ *        HELMHOLTZ EXAMPLES 2D - Tensor examples
  * ================================================================================*/
 
 template <typename T, typename Basis2D>
@@ -174,6 +174,151 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
             ret += 10.527578027828639;
             ret +=  2.666666666666666;
             ret = sqrt(ret);
+        }
+    }
+    return ret;
+}
+
+/* ================================================================================
+ *        HELMHOLTZ EXAMPLES 2D - Non tensor examples
+ * ================================================================================*/
+
+template <typename T, typename Basis2D>
+flens::DenseVector<Array<T> >
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::sing_pts_x;
+
+template <typename T, typename Basis2D>
+flens::DenseVector<Array<T> >
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::sing_pts_y;
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::c;
+
+template <typename T, typename Basis2D>
+int
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::nr;
+
+template <typename T, typename Basis2D>
+DomainType
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::domain1;
+
+template <typename T, typename Basis2D>
+DomainType
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::domain2;
+
+template <typename T, typename Basis2D>
+void
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample(int _nr,
+                                                            const HelmholtzOperator2D<T,Basis2D> &a,
+                                                            DomainType _domain1, DomainType _domain2)
+{
+    c=a.getc();
+    assert(c>=0);
+    nr=_nr;
+    domain1 = _domain1;
+    domain2 = _domain2;
+
+    if ((domain1 == R) && (domain2 == R)) {
+    	if (nr==2) {
+    		sing_pts_x.engine().resize(1);
+    		sing_pts_y.engine().resize(1);
+    		sing_pts_x(1) = 0.1;
+    		sing_pts_y(1) = 0.1;
+    	}
+    }
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact(T x, T y)
+{
+    return exact(x,y,0,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_dx(T x, T y)
+{
+    return exact(x,y,1,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_dy(T x, T y)
+{
+    return exact(x,y,0,1);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::rhs(T x, T y)
+{
+    return -exact(x,y,2,0)-exact(x,y,0,2)+c*exact(x,y,0,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact(T x, T y, int deriv_x, int deriv_y)
+{
+	if ((domain1=R) && (domain2==R)) {
+		if (nr==1) {
+			if ((deriv_x==0) && (deriv_y==0)) {
+				return exp(-( 2*(x-0.1)*(x-0.1) + (x-0.1)*(y-0.1) + (y-0.1)*(y-0.1)  ) );
+			}
+			else if ((deriv_x==0) && (deriv_y==2)) {
+				return (pow(-(x-0.1)-2*(y-0.1),2) - 2)*
+				       exp(-( 2*(x-0.1)*(x-0.1) + (x-0.1)*(y-0.1) + (y-0.1)*(y-0.1)  ) );
+			}
+			else if ((deriv_x==2) && (deriv_y==0)) {
+				return (pow(-4*(x-0.1)-(y-0.1),2) - 4)*
+					   exp(-( 2*(x-0.1)*(x-0.1) + (x-0.1)*(y-0.1) + (y-0.1)*(y-0.1)  ) );
+			}
+			else {
+				return 0.;
+			}
+		}
+		else if (nr==2) {
+			T XmA_p2_p_YmB_p2 = (x-0.1)*(x-0.1)+(y-0.1)*(y-0.1);
+			if ((deriv_x==0) && (deriv_y==0)) {
+				return exp(-sqrt( XmA_p2_p_YmB_p2 ));
+			}
+			else if ((deriv_x==0) && (deriv_y==1)) {
+				return -(y-0.1)/sqrt(XmA_p2_p_YmB_p2)*exp(-sqrt( XmA_p2_p_YmB_p2 ));
+			}
+			else if ((deriv_x==1) && (deriv_y==0)) {
+				return -(x-0.1)/sqrt(XmA_p2_p_YmB_p2)*exp(-sqrt( XmA_p2_p_YmB_p2 ));
+			}
+			else if ((deriv_x==0) && (deriv_y==2)) {
+				return ( (y-0.1)*(y-0.1)/XmA_p2_p_YmB_p2 -
+					     1./sqrt(XmA_p2_p_YmB_p2) + (y-0.1)*(y-0.1)/pow(XmA_p2_p_YmB_p2,1.5) )*
+				       exp(-sqrt( XmA_p2_p_YmB_p2 ));
+			}
+			else if ((deriv_x==2) && (deriv_y==0)) {
+				return ( (x-0.1)*(x-0.1)/XmA_p2_p_YmB_p2 -
+					     1./sqrt(XmA_p2_p_YmB_p2) + (x-0.1)*(x-0.1)/pow(XmA_p2_p_YmB_p2,1.5) )*
+					   exp(-sqrt( XmA_p2_p_YmB_p2 ));
+			}
+			else {
+				return 0.;
+			}
+		}
+	}
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
+{
+    T ret = 0.;
+    if ((domain1==R) && (domain2==R)) {
+        if (nr==1)             {
+        	ret = 1.187410411723726 + 2.374820823447452 + 1.187410411723726;
+        	ret = sqrt(ret);
+        }
+        else if (nr==2) {
+        	ret = 1.570795505591071 + 0.7853981678060725 + 0.7853981678060725;
+        	ret = sqrt(ret);
         }
     }
     return ret;
