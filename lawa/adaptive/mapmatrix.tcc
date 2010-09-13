@@ -58,7 +58,7 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
     	}
     	it_P_end       = P_data.end();
     	const_coeff_it it_col_index   = P_data.find(col_index);
-    	if (it_row_index != it_P_end) {
+    	if (it_col_index != it_P_end) {
     		prec *= (*it_col_index).second;
     	}
     	else {
