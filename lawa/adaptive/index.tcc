@@ -20,16 +20,12 @@
 namespace lawa {
 
 Index1D::Index1D(void)
-: j(0), k(0), xtype(XBSpline), val(0)
-{
-}
-
-Index1D::~Index1D(void)
+: j(0), k(0), xtype(XBSpline), val(0), linearindex(0)
 {
 }
 
 Index1D::Index1D(int _j, int _k, XType _xtype)
-: j(_j), k(_k), xtype(_xtype), val(xtype)
+: j(_j), k(_k), xtype(_xtype), val(xtype), linearindex(0)
 {
 	/*
 	std::cout << "Index1D.val = " << val << std::endl;
@@ -52,23 +48,28 @@ Index1D::Index1D(int _j, int _k, XType _xtype)
 }
 
 Index1D::Index1D(const Index1D &index)
-: j(index.j), k(index.k), xtype(index.xtype), val(index.val)
+: j(index.j), k(index.k), xtype(index.xtype), val(index.val), linearindex(index.linearindex)
 {
 }
+
+Index1D::~Index1D(void)
+{
+}
+
 
 std::ostream& operator<<(std::ostream &s, const Index1D &_i)
 {
     if (_i.xtype==XBSpline) {
-        s << "scaling, (" << _i.j << " , " << _i.k << ", " << _i.val << ")";
+        s << "scaling, (" << _i.j << " , " << _i.k << ", " << _i.val << ", " << _i.linearindex << ")";
     } else {
-        s << "wavelet, (" << _i.j << " , " << _i.k << ", " << _i.val << ")";
+        s << "wavelet, (" << _i.j << " , " << _i.k << ", " << _i.val << ", " << _i.linearindex << ")";
     }
     return s;
 }
 
 
 Index2D::Index2D(const Index1D &_index1, const Index1D &_index2)
-    : index1(_index1), index2(_index2)
+    : linearindex(0), index1(_index1), index2(_index2)
 {
 }
 

@@ -34,8 +34,6 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
 {
     Entry<Index> entry(row_index,col_index);
 
-    if (Zeros.count(entry) > 0) return 0;
-
     typedef typename EntryMap::const_iterator const_map_it;
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
     const_map_it it_end = data.end();
@@ -67,9 +65,7 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
     		prec *= tmp;
     	}
     	T val = prec * a(row_index,col_index);
-    	//data.insert(val_type(entry,val));
     	if (fabs(val) > 0) data.insert(val_type(entry,val));
-    	else 			   Zeros.insert(entry);
     	return val;
     }
 
@@ -79,40 +75,42 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 T
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(T t, const  Index &row_index, const Index &col_index)
 {
-    Entry<Index> entry(row_index,col_index);
-	if (data.count(entry)==0) {
-	    T val;
-	    val = p(row_index)*a(t, row_index,col_index)*p(col_index);
-	    if (fabs(val) > 0) {		//store only non-zero entries!!
-	    	data.insert(val_type(entry,val));
-	    }
+	Entry<Index> entry(row_index,col_index);
+
+	typedef typename EntryMap::const_iterator const_map_it;
+	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
+	const_map_it it_end = data.end();
+	const_map_it it_entry = data.find(entry);
+
+	if (it_entry != it_end) {
+	 	return (*it_entry).second;
 	}
-	return data[entry];
-}
-
-
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol)
-{
-	//std::cout << "LambdaRow = " << LambdaRow << std::endl;
-    typedef typename IndexSet<Index>::const_iterator const_set_it;
-    int row_count = 1, col_count = 1;
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A_flens(LambdaRow.size(),LambdaCol.size());
-    for (const_set_it row = LambdaRow.begin(); row != LambdaRow.end(); ++row,++row_count) {
-        col_count = 1;
-        for (const_set_it col = LambdaCol.begin(); col != LambdaCol.end(); ++col,++col_count) {
-            T tmp = MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(*row,*col);
-            if (fabs(tmp) > 0)             A_flens(row_count,col_count) = tmp;
-        }
-    }
-    A_flens.finalize();
-    /*
-    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > A_dense(LambdaRow.size(),LambdaCol.size());
-    densify(cxxblas::NoTrans,A_flens,A_dense);
-    std::cout << A_dense << std::endl;
-    */
-    return A_flens;
+	else {
+	  	T prec = 1.;
+	   	const_coeff_it it_P_end       = P_data.end();
+	   	const_coeff_it it_row_index = P_data.find(row_index);
+	   	if (it_row_index != it_P_end) {
+	   		prec *= (*it_row_index).second;
+	   	}
+	   	else {
+	   		T tmp = p(row_index);
+	   		P_data[row_index] = tmp;
+	   		prec *= tmp;
+	   	}
+	   	it_P_end       = P_data.end();
+	   	const_coeff_it it_col_index   = P_data.find(col_index);
+	   	if (it_col_index != it_P_end) {
+	   		prec *= (*it_col_index).second;
+	   	}
+	   	else {
+	   		T tmp = p(col_index);
+	   		P_data[col_index] = tmp;
+	   		prec *= tmp;
+	   	}
+	   	T val = prec * a(row_index,col_index);
+	   	if (fabs(val) > 0) data.insert(val_type(entry,val));
+	   	return val;
+	}
 }
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
@@ -122,9 +120,180 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::clear()
     data.clear();
 }
 
+
+
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrixWithZeros(const BilinearForm &_a, const Preconditioner &_p)
+:  a(_a), p(_p), ConsecutiveIndices(2,2), Zeros( (ROW_SIZE*COL_SIZE) >> 5)
+{
+	PrecValues.engine().resize(ROW_SIZE);
+	Zeros.assign((ROW_SIZE*COL_SIZE) >> 5, (long long) 0);
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+T
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Index &_row_index, const Index &_col_index)
+{
+	Index temp_row_index = _row_index;
+	Index temp_col_index = _col_index;
+	typedef typename IndexSet<Index>::iterator set_it;
+	int size = ConsecutiveIndices.size();
+	std::pair<set_it,bool> row = ConsecutiveIndices.insert(temp_row_index);
+	std::pair<set_it,bool> col = ConsecutiveIndices.insert(temp_col_index);
+
+	set_it row_index = row.first;
+	if (row.second) {
+		(*row_index).linearindex = size;
+		++size;
+	}
+	set_it col_index = col.first;
+	if (col.second) {
+		(*col_index).linearindex = size;
+	}
+
+	unsigned int block_num = (   (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) >> 5;
+	unsigned int block_pos = ( ( (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) & 31 ) * 2;
+
+	long long block = Zeros[block_num];
+	//long long value = ( (((long long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
+	long long value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
+
+	if (value == 1) {
+		return 0.;
+	}
+	else if (value == 2) {
+		return NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)];
+	}
+	else { 	//value == 0
+		T prec = 1.;
+		if (fabs(PrecValues((*row_index).linearindex+1)) > 0) {
+			prec *= PrecValues((*row_index).linearindex+1);
+		}
+		else {
+			T tmp = p(*row_index);
+			prec *= tmp;
+			PrecValues((*row_index).linearindex+1) = tmp;
+		}
+		if (fabs(PrecValues((*col_index).linearindex+1)) > 0) {
+			prec *= PrecValues((*col_index).linearindex+1);
+
+		}
+		else {
+			T tmp = p(*col_index);
+			prec *= tmp;
+			PrecValues((*col_index).linearindex+1) = tmp;
+		}
+		T val = 0.;
+		val = prec * a(*row_index,*col_index);
+		if (fabs(val)>0) {
+			NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)] = val;
+			Zeros[block_num] = (((long long) 2) << block_pos) | (block) ;
+			return val;
+		}
+		else {
+			Zeros[block_num] = (((long long) 1) << block_pos) | (block) ;
+			return 0.;
+		}
+	}
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+T
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(T t, const Index &_row_index, const Index &_col_index)
+{
+	Index temp_row_index = _row_index;
+	Index temp_col_index = _col_index;
+	typedef typename IndexSet<Index>::iterator set_it;
+	int size = ConsecutiveIndices.size();
+	std::pair<set_it,bool> row = ConsecutiveIndices.insert(temp_row_index);
+	std::pair<set_it,bool> col = ConsecutiveIndices.insert(temp_col_index);
+
+	set_it row_index = row.first;
+	if (row.second) {
+		(*row_index).linearindex = size;
+		++size;
+	}
+	set_it col_index = col.first;
+	if (col.second) {
+		(*col_index).linearindex = size;
+	}
+
+	unsigned int block_num = (   (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) >> 5;
+	unsigned int block_pos = ( ( (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) & 31 ) * 2;
+
+	long long block = Zeros[block_num];
+	//long long value = ( (((long long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
+	long long value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
+
+	if (value == 1) {
+		return 0.;
+	}
+	else if (value == 2) {
+		return NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)];
+	}
+	else { 	//value == 0
+		T prec = 1.;
+		if (fabs(PrecValues((*row_index).linearindex+1)) > 0) {
+			prec *= PrecValues((*row_index).linearindex+1);
+		}
+		else {
+			T tmp = p(*row_index);
+			prec *= tmp;
+			PrecValues((*row_index).linearindex+1) = tmp;
+		}
+		if (fabs(PrecValues((*col_index).linearindex+1)) > 0) {
+			prec *= PrecValues((*col_index).linearindex+1);
+
+		}
+		else {
+			T tmp = p(*col_index);
+			prec *= tmp;
+			PrecValues((*col_index).linearindex+1) = tmp;
+		}
+		T val = 0.;
+		val = prec * a(t,*row_index,*col_index);
+		if (fabs(val)>0) {
+			NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)] = val;
+			Zeros[block_num] = (((long long) 2) << block_pos) | (block) ;
+			return val;
+		}
+		else {
+			Zeros[block_num] = (((long long) 1) << block_pos) | (block) ;
+			return 0.;
+		}
+	}
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+void
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()
+{
+    NonZeros.clear();
+}
+
+
+template <typename T, typename Index, typename MA>
+void
+toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
+	                flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens)
+{
+    typedef typename IndexSet<Index>::const_iterator const_set_it;
+    int row_count = 1, col_count = 1;
+    for (const_set_it row = LambdaRow.begin(); row != LambdaRow.end(); ++row,++row_count) {
+        col_count = 1;
+        for (const_set_it col = LambdaCol.begin(); col != LambdaCol.end(); ++col,++col_count) {
+            T tmp = A(*row,*col);
+            //std::cout << "Return value for " << (*row) << ", " << (*col) << " : " << tmp << std::endl << std::endl;
+            if (fabs(tmp) > 0)             A_flens(row_count,col_count) = tmp;
+        }
+    }
+    A_flens.finalize();
+    //std::cout << "Flens matrix finalized" << std::endl;
+}
+
+template <typename T, typename Index, typename MA>
 Coefficients<Lexicographical,T,Index>
-mv(const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,Preconditioner> &A, const Coefficients<Lexicographical,T,Index > &v)
+mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
 {
     // ersetzen durch iteration Ÿber alle matrix-elemente und gleichzeitiges schreiben in den result-vector
     typedef typename IndexSet<Index>::const_iterator set_const_it;
@@ -141,9 +310,9 @@ mv(const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,
     return w;
 }
 
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+template <typename T, typename Index, typename MA>
 Coefficients<Lexicographical,T,Index>
-mv(T t, const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,Preconditioner> &A, const Coefficients<Lexicographical,T,Index > &v)
+mv(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
 {
 	// ersetzen durch iteration Ÿber alle matrix-elemente und gleichzeitiges schreiben in den result-vector
 	typedef typename IndexSet<Index>::const_iterator set_const_it;
@@ -169,7 +338,8 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
     int N = Lambda.size();
-    SparseGeMatrix<CRS<T,CRS_General> > A_flens = A.toFlensSparseMatrix(Lambda, Lambda);
+    flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
+    toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
 
     if (Lambda.size() > 0) {
         DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
@@ -204,7 +374,8 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
     	typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
     	int N = Lambda.size();
-    	SparseGeMatrix<CRS<T,CRS_General> > A_flens = A.toFlensSparseMatrix(Lambda, Lambda);
+    	flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
+    	toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
     	//flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
     	//densify(NoTrans,A_flens,A_dense);
 
