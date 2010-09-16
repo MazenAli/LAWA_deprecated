@@ -133,31 +133,6 @@ struct lt<Lexicographical, Index1D>
 
 };
 
-*/
-
-//Bitmask implementation
-template <>
-struct lt<Lexicographical, Index1D>
-{
-
-	inline
-	bool operator()(const Index1D &left, const Index1D &right) const
-	{
-		return left.val < right.val;
-	}
-
-    inline
-    bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const
-    {
-        // sort Operator row-wise
-    	if (left.row_index.val != right.row_index.val) return left.row_index.val < right.row_index.val;
-    	else										   return left.col_index.val < right.col_index.val;
-    }
-
-};
-
-//Lexicographic implementation
-/*
 template <>
 struct lt<Lexicographical, Index2D >
 {
@@ -204,6 +179,30 @@ struct lt<Lexicographical, Index2D >
 };
 */
 
+
+
+//Bitmask implementation
+
+template <>
+struct lt<Lexicographical, Index1D>
+{
+
+	inline
+	bool operator()(const Index1D &left, const Index1D &right) const
+	{
+		return left.val < right.val;
+	}
+
+    inline
+    bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const
+    {
+        // sort Operator row-wise
+    	if (left.row_index.val != right.row_index.val) return left.row_index.val < right.row_index.val;
+    	else										   return left.col_index.val < right.col_index.val;
+    }
+
+};
+
 template <>
 struct lt<Lexicographical, Index2D >
 {
@@ -234,6 +233,8 @@ struct lt<Lexicographical, Index2D >
     }
 
 };
+
+
 
 template <typename SortingType>
 struct lt<AbsoluteValue, SortingType>

@@ -47,6 +47,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
     T old_res = 0.;
     std::cout << "Simple adaptive solver started." << std::endl;
     for (int its=0; its<NumOfIterations; ++its) {
+    	std::cout << "*** " << its+1 << ".iteration" << std::endl;
         
         timer.start();
         
@@ -57,26 +58,25 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
 
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
-        //std::cout << "LambdaActive = " << LambdaActive << std::endl;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
-        //std::cout << "u = " << u << std::endl;
         std::cout << "   ...finished." << std::endl;
 
         //Threshold step
         u = THRESH(u,threshTol);
         solutions[its] = u;
         LambdaThresh = supp(u);
+        std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
 
         //Computing residual
         DeltaLambda = C(LambdaThresh, contraction, basis);
-        //std::cout << "DeltaLambda = " << DeltaLambda << std::endl;
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         f = F(DeltaLambda);
         std::cout << "   ...finished" << std::endl;
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         Au = mv(DeltaLambda,A,u);
+        //Au = mv_improved_PDE2D(DeltaLambda,A,u);
         r  = Au-f;
         T r_norm_DeltaLambda = r.norm(2.);
         T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
@@ -96,10 +96,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
         }
         old_res = estim_res;
         timer.stop();
-        times[its] = timer.elapsed();
+        if (its==0) times[its] = timer.elapsed();
+        else		times[its] = times[its-1] + timer.elapsed();
         
-        std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations;
-        std::cout << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl;
+        std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations
+                  << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
+
     }
 }
 

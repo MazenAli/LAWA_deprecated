@@ -316,8 +316,10 @@ C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
 
 template <typename T>
 IndexSet<Index1D>
-lambdaTilde1d_PDE(const Index1D &lambda, const BSpline<T,Primal,R,CDF> &phi, const Wavelet<T,Primal,R,CDF> &psi, int s_tilde, int jmin, int jmax, bool update)
+lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, int s_tilde, int jmin, int jmax, bool update)
 {
+	BSpline<T,Primal,R,CDF> phi(basis.mra);
+	Wavelet<T,Primal,R,CDF> psi(basis);
     int j = lambda.j, k = lambda.k;
     int d = psi.d, d_= psi.d_;
     IndexSet<Index1D> ret(d,d_);
@@ -332,8 +334,8 @@ lambdaTilde1d_PDE(const Index1D &lambda, const BSpline<T,Primal,R,CDF> &phi, con
 
             // Inserting all indices corresponding to Bsplines with intersecting support using local compactness
             BSpline<T,Primal,R> phi_row(d);
-            int kMin =  floor(pow2i<T>(j)*supp.l1 - support_refbspline.l2);
-            int kMax =   ceil(pow2i<T>(j)*supp.l2 - support_refbspline.l1);
+            int kMin =  floor(pow2i<T>(j)*supp.l1 - support_refbspline.l2)-1;
+            int kMax =   ceil(pow2i<T>(j)*supp.l2 - support_refbspline.l1)+1;
             for (int k_row=kMin; k_row<=kMax; ++k_row) {
                 if (overlap(supp, phi.support(j,k_row)) > 0) {
                     //std::cout << "lambdaTilde: BSpline (" << j << ", " << k_row << "): " << phi_row.support(j,k_row) << " " << supp  << std::endl;
@@ -362,6 +364,9 @@ lambdaTilde1d_PDE(const Index1D &lambda, const BSpline<T,Primal,R,CDF> &phi, con
                     }
                 }
                 else {
+                	int kMin = floor(pow2i<T>(j_row)*supp.l1 - support_refwavelet.l2)-1;
+                	int kMax =  ceil(pow2i<T>(j_row)*supp.l2 - support_refwavelet.l1)+1;
+
                     for (int k_row=kMin; k_row<=kMax; ++k_row) {
                         Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
                         if (overlap(supp, supp_row) > 0)  {

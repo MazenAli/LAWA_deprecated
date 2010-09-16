@@ -128,6 +128,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrixWi
 {
 	PrecValues.engine().resize(ROW_SIZE);
 	Zeros.assign((ROW_SIZE*COL_SIZE) >> 5, (long long) 0);
+	NonZeros.resize(3145739);
 }
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
@@ -154,15 +155,17 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
 	unsigned int block_num = (   (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) >> 5;
 	unsigned int block_pos = ( ( (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) & 31 ) * 2;
 
-	long long block = Zeros[block_num];
+	unsigned long long block = Zeros[block_num];
 	//long long value = ( (((long long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
-	long long value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
+	unsigned long long value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
+
 
 	if (value == 1) {
 		return 0.;
 	}
 	else if (value == 2) {
-		return NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)];
+		T tmp = NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)];
+		return tmp;
 	}
 	else { 	//value == 0
 		T prec = 1.;
@@ -221,9 +224,9 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
 	unsigned int block_num = (   (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) >> 5;
 	unsigned int block_pos = ( ( (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) & 31 ) * 2;
 
-	long long block = Zeros[block_num];
+	unsigned long long block = Zeros[block_num];
 	//long long value = ( (((long long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
-	long long value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
+	unsigned long long value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
 
 	if (value == 1) {
 		return 0.;
@@ -300,6 +303,8 @@ mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator coeff_const_it;
 
     Coefficients<Lexicographical,T,Index> w(v.d,v.d_);
+    Timer timer;
+    timer.start();
     for (set_const_it lambda = LambdaRow.begin(); lambda != LambdaRow.end(); ++lambda) {
         T val = 0;
         for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
@@ -307,7 +312,51 @@ mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T
         }
         w[*lambda] = val;
     }
+    timer.stop();
+    std::cout << "   Elapsed time for standard mv: " << timer.elapsed() << std::endl;
+
     return w;
+}
+
+template <typename T, typename MA>
+Coefficients<Lexicographical,T,Index2D>
+mv_improved_PDE2D(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v)
+{
+    // ersetzen durch iteration Ÿber alle matrix-elemente und gleichzeitiges schreiben in den result-vector
+	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
+	typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
+    typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator coeff_const_it;
+
+    short jmin_x = 100, jmax_x=-30, jmin_y = 100, jmax_y=-30;
+    for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
+    	jmin_x = min(jmin_x,(*mu).first.index1.j);
+    	jmax_x = max(jmax_x,(*mu).first.index1.j);
+    	jmin_y = min(jmin_y,(*mu).first.index2.j);
+    	jmax_y = max(jmax_y,(*mu).first.index2.j);
+    }
+    ++jmax_x;
+    ++jmax_y;
+    short s_tilde_x = jmax_x - jmin_x;
+    short s_tilde_y = jmax_y - jmin_y;
+    Timer timer;
+    timer.start();
+    Coefficients<Lexicographical,T,Index2D> w_(v.d,v.d_);
+	for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
+		IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE((*mu).first.index1, A.a.basis.first, s_tilde_x, jmin_x, jmax_x, false);
+		IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE((*mu).first.index2, A.a.basis.second, s_tilde_y, jmin_y, jmax_y, false);
+		for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
+			for (set1d_const_it lambda_y = Lambda_y.begin(); lambda_y != Lambda_y.end(); ++lambda_y) {
+				Index2D index2d(*lambda_x,*lambda_y);
+				if (LambdaRow.count(index2d) > 0) {
+					w_[index2d] += A(index2d,(*mu).first) * (*mu).second;
+				}
+			}
+		}
+	}
+	timer.stop();
+	std::cout << "   Elapsed time for improved mv: " << timer.elapsed() << std::endl;
+
+    return w_;
 }
 
 template <typename T, typename Index, typename MA>
