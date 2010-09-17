@@ -75,8 +75,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
         std::cout << "   ...finished" << std::endl;
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
-        Au = mv(DeltaLambda,A,u);
-        //Au = mv_improved_PDE2D(DeltaLambda,A,u);
+        //Au = mv(DeltaLambda,A,u);
+        Au = mv_sparse(DeltaLambda,A,u);
         r  = Au-f;
         T r_norm_DeltaLambda = r.norm(2.);
         T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;

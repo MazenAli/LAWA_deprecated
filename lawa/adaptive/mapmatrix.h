@@ -86,6 +86,8 @@ struct equal_pair_of_int {
     }
 };
 
+
+
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 class MapMatrixWithZeros
 {
@@ -98,14 +100,14 @@ public:
 
     const BilinearForm &a;
     const Preconditioner &p;
-    //const Compression &c;
+    Compression &c;
     IndexSet<Index> ConsecutiveIndices;
     flens::DenseVector<Array<T> > PrecValues;
     std::vector<unsigned long long> Zeros;
 
 
 public:
-    MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p);
+    MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c);
 
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
@@ -133,7 +135,7 @@ mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T
 //requires lambdaTilde!!!
 template <typename T, typename MA>
 Coefficients<Lexicographical,T,Index2D>
-mv_improved_PDE2D(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
+mv_sparse(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
 
 template <typename T, typename Index, typename MA>
 Coefficients<Lexicographical,T,Index>

@@ -73,6 +73,7 @@ IndexSet<Index1D>
 lambdaTilde1d_PDE(const Index1D &lambda, const Basis &basis,
                   int s_tilde, int jmin, int jmax, bool update);
 
+
 }   // namespace lawa
 
 

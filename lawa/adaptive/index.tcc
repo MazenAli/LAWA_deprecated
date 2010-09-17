@@ -60,9 +60,9 @@ Index1D::~Index1D(void)
 std::ostream& operator<<(std::ostream &s, const Index1D &_i)
 {
     if (_i.xtype==XBSpline) {
-        s << "scaling, (" << _i.j << " , " << _i.k << ", " << _i.val << ", " << _i.linearindex << ")";
+        s << "scaling, (" << _i.j << " , " << _i.k << ")";
     } else {
-        s << "wavelet, (" << _i.j << " , " << _i.k << ", " << _i.val << ", " << _i.linearindex << ")";
+        s << "wavelet, (" << _i.j << " , " << _i.k << ")";
     }
     return s;
 }
