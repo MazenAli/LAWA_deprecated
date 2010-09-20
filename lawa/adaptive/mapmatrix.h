@@ -54,8 +54,8 @@ public:
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
 	
-	T
-    operator()(T t, const  Index &row_index, const Index &col_index);
+	//T
+    //operator()(T t, const  Index &row_index, const Index &col_index);
 	
 	void
     clear();
@@ -112,9 +112,6 @@ public:
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
 
-	T
-    operator()(T t, const  Index &row_index, const Index &col_index);
-
 	void
     clear();
 };
@@ -137,9 +134,15 @@ template <typename T, typename MA>
 Coefficients<Lexicographical,T,Index2D>
 mv_sparse(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
 
+/*  Attention, time t is not checked for storing entries!!!
 template <typename T, typename Index, typename MA>
 Coefficients<Lexicographical,T,Index>
 mv(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v);
+
+template <typename T, typename MA>
+Coefficients<Lexicographical,T,Index2D>
+mv_sparse(t, const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
+*/
 
 template <typename T, typename Index, typename MA>
 int

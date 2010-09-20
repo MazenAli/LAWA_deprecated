@@ -71,6 +71,7 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
 
 }
 
+/*
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 T
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(T t, const  Index &row_index, const Index &col_index)
@@ -112,6 +113,7 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(T t, cons
 	   	return val;
 	}
 }
+*/
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 void
@@ -228,73 +230,6 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
 }
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-T
-MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(T t, const Index &_row_index, const Index &_col_index)
-{
-	Index temp_row_index = _row_index;
-	Index temp_col_index = _col_index;
-	typedef typename IndexSet<Index>::iterator set_it;
-	int size = ConsecutiveIndices.size();
-	std::pair<set_it,bool> row = ConsecutiveIndices.insert(temp_row_index);
-	std::pair<set_it,bool> col = ConsecutiveIndices.insert(temp_col_index);
-
-	set_it row_index = row.first;
-	if (row.second) {
-		(*row_index).linearindex = size;
-		++size;
-	}
-	set_it col_index = col.first;
-	if (col.second) {
-		(*col_index).linearindex = size;
-	}
-
-	unsigned int block_num = (   (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) >> 5;
-	unsigned int block_pos = ( ( (*col_index).linearindex*ROW_SIZE + (*row_index).linearindex ) & 31 ) * 2;
-
-	unsigned long long block = Zeros[block_num];
-	//long long value = ( (((long long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
-	unsigned long long value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
-
-	if (value == 1) {
-		return 0.;
-	}
-	else if (value == 2) {
-		return NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)];
-	}
-	else { 	//value == 0
-		T prec = 1.;
-		if (fabs(PrecValues((*row_index).linearindex+1)) > 0) {
-			prec *= PrecValues((*row_index).linearindex+1);
-		}
-		else {
-			T tmp = p(*row_index);
-			prec *= tmp;
-			PrecValues((*row_index).linearindex+1) = tmp;
-		}
-		if (fabs(PrecValues((*col_index).linearindex+1)) > 0) {
-			prec *= PrecValues((*col_index).linearindex+1);
-
-		}
-		else {
-			T tmp = p(*col_index);
-			prec *= tmp;
-			PrecValues((*col_index).linearindex+1) = tmp;
-		}
-		T val = 0.;
-		val = prec * a(t,*row_index,*col_index);
-		if (fabs(val)>0) {
-			NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)] = val;
-			Zeros[block_num] = (((long long) 2) << block_pos) | (block) ;
-			return val;
-		}
-		else {
-			Zeros[block_num] = (((long long) 1) << block_pos) | (block) ;
-			return 0.;
-		}
-	}
-}
-
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 void
 MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()
 {
@@ -347,7 +282,6 @@ mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T
     return w;
 }
 
-
 template <typename T, typename MA>
 Coefficients<Lexicographical,T,Index2D>
 mv_sparse(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v)
@@ -371,7 +305,7 @@ mv_sparse(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicogr
     return w_;
 }
 
-
+/*
 template <typename T, typename Index, typename MA>
 Coefficients<Lexicographical,T,Index>
 mv(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
@@ -390,6 +324,25 @@ mv(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographi
 	}
 	return w;
 }
+
+template <typename T, typename Index, typename MA>
+Coefficients<Lexicographical,T,Index>
+mv_sparse(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
+{
+	typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
+	typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator coeff_const_it;
+
+	A.c.setParameters(LambdaRow);
+    Coefficients<Lexicographical,T,Index2D> w_(v.d,v.d_);
+	for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
+		IndexSet<Index2D> LambdaRowSparse = A.c.SparsityPattern((*mu).first, LambdaRow);
+		for (set2d_const_it lambda = LambdaRowSparse.begin(); lambda != LambdaRowSparse.end(); ++lambda) {
+			w_[*lambda] += A(t,*lambda,(*mu).first) * (*mu).second;
+		}
+	}
+    return w_;
+}
+*/
 
 template <typename T, typename Index, typename MA>
 int
