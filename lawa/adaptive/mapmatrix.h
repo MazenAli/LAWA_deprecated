@@ -21,10 +21,15 @@
 #ifndef LAWA_ADAPTIVE_MAPMATRIX_H
 #define LAWA_ADAPTIVE_MAPMATRIX_H 1
 
+#define ROW_SIZE 4*8192
+#define COL_SIZE 4*2048
+
 #include <utility>
+#include <ext/hash_map>
 #include <lawa/adaptive/index.h>
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
+#include <lawa/adaptive/aux/timer.h>
 
 
 namespace lawa {
@@ -41,7 +46,6 @@ public:
     const Preconditioner &p;
     //const Compression &c;
     Coefficients<Lexicographical,T,Index> P_data;
-    std::set<Entry<Index>, lt<Lexicographical, Index > > Zeros;
 
 
 public:
@@ -50,24 +54,95 @@ public:
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
 	
-	T
-    operator()(T t, const  Index &row_index, const Index &col_index);
-	
-	flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-	toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol);
+	//T
+    //operator()(T t, const  Index &row_index, const Index &col_index);
 	
 	void
     clear();
 };
 
+struct lt_int_vs_int
+{
+	inline
+	bool operator()(const std::pair<int,int> &left, const std::pair<int,int> &right) const
+	{
+		if (left.first != right.first) return left.first < right.first;
+		else						   return left.second < right.second;
+	}
+};
+
+struct hash_pair_of_int {
+	inline
+    size_t operator()(const std::pair<int,int>& p) const {
+        return ( (p.first+p.second)*(p.first+p.second+1)/2 + p.second ) %  9369319;
+    }
+};
+
+struct equal_pair_of_int {
+	inline
+    bool operator()(const std::pair<int,int>& p_left, const std::pair<int,int>& p_right) const {
+        if (p_left.first != p_right.first) return false;
+        else							   return (p_left.second == p_right.second);
+    }
+};
+
+
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-Coefficients<Lexicographical,T,Index>
-mv(const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,Preconditioner> &A, const Coefficients<Lexicographical,T,Index > &v);
+class MapMatrixWithZeros
+{
+public:
+    //typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
+	typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int, equal_pair_of_int> EntryMap;
+    typedef typename EntryMap::value_type val_type;
 
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+    EntryMap NonZeros;
+
+    const BilinearForm &a;
+    const Preconditioner &p;
+    Compression &c;
+    IndexSet<Index> ConsecutiveIndices;
+    flens::DenseVector<Array<T> > PrecValues;
+    std::vector<unsigned long long> Zeros;
+
+
+public:
+    MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c);
+
+	T
+	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
+
+	void
+    clear();
+};
+
+/*
+ * Matrix operations
+ */
+
+template <typename T, typename Index, typename MA>
+void
+toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
+	                flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens);
+
+template <typename T, typename Index, typename MA>
 Coefficients<Lexicographical,T,Index>
-mv(T t, const IndexSet<Index> &LambdaRow, MapMatrix<T,Index,BilinearForm,Compression,Preconditioner> &A, const Coefficients<Lexicographical,T,Index > &v);
+mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v);
+
+//requires lambdaTilde!!!
+template <typename T, typename MA>
+Coefficients<Lexicographical,T,Index2D>
+mv_sparse(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
+
+/*  Attention, time t is not checked for storing entries!!!
+template <typename T, typename Index, typename MA>
+Coefficients<Lexicographical,T,Index>
+mv(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v);
+
+template <typename T, typename MA>
+Coefficients<Lexicographical,T,Index2D>
+mv_sparse(t, const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
+*/
 
 template <typename T, typename Index, typename MA>
 int

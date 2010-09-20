@@ -24,6 +24,7 @@
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
 #include <lawa/adaptive/mapmatrix.h>
+#include <lawa/adaptive/aux/postprocessing.h>
 
 namespace lawa {
 
@@ -34,6 +35,7 @@ public:
             T start_linTol, T start_resTol, int max_iters, T eps);
 
 	void solve_cg(const IndexSet<Index> &Initial_Lambda);
+	void solve_cg_with_error_on_the_fly(const IndexSet<Index> &Initial_Lambda, T H1norm);
 	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
 
     std::vector<Coefficients<Lexicographical,T,Index> > solutions;

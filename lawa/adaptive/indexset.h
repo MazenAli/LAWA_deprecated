@@ -68,12 +68,11 @@ C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
 
 
 // Realizations of lambdaTilde for different Basis
-template <typename T, DomainType Domain, Construction Cons>
+template <typename T, typename Basis>
 IndexSet<Index1D>
-lambdaTilde1d_PDE(const Index1D &lambda, 
-                  const BSpline<T,Primal,Domain,Cons> &phi, 
-                  const Wavelet<T,Primal,Domain,Cons> &psi, 
+lambdaTilde1d_PDE(const Index1D &lambda, const Basis &basis,
                   int s_tilde, int jmin, int jmax, bool update);
+
 
 }   // namespace lawa
 

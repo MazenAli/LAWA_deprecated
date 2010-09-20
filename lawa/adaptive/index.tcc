@@ -20,16 +20,12 @@
 namespace lawa {
 
 Index1D::Index1D(void)
-: j(0), k(0), xtype(XBSpline), val(0)
-{
-}
-
-Index1D::~Index1D(void)
+: j(0), k(0), xtype(XBSpline), val(0), linearindex(0)
 {
 }
 
 Index1D::Index1D(int _j, int _k, XType _xtype)
-: j(_j), k(_k), xtype(_xtype), val(xtype)
+: j(_j), k(_k), xtype(_xtype), val(xtype), linearindex(0)
 {
 	/*
 	std::cout << "Index1D.val = " << val << std::endl;
@@ -52,23 +48,28 @@ Index1D::Index1D(int _j, int _k, XType _xtype)
 }
 
 Index1D::Index1D(const Index1D &index)
-: j(index.j), k(index.k), xtype(index.xtype), val(index.val)
+: j(index.j), k(index.k), xtype(index.xtype), val(index.val), linearindex(index.linearindex)
 {
 }
+
+Index1D::~Index1D(void)
+{
+}
+
 
 std::ostream& operator<<(std::ostream &s, const Index1D &_i)
 {
     if (_i.xtype==XBSpline) {
-        s << "scaling, (" << _i.j << " , " << _i.k << ", " << _i.val << ")";
+        s << "scaling, (" << _i.j << " , " << _i.k << ")";
     } else {
-        s << "wavelet, (" << _i.j << " , " << _i.k << ", " << _i.val << ")";
+        s << "wavelet, (" << _i.j << " , " << _i.k << ")";
     }
     return s;
 }
 
 
 Index2D::Index2D(const Index1D &_index1, const Index1D &_index2)
-    : index1(_index1), index2(_index2)
+    : linearindex(0), index1(_index1), index2(_index2)
 {
 }
 
@@ -132,31 +133,6 @@ struct lt<Lexicographical, Index1D>
 
 };
 
-*/
-
-//Bitmask implementation
-template <>
-struct lt<Lexicographical, Index1D>
-{
-
-	inline
-	bool operator()(const Index1D &left, const Index1D &right) const
-	{
-		return left.val < right.val;
-	}
-
-    inline
-    bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const
-    {
-        // sort Operator row-wise
-    	if (left.row_index.val != right.row_index.val) return left.row_index.val < right.row_index.val;
-    	else										   return left.col_index.val < right.col_index.val;
-    }
-
-};
-
-//Lexicographic implementation
-/*
 template <>
 struct lt<Lexicographical, Index2D >
 {
@@ -203,6 +179,30 @@ struct lt<Lexicographical, Index2D >
 };
 */
 
+
+
+//Bitmask implementation
+
+template <>
+struct lt<Lexicographical, Index1D>
+{
+
+	inline
+	bool operator()(const Index1D &left, const Index1D &right) const
+	{
+		return left.val < right.val;
+	}
+
+    inline
+    bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const
+    {
+        // sort Operator row-wise
+    	if (left.row_index.val != right.row_index.val) return left.row_index.val < right.row_index.val;
+    	else										   return left.col_index.val < right.col_index.val;
+    }
+
+};
+
 template <>
 struct lt<Lexicographical, Index2D >
 {
@@ -233,6 +233,8 @@ struct lt<Lexicographical, Index2D >
     }
 
 };
+
+
 
 template <typename SortingType>
 struct lt<AbsoluteValue, SortingType>
