@@ -44,12 +44,12 @@ public:
 
     const BilinearForm &a;
     const Preconditioner &p;
-    //const Compression &c;
+    Compression &c;
     Coefficients<Lexicographical,T,Index> P_data;
 
 
 public:
-    MapMatrix(const BilinearForm &a, const Preconditioner &p);
+    MapMatrix(const BilinearForm &a, const Preconditioner &p, Compression &c);
 
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
