@@ -108,5 +108,40 @@ CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, const Inde
 	return LambdaRowSparse;
 }
 
+template <typename T, typename Basis>
+IndexSet<Index2D>
+CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde) {
+	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
+	IndexSet<Index2D> ret(basis.first.d,basis.first.d_);
+
+	T factor;
+	if      (basis.first.d == 2) factor = 2.;
+	else if (basis.first.d == 3) factor = 2./3.;
+	else {
+		std::cout << "CompressionPDE2D not implemented for orders higher than 3." << std::endl;
+		exit(1);
+	}
+
+	for (int s_tilde_x=0; s_tilde_x <= factor*s_tilde; ++s_tilde_x) {
+		for (int s_tilde_y=0; s_tilde_y <= factor*s_tilde; ++s_tilde_y) {
+			if (s_tilde_x+s_tilde_y <= factor*s_tilde) {
+				IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col.index1, basis.first,  s_tilde_x, jmin_x,
+														       lambda_col.index1.j+s_tilde_x, false);
+			    IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y,
+					                                            lambda_col.index2.j+s_tilde_y, false);
+
+
+			    for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
+				    for (set1d_const_it lambda_y = Lambda_y.begin(); lambda_y != Lambda_y.end(); ++lambda_y) {
+					    ret.insert(Index2D(*lambda_x,*lambda_y));
+				    }
+			    }
+			}
+		}
+	}
+
+	return ret;
+}
+
 
 }	//namespace lawa
