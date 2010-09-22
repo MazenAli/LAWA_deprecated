@@ -82,7 +82,7 @@ public:
 	SparsityPattern(const Index2D &lambda_col, const IndexSet<Index2D> &LambdaRow);
 
 	IndexSet<Index2D>
-	SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde);
+	SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde, int deriv_x, int deriv_y);
 
 };
 

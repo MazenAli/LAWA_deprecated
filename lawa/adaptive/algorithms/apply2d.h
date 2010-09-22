@@ -27,7 +27,7 @@ namespace lawa {
 
 template <typename T, typename MA>
 Coefficients<Lexicographical,T,Index2D>
-APPLY2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k);
+APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k);
 
 
 }	//namespace lawa

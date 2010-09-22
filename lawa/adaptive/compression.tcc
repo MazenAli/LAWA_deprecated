@@ -110,25 +110,27 @@ CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, const Inde
 
 template <typename T, typename Basis>
 IndexSet<Index2D>
-CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde) {
+CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde,
+		                                   int deriv_x, int deriv_y) {
 	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 	IndexSet<Index2D> ret(basis.first.d,basis.first.d_);
 
-	T factor;
-	if      (basis.first.d == 2) factor = 2.;
-	else if (basis.first.d == 3) factor = 2./3.;
-	else {
-		std::cout << "CompressionPDE2D not implemented for orders higher than 3." << std::endl;
-		exit(1);
-	}
+	T factor_x = basis.first.d -  2+1.5-deriv_x;
+	T factor_y = basis.second.d - 2+1.5-deriv_y;
 
-	for (int s_tilde_x=0; s_tilde_x <= factor*s_tilde; ++s_tilde_x) {
-		for (int s_tilde_y=0; s_tilde_y <= factor*s_tilde; ++s_tilde_y) {
-			if (s_tilde_x+s_tilde_y <= factor*s_tilde) {
+	int level_bound_x = round((1./factor_x)*s_tilde);
+	int level_bound_y = round((1./factor_y)*s_tilde);
+
+	//std::cout << "factor_x = " << factor_x << ", factor_y = " << factor_y << std::endl;
+
+
+	for (int s_tilde_x=0; s_tilde_x <= level_bound_x; ++s_tilde_x) {
+		for (int s_tilde_y=0; s_tilde_y <= level_bound_y; ++s_tilde_y) {
+			if (factor_x*s_tilde_x + factor_y*s_tilde_y <= s_tilde) {
 				IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col.index1, basis.first,  s_tilde_x, jmin_x,
 														       lambda_col.index1.j+s_tilde_x, false);
 			    IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y,
-					                                            lambda_col.index2.j+s_tilde_y, false);
+					                                           lambda_col.index2.j+s_tilde_y, false);
 
 
 			    for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {

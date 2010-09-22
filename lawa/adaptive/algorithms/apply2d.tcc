@@ -21,7 +21,7 @@ namespace lawa {
 
 template <typename T, typename MA>
 Coefficients<Lexicographical,T,Index2D>
-APPLY2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k)
+APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k)
 {
 	typedef typename Coefficients<AbsoluteValue,T,Index2D >::const_iterator abs_const_it;
 	typedef typename Coefficients<Lexicographical,T,Index2D >::const_iterator coeff_const_it;
@@ -37,7 +37,7 @@ APPLY2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k)
 			jmin_y = (*it).first.index2.j;
 		}
 	}
-	std::cout << "jmin_x = " << jmin_x << ", jmin_y = " << jmin_y << std::endl;
+	//std::cout << "jmin_x = " << jmin_x << ", jmin_y = " << jmin_y << std::endl;
 	Coefficients<Lexicographical,T,Index2D > ret(v.d, v.d_);
 	if (v.size() > 0) {
 	    Coefficients<AbsoluteValue,T,Index2D > temp(v.d,v.d_);
@@ -47,13 +47,28 @@ APPLY2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k)
 
 	    for (abs_const_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
 	        IndexSet<Index2D> Lambda_v(v.d,v.d_);
-	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s);
-	        //Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k);
+	        /*
+	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 1, 0);
 	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-	            ret[*mu] += A(*mu, (*it).second) * (*it).first;
+	            ret[*mu] += A(*mu, (*it).second, 1, 0) * (*it).first;
+	        }
+	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 0, 1);
+	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+	        	ret[*mu] += A(*mu, (*it).second, 0, 1) * (*it).first;
+	        }
+	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 0, 0);
+	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+	        	ret[*mu] += A(*mu, (*it).second, 0, 0) * (*it).first;
+	        }
+	        */
+	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 1, 1);
+	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+	        	ret[*mu] += A(*mu, (*it).second, 1, 0) * (*it).first
+	        			   +A(*mu, (*it).second, 0, 1) * (*it).first
+	        			   +A(*mu, (*it).second, 0, 0) * (*it).first;
 	        }
 	        ++count;
-	        std::cout << (*it).second << ", (" << count << ", " << v.size() << ") : " << Lambda_v.size() << std::endl;
+	        //std::cout << (*it).second << ", (" << count << ", " << v.size() << ") : " << Lambda_v.size() << std::endl;
 	        s = int(log(T(count))/log(T(2))) + 1;
 	    }
 	}
