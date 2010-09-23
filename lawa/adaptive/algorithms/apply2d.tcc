@@ -47,7 +47,6 @@ APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k
 
 	    for (abs_const_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
 	        IndexSet<Index2D> Lambda_v(v.d,v.d_);
-	        /*
 	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 1, 0);
 	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
 	            ret[*mu] += A(*mu, (*it).second, 1, 0) * (*it).first;
@@ -60,13 +59,14 @@ APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k
 	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
 	        	ret[*mu] += A(*mu, (*it).second, 0, 0) * (*it).first;
 	        }
-	        */
+	        /*
 	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 1, 1);
 	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
 	        	ret[*mu] += A(*mu, (*it).second, 1, 0) * (*it).first
 	        			   +A(*mu, (*it).second, 0, 1) * (*it).first
 	        			   +A(*mu, (*it).second, 0, 0) * (*it).first;
 	        }
+	        */
 	        ++count;
 	        //std::cout << (*it).second << ", (" << count << ", " << v.size() << ") : " << Lambda_v.size() << std::endl;
 	        s = int(log(T(count))/log(T(2))) + 1;

@@ -594,13 +594,14 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Periodic,CDF> &bas
                 int kMax =  ceil(pow2i<T>(j)*supp.l2 - support_refbspline.l1);
                 for (int k_row=kMin; k_row<=kMax; ++k_row) {
                 	int k_row_per = k_row;
-                	if(k_row_per < basis.mra.rangeI(j).firstIndex()){
-                	    k_row_per = basis.mra.rangeI(j).lastIndex() + ((1 - (basis.mra.rangeI(j).firstIndex() - k_row_per))%basis.mra.cardI(j));
+                	if(k_row_per < basis.mra.rangeI(jmin).firstIndex()){
+                	    k_row_per = basis.mra.rangeI(jmin).lastIndex() + ((1 - (basis.mra.rangeI(jmin).firstIndex() - k_row_per))%basis.mra.cardI(jmin));
                 	}
-                	if(k_row_per > basis.mra.rangeI(j).lastIndex()){
-                	    k_row_per = basis.mra.rangeI(j).firstIndex() - ((1 - (k_row_per - basis.mra.rangeI(j).lastIndex()))%basis.mra.cardI(j));
+                	if(k_row_per > basis.mra.rangeI(jmin).lastIndex()){
+                	    k_row_per = basis.mra.rangeI(jmin).firstIndex() - ((1 - (k_row_per - basis.mra.rangeI(jmin).lastIndex()))%basis.mra.cardI(jmin));
                 	}
-                	if (overlap(phi_row.support(j,k_row_per), psi_col.support(j,k)) > 0) {
+
+                	if (overlap(phi_row.support(jmin,k_row_per), psi_col.support(j,k)) > 0) {
                 	    ret.insert(Index1D(jmin,k_row_per,XBSpline));
                 	}
                 }
