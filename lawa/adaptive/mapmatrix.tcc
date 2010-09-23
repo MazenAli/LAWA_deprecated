@@ -23,8 +23,8 @@
 namespace lawa {
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a, const Preconditioner &_p)
-:  a(_a), p(_p), P_data()
+MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a, const Preconditioner &_p, Compression &_c)
+:  a(_a), p(_p), c(_c), P_data()
 {
 }
 
@@ -120,6 +120,112 @@ void
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::clear()
 {
     data.clear();
+}
+
+
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+MapMatrixPDE2D<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrixPDE2D(const BilinearForm &_a,
+			                                                     const Preconditioner &_p, Compression &_c)
+:  a(_a), p(_p), c(_c), P_data()
+{
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+T
+MapMatrixPDE2D<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Index &row_index, const Index &col_index)
+{
+	return MapMatrixPDE2D<T,Index,BilinearForm,Compression,Preconditioner>::operator()(row_index,col_index,1,0) +
+	       MapMatrixPDE2D<T,Index,BilinearForm,Compression,Preconditioner>::operator()(row_index,col_index,0,1) +
+	       a.getc() * MapMatrixPDE2D<T,Index,BilinearForm,Compression,Preconditioner>::operator()(row_index,col_index,0,0);
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+T
+MapMatrixPDE2D<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Index &row_index, const Index &col_index,
+																			int deriv_x, int deriv_y)
+{
+	typedef typename EntryMap::const_iterator const_map_it;
+	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
+
+	Entry<Index> entry(row_index,col_index);
+	T prec = 1.;
+	const_coeff_it it_P_end       = P_data.end();
+	const_coeff_it it_row_index   = P_data.find(row_index);
+	if (it_row_index != it_P_end) {
+	    prec *= (*it_row_index).second;
+	}
+	else {
+		T tmp = p(row_index);
+		P_data[row_index] = tmp;
+		prec *= tmp;
+	}
+	it_P_end       = P_data.end();
+	const_coeff_it it_col_index   = P_data.find(col_index);
+	if (it_col_index != it_P_end) {
+		prec *= (*it_col_index).second;
+	}
+	else {
+		T tmp = p(col_index);
+		P_data[col_index] = tmp;
+		prec *= tmp;
+	}
+
+	T val_x = 0;
+	Entry<Index1D> entry_x(row_index.index1,col_index.index1);
+	if (deriv_x == 0) {
+		const_map_it it_end   = data_reaction_x.end();
+		const_map_it it_entry = data_reaction_x.find(entry_x);
+
+		if (it_entry != it_end) {
+		    val_x = (*it_entry).second;
+		}
+		else {
+			val_x = a.reaction_x(row_index.index1,col_index.index1);
+			if (fabs(val_x) > 0) data_reaction_x.insert(val_type(entry_x,val_x));
+		}
+	}
+	else {
+		const_map_it it_end   = data_diffusion_x.end();
+		const_map_it it_entry = data_diffusion_x.find(entry_x);
+
+		if (it_entry != it_end) {
+			val_x = (*it_entry).second;
+		}
+		else {
+			val_x = a.diffusion_x(row_index.index1,col_index.index1);
+			if (fabs(val_x) > 0) data_diffusion_x.insert(val_type(entry_x,val_x));
+		}
+	}
+
+	T val_y = 0;
+	Entry<Index1D> entry_y(row_index.index2,col_index.index2);
+	if (deriv_y == 0) {
+		const_map_it it_end   = data_reaction_y.end();
+		const_map_it it_entry = data_reaction_y.find(entry_y);
+
+		if (it_entry != it_end) {
+		    val_y = (*it_entry).second;
+		}
+		else {
+			val_y = a.reaction_x(row_index.index2,col_index.index2);
+			if (fabs(val_y) > 0) data_reaction_y.insert(val_type(entry_y,val_y));
+		}
+	}
+	else {
+		const_map_it it_end   = data_diffusion_y.end();
+		const_map_it it_entry = data_diffusion_y.find(entry_y);
+
+		if (it_entry != it_end) {
+			val_y = (*it_entry).second;
+		}
+		else {
+			val_y = a.diffusion_y(row_index.index2,col_index.index2);
+			if (fabs(val_y) > 0) data_diffusion_y.insert(val_type(entry_y,val_y));
+		}
+	}
+	return prec * val_x * val_y;
+
 }
 
 
@@ -235,6 +341,8 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()
 {
     NonZeros.clear();
 }
+
+
 
 
 template <typename T, typename Index, typename MA>

@@ -21,7 +21,7 @@
 #ifndef LAWA_ADAPTIVE_MAPMATRIX_H
 #define LAWA_ADAPTIVE_MAPMATRIX_H 1
 
-#define ROW_SIZE 4*8192
+#define ROW_SIZE 4*4*8192
 #define COL_SIZE 4*2048
 
 #include <utility>
@@ -44,12 +44,12 @@ public:
 
     const BilinearForm &a;
     const Preconditioner &p;
-    //const Compression &c;
+    Compression &c;
     Coefficients<Lexicographical,T,Index> P_data;
 
 
 public:
-    MapMatrix(const BilinearForm &a, const Preconditioner &p);
+    MapMatrix(const BilinearForm &a, const Preconditioner &p, Compression &c);
 
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
@@ -60,6 +60,35 @@ public:
 	void
     clear();
 };
+
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+class MapMatrixPDE2D
+{
+public:
+    typedef typename std::map<Entry<Index1D>,T,lt<Lexicographical,Index1D > > EntryMap;
+    typedef typename EntryMap::value_type val_type;
+    EntryMap data_reaction_x, data_reaction_y, data_diffusion_x, data_diffusion_y;
+
+    const BilinearForm &a;
+    const Preconditioner &p;
+    Compression &c;
+    Coefficients<Lexicographical,T,Index> P_data;
+
+
+public:
+    MapMatrixPDE2D(const BilinearForm &a, const Preconditioner &p, Compression &c);
+
+    T
+    operator()(const Index &row_index, const Index &col_index);
+
+	T
+	operator()(const Index &row_index, const Index &col_index, int deriv_x, int deriv_y);
+
+	void
+    clear();
+};
+
 
 struct lt_int_vs_int
 {
