@@ -356,7 +356,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, int
 
                         for (int k_row=kMin; k_row<=kMax; ++k_row) {
                             Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
-                            if (((overlap(supp_row, supp) > 0)) && (!(distance(singsupp,supp_row) > 0 ))) {
+                            if (((overlap(supp_row, supp) > 0)) && (!(distance(singsupp,supp_row) >= 0 ))) {
                                 //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp  << std::endl;
                                 ret.insert(Index1D(j_row,k_row,XWavelet));
                             }
@@ -407,7 +407,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, int
 
                         for (int k_row=kMin; k_row<=kMax; ++k_row) {
                             Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
-                            if ((overlap(supp, supp_row) > 0) && (!(distance(singsupp,supp_row) > 0 ))){
+                            if ((overlap(supp, supp_row) > 0) && (!(distance(singsupp,supp_row) >= 0 ))){
                                 //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
                                 ret.insert(Index1D(j_row,k_row,XWavelet));
                             }
@@ -420,7 +420,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, int
 
                     for (int k_row=kMin; k_row<=kMax; ++k_row) {
                         Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
-                        if (overlap(supp, supp_row) > 0) {
+                        if ((overlap(supp, supp_row) > 0) && (!(distance(psi.singularSupport(j_row,k_row),supp) >= 0 ))) {
                             //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
                             ret.insert(Index1D(j_row,k_row,XWavelet));
                         }
@@ -558,7 +558,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Periodic,CDF> &bas
                            	}
                            	Support<T> supp_row = psi_row.support(j_row,k_row_per);
                             if (((overlap(supp_row, phi_col.support(j,k)) > 0)) &&
-                            	(!(distance(phi_col.singularSupport(j,k),supp_row) > 0 ))) {
+                            	(!(distance(phi_col.singularSupport(j,k),supp_row) >= 0 ))) {
                             	ret.insert(Index1D(j_row,k_row_per,XWavelet));
                             }
                         }
@@ -626,8 +626,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Periodic,CDF> &bas
 							}
 							Support<T> supp_row = psi_row.support(j_row,k_row_per);
 							if (((overlap(supp_row, psi_col.support(j,k)) > 0)) &&
-								(!(distance(psi_col.singularSupport(j,k),supp_row) > 0 )) &&
-								(!(distance(psi_row.singularSupport(j_row,k_row_per),supp) > 0 )) ) {
+								(!(distance(psi_col.singularSupport(j,k),supp_row) >= 0 )) ) {
 									ret.insert(Index1D(j_row,k_row_per,XWavelet));
 							}
 						}
@@ -645,7 +644,8 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Periodic,CDF> &bas
 						if(k_row_per > basis.rangeJ(j_row).lastIndex()){
 							k_row_per = basis.rangeJ(j_row).firstIndex() - ((1 - (k_row_per - basis.rangeJ(j_row).lastIndex()))%basis.cardJ(j_row));
 						}
-						if (overlap(psi_row.support(j_row,k_row_per), psi_col.support(j,k)) > 0) {
+						if ((overlap(psi_row.support(j_row,k_row_per), psi_col.support(j,k)) > 0) &&
+						    !(distance(psi_row.singularSupport(j_row,k_row_per),supp) >= 0 ) ) {
 						   ret.insert(Index1D(j_row,k_row_per,XWavelet));
 						}
 					}
@@ -704,7 +704,13 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &ba
 	                ++kEnd;
 	            }
 	            for (int k_row=kStart; k_row<=kEnd; k_row++) {
-	            	if  (!(distance(phi_col.singularSupport(j,k),psi_row.support(j_row,k_row)) > 0 )) {
+	            	Range<int> rangeL = basis.rangeJL(j_row);
+	            	Range<int> rangeR = basis.rangeJR(j_row);
+	            	if ( (k_row <= rangeL.lastIndex()) || (k_row >= rangeR.firstIndex()) ) {
+	            		ret.insert(Index1D(j_row,k_row,XWavelet));
+	            		continue;
+	            	}
+	            	if  (!(distance(phi_col.singularSupport(j,k),psi_row.support(j_row,k_row)) >= 0 )) {	//singsupp!
 	            		ret.insert(Index1D(j_row,k_row,XWavelet));
 	            	}
 	            }
@@ -728,8 +734,14 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &ba
 	            }
 
 	            for (int k_row=kStart; k_row<=kEnd; ++k_row) {
-	            	if  (!(distance(psi_col.singularSupport(j,k),phi_row.support(jmin,k_row)) > 0 )) {
+	            	if  (distance(psi_col.singularSupport(j,k),phi_row.support(jmin,k_row)) < 0 ) {		//singsupp!
 	            		ret.insert(Index1D(jmin,k_row,XBSpline));
+	            	}
+	            	else {
+	            		if ( (k <= basis.rangeJL(j).lastIndex() )  ||
+	            			 (k >= basis.rangeJR(j).firstIndex() )     ) {
+								ret.insert(Index1D(jmin,k_row,XBSpline));
+	            		}
 	            	}
 	            }
 			}
@@ -749,10 +761,34 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &ba
 	                ++kEnd;
 	            }
 	            for (int k_row=kStart; k_row<=kEnd; ++k_row) {
-	            	if  ( (!(distance(psi_col.singularSupport(j,k),psi_row.support(j_row,k_row)) > 0 )) &&
-	            		  (!(distance(psi_row.singularSupport(j_row,k_row), supp_col) > 0 )) ) {
+	            	if (distance(psi_col.singularSupport(j,k),psi_row.support(j_row,k_row)) < 0 ) {
+	            		ret.insert(Index1D(j_row,k_row,XWavelet));
+	            		continue;
+	            	}
+	            	else {
+	            		if ( (k_row <= basis.rangeJL(j_row).lastIndex() )  ||
+	            			 (k_row >= basis.rangeJR(j_row).firstIndex() )     ) {
+								ret.insert(Index1D(j_row,k_row,XWavelet));
+	            		}
+	            		continue;
+	            	}
+
+	            	if (distance(psi_row.singularSupport(j_row,k_row),supp_col) < 0 ) {
+	            		ret.insert(Index1D(j_row,k_row,XWavelet));
+	            	}
+	            	else {
+	            		if ( (k <= basis.rangeJL(j).lastIndex() )  ||
+	            		     (k >= basis.rangeJR(j).firstIndex() )     ) {
+								ret.insert(Index1D(j_row,k_row,XWavelet));
+	            		}
+	            	}
+
+					/*
+	            	if  ( (!(distance(psi_col.singularSupport(j,k),psi_row.support(j_row,k_row)) >= 0 )) &&	//singsupp!
+	            		  (!(distance(psi_row.singularSupport(j_row,k_row), supp_col) >= 0 )) ) {			//singsupp!
 	            		ret.insert(Index1D(j_row,k_row,XWavelet));
 	                }
+	                */
 	            }
 	        }
 	    }

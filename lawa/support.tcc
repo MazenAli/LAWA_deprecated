@@ -99,6 +99,12 @@ distance(const DenseVector<Array<T> > &singsupp1, const Support<T> &supp2)
         if (singsupp1(i)<supp2.l1 && supp2.l2<singsupp1(i+1)) {
             return std::min(supp2.l1-singsupp1(i), singsupp1(i+1)-supp2.l2);
         }
+        else if (supp2.l1 < singsupp1(i) && singsupp1(i) < supp2.l2) {
+        	return -std::min(singsupp1(i)-supp2.l1, supp2.l2-singsupp1(i));
+        }
+    }
+    if (supp2.l1 < singsupp1(singsupp1.lastIndex()) && singsupp1(singsupp1.lastIndex()) < supp2.l2) {
+    	return -std::min(singsupp1(singsupp1.lastIndex())-supp2.l1, supp2.l2-singsupp1(singsupp1.lastIndex()));
     }
     return 0.0;
 }
