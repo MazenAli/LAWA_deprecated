@@ -21,7 +21,7 @@
 #ifndef LAWA_ADAPTIVE_MAPMATRIX_H
 #define LAWA_ADAPTIVE_MAPMATRIX_H 1
 
-#define ROW_SIZE 4*4*8192
+#define ROW_SIZE 4*8192
 #define COL_SIZE 4*2048
 
 #include <utility>
@@ -159,9 +159,9 @@ Coefficients<Lexicographical,T,Index>
 mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v);
 
 //requires lambdaTilde!!!
-template <typename T, typename MA>
-Coefficients<Lexicographical,T,Index2D>
-mv_sparse(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
+template <typename T, typename Index, typename MA>
+Coefficients<Lexicographical,T,Index>
+mv_sparse(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v);
 
 /*  Attention, time t is not checked for storing entries!!!
 template <typename T, typename Index, typename MA>

@@ -390,19 +390,19 @@ mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T
     return w;
 }
 
-template <typename T, typename MA>
-Coefficients<Lexicographical,T,Index2D>
-mv_sparse(const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v)
+template <typename T, typename Index, typename MA>
+Coefficients<Lexicographical,T,Index>
+mv_sparse(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
 {
-	typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
-	typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator coeff_const_it;
+	typedef typename IndexSet<Index>::const_iterator set2d_const_it;
+	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator coeff_const_it;
 
 	Timer timer;
     timer.start();
     A.c.setParameters(LambdaRow);
-    Coefficients<Lexicographical,T,Index2D> w_(v.d,v.d_);
+    Coefficients<Lexicographical,T,Index> w_(v.d,v.d_);
 	for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
-		IndexSet<Index2D> LambdaRowSparse = A.c.SparsityPattern((*mu).first, LambdaRow);
+		IndexSet<Index> LambdaRowSparse = A.c.SparsityPattern((*mu).first, LambdaRow);
 		for (set2d_const_it lambda = LambdaRowSparse.begin(); lambda != LambdaRowSparse.end(); ++lambda) {
 			w_[*lambda] += A(*lambda,(*mu).first) * (*mu).second;
 		}
