@@ -40,32 +40,22 @@ class TensorMatrix2D {
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 class TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>
 {
-	typedef WeakLaplaceOperator1D<T, typename Basis::FirstBasisType>  Diffusion_x;
-	typedef RieszOperator1D<T, typename Basis::FirstBasisType> 	     Reaction_x;
-	typedef WeakLaplaceOperator1D<T, typename Basis::SecondBasisType> Diffusion_y;
-	typedef RieszOperator1D<T, typename Basis::SecondBasisType> 	     Reaction_y;
-
 	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
 	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
 
 	typedef NoPreconditioner1D<T> NoPreconditioner;
 
-	typedef MapMatrixWithZeros<T, Index1D, Diffusion_x, Compression_x, NoPreconditioner> DataDiffusion_x;
-	typedef MapMatrixWithZeros<T, Index1D, Reaction_x,  Compression_x, NoPreconditioner> DataReaction_x;
-	typedef MapMatrixWithZeros<T, Index1D, Diffusion_y, Compression_y, NoPreconditioner> DataDiffusion_y;
-	typedef MapMatrixWithZeros<T, Index1D, Reaction_y,  Compression_y, NoPreconditioner> DataReaction_y;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_x, Compression_x, NoPreconditioner> DataDiffusion_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_x,  Compression_x, NoPreconditioner> DataReaction_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_y, NoPreconditioner> DataDiffusion_y;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner> DataReaction_y;
 
 public:
 
-	const Basis &basis;
+	const HelmholtzOperator2D<T, Basis> &a;
 	const Preconditioner &p;
     Compression &c;
     Coefficients<Lexicographical,T,Index2D> P_data;
-
-    Diffusion_x dd_x;
-    Reaction_x  id_x;
-    Diffusion_y dd_y;
-    Reaction_y  id_y;
 
     Compression_x c_x;
     Compression_y c_y;
@@ -77,7 +67,7 @@ public:
     DataDiffusion_y data_dd_y;
     DataReaction_y  data_id_y;
 
-    TensorMatrix2D(const Basis &_basis, const Preconditioner &p, Compression &c);
+    TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &a, const Preconditioner &p, Compression &c);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);

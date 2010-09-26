@@ -20,13 +20,12 @@
 namespace lawa {
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
-TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>::TensorMatrix2D(const Basis &_basis,
-																					   const Preconditioner &_p, Compression &_c)
-	: basis(_basis), p(_p), c(_c),
-	  dd_x(basis.first), id_x(basis.first), dd_y(basis.second), id_y(basis.second),
-	  c_x(basis.first), c_y(basis.second),
-	  data_dd_x(dd_x, prec1d, c_x, 4*1024, 1024), data_id_x(id_x, prec1d, c_x, 4*1024, 1024),
-	  data_dd_y(dd_y, prec1d, c_y, 4*1024, 1024), data_id_y(id_y, prec1d, c_y, 4*1024, 1024)
+TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>::TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &_a,
+																									const Preconditioner &_p, Compression &_c)
+	: a(_a), p(_p), c(_c),
+	  c_x(a.basis.first), c_y(a.basis.second),
+	  data_dd_x(a.dd_x, prec1d, c_x, 4*1024, 1024), data_id_x(a.id_x, prec1d, c_x, 4*1024, 1024),
+	  data_dd_y(a.dd_y, prec1d, c_y, 4*1024, 1024), data_id_y(a.id_y, prec1d, c_y, 4*1024, 1024)
 {
 }
 

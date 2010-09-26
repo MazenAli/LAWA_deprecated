@@ -20,6 +20,23 @@
 
 namespace lawa {
 
+
+template <typename T>
+T
+NoPreconditioner1D<T>::operator()(XType xtype, int j, int k) const
+{
+    return 1.;
+}
+
+template <typename T>
+T
+NoPreconditioner1D<T>::operator()(const Index1D &index) const
+{
+    return 1.;
+}
+
+
+
 template <typename T, typename Basis, typename BilinearForm>
 DiagonalMatrixPreconditioner1D<T,Basis,BilinearForm>::DiagonalMatrixPreconditioner1D(const BilinearForm &_a)
     : a(_a)
