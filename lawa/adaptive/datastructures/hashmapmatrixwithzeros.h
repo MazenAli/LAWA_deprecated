@@ -1,0 +1,92 @@
+/*
+  LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+
+#ifndef LAWA_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H
+#define LAWA_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H 1
+
+#include <utility>
+#include <ext/hash_map>
+#include <lawa/adaptive/index.h>
+#include <lawa/adaptive/indexset.h>
+#include <lawa/adaptive/coefficients.h>
+#include <lawa/adaptive/aux/timer.h>
+
+namespace lawa {
+
+struct lt_int_vs_int
+{
+	inline
+	bool operator()(const std::pair<int,int> &left, const std::pair<int,int> &right) const
+	{
+		if (left.first != right.first) return left.first < right.first;
+		else						   return left.second < right.second;
+	}
+};
+
+struct hash_pair_of_int {
+	inline
+    size_t operator()(const std::pair<int,int>& p) const {
+        return ( (p.first+p.second)*(p.first+p.second+1)/2 + p.second ) %  9369319;
+    }
+};
+
+struct equal_pair_of_int {
+	inline
+    bool operator()(const std::pair<int,int>& p_left, const std::pair<int,int>& p_right) const {
+        if (p_left.first != p_right.first) return false;
+        else							   return (p_left.second == p_right.second);
+    }
+};
+
+template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+class MapMatrixWithZeros
+{
+public:
+    //typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
+	typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int, equal_pair_of_int> EntryMap;
+    typedef typename EntryMap::value_type val_type;
+
+    EntryMap NonZeros;
+
+    const BilinearForm &a;
+    const Preconditioner &p;
+    Compression &c;
+
+    unsigned int NumOfRows, NumOfCols;
+    IndexSet<Index> ConsecutiveIndices;
+    flens::DenseVector<Array<T> > PrecValues;
+    std::vector<unsigned long long> Zeros;
+
+
+public:
+    MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c, int NumOfRow, int NumOfCols);
+
+	T
+	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
+
+	void
+    clear();
+};
+
+}	//namespace lawa
+
+#include <lawa/adaptive/datastructures/hashmapmatrixwithzeros.tcc>
+
+#endif LAWA_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H
