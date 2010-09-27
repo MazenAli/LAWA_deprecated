@@ -28,6 +28,11 @@
 #include <lawa/adaptive/coefficients.h>
 #include <lawa/adaptive/aux/timer.h>
 
+
+
+#define ROW_SIZE_2D 4*8192
+#define COL_SIZE_2D 2*4*2048
+
 namespace lawa {
 
 struct lt_int_vs_int
@@ -76,7 +81,8 @@ public:
 
 
 public:
-    MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c, int NumOfRow, int NumOfCols);
+    MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c,
+					   int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
