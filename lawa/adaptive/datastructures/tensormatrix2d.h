@@ -23,10 +23,7 @@
 
 #include <lawa/adaptive/index.h>
 #include <lawa/box/tensorbasis.h>
-#include <lawa/operators/preconditioner.h>
-#include <lawa/operators/rieszoperator1d.h>
-#include <lawa/operators/weaklaplaceoperator1d.h>
-#include <lawa/operators/helmholtzoperator2d.h>
+#include <lawa/operators/operators.h>
 #include <lawa/adaptive/compression.h>
 #include <lawa/adaptive/datastructures/hashmapmatrixwithzeros.h>
 
@@ -68,6 +65,47 @@ public:
     DataReaction_y  data_id_y;
 
     TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &a, const Preconditioner &p, Compression &c);
+
+    T
+    operator()(const Index2D &row_index, const Index2D &col_index);
+
+    void
+    clear();
+
+};
+
+template <typename T, typename Basis, typename Compression, typename Preconditioner>
+class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>
+{
+	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
+	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
+
+	typedef NoPreconditioner1D<T> NoPreconditioner;
+
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Convection_t, Compression_x, NoPreconditioner> DataConvection_t;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_t,  Compression_x, NoPreconditioner> DataReaction_t;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Diffusion_x, Compression_y, NoPreconditioner> DataDiffusion_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_x,  Compression_y, NoPreconditioner> DataReaction_x;
+
+public:
+
+	const SpaceTimeHeatOperator1D<T, Basis> &a;
+	const Preconditioner &p;
+    Compression &c;
+    Coefficients<Lexicographical,T,Index2D> P_data;
+
+    Compression_x c_t;
+    Compression_y c_x;
+
+    NoPreconditioner prec1d;
+
+    DataConvection_t data_d_t;
+    DataReaction_t  data_id_t;
+    DataDiffusion_x data_dd_x;
+    DataReaction_x  data_id_x;
+
+    TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &a, const Preconditioner &p, Compression &c,
+				   int NumOfRows=4096, int NumOfCols=2048);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);

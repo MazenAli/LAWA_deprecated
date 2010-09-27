@@ -73,4 +73,60 @@ TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditio
 }
 
 
+
+template <typename T, typename Basis, typename Compression, typename Preconditioner>
+TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>::TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &_a,
+																									const Preconditioner &_p, Compression &_c,
+																									int NumOfRows, int NumOfCols)
+	: a(_a), p(_p), c(_c),
+	  c_t(a.basis.first), c_x(a.basis.second),
+	  data_d_t(a.d_t, prec1d, c_t, NumOfRows, NumOfCols), data_id_t(a.id_t, prec1d, c_t, NumOfRows, NumOfCols),
+	  data_dd_x(a.dd_x, prec1d, c_x, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, NumOfRows, NumOfCols)
+{
+}
+
+template <typename T, typename Basis, typename Compression, typename Preconditioner>
+T
+TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>::operator()(const Index2D &row_index,
+																								 const Index2D &col_index)
+{
+	typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
+	T prec = 1.;
+	const_coeff_it it_P_end       = P_data.end();
+	const_coeff_it it_row_index   = P_data.find(row_index);
+	if (it_row_index != it_P_end) {
+	    prec *= (*it_row_index).second;
+	}
+	else {
+	    T tmp = p(row_index);
+	    P_data[row_index] = tmp;
+	    prec *= tmp;
+	}
+	it_P_end       = P_data.end();
+	const_coeff_it it_col_index   = P_data.find(col_index);
+	if (it_col_index != it_P_end) {
+		prec *= (*it_col_index).second;
+	}
+	else {
+		T tmp = p(col_index);
+		P_data[col_index] = tmp;
+		prec *= tmp;
+	}
+	return prec * (
+		  data_d_t(row_index.index1,col_index.index1) * data_id_x(row_index.index2,col_index.index2) +
+		  a.getc() * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2) );
+}
+
+template <typename T, typename Basis, typename Compression, typename Preconditioner>
+void
+TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>::clear()
+{
+	data_d_t.clear();
+	data_id_t.clear();
+	data_dd_x.clear();
+	data_id_x.clear();
+}
+
+
+
 }	//namespace lawa

@@ -9,11 +9,25 @@ namespace lawa {
 template <typename T, typename Basis>
 class SpaceTimeHeatOperator1D{
     
-    private:
+    public:
         
         const Basis& basis;
         const T c;
         
+        typedef typename Basis::FirstBasisType Basis_t;
+        typedef typename Basis::SecondBasisType Basis_x;
+
+        typedef ConvectionOperator1D<T, typename Basis::FirstBasisType>    Convection_t;
+        typedef RieszOperator1D<T, typename Basis::FirstBasisType> 	     Reaction_t;
+        typedef WeakLaplaceOperator1D<T, typename Basis::SecondBasisType>  Diffusion_x;
+        typedef RieszOperator1D<T, typename Basis::SecondBasisType> 	     Reaction_x;
+
+        Convection_t d_t;
+        Reaction_t  id_t;
+        Diffusion_x dd_x;
+        Reaction_x  id_x;
+
+    private:
         typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_t;
         typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_x;
         typedef typename Basis::FirstBasisType::WaveletType PrimalWavelet_t;
