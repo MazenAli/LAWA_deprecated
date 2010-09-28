@@ -64,10 +64,14 @@ public:
     DataDiffusion_y data_dd_y;
     DataReaction_y  data_id_y;
 
-    TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &a, const Preconditioner &p, Compression &c);
+    TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &a, const Preconditioner &p, Compression &c,
+    	           int NumOfRows=4096, int NumOfCols=2048);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);
+
+    T
+    prec(const Index2D &index);
 
     void
     clear();
