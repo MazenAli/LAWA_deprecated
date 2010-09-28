@@ -36,11 +36,19 @@ struct ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >
 
     static DenseVector<Array<T> > sing_pts_x, sing_pts_y;	//aligned singularities
 
+    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas_x, deltas_y;
+
     static void
     setExample(int _nr, const HelmholtzOperator2D<T,Basis2D> &a, DomainType domain1, DomainType domain2);
 
     static T
     exact(T x, T y);
+
+    static T
+    exact_dx(T x, T y);
+
+    static T
+    exact_dy(T x, T y);
 
     static T
     exact_x(T x);
