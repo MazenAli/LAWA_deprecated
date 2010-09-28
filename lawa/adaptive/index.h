@@ -40,7 +40,6 @@ public:
     ~Index1D();
 };
 
-
 std::ostream& operator<<(std::ostream &s, const Index1D &_Index);
 
 struct Index2D
@@ -52,8 +51,18 @@ struct Index2D
 
 };
 
-
 std::ostream& operator<<(std::ostream &s, const Index2D &_Index);
+
+struct Index3D
+{
+	mutable unsigned int linearindex;
+    Index3D(const Index1D &index1, const Index1D &index2, const Index1D &index3);
+    ~Index3D();
+    Index1D index1, index2, index3;
+
+};
+
+std::ostream& operator<<(std::ostream &s, const Index3D &_Index);
 
 template <typename Index>
 class Entry

@@ -84,6 +84,22 @@ std::ostream& operator<<(std::ostream &s, const Index2D &_i)
 }
 
 
+Index3D::Index3D(const Index1D &_index1, const Index1D &_index2, const Index1D &_index3)
+    : linearindex(0), index1(_index1), index2(_index2), index3(_index3)
+{
+}
+
+Index3D::~Index3D(void)
+{
+}
+
+std::ostream& operator<<(std::ostream &s, const Index3D &_i)
+{
+    s << "(" << _i.index1 << ", " << _i.index2 << ", " << _i.index3 << ")";
+    return s;
+}
+
+
 template <typename Index>
 Entry<Index>::Entry(const Index &_index1, const Index &_index2)
 : row_index(_index1), col_index(_index2)
