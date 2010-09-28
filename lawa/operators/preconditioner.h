@@ -120,6 +120,37 @@ private:
     const BilinearForm &a;
 };
 
+template <typename T, typename Basis2D, typename BilinearForm>
+class SpaceTimePreconditioner2D
+{
+    typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_t;
+    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_x;
+    typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_t;
+    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_x;
+    
+public:
+    SpaceTimePreconditioner2D(const BilinearForm &a);
+
+    T
+    operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
+
+    T
+    operator()(const Index2D &index) const;
+
+private:
+    const BilinearForm &a;
+    const Basis2D &basis;
+    
+    PrimalSpline_t phi_t;
+    PrimalSpline_x phi_x;
+    PrimalWavelet_t psi_t;
+    PrimalWavelet_x psi_x;
+    
+    Integral<T, Gauss, PrimalSpline_t, PrimalSpline_t> integral_t_sfsf;
+    Integral<T, Gauss, PrimalSpline_x, PrimalSpline_x> integral_x_sfsf;
+    Integral<T, Gauss, PrimalWavelet_t, PrimalWavelet_t> integral_t_ww;
+    Integral<T, Gauss, PrimalWavelet_x, PrimalWavelet_x> integral_x_ww;
+};
 
 }
 

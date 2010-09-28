@@ -112,4 +112,48 @@ DiagonalMatrixPreconditioner2D<T,Basis2D,BilinearForm>::operator()(const Index2D
                                                                               index.index2.xtype, index.index2.j, index.index2.k);
 }
 
+template <typename T, typename Basis2D, typename BilinearForm>
+SpaceTimePreconditioner2D<T,Basis2D,BilinearForm>::SpaceTimePreconditioner2D(const BilinearForm &_a)
+    : a(_a), basis(_a.getBasis()), phi_t(basis.first.mra), phi_x(basis.second.mra),
+     psi_t(basis.first), psi_x(basis.second),
+     integral_t_sfsf(phi_t, phi_t), integral_x_sfsf(phi_x, phi_x),
+     integral_t_ww(psi_t, psi_t), integral_x_ww(psi_x, psi_x)
+{
+}
+
+template <typename T, typename Basis2D, typename BilinearForm>
+T
+SpaceTimePreconditioner2D<T,Basis2D,BilinearForm>::operator()(XType xtype1, int j1, int k1,
+                                                              XType xtype2, int j2, int k2) const
+{
+    T val_id_t, val_id_x;
+    if(xtype1 == XBSpline){
+        val_id_t = integral_t_sfsf(j1, k1, j1, k1);
+        if(xtype2 == XBSpline){
+            val_id_x = integral_x_sfsf(j2, k2, j2, k2);
+        }
+        else{
+            val_id_x = integral_x_ww(j2, k2, j2, k2);            
+        }
+    }
+    else{
+        val_id_t = integral_t_ww(j1, k1, j1, k1);
+        if(xtype2 == XBSpline){
+            val_id_x = integral_x_sfsf(j2, k2, j2, k2);
+        }
+        else{
+            val_id_x = integral_x_ww(j2, k2, j2, k2);            
+        }
+    }
+    return 1./std::sqrt(val_id_t * pow2i<T>(2*j2) * val_id_x * fabs(a(xtype1,j1,k1, xtype2,j2,k2,  xtype1,j1,k1, xtype2,j2,k2)));
+}
+
+template <typename T, typename Basis2D, typename BilinearForm>
+T
+SpaceTimePreconditioner2D<T,Basis2D,BilinearForm>::operator()(const Index2D &index) const
+{
+    return SpaceTimePreconditioner2D<T,Basis2D,BilinearForm>::operator()(index.index1.xtype, index.index1.j, index.index1.k,
+                                                                         index.index2.xtype, index.index2.j, index.index2.k);
+}
+
 } // namespace lawa
