@@ -23,6 +23,8 @@
 
 #include <lawa/enum.h>
 #include <lawa/adaptive/index.h>
+#include <lawa/operators/weaklaplaceoperator1d.h>
+#include <lawa/operators/rieszoperator1d.h>
 #include <lawa/integrals.h>
 
 namespace lawa {
@@ -35,10 +37,23 @@ class HelmholtzOperator2D{
         const Basis2D &basis;
         const T c;
 
+        typedef typename Basis2D::FirstBasisType Basis_x;
+        typedef typename Basis2D::SecondBasisType Basis_y;
+
+        typedef WeakLaplaceOperator1D<T, typename Basis2D::FirstBasisType>  Diffusion_x;
+        typedef RieszOperator1D<T, typename Basis2D::FirstBasisType> 	     Reaction_x;
+        typedef WeakLaplaceOperator1D<T, typename Basis2D::SecondBasisType> Diffusion_y;
+        typedef RieszOperator1D<T, typename Basis2D::SecondBasisType> 	     Reaction_y;
+
         typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
         typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_y;
         typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
         typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_y;
+
+        Diffusion_x dd_x;
+        Reaction_x  id_x;
+        Diffusion_y dd_y;
+        Reaction_y  id_y;
 
         PrimalSpline_x phi_x, d_phi_x;
         PrimalSpline_y phi_y, d_phi_y;

@@ -22,6 +22,7 @@ namespace lawa {
 template <typename T, typename Basis2D>
 HelmholtzOperator2D<T, Basis2D>::HelmholtzOperator2D(const Basis2D & _basis, const T _c)
     : basis(_basis), c(_c),
+      dd_x(basis.first), id_x(basis.first), dd_y(basis.second), id_y(basis.second),
       phi_x(basis.first.mra), d_phi_x(basis.first.mra, 1),
       phi_y(basis.second.mra), d_phi_y(basis.second.mra, 1),
       psi_x(basis.first), d_psi_x(basis.first, 1),

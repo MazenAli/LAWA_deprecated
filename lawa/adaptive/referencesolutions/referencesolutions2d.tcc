@@ -32,6 +32,14 @@ flens::DenseVector<Array<T> >
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::sing_pts_y;
 
 template <typename T, typename Basis2D>
+flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
+ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::deltas_x;
+
+template <typename T, typename Basis2D>
+flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
+ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::deltas_y;
+
+template <typename T, typename Basis2D>
 T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::c;
 
@@ -60,7 +68,10 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample
     domain2 = _domain2;
 
     if ((domain1 == R) && (domain2 == R)) {
-
+    	if (nr==2) {
+    		sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
+    		deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = 4.;
+    	}
     }
     else if ((domain1 == Periodic) && (domain2 == Interval)) {
 
@@ -72,6 +83,20 @@ T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact(T x, T y)
 {
     return exact_x(x,0)*exact_y(y,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_dx(T x, T y)
+{
+    return exact_x(x,1) * exact_y(y,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_dy(T x, T y)
+{
+	return exact_x(x,0) * exact_y(y,1);
 }
 
 template <typename T, typename Basis2D>
@@ -112,6 +137,17 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_x(T 
             else if (deriv_x==1)    return -std::exp(-0.1*(x+0.1)*(x+0.1)) * 2*0.1*(x+0.1);
             else                     return  std::exp(-0.1*(x+0.1)*(x+0.1)) * (4*0.1*0.1*(x+0.1)*(x+0.1)-2*0.1);
         }
+        else if (nr==2) {
+            if (deriv_x==0)         return  std::exp(-2.*fabs(x-1./3.));
+            else if (deriv_x==1) {
+            	if (x < 1./3.) return   2.*std::exp(-2.*fabs(x-1./3.));
+            	else		   return -2.*std::exp(-2.*fabs(x-1./3.));
+            }
+            else {
+            	if (x < 1./3.) return   4.*std::exp(-2.*fabs(x-1./3.));
+            	else		   return   4.*std::exp(-2.*fabs(x-1./3.));
+            }
+        }
     }
     else if ((domain1 == Periodic) && (domain2 == Interval)) {
         if (nr==1) {
@@ -134,7 +170,12 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_y(T 
         if (nr==1) {
             if (deriv_y==0)         return  std::exp(-0.5*(y-0.1)*(y-0.1));
             else if (deriv_y==1)    return -std::exp(-0.5*(y-0.1)*(y-0.1)) * 2*0.5*(y-0.1);
-            else                     return  std::exp(-0.5*(y-0.1)*(y-0.1)) * (4*0.5*0.5*(y-0.1)*(y-0.1)-2*0.5);
+            else                    return  std::exp(-0.5*(y-0.1)*(y-0.1)) * (4*0.5*0.5*(y-0.1)*(y-0.1)-2*0.5);
+        }
+        else if (nr==2) {
+        	if (deriv_y==0) 		return std::exp(-0.1*(y-1./3.)*(y-1./3.));
+        	else if (deriv_y==1)	return -0.2*(y-1./3.)*std::exp(-0.1*(y-1./3.)*(y-1./3.));
+        	else					return  (0.04*(y-1./3)*(y-1./3.)-0.2)*std::exp(-0.1*(y-1./3.)*(y-1./3.));
         }
     }
     else if ((domain1 == Periodic) && (domain2 == Interval)) {
@@ -156,7 +197,7 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
 {
     T ret = 0.;
     if ((domain1==R) && (domain2==R)) {
-        if (nr==1)             {
+        if (nr==1) {
             T a1 = -0.1;
             T a2 = 0.1;
             T b1 = 0.1;
@@ -166,6 +207,10 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
             ret += c1*c1*b1*b1*std::sqrt(0.5*M_PI)/std::pow(b1,1.5) * c2*c2*std::sqrt(0.5*M_PI/(b2));
             ret += c1*c1*std::sqrt(0.5*M_PI/(b1)) * c2*c2*b2*b2*std::sqrt(0.5*M_PI)/std::pow(b2,1.5);
             ret = sqrt(ret);
+        }
+        if (nr==2) {
+        	ret += 3.96332729760601*0.5 + 0.3963327297606012*0.5 + 3.96332729760601*2.;
+        	return sqrt(ret);
         }
     }
     else if ((domain1 == Periodic) && (domain2 == Interval)) {

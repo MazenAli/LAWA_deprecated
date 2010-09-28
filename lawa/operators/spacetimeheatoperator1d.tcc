@@ -2,7 +2,8 @@ namespace lawa{
     
 template <typename T, typename Basis>    
 SpaceTimeHeatOperator1D<T, Basis>::SpaceTimeHeatOperator1D(const Basis& _basis, const T _c)
-    : basis(_basis), c(_c), 
+    : basis(_basis), c(_c),
+      d_t(basis.first), id_t(basis.first), dd_x(basis.second), id_x(basis.second),
       phi_t(basis.first.mra), d_phi_t(basis.first.mra, 1),
       phi_x(basis.second.mra), d_phi_x(basis.second.mra, 1),
       psi_t(basis.first), d_psi_t(basis.first, 1),
@@ -104,10 +105,16 @@ T
 SpaceTimeHeatOperator1D<T, Basis>::operator()(const Index2D &row_index, 
                                               const Index2D &col_index) const
 {
+	/*
+	return d_t(row_index.index1,col_index.index1) * id_x(row_index.index2,col_index.index2) +
+	     c*id_t(row_index.index1,col_index.index1) * dd_x(row_index.index2,col_index.index2);
+	*/
+
     return operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
 					  row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
 					  col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
                       col_index.index2.xtype, col_index.index2.j, col_index.index2.k);
+
 }
     
 } // namespace lawa

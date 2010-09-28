@@ -23,7 +23,7 @@
 #include <vector>
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
-#include <lawa/adaptive/mapmatrix.h>
+#include <lawa/adaptive/datastructures/matrixoperations.h>
 #include <lawa/adaptive/aux/postprocessing.h>
 
 namespace lawa {
