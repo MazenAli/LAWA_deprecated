@@ -78,6 +78,7 @@ public:
     IndexSet<Index> ConsecutiveIndices;
     flens::DenseVector<Array<T> > PrecValues;
     std::vector<unsigned long long> Zeros;
+    bool warning_overflow;
 
 
 public:

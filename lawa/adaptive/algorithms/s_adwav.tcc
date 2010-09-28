@@ -45,6 +45,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
 
     LambdaActive = InitialLambda;
     T old_res = 0.;
+    int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
     for (int its=0; its<NumOfIterations; ++its) {
     	std::cout << "*** " << its+1 << ".iteration" << std::endl;
@@ -89,11 +90,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
         LambdaActive = LambdaThresh+supp(r);
 
         //Check if residual is decreasing, if not decrease threshold tolerance
-        if (fabs(estim_res-old_res)<resTol) {
+        if (fabs(estim_res-old_res)<resTol || its_per_threshTol>2) {
             threshTol *= 0.5;
             linTol      *= 0.5;
-            resTol    *= 0.5;
+            //resTol    *= 0.5;
+            its_per_threshTol = 0;
         }
+        ++its_per_threshTol;
         old_res = estim_res;
         timer.stop();
         if (its==0) times[its] = timer.elapsed();
