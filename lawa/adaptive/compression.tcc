@@ -135,7 +135,15 @@ CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, int jmin_x
 
 			    for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
 				    for (set1d_const_it lambda_y = Lambda_y.begin(); lambda_y != Lambda_y.end(); ++lambda_y) {
-					    ret.insert(Index2D(*lambda_x,*lambda_y));
+				    	if (deriv_x!=0 || deriv_y!=0) {
+				    		ret.insert(Index2D(*lambda_x,*lambda_y));
+				    	}
+				    	else {
+				    		int tmp = std::max(lambda_col.index1.j,lambda_col.index2.j)+std::max((*lambda_x).j,(*lambda_y).j);
+				    		if (tmp <= s_tilde) {
+				    			ret.insert(Index2D(*lambda_x,*lambda_y));
+				    		}
+				    	}
 				    }
 			    }
 			}

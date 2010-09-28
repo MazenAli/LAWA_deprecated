@@ -49,15 +49,30 @@ APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k
 	        IndexSet<Index2D> Lambda_v(v.d,v.d_);
 	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 1, 0);
 	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-	            ret[*mu] += A(*mu, (*it).second, 1, 0) * (*it).first;
+	        	T prec = A.prec(*mu) * A.prec((*it).second);
+	        	ret[*mu] += prec *
+							A.data_dd_x((*mu).index1, (*it).second.index1) *
+							A.data_id_y((*mu).index2, (*it).second.index2) *
+	        				(*it).first;
+	        	//ret[*mu] += A(*mu, (*it).second, 1, 0) * (*it).first;
 	        }
 	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 0, 1);
 	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-	        	ret[*mu] += A(*mu, (*it).second, 0, 1) * (*it).first;
+	        	T prec = A.prec(*mu) * A.prec((*it).second);
+	        	ret[*mu] += prec *
+	        			    A.data_id_x((*mu).index1, (*it).second.index1) *
+	        			    A.data_dd_y((*mu).index2, (*it).second.index2) *
+	        			    (*it).first;
+	        	//ret[*mu] += A(*mu, (*it).second, 0, 1) * (*it).first;
 	        }
 	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 0, 0);
 	        for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-	        	ret[*mu] += A(*mu, (*it).second, 0, 0) * (*it).first;
+	        	T prec = A.prec(*mu) * A.prec((*it).second);
+	        	ret[*mu] += prec *
+	        			    A.data_id_x((*mu).index1, (*it).second.index1) *
+	        		        A.data_id_y((*mu).index2, (*it).second.index2) *
+	        		        (*it).first;
+	        	//ret[*mu] += A(*mu, (*it).second, 0, 0) * (*it).first;
 	        }
 	        /*
 	        Lambda_v=A.c.SparsityPattern((*it).second, jmin_x, jmin_y, k-s, 1, 1);

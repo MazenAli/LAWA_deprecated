@@ -25,6 +25,10 @@
 
 namespace lawa {
 
+//template <typename T, typename Index, typename Basis, typename MA, typename BilinearForm>
+//Coefficients<Lexicographical,T,Index>
+//APPLY(MA &A, const Coefficients<Lexicographical,T,Index> &v, int k);
+
 template <typename T, typename MA>
 Coefficients<Lexicographical,T,Index2D>
 APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k);
