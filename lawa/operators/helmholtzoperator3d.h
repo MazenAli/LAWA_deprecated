@@ -98,7 +98,7 @@ class HelmholtzOperator3D{
                                                              dd_integral_ww_z;
 
     public:
-        HelmholtzOperator3D(const Basis2D& _basis, const T _c);
+        HelmholtzOperator3D(const Basis3D& _basis, const T _c);
 
         T getc() const;
         const Basis3D& getBasis() const;

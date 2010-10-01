@@ -121,6 +121,26 @@ private:
 };
 
 
+
+template <typename T, typename Basis3D, typename BilinearForm>
+class DiagonalMatrixPreconditioner3D
+{
+
+public:
+    DiagonalMatrixPreconditioner3D(const BilinearForm &a);
+
+    T
+    operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2,
+    		   XType xtype3, int j3, int k3) const;
+
+    T
+    operator()(const Index3D &index) const;
+
+private:
+    const BilinearForm &a;
+};
+
+
 }
 
 #include <lawa/operators/preconditioner.tcc>

@@ -54,7 +54,7 @@ HelmholtzOperator3D<T,Basis3D>::getc() const
 
 template <typename T, typename Basis3D>
 const Basis3D&
-HelmholtzOperator2D<T,Basis3D>::getBasis() const
+HelmholtzOperator3D<T,Basis3D>::getBasis() const
 {
     return basis;
 }
@@ -93,9 +93,9 @@ HelmholtzOperator3D<T, Basis3D>::operator()(XType row_xtype_x, int j1_x, int k1_
         else{
             val_x =       integral_ww_x(j1_x, k1_x, j2_x, k2_x);
             dd_val_x = dd_integral_ww_x(j1_x, k1_x, j2_x, k2_x);
-            //std::cout << j1_x << " " << k1_x << " " << j2_x << " " << k2_x << " : " << val_x << ", " << dd_val_x << std::endl;
         }
     }
+
     if(row_xtype_y == XBSpline){
          if(col_xtype_y == XBSpline){
              val_y =       integral_sfsf_y(j1_y, k1_y, j2_y, k2_y);
@@ -116,26 +116,27 @@ HelmholtzOperator3D<T, Basis3D>::operator()(XType row_xtype_x, int j1_x, int k1_
              dd_val_y = dd_integral_ww_y(j1_y, k1_y, j2_y, k2_y);
          }
     }
+
     if(row_xtype_z == XBSpline){
-             if(col_xtype_z == XBSpline){
-                 val_z =       integral_sfsf_z(j1_z, k1_z, j2_z, k2_z);
-                 dd_val_z = dd_integral_sfsf_z(j1_z, k1_z, j2_z, k2_z);
-             }
-             else{
-                 val_z = integral_sfw_z(j1_z, k1_z, j2_z, k2_z);
-                 dd_val_z = dd_integral_sfw_z(j1_z, k1_z, j2_z, k2_z);
-             }
+        if(col_xtype_z == XBSpline){
+            val_z =       integral_sfsf_z(j1_z, k1_z, j2_z, k2_z);
+            dd_val_z = dd_integral_sfsf_z(j1_z, k1_z, j2_z, k2_z);
         }
         else{
-             if(col_xtype_z == XBSpline){
-                 val_z = integral_wsf_y(j1_y, k1_y, j2_y, k2_y);
-                 dd_val_z = dd_integral_wsf_y(j1_y, k1_y, j2_y, k2_y);
-             }
-             else{
-                 val_z = integral_ww_z(j1_z, k1_z, j2_z, k2_z);
-                 dd_val_z = dd_integral_ww_z(j1_z, k1_z, j2_z, k2_z);
-             }
+            val_z = integral_sfw_z(j1_z, k1_z, j2_z, k2_z);
+            dd_val_z = dd_integral_sfw_z(j1_z, k1_z, j2_z, k2_z);
         }
+    }
+    else{
+        if(col_xtype_z == XBSpline){
+            val_z = integral_wsf_z(j1_z, k1_z, j2_z, k2_z);
+            dd_val_z = dd_integral_wsf_z(j1_z, k1_z, j2_z, k2_z);
+        }
+        else{
+            val_z = integral_ww_z(j1_z, k1_z, j2_z, k2_z);
+            dd_val_z = dd_integral_ww_z(j1_z, k1_z, j2_z, k2_z);
+        }
+    }
 
     return dd_val_x * val_y * val_z + val_x * dd_val_y * val_z + val_x * val_y * dd_val_z + c * val_x * val_y * val_z;
 }
@@ -144,7 +145,7 @@ template <typename T, typename Basis3D>
 T
 HelmholtzOperator3D<T, Basis3D>::operator()(const Index3D &row_index, const Index3D &col_index) const
 {
-    return HelmholtzOperator3D<T, Basis2D>::operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
+    return HelmholtzOperator3D<T, Basis3D>::operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
                                                        row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
                                                        row_index.index3.xtype, row_index.index3.j, row_index.index3.k,
                                                        col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
