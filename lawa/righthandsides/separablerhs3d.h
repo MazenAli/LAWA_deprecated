@@ -32,15 +32,15 @@ class SeparableRHS3D
         const Basis3D& basis;
         const SeparableFunction3D<T>& F;
         const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
-		const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
-		const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z;
+	const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
+	const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z;
 
         typedef typename Basis3D::FirstBasisType::BSplineType PrimalSpline_x;
         typedef typename Basis3D::SecondBasisType::BSplineType PrimalSpline_y;
-        typedef typename Basis3D::SecondBasisType::BSplineType PrimalSpline_z;
+        typedef typename Basis3D::ThirdBasisType::BSplineType PrimalSpline_z;
         typedef typename Basis3D::FirstBasisType::WaveletType PrimalWavelet_x;
         typedef typename Basis3D::SecondBasisType::WaveletType PrimalWavelet_y;
-        typedef typename Basis3D::SecondBasisType::WaveletType PrimalWavelet_z;
+        typedef typename Basis3D::ThirdBasisType::WaveletType PrimalWavelet_z;
 
         PrimalSpline_x phi_x;
         PrimalSpline_y phi_y;
@@ -65,7 +65,7 @@ class SeparableRHS3D
         T
         operator()(XType XisSpline, int j_x, int k_x,
                    XType YisSpline, int j_y, int k_y,
-                   XType YisSpline, int j_z, int k_z) const;
+                   XType ZisSpline, int j_z, int k_z) const;
 
         T
         operator()(const Index3D &index) const;

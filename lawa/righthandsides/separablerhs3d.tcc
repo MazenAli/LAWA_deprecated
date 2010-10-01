@@ -42,8 +42,8 @@ SeparableRHS3D<T, Basis3D>::SeparableRHS3D(const Basis3D& _basis, const Separabl
 template<typename T, typename Basis3D>
 T
 SeparableRHS3D<T, Basis3D>::operator()(XType xtype_x, int j_x, int k_x,
-								       XType xtype_y, int j_y, int k_y,
-								       XType xtype_z, int j_z, int k_z) const
+				       XType xtype_y, int j_y, int k_y,
+				       XType xtype_z, int j_z, int k_z) const
 {
     T val_x = 0;
     T val_y = 0;
