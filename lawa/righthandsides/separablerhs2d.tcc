@@ -48,36 +48,24 @@ SeparableRHS2D<T, Basis2D>::operator()(XType xtype_x, int j_x, int k_x,
         for (int i=1; i<=deltas_x.numRows(); ++i) {
         	val_x += deltas_x(i,2) * phi_x(deltas_x(i,1),j_x,k_x);
         }
-        if(xtype_y == XBSpline){
-            val_y = integral_sff_y(j_y, k_y);
-            for (int i=1; i<=deltas_y.numRows(); ++i) {
-            	val_y += deltas_y(i,2) * phi_y(deltas_y(i,1),j_y,k_y);
-            }
-        }
-        else{
-            val_y = integral_wf_y(j_y, k_y);
-            for (int i=1; i<=deltas_y.numRows(); ++i) {
-            	val_y += deltas_y(i,2) * psi_y(deltas_y(i,1),j_y,k_y);
-            }
-        }
-
     }
     else{
         val_x = integral_wf_x(j_x, k_x);
         for (int i=1; i<=deltas_x.numRows(); ++i) {
         	val_x += deltas_x(i,2) * psi_x(deltas_x(i,1),j_x,k_x);
         }
-        if(xtype_y == XBSpline){
-            val_y = integral_sff_y(j_y, k_y);
-            for (int i=1; i<=deltas_y.numRows(); ++i) {
-                val_y += deltas_y(i,2) * phi_y(deltas_y(i,1),j_y,k_y);
-            }
+    }
+
+    if(xtype_y == XBSpline){
+        val_y = integral_sff_y(j_y, k_y);
+        for (int i=1; i<=deltas_y.numRows(); ++i) {
+            val_y += deltas_y(i,2) * phi_y(deltas_y(i,1),j_y,k_y);
         }
-        else{
-            val_y = integral_wf_y(j_y, k_y);
-            for (int i=1; i<=deltas_y.numRows(); ++i) {
-                val_y += deltas_y(i,2) * psi_y(deltas_y(i,1),j_y,k_y);
-            }
+    }
+    else{
+        val_y = integral_wf_y(j_y, k_y);
+        for (int i=1; i<=deltas_y.numRows(); ++i) {
+             val_y += deltas_y(i,2) * psi_y(deltas_y(i,1),j_y,k_y);
         }
     }
 

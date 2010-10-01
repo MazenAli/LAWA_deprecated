@@ -82,7 +82,6 @@ HelmholtzOperator2D<T, Basis2D>::operator()(XType row_xtype_x, int j1_x, int k1_
         else{
             val_x =       integral_ww_x(j1_x, k1_x, j2_x, k2_x);
             dd_val_x = dd_integral_ww_x(j1_x, k1_x, j2_x, k2_x);
-            //std::cout << j1_x << " " << k1_x << " " << j2_x << " " << k2_x << " : " << val_x << ", " << dd_val_x << std::endl;
         }
     }
     if(row_xtype_y == XBSpline){

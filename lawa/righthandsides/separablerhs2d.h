@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_SEPARABLERHSWITHALIGNEDSING2D_H
-#define LAWA_RIGHTHANDSIDES_SEPARABLERHSWITHALIGNEDSING2D_H 1
+#ifndef LAWA_RIGHTHANDSIDES_SEPARABLERHS2D_H
+#define LAWA_RIGHTHANDSIDES_SEPARABLERHS2D_H 1
 
-#include <lawa/righthandsides/separablefunction2d.h>
+#include <lawa/righthandsides/separablefunctionnd.h>
 #include <lawa/integrals.h>
 
 namespace lawa {
@@ -66,4 +66,4 @@ class SeparableRHS2D
 
 #include <lawa/righthandsides/separablerhs2d.tcc>
 
-#endif // LAWA_RIGHTHANDSIDES_SEPARABLERHSWITHALIGNEDSING2D_H
+#endif // LAWA_RIGHTHANDSIDES_SEPARABLERHS2D_H

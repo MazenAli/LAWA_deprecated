@@ -57,10 +57,17 @@ TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditio
 		P_data[col_index] = tmp;
 		prec *= tmp;
 	}
-	return prec * (
-		  data_dd_x(row_index.index1,col_index.index1) * data_id_y(row_index.index2,col_index.index2) +
-		  data_id_x(row_index.index1,col_index.index1) * data_dd_y(row_index.index2,col_index.index2) +
-		  data_id_x(row_index.index1,col_index.index1) * data_id_y(row_index.index2,col_index.index2) );
+
+	T dd_x = data_dd_x(row_index.index1,col_index.index1);
+	T id_x = data_id_x(row_index.index1,col_index.index1);
+	T id_y = 0.;
+	T dd_y = 0.;
+	if ((fabs(dd_x)>0) || (fabs(id_x)>0)) {
+		id_y = data_id_y(row_index.index2,col_index.index2);
+		dd_y = data_dd_y(row_index.index2,col_index.index2);
+	}
+	return prec*(dd_x*id_y + id_x*dd_y + id_x*id_y  );
+
 }
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
