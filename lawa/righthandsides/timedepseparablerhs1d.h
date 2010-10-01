@@ -3,7 +3,7 @@
 
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
-#include <lawa/righthandsides/separablefunction2d.h>
+#include <lawa/righthandsides/separablefunctionnd.h>
 #include <lawa/integrals.h>
 
 namespace lawa{

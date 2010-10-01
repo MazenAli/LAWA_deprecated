@@ -20,7 +20,7 @@
 #ifndef LAWA_RIGHTHANDSIDES_INTEGRALS2D_H
 #define LAWA_RIGHTHANDSIDES_INTEGRALS2D_H 1
 
-#include <lawa/righthandsides/function2d.h>
+#include <lawa/righthandsides/functionnd.h>
 #include <lawa/righthandsides/quadrature2d.h>
 
 namespace lawa {
