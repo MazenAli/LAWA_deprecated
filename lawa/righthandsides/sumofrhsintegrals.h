@@ -17,52 +17,44 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_RIGHTHANDSIDES_SUMOFRHSINTEGRALS2D_H
-#define LAWA_RIGHTHANDSIDES_SUMOFRHSINTEGRALS2D_H 1
+#ifndef LAWA_RIGHTHANDSIDES_SUMOFRHSINTEGRALS_H
+#define LAWA_RIGHTHANDSIDES_SUMOFRHSINTEGRALS_H 1
 
 namespace lawa {
 
-template <typename T, typename RHS2D>
-class SumOfTwoRHSIntegrals2D
+template <typename T, typename Index, typename RHSIntegral>
+class SumOfTwoRHSIntegrals
 {
 private:
-    const RHS2D &rhs1;
-    const RHS2D &rhs2;
+    const RHSIntegral &rhs1;
+    const RHSIntegral &rhs2;
 
 public:
-    SumOfTwoRHSIntegrals2D(const RHS2D &rhs1, const RHS2D &rhs2);
+    SumOfTwoRHSIntegrals(const RHSIntegral &rhs1, const RHSIntegral &rhs2);
 
     T
-    operator()(XType xtype_x, int j_x, int k_x,
-               XType xtpye_y, int j_y, int k_y) const;
-
-    T
-    operator()(const Index2D &index) const;
+    operator()(const Index &index) const;
 };
 
-template <typename T, typename RHS2D>
-class SumOfThreeRHSIntegrals2D
+
+template <typename T, typename Index, typename RHSIntegral>
+class SumOfThreeRHSIntegrals
 {
 private:
-    const RHS2D &rhs1;
-    const RHS2D &rhs2;
-    const RHS2D &rhs3;
+    const RHSIntegral &rhs1;
+    const RHSIntegral &rhs2;
+    const RHSIntegral &rhs3;
 
 public:
-    SumOfThreeRHSIntegrals2D(const RHS2D &rhs1, const RHS2D &rhs2, const RHS2D &rhs3);
+    SumOfThreeRHSIntegrals(const RHSIntegral &rhs1, const RHSIntegral &rhs2, const RHSIntegral &rhs3);
 
     T
-    operator()(XType xtype_x, int j_x, int k_x,
-               XType xtpye_y, int j_y, int k_y) const;
-
-    T
-    operator()(const Index2D &index) const;
+    operator()(const Index &index) const;
 };
-
 
 
 }	//namespace lawa
 
-#include <lawa/righthandsides/sumofrhsintegrals2d.tcc>
+#include <lawa/righthandsides/sumofrhsintegrals.tcc>
 
 #endif  //LAWA_RIGHTHANDSIDES_SUMOFRHSINTEGRALS2D_H
