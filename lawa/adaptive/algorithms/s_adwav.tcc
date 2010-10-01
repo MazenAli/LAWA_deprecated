@@ -24,9 +24,9 @@ namespace lawa {
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _contraction,
                                  T start_threshTol, T start_linTol, T start_resTol=1e-4,
-                                 int _NumOfIterations=10, T _eps=1e-2)
+                                 int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2)
     : basis(_basis), A(_A), F(_F), contraction(_contraction), threshTol(start_threshTol), linTol(start_linTol),
-      resTol(start_resTol), NumOfIterations(_NumOfIterations), eps(_eps)
+      resTol(start_resTol), NumOfIterations(_NumOfIterations), MaxItsPerThreshTol(_MaxItsPerThreshTol), eps(_eps)
 {
     solutions.resize(NumOfIterations);
     residuals.resize(NumOfIterations);
@@ -90,7 +90,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
         LambdaActive = LambdaThresh+supp(r);
 
         //Check if residual is decreasing, if not decrease threshold tolerance
-        if (fabs(estim_res-old_res)<resTol || its_per_threshTol>2) {
+        if (fabs(estim_res-old_res)<resTol || its_per_threshTol>MaxItsPerThreshTol) {
             threshTol *= 0.5;
             linTol      *= 0.5;
             //resTol    *= 0.5;
@@ -120,8 +120,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_with_error_on_the_fly(const IndexSet<Ind
 
     LambdaActive = InitialLambda;
     T old_res = 0.;
+    int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
-    std::ofstream file("s-adwav-realline-realline-helmholtz2d-otf.dat");
+    std::ofstream file("s-adwav-realline-helmholtz3d-otf.dat");
     for (int its=0; its<NumOfIterations; ++its) {
 
         timer.start();
@@ -133,10 +134,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_with_error_on_the_fly(const IndexSet<Ind
 
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
-        //std::cout << "LambdaActive = " << LambdaActive << std::endl;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
-        //std::cout << "u = " << u << std::endl;
         std::cout << "   ...finished." << std::endl;
 
         //Threshold step
@@ -148,7 +147,6 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_with_error_on_the_fly(const IndexSet<Ind
 
         //Computing residual
         DeltaLambda = C(LambdaThresh, contraction, basis);
-        //std::cout << "DeltaLambda = " << DeltaLambda << std::endl;
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         f = F(DeltaLambda);
         std::cout << "   ...finished" << std::endl;
@@ -170,12 +168,14 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_with_error_on_the_fly(const IndexSet<Ind
         LambdaActive = LambdaThresh+supp(r);
 
         //Check if residual is decreasing, if not decrease threshold tolerance
-        if (fabs(estim_res-old_res)<resTol) {
+        if (fabs(estim_res-old_res)<resTol  || its_per_threshTol>MaxItsPerThreshTol) {
             threshTol *= 0.5;
             linTol      *= 0.5;
-            resTol    *= 0.5;
+            //resTol    *= 0.5;
+            its_per_threshTol = 0;
         }
         old_res = estim_res;
+        ++its_per_threshTol;
         timer.stop();
         times[its] = timer.elapsed();
 
