@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_FUNCTION2D_H
-#define LAWA_RIGHTHANDSIDES_FUNCTION2D_H 1
+#ifndef LAWA_RIGHTHANDSIDES_FUNCTIONND_H
+#define LAWA_RIGHTHANDSIDES_FUNCTIONND_H 1
 
 namespace lawa {
 
@@ -39,8 +39,25 @@ public:
     T (*f)(T,T);
 };
 
+template<typename T>
+struct Function3D
+{
+public:
+    Function3D(T (*_f)(T,T,T), const DenseVector<Array<T> > &_singularPts_x,
+							 const DenseVector<Array<T> > &_singularPts_y,
+							 const DenseVector<Array<T> > &_singularPts_z);
+
+    T
+    operator()(T x, T y, T z) const;
+
+    const DenseVector<Array<T> > singularPts_x;	//x-aligned singularities
+    const DenseVector<Array<T> > singularPts_y;	//y-aligned singularities
+    const DenseVector<Array<T> > singularPts_z;	//y-aligned singularities
+    T (*f)(T,T,T);
+};
+
 } // namespace lawa
 
-#include <lawa/righthandsides/function2d.tcc>
+#include <lawa/righthandsides/functionnd.tcc>
 
-#endif // LAWA_RIGHTHANDSIDES_FUNCTION2D_H
+#endif // LAWA_RIGHTHANDSIDES_FUNCTIONND_H
