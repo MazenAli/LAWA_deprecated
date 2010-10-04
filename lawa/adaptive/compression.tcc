@@ -94,21 +94,23 @@ IndexSet<Index2D>
 CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, const IndexSet<Index2D> &LambdaRow) {
 	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 	typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
-	set2d_const_it LambdaRow_end = LambdaRow.end();
+	//set2d_const_it LambdaRow_end = LambdaRow.end();
 
 	IndexSet<Index2D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
 
 	IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col.index1, basis.first, s_tilde_x, jmin_x, jmax_x, false);
 	IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y, jmax_y, false);
+
 	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
 		for (set1d_const_it lambda_y = Lambda_y.begin(); lambda_y != Lambda_y.end(); ++lambda_y) {
 			Index2D index2d(*lambda_x,*lambda_y);
-			set2d_const_it it = LambdaRow.find(index2d);
-			if (it != LambdaRow_end) {
+			//set2d_const_it it = LambdaRow.find(index2d);
+			if (LambdaRow.count(index2d)>0) {
 				LambdaRowSparse.insert(index2d);
 			}
 		}
 	}
+
 	return LambdaRowSparse;
 }
 
@@ -196,6 +198,16 @@ CompressionPDE3D<T,Basis>::SparsityPattern(const Index3D &lambda_col, const Inde
 	IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y, jmax_y, false);
 	IndexSet<Index1D> Lambda_z = lambdaTilde1d_PDE(lambda_col.index3, basis.third, s_tilde_z, jmin_z, jmax_z, false);
 
+	for (set3d_const_it it=LambdaRow.begin(); it!=LambdaRow.end(); ++it) {
+		if (Lambda_x.count((*it).index1) >0 ) {
+			if (Lambda_y.count((*it).index2) >0 ) {
+				if (Lambda_z.count((*it).index3) >0 ) {
+					LambdaRowSparse.insert(Index3D((*it).index1,(*it).index2,(*it).index3));
+				}
+			}
+		}
+	}
+/*
 	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
 		for (set1d_const_it lambda_y = Lambda_y.begin(); lambda_y != Lambda_y.end(); ++lambda_y) {
 			for (set1d_const_it lambda_z = Lambda_z.begin(); lambda_z != Lambda_z.end(); ++lambda_z) {
@@ -210,6 +222,7 @@ CompressionPDE3D<T,Basis>::SparsityPattern(const Index3D &lambda_col, const Inde
 			}
 		}
 	}
+*/
 	return LambdaRowSparse;
 }
 

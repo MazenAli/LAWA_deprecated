@@ -70,7 +70,7 @@ public:
     DataDiffusion_z data_dd_z;
     DataReaction_z  data_id_z;
 
-    TensorMatrix3D(const HelmholtzOperator3D<T, Basis> &a, const Preconditioner &p, Compression &c,
+    TensorMatrix3D(const HelmholtzOperator3D<T, Basis> &a, const Preconditioner &p, Compression &c, T entrybound=0.,
     	           int NumOfRows=4096, int NumOfCols=2048);
 
     T

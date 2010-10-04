@@ -64,8 +64,8 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 class MapMatrixWithZeros
 {
 public:
-    //typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
-	typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int, equal_pair_of_int> EntryMap;
+    typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
+	//typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int, equal_pair_of_int> EntryMap;
     typedef typename EntryMap::value_type val_type;
 
     EntryMap NonZeros;
@@ -79,11 +79,12 @@ public:
     flens::DenseVector<Array<T> > PrecValues;
     std::vector<unsigned long long> Zeros;
     bool warning_overflow;
+    T entrybound;
 
 
 public:
     MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c,
-					   int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
+					   T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
 	T
 	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!

@@ -22,12 +22,13 @@ namespace lawa {
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preconditioner>::TensorMatrix3D(const HelmholtzOperator3D<T, Basis> &_a,
 																									const Preconditioner &_p, Compression &_c,
+																									T entrybound,
 																									int NumOfRows, int NumOfCols)
 	: a(_a), p(_p), c(_c),
 	  c_x(a.basis.first), c_y(a.basis.second), c_z(a.basis.third),
-	  data_dd_x(a.dd_x, prec1d, c_x, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, NumOfRows, NumOfCols),
-	  data_dd_y(a.dd_y, prec1d, c_y, NumOfRows, NumOfCols), data_id_y(a.id_y, prec1d, c_y, NumOfRows, NumOfCols),
-	  data_dd_z(a.dd_z, prec1d, c_z, NumOfRows, NumOfCols), data_id_z(a.id_z, prec1d, c_z, NumOfRows, NumOfCols)
+	  data_dd_x(a.dd_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols),
+	  data_dd_y(a.dd_y, prec1d, c_y, entrybound, NumOfRows, NumOfCols), data_id_y(a.id_y, prec1d, c_y, entrybound, NumOfRows, NumOfCols),
+	  data_dd_z(a.dd_z, prec1d, c_z, entrybound, NumOfRows, NumOfCols), data_id_z(a.id_z, prec1d, c_z, entrybound, NumOfRows, NumOfCols)
 {
 }
 
@@ -59,13 +60,24 @@ TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preconditio
 		prec *= tmp;
 	}
 
-	T dd_x = data_dd_x(row_index.index1,col_index.index1);
 	T id_x = data_id_x(row_index.index1,col_index.index1);
+	T id_y = data_id_y(row_index.index2,col_index.index2);
+
+	T dd_x = 0., dd_y = 0., dd_z = 0., id_z = 0.;
+//	if (fabs(id_x)>0) {
+		dd_y = data_dd_y(row_index.index2,col_index.index2);
+		dd_z = data_dd_z(row_index.index3,col_index.index3);
+//	}
+//	if (fabs(id_y)>0) {
+		dd_x = data_dd_x(row_index.index1,col_index.index1);
+		id_z = data_id_z(row_index.index3,col_index.index3);
+//	}
+/*
 	T dd_y = data_dd_y(row_index.index2,col_index.index2);
 	T id_y = data_id_y(row_index.index2,col_index.index2);
 	T dd_z = data_dd_z(row_index.index3,col_index.index3);
 	T id_z = data_id_z(row_index.index3,col_index.index3);
-
+*/
 	return prec *( dd_x*id_y*id_z + id_x*dd_y*id_z + id_x*id_y*dd_z + id_x*id_y*id_z );
 }
 
