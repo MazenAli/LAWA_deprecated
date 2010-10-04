@@ -35,7 +35,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
-S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
+S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T H1norm)
 {
     Timer timer;
     
@@ -47,6 +47,10 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
     T old_res = 0.;
     int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
+    std::stringstream filename;
+    filename << "s-adwav-realline-helmholtz3d-otf_" << d << "_" << d_ << ".dat";
+    std::ofstream file(filename.str().c_str());
+
     for (int its=0; its<NumOfIterations; ++its) {
     	std::cout << "*** " << its+1 << ".iteration" << std::endl;
         
@@ -69,6 +73,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
 
+        timer.stop();
+        T time1 = timer.elapsed();
+        T Error_H_energy = 0.;
+        if (H1norm>0) Error_H_energy = estimateError_H_energy(A, F, u, H1norm);
+
+        timer.start();
         //Computing residual
         DeltaLambda = C(LambdaThresh, contraction, basis);
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
@@ -86,6 +96,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
         std::cout << "   ...finished" << std::endl;
         residuals[its] = estim_res;
 
+        file << LambdaThresh.size() << " " << estim_res << " " << Error_H_energy << std::endl;
+
         r = THRESH(r,threshTol);
         LambdaActive = LambdaThresh+supp(r);
 
@@ -99,88 +111,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda)
         ++its_per_threshTol;
         old_res = estim_res;
         timer.stop();
-        if (its==0) times[its] = timer.elapsed();
-        else		times[its] = times[its-1] + timer.elapsed();
+        if (its==0) times[its] = time1+timer.elapsed();
+        else		times[its] = times[its-1] + time1 + timer.elapsed();
         
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations
                   << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
 
-    }
-}
-
-template <typename T, typename Index, typename Basis, typename MA, typename RHS>
-void
-S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_with_error_on_the_fly(const IndexSet<Index> &InitialLambda, T H1norm)
-{
-    Timer timer;
-
-    int d=InitialLambda.d, d_=InitialLambda.d_;
-    IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_), DeltaLambda(d,d_);
-    Coefficients<Lexicographical,T, Index> u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
-
-    LambdaActive = InitialLambda;
-    T old_res = 0.;
-    int its_per_threshTol=0;
-    std::cout << "Simple adaptive solver started." << std::endl;
-    std::ofstream file("s-adwav-realline-helmholtz3d-otf.dat");
-    for (int its=0; its<NumOfIterations; ++its) {
-
-        timer.start();
-
-        //Initialization step
-        FillWithZeros(LambdaActive,u);
-        f = F(LambdaActive);
-        T f_norm_LambdaActive = f.norm(2.);
-
-        //Galerkin step
-        T r_norm_LambdaActive = 0.0;
-        std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
-        int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
-        std::cout << "   ...finished." << std::endl;
-
-        //Threshold step
-        u = THRESH(u,threshTol);
-        solutions[its] = u;
-        LambdaThresh = supp(u);
-
-        T Error_H_energy = estimateError_H_energy(A, F, u, H1norm);
-
-        //Computing residual
-        DeltaLambda = C(LambdaThresh, contraction, basis);
-        std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
-        f = F(DeltaLambda);
-        std::cout << "   ...finished" << std::endl;
-        T f_norm_DeltaLambda = f.norm(2.);
-        std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
-        Au = mv_sparse(DeltaLambda,A,u);
-        r  = Au-f;
-        T r_norm_DeltaLambda = r.norm(2.);
-        T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
-        T denominator = f_norm_DeltaLambda*f_norm_DeltaLambda + f_norm_LambdaActive*f_norm_LambdaActive;
-        T estim_res   = std::sqrt(numerator/denominator);
-
-        file << LambdaThresh.size() << " " << estim_res << " " << Error_H_energy << std::endl;
-
-        std::cout << "   ...finished" << std::endl;
-        residuals[its] = estim_res;
-
-        r = THRESH(r,threshTol);
-        LambdaActive = LambdaThresh+supp(r);
-
-        //Check if residual is decreasing, if not decrease threshold tolerance
-        if (fabs(estim_res-old_res)<resTol  || its_per_threshTol>MaxItsPerThreshTol) {
-            threshTol *= 0.5;
-            linTol      *= 0.5;
-            //resTol    *= 0.5;
-            its_per_threshTol = 0;
-        }
-        old_res = estim_res;
-        ++its_per_threshTol;
-        timer.stop();
-        times[its] = timer.elapsed();
-
-        std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations;
-        std::cout << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl;
     }
 }
 

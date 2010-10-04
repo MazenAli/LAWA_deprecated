@@ -34,8 +34,7 @@ public:
     S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
             T start_linTol, T start_resTol, int max_iters, int MaxItsPerThreshTol, T eps);
 
-	void solve_cg(const IndexSet<Index> &Initial_Lambda);
-	void solve_cg_with_error_on_the_fly(const IndexSet<Index> &Initial_Lambda, T H1norm);
+	void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
 	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
 
     std::vector<Coefficients<Lexicographical,T,Index> > solutions;
