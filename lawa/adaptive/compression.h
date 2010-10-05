@@ -83,7 +83,28 @@ public:
 
 	IndexSet<Index2D>
 	SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde, int deriv_x, int deriv_y);
+};
 
+template <typename T, typename Basis>
+class CompressionPDE3D
+{
+public:
+	const Basis &basis;
+	short s_tilde_x, jmin_x, jmax_x;
+	short s_tilde_y, jmin_y, jmax_y;
+	short s_tilde_z, jmin_z, jmax_z;
+
+	CompressionPDE3D(const Basis &_basis);
+
+	void
+	setParameters(const IndexSet<Index3D> &LambdaRow);
+
+	IndexSet<Index3D>
+	SparsityPattern(const Index3D &lambda_col, const IndexSet<Index3D> &LambdaRow);
+
+	IndexSet<Index3D>
+	SparsityPattern(const Index3D &lambda_col, int jmin_x, int jmin_y, int jmin_z, int s_tilde,
+				    int deriv_x, int deriv_y, int deriv_z);
 };
 
 } // namespace lawa

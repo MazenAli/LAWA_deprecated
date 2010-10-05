@@ -19,29 +19,35 @@
 
 namespace lawa {
 
-template<typename T, typename Basis2D>
-SeparableRHS2D<T, Basis2D>::SeparableRHS2D(const Basis2D& _basis, const SeparableFunction2D<T>& _F,
+template<typename T, typename Basis3D>
+SeparableRHS3D<T, Basis3D>::SeparableRHS3D(const Basis3D& _basis, const SeparableFunction3D<T>& _F,
 		const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_x,
-		const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_y, int order)
+		const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_y,
+		const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_z, int order)
     : basis(_basis), F(_F),
-      deltas_x(_deltas_x), deltas_y(_deltas_y),
-	  phi_x(_basis.first.mra), phi_y(_basis.second.mra), psi_x(_basis.first), psi_y(_basis.second),
-      integral_sff_x(phi_x, _F.F_x), integral_sff_y(phi_y, _F.F_y),
-      integral_wf_x(psi_x, _F.F_x),  integral_wf_y(psi_y, _F.F_y)
+      deltas_x(_deltas_x), deltas_y(_deltas_y), deltas_z(_deltas_z),
+	  phi_x(_basis.first.mra), phi_y(_basis.second.mra), phi_z(_basis.third.mra),
+	  psi_x(_basis.first), psi_y(_basis.second), psi_z(_basis.third),
+      integral_sff_x(phi_x, _F.F_x), integral_sff_y(phi_y, _F.F_y), integral_sff_z(phi_z, _F.F_z),
+      integral_wf_x(psi_x, _F.F_x),  integral_wf_y(psi_y, _F.F_y), integral_wf_z(psi_z, _F.F_z)
 {
 	integral_sff_x.quadrature.setOrder(order);
 	integral_sff_y.quadrature.setOrder(order);
+	integral_sff_z.quadrature.setOrder(order);
 	integral_wf_x.quadrature.setOrder(order);
 	integral_wf_y.quadrature.setOrder(order);
+	integral_wf_z.quadrature.setOrder(order);
 }
 
-template<typename T, typename Basis2D>
+template<typename T, typename Basis3D>
 T
-SeparableRHS2D<T, Basis2D>::operator()(XType xtype_x, int j_x, int k_x,
-													  XType xtype_y, int j_y, int k_y) const
+SeparableRHS3D<T, Basis3D>::operator()(XType xtype_x, int j_x, int k_x,
+				       XType xtype_y, int j_y, int k_y,
+				       XType xtype_z, int j_z, int k_z) const
 {
     T val_x = 0;
     T val_y = 0;
+    T val_z = 0;
 
     if(xtype_x == XBSpline){
         val_x = integral_sff_x(j_x, k_x);
@@ -69,15 +75,29 @@ SeparableRHS2D<T, Basis2D>::operator()(XType xtype_x, int j_x, int k_x,
         }
     }
 
-    return val_x * val_y;
+    if(xtype_z == XBSpline){
+        val_z = integral_sff_z(j_z, k_z);
+        for (int i=1; i<=deltas_z.numRows(); ++i) {
+            val_z += deltas_z(i,2) * phi_z(deltas_z(i,1),j_z,k_z);
+        }
+    }
+    else{
+        val_z = integral_wf_z(j_z, k_z);
+        for (int i=1; i<=deltas_z.numRows(); ++i) {
+            val_z += deltas_z(i,2) * psi_z(deltas_z(i,1),j_z,k_z);
+        }
+    }
+
+    return val_x * val_y * val_z;
 }
 
-template<typename T, typename Basis2D>
+template<typename T, typename Basis3D>
 T
-SeparableRHS2D<T, Basis2D>::operator()(const Index2D &index) const
+SeparableRHS3D<T, Basis3D>::operator()(const Index3D &index) const
 {
-    return SeparableRHS2D<T, Basis2D>::operator()(index.index1.xtype, index.index1.j, index.index1.k,
-                                                           index.index2.xtype, index.index2.j, index.index2.k);
+    return SeparableRHS3D<T, Basis3D>::operator()(index.index1.xtype, index.index1.j, index.index1.k,
+                                                  index.index2.xtype, index.index2.j, index.index2.k,
+                                                  index.index3.xtype, index.index3.j, index.index3.k);
 }
 
 } // namespace lawa

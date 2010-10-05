@@ -84,6 +84,22 @@ std::ostream& operator<<(std::ostream &s, const Index2D &_i)
 }
 
 
+Index3D::Index3D(const Index1D &_index1, const Index1D &_index2, const Index1D &_index3)
+    : linearindex(0), index1(_index1), index2(_index2), index3(_index3)
+{
+}
+
+Index3D::~Index3D(void)
+{
+}
+
+std::ostream& operator<<(std::ostream &s, const Index3D &_i)
+{
+    s << "(" << _i.index1 << ", " << _i.index2 << ", " << _i.index3 << ")";
+    return s;
+}
+
+
 template <typename Index>
 Entry<Index>::Entry(const Index &_index1, const Index &_index2)
 : row_index(_index1), col_index(_index2)
@@ -229,6 +245,44 @@ struct lt<Lexicographical, Index2D >
         }
         else {
             return left.col_index.index2.val < right.col_index.index2.val;
+        }
+    }
+
+};
+
+template <>
+struct lt<Lexicographical, Index3D >
+{
+
+	inline
+	bool operator()(const Index3D &left, const Index3D &right) const
+	{
+		if (left.index1.val != right.index1.val) 		return left.index1.val < right.index1.val;
+		else if (left.index2.val != right.index2.val)   return left.index2.val < right.index2.val;
+		else											return left.index3.val < right.index3.val;
+	}
+
+    inline
+    bool operator()(const Entry<Index3D> &left, const Entry<Index3D> &right) const
+    {
+    // sort Operator row-wise
+        if (left.row_index.index1.val != right.row_index.index1.val) {
+        	return left.row_index.index1.val < right.row_index.index1.val;
+        }
+        else if (left.row_index.index2.val != right.row_index.index2.val) {
+        	return left.row_index.index2.val < right.row_index.index2.val;
+        }
+        else if (left.row_index.index3.val != right.row_index.index3.val) {
+            return left.row_index.index3.val < right.row_index.index3.val;
+        }
+        if (left.col_index.index1.val != right.col_index.index1.val) {
+            return left.col_index.index1.val < right.col_index.index1.val;
+        }
+        else if (left.col_index.index2.val != right.col_index.index2.val) {
+            return left.col_index.index2.val < right.col_index.index2.val;
+        }
+        else {
+        	return left.col_index.index3.val < right.col_index.index3.val;
         }
     }
 

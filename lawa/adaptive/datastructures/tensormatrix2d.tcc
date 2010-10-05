@@ -22,11 +22,12 @@ namespace lawa {
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>::TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &_a,
 																									const Preconditioner &_p, Compression &_c,
+																									T entrybound,
 																									int NumOfRows, int NumOfCols)
 	: a(_a), p(_p), c(_c),
 	  c_x(a.basis.first), c_y(a.basis.second),
-	  data_dd_x(a.dd_x, prec1d, c_x, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, NumOfRows, NumOfCols),
-	  data_dd_y(a.dd_y, prec1d, c_y, NumOfRows, NumOfCols), data_id_y(a.id_y, prec1d, c_y, NumOfRows, NumOfCols)
+	  data_dd_x(a.dd_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols),
+	  data_dd_y(a.dd_y, prec1d, c_y, entrybound, NumOfRows, NumOfCols), data_id_y(a.id_y, prec1d, c_y, entrybound, NumOfRows, NumOfCols)
 {
 }
 
@@ -57,10 +58,14 @@ TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditio
 		P_data[col_index] = tmp;
 		prec *= tmp;
 	}
-	return prec * (
-		  data_dd_x(row_index.index1,col_index.index1) * data_id_y(row_index.index2,col_index.index2) +
-		  data_id_x(row_index.index1,col_index.index1) * data_dd_y(row_index.index2,col_index.index2) +
-		  data_id_x(row_index.index1,col_index.index1) * data_id_y(row_index.index2,col_index.index2) );
+
+	T dd_x = data_dd_x(row_index.index1,col_index.index1);
+	T id_x = data_id_x(row_index.index1,col_index.index1);
+	T id_y = data_id_y(row_index.index2,col_index.index2);
+	T dd_y = data_dd_y(row_index.index2,col_index.index2);
+
+	return prec*(dd_x*id_y + id_x*dd_y + id_x*id_y  );
+
 }
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>

@@ -22,7 +22,7 @@
 
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
-#include <lawa/righthandsides/function2d.h>
+#include <lawa/righthandsides/functionnd.h>
 #include <lawa/righthandsides/integrals2d.h>
 
 namespace lawa {

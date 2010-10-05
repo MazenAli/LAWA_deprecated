@@ -310,6 +310,44 @@ C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
     return ret;
 }
 
+//Security zone 3D
+template <typename T, typename Basis3D>
+IndexSet<Index3D>
+C(const IndexSet<Index3D> &Lambda, T c, const Basis3D &basis)
+{
+    typedef typename IndexSet<Index3D>::const_iterator const_it_3d;
+    typedef typename IndexSet<Index1D>::const_iterator const_it;
+
+    int d = Lambda.d, d_ = Lambda.d_;
+
+    IndexSet<Index3D>  ret(d,d_);
+
+    //Security zone of Lambda should not contain indices which are already in Lambda
+    for (const_it_3d lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+        IndexSet<Index1D > C_index1(d,d_), C_index2(d,d_), C_index3(d,d_);
+        C_index1 = C((*lambda).index1, c, basis.first);
+        C_index2 = C((*lambda).index2, c, basis.second);
+        C_index3 = C((*lambda).index3, c, basis.third);
+
+        for (const_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+            if (Lambda.count(Index3D((*it_C_index1), (*lambda).index2, (*lambda).index3) )==0) {
+                ret.insert(Index3D((*it_C_index1),   (*lambda).index2,  (*lambda).index3) );
+            }
+        }
+        for (const_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+            if (Lambda.count(Index3D((*lambda).index1, (*it_C_index2), (*lambda).index3) )==0) {
+                ret.insert(Index3D((*lambda).index1,   (*it_C_index2), (*lambda).index3) );
+            }
+        }
+        for (const_it it_C_index3=C_index3.begin(); it_C_index3!=C_index3.end(); ++it_C_index3) {
+            if (Lambda.count(Index3D((*lambda).index1, (*lambda).index2, (*it_C_index3) ) )==0) {
+                ret.insert(Index3D((*lambda).index1,   (*lambda).index2, (*it_C_index3) ) );
+            }
+        }
+    }
+    return ret;
+}
+
 /*
  * Realizations of lambdaTilde1d
  */

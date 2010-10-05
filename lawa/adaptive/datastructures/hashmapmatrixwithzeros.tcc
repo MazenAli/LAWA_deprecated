@@ -22,13 +22,14 @@ namespace lawa {
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrixWithZeros(const BilinearForm &_a,
 																	 const Preconditioner &_p, Compression &_c,
+																	 T _entrybound,
 																	 int _NumOfRows, int _NumOfCols)
 :  a(_a), p(_p), c(_c), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-   ConsecutiveIndices(2,2), Zeros( (NumOfRows*NumOfCols) >> 5)
+   ConsecutiveIndices(2,2), Zeros( (NumOfRows*NumOfCols) >> 5), warning_overflow(false), entrybound(_entrybound)
 {
 	PrecValues.engine().resize(int(NumOfRows));
 	Zeros.assign((NumOfRows*NumOfCols) >> 5, (long long) 0);
-	NonZeros.resize(3145739);
+	//NonZeros.resize(3145739);
 }
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
@@ -96,7 +97,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
 		}
 		T val = 0.;
 		val = prec * a(*row_index,*col_index);
-		if (fabs(val)>0) {
+		if (fabs(val)>entrybound) {
 			NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)] = val;
 			Zeros[block_num] = (((long long) 2) << block_pos) | (block) ;
 			return val;
@@ -107,6 +108,10 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
 		}
 	}
 	else {
+		if (!warning_overflow) {
+			std::cout << "WARNING: Not enough storage for zeros!!" << std::endl;
+			warning_overflow = true;
+		}
 		T prec = 1.;
 		if ((*row_index).linearindex < NumOfRows) {
 			prec *= PrecValues((*row_index).linearindex+1);
@@ -122,7 +127,8 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
 		}
 		T val = 0.;
 		val = prec * a(*row_index,*col_index);
-		return val;
+		if (fabs(val)>entrybound) return val;
+		else 					  return 0.;
 	}
 }
 
@@ -130,7 +136,11 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 void
 MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()
 {
-    NonZeros.clear();
+	NonZeros.clear();
+    //NonZeros.clear();
+    Zeros.clear();
+    ConsecutiveIndices.clear();
+    PrecValues.engine().resize(0);
 }
 
 }	//namespace lawa

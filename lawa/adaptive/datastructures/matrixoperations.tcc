@@ -25,6 +25,7 @@ void
 toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
 	                flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens)
 {
+	std::cout << "   Assembling of sparse matrix started..." << std::endl;
     typedef typename IndexSet<Index>::const_iterator const_set_it;
     std::map<Index,int,lt<Lexicographical,Index> > row_indices;
     int row_count = 1, col_count = 1;
@@ -40,6 +41,7 @@ toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Inde
     	}
     }
     A_flens.finalize();
+    std::cout << "   ...finished." << std::endl;
 }
 
 template <typename T, typename Index, typename MA>
@@ -69,7 +71,7 @@ template <typename T, typename Index, typename MA>
 Coefficients<Lexicographical,T,Index>
 mv_sparse(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
 {
-	typedef typename IndexSet<Index>::const_iterator set2d_const_it;
+	typedef typename IndexSet<Index>::const_iterator set_const_it;
 	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator coeff_const_it;
 
 	Timer timer;
@@ -78,7 +80,7 @@ mv_sparse(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicograp
     Coefficients<Lexicographical,T,Index> w_(v.d,v.d_);
 	for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
 		IndexSet<Index> LambdaRowSparse = A.c.SparsityPattern((*mu).first, LambdaRow);
-		for (set2d_const_it lambda = LambdaRowSparse.begin(); lambda != LambdaRowSparse.end(); ++lambda) {
+		for (set_const_it lambda = LambdaRowSparse.begin(); lambda != LambdaRowSparse.end(); ++lambda) {
 			w_[*lambda] += A(*lambda,(*mu).first) * (*mu).second;
 		}
 	}

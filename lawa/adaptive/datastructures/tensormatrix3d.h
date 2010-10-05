@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX2D_H
-#define LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX2D_H 1
+#ifndef LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H
+#define LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H 1
 
 #include <lawa/adaptive/index.h>
 #include <lawa/box/tensorbasis.h>
@@ -31,14 +31,15 @@ namespace lawa {
 
 
 template <typename T, typename Basis, typename BilinearForm, typename Compression, typename Preconditioner>
-class TensorMatrix2D {
+class TensorMatrix3D {
 };
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
-class TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>
+class TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preconditioner>
 {
 	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
 	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
+	typedef CompressionPDE1D<T, typename Basis::ThirdBasisType> 	     Compression_z;
 
 	typedef NoPreconditioner1D<T> NoPreconditioner;
 
@@ -46,16 +47,19 @@ class TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preco
 	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_x,  Compression_x, NoPreconditioner> DataReaction_x;
 	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_y, NoPreconditioner> DataDiffusion_y;
 	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner> DataReaction_y;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_z, NoPreconditioner> DataDiffusion_z;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_z, NoPreconditioner> DataReaction_z;
 
 public:
 
-	const HelmholtzOperator2D<T, Basis> &a;
+	const HelmholtzOperator3D<T, Basis> &a;
 	const Preconditioner &p;
     Compression &c;
-    Coefficients<Lexicographical,T,Index2D> P_data;
+    Coefficients<Lexicographical,T,Index3D> P_data;
 
     Compression_x c_x;
     Compression_y c_y;
+    Compression_z c_z;
 
     NoPreconditioner prec1d;
 
@@ -63,64 +67,26 @@ public:
     DataReaction_x  data_id_x;
     DataDiffusion_y data_dd_y;
     DataReaction_y  data_id_y;
+    DataDiffusion_z data_dd_z;
+    DataReaction_z  data_id_z;
 
-    TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &a, const Preconditioner &p, Compression &c, T _entrybound=0.,
+    TensorMatrix3D(const HelmholtzOperator3D<T, Basis> &a, const Preconditioner &p, Compression &c, T entrybound=0.,
     	           int NumOfRows=4096, int NumOfCols=2048);
 
     T
-    operator()(const Index2D &row_index, const Index2D &col_index);
+    operator()(const Index3D &row_index, const Index3D &col_index);
 
     T
-    prec(const Index2D &index);
+    prec(const Index3D &index);
 
     void
     clear();
 
 };
 
-template <typename T, typename Basis, typename Compression, typename Preconditioner>
-class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>
-{
-	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
-	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
-
-	typedef NoPreconditioner1D<T> NoPreconditioner;
-
-	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Convection_t, Compression_x, NoPreconditioner> DataConvection_t;
-	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_t,  Compression_x, NoPreconditioner> DataReaction_t;
-	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Diffusion_x, Compression_y, NoPreconditioner> DataDiffusion_x;
-	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_x,  Compression_y, NoPreconditioner> DataReaction_x;
-
-public:
-
-	const SpaceTimeHeatOperator1D<T, Basis> &a;
-	const Preconditioner &p;
-    Compression &c;
-    Coefficients<Lexicographical,T,Index2D> P_data;
-
-    Compression_x c_t;
-    Compression_y c_x;
-
-    NoPreconditioner prec1d;
-
-    DataConvection_t data_d_t;
-    DataReaction_t  data_id_t;
-    DataDiffusion_x data_dd_x;
-    DataReaction_x  data_id_x;
-
-    TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &a, const Preconditioner &p, Compression &c,
-				   int NumOfRows=4096, int NumOfCols=2048);
-
-    T
-    operator()(const Index2D &row_index, const Index2D &col_index);
-
-    void
-    clear();
-
-};
 
 }	//namespace lawa
 
-#include <lawa/adaptive/datastructures/tensormatrix2d.tcc>
+#include <lawa/adaptive/datastructures/tensormatrix3d.tcc>
 
-#endif //LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX2D_H
+#endif //LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H

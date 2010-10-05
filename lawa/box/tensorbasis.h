@@ -42,6 +42,21 @@ struct TensorBasis
     int 
     J2_max(const int J_x, const int J_y, const int jx) const;
 };
+
+template<typename FirstBasis, typename SecondBasis, typename ThirdBasis>
+struct TensorBasis3D
+{
+    typedef FirstBasis  FirstBasisType;
+    typedef SecondBasis SecondBasisType;
+    typedef ThirdBasis  ThirdBasisType;
+
+    TensorBasis3D(const FirstBasis &_basis1, const SecondBasis &_basis2, const ThirdBasis &_basis3);
+
+    const FirstBasis  &first;
+    const SecondBasis &second;
+    const ThirdBasis  &third;
+
+};
     
     
 } // namespace lawa
