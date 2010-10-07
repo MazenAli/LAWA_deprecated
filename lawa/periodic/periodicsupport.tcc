@@ -204,17 +204,17 @@ overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2, Support<T> &co
         }
         // No or only one overlapping interval
         else{
-            if(supp2.l2 - supp1.li2 > 0){
+            if(supp2.l2 - supp1.li2 > 0) {
                 common.l1 = supp1.li2;
                 common.l2 = supp2.l2;
                 return common.l2 - common.l1;
             }
 
-            if(supp1.li1 - supp2.l1 > 0){
+            if(supp1.li1 - supp2.l1 > 0) {
                 common.l1 = supp2.l1;
                 common.l2 = supp1.li1;
                 return common.l2 - common.l1;
-
+			}
             common.l1 = 0;
             common.l2 = -1;
             return 0;
