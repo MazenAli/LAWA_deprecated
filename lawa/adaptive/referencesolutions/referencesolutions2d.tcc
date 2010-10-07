@@ -70,6 +70,12 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample
     if ((domain1 == R) && (domain2 == R)) {
     	if (nr==2) {
     		sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
+    		deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = 0.2;
+    	    sing_pts_y.engine().resize(1); sing_pts_y(1) = 1./3.;
+    	    deltas_y.engine().resize(1,2); deltas_y(1,1) = 1./3.; deltas_y(1,2) = 1.;
+    	}
+    	if (nr==3) {
+    		sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
     		deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = 4.;
     	}
     }
@@ -138,14 +144,22 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_x(T 
             else                     return  std::exp(-0.1*(x+0.1)*(x+0.1)) * (4*0.1*0.1*(x+0.1)*(x+0.1)-2*0.1);
         }
         else if (nr==2) {
+        	if (deriv_x==0)         return  std::exp(-0.1*fabs(x-1./3.));
+        	else if (deriv_x==1) {
+        	    if (x < 1./3.) 		return   0.1*std::exp(-0.1*fabs(x-1./3.));
+        	    else		   		return  -0.1*std::exp(-0.1*fabs(x-1./3.));
+        	}
+        	else 			    	return   0.01*std::exp(-0.1*fabs(x-1./3.));
+        }
+        else if (nr==3) {
             if (deriv_x==0)         return  std::exp(-2.*fabs(x-1./3.));
             else if (deriv_x==1) {
-            	if (x < 1./3.) return   2.*std::exp(-2.*fabs(x-1./3.));
-            	else		   return -2.*std::exp(-2.*fabs(x-1./3.));
+            	if (x < 1./3.) 		return   2.*std::exp(-2.*fabs(x-1./3.));
+            	else		   		return  -2.*std::exp(-2.*fabs(x-1./3.));
             }
             else {
-            	if (x < 1./3.) return   4.*std::exp(-2.*fabs(x-1./3.));
-            	else		   return   4.*std::exp(-2.*fabs(x-1./3.));
+            	if (x < 1./3.) 		return   4.*std::exp(-2.*fabs(x-1./3.));
+            	else		   		return   4.*std::exp(-2.*fabs(x-1./3.));
             }
         }
     }
@@ -153,7 +167,7 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_x(T 
         if (nr==1) {
             if (deriv_x==0)         return              std::cos(2*M_PI*x);
             else if (deriv_x==1)    return         -2*M_PI*std::sin(2*M_PI*x);
-            else                     return -4*M_PI*M_PI*std::cos(2*M_PI*x);
+            else                    return -4*M_PI*M_PI*std::cos(2*M_PI*x);
         }
         else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
         return 0;
@@ -173,6 +187,14 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_y(T 
             else                    return  std::exp(-0.5*(y-0.1)*(y-0.1)) * (4*0.5*0.5*(y-0.1)*(y-0.1)-2*0.5);
         }
         else if (nr==2) {
+        	if (deriv_y==0)         return  std::exp(-0.5*fabs(y-1./3.));
+        	else if (deriv_y==1) {
+        	    if (y < 1./3.) return   0.5*std::exp(-0.5*fabs(y-1./3.));
+        	    else		   return  -0.5*std::exp(-0.5*fabs(y-1./3.));
+        	}
+        	else			   return   0.25*std::exp(-0.5*fabs(y-1./3.));
+        }
+        else if (nr==3) {
         	if (deriv_y==0) 		return std::exp(-0.1*(y-1./3.)*(y-1./3.));
         	else if (deriv_y==1)	return -0.2*(y-1./3.)*std::exp(-0.1*(y-1./3.)*(y-1./3.));
         	else					return  (0.04*(y-1./3)*(y-1./3.)-0.2)*std::exp(-0.1*(y-1./3.)*(y-1./3.));
@@ -209,6 +231,13 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
             ret = sqrt(ret);
         }
         if (nr==2) {
+            T i11   = 10.;
+            T i22   = 2.;
+            T ddi11 = 0.1;
+            T ddi22 = 0.5;
+            ret = sqrt(ddi11*i22 + i11*ddi22 + i11*i22);
+        }
+        if (nr==3) {
         	ret += 3.96332729760601*0.5 + 0.3963327297606012*0.5 + 3.96332729760601*2.;
         	return sqrt(ret);
         }
