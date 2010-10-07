@@ -113,13 +113,13 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
 			warning_overflow = true;
 		}
 		T prec = 1.;
-		if ((*row_index).linearindex < NumOfRows) {
+		if (((*row_index).linearindex < NumOfRows) && (fabs(PrecValues((*row_index).linearindex+1)) > 0)) {
 			prec *= PrecValues((*row_index).linearindex+1);
 		}
 		else {
 			prec *= p(*row_index);
 		}
-		if ((*col_index).linearindex < NumOfRows) {
+		if (((*col_index).linearindex < NumOfRows) && (fabs(PrecValues((*col_index).linearindex+1)) > 0)) {
 			prec *= PrecValues((*col_index).linearindex+1);
 		}
 		else {

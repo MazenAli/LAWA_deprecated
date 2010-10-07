@@ -41,14 +41,14 @@ class TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preco
 	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
 	typedef CompressionPDE1D<T, typename Basis::ThirdBasisType> 	     Compression_z;
 
-	typedef NoPreconditioner1D<T> NoPreconditioner;
+	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
 
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_x, Compression_x, NoPreconditioner> DataDiffusion_x;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_x,  Compression_x, NoPreconditioner> DataReaction_x;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_y, NoPreconditioner> DataDiffusion_y;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner> DataReaction_y;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_z, NoPreconditioner> DataDiffusion_z;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_z, NoPreconditioner> DataReaction_z;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_x, Compression_x, NoPreconditioner1D> DataDiffusion_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_x,  Compression_x, NoPreconditioner1D> DataReaction_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_y, NoPreconditioner1D> DataDiffusion_y;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner1D> DataReaction_y;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_z, NoPreconditioner1D> DataDiffusion_z;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_z, NoPreconditioner1D> DataReaction_z;
 
 public:
 
@@ -61,7 +61,7 @@ public:
     Compression_y c_y;
     Compression_z c_z;
 
-    NoPreconditioner prec1d;
+    NoPreconditioner1D prec1d;
 
     DataDiffusion_x data_dd_x;
     DataReaction_x  data_id_x;
