@@ -32,7 +32,7 @@ template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 class S_ADWAV {
 public:
     S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
-            T start_linTol, T start_resTol, int max_iters, int MaxItsPerThreshTol, T eps);
+            T _linTol=1e-6, T _resTol=1e-4, int _NumOfIterations=10, int MaxItsPerThreshTol=5, T eps=1e-2);
 
 	void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
 	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
