@@ -53,6 +53,17 @@ mv(T alpha, const SparseSyMatrix<CRS<T, Storage> > &A,
    const DenseVector<VX> &x,
    typename DenseVector<VY>::ElementType beta, DenseVector<VY> &y);
 
+template <typename T>
+void
+my_mm_t(const SparseGeMatrix<CRS<T> > &A,
+		SparseGeMatrix<CRS<T> > &B);
+
+//   computes A^t A, requires A^t stored in CRS format
+template <typename T>
+void
+my_mm_At_A(const SparseGeMatrix<CRS<T> > &A,
+		   SparseGeMatrix<CRS<T> > &B);
+
 // sparse_gemm (sparse x dense)
 template <typename T, CRS_Storage Storage>
 void

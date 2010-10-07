@@ -47,6 +47,9 @@ struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
 template <typename Index>
 std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 
+IndexSet<Index1D>
+extractSpaceIndices(const IndexSet<Index2D> &Lambda);
+
 //Security zone for an 1d-index following Urban:2009, p.235 and KU:2010.
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>

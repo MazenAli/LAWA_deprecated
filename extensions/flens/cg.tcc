@@ -59,6 +59,46 @@ cg(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     return maxIterations;
 }
 
+template <typename MA, typename VX, typename VB>
+int
+cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
+     long maxIterations)
+{
+    typename _cg<VB>::T alpha, beta, gammaPrev, gamma, rNormSquare;
+    typename _cg<VB>::AuxVector r, q, s, p;
+
+    assert(b.length()==A.numRows());
+
+    if (x.length()!=A.numCols()) {
+        x.engine().resize(A.numCols());
+    }
+    for (int i=x.firstIndex(); i<=x.lastIndex(); ++i) {
+    	x(i) = 0;
+    }
+
+    r = b;
+    flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, b, typename _cg<VB>::T(0), s);
+    p = s;
+    gammaPrev = s*s;
+    for (long k=1; k<=maxIterations; k++) {
+    	q = A*p;
+    	alpha = gammaPrev/(q*q);
+    	x +=   alpha *p;
+    	r += (-alpha)*q;
+    	flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+    	gamma = s*s;
+    	if (sqrt(gamma)<=tol) {
+    		return k-1;
+    	}
+    	beta  = gamma/gammaPrev;
+    	p *= beta;
+    	p += s;
+    	gammaPrev = gamma;
+    }
+    return maxIterations;
+}
+
+
 // Algorithm 9.2, Y. Saad: Iterative Methods for Sparse Linear Systems
 // for solving Ax=b with P^T A P u = P^T b, u=P^{-1} x
 // Note the role of P and P^T is switched.
