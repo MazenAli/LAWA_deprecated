@@ -70,6 +70,18 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i)
     return s << std::endl;
 }
 
+IndexSet<Index1D>
+extractSpaceIndices(const IndexSet<Index2D> &Lambda)
+{
+	typedef IndexSet<Index2D>::const_iterator set2d_const_it;
+	IndexSet<Index1D> ret(Lambda.d,Lambda.d_);
+	for (set2d_const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		ret.insert((*lambda).index2);
+	}
+	return ret;
+}
+
+
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
 C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis) {

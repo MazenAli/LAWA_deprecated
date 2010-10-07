@@ -102,11 +102,12 @@ TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditio
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>::TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &_a,
 																									const Preconditioner &_p, Compression &_c,
+																									T entrybound,
 																									int NumOfRows, int NumOfCols)
 	: a(_a), p(_p), c(_c),
 	  c_t(a.basis.first), c_x(a.basis.second),
-	  data_d_t(a.d_t, prec1d, c_t, NumOfRows, NumOfCols), data_id_t(a.id_t, prec1d, c_t, NumOfRows, NumOfCols),
-	  data_dd_x(a.dd_x, prec1d, c_x, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, NumOfRows, NumOfCols)
+	  data_d_t(a.d_t, prec1d, c_t, entrybound, NumOfRows, NumOfCols), data_id_t(a.id_t, prec1d, c_t, entrybound, NumOfRows, NumOfCols),
+	  data_dd_x(a.dd_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols)
 {
 }
 
@@ -137,9 +138,14 @@ TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Precond
 		P_data[col_index] = tmp;
 		prec *= tmp;
 	}
+	T reaction_term = 0.;
+	T reaction_constant = a.getreactionconstant();
+	if (reaction_constant>0) reaction_term = data_id_t(row_index.index1,col_index.index1) *
+												   data_id_x(row_index.index2,col_index.index2);
 	return prec * (
 		  data_d_t(row_index.index1,col_index.index1) * data_id_x(row_index.index2,col_index.index2) +
-		  a.getc() * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2) );
+		  a.getc() * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2) +
+		  reaction_constant * reaction_term);
 }
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>

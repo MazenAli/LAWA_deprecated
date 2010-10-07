@@ -39,6 +39,7 @@ NoCompression<T,Index,Basis>::SparsityPattern(const Index &lambda_col, const Ind
 	return LambdaRow;
 }
 
+
 template <typename T, typename Basis>
 CompressionPDE1D<T,Basis>::CompressionPDE1D(const Basis &_basis)
     : basis(_basis), s_tilde(-1), jmin(100), jmax(-30)
@@ -62,8 +63,15 @@ CompressionPDE1D<T,Basis>::setParameters(const IndexSet<Index1D> &LambdaRow) {
 template <typename T, typename Basis>
 IndexSet<Index1D>
 CompressionPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow) {
+	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
+
 	IndexSet<Index1D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
-	LambdaRowSparse = (lambda_col, basis, s_tilde, jmin, jmax, false);
+	IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col, basis, s_tilde, jmin, jmax, false);
+	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
+		if (LambdaRow.count(*lambda_x)>0) {
+			LambdaRowSparse.insert(*lambda_x);
+		}
+	}
 	return LambdaRowSparse;
 }
 
@@ -93,8 +101,6 @@ template <typename T, typename Basis>
 IndexSet<Index2D>
 CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, const IndexSet<Index2D> &LambdaRow) {
 	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
-	typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
-	//set2d_const_it LambdaRow_end = LambdaRow.end();
 
 	IndexSet<Index2D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
 
@@ -104,7 +110,6 @@ CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, const Inde
 	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
 		for (set1d_const_it lambda_y = Lambda_y.begin(); lambda_y != Lambda_y.end(); ++lambda_y) {
 			Index2D index2d(*lambda_x,*lambda_y);
-			//set2d_const_it it = LambdaRow.find(index2d);
 			if (LambdaRow.count(index2d)>0) {
 				LambdaRowSparse.insert(index2d);
 			}

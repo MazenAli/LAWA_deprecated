@@ -40,12 +40,12 @@ class TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preco
 	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
 	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
 
-	typedef NoPreconditioner1D<T> NoPreconditioner;
+	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
 
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_x, Compression_x, NoPreconditioner> DataDiffusion_x;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_x,  Compression_x, NoPreconditioner> DataReaction_x;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_y, NoPreconditioner> DataDiffusion_y;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner> DataReaction_y;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_x, Compression_x, NoPreconditioner1D> DataDiffusion_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_x,  Compression_x, NoPreconditioner1D> DataReaction_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_y, NoPreconditioner1D> DataDiffusion_y;
+	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner1D> DataReaction_y;
 
 public:
 
@@ -57,7 +57,7 @@ public:
     Compression_x c_x;
     Compression_y c_y;
 
-    NoPreconditioner prec1d;
+    NoPreconditioner1D prec1d;
 
     DataDiffusion_x data_dd_x;
     DataReaction_x  data_id_x;
@@ -84,12 +84,12 @@ class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, P
 	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
 	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
 
-	typedef NoPreconditioner1D<T> NoPreconditioner;
+	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
 
-	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Convection_t, Compression_x, NoPreconditioner> DataConvection_t;
-	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_t,  Compression_x, NoPreconditioner> DataReaction_t;
-	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Diffusion_x, Compression_y, NoPreconditioner> DataDiffusion_x;
-	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_x,  Compression_y, NoPreconditioner> DataReaction_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Convection_t, Compression_x, NoPreconditioner1D> DataConvection_t;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_t,  Compression_x, NoPreconditioner1D> DataReaction_t;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Diffusion_x, Compression_y, NoPreconditioner1D> DataDiffusion_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_x,  Compression_y, NoPreconditioner1D> DataReaction_x;
 
 public:
 
@@ -101,14 +101,14 @@ public:
     Compression_x c_t;
     Compression_y c_x;
 
-    NoPreconditioner prec1d;
+    NoPreconditioner1D prec1d;
 
     DataConvection_t data_d_t;
     DataReaction_t  data_id_t;
     DataDiffusion_x data_dd_x;
     DataReaction_x  data_id_x;
 
-    TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &a, const Preconditioner &p, Compression &c,
+    TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &a, const Preconditioner &p, Compression &c, T _entrybound=0.,
 				   int NumOfRows=4096, int NumOfCols=2048);
 
     T

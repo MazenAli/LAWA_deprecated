@@ -1,3 +1,23 @@
+/*
+  LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+
 #ifndef LAWA_OPERATORS_SPACETIMEHEATOPERATOR1D_H
 #define LAWA_OPERATORS_SPACETIMEHEATOPERATOR1D_H 1
 
@@ -13,6 +33,7 @@ class SpaceTimeHeatOperator1D{
         
         const Basis& basis;
         const T c;
+        const T reaction;
         
         typedef typename Basis::FirstBasisType Basis_t;
         typedef typename Basis::SecondBasisType Basis_x;
@@ -56,9 +77,10 @@ class SpaceTimeHeatOperator1D{
                                                              dd_integral_ww_x;
             
     public:
-        SpaceTimeHeatOperator1D(const Basis& _basis, const T _c);
+        SpaceTimeHeatOperator1D(const Basis& _basis, const T _c, const T _reaction=0.);
         
         T getc() const;
+        T getreactionconstant() const;
         const Basis& getBasis() const;
     
         T                                                           // returns a(v,u)

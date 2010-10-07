@@ -16,8 +16,8 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#ifndef ADAPTIVE_ALGORITHMS_S_ADWAV_H
-#define ADAPTIVE_ALGORITHMS_S_ADWAV_H 1
+#ifndef ADAPTIVE_ALGORITHMS_S_ADWAV_SPACETIME_H
+#define ADAPTIVE_ALGORITHMS_S_ADWAV_SPACETIME_H 1
 
 #include <iostream>
 #include <vector>
@@ -28,23 +28,23 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename Basis, typename MA, typename RHS>
-class S_ADWAV {
+template <typename T, typename Index, typename SpaceIndex, typename Basis, typename MA, typename RHS, typename InitialCond>
+class S_ADWAV_SPACETIME {
 public:
-    S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
-            T _linTol=1e-6, T _resTol=1e-4, int _NumOfIterations=10, int MaxItsPerThreshTol=5, T eps=1e-2);
+    S_ADWAV_SPACETIME(const Basis &basis, MA &A, RHS &F, InitialCond &U0, T contraction, T start_threshTol,
+					  T start_linTol, T start_resTol, int max_iters, int MaxItsPerThreshTol, T eps);
 
-	void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
 	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
 
     std::vector<Coefficients<Lexicographical,T,Index> > solutions;
     std::vector<T>               residuals;
     std::vector<T>               times;
-    
+
 private:
     const Basis &basis;
     MA &A;
     RHS &F;
+    InitialCond &U0;
     T contraction, threshTol, linTol, resTol;
     int NumOfIterations;
     int MaxItsPerThreshTol;
@@ -54,6 +54,6 @@ private:
 
 } //namespace lawa
 
-#include <lawa/adaptive/algorithms/s_adwav.tcc>
+#include <lawa/adaptive/algorithms/s_adwav_spacetime.tcc>
 
-#endif //ADAPTIVE_ALGORITHMS_S_ADWAV_H
+#endif //ADAPTIVE_ALGORITHMS_S_ADWAV_SPACETIME_H

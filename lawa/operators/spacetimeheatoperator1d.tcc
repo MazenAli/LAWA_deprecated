@@ -1,8 +1,8 @@
 namespace lawa{
     
 template <typename T, typename Basis>    
-SpaceTimeHeatOperator1D<T, Basis>::SpaceTimeHeatOperator1D(const Basis& _basis, const T _c)
-    : basis(_basis), c(_c),
+SpaceTimeHeatOperator1D<T, Basis>::SpaceTimeHeatOperator1D(const Basis& _basis, const T _c, const T _reaction)
+    : basis(_basis), c(_c), reaction(_reaction),
       d_t(basis.first), id_t(basis.first), dd_x(basis.second), id_x(basis.second),
       phi_t(basis.first.mra), d_phi_t(basis.first.mra, 1),
       phi_x(basis.second.mra), d_phi_x(basis.second.mra, 1),
@@ -24,6 +24,13 @@ T
 SpaceTimeHeatOperator1D<T, Basis>::getc() const
 {
 	return c;
+}
+
+template <typename T, typename Basis>
+T
+SpaceTimeHeatOperator1D<T, Basis>::getreactionconstant() const
+{
+	return reaction;
 }
 
 template <typename T, typename Basis>
@@ -87,7 +94,7 @@ SpaceTimeHeatOperator1D<T, Basis>::operator()(XType row_xtype_t, int j1_t, int k
          }
     }
     
-    return d_val_t * val_x  + c * val_t * dd_val_x;        
+    return d_val_t * val_x  + c * val_t * dd_val_x + reaction * val_t * val_x;
 
 }
 

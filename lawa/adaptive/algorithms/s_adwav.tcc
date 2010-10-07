@@ -23,8 +23,8 @@ namespace lawa {
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _contraction,
-                                 T start_threshTol, T start_linTol, T start_resTol=1e-4,
-                                 int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2)
+                                 T start_threshTol, T start_linTol, T start_resTol,
+                                 int _NumOfIterations, int _MaxItsPerThreshTol, T _eps)
     : basis(_basis), A(_A), F(_F), contraction(_contraction), threshTol(start_threshTol), linTol(start_linTol),
       resTol(start_resTol), NumOfIterations(_NumOfIterations), MaxItsPerThreshTol(_MaxItsPerThreshTol), eps(_eps)
 {
@@ -48,7 +48,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
     int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
     std::stringstream filename;
-    filename << "s-adwav-realline-helmholtz3d-otf_" << d << "_" << d_ << ".dat";
+    filename << "s-adwav-realline-helmholtz-otf_" << d << "_" << d_ << ".dat";
     std::ofstream file(filename.str().c_str());
 
     for (int its=0; its<NumOfIterations; ++its) {
@@ -105,7 +105,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         if (fabs(estim_res-old_res)<resTol || its_per_threshTol>MaxItsPerThreshTol) {
             threshTol *= 0.5;
             linTol      *= 0.5;
-            //resTol    *= 0.5;
+            resTol    *= 0.5;
             its_per_threshTol = 0;
         }
         ++its_per_threshTol;
@@ -132,6 +132,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 
 	LambdaActive = InitialLambda;
 	T old_res = 0.;
+	int its_per_threshTol=0;
 	std::cout << "Simple adaptive solver started." << std::endl;
 	for (int its=0; its<NumOfIterations; ++its) {
        
@@ -174,12 +175,14 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 		LambdaActive = LambdaActive+supp(r);
 
 		//Check if residual is decreasing, if not decrease threshold tolerance
-		if (fabs(estim_res-old_res)<resTol) {
+		if (fabs(estim_res-old_res)<resTol || its_per_threshTol>MaxItsPerThreshTol) {
 		//if(old_res - estim_res < resTol){
 			threshTol *= 0.5;
 			linTol	  *= 0.5;
 			resTol    *= 0.5;
+			its_per_threshTol = 0;
 		}
+		++its_per_threshTol;
 		old_res = estim_res;
         timer.stop();
         times[its] = timer.elapsed();

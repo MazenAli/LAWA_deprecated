@@ -42,20 +42,17 @@ public:
 };
 */
 
-template <typename T>
-class NoPreconditioner1D
+template <typename T, typename Index>
+class NoPreconditioner
 {
 
 public:
-    NoPreconditioner1D(void) {
+    NoPreconditioner(void) {
 
     };
 
     T
-    operator()(XType xtype1, int j1, int k1) const;
-
-    T
-    operator()(const Index1D &index) const;
+    operator()(const Index &index) const;
 
 };
 
