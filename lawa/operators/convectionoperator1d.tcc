@@ -45,8 +45,6 @@ ConvectionOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
          if(xtype2 == XBSpline) val = d_integral_wsf(j1, k1, j2, k2);
          else					val = d_integral_ww(j1, k1, j2, k2);
     }
-
-    std::cout << "...done"<< std::endl;
     return val;
 }
 
@@ -54,7 +52,6 @@ template <typename T, typename Basis>
 T
 ConvectionOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1D &col_index) const
 {
-	std::cout << "Convection operator: " << row_index << ", " << col_index << std::endl;
     return ConvectionOperator1D<T, Basis>::operator()(row_index.xtype, row_index.j, row_index.k,
                                                       col_index.xtype, col_index.j, col_index.k);
 }
