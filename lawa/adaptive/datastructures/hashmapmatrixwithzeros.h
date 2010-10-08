@@ -27,6 +27,7 @@
 #include <lawa/adaptive/indexset.h>
 #include <lawa/adaptive/coefficients.h>
 #include <lawa/adaptive/aux/timer.h>
+#include <lawa/operators/preconditioner.h>
 
 
 
@@ -92,6 +93,41 @@ public:
 	void
     clear();
 };
+
+
+
+template <typename T, typename Index, typename BilinearForm, typename Compression>
+class MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<T,Index> >
+{
+public:
+    typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
+    typedef typename EntryMap::value_type val_type;
+
+    EntryMap NonZeros;
+
+    const BilinearForm &a;
+    Compression &c;
+
+    unsigned int NumOfRows, NumOfCols;
+    IndexSet<Index> ConsecutiveIndices;
+    std::vector<unsigned long long> Zeros;
+    bool warning_overflow;
+    T entrybound;
+
+
+public:
+    MapMatrixWithZeros(const BilinearForm &a, Compression &c,
+					   T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
+
+	T
+	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
+
+	void
+    clear();
+
+};
+
+
 
 }	//namespace lawa
 
