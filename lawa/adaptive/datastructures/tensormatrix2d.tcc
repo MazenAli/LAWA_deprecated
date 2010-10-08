@@ -20,21 +20,22 @@
 namespace lawa {
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
-TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>::TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &_a,
-																									const Preconditioner &_p, Compression &_c,
-																									T entrybound,
-																									int NumOfRows, int NumOfCols)
+TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, NoInitialCondition,
+			   Compression, Preconditioner, Preconditioner>::TensorMatrix2D(const HelmholtzOperator2D<T, Basis> &_a,
+																			const Preconditioner &_p, Compression &_c,
+																			T entrybound,
+																		    int NumOfRows, int NumOfCols)
 	: a(_a), p(_p), c(_c),
 	  c_x(a.basis.first), c_y(a.basis.second),
-	  data_dd_x(a.dd_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols),
-	  data_dd_y(a.dd_y, prec1d, c_y, entrybound, NumOfRows, NumOfCols), data_id_y(a.id_y, prec1d, c_y, entrybound, NumOfRows, NumOfCols)
+	  data_dd_x(a.dd_x, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, c_x, entrybound, NumOfRows, NumOfCols),
+	  data_dd_y(a.dd_y, c_y, entrybound, NumOfRows, NumOfCols), data_id_y(a.id_y, c_y, entrybound, NumOfRows, NumOfCols)
 {
 }
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 T
-TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>::operator()(const Index2D &row_index,
-																								 const Index2D &col_index)
+TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, NoInitialCondition,
+			   Compression, Preconditioner, Preconditioner>::operator()(const Index2D &row_index, const Index2D &col_index)
 {
 	typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
 	T prec = 1.;
@@ -70,7 +71,8 @@ TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditio
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 T
-TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>::prec(const Index2D &index)
+TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, NoInitialCondition,
+			   Compression, Preconditioner, Preconditioner>::prec(const Index2D &index)
 {
 	typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
 	T prec = 1.;
@@ -87,9 +89,11 @@ TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditio
 	return prec;
 }
 
+
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 void
-TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>::clear()
+TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, NoInitialCondition,
+			   Compression, Preconditioner, Preconditioner>::clear()
 {
 	data_dd_x.clear();
 	data_id_x.clear();
@@ -98,23 +102,23 @@ TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditio
 }
 
 
-
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
-TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>::TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &_a,
-																									const Preconditioner &_p, Compression &_c,
-																									T entrybound,
-																									int NumOfRows, int NumOfCols)
+TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition,
+			   Compression, Preconditioner, Preconditioner>::TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &_a,
+																			const Preconditioner &_p, Compression &_c,
+																			T entrybound,
+																			int NumOfRows, int NumOfCols)
 	: a(_a), p(_p), c(_c),
 	  c_t(a.basis.first), c_x(a.basis.second),
-	  data_d_t(a.d_t, prec1d, c_t, entrybound, NumOfRows, NumOfCols), data_id_t(a.id_t, prec1d, c_t, entrybound, NumOfRows, NumOfCols),
-	  data_dd_x(a.dd_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols)
+	  data_d_t(a.d_t, c_t, entrybound, NumOfRows, NumOfCols), data_id_t(a.id_t, c_t, entrybound, NumOfRows, NumOfCols),
+	  data_dd_x(a.dd_x, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, c_x, entrybound, NumOfRows, NumOfCols)
 {
 }
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 T
-TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>::operator()(const Index2D &row_index,
-																								 const Index2D &col_index)
+TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition,
+			   Compression, Preconditioner, Preconditioner>::operator()(const Index2D &row_index, const Index2D &col_index)
 {
 	typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
 	T prec = 1.;
@@ -150,7 +154,8 @@ TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Precond
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 void
-TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>::clear()
+TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition,
+			   Compression, Preconditioner, Preconditioner>::clear()
 {
 	data_d_t.clear();
 	data_id_t.clear();

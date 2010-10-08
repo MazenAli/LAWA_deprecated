@@ -30,12 +30,13 @@
 namespace lawa {
 
 
-template <typename T, typename Basis, typename BilinearForm, typename Compression, typename Preconditioner>
+template <typename T, typename Basis, typename OperatorBilinearForm, typename OperatorInitCond,
+		  typename Compression, typename LeftPreconditioner, typename RightPreconditioner>
 class TensorMatrix2D {
 };
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
-class TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, Compression, Preconditioner>
+class TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, NoInitialCondition, Compression, Preconditioner, Preconditioner>
 {
 	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
 	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
@@ -78,8 +79,10 @@ public:
 
 };
 
+
+
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
-class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, Compression, Preconditioner>
+class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition, Compression, Preconditioner, Preconditioner>
 {
 	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
 	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
@@ -101,8 +104,6 @@ public:
     Compression_x c_t;
     Compression_y c_x;
 
-    NoPreconditioner1D prec1d;
-
     DataConvection_t data_d_t;
     DataReaction_t  data_id_t;
     DataDiffusion_x data_dd_x;
@@ -118,6 +119,61 @@ public:
     clear();
 
 };
+
+
+/*
+template <typename T, typename Basis, typename Compression, typename LeftPreconditioner
+		  typename RightPreconditioner>
+class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, SpaceTimeInitialCondition1D<T,Basis>,
+					 Compression, LeftPreconditioner, RightPreconditioner>
+{
+	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
+	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
+
+	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
+
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Convection_t, Compression_x, NoPreconditioner1D> DataConvection_t;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_t,  Compression_x, NoPreconditioner1D> DataReaction_t;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Diffusion_x, Compression_y, NoPreconditioner1D> DataDiffusion_x;
+	typedef MapMatrixWithZeros<T, Index1D, typename SpaceTimeHeatOperator1D<T, Basis>::Reaction_x,  Compression_y, NoPreconditioner1D> DataReaction_x;
+
+public:
+
+	const SpaceTimeHeatOperator1D<T, Basis>     &a_operator;
+	const SpaceTimeInitialCondition1D<T, Basis> &a_initcond;
+	const LeftPreconditioner  &p_left;
+	const RightPreconditioner &p_right;
+	Compression &c;
+	Coefficients<Lexicographical,T,Index2D> P_data;
+
+	Compression_x c_t;
+	Compression_y c_x;
+
+	DataConvection_t data_d_t;
+	DataReaction_t   data_id_t;
+	DataDiffusion_x  data_dd_x;
+	DataReaction_x   data_id_x;
+
+    TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &_a_operator,
+				   const SpaceTimeInitialCondition1D<T,Basis> &_a_initcond,
+				   const LeftPreconditioner &_p_left, const RightPreconditioner &_p_right,
+				   Compression &c, T _entrybound=0., int NumOfRows=4096, int NumOfCols=2048);
+
+    T
+    operator()(const Index2D &row_index, const Index2D &col_index);
+
+    T
+    operator()(const Index1D &row_index, const Index2D &col_index);
+
+    T
+    prec(const Index2D &index);
+
+    void
+    clear();
+
+};
+
+*/
 
 }	//namespace lawa
 
