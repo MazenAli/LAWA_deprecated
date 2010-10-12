@@ -106,6 +106,93 @@ DiagonalMatrixPreconditioner2D<T,Basis2D,BilinearForm>::operator()(const Index2D
 }
 
 
+template <typename T, typename Basis2D>
+RightNormPreconditioner2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::RightNormPreconditioner2D
+	(const SpaceTimeHeatOperator1D<T,Basis2D> &_a)
+    : a(_a),
+    phi_t(a.basis.first.mra), d_phi_t(a.basis.first.mra, 1),
+    phi_x(a.basis.second.mra), d_phi_x(a.basis.second.mra, 1),
+    psi_t(a.basis.first), d_psi_t(a.basis.first, 1),
+    psi_x(a.basis.second), d_psi_x(a.basis.second, 1),
+
+    integral_sfsf_t(phi_t, phi_t), dd_integral_sfsf_t(d_phi_t, d_phi_t),
+    integral_sfsf_x(phi_x, phi_x), dd_integral_sfsf_x(d_phi_x, d_phi_x),
+    integral_ww_t(psi_t, psi_t),   dd_integral_ww_t(d_psi_t, d_psi_t),
+    integral_ww_x(psi_x, psi_x),   dd_integral_ww_x(d_psi_x, d_psi_x)
+{
+}
+
+template <typename T, typename Basis2D>
+T
+RightNormPreconditioner2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::operator()
+						 (XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const
+{
+    T val_x, dd_val_x, val_t, dd_val_t;
+    if(xtype2 == XBSpline){
+        val_x = integral_sfsf_x(j2, k2, j2, k2);
+        dd_val_x = dd_integral_sfsf_x(j2, k2, j2, k2);
+    }
+    else {
+        val_x = integral_ww_x(j2, k2, j2, k2);
+        dd_val_x = dd_integral_ww_x(j2, k2, j2, k2);
+    }
+    if(xtype1 == XBSpline){
+        val_t = integral_sfsf_t(j1, k1, j1, k1);
+        dd_val_t = dd_integral_sfsf_t(j1, k1, j1, k1);
+    }
+    else {
+        val_t = integral_ww_t(j1, k1, j1, k1);
+        dd_val_t = dd_integral_ww_t(j1, k1, j1, k1);
+    }
+    return 1./std::sqrt( (val_x+dd_val_x) + (val_t+dd_val_t)*pow2i<T>(-2*j2));
+}
+
+template <typename T, typename Basis2D>
+T
+RightNormPreconditioner2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::operator()(const Index2D &index) const
+{
+    return RightNormPreconditioner2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::operator()
+			(index.index1.xtype, index.index1.j, index.index1.k, index.index2.xtype, index.index2.j, index.index2.k);
+}
+
+template <typename T, typename Basis2D>
+LeftNormPreconditioner2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::LeftNormPreconditioner2D
+	(const SpaceTimeHeatOperator1D<T,Basis2D> &_a)
+    : a(_a),
+    phi_x(a.basis.second.mra), d_phi_x(a.basis.second.mra, 1),
+    psi_x(a.basis.second), d_psi_x(a.basis.second, 1),
+
+    integral_sfsf_x(phi_x, phi_x), dd_integral_sfsf_x(d_phi_x, d_phi_x),
+    integral_ww_x(psi_x, psi_x), dd_integral_ww_x(d_psi_x, d_psi_x)
+{
+}
+
+template <typename T, typename Basis2D>
+T
+LeftNormPreconditioner2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::operator()
+						(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const
+{
+    T val_x, dd_val_x;
+    if(xtype2 == XBSpline){
+        val_x = integral_sfsf_x(j2, k2, j2, k2);
+        dd_val_x = dd_integral_sfsf_x(j2, k2, j2, k2);
+    }
+    else {
+        val_x = integral_ww_x(j2, k2, j2, k2);
+        dd_val_x = dd_integral_ww_x(j2, k2, j2, k2);
+    }
+    return 1./std::sqrt(val_x+dd_val_x);
+}
+
+template <typename T, typename Basis2D>
+T
+LeftNormPreconditioner2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::operator()(const Index2D &index) const
+{
+    return LeftNormPreconditioner2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::operator()
+			(index.index1.xtype, index.index1.j, index.index1.k, index.index2.xtype, index.index2.j, index.index2.k);
+}
+
+
 
 template <typename T, typename Basis3D, typename BilinearForm>
 DiagonalMatrixPreconditioner3D<T,Basis3D,BilinearForm>::DiagonalMatrixPreconditioner3D(const BilinearForm &_a)

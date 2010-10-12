@@ -44,14 +44,50 @@ toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Inde
     std::cout << "   ...finished." << std::endl;
 }
 
-template <typename T, typename Index, typename MA>
-Coefficients<Lexicographical,T,Index>
-mv(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
+template <typename T, typename Index, typename SpaceIndex, typename MA>
+void
+toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRowOp, const IndexSet<SpaceIndex>& LambdaRowInitCond,
+					const IndexSet<Index>& LambdaCol,
+	                flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens)
 {
-    typedef typename IndexSet<Index>::const_iterator set_const_it;
-    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator coeff_const_it;
+	std::cout << "   Assembling of sparse matrix started..." << std::endl;
+    typedef typename IndexSet<Index>::const_iterator const_set_op_it;
+    typedef typename IndexSet<SpaceIndex>::const_iterator const_set_initcond_it;
+    std::map<Index,int,lt<Lexicographical,Index> > row_indices;
+    int row_count = 1, col_count = 1;
+    for (const_set_op_it row=LambdaRowOp.begin(); row!=LambdaRowOp.end(); ++row, ++row_count) {
+    	row_indices[(*row)] = row_count;
+    }
+    A.c.setParameters(LambdaRowOp);
 
-    Coefficients<Lexicographical,T,Index> w(v.d,v.d_);
+    for (const_set_op_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
+    	IndexSet<Index> LambdaRowSparse = A.c.SparsityPattern(*col, LambdaRowOp);
+    	for (const_set_op_it row=LambdaRowOp.begin(); row!=LambdaRowOp.end(); ++row) {
+    		T tmp = A(*row,*col);
+    		if (fabs(tmp)>0)				A_flens(row_indices[*row],col_count) = tmp;
+    	}
+    }
+    col_count = 1;
+
+    for (const_set_op_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
+    	row_count = LambdaRowOp.size()+1;
+    	for (const_set_initcond_it row=LambdaRowInitCond.begin(); row!=LambdaRowInitCond.end(); ++row, ++row_count) {
+    		T tmp = A(*row, *col);
+    		if (fabs(tmp)>0)				A_flens(row_count,col_count) = tmp;
+    	}
+    }
+    A_flens.finalize();
+    std::cout << "   ...finished." << std::endl;
+}
+
+template <typename T, typename RowIndex, typename ColIndex, typename MA>
+Coefficients<Lexicographical,T,RowIndex>
+mv(const IndexSet<RowIndex> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,ColIndex > &v)
+{
+    typedef typename IndexSet<RowIndex>::const_iterator set_const_it;
+    typedef typename Coefficients<Lexicographical,T,ColIndex>::const_iterator coeff_const_it;
+
+    Coefficients<Lexicographical,T,RowIndex> w(v.d,v.d_);
     Timer timer;
     timer.start();
     for (set_const_it lambda = LambdaRow.begin(); lambda != LambdaRow.end(); ++lambda) {
@@ -131,7 +167,8 @@ mv_sparse(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexic
 
 template <typename T, typename Index, typename MA>
 int
-CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations)
+CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
+		 const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations)
 {
     typedef typename IndexSet<Index >::const_iterator const_set_it;
     typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -167,7 +204,8 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 
 template <typename T, typename Index, typename MA>
 int
-GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations)
+GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
+			const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations)
 {
     	typedef typename IndexSet<Index >::const_iterator const_set_it;
     	typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -204,6 +242,113 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
 
 }
 
+template <typename T, typename Index, typename SpaceIndex, typename MA>
+int
+CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &LambdaRowInitCond,
+		   const IndexSet<Index> &LambdaCol, MA &A,
+		   Coefficients<Lexicographical,T,Index > &u,
+		   const Coefficients<Lexicographical,T,Index > &f,
+		   const Coefficients<Lexicographical,T,SpaceIndex > &u0,
+		   T &r, T tol, int maxIterations)
+{
+    typedef typename IndexSet<Index >::const_iterator const_set_op_it;
+    typedef typename IndexSet<SpaceIndex >::const_iterator const_set_initcond_it;
+    typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
+    typedef typename Coefficients<Lexicographical,T,SpaceIndex >::const_iterator const_coeff_initcond_it;
+    typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
+    int NumOfCols = LambdaCol.size();
+    int NumOfRows = LambdaRowOp.size() + LambdaRowInitCond.size();
+    flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+    toFlensSparseMatrix(A, LambdaRowOp, LambdaRowInitCond, LambdaCol, A_flens);
+
+	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+	densify(cxxblas::NoTrans,A_flens,A_dense);
+	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
+	DenseVector<Array<T> > s(NumOfCols);
+	std::cout << "Computing svd..." << std::endl;
+	int iterations = svd(A_dense,s,U,V);
+	std::cout << " ... finished after " << iterations << std::endl;
+	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
+
+    if (LambdaCol.size() > 0) {
+        DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
+        int row_count=1;
+        for (const_set_op_it row=LambdaRowOp.begin(); row!=LambdaRowOp.end(); ++row, ++row_count) {
+            if (f.count((*row)) > 0) {
+                const_coeff_it it = f.find(*row);
+                rhs(row_count) = (*it).second;
+            }
+            else                      rhs(row_count) = 0.;
+        }
+        for (const_set_initcond_it row=LambdaRowInitCond.begin(); row!=LambdaRowInitCond.end(); ++row, ++row_count) {
+            if (u0.count((*row)) > 0) {
+            	const_coeff_initcond_it it = u0.find(*row);
+            	rhs(row_count) = (*it).second;
+            }
+            else                      rhs(row_count) = 0.;
+        }
+        int number_of_iterations = lawa::cgls(A_flens,x,rhs, tol, maxIterations);
+        Ax = A_flens*x;
+        res= Ax-rhs;
+        r = std::sqrt(res*res);
+        row_count = 1;
+        for (const_set_op_it row=LambdaCol.begin(); row!=LambdaCol.end(); ++row, ++row_count) {
+            u[*row] = x(row_count);
+        }
+        return number_of_iterations;
+    }
+    else return -1;
+}
+
+template <typename T, typename Index, typename MA>
+int
+CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
+		   MA &A, Coefficients<Lexicographical,T,Index > &u,
+		   const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations)
+{
+    	typedef typename IndexSet<Index >::const_iterator const_set_it;
+    	typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
+    	typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
+
+    	int NumOfRows = LambdaRow.size();
+    	int NumOfCols = LambdaCol.size();
+    	flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+    	toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
+
+    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+    	densify(cxxblas::NoTrans,A_flens,A_dense);
+    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
+    	DenseVector<Array<T> > s(NumOfCols);
+    	std::cout << "Computing svd..." << std::endl;
+    	int iterations = svd(A_dense,s,U,V);
+    	std::cout << " ... finished after " << iterations << std::endl;
+    	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
+
+    	if (LambdaRow.size() > 0) {
+    		DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
+    	    int row_count=1;
+    	    for (const_set_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
+    	    	if (f.count((*row)) > 0) {
+    	    		const_coeff_it it = f.find(*row);
+    	    		rhs(row_count) = (*it).second;
+    	    	}
+    	        else 					 rhs(row_count) = 0.;
+    	    }
+    	    std::cout << "Starting cgls..." << std::endl;
+    	    int number_of_iterations = lawa::cgls(A_flens,x,rhs, tol, maxIterations);
+    	    std::cout << "... finished" << std::endl;
+    	    Ax = A_flens*x;
+    	    res= Ax-rhs;
+    	    res = std::sqrt(res*res);
+    	    int col_count = 1;
+    	    for (const_set_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
+    	    	u[*col] = x(col_count);
+    	    }
+    	    return number_of_iterations;
+    	}
+    	else return -1;
+
+}
 }	//namespace lawa
 
