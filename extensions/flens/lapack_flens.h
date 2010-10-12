@@ -164,7 +164,7 @@ template <typename MA, typename VW>
 template <typename MA, typename VW>
     int
     ev(bool compEV, HeMatrix<MA> &A, DenseVector<VW> &w);
-/*
+
 //== gesvd ---------------------------------------------------------------------
 template <typename MA, typename VS, typename VU, typename VVT>
     int
@@ -175,7 +175,7 @@ template <typename MA, typename VS, typename VU, typename VVT>
 template <typename MA, typename VS, typename MU, typename MV>
     int
     svd(GeMatrix<MA> &A, DenseVector<VS> &s, GeMatrix<MU> &U, GeMatrix<MV> &VT);
-
+/*
 //-- gesdd ---------------------------------------------------------------------
 template <typename MA, typename VS, typename VU, typename VVT>
     int

@@ -526,7 +526,7 @@ ev(bool computeEigenvectors, HeMatrix<MA> &A, DenseVector<VW> &w)
                 work.engine().data(), work.length(),
                 rwork.engine().data());
 }
-/*
+
 //-- gesvd ---------------------------------------------------------------------
 template <typename MA, typename VS, typename MU, typename MV>
 int
@@ -703,7 +703,7 @@ svd(SVectorsJob jobu, SVectorsJob jobvt,
 // (c++ does not allow partial specialization of func templates)
 
 // non-complex implementation
-
+/*
 template <typename T, typename MA, typename VS, typename VU, typename VVT>
 struct SddImpl {
     static int
