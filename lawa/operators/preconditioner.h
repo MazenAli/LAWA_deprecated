@@ -100,6 +100,10 @@ private:
 };
 
 
+/*
+ * 2d preconditioner
+ */
+
 template <typename T, typename Basis2D, typename BilinearForm>
 class DiagonalMatrixPreconditioner2D
 {
@@ -117,7 +121,84 @@ private:
     const BilinearForm &a;
 };
 
+template <typename T, typename Basis2D, typename BilinearForm>
+class RightNormPreconditioner2D
+{
+};
 
+template <typename T, typename Basis2D>
+class RightNormPreconditioner2D<T,Basis2D, SpaceTimeHeatOperator1D<T, Basis2D> >
+{
+private:
+    const SpaceTimeHeatOperator1D<T, Basis2D> &a;
+
+    typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_t;
+    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_x;
+    typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_t;
+    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_x;
+
+    PrimalSpline_t phi_t, d_phi_t;
+    PrimalSpline_x phi_x, d_phi_x;
+    PrimalWavelet_t psi_t, d_psi_t;
+    PrimalWavelet_x psi_x, d_psi_x;
+
+    Integral<T, Gauss, PrimalSpline_t, PrimalSpline_t>      integral_sfsf_t,
+                                                         dd_integral_sfsf_t;
+    Integral<T, Gauss, PrimalSpline_x, PrimalSpline_x>      integral_sfsf_x,
+                                                         dd_integral_sfsf_x;
+    Integral<T, Gauss, PrimalWavelet_t, PrimalWavelet_t>    integral_ww_t,
+                                                         dd_integral_ww_t;
+    Integral<T, Gauss, PrimalWavelet_x, PrimalWavelet_x>    integral_ww_x,
+                                                         dd_integral_ww_x;
+
+public:
+    RightNormPreconditioner2D(const SpaceTimeHeatOperator1D<T, Basis2D> &a);
+
+    T
+    operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
+
+    T
+    operator()(const Index2D &index) const;
+};
+
+template <typename T, typename Basis2D, typename BilinearForm>
+class LeftNormPreconditioner2D
+{
+
+};
+
+template <typename T, typename Basis2D>
+class LeftNormPreconditioner2D<T,Basis2D, SpaceTimeHeatOperator1D<T, Basis2D> >
+{
+private:
+    const SpaceTimeHeatOperator1D<T, Basis2D> &a;
+
+    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_x;
+    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_x;
+
+    PrimalSpline_x  phi_x, d_phi_x;
+    PrimalWavelet_x psi_x, d_psi_x;
+
+    Integral<T, Gauss, PrimalSpline_x, PrimalSpline_x>      integral_sfsf_x,
+                                                         dd_integral_sfsf_x;
+    Integral<T, Gauss, PrimalWavelet_x, PrimalWavelet_x>    integral_ww_x,
+                                                         dd_integral_ww_x;
+
+public:
+    LeftNormPreconditioner2D(const SpaceTimeHeatOperator1D<T, Basis2D> &a);
+
+    T
+    operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
+
+    T
+    operator()(const Index2D &index) const;
+};
+
+
+
+/*
+ * 3d preconditioner
+ */
 
 template <typename T, typename Basis3D, typename BilinearForm>
 class DiagonalMatrixPreconditioner3D
