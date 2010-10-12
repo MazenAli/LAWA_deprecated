@@ -28,13 +28,15 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename SpaceIndex, typename Basis, typename MA, typename RHS, typename InitialCond>
+
+
+template <typename T, typename Index, typename SpaceIndex, typename Basis, typename MA, typename RHSOperator, typename RHSInitialCond>
 class S_ADWAV_SPACETIME {
 public:
-    S_ADWAV_SPACETIME(const Basis &basis, MA &A, RHS &F, InitialCond &U0, T contraction, T start_threshTol,
-					  T start_linTol, T start_resTol, int max_iters, int MaxItsPerThreshTol, T eps);
+    S_ADWAV_SPACETIME(const Basis &basis, MA &A, RHSOperator &F, RHSInitialCond &U0, T contraction, T _threshTol,
+					  T _linTol, T _resTol=1e-4, int _NumOfIterations=10, int MaxItsPerThreshTol=5, T eps=1e-2);
 
-	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
+	void solve_cgls(const IndexSet<Index> &Initial_Lambda);
 
     std::vector<Coefficients<Lexicographical,T,Index> > solutions;
     std::vector<T>               residuals;
@@ -43,8 +45,8 @@ public:
 private:
     const Basis &basis;
     MA &A;
-    RHS &F;
-    InitialCond &U0;
+    RHSOperator &F;
+    RHSInitialCond &U0;
     T contraction, threshTol, linTol, resTol;
     int NumOfIterations;
     int MaxItsPerThreshTol;

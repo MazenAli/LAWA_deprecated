@@ -80,9 +80,9 @@ public:
 };
 
 
-
-template <typename T, typename Basis, typename Compression, typename Preconditioner>
-class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition, Compression, Preconditioner, Preconditioner>
+template <typename T, typename Basis, typename Compression, typename LeftPreconditioner, typename RightPreconditioner>
+class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition, Compression, LeftPreconditioner,
+					 RightPreconditioner>
 {
 	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
 	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
@@ -97,9 +97,11 @@ class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondi
 public:
 
 	const SpaceTimeHeatOperator1D<T, Basis> &a;
-	const Preconditioner &p;
+	const LeftPreconditioner  &p_left;
+	const RightPreconditioner &p_right;
     Compression &c;
-    Coefficients<Lexicographical,T,Index2D> P_data;
+    Coefficients<Lexicographical,T,Index2D> P_left_data;
+    Coefficients<Lexicographical,T,Index2D> P_right_data;
 
     Compression_x c_t;
     Compression_y c_x;
@@ -109,7 +111,8 @@ public:
     DataDiffusion_x data_dd_x;
     DataReaction_x  data_id_x;
 
-    TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &a, const Preconditioner &p, Compression &c, T _entrybound=0.,
+    TensorMatrix2D(const SpaceTimeHeatOperator1D<T, Basis> &_a, const LeftPreconditioner &_p_left,
+				   const RightPreconditioner &_p_right, Compression &_c, T _entrybound=0.,
 				   int NumOfRows=4096, int NumOfCols=2048);
 
     T
@@ -121,8 +124,8 @@ public:
 };
 
 
-/*
-template <typename T, typename Basis, typename Compression, typename LeftPreconditioner
+
+template <typename T, typename Basis, typename Compression, typename LeftPreconditioner,
 		  typename RightPreconditioner>
 class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, SpaceTimeInitialCondition1D<T,Basis>,
 					 Compression, LeftPreconditioner, RightPreconditioner>
@@ -144,7 +147,8 @@ public:
 	const LeftPreconditioner  &p_left;
 	const RightPreconditioner &p_right;
 	Compression &c;
-	Coefficients<Lexicographical,T,Index2D> P_data;
+	Coefficients<Lexicographical,T,Index2D> P_left_data;
+	Coefficients<Lexicographical,T,Index2D> P_right_data;
 
 	Compression_x c_t;
 	Compression_y c_x;
@@ -159,21 +163,26 @@ public:
 				   const LeftPreconditioner &_p_left, const RightPreconditioner &_p_right,
 				   Compression &c, T _entrybound=0., int NumOfRows=4096, int NumOfCols=2048);
 
+    //call of p_left * a_operator * p_right
     T
     operator()(const Index2D &row_index, const Index2D &col_index);
 
+    //call of a_initcond * p_right
     T
     operator()(const Index1D &row_index, const Index2D &col_index);
 
     T
-    prec(const Index2D &index);
+    left_prec(const Index2D &index);
+
+    T
+    right_prec(const Index2D &index);
 
     void
     clear();
 
 };
 
-*/
+
 
 }	//namespace lawa
 
