@@ -171,6 +171,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 		residuals[its] = estim_res;
 
 		r = THRESH(r,threshTol);
+        std::cout << "r_Thres: " << r << std::endl;
 		//LambdaActive = LambdaThresh+supp(r);
 		LambdaActive = LambdaActive+supp(r);
 

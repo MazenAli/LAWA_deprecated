@@ -65,8 +65,8 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 
 template <typename T, typename Index, typename MA>
 int
-GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
-			const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 1e-6, int maxIterations = 1000);
+GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, 
+            const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6, int maxIterations = 1000);
 
 template <typename T, typename Index, typename SpaceIndex, typename MA>
 int

@@ -696,14 +696,14 @@ svd(SVectorsJob jobu, SVectorsJob jobvt,
     typedef SvdImpl<typename MA::ElementType, MA,VS,VU,VVT> impl;
     return impl::func(jobu, jobvt, A, S, U, VT);
 }
-
+/*
 //-- gesdd ---------------------------------------------------------------------
 
 // Template hack to support implementations depending on element type
 // (c++ does not allow partial specialization of func templates)
 
 // non-complex implementation
-/*
+
 template <typename T, typename MA, typename VS, typename VU, typename VVT>
 struct SddImpl {
     static int
