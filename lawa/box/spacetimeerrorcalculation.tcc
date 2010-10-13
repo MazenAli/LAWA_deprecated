@@ -15,13 +15,11 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
     typename BoxBasis::SecondBasisType b2 = basis.second;
     T error = 0.;
 
-    bool spline = true;
-    bool wavelet = false;
     // SF x SF
     for(int kt = b1.mra.rangeI(b1.j0).firstIndex(); kt <= b1.mra.rangeI(b1.j0).lastIndex(); ++kt){
         for(int kx = b2.mra.rangeI(b2.j0).firstIndex(); kx <= b2.mra.rangeI(b2.j0).lastIndex(); ++kx){
-            int i_a = I_approx(spline, b1.j0, kt, spline, b2.j0, kx);
-            int i_e = I_exact(spline, b1.j0, kt, spline, b2.j0, kx);
+            int i_a = I_approx(XBSpline, b1.j0, kt, XBSpline, b2.j0, kx);
+            int i_e = I_exact(XBSpline, b1.j0, kt, XBSpline, b2.j0, kx);
             error += (pow2i<T>(2*b1.j0 - 2*b2.j0) + pow2i<T>(2*b2.j0))
                      *(u_approx(i_a) - u_exact(i_e))*(u_approx(i_a) - u_exact(i_e));
         }
@@ -32,8 +30,8 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
     for(int jx = b2.j0; jx <= std::min(J_x_approx_max, J_x_exact_max) - 1; ++jx){
         for(int kt = b1.mra.rangeI(b1.j0).firstIndex(); kt <= b1.mra.rangeI(b1.j0).lastIndex(); ++kt){
             for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
-                int i_a = I_approx(spline, b1.j0, kt, wavelet, jx, kx);
-                int i_e = I_exact(spline, b1.j0, kt, wavelet, jx, kx);
+                int i_a = I_approx(XBSpline, b1.j0, kt, XWavelet, jx, kx);
+                int i_e = I_exact(XBSpline, b1.j0, kt, XWavelet, jx, kx);
                 error += (pow2i<T>(2*b1.j0 - 2*jx) + pow2i<T>(2*jx))
                          *(u_approx(i_a) - u_exact(i_e))*(u_approx(i_a) - u_exact(i_e));
             }
@@ -44,7 +42,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
             // approx coefficients are zero
             for(int kt = b1.mra.rangeI(b1.j0).firstIndex(); kt <= b1.mra.rangeI(b1.j0).lastIndex(); ++kt){
                 for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
-                    int i_e = I_exact(spline, b1.j0, kt, wavelet, jx, kx);
+                    int i_e = I_exact(XBSpline, b1.j0, kt, XWavelet, jx, kx);
                     error += (pow2i<T>(2*b1.j0 - 2*jx) + pow2i<T>(2*jx))
                              *u_exact(i_e)*u_exact(i_e);
                 }
@@ -54,7 +52,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
             // exact coefficients are zero
             for(int kt = b1.mra.rangeI(b1.j0).firstIndex(); kt <= b1.mra.rangeI(b1.j0).lastIndex(); ++kt){
                 for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
-                    int i_a = I_approx(spline, b1.j0, kt, wavelet, jx, kx);
+                    int i_a = I_approx(XBSpline, b1.j0, kt, XWavelet, jx, kx);
                     error += (pow2i<T>(2*b1.j0 - 2*jx) + pow2i<T>(2*jx))
                              *u_approx(i_a)*u_approx(i_a);
                 }
@@ -68,8 +66,8 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
     for(int jt = b1.j0; jt <= std::min(J_t_approx_max, J_t_exact_max) - 1; ++jt){
         for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
             for(int kx = b2.mra.rangeI(b2.j0).firstIndex(); kx <= b2.mra.rangeI(b2.j0).lastIndex(); ++kx){
-                int i_a = I_approx(wavelet, jt, kt, spline, b2.j0, kx);
-                int i_e = I_exact(wavelet, jt, kt, spline, b2.j0, kx);
+                int i_a = I_approx(XWavelet, jt, kt, XBSpline, b2.j0, kx);
+                int i_e = I_exact(XWavelet, jt, kt, XBSpline, b2.j0, kx);
                 error += (pow2i<T>(2*jt - 2*b2.j0) + pow2i<T>(2*b2.j0))
                          *(u_approx(i_a) - u_exact(i_e))*(u_approx(i_a) - u_exact(i_e));
             }
@@ -80,7 +78,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
             // approx coefficients are zero
             for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                 for(int kx = b2.mra.rangeI(b2.j0).firstIndex(); kx <= b2.mra.rangeI(b2.j0).lastIndex(); ++kx){
-                    int i_e = I_exact(wavelet, jt, kt, spline, b2.j0, kx);
+                    int i_e = I_exact(XWavelet, jt, kt, XBSpline, b2.j0, kx);
                     error += (pow2i<T>(2*jt - 2*b2.j0) + pow2i<T>(2*b2.j0))
                              *u_exact(i_e)*u_exact(i_e);
                 }
@@ -90,7 +88,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
             // exact coefficients are zero
             for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                 for(int kx = b2.mra.rangeI(b2.j0).firstIndex(); kx <= b2.mra.rangeI(b2.j0).lastIndex(); ++kx){
-                    int i_a = I_approx(wavelet, jt, kt, spline, b2.j0, kx);
+                    int i_a = I_approx(XWavelet, jt, kt, XBSpline, b2.j0, kx);
                     error += (pow2i<T>(2*jt - 2*b2.j0) + pow2i<T>(2*b2.j0))
                              *u_approx(i_a)*u_approx(i_a);
                 }
@@ -107,8 +105,8 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
         for(int jx = b2.j0; jx <= std::min(J_x_approx_max, J_x_exact_max) - 1; ++jx){
             for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                 for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
-                    int i_a = I_approx(wavelet, jt, kt, wavelet, jx, kx);
-                    int i_e = I_exact(wavelet, jt, kt, wavelet, jx, kx);
+                    int i_a = I_approx(XWavelet, jt, kt, XWavelet, jx, kx);
+                    int i_e = I_exact(XWavelet, jt, kt, XWavelet, jx, kx);
                     error += (pow2i<T>(2*jt - 2*jx) + pow2i<T>(2*jx))
                              *(u_approx(i_a) - u_exact(i_e))*(u_approx(i_a) - u_exact(i_e));
                 }
@@ -119,7 +117,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
                 // approx coefficients are zero
                 for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                     for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
-                        int i_e = I_exact(wavelet, jt, kt, wavelet, jx, kx);
+                        int i_e = I_exact(XWavelet, jt, kt, XWavelet, jx, kx);
                         error += (pow2i<T>(2*jt - 2*jx) + pow2i<T>(2*jx))
                                  *u_exact(i_e)*u_exact(i_e);
                     }
@@ -129,7 +127,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
                 // exact coefficients are zero
                 for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                     for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
-                        int i_a = I_approx(wavelet, jt, kt, wavelet, jx, kx);
+                        int i_a = I_approx(XWavelet, jt, kt, XWavelet, jx, kx);
                         error += (pow2i<T>(2*jt - 2*jx) + pow2i<T>(2*jx))
                                  *u_approx(i_a)*u_approx(i_a);
                     }
@@ -146,7 +144,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
             for(int jx = b2.j0; jx <= J_x_exact_max - 1; ++jx){                                
                 for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                     for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
-                        int i_e = I_exact(wavelet, jt, kt, wavelet, jx, kx);
+                        int i_e = I_exact(XWavelet, jt, kt, XWavelet, jx, kx);
                         error += (pow2i<T>(2*jt - 2*jx) + pow2i<T>(2*jx))
                                  *u_exact(i_e)*u_exact(i_e);
                     }
@@ -158,7 +156,7 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
             for(int jx = b2.j0; jx <= J_x_approx_max - 1; ++jx){                                
                 for(int kt = b1.rangeJ(jt).firstIndex(); kt <= b1.rangeJ(jt).lastIndex(); ++kt){
                     for(int kx = b2.rangeJ(jx).firstIndex(); kx <= b2.rangeJ(jx).lastIndex(); ++kx){
-                        int i_a = I_approx(wavelet, jt, kt, wavelet, jx, kx);
+                        int i_a = I_approx(XWavelet, jt, kt, XWavelet, jx, kx);
                         error += (pow2i<T>(2*jt - 2*jx) + pow2i<T>(2*jx))
                                  *u_approx(i_a)*u_approx(i_a);
                     }

@@ -36,7 +36,14 @@ SumOfTwoRHSIntegrals<T, Index, RHSIntegral>::operator()(const Index &index) cons
           +rhs2(index);
 }
 
-
+template<typename T, typename Index, typename RHSIntegral>
+T
+SumOfTwoRHSIntegrals<T, Index, RHSIntegral>::operator()(XType xtype_x, int j_x, int k_x,
+    	                                                XType xtype_y, int j_y, int k_y) const
+{
+    return rhs1(xtype_x, j_x, k_x, xtype_y, j_y, k_y)
+         + rhs2(xtype_x, j_x, k_x, xtype_y, j_y, k_y);
+}    	                                                
 
 
 template<typename T, typename Index, typename RHSIntegral>
