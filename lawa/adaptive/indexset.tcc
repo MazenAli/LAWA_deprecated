@@ -322,6 +322,33 @@ C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
     return ret;
 }
 
+template <typename T, typename Basis2D>
+IndexSet<Index2D>
+C_t(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
+{
+    typedef typename IndexSet<Index2D>::const_iterator const_it_2d;
+    typedef typename IndexSet<Index1D>::const_iterator const_it;
+
+    int d = Lambda.d, d_ = Lambda.d_;
+
+    IndexSet<Index2D>  ret(d,d_);
+
+    //Security zone of Lambda should not contain indices which are already in Lambda
+    for (const_it_2d lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+        IndexSet<Index1D > C_index1(d,d_), C_index2(d,d_);
+        C_index1 = C((*lambda).index1, c, basis.first);
+        //C_index2 = C((*lambda).index2, c, basis.second);
+
+        for (const_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+            if (Lambda.count(Index2D((*it_C_index1), (*lambda).index2))==0) {
+                ret.insert(Index2D((*it_C_index1), (*lambda).index2));
+            }
+        }
+    }
+    return ret;
+}
+
+
 //Security zone 3D
 template <typename T, typename Basis3D>
 IndexSet<Index3D>

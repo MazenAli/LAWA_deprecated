@@ -69,6 +69,10 @@ template <typename T, typename Basis2D>
 IndexSet<Index2D>
 C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
 
+template <typename T, typename Basis2D>
+IndexSet<Index2D>
+C_t(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
+
 template <typename T, typename Basis3D>
 IndexSet<Index3D>
 C(const IndexSet<Index3D> &Lambda, T c, const Basis3D &basis);
