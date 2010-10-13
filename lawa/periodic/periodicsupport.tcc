@@ -216,17 +216,17 @@ overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2, Support<T> &co
         }
         // No or only one overlapping interval
         else{
-            if(supp2.l2 - supp1.li2 > 0){
+            if(supp2.l2 - supp1.li2 > 0) {
                 common.l1 = supp1.li2;
                 common.l2 = supp2.l2;
                 return common.l2 - common.l1;
             }
 
-            if(supp1.li1 - supp2.l1 > 0){
+            if(supp1.li1 - supp2.l1 > 0) {
                 common.l1 = supp2.l1;
                 common.l2 = supp1.li1;
                 return common.l2 - common.l1;
-            }
+			}
             common.l1 = 0;
             common.l2 = -1;
             return 0;
@@ -364,34 +364,6 @@ operator+(const PeriodicSupport<T> &supp, S shift)
     return newsupp;
 }
 
-template <typename S, typename T>
-PeriodicSupport<T>
-operator*(S factor, const PeriodicSupport<T> &supp)
-{
-    assert(factor >= 0);
-    PeriodicSupport<T> newsupp(supp.l1, supp.l2);
-    if(supp.gaplength() > 0){
-        newsupp.l1 = supp.li2;
-        newsupp.l2 = supp.li1 + 1;
-    }
-    newsupp.l1 = factor * newsupp.l1;
-    newsupp.l2 = factor * newsupp.l2;
-    if(newsupp.l2 - newsupp.l1 >= 1){
-        newsupp.l1 = 0;
-        newsupp.l2 = 1;
-    }
-    else{
-        newsupp.l1 = newsupp.l1 - ifloor(newsupp.l1);
-        newsupp.l2 = newsupp.l2 - ifloor(newsupp.l2);
-        if(newsupp.l2 < newsupp.l1){
-            newsupp.li1 = newsupp.l2;
-            newsupp.li2 = newsupp.l1;
-            newsupp.l1 = 0.;
-            newsupp.l2 = 1.;
-        }
-    }
-    return newsupp;
-}
 
 template <typename T>
 std::ostream &
