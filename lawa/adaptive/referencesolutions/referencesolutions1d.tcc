@@ -172,6 +172,13 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(T x)
 
 template <typename T, typename Basis>
 T
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::d_exact(T x)
+{
+    return ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(x, 1);
+}
+
+template <typename T, typename Basis>
+T
 ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::rhs(T x)
 {
     return -exact(x,2) + c * exact(x,0);

@@ -30,6 +30,7 @@ T
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
 {
 	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
+	typedef typename Coefficients<AbsoluteValue,T,Index>::value_type val_type;
 	const_coeff_it it_end       = rhs_data.end();
 	const_coeff_it it_index     = rhs_data.find(lambda);
 
@@ -39,18 +40,9 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
 	else {
 		T ret = P(lambda) * rhsintegral(lambda);
 		rhs_data[lambda] = ret;
+		rhs_abs_data.insert(val_type(ret, lambda));
 		return ret;
 	}
-    
-/*    if (rhs_data.count(lambda) == 0) {
-        ret = P(lambda) * rhsintegral(lambda);
-        rhs_data[lambda] = ret;
-    }
-    else {
-        ret = rhs_data[lambda];
-    }
-    return ret;
-*/
 }
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
@@ -64,6 +56,15 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const IndexSet<Index> &Lambd
         ret[*lambda] = tmp;
     }
     return ret;
+}
+
+template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
+Coefficients<Lexicographical,T,Index>
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(T tol)
+{
+	Coefficients<Lexicographical,T,Index> ret(rhs_data.d,rhs_data.d_);
+	ret = THRESH(rhs_abs_data,tol);
+	return ret;
 }
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>

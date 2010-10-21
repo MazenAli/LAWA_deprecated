@@ -35,7 +35,7 @@ namespace lawa {
 template <typename T, typename Basis>
 class HelmholtzOperator1D{
     
-    private:
+    public:
         
         const Basis& basis;
         const T c;

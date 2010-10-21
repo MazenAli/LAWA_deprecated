@@ -36,6 +36,8 @@ public:
 
     //solver for symmetric elliptic problems
 	void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
+    //solver for symmetric elliptic problems without B-Splines
+	void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
 	//solver for elliptic problems
 	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
 	//solver for indefinite problems

@@ -70,6 +70,19 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i)
     return s << std::endl;
 }
 
+void
+getMinAndMaxLevel(const IndexSet<Index1D> &Lambda, int &jmin, int &jmax)
+{
+	typedef IndexSet<Index1D>::const_iterator set1d_const_it;
+	set1d_const_it it = Lambda.begin();
+	jmin = (*it).j;
+	jmax = (*it).j;
+	for (set1d_const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		jmin = std::min(int((*lambda).j),jmin);
+		jmax = std::max(int((*lambda).j),jmax);
+	}
+}
+
 IndexSet<Index1D>
 extractSpaceIndices(const IndexSet<Index2D> &Lambda)
 {
@@ -108,6 +121,53 @@ C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis) {
     return ret;
 }
 
+template <typename T>
+IndexSet<Index1D>
+C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis)
+{
+	IndexSet<Index1D> ret(Lambda.d,Lambda.d_), tmp(Lambda.d, Lambda.d_);
+	typedef typename IndexSet<Index1D>::const_iterator const_it;
+
+	for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		tmp = C_WO_XBSpline((*lambda),c,basis);
+	    for (const_it mu=tmp.begin(); mu!=tmp.end(); ++mu) {
+	        if (Lambda.count(*mu) == 0) ret.insert(*mu);
+	    }
+	}
+	return ret;
+}
+
+template <typename T>
+IndexSet<Index1D>
+C_WO_XBSpline(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis) {
+    const Wavelet<T,Primal,R,CDF> psi(basis,0);
+    int j = lambda.j, k = lambda.k;
+    IndexSet<Index1D> ret(basis.d,basis.d_);
+    Support<T> contractedSupp, supp = basis.psi.support(j,k);
+    T center = 0.5*(supp.l1 + supp.l2);
+    contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+    contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+    long int kMin, kMax;
+
+    kMin = floor( pow2i<T>(j-1)*contractedSupp.l1 - basis.psi.support(0,0).l2);
+    kMax = ceil(pow2i<T>(j-1)*contractedSupp.l2 - basis.psi.support(0,0).l1);
+    for (long int k1=kMin; k1<=kMax; ++k1) {
+        if (overlap(contractedSupp, basis.psi.support(j-1,k1))>0) ret.insert(Index1D(j-1,k1,XWavelet));
+    }
+
+    kMin = floor( pow2i<T>(j)*contractedSupp.l1 - basis.psi.support(0,0).l2);
+    kMax = ceil(pow2i<T>(j)*contractedSupp.l2 - basis.psi.support(0,0).l1);
+    for (long int k1=kMin; k1<=kMax; ++k1) {
+        if (overlap(contractedSupp, basis.psi.support(j,k1))>0) ret.insert(Index1D(j,k1,XWavelet));
+    }
+
+    kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - basis.psi.support(0,0).l2);
+    kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - basis.psi.support(0,0).l1);
+    for (long int k1=kMin; k1<=kMax; ++k1) {
+        if (overlap(contractedSupp, basis.psi.support(j+1,k1))>0) ret.insert(Index1D(j+1,k1,XWavelet));
+    }
+    return ret;
+}
 
 // Security zone interval
 template <typename T, Construction Cons>
@@ -265,15 +325,10 @@ C(const Index1D &lambda, T c, const MRA<T,Primal,R,CDF> &mra,
         T center = 0.5*(supp.l1 + supp.l2);
         contractedSupp.l1 = c*supp.l1 + (1-c)*center;
         contractedSupp.l2 = c*supp.l2 + (1-c)*center;
-        /*
-        long int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - basis.psi.support(0,0).l2);
-        long int kMax = ceil(pow2i<T>(j)*contractedSupp.l2 - basis.psi.support(0,0).l1);
-        for (long int k1=kMin; k1<=kMax; ++k1) {
-            if (overlap(contractedSupp, basis.psi.support(j,k1))>0) ret.insert(Index1D(j,k1,XWavelet));
-        }
-        */
-        long int kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - basis.psi.support(0,0).l2);
-        long int kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - basis.psi.support(0,0).l1);
+        long int kMin, kMax;
+
+        kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - basis.psi.support(0,0).l2);
+        kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - basis.psi.support(0,0).l1);
         for (long int k1=kMin; k1<=kMax; ++k1) {
             if (overlap(contractedSupp, basis.psi.support(j+1,k1))>0) ret.insert(Index1D(j+1,k1,XWavelet));
         }

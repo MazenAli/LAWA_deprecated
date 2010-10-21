@@ -54,6 +54,9 @@ struct ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >
     exact(T x);
 
     static T
+    d_exact(T x);
+
+    static T
     rhs(T x);
 
     static T

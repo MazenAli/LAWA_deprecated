@@ -47,6 +47,9 @@ struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
 template <typename Index>
 std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 
+void
+getMinAndMaxLevel(const IndexSet<Index1D> &Lambda, int &jmin, int &jmax);
+
 IndexSet<Index1D>
 extractSpaceIndices(const IndexSet<Index2D> &Lambda);
 
@@ -59,6 +62,15 @@ template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
 C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
 
+template <typename T>
+IndexSet<Index1D>
+C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis);
+
+template <typename T>
+IndexSet<Index1D>
+C_WO_XBSpline(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis);
+
+
 template <typename T, DomainType Domain, Construction Cons>
 void
 C(const Index1D &lambda, T c, const MRA<T,Primal,Domain,Cons> &mra,
@@ -69,6 +81,7 @@ template <typename T, typename Basis2D>
 IndexSet<Index2D>
 C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
 
+// Computation of a security zone for 3d-tensor basis
 template <typename T, typename Basis3D>
 IndexSet<Index3D>
 C(const IndexSet<Index3D> &Lambda, T c, const Basis3D &basis);
