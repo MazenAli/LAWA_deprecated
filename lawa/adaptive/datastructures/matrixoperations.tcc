@@ -17,6 +17,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+
 namespace lawa {
 
 
@@ -316,12 +317,22 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
     	flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
     	toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
 
-    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
-    	densify(cxxblas::NoTrans,A_flens,A_dense);
+    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1, A_dense2;
+    	densify(cxxblas::NoTrans,A_flens,A_dense1);
+    	densify(cxxblas::NoTrans,A_flens,A_dense2);
+    	DenseVector<Array<T> > wr(NumOfRows), wi(NumOfRows);
+    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
+    	ev(false, false, A_dense1, wr, wi, vl, vr);
+    	T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
+    	for (int i=1; i<=wr.lastIndex(); ++i) {
+    		cB = std::min(cB,wr(i));
+    		CB = std::max(CB,wr(i));
+    	}
+    	std::cout << "Largest eigenvalue: " << CB << ", smallest eigenvalue: " << cB << std::endl;
     	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
     	DenseVector<Array<T> > s(NumOfCols);
     	std::cout << "Computing svd..." << std::endl;
-    	int iterations = svd(A_dense,s,U,V);
+    	int iterations = svd(A_dense2,s,U,V);
     	std::cout << " ... finished after " << iterations << std::endl;
     	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
 

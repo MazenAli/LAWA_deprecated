@@ -26,9 +26,9 @@ TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preconditio
 																									int NumOfRows, int NumOfCols)
 	: a(_a), p(_p), c(_c),
 	  c_x(a.basis.first), c_y(a.basis.second), c_z(a.basis.third),
-	  data_dd_x(a.dd_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, prec1d, c_x, entrybound, NumOfRows, NumOfCols),
-	  data_dd_y(a.dd_y, prec1d, c_y, entrybound, NumOfRows, NumOfCols), data_id_y(a.id_y, prec1d, c_y, entrybound, NumOfRows, NumOfCols),
-	  data_dd_z(a.dd_z, prec1d, c_z, entrybound, NumOfRows, NumOfCols), data_id_z(a.id_z, prec1d, c_z, entrybound, NumOfRows, NumOfCols)
+	  data_dd_x(a.dd_x, c_x, entrybound, NumOfRows, NumOfCols), data_id_x(a.id_x, c_x, entrybound, NumOfRows, NumOfCols),
+	  data_dd_y(a.dd_y, c_y, entrybound, NumOfRows, NumOfCols), data_id_y(a.id_y, c_y, entrybound, NumOfRows, NumOfCols),
+	  data_dd_z(a.dd_z, c_z, entrybound, NumOfRows, NumOfCols), data_id_z(a.id_z, c_z, entrybound, NumOfRows, NumOfCols)
 {
 }
 
