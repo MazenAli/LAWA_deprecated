@@ -157,8 +157,8 @@ TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition,
 										     data_id_x(row_index.index2,col_index.index2);
 	return prec * (
 		  data_d_t(row_index.index1,col_index.index1) * data_id_x(row_index.index2,col_index.index2) +
-		  a.getc() * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2) +
-		  reaction_constant * reaction_term);
+          a.getc() * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2)
+           + reaction_constant * reaction_term);
 }
 
 template <typename T, typename Basis, typename Compression, typename LeftPreconditioner, typename RightPreconditioner>

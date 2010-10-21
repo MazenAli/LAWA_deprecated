@@ -308,7 +308,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
         timer.start();
 
         //Initialization step
-        LambdaActive_test = LambdaActive;// + C(LambdaActive,contraction,basis);
+        LambdaActive_test = LambdaActive + C_t(LambdaActive,contraction,basis);
         FillWithZeros(LambdaActive,u);
         f  = F (LambdaActive_test);
 

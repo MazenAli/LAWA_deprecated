@@ -445,8 +445,11 @@ ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::setExa
                 sing_pts_x = 0., 1.;
                 break;
             case 2: 
-                sing_pts_x.engine().resize(3);
-                sing_pts_x = 0., 0.5, 1.;
+                sing_pts_t.engine().resize(3);
+                sing_pts_t = 0., 0.5, 1.;
+            case 3: 
+                sing_pts_t.engine().resize(3);
+                sing_pts_t = 0., 2.-std::sqrt(2), 1.;
             default: break;
         }
     }
@@ -528,6 +531,16 @@ ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::exact_
                     else        return -1;
     			}
                 break;
+            case 3:
+                if (deriv_t==0){
+                    if(t < 2. - std::sqrt(2.)) return  t*t + 0.5;
+                    else        return  2*(t-1)*(t-1) + 0.5;
+                }
+    			else if (deriv_t==1){
+    			    if(t < 2.-std::sqrt(2)) return  2*t;
+                    else        return 4*(t-1);
+    			}
+                break;
             default: std::cerr << "Example does not exist!" << std::endl; exit(1);
 		}
 	}
@@ -547,6 +560,11 @@ ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::exact_
     			else 					return  -8;
                 break;
             case 2:
+                if (deriv_x==0) 		return  8*std::pow(x-0.5, 3) - 2*x*x +1;
+    			else if (deriv_x==1)	return	24*(x-0.5)*(x-0.5) -4*x;
+    			else 					return  48*(x-0.5) - 4;
+                break;
+            case 3:
                 if (deriv_x==0) 		return  8*std::pow(x-0.5, 3) - 2*x*x +1;
     			else if (deriv_x==1)	return	24*(x-0.5)*(x-0.5) -4*x;
     			else 					return  48*(x-0.5) - 4;

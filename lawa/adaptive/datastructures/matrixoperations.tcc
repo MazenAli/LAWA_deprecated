@@ -215,9 +215,16 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
     	int N = Lambda.size();
     	flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
     	toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
-    	//flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
-    	//densify(NoTrans,A_flens,A_dense);
 
+	/*flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+	densify(cxxblas::NoTrans,A_flens,A_dense);
+	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(A_dense.numRows(),A_dense.numRows()),V(A_dense.numCols(),A_dense.numCols());
+	DenseVector<Array<T> > s(A_dense.numCols());
+	std::cout << "Computing svd..." << std::endl;
+	int iterations = svd(A_dense,s,U,V);
+	std::cout << " ... finished after " << iterations << std::endl;
+	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
+	 */
     	if (Lambda.size() > 0) {
     		DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
     	    int row_count=1;
@@ -263,7 +270,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &Lambd
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
     toFlensSparseMatrix(A, LambdaRowOp, LambdaRowInitCond, LambdaCol, A_flens);
 
-	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+	/*flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
 	densify(cxxblas::NoTrans,A_flens,A_dense);
 	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
 	DenseVector<Array<T> > s(NumOfCols);
@@ -271,7 +278,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &Lambd
 	int iterations = svd(A_dense,s,U,V);
 	std::cout << " ... finished after " << iterations << std::endl;
 	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
-
+	 */
     if (LambdaCol.size() > 0) {
         DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
         int row_count=1;

@@ -13,10 +13,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     assert(coeffs.length()==basis.dim(J_x, J_y));
     
     const int j0_x = basis.first.j0;
-    const int j0_y = basis.second.j0; 
-    
-    const bool spline = true;
-    const bool wavelet = false;  
+    const int j0_y = basis.second.j0;   
     
     typedef typename X::ElementType T;
     typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_x;
@@ -37,7 +34,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     Range<int> Ry = basis.second.mra.rangeI(j0_y);
     for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
         for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
-            ret += coeffs(I(spline, j0_x, kx, spline, j0_y, ky)) 
+            ret += coeffs(I(XBSpline, j0_x, kx, XBSpline, j0_y, ky)) 
                     * phi_x(x,j0_x,kx) * phi_y(y,j0_y,ky);
         }
     }
@@ -48,7 +45,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
         Ry = basis.second.rangeJ(jy);
         for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
-                ret += coeffs(I(spline, j0_x, kx, wavelet, jy, ky)) 
+                ret += coeffs(I(XBSpline, j0_x, kx, XWavelet, jy, ky)) 
                         * phi_x(x,j0_x,kx) * psi_y(y,jy,ky);  
             }
         }
@@ -60,7 +57,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
         Rx = basis.first.rangeJ(jx);
         for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){  
-                ret += coeffs(I(wavelet, jx, kx, spline, j0_y, ky)) 
+                ret += coeffs(I(XWavelet, jx, kx, XBSpline, j0_y, ky)) 
                         * psi_x(x,jx,kx) * phi_y(y,j0_y,ky);   
             }
         }
@@ -73,7 +70,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
             Ry = basis.second.rangeJ(jy);
             for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
                 for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
-                    ret += coeffs(I(wavelet, jx, kx, wavelet, jy, ky)) 
+                    ret += coeffs(I(XWavelet, jx, kx, XWavelet, jy, ky)) 
                             * psi_x(x,jx,kx) * psi_y(y,jy,ky);  
                 }
             }
