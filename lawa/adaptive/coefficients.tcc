@@ -154,6 +154,26 @@ operator*(T alpha, const Coefficients<Lexicographical,T,Index> &_coeff) {
 }
 
 template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index>
+P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda)
+{
+    typedef typename IndexSet<Index>::const_iterator const_set_it;
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    Coefficients<Lexicographical,T,Index> ret(v.d,v.d_);
+    const_it v_end = v.end();
+    for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+    	const_it it = v.find(*lambda);
+    	if (it != v_end) {
+    		ret[*lambda] = (*it).second;
+    	}
+    	else {
+    		ret[*lambda] = 0.;
+    	}
+    }
+    return ret;
+}
+
+template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index >
 THRESH(const Coefficients<Lexicographical,T,Index > &v, T eta) {
     typedef typename Coefficients<AbsoluteValue,T,Index >::iterator it;
@@ -264,6 +284,22 @@ Coefficients<AbsoluteValue,T,Index>::norm(T tau) const
 
 template <typename T, typename Index>
 T
+Coefficients<AbsoluteValue,T,Index>::l2bestnterm(int n) const
+{
+    typedef typename Coefficients<AbsoluteValue,T,Index>::const_reverse_iterator const_rev_it;
+    T result=0.0;
+    int count=(*this).size();
+    for (const_rev_it lambda=Coefficients<AbsoluteValue,T,Index>::rbegin(); lambda!=Coefficients<AbsoluteValue,T,Index>::rend(); ++lambda) {
+        if (count>=n) {
+        	result += fabs((*lambda).first) * fabs((*lambda).first);
+        }
+        --count;
+    }
+    return sqrt(result);
+}
+
+template <typename T, typename Index>
+T
 Coefficients<AbsoluteValue,T,Index>::wtauNorm(T tau) const
 {
     typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_it;
@@ -289,7 +325,8 @@ Coefficients<AbsoluteValue,T,Index>::norm_sections() const
     DenseVector<Array<T> > result;
 
     if (Coefficients<AbsoluteValue,T,Index>::size() > 0) {
-        result.resizeOrClear(_(0, int(log(T(Coefficients<AbsoluteValue,T,Index>::size()))/log(T(2))+1)));
+        //result.engine().resizeOrClear(_(0, int(log(T(Coefficients<AbsoluteValue,T,Index>::size()))/log(T(2))+1)));
+    	result.engine().resize(int(log(T(Coefficients<AbsoluteValue,T,Index>::size()))/log(T(2))+1));
         T help=0.0;
         int count=0, s=0;
 
@@ -298,7 +335,7 @@ Coefficients<AbsoluteValue,T,Index>::norm_sections() const
             count++;
 
             if (count==(1<<s)) {
-                result(s) = sqrt(help);
+                result(s+1) = sqrt(help);
                 s++;
                 help=0.0;
             }
@@ -307,7 +344,7 @@ Coefficients<AbsoluteValue,T,Index>::norm_sections() const
             result(s)=sqrt(help);
         }
     } else {
-        result.resizeOrClear(_(0,0));
+        result.engine().resize(0);
     }
     return result;
 }
@@ -325,6 +362,25 @@ std::ostream& operator<< (std::ostream &s, const Coefficients<AbsoluteValue,T,In
     return s << std::endl;
 }
 
+template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index >
+THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta) {
+    typedef typename Coefficients<AbsoluteValue,T,Index >::iterator it;
+    Coefficients<AbsoluteValue,T,Index > temp(v.d,v.d_);
+    temp = v;
+    if (temp.size() > 0) {
+        it lambda = temp.begin();
+        T sum = 0, bound = temp.norm()*temp.norm() - eta*eta;
+        do {
+            sum += ((*lambda).first)*((*lambda).first);
+            ++lambda;
+        } while ((lambda != temp.end()) && (sum < bound));
+        temp.erase(lambda, temp.end());
+    }
+    Coefficients<Lexicographical,T,Index > ret(v.d,v.d_);
+    ret = temp;
+    return ret;
+}
 
 
 }   //namespace lawa

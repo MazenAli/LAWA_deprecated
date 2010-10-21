@@ -67,6 +67,10 @@ Coefficients<Lexicographical,T,Index>
 operator*(T alpha, const Coefficients<Lexicographical,T,Index> &_coeff);
 
 template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index>
+P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda);
+
+template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index >
 THRESH(const Coefficients<Lexicographical,T,Index > &v, T eta);
 
@@ -96,6 +100,9 @@ struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteVa
     norm(T tau=2.0) const;
 
     T
+    l2bestnterm(int n) const;
+
+    T
     wtauNorm(T tau) const;
 
     DenseVector<Array<T> >
@@ -107,6 +114,9 @@ struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteVa
 template <typename T, typename Index>
 std::ostream& operator<< (std::ostream &s, const Coefficients<AbsoluteValue,T,Index> &c);
 
+template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index >
+THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta);
 
 } // namespace lawa
 
