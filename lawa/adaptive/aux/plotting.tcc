@@ -90,14 +90,14 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-     const Preconditioner &P, T (*u)(T), T a, T b, T h, const char* filename)
+     const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, T &H1norm, const char* filename)
 {
     typedef typename Basis::BSplineType PrimalSpline;
     typedef typename Basis::WaveletType PrimalWavelet;
     typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
 
-    PrimalSpline phi(basis.mra);
-    PrimalWavelet psi(basis);
+    PrimalSpline phi(basis.mra), d_phi(basis.mra,1);
+    PrimalWavelet psi(basis), d_psi(basis,1);
 
     std::stringstream PlotFileName;
     PlotFileName << filename << ".dat";
@@ -105,22 +105,32 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 
     DenseVector<Array<T> > sing_pts;
     getSingularPoints(basis, coeff, sing_pts);
+    T L2norm=0.;
+    T H1seminorm=0.;
 
     for (T x=a; x<=b; x+=h) {
-        T appr = 0.0;
+        T appr=0., d_appr = 0.0;
         T exact= u(x);
+        T d_exact= du(x);
         for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
             int j = (*it).first.j, k = (*it).first.k;
             T coeff = (*it).second, prec = P((*it).first);
             if ((*it).first.xtype == XBSpline) {
                 appr  += prec * coeff * phi(x,j,k);
+                d_appr  += prec * coeff * d_phi(x,j,k);
             }
             else {
                 appr  += prec * coeff * psi(x,j,k);
+                d_appr  += prec * coeff * d_psi(x,j,k);
             }
         }
+        L2norm += (exact-appr)*(exact-appr);
+        H1seminorm += (d_exact-d_appr)*(d_exact-d_appr);
         plotfile << x << " " << exact << " " << appr  << std::endl;
     }
+    L2norm *= h;
+    H1seminorm *= h;
+    H1norm = std::sqrt(L2norm+H1seminorm);
     plotfile.close();
 }
 
@@ -254,6 +264,7 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Pri
     if (coeff.size() == 0) {
         return;
     }
+    std::cout << "plotCoeff was called!" << std::endl;
 
     std::stringstream gpsFilename;
     gpsFilename << filename << ".gps";
@@ -312,7 +323,7 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Pri
             long int k1 = ceil(pow2i<T>((*it).second.j)*a_wav - l1_wav), k2 = floor(pow2i<T>((*it).second.j)*b_wav - l2_wav);
             long int N = k2 - k1 + 1;
             fromX = a_wav + ((*it).second.k-k1)*(b_wav-a_wav)/(T)N;
-            toX   = fromX + std::max((b_wav-a_wav)/N,0.01);  //was 0.05
+            toX   = fromX + std::max((b_wav-a_wav)/N,0.1);  //was 0.05
 
             fromY = (*it).second.j-0.5;
             toY   = (*it).second.j+0.5;

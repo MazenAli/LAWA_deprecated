@@ -42,7 +42,7 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-     const Preconditioner &P, T (*u)(T), T a, T b, T h, const char* filename);
+     const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, T &H1norm, const char* filename);
 
 template <typename T, typename Basis2D, typename Preconditioner>
 void
