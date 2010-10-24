@@ -65,6 +65,31 @@ public:
 
 };
 
+//only for R-Basis!!
+template <typename T, typename Basis>
+class CompressionCGMYOperator1D
+{
+	typedef typename Basis::WaveletType PrimalWavelet;
+
+public:
+	const Basis &basis;
+	short jmin, jmax;
+	T compr_c;
+	T compr_alpha;
+	PrimalWavelet psi;
+
+
+
+	CompressionCGMYOperator1D(const Basis &_basis, T Y);
+
+	void
+	setParameters(const IndexSet<Index1D> &LambdaRow);
+
+	IndexSet<Index1D>
+	SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow);
+
+};
+
 template <typename T, typename Basis>
 class CompressionPDE2D
 {

@@ -72,6 +72,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
+        int current_jmin, current_jmax;
+        getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
+        std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
         timer.stop();
         T time1 = timer.elapsed();
@@ -96,8 +99,6 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         std::cout << "   ...finished" << std::endl;
         residuals[its] = estim_res;
 
-        file << LambdaThresh.size() << " " << estim_res << " " << Error_H_energy << std::endl;
-
         r = THRESH(r,threshTol);
         LambdaActive = LambdaThresh+supp(r);
 
@@ -111,8 +112,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         ++its_per_threshTol;
         old_res = estim_res;
         timer.stop();
-        if (its==0) times[its] = time1+timer.elapsed();
-        else		times[its] = times[its-1] + time1 + timer.elapsed();
+        if (its==0) {
+        	T total_time = time1+timer.elapsed();
+        	file << LambdaThresh.size() << " " << total_time << " " << estim_res << " " << Error_H_energy << std::endl;
+        	times[its] = total_time;
+        }
+        else {
+        	T total_time = times[its-1] + time1 + timer.elapsed();
+        	file << LambdaThresh.size() << " " << total_time << " " << estim_res << " " << Error_H_energy << std::endl;
+        	times[its] = total_time;
+        }
 
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations
                   << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
@@ -244,6 +253,10 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 		u = THRESH(u,threshTol);
 		solutions[its] = u;
 		LambdaThresh = supp(u);
+		std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
+		int current_jmin, current_jmax;
+		getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
+		std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
 		//Computing residual
 		DeltaLambda = C(LambdaThresh, contraction, basis);
