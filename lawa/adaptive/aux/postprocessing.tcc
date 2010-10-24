@@ -25,16 +25,12 @@ namespace lawa {
 template <typename T, typename Index, typename MA, typename RHS>
 T
 estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> & u,
-                     const IndexSet<Index> &LambdaCol)
+                     const IndexSet<Index> &LambdaRow)
 {
     Coefficients<Lexicographical,T,Index> Au(u.d,u.d_), f(u.d,u.d_), res(u.d,u.d_);
-    std::cout << "PostProcessing: Size of LambdaCol: " << LambdaCol.size() << std::endl;
-    Au = mv(LambdaCol,A,u);
-    std::cout << "PostProcessing: A*u finished." << std::endl;
-    f  = F(LambdaCol);
-    std::cout << "F finished." << std::endl;
+    Au = mv_sparse(LambdaRow,A,u);
+    f  = F(LambdaRow);
     res = Au-f;
-    std::cout << "res finished." << std::endl;
     return res.norm(2.)/f.norm(2.);
 }
 
