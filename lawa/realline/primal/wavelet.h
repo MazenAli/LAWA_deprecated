@@ -59,6 +59,9 @@ class Wavelet<T,Primal,R,CDF>
         DenseVector<Array<T> >
         singularSupport(int j, int k) const;
 
+        DenseVector<Array<T> >
+        optim_singularSupport(int j, int k) const;
+
         T
         tic(int j) const;
 
@@ -75,6 +78,7 @@ class Wavelet<T,Primal,R,CDF>
         const DenseVector<Array<T> > b;
         const BSpline<T,Primal,R,CDF> phi;
         const BSpline<T,Dual,R,CDF> phi_;
+        flens::DenseVector<flens::Array<T> > singularPts;
 };
 
 } // namespace lawa

@@ -32,6 +32,18 @@ Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_)
 {
     assert(d<=d_);
     assert(((d+d_)&1)==0);
+    if (d==2 && d_==2) {
+    	singularPts.engine().resize(5);
+    	singularPts = -1., 0., 0.5, 1., 2.;
+    }
+    else if (d==3 && d_==3) {
+    	singularPts.engine().resize(7);
+    	singularPts = -2., -1., 0., 0.5, 1., 2., 3.;
+    }
+    else {
+    	std::cout << "Optimized singular points not implemented!" << std::endl;
+    	assert(0);
+    }
 }
 
 template <typename T>
@@ -44,6 +56,18 @@ Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_, int _deriv)
     assert(d<=d_);
     assert(((d+d_)&1)==0);
     assert(deriv>=0);
+	if (d==2 && d_==2) {
+		singularPts.engine().resize(5);
+		singularPts = -1., 0., 0.5, 1., 2.;
+	}
+	else if (d==3 && d_==3) {
+		singularPts.engine().resize(7);
+		singularPts = -2., -1., 0., 0.5, 1., 2., 3.;
+	}
+	else {
+		std::cout << "Optimized singular points not implemented!" << std::endl;
+		assert(0);
+	}
 }
 
 template <typename T>
@@ -55,6 +79,18 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
       phi(_phi), phi_(_phi_)
       
 {
+	if (d==2 && d_==2) {
+		singularPts.engine().resize(5);
+		singularPts = -1., 0., 0.5, 1., 2.;
+	}
+	else if (d==3 && d_==3) {
+		singularPts.engine().resize(7);
+		singularPts = -2., -1., 0., 0.5, 1., 2., 3.;
+	}
+	else {
+		std::cout << "Optimized singular points not implemented!" << std::endl;
+		assert(0);
+	}
 }
 
 template <typename T>
@@ -67,6 +103,18 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
       phi(_phi), phi_(_phi_)
 {
     assert(deriv>=0);
+	if (d==2 && d_==2) {
+		singularPts.engine().resize(5);
+		singularPts = -1., 0., 0.5, 1., 2.;
+	}
+	else if (d==3 && d_==3) {
+		singularPts.engine().resize(7);
+		singularPts = -2., -1., 0., 0.5, 1., 2., 3.;
+	}
+	else {
+		std::cout << "Optimized singular points not implemented!" << std::endl;
+		assert(0);
+	}
 }
 
 template <typename T>
@@ -78,6 +126,18 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const Basis<T,Primal,R,CDF> &basis)
 {
     assert(d<=d_);
     assert(((d+d_)&1)==0);
+	if (d==2 && d_==2) {
+		singularPts.engine().resize(5);
+		singularPts = -1., 0., 0.5, 1., 2.;
+	}
+	else if (d==3 && d_==3) {
+		singularPts.engine().resize(7);
+		singularPts = -2., -1., 0., 0.5, 1., 2., 3.;
+	}
+	else {
+		std::cout << "Optimized singular points not implemented!" << std::endl;
+		assert(0);
+	}
 }
 
 template <typename T>
@@ -89,6 +149,18 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const Basis<T,Primal,R,CDF> &basis, int _deriv)
 {
     assert(d<=d_);
     assert(((d+d_)&1)==0);
+	if (d==2 && d_==2) {
+		singularPts.engine().resize(5);
+		singularPts = -1., 0., 0.5, 1., 2.;
+	}
+	else if (d==3 && d_==3) {
+		singularPts.engine().resize(7);
+		singularPts = -2., -1., 0., 0.5, 1., 2., 3.;
+	}
+	else {
+		std::cout << "Optimized singular points not implemented!" << std::endl;
+		assert(0);
+	}
 }
 
 template <typename T>
@@ -115,6 +187,17 @@ DenseVector<Array<T> >
 Wavelet<T,Primal,R,CDF>::singularSupport(int j, int k) const
 {
     return linspace(support(j,k).l1, support(j,k).l2, 2*(d+d_)-1);
+}
+
+template <typename T>
+DenseVector<Array<T> >
+Wavelet<T,Primal,R,CDF>::optim_singularSupport(int j, int k) const
+{
+	flens::DenseVector<flens::Array<T> > x(singularPts.length());
+	for (int i=1; i<=x.length(); ++i) {
+		x(i) = pow2i<T>(-j)*(singularPts(i)+T(k));
+	}
+    return x;
 }
 
 template <typename T>

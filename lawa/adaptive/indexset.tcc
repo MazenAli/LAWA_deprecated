@@ -531,7 +531,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, int
             for (int j_row=std::max(j-s_tilde,jmin); j_row<=std::min(j+s_tilde,jmax); ++j_row) {
                 T Pow2i_Mjrow = pow2i<T>(-j_row);
                 if (j_row>=j+2) {
-                    DenseVector<Array<T> > singsupp = psi.singularSupport(j,k);
+                    DenseVector<Array<T> > singsupp = psi.optim_singularSupport(j,k);
                     //cout << "LambdaTilde: Singular support psi_col_" << j << "," << k << " = " << singpts;
                     for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                         int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;
@@ -552,7 +552,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, int
 
                     for (int k_row=kMin; k_row<=kMax; ++k_row) {
                         Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
-                        if ((overlap(supp, supp_row) > 0) && (!(distance(psi.singularSupport(j_row,k_row),supp) >= 0 ))) {
+                        if ((overlap(supp, supp_row) > 0) && (!(distance(psi.optim_singularSupport(j_row,k_row),supp) >= 0 ))) {
                             //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
                             ret.insert(Index1D(j_row,k_row,XWavelet));
                         }
