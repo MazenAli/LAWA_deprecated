@@ -22,15 +22,15 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename RHSIntegral>
+template <typename T, typename Index, typename RHSIntegral1, typename RHSIntegral2>
 class SumOfTwoRHSIntegrals
 {
 private:
-    const RHSIntegral &rhs1;
-    const RHSIntegral &rhs2;
+    const RHSIntegral1 &rhs1;
+    const RHSIntegral2 &rhs2;
 
 public:
-    SumOfTwoRHSIntegrals(const RHSIntegral &rhs1, const RHSIntegral &rhs2);
+    SumOfTwoRHSIntegrals(const RHSIntegral1 &rhs1, const RHSIntegral2 &rhs2);
 
     T
     operator()(const Index &index) const;

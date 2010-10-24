@@ -53,7 +53,7 @@ DiagonalMatrixPreconditioner1D<T,Basis,BilinearForm>::operator()(const Index1D &
 
 template <typename T, typename Basis, typename BilinearForm>
 H1Preconditioner1D<T,Basis,BilinearForm>::H1Preconditioner1D(const BilinearForm &_a)
-    : basis(_a.getBasis()), phi(basis.mra), psi(basis), d_phi(basis.mra, 1), d_psi(basis, 1),
+    : basis(_a.getBasis()), phi(basis.mra), d_phi(basis.mra, 1), psi(basis), d_psi(basis, 1),
       integral_sfsf(phi, phi), dd_integral_sfsf(d_phi, d_phi),
       integral_ww(psi,psi), dd_integral_ww(d_psi,d_psi)
 {
