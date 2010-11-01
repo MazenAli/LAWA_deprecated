@@ -64,7 +64,7 @@ C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
 
 template <typename T>
 IndexSet<Index1D>
-C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis);
+C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis, bool only_pos=false);
 
 template <typename T>
 IndexSet<Index1D>

@@ -42,7 +42,7 @@ toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Inde
     	}
     }
     A_flens.finalize();
-    std::cout << "   ...finished." << std::endl;
+    std::cout << "   N^2 = " << LambdaRow.size()*LambdaCol.size() << ", nonzeros = " << A_flens.numNonZeros() << std::endl;
 }
 
 template <typename T, typename Index, typename SpaceIndex, typename MA>
@@ -178,6 +178,21 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     int N = Lambda.size();
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
     toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
+
+/*
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1, A_dense2;
+    densify(cxxblas::NoTrans,A_flens,A_dense1);
+    densify(cxxblas::NoTrans,A_flens,A_dense2);
+    DenseVector<Array<T> > wr(N), wi(N);
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
+    ev(false, false, A_dense1, wr, wi, vl, vr);
+    T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
+    for (int i=1; i<=wr.lastIndex(); ++i) {
+    	cB = std::min(cB,wr(i));
+    	CB = std::max(CB,wr(i));
+    }
+    std::cout << "Largest eigenvalue: " << CB << ", smallest eigenvalue: " << cB << std::endl;
+*/
 
     if (Lambda.size() > 0) {
         DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);

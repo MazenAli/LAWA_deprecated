@@ -60,6 +60,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         FillWithZeros(LambdaActive,u);
         f = F(LambdaActive);
         T f_norm_LambdaActive = f.norm(2.);
+        //std::cout << "f = " << f << std::endl;
 
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
@@ -72,9 +73,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
-        int current_jmin, current_jmax;
-        getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
-        std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
+        //int current_jmin, current_jmax;
+        //getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
+        //std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
         timer.stop();
         T time1 = timer.elapsed();
@@ -100,7 +101,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         residuals[its] = estim_res;
 
         r = THRESH(r,threshTol);
-        LambdaActive = LambdaThresh+supp(r);
+        LambdaActive = LambdaActive+supp(r);
+
 
         //Check if residual is decreasing, if not decrease threshold tolerance
         if (fabs(estim_res-old_res)<resTol || its_per_threshTol>MaxItsPerThreshTol) {
@@ -109,6 +111,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
             resTol    *= 0.5;
             its_per_threshTol = 0;
         }
+
         ++its_per_threshTol;
         old_res = estim_res;
         timer.stop();
@@ -235,19 +238,22 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 	int its_per_threshTol=0;
 	std::cout << "Simple adaptive solver started." << std::endl;
 	for (int its=0; its<NumOfIterations; ++its) {
-       
-        timer.start();
+
 	
 		//Initialization step
 		FillWithZeros(LambdaActive,u);
 		f = F(LambdaActive);
 		T f_norm_LambdaActive = f.norm(2.);
 
+		timer.start();
+
 		//Galerkin step
 		T r_norm_LambdaActive = 0.0;
 		std::cout << "   GMRES solver started with N = " << LambdaActive.size() << std::endl;
 		int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
 		std::cout << "   ...finished." << std::endl;
+
+
 
 		//Threshold step
 		u = THRESH(u,threshTol);
@@ -261,10 +267,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 		//Computing residual
 		DeltaLambda = C(LambdaThresh, contraction, basis);
 		std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
+
+		timer.stop();
+		T time_galerkin = timer.elapsed();
+
 		f = F(DeltaLambda);
 		std::cout << "   ...finished" << std::endl;
 		T f_norm_DeltaLambda = f.norm(2.);
 		std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
+
+		timer.start();
 		Au = mv_sparse(DeltaLambda,A,u);
 		r  = Au-f;
 		T r_norm_DeltaLambda = r.norm(2.);
@@ -278,6 +290,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 		//LambdaActive = LambdaThresh+supp(r);
 		LambdaActive = LambdaActive+supp(r);
 
+		timer.stop();
+		T time_res = timer.elapsed();
+
 		//Check if residual is decreasing, if not decrease threshold tolerance
 		if (fabs(estim_res-old_res)<resTol || its_per_threshTol>MaxItsPerThreshTol) {
 		//if(old_res - estim_res < resTol){
@@ -289,7 +304,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 		++its_per_threshTol;
 		old_res = estim_res;
         timer.stop();
-        times[its] = timer.elapsed();
+        times[its] = time_galerkin + time_res;
+        //times[its] = timer.elapsed();
         
 		std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", gmres-its = " << iterations;
 		std::cout << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl;

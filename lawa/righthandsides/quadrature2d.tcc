@@ -131,7 +131,7 @@ Quadrature2D<T,SparseGridGP,Integral2D>::_initSparseGrid()
 
 template <typename T, typename Integral2D>
 Quadrature2D<T,FullGridGL,Integral2D>::Quadrature2D(const Integral2D &_integral)
-   : integral(_integral), order(1), numGridPoints(0)
+   : integral(_integral), order(1)
 {
 	_initFullGrid();
 }
@@ -143,8 +143,8 @@ Quadrature2D<T,FullGridGL,Integral2D>::operator()(T a_x, T b_x, T a_y, T b_y) co
 	if ((a_x == b_x) || (a_y == b_y))	return 0.;
 	T result = 0.;
 	for (int i=1; i<=_weights.engine().numRows(); ++i) {
-		T x1 = 0.5*( (b_x-a_x)*_knots(i,1) - (b_x+a_x));
-		T x2 = 0.5*( (b_y-a_y)*_knots(i,2) - (b_y+a_y));
+		T x1 = 0.5*( (b_x-a_x)*_knots(i,1) + (b_x+a_x));
+		T x2 = 0.5*( (b_y-a_y)*_knots(i,2) + (b_y+a_y));
 		result += _weights(i,1) * integral.integrand(x1,x2);
 	}
 	result *= 0.25*(b_x-a_x)*(b_y-a_y);
@@ -205,7 +205,6 @@ Quadrature2D<T,FullGridGL,Integral2D>::_initFullGrid()
 			++count;
 		}
 	}
-	numGridPoints = order*order;
 
 }
 

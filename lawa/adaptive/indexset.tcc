@@ -123,12 +123,13 @@ C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis) {
 
 template <typename T>
 IndexSet<Index1D>
-C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis)
+C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis, bool only_pos)
 {
 	IndexSet<Index1D> ret(Lambda.d,Lambda.d_), tmp(Lambda.d, Lambda.d_);
 	typedef typename IndexSet<Index1D>::const_iterator const_it;
 
 	for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		if (only_pos && (*lambda).j<=0) continue;
 		tmp = C_WO_XBSpline((*lambda),c,basis);
 	    for (const_it mu=tmp.begin(); mu!=tmp.end(); ++mu) {
 	        if (Lambda.count(*mu) == 0) ret.insert(*mu);

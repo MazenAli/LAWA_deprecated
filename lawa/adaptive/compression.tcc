@@ -121,8 +121,9 @@ CompressionCGMYOperator1D<T,Basis>::SparsityPattern(const Index1D &lambda_col, c
 
 
 template <typename T, typename Basis>
-CompressionPDE2D<T,Basis>::CompressionPDE2D(const Basis &_basis)
-    : basis(_basis), s_tilde_x(-1), jmin_x(100), jmax_x(-30), s_tilde_y(-1), jmin_y(100), jmax_y(-30)
+CompressionPDE2D<T,Basis>::CompressionPDE2D(const Basis &_basis, bool _levelthresh)
+    : basis(_basis), s_tilde_x(-1), jmin_x(100), jmax_x(-30), s_tilde_y(-1), jmin_y(100), jmax_y(-30), J(0),
+      levelthresh(_levelthresh)
 {
 }
 
@@ -139,6 +140,12 @@ CompressionPDE2D<T,Basis>::setParameters(const IndexSet<Index2D> &LambdaRow) {
 	}
 	s_tilde_x = jmax_x-jmin_x;
 	s_tilde_y = jmax_y-jmin_y;
+	if (levelthresh)  {
+		J = std::max(s_tilde_x,s_tilde_y);
+		J = std::max(10,int(J));
+	}
+	else			  J = 100;
+	std::cout << "   Compression: s_tilde_x = " << s_tilde_x << ", s_tilde_y = " << s_tilde_y << ", J = " << J << std::endl;
 }
 
 template <typename T, typename Basis>
@@ -148,28 +155,18 @@ CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, const Inde
 	typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
 
 	IndexSet<Index2D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
-
-	IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col.index1, basis.first, s_tilde_x, jmin_x, jmax_x, false);
+	IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col.index1, basis.first,  s_tilde_x, jmin_x, jmax_x, false);
 	IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y, jmax_y, false);
 
 	for (set2d_const_it lambda=LambdaRow.begin(); lambda!=LambdaRow.end(); ++lambda) {
-		if (Lambda_x.count((*lambda).index1)>0) {
-			if (Lambda_y.count((*lambda).index2)>0) {
-				LambdaRowSparse.insert(*lambda);
-			}
+		//short level_diff = fabs((*lambda).index1.j-lambda_col.index1.j) + fabs((*lambda).index2.j-lambda_col.index2.j);
+		//if ( (0.5+LambdaRow.d-2)*level_diff > J ) {
+		//	continue;
+		//}
+		if ((Lambda_x.count((*lambda).index1)>0) && (Lambda_y.count((*lambda).index2)>0))  {
+			LambdaRowSparse.insert(*lambda);
 		}
 	}
-
-/*
-	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
-		for (set1d_const_it lambda_y = Lambda_y.begin(); lambda_y != Lambda_y.end(); ++lambda_y) {
-			Index2D index2d(*lambda_x,*lambda_y);
-			if (LambdaRow.count(index2d)>0) {
-				LambdaRowSparse.insert(index2d);
-			}
-		}
-	}
-*/
 	return LambdaRowSparse;
 }
 

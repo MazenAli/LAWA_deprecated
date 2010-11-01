@@ -66,8 +66,15 @@ TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, NoInitialCondition,
 
 	T dd_x = data_dd_x(row_index.index1,col_index.index1);
 	T id_x = data_id_x(row_index.index1,col_index.index1);
-	T id_y = data_id_y(row_index.index2,col_index.index2);
-	T dd_y = data_dd_y(row_index.index2,col_index.index2);
+	T id_y, dd_y;
+	if (row_index.index2.xtype==XWavelet && col_index.index2.xtype==XWavelet) {
+		id_y = data_id_x(row_index.index2,col_index.index2);
+		dd_y = data_dd_x(row_index.index2,col_index.index2);
+	}
+	else {
+		id_y = data_id_y(row_index.index2,col_index.index2);
+		dd_y = data_dd_y(row_index.index2,col_index.index2);
+	}
 
 	return prec*(dd_x*id_y + id_x*dd_y + id_x*id_y  );
 

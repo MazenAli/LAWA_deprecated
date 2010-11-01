@@ -220,8 +220,8 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
     T ret = 0.;
     if ((domain1==R) && (domain2==R)) {
         if (nr==1) {
-            T a1 = -0.1;
-            T a2 = 0.1;
+            //T a1 = -0.1;
+            //T a2 = 0.1;
             T b1 = 0.1;
             T b2 = 0.5;
             T c1=1., c2= 1.;
@@ -295,10 +295,18 @@ ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample(int _
 
     if ((domain1 == R) && (domain2 == R)) {
     	if (nr==2) {
-    		sing_pts_x.engine().resize(1);
-    		sing_pts_y.engine().resize(1);
-    		sing_pts_x(1) = 0.1;
-    		sing_pts_y(1) = 0.1;
+
+    		sing_pts_x.engine().resize(9);
+    		sing_pts_y.engine().resize(9);
+    		sing_pts_x = -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5;
+    		sing_pts_y = -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5;
+
+/*
+    		sing_pts_x.engine().resize(17);
+    		sing_pts_y.engine().resize(17);
+    		sing_pts_x = -0.3,-0.2, -0.1, 0., 0.099, 0.0999,  0.09999, 0.09999999, 0.1, 0.10000001, 0.10001, 0.1001, 0.101, 0.2, 0.3, 0.4, 0.5;
+    		sing_pts_y = -0.3,-0.2, -0.1, 0., 0.099, 0.0999,  0.09999, 0.09999999, 0.1, 0.10000001, 0.10001, 0.1001, 0.101, 0.2, 0.3, 0.4, 0.5;
+*/
     	}
     }
 }
@@ -328,7 +336,8 @@ template <typename T, typename Basis2D>
 T
 ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::rhs(T x, T y)
 {
-    return -exact(x,y,2,0)-exact(x,y,0,2)+c*exact(x,y,0,0);
+    return 1.;
+	//return -exact(x,y,2,0)-exact(x,y,0,2)+c*exact(x,y,0,0);
 }
 
 template <typename T, typename Basis2D>
@@ -358,10 +367,10 @@ ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact(T x, T y, 
 				return exp(-sqrt( XmA_p2_p_YmB_p2 ));
 			}
 			else if ((deriv_x==0) && (deriv_y==1)) {
-				return -(y-0.1)/sqrt(XmA_p2_p_YmB_p2)*exp(-sqrt( XmA_p2_p_YmB_p2 ));
+				return (-(y-0.1)*sqrt(XmA_p2_p_YmB_p2)/XmA_p2_p_YmB_p2)*exp(-sqrt( XmA_p2_p_YmB_p2 ));
 			}
 			else if ((deriv_x==1) && (deriv_y==0)) {
-				return -(x-0.1)/sqrt(XmA_p2_p_YmB_p2)*exp(-sqrt( XmA_p2_p_YmB_p2 ));
+				return (-(x-0.1)*sqrt(XmA_p2_p_YmB_p2)/XmA_p2_p_YmB_p2)*exp(-sqrt( XmA_p2_p_YmB_p2 ));
 			}
 			else if ((deriv_x==0) && (deriv_y==2)) {
 				return ( (y-0.1)*(y-0.1)/XmA_p2_p_YmB_p2 -
@@ -377,6 +386,14 @@ ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact(T x, T y, 
 				return 0.;
 			}
 		}
+		else {
+			assert(0);
+			return 0;
+		}
+	}
+	else {
+		assert(0);
+		return 0;
 	}
 }
 

@@ -23,6 +23,7 @@
 
 #include <lawa/adaptive/index.h>
 #include <lawa/adaptive/indexset.h>
+#include <lawa/adaptive/aux/timer.h>
 
 namespace lawa {
 /*
@@ -97,8 +98,10 @@ public:
 	const Basis &basis;
 	short s_tilde_x, jmin_x, jmax_x;
 	short s_tilde_y, jmin_y, jmax_y;
+	short J;
+	bool levelthresh;
 
-	CompressionPDE2D(const Basis &_basis);
+	CompressionPDE2D(const Basis &_basis, bool _levelthresh);
 
 	void
 	setParameters(const IndexSet<Index2D> &LambdaRow);

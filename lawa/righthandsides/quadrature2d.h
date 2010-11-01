@@ -21,6 +21,7 @@
 #define LAWA_RIGHTHANDSIDES_QUADRATURE2D_H 1
 
 #include <sparse_grid_mixed.h>
+#include <lawa/math/math.h>
 
 namespace lawa {
 
@@ -65,7 +66,6 @@ class Quadrature2D<T,FullGridGL,Integral2D>
 
         void setOrder(int _order);
 
-        int numGridPoints;
 
     private:
         const Integral2D &integral;
