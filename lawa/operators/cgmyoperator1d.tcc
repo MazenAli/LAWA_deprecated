@@ -128,6 +128,38 @@ CGMYOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
     		}
     	}
     }
+
+	else if (basis.d==3) {
+
+		if 		((xtype1 == XBSpline) && (xtype2 == XBSpline)) 	int_val -= cgmy.c3*dd_integral_sfsf(j1,k1,j2,k2);
+		else if ((xtype1 == XBSpline) && (xtype2 == XWavelet))	int_val -= cgmy.c3*dd_integral_sfw(j1,k1,j2,k2);
+		else if ((xtype1 == XWavelet) && (xtype2 == XBSpline))	int_val -= cgmy.c3*dd_integral_wsf(j1,k1,j2,k2);
+		else													int_val -= cgmy.c3*dd_integral_ww(j1,k1,j2,k2);
+
+		for (int mu=psi_col_deltas.rows().firstIndex(); mu<=psi_col_deltas.rows().lastIndex(); ++mu) {
+			T y = psi_col_deltas(mu,1);
+			if (fabs(psi_col_deltas(mu,2)) < 1e-14) continue;
+
+			if (xtype1 == XBSpline)	{
+				int_val += psi_col_deltas(mu,2)*phi(y,j1,k1)*cgmy.c4;
+				int_val -= psi_col_deltas(mu,2)*d_phi(y,j1,k1)* cgmy.c5;
+			}
+			else {
+				int_val += psi_col_deltas(mu,2)*psi(y,j1,k1)*cgmy.c4;
+				int_val -= psi_col_deltas(mu,2)*d_psi(y,j1,k1)* cgmy.c5;
+			}
+
+			for (int lambda=psi_row_deltas.rows().firstIndex(); lambda<=psi_row_deltas.rows().lastIndex(); ++lambda) {
+				if (fabs(psi_row_deltas(lambda,2)) < 1e-14) continue;
+				T x = psi_row_deltas(lambda,1);
+				T c = psi_col_deltas(mu,2)*psi_row_deltas(lambda,2);
+				if (x!=y)  {
+					if (y-x>0)		int_val -= c * (cgmy.SixthTailIntegral(y-x) - cgmy.constants[6]);
+					else 			int_val -= c * (cgmy.SixthTailIntegral(y-x) - cgmy.constants[7]);
+				}
+			}
+		}
+	}
     else {
     	assert(0);
     }

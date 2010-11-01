@@ -56,6 +56,21 @@ public:
 
 };
 
+template <typename T>
+class DiagonalLevelPreconditioner1D
+{
+public:
+    DiagonalLevelPreconditioner1D(void) { };
+
+    T
+    operator()(XType xtype1, int j1, int k1) const;
+
+    T
+    operator()(const Index1D &index) const;
+
+};
+
+
 template <typename T, typename Basis, typename BilinearForm>
 class DiagonalMatrixPreconditioner1D
 {
