@@ -45,8 +45,9 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
 
 
         //Initialization step
-        LambdaActive_test_operator = LambdaActive;// + C(LambdaActive,contraction,basis);
+        LambdaActive_test_operator = LambdaActive + C_t(LambdaActive,contraction,basis);
         LambdaActive_test_initcond = extractSpaceIndices(LambdaActive);
+        std::cout << "   Number of space indices: " << LambdaActive_test_initcond.size() << std::endl;
         FillWithZeros(LambdaActive,u);
         f  = F (LambdaActive_test_operator);
         u0 = U0(LambdaActive_test_initcond);
@@ -54,8 +55,8 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
-        int iterations = CGLS_Solve(LambdaActive_test_operator, LambdaActive_test_initcond, LambdaActive,
-									A, u, f, u0, r_norm_LambdaActive, linTol, 100000);
+        int iterations = CGLS_Solve(LambdaActive_test_operator, LambdaActive_test_initcond, A, LambdaActive,
+									u, f, u0, r_norm_LambdaActive, linTol, 100000);
         std::cout << "   ...finished after " << iterations << " iterations with residual = " << r_norm_LambdaActive << std::endl;
 
         //Threshold step

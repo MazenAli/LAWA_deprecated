@@ -76,16 +76,16 @@ CompressionPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col, const Inde
 }
 
 
-template <typename T, typename Basis>
-CompressionCGMYOperator1D<T,Basis>::CompressionCGMYOperator1D(const Basis &_basis, T Y)
+template <typename T>
+CompressionCGMYOperator1D<T,Basis<T,Primal,R,CDF> >::CompressionCGMYOperator1D(const Basis<T,Primal,R,CDF> &_basis, T Y)
     : basis(_basis), jmin(100), jmax(-30), compr_c(1.), psi(basis)
 {
 	compr_c = T(2*basis.d)/T(2*basis.d_+Y);
 }
 
-template <typename T, typename Basis>
+template <typename T>
 void
-CompressionCGMYOperator1D<T,Basis>::setParameters(const IndexSet<Index1D> &LambdaRow) {
+CompressionCGMYOperator1D<T,Basis<T,Primal,R,CDF> >::setParameters(const IndexSet<Index1D> &LambdaRow) {
 	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 	jmin = 100;
 	jmax = -30;
@@ -95,9 +95,9 @@ CompressionCGMYOperator1D<T,Basis>::setParameters(const IndexSet<Index1D> &Lambd
 	}
 }
 
-template <typename T, typename Basis>
+template <typename T>
 IndexSet<Index1D>
-CompressionCGMYOperator1D<T,Basis>::SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow) {
+CompressionCGMYOperator1D<T,Basis<T,Primal,R,CDF> >::SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow) {
 	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 
 	IndexSet<Index1D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
@@ -109,11 +109,52 @@ CompressionCGMYOperator1D<T,Basis>::SparsityPattern(const Index1D &lambda_col, c
 			LambdaRowSparse.insert(*lambda);
 		}
 		else {
-			T delta = compr_c*std::max(pow2i<T>(-std::min(lambda_col.j,(*lambda).j)),
-									   pow2i<T>(-(jmax-1) + compr_alpha*(2*(jmax-1)-lambda_col.j-(*lambda).j)));
+			T delta = 3*compr_c*std::max(pow2i<T>(-std::min(lambda_col.j,(*lambda).j)),
+									     pow2i<T>(-(jmax-1) + compr_alpha*(2*(jmax-1)-lambda_col.j-(*lambda).j)));
 			if (lawa::distance(psi.support(lambda_col.j,lambda_col.k),psi.support((*lambda).j,(*lambda).k)) < delta) {
 				LambdaRowSparse.insert(*lambda);
 			}
+		}
+	}
+	return LambdaRowSparse;
+}
+
+
+template <typename T, typename Compression_x, typename Compression_y>
+TensorCompression2D<T,Compression_x,Compression_y>::TensorCompression2D(Compression_x &_c_x,
+																	    Compression_y &_c_y)
+    : c_x(_c_x), c_y(_c_y)
+{
+}
+
+template <typename T, typename Compression_x, typename Compression_y>
+void
+TensorCompression2D<T,Compression_x,Compression_y>::setParameters(const IndexSet<Index2D> &LambdaRow)
+{
+	int d=LambdaRow.d, d_=LambdaRow.d_;
+	IndexSet<Index1D> LambdaRow_x(d,d_), LambdaRow_y(d,d_);
+	split(LambdaRow, LambdaRow_x, LambdaRow_y);
+	c_x.setParameters(LambdaRow_x);
+	c_y.setParameters(LambdaRow_y);
+}
+
+template <typename T, typename Compression_x, typename Compression_y>
+IndexSet<Index2D>
+TensorCompression2D<T,Compression_x,Compression_y>::SparsityPattern(const Index2D &lambda_col,
+																	const IndexSet<Index2D> &LambdaRow)
+{
+	typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
+
+	int d=LambdaRow.d, d_=LambdaRow.d_;
+	IndexSet<Index1D> LambdaRow_x(d,d_), LambdaRow_y(d,d_);
+	split(LambdaRow, LambdaRow_x, LambdaRow_y);
+	IndexSet<Index1D> ret_x = c_x.SparsityPattern(lambda_col.index1, LambdaRow_x);
+	IndexSet<Index1D> ret_y = c_y.SparsityPattern(lambda_col.index2, LambdaRow_y);
+
+	IndexSet<Index2D> LambdaRowSparse(d,d_);
+	for (set2d_const_it lambda=LambdaRow.begin(); lambda!=LambdaRow.end(); ++lambda) {
+		if ((LambdaRow_x.count((*lambda).index1)>0) && (LambdaRow_y.count((*lambda).index2)>0))  {
+			LambdaRowSparse.insert(*lambda);
 		}
 	}
 	return LambdaRowSparse;
@@ -159,10 +200,10 @@ CompressionPDE2D<T,Basis>::SparsityPattern(const Index2D &lambda_col, const Inde
 	IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y, jmax_y, false);
 
 	for (set2d_const_it lambda=LambdaRow.begin(); lambda!=LambdaRow.end(); ++lambda) {
-		//short level_diff = fabs((*lambda).index1.j-lambda_col.index1.j) + fabs((*lambda).index2.j-lambda_col.index2.j);
-		//if ( (0.5+LambdaRow.d-2)*level_diff > J ) {
-		//	continue;
-		//}
+		short level_diff = fabs((*lambda).index1.j-lambda_col.index1.j) + fabs((*lambda).index2.j-lambda_col.index2.j);
+		if ( (0.5+LambdaRow.d-2)*level_diff > J ) {
+			continue;
+		}
 		if ((Lambda_x.count((*lambda).index1)>0) && (Lambda_y.count((*lambda).index2)>0))  {
 			LambdaRowSparse.insert(*lambda);
 		}

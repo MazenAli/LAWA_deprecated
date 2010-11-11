@@ -83,6 +83,16 @@ getMinAndMaxLevel(const IndexSet<Index1D> &Lambda, int &jmin, int &jmax)
 	}
 }
 
+void
+split(const IndexSet<Index2D> &Lambda, IndexSet<Index1D> &Lambda_x, IndexSet<Index1D> &Lambda_y)
+{
+	typedef IndexSet<Index2D>::const_iterator set2d_const_it;
+	for (set2d_const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+		Lambda_x.insert((*lambda).index1);
+		Lambda_y.insert((*lambda).index2);
+	}
+}
+
 IndexSet<Index1D>
 extractSpaceIndices(const IndexSet<Index2D> &Lambda)
 {

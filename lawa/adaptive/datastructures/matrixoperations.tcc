@@ -268,7 +268,7 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
 template <typename T, typename Index, typename SpaceIndex, typename MA>
 int
 CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &LambdaRowInitCond,
-		   const IndexSet<Index> &LambdaCol, MA &A,
+		   MA &A, const IndexSet<Index> &LambdaCol,
 		   Coefficients<Lexicographical,T,Index > &u,
 		   const Coefficients<Lexicographical,T,Index > &f,
 		   const Coefficients<Lexicographical,T,SpaceIndex > &u0,
@@ -285,7 +285,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &Lambd
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
     toFlensSparseMatrix(A, LambdaRowOp, LambdaRowInitCond, LambdaCol, A_flens);
 
-	/*flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
 	densify(cxxblas::NoTrans,A_flens,A_dense);
 	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
 	DenseVector<Array<T> > s(NumOfCols);
@@ -293,7 +293,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &Lambd
 	int iterations = svd(A_dense,s,U,V);
 	std::cout << " ... finished after " << iterations << std::endl;
 	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
-	 */
+
     if (LambdaCol.size() > 0) {
         DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
         int row_count=1;

@@ -50,6 +50,9 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i);
 void
 getMinAndMaxLevel(const IndexSet<Index1D> &Lambda, int &jmin, int &jmax);
 
+void
+split(const IndexSet<Index2D> &Lambda, IndexSet<Index1D> &Lambda_x, IndexSet<Index1D> &Lambda_y);
+
 IndexSet<Index1D>
 extractSpaceIndices(const IndexSet<Index2D> &Lambda);
 

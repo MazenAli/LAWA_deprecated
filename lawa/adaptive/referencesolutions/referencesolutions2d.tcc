@@ -336,8 +336,7 @@ template <typename T, typename Basis2D>
 T
 ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::rhs(T x, T y)
 {
-    return 1.;
-	//return -exact(x,y,2,0)-exact(x,y,0,2)+c*exact(x,y,0,0);
+	return -exact(x,y,2,0)-exact(x,y,0,2)+c*exact(x,y,0,0);
 }
 
 template <typename T, typename Basis2D>

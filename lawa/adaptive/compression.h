@@ -70,18 +70,21 @@ public:
 template <typename T, typename Basis>
 class CompressionCGMYOperator1D
 {
-	typedef typename Basis::WaveletType PrimalWavelet;
+};
+
+template <typename T>
+class CompressionCGMYOperator1D<T, Basis<T,Primal,R,CDF> >
+{
+typedef typename Basis<T,Primal,R,CDF>::WaveletType PrimalWavelet;
 
 public:
-	const Basis &basis;
+	const Basis<T,Primal,R,CDF> &basis;
 	short jmin, jmax;
 	T compr_c;
 	T compr_alpha;
 	PrimalWavelet psi;
 
-
-
-	CompressionCGMYOperator1D(const Basis &_basis, T Y);
+	CompressionCGMYOperator1D(const Basis<T,Primal,R,CDF> &_basis, T Y);
 
 	void
 	setParameters(const IndexSet<Index1D> &LambdaRow);
@@ -90,6 +93,24 @@ public:
 	SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow);
 
 };
+
+
+template <typename T, typename Compression_x, typename Compression_y>
+class TensorCompression2D
+{
+public:
+	Compression_x &c_x;
+	Compression_y &c_y;
+
+	TensorCompression2D(Compression_x &_c_x, Compression_y &_c_y);
+
+	void
+	setParameters(const IndexSet<Index2D> &LambdaRow);
+
+	IndexSet<Index2D>
+	SparsityPattern(const Index2D &lambda_col, const IndexSet<Index2D> &LambdaRow);
+};
+
 
 template <typename T, typename Basis>
 class CompressionPDE2D
