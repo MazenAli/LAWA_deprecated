@@ -35,7 +35,7 @@ enum AntiDerivativeType
 	ZeroAtZero
 };
 
-typedef boost::math::policies::policy<boost::math::policies::digits10<32> > my_prec_policy;
+typedef boost::math::policies::policy<boost::math::policies::digits2<64> > my_prec_policy;
 
 template <typename T>
 struct CGMYUtils {
@@ -76,7 +76,7 @@ struct CGMYUtils {
 
 }	//namespace lawa
 
-#include <lawa/operators/cgmyutils.tcc>
+#include <extensions/cgmyutils.tcc>
 
 
 #endif // LAWA_OPERATORS_CGMYUTILS_H

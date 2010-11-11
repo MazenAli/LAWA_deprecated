@@ -18,59 +18,62 @@
  */
 
 
-#ifndef LAWA_OPERATORS_CGMYOPERATOR1D_H
-#define LAWA_OPERATORS_CGMYOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_FAST_H
+#define LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_FAST_H 1
 
-#include <lawa/operators/cgmyutils.h>
+#include <extensions/cgmyutils.h>
 
 namespace lawa {
 
 
 template <typename T, typename Basis>
-class CGMYOperator1D{
+class CGMYOperator1D_Fast{
 
     public:
 
         const Basis& basis;
-        const T c;
+        const T diffusion, convection, reaction;
         const T C,G,M,Y;
 
         CGMYUtils<T> cgmy;
 
-        GeMatrix<FullStorage<T,ColMajor> > phi_deltas;
-        GeMatrix<FullStorage<T,ColMajor> > psi_deltas;
-
         typedef typename Basis::BSplineType PrimalSpline;
         typedef typename Basis::WaveletType PrimalWavelet;
 
-        PrimalSpline phi, d_phi;
-        PrimalWavelet psi, d_psi;
+        PrimalSpline phi, d_phi, delta_phi;
+        PrimalWavelet psi, d_psi, delta_psi;
 
-        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf;
-        Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, dd_integral_sfw;
-        Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, dd_integral_wsf;
-        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww;
+        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, d_integral_sfsf, dd_integral_sfsf;
+        Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, d_integral_sfw,  dd_integral_sfw;
+        Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, d_integral_wsf,  dd_integral_wsf;
+        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, d_integral_ww,   dd_integral_ww;
 
     public:
-        CGMYOperator1D(const Basis& _basis, T _c, T _C, T _G, T _M, T _Y);
+        CGMYOperator1D_Fast(const Basis& _basis, T _diffusion, T _convection, T _reaction, T _C, T _G, T _M, T _Y);
 
         T getc() const;
         const Basis& getBasis() const;
-
-        GeMatrix<FullStorage<T,ColMajor> >
-        computeDeltas(XType xtype, int j, int k) const;
 
         T
         operator()(XType xtype1, int j1, int k1,
                    XType xtype2, int j2, int k2) const;
 
         T
+        operator()(XType xtype1, int j1, int k1,
+                   XType xtype2, int j2, int k2, T R1, T R2) const;
+
+        T
         operator()(const Index1D &row_index, const Index1D &col_index) const;
+
+        GeMatrix<FullStorage<T,ColMajor> >
+        computeDeltas(XType xtype, int j, int k) const;
+
+
 };
 
 }	//namespace lawa
 
-#include <lawa/operators/cgmyoperator1d.tcc>
+#include <lawa/operators/integraloperators/cgmyoperator1d_fast.tcc>
 
 
-#endif // LAWA_OPERATORS_CGMYOPERATOR1D_H
+#endif // LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_FAST_H
