@@ -99,6 +99,6 @@ class SpaceTimeHeatOperator1D{
     
 } // namespace lawa
 
-#include <lawa/operators/spacetimeheatoperator1d.tcc>
+#include <lawa/operators/spacetimeoperators/spacetimeheatoperator1d.tcc>
 
 #endif // LAWA_OPERATORS_SPACETIMEHEATOPERATOR1D_H

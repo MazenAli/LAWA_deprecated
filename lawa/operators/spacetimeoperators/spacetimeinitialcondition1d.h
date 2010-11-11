@@ -73,6 +73,6 @@ class SpaceTimeInitialCondition1D{
 
 } // namespace lawa
 
-#include <lawa/operators/spacetimeinitialcondition1d.tcc>
+#include <lawa/operators/spacetimeoperators/spacetimeinitialcondition1d.tcc>
 
 #endif // LAWA_OPERATORS_SPACETIMEINITIALCONDITION1D_H
