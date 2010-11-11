@@ -60,7 +60,6 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         FillWithZeros(LambdaActive,u);
         f = F(LambdaActive);
         T f_norm_LambdaActive = f.norm(2.);
-        //std::cout << "f = " << f << std::endl;
 
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
@@ -101,7 +100,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         residuals[its] = estim_res;
 
         r = THRESH(r,threshTol);
-        LambdaActive = LambdaActive+supp(r);
+        LambdaActive = LambdaThresh+supp(r);
 
 
         //Check if residual is decreasing, if not decrease threshold tolerance

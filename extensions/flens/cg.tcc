@@ -64,7 +64,7 @@ int
 cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
      long maxIterations)
 {
-    typename _cg<VB>::T alpha, beta, gammaPrev, gamma, rNormSquare;
+    typename _cg<VB>::T alpha, beta, gammaPrev, gamma, b_norm;
     typename _cg<VB>::AuxVector r, q, s, p;
 
     assert(b.length()==A.numRows());
@@ -75,6 +75,9 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     for (int i=x.firstIndex(); i<=x.lastIndex(); ++i) {
     	x(i) = 0;
     }
+
+    b_norm = b*b;
+    if (std::sqrt(b_norm) < 1e-15) return 0;
 
     r = b;
     flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, b, typename _cg<VB>::T(0), s);
