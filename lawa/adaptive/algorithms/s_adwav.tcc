@@ -48,7 +48,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
     int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
     std::stringstream filename;
-    filename << "s-adwav-realline-helmholtz-otf_" << d << "_" << d_ << ".dat";
+    filename << "s-adwav-otf_" << d << "_" << d_ << ".dat";
     std::ofstream file(filename.str().c_str());
 
     for (int its=0; its<NumOfIterations; ++its) {
@@ -236,6 +236,11 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 	T old_res = 0.;
 	int its_per_threshTol=0;
 	std::cout << "Simple adaptive solver started." << std::endl;
+	std::stringstream filename;
+	filename << "s-adwav-otf_" << d << "_" << d_ << ".dat";
+	std::ofstream file(filename.str().c_str());
+	T total_time = 0.;
+
 	for (int its=0; its<NumOfIterations; ++its) {
 
 	
@@ -270,12 +275,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 		timer.stop();
 		T time_galerkin = timer.elapsed();
 
+		timer.start();
 		f = F(DeltaLambda);
 		std::cout << "   ...finished" << std::endl;
 		T f_norm_DeltaLambda = f.norm(2.);
 		std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
 
-		timer.start();
 		Au = mv_sparse(DeltaLambda,A,u);
 		r  = Au-f;
 		T r_norm_DeltaLambda = r.norm(2.);
@@ -304,6 +309,10 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 		old_res = estim_res;
         timer.stop();
         times[its] = time_galerkin + time_res;
+
+        total_time += times[its];
+        file << LambdaThresh.size() << " " << total_time << " " << estim_res << std::endl;
+
         //times[its] = timer.elapsed();
         
 		std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", gmres-its = " << iterations;

@@ -180,9 +180,9 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
 
 /*
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1, A_dense2;
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1;
     densify(cxxblas::NoTrans,A_flens,A_dense1);
-    densify(cxxblas::NoTrans,A_flens,A_dense2);
+    std::cout << A_dense1 << std::endl;
     DenseVector<Array<T> > wr(N), wi(N);
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
     ev(false, false, A_dense1, wr, wi, vl, vr);
@@ -230,8 +230,8 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
     	int N = Lambda.size();
     	flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
     	toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
-
-	/*flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+/*
+	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
 	densify(cxxblas::NoTrans,A_flens,A_dense);
 	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(A_dense.numRows(),A_dense.numRows()),V(A_dense.numCols(),A_dense.numCols());
 	DenseVector<Array<T> > s(A_dense.numCols());
@@ -239,7 +239,7 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
 	int iterations = svd(A_dense,s,U,V);
 	std::cout << " ... finished after " << iterations << std::endl;
 	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
-	 */
+*/
     	if (Lambda.size() > 0) {
     		DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
     	    int row_count=1;

@@ -11,8 +11,9 @@ CGMYOperator1D<T,Basis>::CGMYOperator1D(const Basis &_basis, T _diffusion, T _co
       integral_ww(psi,psi),    d_integral_ww(psi,d_psi),    dd_integral_ww(d_psi,d_psi),
       cgmy(C,G,M,Y), n(_n), sigma(_sigma), omega(0.), mu(0.5), order(_order)
 {
-	assert(diffusion<=0.);
+	assert(diffusion>=0.);
 	assert(reaction >=0.);
+	assert(C>=0);
 	T C_f = 1.;
 	omega = C_f*(1-sigma)/(4.*sigma);
 	assert(omega<1);
@@ -125,7 +126,7 @@ CGMYOperator1D<T,Basis>::operator()(XType xtype_row, int j_row, int k_row, XType
 		T tmp = _quadrature_dpsi_vs_int_dpsi_k(a, b, xtype_row, j_row, k_row, xtype_col, j_col, k_col);
 		int_val += tmp;
 	}
-	return -diffusion*dd_val + reaction*val - int_val;
+	return diffusion*dd_val + convection * d_val + reaction*val + int_val;
 }
 
 template <typename T, typename Basis>
@@ -145,7 +146,7 @@ CGMYOperator1D<T,Basis>::_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_ro
 		for (int j=singularPoints_psi_col.firstIndex(); j<singularPoints_psi_col.lastIndex(); ++j) {
 			T a_y = singularPoints_psi_col(j)  -x_ast;
 			T b_y = singularPoints_psi_col(j+1)-x_ast;
-			assert(a_y!=0.); assert(b_y!=0.);
+			//assert(a_y!=0.); assert(b_y!=0.);
 			if ((a_y < 0.) && (b_y >0.)) {
 				if (cgmy.Y<1) {
 					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col);
@@ -154,6 +155,22 @@ CGMYOperator1D<T,Basis>::_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_ro
 				else {
 					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, xtype_col, j_col, k_col);
 					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, b_y, xtype_col, j_col, k_col);
+				}
+			}
+			else if ((a_y == 0.) && (b_y >0.)) {
+				if (cgmy.Y<1) {
+					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col);
+				}
+				else {
+					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, b_y, xtype_col, j_col, k_col);
+				}
+			}
+			else if ((a_y < 0.) && (b_y == 0.)) {
+				if (cgmy.Y<1) {
+					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0, xtype_col, j_col, k_col);
+				}
+				else {
+					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, xtype_col, j_col, k_col);
 				}
 			}
 			else {
