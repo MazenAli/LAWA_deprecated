@@ -72,14 +72,21 @@ class CGMYOperator1D
 		_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b, XType xtype_col, int j_col, int k_col) const;
 
 		T
-		_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
-												 XType xtype_col, int j_col, int k_col) const;
+		_nonsingular_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
+												   XType xtype_col, int j_col, int k_col) const;
 
 		T
-		_nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b, XType xtype_col, int j_col, int k_col) const;
+		_singular_quadrature_dpsi_vs_int_dpsi_k(T b, XType xtype_row, int j_row, int k_row,
+												XType xtype_col, int j_col, int k_col) const;
 
 		T
-		_singular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T b, XType xtype_col, int j_col, int k_col) const;
+		_nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,
+												   XType xtype_col, int j_col, int k_col) const;
+
+		T
+		_singular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,
+												XType xtype_col, int j_col, int k_col,
+												bool cutoff) const;
 
 };
 
