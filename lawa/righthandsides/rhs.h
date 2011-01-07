@@ -34,6 +34,9 @@ public:
 //public:
     RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P);
 
+    RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P,
+    	const Coefficients<Lexicographical,T,Index> &_rhs_data);
+
     T
     operator()(const Index &lambda);
 

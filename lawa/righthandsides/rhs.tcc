@@ -26,6 +26,20 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, co
 }
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, const Preconditioner &_P,
+	                                         const Coefficients<Lexicographical,T,Index> &_rhs_data)
+    :    rhsintegral(_rhsintegral), P(_P), rhs_data(), rhs_abs_data()
+{
+	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
+	typedef typename Coefficients<AbsoluteValue,T,Index>::value_type val_type;
+
+	for (const_coeff_it it=_rhs_data.begin(); it!=_rhs_data.end(); ++it) {
+		rhs_data[(*it).first] = (*it).second;
+		rhs_abs_data.insert(val_type((*it).second, (*it).first));
+	}
+}
+
+template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
 T
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
 {

@@ -232,6 +232,38 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::rhs(T x)
 
 template <typename T, typename Basis>
 T
+ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x)
+{
+    if (c!=1) {
+    	std::cout << "ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x) not implemented for c=" << c << std::endl;
+    	exit(1);
+    }
+    if (domain!=R) {
+    	std::cout << "ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x) only implemented for domain R."<< std::endl;
+    	exit(1);
+    }
+    if (nr==1) {
+    	return -exact(x,2) + exact(x,0);
+    }
+    else if (nr==2) {
+    	if      (x<=0.01-0.00001) return -exact(x,2) + exact(x,0);
+    	else if (x>=0.01+0.00001) return -exact(x,2) + exact(x,0);
+    	else {
+    		T p = 9.89999010000495 +
+    			  (-0.9899990100004951 + (0.04949995050002475 + (-0.0016499983500008252 +
+    		      (-1.2375000000003575*1e14 + (-1.2374999999999955*1e19 + (-6.18750000000023*1e23 + 0.*(-0.00999 + x))*(-0.00999 + x))*
+    			  (-0.00999 + x))*(-0.01001 + x))*(-0.01001 + x))*(-0.01001 + x))*(-0.01001 + x);
+    		return p;
+    	}
+    }
+    else {
+    	std::cout << "Not implemented yet." << std::endl;
+    	exit(1);
+    }
+}
+
+template <typename T, typename Basis>
+T
 ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::H1norm()
 {
     if (domain==Interval) {

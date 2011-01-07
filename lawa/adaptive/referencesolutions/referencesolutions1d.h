@@ -60,6 +60,9 @@ struct ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >
     rhs(T x);
 
     static T
+    smoothened_rhs(T x);
+
+    static T
     H1norm();
 };
 
