@@ -66,7 +66,9 @@ CompressionPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col, const Inde
 	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 
 	IndexSet<Index1D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
-	IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col, basis, s_tilde, jmin, jmax, false);
+	int s = std::max(abs(lambda_col.j-jmin),abs(lambda_col.j-jmax));
+	s = std::max(s,int(s_tilde));
+	IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col, basis, s, jmin, jmax, false);
 	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
 		if (LambdaRow.count(*lambda_x)>0) {
 			LambdaRowSparse.insert(*lambda_x);
