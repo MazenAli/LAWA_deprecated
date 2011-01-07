@@ -52,7 +52,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_)
 	}
 	else {
 		std::cout << "Optimized singular points not implemented!" << std::endl;
-		assert(0);
+		singularPts = linspace(l1, l2, 2*(d+d_)-1);
 	}
 }
 
@@ -85,6 +85,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_, int _deriv)
 	}
 	else {
 		std::cout << "Optimized singular points not implemented!" << std::endl;
+		singularPts = linspace(l1, l2, 2*(d+d_)-1);
 		assert(0);
 	}
 }
@@ -120,6 +121,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
 	}
 	else {
 		std::cout << "Optimized singular points not implemented!" << std::endl;
+		singularPts = linspace(l1, l2, 2*(d+d_)-1);
 		assert(0);
 	}
 }
@@ -156,7 +158,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
 	}
 	else {
 		std::cout << "Optimized singular points not implemented!" << std::endl;
-		assert(0);
+		singularPts = linspace(l1, l2, 2*(d+d_)-1);
 	}
 }
 
@@ -191,7 +193,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const Basis<T,Primal,R,CDF> &basis)
 	}
 	else {
 		std::cout << "Optimized singular points not implemented!" << std::endl;
-		assert(0);
+		singularPts = linspace(l1, l2, 2*(d+d_)-1);
 	}
 }
 
@@ -226,7 +228,7 @@ Wavelet<T,Primal,R,CDF>::Wavelet(const Basis<T,Primal,R,CDF> &basis, int _deriv)
 	}
 	else {
 		std::cout << "Optimized singular points not implemented!" << std::endl;
-		assert(0);
+		singularPts = linspace(l1, l2, 2*(d+d_)-1);
 	}
 }
 
