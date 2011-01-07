@@ -20,7 +20,7 @@
 #ifndef LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_H
 #define LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_H 1
 
-#include <extensions/cgmyutils.h>
+#include <lawa/math/cgmyutils.h>
 
 namespace lawa {
 
@@ -32,7 +32,7 @@ class CGMYOperator1D
 
 	public:
 		CGMYOperator1D(const Basis &basis, T _diffusion, T _convection, T _reaction,
-					   T C, T G, T M, T Y, int _order=20, int _n=10, T _sigma=0.3);
+							  T C, T G, T M, T Y, int _order=20, int _n=10, T _sigma=0.3);
 
 		T
 		getc() const;
@@ -44,12 +44,12 @@ class CGMYOperator1D
 		operator()(const Index1D &row_index, const Index1D &col_index) const;
 
 		T
-		operator()(XType xtype_row, int j_row, int k_row, XType xtype_col, int j_col, int k_col) const;
+		operator()(XType xtype_row, int j_row, int k_row, XType xtype_col, int j_col, int k_col, const CGMYUtils<T> &cgmy_comp) const;
 
 	private:
 		const Basis &basis;
 		T diffusion, convection, reaction;
-		CGMYUtils<T> cgmy;
+		CGMYUtils<T> cgmy, cgmy_adjoint;
 
 		PrimalSpline phi, d_phi;
 		PrimalWavelet psi, d_psi;
@@ -69,24 +69,29 @@ class CGMYOperator1D
 
 
 		T
-		_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b, XType xtype_col, int j_col, int k_col) const;
+		_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b, XType xtype_col, int j_col, int k_col,
+									   const CGMYUtils<T> &cgmy_comp) const;
 
 		T
 		_nonsingular_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
-												   XType xtype_col, int j_col, int k_col) const;
+												   XType xtype_col, int j_col, int k_col,
+												   const CGMYUtils<T> &cgmy_comp) const;
 
 		T
 		_singular_quadrature_dpsi_vs_int_dpsi_k(T b, XType xtype_row, int j_row, int k_row,
-												XType xtype_col, int j_col, int k_col) const;
+												XType xtype_col, int j_col, int k_col,
+												const CGMYUtils<T> &cgmy_comp) const;
 
 		T
 		_nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,
-												   XType xtype_col, int j_col, int k_col) const;
+												   XType xtype_col, int j_col, int k_col,
+												   const CGMYUtils<T> &cgmy_comp) const;
 
 		T
 		_singular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,
 												XType xtype_col, int j_col, int k_col,
-												bool cutoff) const;
+												bool cutoff,
+												const CGMYUtils<T> &cgmy_comp) const;
 
 };
 

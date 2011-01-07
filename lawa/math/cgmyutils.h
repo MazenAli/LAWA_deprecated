@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_OPERATORS_CGMYUTILS_H
-#define LAWA_OPERATORS_CGMYUTILS_H 1
+#ifndef LAWA_MATH_CGMYUTILS_H
+#define LAWA_MATH_CGMYUTILS_H 1
 
 #include <gsl/gsl_sf_gamma.h>
 #include <boost/math/special_functions/gamma.hpp>
@@ -76,7 +76,7 @@ struct CGMYUtils {
 
 }	//namespace lawa
 
-#include <extensions/cgmyutils.tcc>
+#include <lawa/math/cgmyutils.tcc>
 
 
-#endif // LAWA_OPERATORS_CGMYUTILS_H
+#endif // LAWA_MATH_CGMYUTILS_H

@@ -20,7 +20,7 @@
 #ifndef LAWA_RIGHTHANDSIDES_RHSFORCGMYOPERATOR_H
 #define LAWA_RIGHTHANDSIDES_RHSFORCGMYOPERATOR_H 1
 
-#include <extensions/cgmyutils.h>
+#include <lawa/math/cgmyutils.h>
 
 namespace lawa {
 

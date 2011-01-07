@@ -9,7 +9,8 @@ CGMYOperator1D<T,Basis>::CGMYOperator1D(const Basis &_basis, T _diffusion, T _co
       integral_sfw(phi, psi),  d_integral_sfw(phi, d_psi),  dd_integral_sfw(d_phi, d_psi),
       integral_wsf(psi, phi),  d_integral_wsf(psi, d_phi),  dd_integral_wsf(d_psi, d_phi),
       integral_ww(psi,psi),    d_integral_ww(psi,d_psi),    dd_integral_ww(d_psi,d_psi),
-      cgmy(C,G,M,Y), n(_n), sigma(_sigma), omega(0.), mu(0.5), order(_order)
+      cgmy(C,G,M,Y), cgmy_adjoint(C,M,G,Y),
+      n(_n), sigma(_sigma), omega(0.), mu(0.5), order(_order)
 {
 	assert(diffusion>=0.);
 	assert(reaction >=0.);
@@ -59,8 +60,16 @@ template <typename T, typename Basis>
 T
 CGMYOperator1D<T,Basis>::operator()(const Index1D &row_index, const Index1D &col_index) const
 {
-	return CGMYOperator1D<T,Basis>::operator()(row_index.xtype, row_index.j, row_index.k,
-											   col_index.xtype, col_index.j, col_index.k);
+	if (row_index.j >= col_index.j) {
+		return CGMYOperator1D<T,Basis>::operator()(row_index.xtype, row_index.j, row_index.k,
+												   col_index.xtype, col_index.j, col_index.k,
+												   cgmy);
+	}
+	else {
+		return CGMYOperator1D<T,Basis>::operator()(col_index.xtype, col_index.j, col_index.k,
+												   row_index.xtype, row_index.j, row_index.k,
+												   cgmy_adjoint);
+	}
 }
 
 template <typename T, typename Basis>
@@ -79,7 +88,9 @@ CGMYOperator1D<T,Basis>::getBasis() const
 
 template <typename T, typename Basis>
 T
-CGMYOperator1D<T,Basis>::operator()(XType xtype_row, int j_row, int k_row, XType xtype_col, int j_col, int k_col) const
+CGMYOperator1D<T,Basis>::operator()(XType xtype_row, int j_row, int k_row,
+									XType xtype_col, int j_col, int k_col,
+									const CGMYUtils<T> &cgmy_comp) const
 {
 	//PDE part
 	T val = 0;
@@ -115,7 +126,6 @@ CGMYOperator1D<T,Basis>::operator()(XType xtype_row, int j_row, int k_row, XType
 	T int_val = 0.;
 	if (cgmy.C == 0) return diffusion*dd_val + convection * d_val + reaction*val + int_val;
 
-
 	flens::DenseVector<Array<T> > singularPoints;
 	if (xtype_row == XBSpline)  singularPoints = phi.singularSupport(j_row,k_row);
 	else 						singularPoints = psi.singularSupport(j_row,k_row);
@@ -146,7 +156,7 @@ CGMYOperator1D<T,Basis>::operator()(XType xtype_row, int j_row, int k_row, XType
 		}
 		*/
 		int_val += _nonsingular_quadrature_dpsi_vs_int_dpsi_k(a,  b, xtype_row, j_row, k_row,
-																				 xtype_col, j_col, k_col);
+																  xtype_col, j_col, k_col, cgmy_comp);
 	}
 	return diffusion*dd_val + convection * d_val + reaction*val + int_val;
 }
@@ -154,7 +164,8 @@ CGMYOperator1D<T,Basis>::operator()(XType xtype_row, int j_row, int k_row, XType
 template <typename T, typename Basis>
 T
 CGMYOperator1D<T,Basis>::_nonsingular_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
-																			  XType xtype_col, int j_col, int k_col) const
+																	XType xtype_col, int j_col, int k_col,
+																	const CGMYUtils<T> &cgmy_comp) const
 {
 	T ret = 0.0;
 	flens::DenseVector<Array<T> > singularPoints_psi_col;
@@ -171,36 +182,36 @@ CGMYOperator1D<T,Basis>::_nonsingular_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XT
 			//assert(a_y!=0.); assert(b_y!=0.);
 			if ((a_y < 0.) && (b_y >0.)) {
 				if (cgmy.Y<1) {
-					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col);
-					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col);
+					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, cgmy_comp);
+					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, cgmy_comp);
 				}
 				else {
-					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true);
-					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true);
+					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true, cgmy_comp);
+					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true, cgmy_comp);
 				}
 			}
 			else if ((a_y == 0.) && (b_y >0.)) {
 				if (cgmy.Y<1) {
-					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col);
+					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, cgmy_comp);
 				}
 				else {
-					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true);
+					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true, cgmy_comp);
 				}
 			}
 			else if ((a_y < 0.) && (b_y == 0.)) {
 				if (cgmy.Y<1) {
-					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0, xtype_col, j_col, k_col);
+					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0, xtype_col, j_col, k_col, cgmy_comp);
 				}
 				else {
-					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true);
+					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true, cgmy_comp);
 				}
 			}
 			else {
 				if (fabs(a_y)<0.01 || fabs(b_y)<0.01) {
-					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col, false);
+					tmp += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col, false, cgmy_comp);
 				}
 				else {
-					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col);
+					tmp += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col, cgmy_comp);
 				}
 			}
 		}
@@ -219,7 +230,8 @@ CGMYOperator1D<T,Basis>::_nonsingular_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XT
 template <typename T, typename Basis>
 T
 CGMYOperator1D<T,Basis>::_singular_quadrature_dpsi_vs_int_dpsi_k(T b, XType xtype_row, int j_row, int k_row,
-																	  XType xtype_col, int j_col, int k_col) const
+																 XType xtype_col, int j_col, int k_col,
+																 const CGMYUtils<T> &cgmy_comp) const
 {
 
 	T ret = 0.0;
@@ -251,21 +263,21 @@ CGMYOperator1D<T,Basis>::_singular_quadrature_dpsi_vs_int_dpsi_k(T b, XType xtyp
 				T b_y = singularPoints_psi_col(j+1)-x_ast;
 
 				if ((a_y < 0.) && (b_y >0.)) {
-					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true);
-					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true);
+					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true, cgmy_comp);
+					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true, cgmy_comp);
 				}
 				else if ((a_y == 0.) && (b_y >0.)) {
-					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true);
+					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true, cgmy_comp);
 				}
 				else if ((a_y < 0.) && (b_y == 0.)) {
-					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true);
+					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true, cgmy_comp);
 				}
 				else {
 					if (fabs(a_y)<0.01 || fabs(b_y)<0.01) {
-						singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col, false);
+						singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col, false, cgmy_comp);
 					}
 					else {
-						singularintegral += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col);
+						singularintegral += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col, cgmy_comp);
 					}
 				}
 			}
@@ -289,7 +301,8 @@ CGMYOperator1D<T,Basis>::_singular_quadrature_dpsi_vs_int_dpsi_k(T b, XType xtyp
 template <typename T, typename Basis>
 T
 CGMYOperator1D<T,Basis>::_nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b, XType xtype_col,
-																	int j_col, int k_col) const
+																	int j_col, int k_col,
+																	const CGMYUtils<T> &cgmy_comp) const
 {
 	T ret = 0.;
 	if (fabs(a-b)<1e-16) return 0.;
@@ -297,10 +310,10 @@ CGMYOperator1D<T,Basis>::_nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a
 	for (int i=1; i<=order; ++i) {
 		T y = 0.5*(b-a)*_knots(order,i)+0.5*(b+a);
 		if (xtype_col == XBSpline) {
-			ret += _weights(order,i) * cgmy.SecondTailIntegral(y) * d_phi(x_ast+y,j_col,k_col);
+			ret += _weights(order,i) * cgmy_comp.SecondTailIntegral(y) * d_phi(x_ast+y,j_col,k_col);
 		}
 		else {
-			ret += _weights(order,i) * cgmy.SecondTailIntegral(y) * d_psi(x_ast+y,j_col,k_col); ;
+			ret += _weights(order,i) * cgmy_comp.SecondTailIntegral(y) * d_psi(x_ast+y,j_col,k_col); ;
 		}
 	}
 	return 0.5*(b-a)*ret;
@@ -310,7 +323,8 @@ CGMYOperator1D<T,Basis>::_nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a
 template <typename T, typename Basis>
 T
 CGMYOperator1D<T,Basis>::_singular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b, XType xtype_col,
-																 int j_col, int k_col, bool cutoff) const
+																 int j_col, int k_col, bool cutoff,
+																 const CGMYUtils<T> &cgmy_comp) const
 {
 	T ret = 0.;
 	assert((a>=0. && b>=0.) || (a<=0. && b<=0.));
@@ -349,10 +363,10 @@ CGMYOperator1D<T,Basis>::_singular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T
 		for (int i=1; i<=q_j; ++i) {
 			T y = 0.5*(right-left)*_knots(q_j,i)+0.5*(right+left);
 			if (xtype_col == XBSpline) {
-				tmp += _weights(q_j,i) * cgmy.SecondTailIntegral(y) * d_phi(x_ast+y,j_col,k_col);
+				tmp += _weights(q_j,i) * cgmy_comp.SecondTailIntegral(y) * d_phi(x_ast+y,j_col,k_col);
 			}
 			else {
-				tmp += _weights(q_j,i) * cgmy.SecondTailIntegral(y) * d_psi(x_ast+y,j_col,k_col); ;
+				tmp += _weights(q_j,i) * cgmy_comp.SecondTailIntegral(y) * d_psi(x_ast+y,j_col,k_col); ;
 			}
 		}
 		ret += 0.5*(right-left)*tmp;

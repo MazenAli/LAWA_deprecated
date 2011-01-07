@@ -21,7 +21,7 @@
 #ifndef LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_FAST_H
 #define LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_FAST_H 1
 
-#include <extensions/cgmyutils.h>
+#include <lawa/math/cgmyutils.h>
 
 namespace lawa {
 

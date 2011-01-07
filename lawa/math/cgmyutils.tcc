@@ -55,10 +55,11 @@ CGMYUtils<T>::CGMYUtils(T _C, T _G, T _M, T _Y)
 	ExpXmOne_k2_neg = -(CdivY/(1-Y))*(boost::math::tgamma(2-Y)*(-powG_Y-2*powG_Ym1+std::pow(G+1,Y) ) + boost::math::tgamma(3-Y)*powG_Ym1  ) + constants[1];
 
 
+/*
 	std::cout << "CGMY-Utils: c3=" << c3 << ", c4=" << c4 << ", c5=" << c5 << ", c6=" << c6 << std::endl;
 	std::cout << "CGMY-Utils: constants[0]=" << constants[0] << ", constants[1]=" << constants[1] << ", constants[2]=" << constants[2] << ", constants[3]=" << constants[3] << std::endl;
 	std::cout << "CGMY-Utils: constants[4]=" << constants[4] << ", constants[5]=" << constants[5] << ", constants[6]=" << constants[6] << ", constants[7]=" << constants[7] << std::endl;
-/*
+
 	std::cout << "CGMY-Utils: ExpXmOnemX_k_pos = " << ExpXmOnemX_k_pos << ", ExpXmOnemX_k_neg = " << ExpXmOnemX_k_neg << std::endl;
 	std::cout << "CGMY-Utils: ExpXmOne_k1_pos = " << ExpXmOne_k1_pos << ", ExpXmOne_k1_neg = " << ExpXmOne_k1_neg << std::endl;
 	std::cout << "CGMY-Utils: ExpXmOne_k2_pos = " << ExpXmOne_k2_pos << ", ExpXmOne_k2_neg = " << ExpXmOne_k2_neg << std::endl;
@@ -317,16 +318,16 @@ CGMYUtils<T>::SixthTailIntegral(T x) const {
 			T PowMX_4mY = std::pow(MX,4-Y);
 			T PowMX_3mY = PowMX_4mY / MX;
 			T PowMX_2mY = PowMX_3mY / MX;
-			//T tgamma_2mY_MX = gsl_sf_gamma_inc(2-Y,MX);
 			T tgamma_2mY_MX = boost::math::tgamma(2-Y,MX);
+/*
 			T tgamma_3mY_MX = boost::math::tgamma(3-Y,MX);
 			T tgamma_4mY_MX = boost::math::tgamma(4-Y,MX);
 			T tgamma_5mY_MX = boost::math::tgamma(5-Y,MX);
-/*
+*/
 			T tgamma_3mY_MX = PowMX_2mY*ExpMMX + tgamma_2mY_MX*(2-Y);
 			T tgamma_4mY_MX = PowMX_3mY*ExpMMX + tgamma_3mY_MX*(3-Y);
 			T tgamma_5mY_MX = PowMX_4mY*ExpMMX + tgamma_4mY_MX*(4-Y);
-*/
+
 			T PowX_5mY = std::pow(x,5-Y);
 
 			return -PowX_5mY*ExpMMX*( CdivY*(1 + Mdiv1mY*x)/120 + Cdiv1mY/24 )
@@ -356,16 +357,15 @@ CGMYUtils<T>::SixthTailIntegral(T x) const {
 			T PowGX_4mY = std::pow(GX,4-Y);
 			T PowGX_3mY = PowGX_4mY / GX;
 			T PowGX_2mY = PowGX_3mY / GX;
-			//T tgamma_2mY_GX = gsl_sf_gamma_inc(2-Y, GX);
 			T tgamma_2mY_GX = boost::math::tgamma(2-Y,GX);
+/*
 			T tgamma_3mY_GX = boost::math::tgamma(3-Y,GX);
 			T tgamma_4mY_GX = boost::math::tgamma(4-Y,GX);
 			T tgamma_5mY_GX = boost::math::tgamma(5-Y,GX);
-/*
+*/
 			T tgamma_3mY_GX = PowGX_2mY*ExpGMX + tgamma_2mY_GX*(2-Y);
 			T tgamma_4mY_GX = PowGX_3mY*ExpGMX + tgamma_3mY_GX*(3-Y);
 			T tgamma_5mY_GX = PowGX_4mY*ExpGMX + tgamma_4mY_GX*(4-Y);
-*/
 			T PowX_5mY = std::pow(X,5-Y);
 
 			return -PowX_5mY*ExpGMX*( CdivY*(1 + Gdiv1mY*X)/120 + Cdiv1mY/24 )
