@@ -295,6 +295,12 @@ ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample(int _
 
     if ((domain1 == R) && (domain2 == R)) {
     	if (nr==2) {
+/*
+    		sing_pts_x.engine().resize(1);
+    		sing_pts_y.engine().resize(1);
+    		sing_pts_x = 0.1;
+    		sing_pts_y = 0.1;
+*/
 
     		sing_pts_x.engine().resize(9);
     		sing_pts_y.engine().resize(9);
@@ -316,6 +322,13 @@ T
 ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact(T x, T y)
 {
     return exact(x,y,0,0);
+}
+
+template <typename T, typename Basis2D>
+T
+ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::minus_exact(T x, T y)
+{
+    return -exact(x,y,0,0);
 }
 
 template <typename T, typename Basis2D>
@@ -407,7 +420,9 @@ ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
         	ret = sqrt(ret);
         }
         else if (nr==2) {
-        	ret = 1.570795505591071 + 0.7853981678060725 + 0.7853981678060725;
+        	//ret = 1.570795505591071 + 0.7853981678060725 + 0.7853981678060725;
+        	//ret = 0.5*M_PI + 0.7853982269 + 0.7853982269;
+        	ret = M_PI;
         	ret = sqrt(ret);
         }
     }

@@ -94,6 +94,9 @@ struct ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >
     exact(T x, T y);
 
     static T
+    minus_exact(T x, T y);
+
+    static T
     exact_dx(T x, T y);
 
     static T

@@ -256,8 +256,12 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x)
     		return p;
     	}
     }
+    else if (nr==6) {
+    	return -exact(x,2) + exact(x,0);
+    }
     else {
-    	std::cout << "Not implemented yet." << std::endl;
+    	std::cout << "ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x): "
+				  << " Not implemented for example " << nr << " yet." << std::endl;
     	exit(1);
     }
 }
