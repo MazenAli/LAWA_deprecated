@@ -31,6 +31,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
     solutions.resize(NumOfIterations);
     residuals.resize(NumOfIterations);
     times.resize(NumOfIterations);
+    cg_iterations.resize(NumOfIterations);
 }
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
@@ -65,6 +66,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
+        cg_iterations[its] = iterations;
         std::cout << "   ...finished." << std::endl;
 
         //Threshold step
@@ -116,12 +118,14 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         timer.stop();
         if (its==0) {
         	T total_time = time1+timer.elapsed();
-        	file << LambdaThresh.size() << " " << total_time << " " << estim_res << " " << Error_H_energy << std::endl;
+        	file << LambdaThresh.size() << " " << iterations << " " <<  total_time << " "
+				 << estim_res << " " << Error_H_energy << std::endl;
         	times[its] = total_time;
         }
         else {
         	T total_time = times[its-1] + time1 + timer.elapsed();
-        	file << LambdaThresh.size() << " " << total_time << " " << estim_res << " " << Error_H_energy << std::endl;
+        	file << LambdaThresh.size() << " " << iterations << " "  << total_time << " "
+				 << estim_res << " " << Error_H_energy << std::endl;
         	times[its] = total_time;
         }
 

@@ -46,6 +46,7 @@ public:
     std::vector<Coefficients<Lexicographical,T,Index> > solutions;
     std::vector<T>               residuals;
     std::vector<T>               times;
+    std::vector<T>               cg_iterations;
     
 private:
     const Basis &basis;
