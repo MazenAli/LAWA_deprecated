@@ -26,7 +26,7 @@ void
 toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
 	                flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens)
 {
-	std::cout << "   Assembling of sparse matrix started..." << std::endl;
+	//std::cout << "   Assembling of sparse matrix started..." << std::endl;
     typedef typename IndexSet<Index>::const_iterator const_set_it;
     std::map<Index,int,lt<Lexicographical,Index> > row_indices;
     int row_count = 1, col_count = 1;
@@ -42,7 +42,7 @@ toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Inde
     	}
     }
     A_flens.finalize();
-    std::cout << "   N^2 = " << LambdaRow.size()*LambdaCol.size() << ", nonzeros = " << A_flens.numNonZeros() << std::endl;
+    //std::cout << "   N^2 = " << LambdaRow.size()*LambdaCol.size() << ", nonzeros = " << A_flens.numNonZeros() << std::endl;
 }
 
 template <typename T, typename Index, typename SpaceIndex, typename MA>
@@ -179,30 +179,20 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
     toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
 
-/*
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1;
-    densify(cxxblas::NoTrans,A_flens,A_dense1);
-    std::cout << A_dense1 << std::endl;
-    DenseVector<Array<T> > wr(N), wi(N);
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
-    ev(false, false, A_dense1, wr, wi, vl, vr);
-    T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
-    for (int i=1; i<=wr.lastIndex(); ++i) {
-    	cB = std::min(cB,wr(i));
-    	CB = std::max(CB,wr(i));
-    }
-    std::cout << "Largest eigenvalue: " << CB << ", smallest eigenvalue: " << cB << std::endl;
-*/
 
     if (Lambda.size() > 0) {
         DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
         int row_count=1;
+        const_coeff_it f_end = f.end();
+        const_coeff_it u_end = u.end();
         for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
-            if (f.count((*row)) > 0) {
-                const_coeff_it it = f.find(*row);
-                rhs(row_count) = (*it).second;
-            }
-            else                      rhs(row_count) = 0.;
+        	const_coeff_it f_it = f.find(*row);
+        	if (f_it != f_end) rhs(row_count) = (*f_it).second;
+            else               rhs(row_count) = 0.;
+        	const_coeff_it u_it = u.find(*row);
+        	if (u_it != u_end) x(row_count) = (*u_it).second;
+        	else               x(row_count) = 0.;
+
         }
         int number_of_iterations = lawa::cg(A_flens,x,rhs, tol, maxIterations);
         Ax = A_flens*x;
@@ -210,7 +200,9 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
         res = std::sqrt(res*res);
         row_count = 1;
         for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
-            u[*row] = x(row_count);
+        	const_coeff_it u_it = u.find(*row);
+        	if (u_it != u_end) u[*row] = x(row_count);
+        	else               u[*row] = 0.;
         }
         return number_of_iterations;
     }
@@ -384,4 +376,19 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
 
 }
 }	//namespace lawa
+
+/*
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1;
+    densify(cxxblas::NoTrans,A_flens,A_dense1);
+    //std::cout << A_dense1 << std::endl;
+    DenseVector<Array<T> > wr(N), wi(N);
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
+    ev(false, false, A_dense1, wr, wi, vl, vr);
+    T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
+    for (int i=1; i<=wr.lastIndex(); ++i) {
+    	cB = std::min(cB,wr(i));
+    	CB = std::max(CB,wr(i));
+    }
+    std::cout << "Largest eigenvalue: " << CB << ", smallest eigenvalue: " << cB << std::endl;
+*/
 

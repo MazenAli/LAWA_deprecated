@@ -527,8 +527,8 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, int
             // Inserting all indices corresponding to Bsplines with intersecting support using
             // a) local compactness  b) matrix compression  c) vanishing moments
             if (fabs(j - jmin) <= s_tilde) {
-                int kMin = floor( pow2i<T>(jmin)*supp.l1 - phi.support(0,0).l2);
-                int kMax =  ceil( pow2i<T>(jmin)*supp.l2 - phi.support(0,0).l1);
+                int kMin = floor( pow2i<T>(jmin)*supp.l1 - phi.support(0,0).l2)-1;
+                int kMax =  ceil( pow2i<T>(jmin)*supp.l2 - phi.support(0,0).l1)+1;
                 for (int k_row=kMin; k_row<=kMax; ++k_row) {
                     if (overlap(supp, phi.support(jmin,k_row)) > 0) {
                         //std::cout << "lambdaTilde: BSpline (" << jmin << ", " << k_row << "): " << phi.support(jmin,k_row) << " " << supp  << std::endl;

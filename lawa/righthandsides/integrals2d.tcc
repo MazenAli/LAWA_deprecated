@@ -54,10 +54,18 @@ _integrate(const Integral2D<T,Quad,BasisFunc_x,BasisFunc_y> integral) {
 		       AllSingularPoints_y.engine().data());
 
 	T ret = 0.0;
+	T left_x  = SingularPoints_phi_x(SingularPoints_phi_x.firstIndex());
+	T right_x = SingularPoints_phi_x(SingularPoints_phi_x.lastIndex());
+	T left_y  = SingularPoints_phi_y(SingularPoints_phi_y.firstIndex());
+	T right_y = SingularPoints_phi_y(SingularPoints_phi_y.lastIndex());
+
 	for (int i=AllSingularPoints_x.firstIndex(); i<AllSingularPoints_x.lastIndex(); ++i) {
+		T a_x = AllSingularPoints_x(i), b_x = AllSingularPoints_x(i+1);
+		if ((b_x <= left_x) || (a_x >= right_x)) continue;
 		for (int j=AllSingularPoints_y.firstIndex(); j<AllSingularPoints_y.lastIndex(); ++j) {
-			T tmp = integral.quadrature(AllSingularPoints_x(i),AllSingularPoints_x(i+1),
-	                   AllSingularPoints_y(j),AllSingularPoints_y(j+1));
+			T a_y = AllSingularPoints_y(j), b_y = AllSingularPoints_y(j+1);
+			if ((b_y <= left_y) || (a_y >= right_y)) continue;
+			T tmp = integral.quadrature(a_x,b_x,a_y,b_y);
 			ret += tmp;
 			//std::cout << "[" << AllSingularPoints_x(i) << ", " << AllSingularPoints_x(i+1) << "] x "
 			//          << "[" << AllSingularPoints_y(j) << ", " << AllSingularPoints_y(j+1) << "] : " << tmp << std::endl;
