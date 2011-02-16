@@ -40,16 +40,16 @@ NoCompression<T,Index,Basis>::SparsityPattern(const Index &lambda_col, const Ind
 }
 
 
-template <typename T, typename Basis>
-CompressionPDE1D<T,Basis>::CompressionPDE1D(const Basis &_basis)
+template <typename T, typename Index, typename Basis>
+CompressionPDE1D<T,Index,Basis>::CompressionPDE1D(const Basis &_basis)
     : basis(_basis), s_tilde(-1), jmin(100), jmax(-30)
 {
 }
 
-template <typename T, typename Basis>
+template <typename T, typename Index, typename Basis>
 void
-CompressionPDE1D<T,Basis>::setParameters(const IndexSet<Index1D> &LambdaRow) {
-	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
+CompressionPDE1D<T,Index,Basis>::setParameters(const IndexSet<Index> &LambdaRow) {
+	typedef typename IndexSet<Index>::const_iterator set1d_const_it;
 	s_tilde = -1;
 	jmin = 100;
 	jmax = -30;
@@ -60,17 +60,60 @@ CompressionPDE1D<T,Basis>::setParameters(const IndexSet<Index1D> &LambdaRow) {
 	s_tilde = jmax-jmin;
 }
 
-template <typename T, typename Basis>
-IndexSet<Index1D>
-CompressionPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow) {
-	typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
+template <typename T, typename Index, typename Basis>
+IndexSet<Index>
+CompressionPDE1D<T,Index,Basis>::SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow) {
+	typedef typename IndexSet<Index>::const_iterator set1d_const_it;
 
-	IndexSet<Index1D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
+	IndexSet<Index> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
 	int s = std::max(abs(lambda_col.j-jmin),abs(lambda_col.j-jmax));
 	s = std::max(s,int(s_tilde));
-	IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col, basis, s, jmin, jmax, false);
+	IndexSet<Index> Lambda_x = lambdaTilde1d_PDE(lambda_col, basis, s, jmin, jmax, false);
 	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
 		if (LambdaRow.count(*lambda_x)>0) {
+			LambdaRowSparse.insert(*lambda_x);
+		}
+	}
+	return LambdaRowSparse;
+}
+
+
+template <typename T, typename Index, typename Basis1D>
+CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::CompressionPDE1D_WO_XBSpline(const Basis1D &_basis)
+    : basis(_basis), s_tilde(0), jmin(100), jmax(-30)
+{
+}
+
+template <typename T, typename Index, typename Basis1D>
+void
+CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::setParameters(const IndexSet<Index> &Lambda) {
+	typedef typename IndexSet<Index>::const_iterator set1d_const_it;
+	s_tilde = -1;
+	jmin = 100;
+	jmax = -30;
+	for (set1d_const_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+	    jmin = std::min(jmin,(*lambda).j);
+	    jmax = std::max(jmax,(*lambda).j);
+	}
+	s_tilde = jmax-jmin;
+}
+
+template <typename T, typename Index, typename Basis1D>
+IndexSet<Index>
+CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::SparsityPattern(const Index &lambda,
+															   const IndexSet<Index> &Lambda, int J) {
+	typedef typename IndexSet<Index>::const_iterator set1d_const_it;
+
+	IndexSet<Index> LambdaRowSparse(Lambda.d,Lambda.d_), Lambda_x(Lambda.d,Lambda.d_);
+	if (J==-1) {
+		Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, s_tilde, jmin, jmax);
+	}
+	else {
+		Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, J, jmin, jmax);
+	}
+
+	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
+		if (Lambda.count(*lambda_x)>0) {
 			LambdaRowSparse.insert(*lambda_x);
 		}
 	}

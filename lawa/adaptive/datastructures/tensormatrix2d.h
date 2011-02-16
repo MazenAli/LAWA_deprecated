@@ -38,8 +38,8 @@ class TensorMatrix2D {
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 class TensorMatrix2D<T, Basis, HelmholtzOperator2D<T, Basis>, NoInitialCondition, Compression, Preconditioner, Preconditioner>
 {
-	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
-	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::FirstBasisType> 	     Compression_x;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::SecondBasisType> 	     Compression_y;
 
 	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
 
@@ -84,8 +84,8 @@ template <typename T, typename Basis, typename Compression, typename LeftPrecond
 class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition, Compression, LeftPreconditioner,
 					 RightPreconditioner>
 {
-	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
-	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::FirstBasisType> 	     Compression_x;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::SecondBasisType> 	     Compression_y;
 
 	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
 
@@ -130,8 +130,8 @@ template <typename T, typename Basis, typename Compression, typename LeftPrecond
 class TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, SpaceTimeInitialCondition1D<T,Basis>,
 					 Compression, LeftPreconditioner, RightPreconditioner>
 {
-	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
-	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::FirstBasisType> 	     Compression_x;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::SecondBasisType> 	     Compression_y;
 
 	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
 
@@ -187,8 +187,8 @@ template <typename T, typename Basis, typename CGMYOperator, typename Compressio
 class TensorMatrix2D<T, Basis, CGMYOperator, SpaceTimeInitialCondition1D<T,Basis>,
 					 Compression, LeftPreconditioner, RightPreconditioner>
 {
-	typedef CompressionPDE1D<T, typename Basis::FirstBasisType>	 		  Compression_t;
-	typedef CompressionPDE1D<T, typename Basis::SecondBasisType>	  	  PDECompression_x;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::FirstBasisType>	 		  Compression_t;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::SecondBasisType>	  	  PDECompression_x;
 	typedef CompressionCGMYOperator1D<T, typename Basis::SecondBasisType> CGMYCompression_x;
 
 	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;

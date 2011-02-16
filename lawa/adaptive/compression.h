@@ -49,7 +49,7 @@ public:
 	SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow);
 };
 
-template <typename T, typename Basis>
+template <typename T, typename Index, typename Basis>
 class CompressionPDE1D
 {
 public:
@@ -59,10 +59,27 @@ public:
 	CompressionPDE1D(const Basis &_basis);
 
 	void
-	setParameters(const IndexSet<Index1D> &LambdaRow);
+	setParameters(const IndexSet<Index> &LambdaRow);
 
-	IndexSet<Index1D>
-	SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow);
+	IndexSet<Index>
+	SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow);
+};
+
+//only for R-Basis!!
+template <typename T, typename Index, typename Basis1D>
+class CompressionPDE1D_WO_XBSpline
+{
+public:
+	const Basis1D &basis;
+	short s_tilde, jmin, jmax;
+
+	CompressionPDE1D_WO_XBSpline(const Basis1D &_basis);
+
+	void
+	setParameters(const IndexSet<Index> &LambdaRow);
+
+	IndexSet<Index>
+	SparsityPattern(const Index &lambda, const IndexSet<Index> &Lambda, int J=-1);
 
 };
 

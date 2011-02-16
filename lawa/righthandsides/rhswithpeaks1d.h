@@ -36,7 +36,8 @@ class RHSWithPeaks1D
     typedef typename Basis::WaveletType PrimalWavelet;
 
 public:
-    RHSWithPeaks1D(const Basis &basis, T (*f)(T), const DenseVector<Array<T> > &_singularPoints,
+    RHSWithPeaks1D(bool _with_singular_part, bool _with_smooth_part, const Basis &basis,
+				   T (*f)(T), const DenseVector<Array<T> > &_singularPoints,
                    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas, int order);
 
     T
@@ -46,6 +47,8 @@ public:
     operator()(const Index1D &lambda) const;
 
 private:
+    bool with_singular_part;
+    bool with_smooth_part;
     const Basis &basis;
     PrimalSpline phi;
     PrimalWavelet psi;
@@ -53,6 +56,45 @@ private:
     const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    &deltas;
     Integral<T, Gauss, PrimalSpline,  Function<T> > integral_sff;
     Integral<T, Gauss, PrimalWavelet, Function<T> > integral_wf;
+
+};
+
+template <typename T>
+class RHSWithPeaks1D_WO_XBSpline
+{
+public:
+	RHSWithPeaks1D_WO_XBSpline(bool _with_singular_part, bool _with_smooth_part,
+							   const Wavelet<T,Primal,R,CDF> &_psi,
+							   T _left_bound, T _right_bound,  T (*_f)(T),
+							   const DenseVector<Array<T> > &_f_singularPoints,
+							   flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &_deltas,
+							   T _h, int _order);
+	T
+    truncated_f(T x) const;
+
+    void
+    computeWaveletNorms() const;
+
+    T
+    operator()(const Index1D &lambda) const;
+
+    T
+    operator()(int j, int k, T a, T b) const;
+
+private:
+    bool with_singular_part;
+    bool with_smooth_part;
+    const Wavelet<T,Primal,R,CDF> &psi;
+    T (*f)(T);
+    T left_bound, right_bound;
+    const DenseVector<Array<T> > f_singularPoints;
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &deltas;
+    T h;
+    int order;
+
+    DenseVector<Array<T> >       f_singularPoints_interval;
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
 
 };
 

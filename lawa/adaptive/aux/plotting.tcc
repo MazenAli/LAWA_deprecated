@@ -126,7 +126,7 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
         }
         L2norm += (exact-appr)*(exact-appr);
         H1seminorm += (d_exact-d_appr)*(d_exact-d_appr);
-        plotfile << x << " " << exact << " " << appr  << std::endl;
+        plotfile << x << " " << exact << " " << d_exact << " " << appr << " " << d_appr << std::endl;
     }
     L2norm *= h;
     H1seminorm *= h;

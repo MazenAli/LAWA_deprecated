@@ -37,9 +37,9 @@ class TensorMatrix3D {
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 class TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preconditioner>
 {
-	typedef CompressionPDE1D<T, typename Basis::FirstBasisType> 	     Compression_x;
-	typedef CompressionPDE1D<T, typename Basis::SecondBasisType> 	     Compression_y;
-	typedef CompressionPDE1D<T, typename Basis::ThirdBasisType> 	     Compression_z;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::FirstBasisType> 	     Compression_x;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::SecondBasisType> 	     Compression_y;
+	typedef CompressionPDE1D<T, Index1D, typename Basis::ThirdBasisType> 	     Compression_z;
 
 	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
 

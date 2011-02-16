@@ -938,6 +938,54 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &ba
 	    return ret;
 }
 
+template <typename T>
+IndexSet<Index1D>
+lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, int s_tilde, int jmin, int jmax)
+{
+	Wavelet<T,Primal,R,CDF> psi(basis);
+    int j = lambda.j, k = lambda.k;
+    int d = psi.d, d_= psi.d_;
+    IndexSet<Index1D> ret(d,d_);
+    Support<T> support_refwavelet = psi.support(0,0);
+    Support<T> supp = psi.support(j,k);
+
+    // Inserting all indices corresponding to Wavelets with intersecting support using
+    // a) local compactness  b) matrix compression  c) vanishing moments
+    for (int j_row=std::max(j-s_tilde,jmin); j_row<=std::min(j+s_tilde,jmax); ++j_row) {
+    	T Pow2i_Mjrow = pow2i<T>(-j_row);
+        if (j_row>=j+2) {
+        	DenseVector<Array<T> > singsupp = psi.optim_singularSupport(j,k);
+            for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
+            	int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;
+                int kMax =  ceil(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l1)+1;
+
+                for (int k_row=kMin; k_row<=kMax; ++k_row) {
+                    Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));
+                    if ((overlap(supp, supp_row) > 0) && (!(distance(singsupp,supp_row) >= 0 ))){
+                        ret.insert(Index1D(j_row,k_row,XWavelet));
+                    }
+                }
+            }
+        }
+        else {
+            int kMin = floor(pow2i<T>(j_row)*supp.l1 - support_refwavelet.l2)-1;
+            int kMax =  ceil(pow2i<T>(j_row)*supp.l2 - support_refwavelet.l1)+1;
+
+            for (int k_row=kMin; k_row<=kMax; ++k_row) {
+            	if (T(Pow2i_Mjrow*(support_refwavelet.l1+k_row)) >= T(Pow2i_Mjrow*(support_refwavelet.l2+k_row))) {
+            		std::cout << "Warning3: Translation indices too large!!" << std::endl;
+            		continue;
+            	}
+                Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));
+                if ((overlap(supp, supp_row) > 0) && (!(distance(psi.optim_singularSupport(j_row,k_row),supp) > 0 ))) {
+                    ret.insert(Index1D(j_row,k_row,XWavelet));
+                }
+            }
+        }
+    }
+    return ret;
+}
+
 } // namespace lawa
 
 #endif // LAWA_ADAPTIVE_INDEXSET_H

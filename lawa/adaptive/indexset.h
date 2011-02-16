@@ -99,6 +99,10 @@ IndexSet<Index1D>
 lambdaTilde1d_PDE(const Index1D &lambda, const Basis &basis,
                   int s_tilde, int jmin, int jmax, bool update);
 
+template <typename T>
+IndexSet<Index1D>
+lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
+							   int s_tilde, int jmin, int jmax);
 
 }   // namespace lawa
 
