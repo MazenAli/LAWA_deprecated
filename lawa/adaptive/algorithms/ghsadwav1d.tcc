@@ -44,9 +44,13 @@ GHS_ADWAV1D<T,Index,Basis1D,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterati
 		times.push_back(total_time);
 		if (nu_k <=eps) break;
 
-		std::cout << "  GALSOLVE started." << std::endl;
-		g_kP1 = P(F(gamma*nu_k),Lambda_kP1);
+		std::cout << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
+		//g_kP1 = P(F(gamma*nu_k),Lambda_kP1);
+		g_kP1 = F(Lambda_kP1);
 		w_kP1 = GALSOLVE(Lambda_kP1, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
+		//T r_norm_LambdaActive;
+		//int iterations = CG_Solve(Lambda_kP1, Apply.A, w_kP1, g_kP1, r_norm_LambdaActive, 1e-16);
+		//std::cout << "   iterations = " << iterations << ", residual = " << r_norm_LambdaActive << ", w_k = " << w_k << std::endl;
 		std::cout << "  GALSOLVE finished." << std::endl;
 		nu_kM1 = nu_k;
 		w_k = w_kP1;

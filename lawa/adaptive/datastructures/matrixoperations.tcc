@@ -169,7 +169,7 @@ mv_sparse(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexic
 template <typename T, typename Index, typename MA>
 int
 CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
-		 const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations)
+		 const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol, int maxIterations)
 {
     typedef typename IndexSet<Index >::const_iterator const_set_it;
     typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -178,7 +178,20 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     int N = Lambda.size();
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
     toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
-
+/*
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1;
+    densify(cxxblas::NoTrans,A_flens,A_dense1);
+    std::cout << A_dense1 << std::endl;
+    DenseVector<Array<T> > wr(N), wi(N);
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
+    ev(false, false, A_dense1, wr, wi, vl, vr);
+    T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
+    for (int i=1; i<=wr.lastIndex(); ++i) {
+    	cB = std::min(cB,wr(i));
+    	CB = std::max(CB,wr(i));
+    }
+    std::cout << "Largest eigenvalue: " << CB << ", smallest eigenvalue: " << cB << std::endl;
+*/
 
     if (Lambda.size() > 0) {
         DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
@@ -197,12 +210,13 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
         int number_of_iterations = lawa::cg(A_flens,x,rhs, tol, maxIterations);
         Ax = A_flens*x;
         res= Ax-rhs;
-        res = std::sqrt(res*res);
+        residual = std::sqrt(res*res);
         row_count = 1;
         for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
-        	const_coeff_it u_it = u.find(*row);
-        	if (u_it != u_end) u[*row] = x(row_count);
-        	else               u[*row] = 0.;
+        	//const_coeff_it u_it = u.find(*row);
+        	//if (u_it != u_end) u[*row] = x(row_count);
+        	//else               u[*row] = 0.;
+        	u[*row] = x(row_count);
         }
         return number_of_iterations;
     }

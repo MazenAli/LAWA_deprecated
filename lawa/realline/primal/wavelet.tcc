@@ -264,6 +264,7 @@ template <typename T>
 DenseVector<Array<T> >
 Wavelet<T,Primal,R,CDF>::optim_singularSupport(int j, int k) const
 {
+	//return linspace(support(j,k).l1, support(j,k).l2, 2*(d+d_)-1);
 	flens::DenseVector<flens::Array<T> > x(singularPts.length());
 	for (int i=1; i<=x.length(); ++i) {
 		x(i) = pow2i<T>(-j)*(singularPts(i)+T(k));

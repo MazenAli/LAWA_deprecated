@@ -62,7 +62,7 @@ public:
 	setParameters(const IndexSet<Index> &LambdaRow);
 
 	IndexSet<Index>
-	SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow);
+	SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow, int J=-1);
 };
 
 //only for R-Basis!!

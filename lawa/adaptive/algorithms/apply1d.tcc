@@ -2,7 +2,7 @@ namespace lawa {
 
 template <typename T, typename Index, typename Basis1D, typename Parameters, typename MA>
 SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::SYM_APPLY_1D(const Parameters &_parameters,
-													const Basis1D &_basis, MA &_A)
+													      const Basis1D &_basis, MA &_A)
 : parameters(_parameters), basis(_basis), A(_A)
 {
 }
@@ -11,52 +11,71 @@ template <typename T, typename Index, typename Basis1D, typename Parameters, typ
 Coefficients<Lexicographical,T,Index>
 SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexicographical,T,Index> &v, int k)
 {
-	typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator abs_const_it;
-    typedef typename IndexSet<Index>::const_iterator set_const_it;
-
     int d=basis.d, d_=basis.d_;
     Coefficients<Lexicographical,T,Index> ret(d, d_);
+    if (v.size() == 0) return ret;
+
+    Coefficients<AbsoluteValue,T,Index> temp(d,d_);
+    temp = v;
 
     if (parameters.w_XBSpline) {
-    	return ret;
+    	int s = 0, count = 0;
+    	for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
+    		IndexSet<Index> Lambda_v(d,d_);
+    	    Lambda_v=lambdaTilde1d_PDE((*it).second, basis,(k-s), basis.j0, (*it).second.j+(k-s)+1,false);
+    	    for (const_set_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+    	    	ret[*mu] += A(*mu, (*it).second) * (*it).first;
+    	    }
+    	    ++count;
+    	    s = int(log(T(count))/log(T(2))) + 1;
+    	}
     }
     else {
+    	/*
+    	int s = 0, count = 0;
+    	for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
+    		IndexSet<Index1D> Lambda_v(v.d,v.d_);
+    	    Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, A.a.basis, (k-s), -50, 30);
+    	    for (const_set_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+    	    	ret[*mu] += A(*mu, (*it).second) * (*it).first;
+    	    }
+    	    ++count;
+    	    s = int(log(T(count))/log(T(2))) + 1;
+    	}
+		*/
 
-		if (v.size() > 0) {
-			Coefficients<AbsoluteValue,T,Index> temp(v.d,v.d_);
-			temp = v;
-			int s = 0, count = 0;
-			T beta1 = 1./(d-0.5); //gamma-1 im nenner kuerzt sich raus!!
-			T beta2 = beta1 - 0.1;
+		int s = 0, count = 0;
+		T beta1 = 1./(d-0.5); //gamma-1 im nenner kuerzt sich raus!!
+		T beta2 = beta1 - 0.1;
 
-			for (abs_const_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
-				IndexSet<Index> Lambda_v(d,d_);
-				int kj = k-s;
-				int minlevel, maxlevel;
-				int j=(*it).second.j;
-				if (j>=0) {
-					maxlevel = j+kj;
-					minlevel = j-kj;
-					if (minlevel<0) {
-						minlevel =  int(std::floor(beta2*j-beta1*kj));
-					}
+		for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
+			IndexSet<Index> Lambda_v(d,d_);
+			int kj = k-s;
+			int minlevel, maxlevel;
+			int j=(*it).second.j;
+			if (j>=0) {
+				maxlevel = j+kj;
+				minlevel = j-kj;
+				if (minlevel<0) {
+					minlevel =  int(std::floor(beta2*j-beta1*kj));
 				}
-				else {//j<0
-					minlevel = int(std::floor(j-beta1*kj));
-					maxlevel = int(std::ceil(j+beta1*kj));
-					if (maxlevel>0) maxlevel = int(std::ceil((j+beta1*kj)/beta2));
-				}
-
-				Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, A.a.basis, kj, minlevel, maxlevel);
-				for (set_const_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-					ret[*mu] += A(*mu, (*it).second) * (*it).first;
-				}
-				++count;
-				s = int(log(T(count))/log(T(2))) + 1;
 			}
+			else {//j<0
+				minlevel = int(std::floor(j-beta1*kj));
+				maxlevel = int(std::ceil(j+beta1*kj));
+				if (maxlevel>0) maxlevel = int(std::ceil((j+beta1*kj)/beta2));
+			}
+
+			Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, A.a.basis, kj, minlevel, maxlevel);
+			for (const_set_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+				ret[*mu] += A(*mu, (*it).second) * (*it).first;
+			}
+			++count;
+			s = int(log(T(count))/log(T(2))) + 1;
 		}
-		return ret;
-    }
+
+	}
+	return ret;
 }
 
 template <typename T, typename Index, typename Basis1D, typename Parameters, typename MA>
@@ -111,7 +130,7 @@ SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::findK(const Coefficients<AbsoluteVa
             std::cout << "   findK ==> k = " << k << ", k_eps = " << k_eps << std::endl;
             int maxlevel=22;
             if (d==2) 		{	maxlevel=25; }
-            else if (d==3)	{   maxlevel=16; }
+            else if (d==3)	{   maxlevel=25; }
             return std::min(k,maxlevel);
         }
     }

@@ -10,18 +10,49 @@ Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF>
              cA(0.), CA(0.), kappa(0.),
 			 alpha(0.), omega(0.), gamma(0.), theta(0.)
 {
+    std::cout << "Parameters: j0 = " << j0 << std::endl;
     if (!_w_XBSpline) {	//only wavelet discretization
     	if (basis.d==2 && basis.d_==2 && Bil.c == 1.) {
     		cA = 0.19; CA = 2.;
     	}
+    	else if (basis.d==3 && basis.d_==3 && Bil.c == 1.) {
+    		cA = 0.038; CA = 2.7;
+    	}
+    	else if (basis.d==3 && basis.d_==5 && Bil.c == 1.) {
+    		cA = 0.16; CA = 2.8;
+    	}
+    	else assert(0);
     }
     else {				//wavelet with b-splines on coarse level discretization
-    	if (j0==0) {
-    		if (basis.d==2 && basis.d_==2 && Bil.c == 1.) {
-    			cA = 0.375; CA = 2.1;
-
-    		}
+    	if (basis.d==2 && basis.d_==2 && Bil.c == 1.) {
+    		if (j0==0)  {	cA = 0.375; CA = 2.1;	}
+    		else if (j0==-1) {	cA = 0.58;  CA = 1.86;	}
+    		else if (j0==-2) {	cA = 0.58;  CA = 1.86;	}
+    		else if (j0==-3) {	cA = 0.55;  CA = 1.86;	}
+    		else if (j0==-4) {	cA = 0.46;  CA = 1.86;	}
+    		else if (j0==-5) {	cA = 0.4;   CA = 1.86;	}
+    		else if (j0==-6) {	cA = 0.36;  CA = 1.89;	}
+    		else if (j0==-7) {	cA = 0.33;  CA = 1.92;	}
+    		else if (j0==-8) {	cA = 0.3;   CA = 1.95;	}
+    		else if (j0==-8) {	cA = 0.29;  CA = 1.95;	}
+    		else if (j0==-10) {	cA = 0.27;  CA = 1.96;	}
+    		else assert(0);
     	}
+    	else if (basis.d==3 && basis.d_==3 && Bil.c == 1.) {
+    	    if (j0==0)  {	cA = 0.43;  CA = 1.94;	}
+    	    else if (j0==-1) {	cA = 0.39;  CA = 2.03;	}
+    	    else if (j0==-2) {	cA = 0.29;  CA = 2.4;	}
+    	    else if (j0==-3) {	cA = 0.21;  CA = 2.44;	}
+    	    else if (j0==-4) {	cA = 0.16;  CA = 2.55;	}
+    	    else if (j0==-5) {	cA = 0.12;  CA = 2.59;	}
+    	    else if (j0==-6) {	cA = 0.1;   CA = 2.61;	}
+    	    else if (j0==-7) {	cA = 0.09;  CA = 2.62;	}
+    	    else if (j0==-8) {	cA = 0.078; CA = 2.63;	}
+    	    else if (j0==-9) {	cA = 0.07;  CA = 2.64;	}
+    	    else if (j0==-10) {	cA = 0.063; CA = 2.64;	}
+    	    else assert(0);
+    	}
+    	else assert(0);
     }
     kappa = CA/cA;
 	omega = 0.01;
@@ -75,6 +106,19 @@ Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF>
 			_J_plus_singular = 40;
 		}
 	}
+	else if (example == 3) {
+		_singular_integral=true;
+		if (d==2 && d_==2) {
+			_left_bound = -100.; _right_bound = 100.;
+			_J_plus_smooth = 6;
+			_J_plus_singular = 40;
+		}
+		else if (d==3) {
+			_left_bound = -100.; _right_bound = 100.;
+			_J_plus_smooth = 10;
+			_J_plus_singular = 60;
+		}
+	}
 	else if (example == 6) {
 		_left_bound = -114.; _right_bound = 114.;
 		_singular_integral=true;
@@ -117,25 +161,40 @@ Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF>
 		}
 	}
 	else if (example == 2) {
-		_left_bound = -114.; _right_bound = 114.;
 		_singular_integral=false;
 		if (d==2 && d_==2) {
+			_left_bound = -114.; _right_bound = 114.;
 			_J_plus_smooth = 6; 	_J_minus_smooth = -40;
 			_J_plus_singular = 40; 	_J_minus_singular = -40;
 		}
 		else if (d==3) {
+			_left_bound = -200.; _right_bound = 200.;
+			_J_plus_smooth = 6; 	_J_minus_smooth = -80;
+			_J_plus_singular = 80; 	_J_minus_singular = -80;
+		}
+	}
+	else if (example == 3) {
+		_singular_integral=true;
+		if (d==2 && d_==2) {
+			_left_bound = -114.; _right_bound = 114.;
+			_J_plus_smooth = 6; 	_J_minus_smooth = -40;
+			_J_plus_singular = 40; 	_J_minus_singular = -40;
+		}
+		else if (d==3) {
+			_left_bound = -200.; _right_bound = 200.;
 			_J_plus_smooth = 6; 	_J_minus_smooth = -40;
 			_J_plus_singular = 40; 	_J_minus_singular = -40;
 		}
 	}
 	else if (example == 6) {
-		_left_bound = -114.; _right_bound = 114.;
 		_singular_integral=true;
 		if (d==2 && d_==2) {
+			_left_bound = -114.; _right_bound = 114.;
 			_J_plus_smooth = 6; 	_J_minus_smooth = -40;
 			_J_plus_singular = 40; 	_J_minus_singular = -40;
 		}
 		else if (d==3) {
+			_left_bound = -200.; _right_bound = 200.;
 			_J_plus_smooth = 6; 	_J_minus_smooth = -40;
 			_J_plus_singular = 40; 	_J_minus_singular = -40;
 		}

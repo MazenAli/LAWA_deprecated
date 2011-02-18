@@ -28,6 +28,9 @@ namespace lawa {
 template <typename T, typename Index, typename Basis1D, typename Parameters, typename MA>
 class SYM_APPLY_1D {
 
+	typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_coeff_abs_it;
+	typedef typename IndexSet<Index>::const_iterator const_set_it;
+
 public:
 	const Parameters &parameters;
 	const Basis1D &basis;
