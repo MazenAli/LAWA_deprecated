@@ -40,7 +40,7 @@ public:
 	GHS_ADWAV1D(const Basis1D &_basis, APPLY1D &_Apply, RHS &_F);
 
 	Coefficients<Lexicographical,T,Index>
-	SOLVE(T nuM1, T _eps, int NumOfIterations=100);
+	SOLVE(T nuM1, T _eps, int NumOfIterations=100, T H1norm=0.);
 
     std::vector<Coefficients<Lexicographical,T,Index> > solutions;
     std::vector<T>               residuals;

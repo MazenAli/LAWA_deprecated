@@ -17,7 +17,7 @@ GHS_ADWAV1D<T,Index,Basis1D,APPLY1D,RHS>::GHS_ADWAV1D(const Basis1D &_basis, APP
 
 template <typename T, typename Index, typename Basis1D, typename APPLY1D, typename RHS>
 Coefficients<Lexicographical,T,Index>
-GHS_ADWAV1D<T,Index,Basis1D,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterations)
+GHS_ADWAV1D<T,Index,Basis1D,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterations, T H1norm)
 {
 	T eps = _eps;
 	int d=basis.d, d_=basis.d_;
@@ -32,6 +32,10 @@ GHS_ADWAV1D<T,Index,Basis1D,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterati
 			  << theta << std::endl;
 	std::cout << "  cA=" << cA << ", CA=" << CA << ", kappa=" << kappa << std::endl;
 
+	std::stringstream filename;
+	filename << "adwav-ghs-otf_"  << d << "_" << d_ << ".dat";
+	std::ofstream file(filename.str().c_str());
+
 	for (int i=1; i<=NumOfIterations; ++i) {
 		Timer time;
 		std::cout << "*** " << i << ".iteration ***" << std::endl;
@@ -44,6 +48,17 @@ GHS_ADWAV1D<T,Index,Basis1D,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterati
 		times.push_back(total_time);
 		if (nu_k <=eps) break;
 
+		time.stop();
+		total_time += time.elapsed();
+
+		T Error_H_energy = estimateError_H_energy(Apply.A, F, w_k, H1norm);
+		file << w_k.size() << " " << total_time << " " <<  nu_k << " "
+						 << Error_H_energy << std::endl;
+
+		time.start();
+
+
+
 		std::cout << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
 		//g_kP1 = P(F(gamma*nu_k),Lambda_kP1);
 		g_kP1 = F(Lambda_kP1);
@@ -52,6 +67,7 @@ GHS_ADWAV1D<T,Index,Basis1D,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterati
 		//int iterations = CG_Solve(Lambda_kP1, Apply.A, w_kP1, g_kP1, r_norm_LambdaActive, 1e-16);
 		//std::cout << "   iterations = " << iterations << ", residual = " << r_norm_LambdaActive << ", w_k = " << w_k << std::endl;
 		std::cout << "  GALSOLVE finished." << std::endl;
+
 		nu_kM1 = nu_k;
 		w_k = w_kP1;
 		time.stop();

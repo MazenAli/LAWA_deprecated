@@ -74,9 +74,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
-        //int current_jmin, current_jmax;
-        //getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
-        //std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
+        int current_jmin, current_jmax;
+        getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
+        std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
         timer.stop();
         T time1 = timer.elapsed();

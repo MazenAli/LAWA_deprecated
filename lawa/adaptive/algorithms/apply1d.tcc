@@ -130,7 +130,7 @@ SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::findK(const Coefficients<AbsoluteVa
             std::cout << "   findK ==> k = " << k << ", k_eps = " << k_eps << std::endl;
             int maxlevel=22;
             if (d==2) 		{	maxlevel=25; }
-            else if (d==3)	{   maxlevel=25; }
+            else if (d==3)	{   maxlevel=18; }	//for non-singular examples, also lower values are possible
             return std::min(k,maxlevel);
         }
     }
