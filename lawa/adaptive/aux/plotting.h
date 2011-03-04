@@ -59,6 +59,10 @@ template <typename T, DomainType Domain, Construction Cons>
 void
 plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,Domain,Cons> &basis, const char* filename);
 
+template <typename T, typename Index, typename Basis_x, typename Basis_y>
+void
+plotCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis_x &basis_x, const Basis_y &basis_y, const char* filename);
+
 
 }  // namespace lawa
 

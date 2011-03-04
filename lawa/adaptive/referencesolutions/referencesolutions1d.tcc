@@ -295,7 +295,7 @@ template <typename T, typename Basis>
 T
 ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::rhs(T x)
 {
-    return -exact(x,2) + c * exact(x,0);
+	return -exact(x,2) + c * exact(x,0);// + 10*exact(x,1);
 }
 
 template <typename T, typename Basis>

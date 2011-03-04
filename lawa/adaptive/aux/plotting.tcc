@@ -359,4 +359,83 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Pri
     gps.close();
 }
 
+template <typename T, typename Index, typename Basis_x, typename Basis_y>
+void
+plotCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis_x &basis_x, const Basis_y &basis_y, const char* filename)
+{
+	typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_coeff_abs_it;
+
+	std::stringstream gpsFilename;
+	gpsFilename << filename << ".gps";
+	std::ofstream gps(gpsFilename.str().c_str());
+
+	T h = 5e-2;
+
+	gps << "reset" << std::endl;
+	gps << "set terminal postscript eps color enh; set output '" << filename << ".eps'" << std::endl;
+	gps << "set palette color; set colorbox vertical" << std::endl;
+
+	const_coeff_abs_it first_element = coeff.begin();
+	T max_value = fabs( (*first_element).first );
+	T min_x=10000., max_x=-10000., min_y=10000., max_y=-10000.;
+	for (const_coeff_abs_it it = coeff.begin(); it != coeff.end(); ++it) {
+		int j1=(*it).second.index1.j, k1=(*it).second.index1.k, j2=(*it).second.index2.j, k2=(*it).second.index2.k;
+		XType type1=(*it).second.index1.xtype, type2=(*it).second.index2.xtype;
+		double x, y; //center of the support
+		if (type1 == XBSpline)  x = 0.5*(basis_x.mra.phi.support(j1,k1).l2 + basis_x.mra.phi.support(j1,k1).l1);
+		else					x = 0.5*(basis_x.psi.support(j1,k1).l2 + basis_x.psi.support(j1,k1).l1);
+		if (type2 == XBSpline)  y = 0.5*(basis_y.mra.phi.support(j2,k2).l2 + basis_y.mra.phi.support(j2,k2).l1);
+		else					y = 0.5*(basis_y.psi.support(j2,k2).l2 + basis_y.psi.support(j2,k2).l1);
+
+		min_x = std::min(min_x,x); max_x = std::max(max_x,x);
+		min_y = std::min(min_y,y); max_y = std::max(max_y,y);
+	}
+
+	T ratio = (max_y-min_y)/(max_x-min_x);
+
+
+
+	for (const_coeff_abs_it it = coeff.begin(); it != coeff.end(); ++it) {
+		int j1=(*it).second.index1.j, k1=(*it).second.index1.k, j2=(*it).second.index2.j, k2=(*it).second.index2.k;
+		XType type1=(*it).second.index1.xtype, type2=(*it).second.index2.xtype;
+		double x, y; //center of the support
+		if (type1 == XBSpline)  x = 0.5*(basis_x.mra.phi.support(j1,k1).l2 + basis_x.mra.phi.support(j1,k1).l1);
+		else					x = 0.5*(basis_x.psi.support(j1,k1).l2 + basis_x.psi.support(j1,k1).l1);
+		if (type2 == XBSpline)  y = 0.5*(basis_y.mra.phi.support(j2,k2).l2 + basis_y.mra.phi.support(j2,k2).l1);
+		else					y = 0.5*(basis_y.psi.support(j2,k2).l2 + basis_y.psi.support(j2,k2).l1);
+
+		min_x = std::min(min_x,x); max_x = std::max(max_x,x);
+		min_y = std::min(min_y,y); max_y = std::max(max_y,y);
+		T color = fabs((*it).first)/max_value;
+
+		if (ratio<1) {
+			gps << "set object rectangle from " << x-h << ", " << y-h/ratio << " to " << x+h << "," << y+h/ratio << "fc rgb ";
+		}
+		else {
+			gps << "set object rectangle from " << x-h/ratio << ", " << y-h << " to " << x+h/ratio << "," << y+h << "fc rgb ";
+		}
+
+		if (color > 0.5) gps << " 'black' ";
+		else if ((0.5 >= color) && (color > 0.25)) gps << " 'purple' ";
+		else if ((0.25 >= color) && (color > 0.125)) gps << " 'magenta' ";
+		else if ((0.125 >= color) && (color > 0.0625)) gps << " 'red' ";
+		else if ((0.0625 >= color) && (color > 0.03125)) gps << " 'orangered' ";
+		else if ((0.03125 >= color) && (color > 0.015625)) gps << " 'orange' ";
+		else if ((0.015625 >= color) && (color > 0.0078125)) gps << " 'yellow' ";
+		else gps << " 'grey' ";
+
+		gps << " fs solid 1.0" << std::endl;
+	}
+	gps << "set xlabel 'x'" << std::endl;
+	gps << "set ylabel 'y'" << std::endl;
+	gps << "set xrange[" << min_x-h << ":" << max_x+h << "]" << std::endl;
+	gps << "set yrange[" << min_y-h << ":" << max_y+h << "]" << std::endl;
+	gps << "plot " << std::min(min_x-h,min_y-h) << " w l lc rgb 'black' notitle " << std::endl;
+	gps.close();
+
+
+
+}
+
+
 }  // namespace lawa

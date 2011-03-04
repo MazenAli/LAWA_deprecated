@@ -178,20 +178,6 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     int N = Lambda.size();
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
     toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
-/*
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1;
-    densify(cxxblas::NoTrans,A_flens,A_dense1);
-    std::cout << A_dense1 << std::endl;
-    DenseVector<Array<T> > wr(N), wi(N);
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
-    ev(false, false, A_dense1, wr, wi, vl, vr);
-    T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
-    for (int i=1; i<=wr.lastIndex(); ++i) {
-    	cB = std::min(cB,wr(i));
-    	CB = std::max(CB,wr(i));
-    }
-    std::cout << "Largest eigenvalue: " << CB << ", smallest eigenvalue: " << cB << std::endl;
-*/
 
     if (Lambda.size() > 0) {
         DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
@@ -286,36 +272,35 @@ CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &Lambd
     typedef typename Coefficients<Lexicographical,T,SpaceIndex >::const_iterator const_coeff_initcond_it;
     typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
+    std::cerr << "CGLS_SOLVE called..." << std::endl;
     int NumOfCols = LambdaCol.size();
     int NumOfRows = LambdaRowOp.size() + LambdaRowInitCond.size();
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
     toFlensSparseMatrix(A, LambdaRowOp, LambdaRowInitCond, LambdaCol, A_flens);
 
-	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
-	densify(cxxblas::NoTrans,A_flens,A_dense);
-	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
-	DenseVector<Array<T> > s(NumOfCols);
-	std::cout << "Computing svd..." << std::endl;
-	int iterations = svd(A_dense,s,U,V);
-	std::cout << " ... finished after " << iterations << std::endl;
-	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
-
     if (LambdaCol.size() > 0) {
         DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
         int row_count=1;
+        const_coeff_it f_end = f.end();
         for (const_set_op_it row=LambdaRowOp.begin(); row!=LambdaRowOp.end(); ++row, ++row_count) {
-            if (f.count((*row)) > 0) {
-                const_coeff_it it = f.find(*row);
-                rhs(row_count) = (*it).second;
-            }
-            else                      rhs(row_count) = 0.;
+            const_coeff_it f_it = f.find(*row);
+            if (f_it != f_end) rhs(row_count) = (*f_it).second;
+            else               rhs(row_count) = 0.;
         }
+
         for (const_set_initcond_it row=LambdaRowInitCond.begin(); row!=LambdaRowInitCond.end(); ++row, ++row_count) {
             if (u0.count((*row)) > 0) {
             	const_coeff_initcond_it it = u0.find(*row);
             	rhs(row_count) = (*it).second;
             }
             else                      rhs(row_count) = 0.;
+        }
+        const_coeff_it u_end = u.end();
+        int col_count=1;
+        for (const_set_op_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
+        	const_coeff_it u_it = u.find(*col);
+        	if (u_it != u_end) x(col_count) = (*u_it).second;
+        	else               x(col_count) = 0.;
         }
         int number_of_iterations = lawa::cgls(A_flens,x,rhs, tol, maxIterations);
         Ax = A_flens*x;
@@ -345,25 +330,6 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
     	flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
     	toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
 
-    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1, A_dense2;
-    	densify(cxxblas::NoTrans,A_flens,A_dense1);
-    	densify(cxxblas::NoTrans,A_flens,A_dense2);
-    	DenseVector<Array<T> > wr(NumOfRows), wi(NumOfRows);
-    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
-    	ev(false, false, A_dense1, wr, wi, vl, vr);
-    	T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
-    	for (int i=1; i<=wr.lastIndex(); ++i) {
-    		cB = std::min(cB,wr(i));
-    		CB = std::max(CB,wr(i));
-    	}
-    	std::cout << "Largest eigenvalue: " << CB << ", smallest eigenvalue: " << cB << std::endl;
-    	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
-    	DenseVector<Array<T> > s(NumOfCols);
-    	std::cout << "Computing svd..." << std::endl;
-    	int iterations = svd(A_dense2,s,U,V);
-    	std::cout << " ... finished after " << iterations << std::endl;
-    	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
-
     	if (LambdaRow.size() > 0) {
     		DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
     	    int row_count=1;
@@ -390,6 +356,17 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
 
 }
 }	//namespace lawa
+
+/*
+	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+	densify(cxxblas::NoTrans,A_flens,A_dense);
+	flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
+	DenseVector<Array<T> > s(NumOfCols);
+	std::cout << "Computing svd..." << std::endl;
+	int iterations = svd(A_dense,s,U,V);
+	std::cout << " ... finished after " << iterations << std::endl;
+	std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
+*/
 
 /*
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1;

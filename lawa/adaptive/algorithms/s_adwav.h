@@ -47,6 +47,7 @@ public:
     std::vector<T>               residuals;
     std::vector<T>               times;
     std::vector<T>               cg_iterations;
+    std::vector<T>               toliters;
     
 private:
     const Basis &basis;

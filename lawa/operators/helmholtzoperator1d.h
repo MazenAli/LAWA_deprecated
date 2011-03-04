@@ -46,17 +46,20 @@ class HelmholtzOperator1D{
         PrimalSpline phi, d_phi;
         PrimalWavelet psi, d_psi;
         
-        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf;
-        Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, dd_integral_sfw;
-        Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, dd_integral_wsf;
-        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww;
+        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf, d_integral_sfsf;
+        Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, dd_integral_sfw,  d_integral_sfw;
+        Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, dd_integral_wsf,  d_integral_wsf;
+        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww,   d_integral_ww;
             
     public:
         HelmholtzOperator1D(const Basis& _basis, const T _c);
         HelmholtzOperator1D(const HelmholtzOperator1D<T,Basis> &a);
 
-        T getc() const;
-        const Basis& getBasis() const;
+        T
+        getc() const;
+
+        const Basis&
+        getBasis() const;
     
         T
         operator()(XType xtype1, int j1, int k1, 

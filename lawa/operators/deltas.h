@@ -17,58 +17,28 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ENUM_H
-#define LAWA_ENUM_H 1
+#ifndef LAWA_OPERATORS_DELTAS_H
+#define LAWA_OPERATORS_DELTAS_H 1
+
+#include <lawa/enum.h>
+#include <lawa/bspline.h>
+#include <lawa/wavelet.h>
+#include <lawa/support.h>
+
 
 namespace lawa {
 
-enum FunctionSide {
-    Primal,
-    Dual
-};
+template <typename T, DomainType Domain, Construction Cons>
+GeMatrix<FullStorage<T,ColMajor> >
+computeDeltas(const BSpline<T,Primal,Domain,Cons> &phi, int j, int k);
 
-enum DomainType {
-    Periodic,
-    R,
-    Interval
-};
+template <typename T, DomainType Domain, Construction Cons>
+GeMatrix<FullStorage<T,ColMajor> >
+computeDeltas(const Wavelet<T,Primal,Domain,Cons> &psi, int j, int k);
 
-enum Dimension {
-    OneD = 1,
-    TwoD = 2
-};
 
-enum XType {
-    XBSpline,
-    XWavelet
-};
+}	//namespace lawa
 
-enum Construction {
-    CDF,
-    AnyInterval,
-    DKU,
-    Primbs,
-    Dijkema
-};
+#include <lawa/operators/deltas.tcc>
 
-enum BoundaryCondition {
-    NoBC = 0,
-    DirichletBC = 1
-};
-
-enum QuadratureType { 
-    Gauss, 
-    Trapezoidal,
-    SparseGridGP,	//Gauss-Patterson quadrature on a sparse grid
-    FullGridGL	    //Gauss-Legendre  quadrature on a full grid
-};
-
-enum SortingCriterion {
-    AbsoluteValue,
-    Lexicographical,
-    Uniform
-};
-
-} // namespace lawa
-
-#endif // LAWA_ENUM_H
+#endif	//LAWA_OPERATORS_DELTAS_H

@@ -31,6 +31,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
     solutions.resize(NumOfIterations);
     residuals.resize(NumOfIterations);
     times.resize(NumOfIterations);
+    toliters.resize(NumOfIterations);
     cg_iterations.resize(NumOfIterations);
 }
 
@@ -75,8 +76,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
         int current_jmin, current_jmax;
-        getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
-        std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
+        //getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
+        //std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
         timer.stop();
         T time1 = timer.elapsed();
@@ -100,6 +101,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         T estim_res   = std::sqrt(numerator/denominator);
         std::cout << "   ...finished" << std::endl;
         residuals[its] = estim_res;
+        toliters[its] = linTol;
 
         r = THRESH(r,threshTol);
         LambdaActive = LambdaThresh+supp(r);
