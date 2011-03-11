@@ -36,7 +36,7 @@ class SpaceTimeInitialCondition1D{
         typedef typename Basis::FirstBasisType Basis_t;
         typedef typename Basis::SecondBasisType Basis_x;
 
-        typedef RieszOperator1D<T, typename Basis::SecondBasisType> Reaction_x;
+        typedef IdentityOperator1D<T, typename Basis::SecondBasisType> Reaction_x;
 
         Reaction_x  id_x;
 

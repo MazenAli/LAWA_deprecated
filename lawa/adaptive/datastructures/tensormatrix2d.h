@@ -24,6 +24,7 @@
 #include <lawa/adaptive/index.h>
 #include <lawa/box/tensorbasis.h>
 #include <lawa/operators/operators.h>
+#include <lawa/operators/preconditioner.h>
 #include <lawa/adaptive/compression.h>
 #include <lawa/adaptive/datastructures/hashmapmatrixwithzeros.h>
 

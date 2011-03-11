@@ -22,7 +22,8 @@
 #define LAWA_OPERATORS_PRECONDITIONER_H 1
 
 #include <lawa/adaptive/index.h>
-#include <lawa/operators/operators.h>
+#include <lawa/integrals.h>
+#include <lawa/operators/spacetimeoperators/spacetimeoperators.h>
 
 namespace lawa {
 /*  A preconditioner for a 1D problem must have the following form:

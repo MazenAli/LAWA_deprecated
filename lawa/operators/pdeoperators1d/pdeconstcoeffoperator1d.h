@@ -63,6 +63,6 @@ private:
 
 }   //namespace lawa
 
-#include <lawa/operators/pdeconstcoeffoperator1d.tcc>
+#include <lawa/operators/pdeoperators1d/pdeconstcoeffoperator1d.tcc>
 
 #endif  // LAWA_OPERATORS_PDECONSTCOEFFOPERATOR1D_H

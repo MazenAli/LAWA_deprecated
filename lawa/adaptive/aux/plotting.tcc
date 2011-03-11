@@ -432,8 +432,32 @@ plotCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis_x &bas
 	gps << "set yrange[" << min_y-h << ":" << max_y+h << "]" << std::endl;
 	gps << "plot " << std::min(min_x-h,min_y-h) << " w l lc rgb 'black' notitle " << std::endl;
 	gps.close();
+}
+
+template <typename T, typename Index, typename Basis_x, typename Basis_y>
+void
+plotScatterCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis_x &basis_x,
+                   const Basis_y &basis_y, const char* filename)
+{
+    typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_coeff_abs_it;
 
 
+    std::stringstream dataFilename;
+    dataFilename << filename << ".dat";
+    std::ofstream data(dataFilename.str().c_str());
+
+    for (const_coeff_abs_it it = coeff.begin(); it != coeff.end(); ++it) {
+        int j1=(*it).second.index1.j, k1=(*it).second.index1.k, j2=(*it).second.index2.j, k2=(*it).second.index2.k;
+        XType type1=(*it).second.index1.xtype, type2=(*it).second.index2.xtype;
+        double x, y; //center of the support
+        if (type1 == XBSpline)  x = 0.5*(basis_x.mra.phi.support(j1,k1).l2 + basis_x.mra.phi.support(j1,k1).l1);
+        else                    x = 0.5*(basis_x.psi.support(j1,k1).l2 + basis_x.psi.support(j1,k1).l1);
+        if (type2 == XBSpline)  y = 0.5*(basis_y.mra.phi.support(j2,k2).l2 + basis_y.mra.phi.support(j2,k2).l1);
+        else                    y = 0.5*(basis_y.psi.support(j2,k2).l2 + basis_y.psi.support(j2,k2).l1);
+
+        data << x << " " << y << std::endl;
+    }
+    data.close();
 
 }
 

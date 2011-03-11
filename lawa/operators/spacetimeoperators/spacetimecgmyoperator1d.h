@@ -23,6 +23,7 @@
 
 
 #include <lawa/integrals.h>
+#include <lawa/operators/pdeoperators1d/pdeoperators1d.h>
 
 namespace lawa {
 
@@ -40,8 +41,8 @@ public:
     typedef typename Basis_x::WaveletType PrimalWavelet_x;
 
     typedef ConvectionOperator1D<T, Basis_t>   Convection_t;
-    typedef RieszOperator1D<T, Basis_t> 	   Reaction_t;
-    typedef RieszOperator1D<T, Basis_x> 	   Reaction_x;
+    typedef IdentityOperator1D<T, Basis_t> 	   Reaction_t;
+    typedef IdentityOperator1D<T, Basis_x> 	   Reaction_x;
 
 
     const Basis& basis;

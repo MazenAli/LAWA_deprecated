@@ -119,13 +119,17 @@ public:
 	Compression_x &c_x;
 	Compression_y &c_y;
 
+	IndexSet<Index1D> LambdaRow_x;
+	IndexSet<Index1D> LambdaRow_y;
+	IndexSet<Index2D> LambdaRow;
+
 	TensorCompression2D(Compression_x &_c_x, Compression_y &_c_y);
 
 	void
-	setParameters(const IndexSet<Index2D> &LambdaRow);
+	setParameters(const IndexSet<Index2D> &_LambdaRow);
 
 	IndexSet<Index2D>
-	SparsityPattern(const Index2D &lambda_col, const IndexSet<Index2D> &LambdaRow);
+	SparsityPattern(const Index2D &lambda_col, const IndexSet<Index2D> &_Lambda);
 };
 
 

@@ -78,9 +78,33 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample
     		sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
     		deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = 4.;
     	}
+    	if (nr==5) {
+    	    sing_pts_x.engine().resize(3); sing_pts_x = 0., 1./3., 1.;
+    	    deltas_x.engine().resize(3,2);
+    	    deltas_x(1,1) = 0.;    deltas_x(1,2) = -4.;
+    	    deltas_x(2,1) = 1./3.; deltas_x(2,2) = 4.*exp(1./3.)+2.*exp(-0.5*(1./3.-1.));
+    	    deltas_x(3,1) = 1.;    deltas_x(3,2) = -2.;
+
+    	    sing_pts_y.engine().resize(3); sing_pts_y = 0., 1./3., 1.;
+    	    deltas_y.engine().resize(3,2);
+            deltas_y(1,1) = 0.;    deltas_y(1,2) = -4.;
+            deltas_y(2,1) = 1./3.; deltas_y(2,2) = 4.*exp(1./3.)+2.*exp(-0.5*(1./3.-1.));
+            deltas_y(3,1) = 1.;    deltas_y(3,2) = -2.;
+
+    	}
     }
     else if ((domain1 == Periodic) && (domain2 == Interval)) {
 
+    }
+    else if ((domain1 == Interval) && (domain2 == Interval)) {
+        if (nr==2) {
+            sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
+            deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.;
+            deltas_x(1,2) = 4.*exp(0.1)*exp(1./3.-0.1)+2.*exp(0.35)*exp(-0.5*(1./3.-0.3));
+            sing_pts_y.engine().resize(1); sing_pts_y(1) = 1./3.;
+            deltas_y.engine().resize(1,2); deltas_y(1,1) = 1./3.;
+            deltas_y(1,2) = 4.*exp(0.1)*exp(1./3.-0.1)+2.*exp(0.35)*exp(-0.5*(1./3.-0.3));
+        }
     }
 }
 
@@ -124,6 +148,7 @@ T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::rhs_x(T x)
 {
     return -exact_x(x,2) + 0.5*c*exact_x(x,0);
+    //return -exact_x(x,2) + exact_x(x,1) + 0.5*c*exact_x(x,0);
 }
 
 template <typename T, typename Basis2D>
@@ -131,6 +156,7 @@ T
 ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::rhs_y(T y)
 {
     return -exact_y(y,2) + 0.5*c*exact_y(y,0);
+    //return -exact_y(y,2) + exact_y(y,1) + 0.5*c*exact_y(y,0);
 }
 
 template <typename T, typename Basis2D>
@@ -162,6 +188,23 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_x(T 
             	else		   		return   4.*std::exp(-2.*fabs(x-1./3.));
             }
         }
+        else if (nr==5) {
+            if (deriv_x==0) {
+                if (x>0 && x<1./3.)        return   4.*(exp(x)-1);
+                else if (x>1./3. && x<1.)  return   4.*(exp(-0.5*(x-1.))-1);
+                else                       return   0.;
+            }
+            else if (deriv_x==1) {
+                if (x>0 && x<1./3.)        return   4.*exp(x);
+                else if (x>1./3. && x<1.)  return   -2.*exp(-0.5*(x-1.));
+                else                       return   0.;
+            }
+            else {
+                if (x>0 && x<1./3.)        return   4.*exp(x);
+                else if (x>1./3. && x<1.)  return      exp(-0.5*(x-1.));
+                else                       return   0.;
+            }
+        }
     }
     else if ((domain1 == Periodic) && (domain2 == Interval)) {
         if (nr==1) {
@@ -171,6 +214,28 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_x(T 
         }
         else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
         return 0;
+    }
+    else if ((domain1 == Interval) && (domain2 == Interval)) {
+        if (nr==1) {
+            if (deriv_x==0)           return exp(-200*(x-0.5)*(x-0.5));
+            else if (deriv_x==1)      return -400*(x-0.5)*exp(-200*(x-0.5)*(x-0.5));
+            else                    return (-400+160000*(x-0.5)*(x-0.5))*exp(-200*(x-0.5)*(x-0.5));
+        }
+        else if (nr==2) {
+            if (deriv_x==0) {
+                if (x < 1./3.)      return   4.*(exp(x)-1);
+                else                return   4.*(exp(-0.5*(x-1.))-1);
+            }
+            else if (deriv_x==1) {
+                if (x < 1./3.)      return   4.*exp(x);
+                else                return   -2.*exp(-0.5*(x-1.));
+            }
+            else {
+                if (x < 1./3.)      return   4.*exp(x);
+                else                return      exp(-0.5*(x-1.));
+            }
+        }
+        else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
     }
     else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
     return 0;
@@ -199,6 +264,23 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_y(T 
         	else if (deriv_y==1)	return -0.2*(y-1./3.)*std::exp(-0.1*(y-1./3.)*(y-1./3.));
         	else					return  (0.04*(y-1./3)*(y-1./3.)-0.2)*std::exp(-0.1*(y-1./3.)*(y-1./3.));
         }
+        else if (nr==5) {
+            if (deriv_y==0) {
+                if (y>0 && y<1./3.)        return   4.*(exp(y)-1);
+                else if (y>1./3. && y<1.)  return   4.*(exp(-0.5*(y-1.))-1);
+                else                       return   0.;
+            }
+            else if (deriv_y==1) {
+                if (y>0 && y<1./3.)        return   4.*exp(y);
+                else if (y>1./3. && y<1.)  return   -2.*exp(-0.5*(y-1.));
+                else                       return   0.;
+            }
+            else {
+                if (y>0 && y<1./3.)        return   4.*exp(y);
+                else if (y>1./3. && y<1.)  return      exp(-0.5*(y-1.));
+                else                       return   0.;
+            }
+        }
     }
     else if ((domain1 == Periodic) && (domain2 == Interval)) {
         if (nr==1) {
@@ -208,6 +290,28 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::exact_y(T 
         }
         else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
         return 0; 
+    }
+    else if ((domain1 == Interval) && (domain2 == Interval)) {
+        if (nr==1) {
+            if (deriv_y==0)           return exp(-200*(y-0.5)*(y-0.5));
+            else if (deriv_y==1)      return -400*(y-0.5)*exp(-200*(y-0.5)*(y-0.5));
+            else                    return (-400+160000*(y-0.5)*(y-0.5))*exp(-200*(y-0.5)*(y-0.5));
+        }
+        else if (nr==2) {
+            if (deriv_y==0) {
+                if (y < 1./3.)      return   4.*(exp(y)-1);
+                else                return   4.*(exp(-0.5*(y-1))-1);
+            }
+            else if (deriv_y==1) {
+                if (y < 1./3.)      return   4.*exp(y);
+                else                return   -2.*exp(-0.5*(y-1));
+            }
+            else {
+                if (y < 1./3.)      return   4.*exp(y);
+                else                return      exp(-0.5*(y-1));
+            }
+        }
+        else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
     }
     else { std::cerr << "Example does not exist!" << std::endl; exit(1); }
     return 0;
@@ -241,6 +345,11 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
         	ret += 3.96332729760601*0.5 + 0.3963327297606012*0.5 + 3.96332729760601*2.;
         	return sqrt(ret);
         }
+        if (nr==5) {
+            T i1 = 8.*(11.-12.*exp(1./3.)+3.*exp(2./3.));
+            T i2 = 12.*(-1+exp(2./3.));
+            return sqrt(i1*i1+2*i1*i2);
+        }
     }
     else if ((domain1 == Periodic) && (domain2 == Interval)) {
         if (nr==1) {
@@ -248,6 +357,18 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::H1norm()
             ret += 10.527578027828639;
             ret +=  2.666666666666666;
             ret = sqrt(ret);
+        }
+    }
+    else if ((domain1 == Interval) && (domain2 == Interval)) {
+        if (nr==1) {
+            T i1 = 0.05*sqrt(M_PI)*erf(10);
+            T i2 = 10*( -20.*exp(-100.)+sqrt(M_PI)*erf(10));
+            return sqrt(i1*i1+2*i1*i2);
+        }
+        if (nr==2) {
+            T i1 = 8.*(11.-12.*exp(1./3.)+3.*exp(2./3.));
+            T i2 = 12.*(-1+exp(2./3.));
+            return sqrt(i1*i1+2*i1*i2);
         }
     }
     return ret;
@@ -294,6 +415,12 @@ ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample(int _
     domain2 = _domain2;
 
     if ((domain1 == R) && (domain2 == R)) {
+        if (nr==1) {
+            sing_pts_x.engine().resize(3);
+            sing_pts_y.engine().resize(3);
+            sing_pts_x = -1., 0., 1.;
+            sing_pts_y = -1., 0., 1.;
+        }
     	if (nr==2) {
 /*
     		sing_pts_x.engine().resize(1);

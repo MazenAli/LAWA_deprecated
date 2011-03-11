@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_OPERATORS_RIESZOPERATOR1D_H
-#define LAWA_OPERATORS_RIESZOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_CONVECTIONOPERATOR1D_H
+#define LAWA_OPERATORS_CONVECTIONOPERATOR1D_H 1
 
 #include <lawa/adaptive/index.h>
 #include <lawa/integrals.h>
@@ -27,13 +27,13 @@
 
 namespace lawa {
 
-/* Riesz OPERATOR
+/* Convection OPERATOR
  *
- *    a(u,v) =  Integral(u * v)
+ *    a(u,v) =  Integral(u' * v)
  *
  */
 template <typename T, typename Basis>
-class RieszOperator1D{
+class ConvectionOperator1D{
 
     private:
 
@@ -42,16 +42,16 @@ class RieszOperator1D{
         typedef typename Basis::BSplineType PrimalSpline;
         typedef typename Basis::WaveletType PrimalWavelet;
 
-        PrimalSpline phi;
-        PrimalWavelet psi;
+        PrimalSpline phi, d_phi;
+        PrimalWavelet psi, d_psi;
 
-        Integral<T, Gauss, PrimalSpline, PrimalSpline>   integral_sfsf;
-        Integral<T, Gauss, PrimalSpline, PrimalWavelet>  integral_sfw;
-        Integral<T, Gauss, PrimalWavelet, PrimalSpline>  integral_wsf;
-        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww;
+        Integral<T, Gauss, PrimalSpline, PrimalSpline>   d_integral_sfsf;
+        Integral<T, Gauss, PrimalSpline, PrimalWavelet>  d_integral_sfw;
+        Integral<T, Gauss, PrimalWavelet, PrimalSpline>  d_integral_wsf;
+        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> d_integral_ww;
 
     public:
-        RieszOperator1D(const Basis& _basis);
+        ConvectionOperator1D(const Basis& _basis);
 
         T
         operator()(XType xtype1, int j1, int k1,
@@ -65,6 +65,6 @@ class RieszOperator1D{
 
 } // namespace lawa
 
-#include <lawa/operators/rieszoperator1d.tcc>
+#include <lawa/operators/pdeoperators1d/convectionoperator1d.tcc>
 
-#endif // LAWA_OPERATORS_HELMHOLTZOPERATOR1D_H
+#endif // LAWA_OPERATORS_CONVECTIONOPERATOR1D_H

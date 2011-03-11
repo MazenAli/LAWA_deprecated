@@ -86,6 +86,6 @@ class HelmholtzOperator1D{
     
 } // namespace lawa
 
-#include <lawa/operators/helmholtzoperator1d.tcc>
+#include <lawa/operators/pdeoperators1d/helmholtzoperator1d.tcc>
 
 #endif // LAWA_OPERATORS_HELMHOLTZOPERATOR1D_H

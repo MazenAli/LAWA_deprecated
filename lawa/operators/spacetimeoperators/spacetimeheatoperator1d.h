@@ -39,9 +39,9 @@ class SpaceTimeHeatOperator1D{
         typedef typename Basis::SecondBasisType Basis_x;
 
         typedef ConvectionOperator1D<T, typename Basis::FirstBasisType>    Convection_t;
-        typedef RieszOperator1D<T, typename Basis::FirstBasisType> 	     Reaction_t;
-        typedef WeakLaplaceOperator1D<T, typename Basis::SecondBasisType>  Diffusion_x;
-        typedef RieszOperator1D<T, typename Basis::SecondBasisType> 	     Reaction_x;
+        typedef IdentityOperator1D<T, typename Basis::FirstBasisType> 	     Reaction_t;
+        typedef LaplaceOperator1D<T, typename Basis::SecondBasisType>  Diffusion_x;
+        typedef IdentityOperator1D<T, typename Basis::SecondBasisType> 	     Reaction_x;
 
         Convection_t d_t;
         Reaction_t  id_t;

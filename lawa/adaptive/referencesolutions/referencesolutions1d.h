@@ -22,9 +22,11 @@
 
 #include <iostream>
 #include <lawa/enum.h>
-#include <lawa/operators/operators.h>
+#include <lawa/operators/pdeoperators1d/helmholtzoperator1d.h>
+#include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
 
 namespace lawa {
+
 
 template <typename T, typename Basis, typename BilinearForm>
 struct ReferenceSolution1D
