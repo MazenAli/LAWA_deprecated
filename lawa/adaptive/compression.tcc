@@ -51,7 +51,7 @@ void
 CompressionPDE1D<T,Index,Basis>::setParameters(const IndexSet<Index> &LambdaRow) {
 	typedef typename IndexSet<Index>::const_iterator set1d_const_it;
 
-	std::cerr << "CompressionPDE1D::setParameters is called for Lambda.size()=" << LambdaRow.size() << std::endl;
+	//std::cerr << "CompressionPDE1D::setParameters is called for Lambda.size()=" << LambdaRow.size() << std::endl;
 	s_tilde = -1;
 	jmin = 100;
 	jmax = -30;
@@ -208,7 +208,7 @@ TensorCompression2D<T,Compression_x,Compression_y>::SparsityPattern(const Index2
 
 	IndexSet<Index2D> LambdaRowSparse(d,d_);
 	for (set2d_const_it lambda=LambdaRow.begin(); lambda!=LambdaRow.end(); ++lambda) {
-		if ((LambdaRow_x.count((*lambda).index1)>0) && (LambdaRow_y.count((*lambda).index2)>0))  {
+		if ((ret_x.count((*lambda).index1)>0) && (ret_y.count((*lambda).index2)>0))  {
 			LambdaRowSparse.insert(*lambda);
 		}
 	}
