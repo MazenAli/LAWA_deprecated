@@ -15,18 +15,29 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+*/
 
-#include <extensions/flens/cg.h>
-#include <extensions/flens/crs.h>
-#include <extensions/flens/diagonalmatrix.h>
-#include <extensions/flens/densefunctions.h>
-#include <extensions/flens/gmres.h>
-#include <extensions/flens/inv.h>
-#include <extensions/flens/lapack.h>
-#include <extensions/flens/lapack_flens.h>
-#include <extensions/flens/lapack_generic.h>
-#include <extensions/flens/sparsematrix.h>
-#include <extensions/flens/sparse_blas.h>
-#include <extensions/flens/sparse_blas_flens.h>
-#include <extensions/flens/spy.h>
+#ifndef LAWA_SPY_H
+#define LAWA_SPY_H 1
+
+#include <lawa/flensforlawa.h>
+
+namespace lawa {
+
+using namespace flens;
+
+template <typename T>
+    void
+    spy(const SparseGeMatrix<CRS<T,CRS_General> > &A, const char* filename,
+        bool absoluteValues = true, T eps = std::numeric_limits<T>::epsilon());
+
+template <typename I>
+    void
+    spy (const Matrix<I> &A, const char* filename, bool absoluteValues = true,
+         typename I::ElementType eps = std::numeric_limits<typename I::ElementType>::epsilon());
+
+} // namespace lawa
+
+#include <extensions/flens/spy.tcc>
+
+#endif // LAWA_SPY_H
