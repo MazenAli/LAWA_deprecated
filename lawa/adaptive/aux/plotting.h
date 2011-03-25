@@ -68,6 +68,11 @@ void
 plotScatterCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis_x &basis_x,
                    const Basis_y &basis_y, const char* filename);
 
+template <typename T, typename Index, typename Basis_x, typename Basis_y>
+void
+plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Basis_x &basis_x,
+                   const Basis_y &basis_y, const char* filename);
+
 
 }  // namespace lawa
 

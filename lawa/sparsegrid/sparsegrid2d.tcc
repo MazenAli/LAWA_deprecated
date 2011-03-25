@@ -87,7 +87,7 @@ SparseGrid2D<T, IndexOneD, Basis2D, BilinearForm, RHS>::setupIndexSet()
 
     for (int k_x=basis.first.mra.rangeI(j0_x).firstIndex();
              k_x<=basis.first.mra.rangeI(j0_x).lastIndex(); ++k_x) {
-        for (int j_y=j0_y; j_y<=J; ++j_y) {
+        for (int j_y=j0_y; j_y<=J+j0_y; ++j_y) {
             for (int k_y=basis.second.rangeJ(j_y).firstIndex();
                      k_y<=basis.second.rangeJ(j_y).lastIndex(); ++k_y) {
                 ret.insert(Index2D(IndexOneD(j0_x,k_x,XBSpline),IndexOneD(j_y,k_y,XWavelet)));
@@ -95,7 +95,7 @@ SparseGrid2D<T, IndexOneD, Basis2D, BilinearForm, RHS>::setupIndexSet()
         }
     }
 
-    for (int j_x=j0_x; j_x<=J; ++j_x) {
+    for (int j_x=j0_x; j_x<=J+j0_x; ++j_x) {
         for (int k_x=basis.first.rangeJ(j_x).firstIndex();
                  k_x<=basis.first.rangeJ(j_x).lastIndex(); ++k_x) {
             for (int k_y=basis.second.mra.rangeI(j0_y).firstIndex();
@@ -105,9 +105,9 @@ SparseGrid2D<T, IndexOneD, Basis2D, BilinearForm, RHS>::setupIndexSet()
         }
     }
 
-    for (int j_x=j0_x; j_x<=J; ++j_x) {
-        for (int j_y=j0_y; j_y<=J; ++j_y) {
-            if (j_x+j_y > (1-gamma)*J+gamma*std::max(j_x,j_y)) continue;
+    for (int j_x=j0_x; j_x<=J+j0_x; ++j_x) {
+        for (int j_y=j0_y; j_y<=J+j0_y; ++j_y) {
+            if ((j_x-j0_x)+(j_y-j0_y) > (1-gamma)*J+gamma*std::max(j_x-j0_x,j_y-j0_y)) continue;
 
             for (int k_x=basis.first.rangeJ(j_x).firstIndex();
                      k_x<=basis.first.rangeJ(j_x).lastIndex(); ++k_x) {

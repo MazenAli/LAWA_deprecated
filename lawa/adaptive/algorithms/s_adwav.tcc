@@ -76,6 +76,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
         int current_jmin, current_jmax;
+        std::stringstream filename_coefficients;
+        filename_coefficients << "coefficients_" << its+1;
+        plotScatterCoeff2D(u, basis.first, basis.second,filename_coefficients.str().c_str());
         //getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
         //std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
