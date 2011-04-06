@@ -49,7 +49,6 @@ class CGMYOperator1D
 	private:
 		const Basis &basis;
 		T diffusion, convection, reaction;
-		CGMYUtils<T> cgmy, cgmy_adjoint;
 
 		PrimalSpline phi, d_phi;
 		PrimalWavelet psi, d_psi;
@@ -57,6 +56,8 @@ class CGMYOperator1D
 		Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, d_integral_sfw,  dd_integral_sfw;
 		Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, d_integral_wsf,  dd_integral_wsf;
 		Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, d_integral_ww,   dd_integral_ww;
+
+		CGMYUtils<T> cgmy, cgmy_adjoint;
 
 		int n;				//parameters for composite variable order Gauss-Legendre quadrature
 		T sigma;
@@ -69,18 +70,9 @@ class CGMYOperator1D
 
 
 		T
-		_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b, XType xtype_col, int j_col, int k_col,
-									   const CGMYUtils<T> &cgmy_comp) const;
-
-		T
-		_nonsingular_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
+		_integrate_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
 												   XType xtype_col, int j_col, int k_col,
 												   const CGMYUtils<T> &cgmy_comp) const;
-
-		T
-		_singular_quadrature_dpsi_vs_int_dpsi_k(T b, XType xtype_row, int j_row, int k_row,
-												XType xtype_col, int j_col, int k_col,
-												const CGMYUtils<T> &cgmy_comp) const;
 
 		T
 		_nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,

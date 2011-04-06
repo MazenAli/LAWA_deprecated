@@ -135,37 +135,17 @@ CGMYOperator1D<T,Basis>::operator()(XType xtype_row, int j_row, int k_row,
 		T b = singularPoints(i+1);
 		if (a==b) continue;
 
-		/*
-		if ((a<0.) && (b>0.)) {
-			int_val += _singular_quadrature_dpsi_vs_int_dpsi_k(a, xtype_row, j_row, k_row,
-																  xtype_col, j_col, k_col);
-			int_val += _singular_quadrature_dpsi_vs_int_dpsi_k(b, xtype_row, j_row, k_row,
-																  xtype_col, j_col, k_col);
-		}
-		else if ((a==0.) && (b>0.)) {
-			int_val += _singular_quadrature_dpsi_vs_int_dpsi_k(b, xtype_row, j_row, k_row,
-																  xtype_col, j_col, k_col);
-		}
-		else if ((a<0.) && (b==0.)) {
-			int_val += _singular_quadrature_dpsi_vs_int_dpsi_k(a, xtype_row, j_row, k_row,
-																  xtype_col, j_col, k_col);
-		}
-		else {
-			int_val += _nonsingular_quadrature_dpsi_vs_int_dpsi_k(a,  b, xtype_row, j_row, k_row,
-																		 xtype_col, j_col, k_col);
-		}
-		*/
-		int_val += _nonsingular_quadrature_dpsi_vs_int_dpsi_k(a,  b, xtype_row, j_row, k_row,
-																  xtype_col, j_col, k_col, cgmy_comp);
+		int_val += _integrate_dpsi_vs_int_dpsi_k(a,  b, xtype_row, j_row, k_row,
+												        xtype_col, j_col, k_col, cgmy_comp);
 	}
 	return diffusion*dd_val + convection * d_val + reaction*val + int_val;
 }
 
 template <typename T, typename Basis>
 T
-CGMYOperator1D<T,Basis>::_nonsingular_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
-																	XType xtype_col, int j_col, int k_col,
-																	const CGMYUtils<T> &cgmy_comp) const
+CGMYOperator1D<T,Basis>::_integrate_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
+															     XType xtype_col, int j_col, int k_col,
+																 const CGMYUtils<T> &cgmy_comp) const
 {
 	T ret = 0.0;
 	flens::DenseVector<Array<T> > singularPoints_psi_col;
@@ -226,76 +206,6 @@ CGMYOperator1D<T,Basis>::_nonsingular_quadrature_dpsi_vs_int_dpsi_k(T a, T b, XT
 	ret *= 0.5*(b-a);
 	return ret;
 }
-
-template <typename T, typename Basis>
-T
-CGMYOperator1D<T,Basis>::_singular_quadrature_dpsi_vs_int_dpsi_k(T b, XType xtype_row, int j_row, int k_row,
-																 XType xtype_col, int j_col, int k_col,
-																 const CGMYUtils<T> &cgmy_comp) const
-{
-
-	T ret = 0.0;
-	flens::DenseVector<Array<T> > singularPoints_psi_col;
-	if (xtype_col == XBSpline) {	singularPoints_psi_col = phi.singularSupport(j_col,k_col);	}
-	else {							singularPoints_psi_col = psi.singularSupport(j_col,k_col);	}
-
-	for (int j=0; j<=n; ++j) {
-		T left=0., right=0.;
-		int q_j = 1;
-		if (b>0) {
-			if (j==0) { left = 0.; 						right = b*std::pow(sigma,n);   }
-			else      { left = b*std::pow(sigma,n+1-j); right = b*std::pow(sigma,n-j); }
-			q_j = std::max(1,int(std::ceil(mu*j)));
-		}
-		else {
-			if (j==n) {	left = b*std::pow(sigma,n); right = 0.; 					   }
-			else      { left = b*std::pow(sigma,j); right = b*std::pow(sigma,1+j);     }
-			q_j = std::max(1,int(std::ceil(mu*(n-j))));
-		}
-
-		T tmp = 0.;
-		for (int i=1; i<=q_j; ++i) {
-			T x_ast = 0.5*(right-left)*_knots(q_j,i)+0.5*(right+left);
-
-			T singularintegral = 0.;
-			for (int j=singularPoints_psi_col.firstIndex(); j<singularPoints_psi_col.lastIndex(); ++j) {
-				T a_y = singularPoints_psi_col(j)  -x_ast;
-				T b_y = singularPoints_psi_col(j+1)-x_ast;
-
-				if ((a_y < 0.) && (b_y >0.)) {
-					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true, cgmy_comp);
-					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true, cgmy_comp);
-				}
-				else if ((a_y == 0.) && (b_y >0.)) {
-					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, 0., b_y, xtype_col, j_col, k_col, true, cgmy_comp);
-				}
-				else if ((a_y < 0.) && (b_y == 0.)) {
-					singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, 0., xtype_col, j_col, k_col, true, cgmy_comp);
-				}
-				else {
-					if (fabs(a_y)<0.01 || fabs(b_y)<0.01) {
-						singularintegral += _singular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col, false, cgmy_comp);
-					}
-					else {
-						singularintegral += _nonsingular_quadrature_dpsi_vs_CGMYkernel(x_ast, a_y, b_y, xtype_col, j_col, k_col, cgmy_comp);
-					}
-				}
-			}
-
-			if (xtype_col == XBSpline) {
-				tmp += _weights(q_j,i) * singularintegral * d_phi(x_ast,j_row,k_row);
-			}
-			else {
-				tmp += _weights(q_j,i) * singularintegral * d_psi(x_ast,j_row,k_row); ;
-			}
-			//std::cout << "Hit enter, x_ast = " << x_ast << std::endl; getchar();
-		}
-		ret += 0.5*(right-left)*tmp;
-	}
-
-	return ret;
-}
-
 
 
 template <typename T, typename Basis>
@@ -373,61 +283,5 @@ CGMYOperator1D<T,Basis>::_singular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T
 	}
 	return ret;
 }
-
-/*
- * 	flens::DenseVector<Array<T> > psi_row_singularPoints, psi_col_singularPoints1,
-								  psi_col_singularPoints2, psi_col_singularPoints3, singularPoints;
-	Support<T> supp_row, supp_col;
-	if (xtype_row == XBSpline) {
-		supp_row = phi.support(j_row,k_row);
-		psi_row_singularPoints = phi.singularSupport(j_row,k_row);
-	}
-	else {
-		supp_row = psi.support(j_row,k_row);
-		psi_row_singularPoints = psi.singularSupport(j_row,k_row);
-	}
-	if (xtype_col == XBSpline) {
-		supp_col = phi.support(j_col,k_col);
-		psi_col_singularPoints1 = phi.singularSupport(j_col,k_col);
-		psi_col_singularPoints1 = phi.singularSupport(j_col,k_col-5);
-		psi_col_singularPoints1 = phi.singularSupport(j_col,k_col+5);
-	}
-	else {
-		supp_col = psi.support(j_col,k_col);
-		psi_col_singularPoints1 = psi.singularSupport(j_col,k_col);
-		psi_col_singularPoints2 = psi.singularSupport(j_col,k_col-7);
-		psi_col_singularPoints3 = psi.singularSupport(j_col,k_col+7);
-	}
-	if ((j_row <= j_col) && !(lawa::distance(supp_row,supp_col)>0)) {
-		int n1 = psi_row_singularPoints.length();
-		int n2 = psi_col_singularPoints1.length();
-
-		flens::DenseVector<Array<T> > temp1(n1+n2);
-		std::merge(psi_row_singularPoints.engine().data(),
-				   psi_row_singularPoints.engine().data() + n1,
-				   psi_col_singularPoints1.engine().data(),
-				   psi_col_singularPoints1.engine().data() + n2,
-				   temp1.engine().data());
-
-		flens::DenseVector<Array<T> > temp2(temp1.length()+n2);
-		std::merge(temp1.engine().data(),
-				   temp1.engine().data() + temp1.length(),
-				   psi_col_singularPoints2.engine().data(),
-				   psi_col_singularPoints2.engine().data() + n2,
-				   temp2.engine().data());
-
-		singularPoints.engine().resize(temp2.length()+n2);
-		std::merge(temp2.engine().data(),
-				   temp2.engine().data() + temp2.length(),
-				   psi_col_singularPoints3.engine().data(),
-				   psi_col_singularPoints3.engine().data() + n2,
-				   singularPoints.engine().data());
-	}
-	else {
-		singularPoints = psi_row_singularPoints;
-	}
-	std::cout << "singular points: " << singularPoints << std::endl;
- */
-
 
 }	//namespace lawa
