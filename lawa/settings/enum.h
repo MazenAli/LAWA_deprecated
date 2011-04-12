@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ENUM_H
-#define LAWA_ENUM_H 1
+#ifndef LAWA_SETTINGS_ENUM_H
+#define LAWA_SETTINGS_ENUM_H 1
 
 namespace lawa {
 
@@ -71,4 +71,4 @@ enum SortingCriterion {
 
 } // namespace lawa
 
-#endif // LAWA_ENUM_H
+#endif // LAWA_SETTINGS_ENUM_H

@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_PARAM_H
-#define LAWA_PARAM_H 1
+#ifndef LAWA_SETTINGS_PARAM_H
+#define LAWA_SETTINGS_PARAM_H 1
 
 namespace lawa {
 
@@ -30,6 +30,6 @@ struct Param
 
 } // namespace lawa
 
-#include <lawa/param.tcc>
+#include <lawa/settings/param.tcc>
 
-#endif // LAWA_PARAM_H
+#endif // LAWA_SETTINGS_PARAM_H
