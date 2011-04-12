@@ -1,5 +1,5 @@
 include $(LAWA_HOME)/Makefile.common
-SUBDIRS := flens
+SUBDIRS := flens sparsegrid
 
 all:
 	$(SILENT) for i in $(SUBDIRS); \

@@ -1,17 +1,11 @@
 include $(LAWA_HOME)/Makefile.common
 
-DYLIB    = liblawamath.$(DYLIB_EXT)
-
 SOURCES  := $(wildcard *.cc)
 OBJECTS  := $(SOURCES:.cc=.o)
 DEPS     := $(SOURCES:.cc=.d)
-CPPFLAGS += -I $(LAWA_HOME)
+CPPFLAGS += -I $(LAWA_HOME) -I $(FLENS_HOME)
 
-all: $(DYLIB)
-
-$(DYLIB): $(OBJECTS)
-	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o $(LDLIBS)
-	$(CP) $(DYLIB) $(LAWA_HOME)
+all:
 
 clean:
 	$(RM) *.o *.d $(DYLIB)

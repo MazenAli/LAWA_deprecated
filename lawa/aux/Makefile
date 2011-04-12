@@ -10,6 +10,7 @@ all:
 clean:
 	$(RM) *.o *.d $(DYLIB)
 
+# automatic dependencies -------------------------------------------------------
 %.d: %.cc
 	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $< \
 		| sed 's/$*.o/& $(subst /,\/,$@)/g' > $@

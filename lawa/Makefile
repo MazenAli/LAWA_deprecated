@@ -1,6 +1,6 @@
 include $(LAWA_HOME)/Makefile.common
 
-SUBDIRS := math realline interval
+SUBDIRS := math aux 
 SOURCES  := $(wildcard *.cc)
 OBJECTS  := $(SOURCES:.cc=.o)
 DEPS     := $(SOURCES:.cc=.d)
@@ -15,7 +15,7 @@ all: $(DYLIB)
 	done;
 
 $(DYLIB): $(OBJECTS)
-	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o $(LDLIBS)
+	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o aux/*.o math/*.o$(LDLIBS)
 	$(CP) $(DYLIB) $(LAWA_HOME)
 
 clean:
