@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,8 +25,7 @@ using namespace flens;
 
 template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_)
-    : d(_d), d_(_d_), mu(d&1),    
-      deriv(0), polynomialOrder(_d),
+    : d(_d), d_(_d_), mu(d&1),
       vanishingMoments(_d_), psiR(_d, _d_)
 {
     assert(d<=d_);
@@ -34,77 +33,23 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_)
 }
 
 template <typename T>
-Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_, int _deriv)
-    : d(_d), d_(_d_), mu(d&1),     
-      deriv(_deriv), polynomialOrder(_d-_deriv),
-      vanishingMoments(_d_), psiR(_d, _d_, _deriv)
-{
-    assert(d<=d_);
-    assert(((d+d_)&1)==0);
-    assert(deriv>=0);
-}
-
-template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
                                         const BSpline<T,Dual,Periodic,CDF> &_phi_)
     : d(_phi.d), d_(_phi_.d_), mu(d&1),
-      deriv(0), polynomialOrder(d),
       vanishingMoments(d_), psiR(d, d_)
 {
 }
 
 template <typename T>
-Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
-                                        const BSpline<T,Dual,Periodic,CDF> &_phi_,
-                                        int _deriv)
-    : d(_phi.d), d_(_phi_.d_), mu(d&1),    
-      deriv(_deriv), polynomialOrder(d-_deriv),
-      vanishingMoments(d_), psiR(d, d_, _deriv)
-{    
-    assert(deriv>=0);
-}
-
-template <typename T>
-Wavelet<T,Primal,Periodic,CDF>::Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
-                                        const MRA<T,Dual,Periodic,CDF> &mra_)
-    : d(mra.d), d_(mra_.d_), mu(d&1),    
-      deriv(0), polynomialOrder(d),
-      vanishingMoments(d_), psiR(d,d_) 
-{
-}
-
-template <typename T>
-Wavelet<T,Primal,Periodic,CDF>::Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
-                                        const MRA<T,Dual,Periodic,CDF> &mra_,
-                                        int _deriv)
-    : d(mra.d), d_(mra_.d_), mu(d&1),    
-      deriv(_deriv), polynomialOrder(d-_deriv),
-      vanishingMoments(d_), psiR(d, d_, _deriv)
-{    
-    assert(deriv>=0);
-}
-
-template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis)
-    : d(_basis.d), d_(_basis.d_), mu(d&1),    
-      deriv(0), polynomialOrder(d),
+    : d(_basis.d), d_(_basis.d_), mu(d&1),
       vanishingMoments(d_), psiR(d,d_) 
 {
-}
-
-
-template <typename T>
-Wavelet<T,Primal,Periodic,CDF>::Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis, int _deriv)
-    : d(_basis.d), d_(_basis.d_), mu(d&1),    
-      deriv(_deriv), polynomialOrder(d-_deriv),
-      vanishingMoments(d_), psiR(d, d_, _deriv)
-{    
-    assert(deriv>=0);
 }
 
 template <typename T>
 T
-Wavelet<T,Primal,Periodic,CDF>::operator()(T x, int j, int k) const
+Wavelet<T,Primal,Periodic,CDF>::operator()(T x, int j, long k, unsigned short deriv) const
 {
     // maximal support: [0,1]
     if((x < 0.) || (x > 1.)){
@@ -115,14 +60,14 @@ Wavelet<T,Primal,Periodic,CDF>::operator()(T x, int j, int k) const
     // = 'wrapping' around [0,1]
     T val = 0;
     for(int l = ifloor(psiR.support(j,k).l1); l < iceil(psiR.support(j,k).l2); ++l){
-        val += psiR(l+x, j, k);
+        val += psiR(l+x, j, k, deriv);
     }
     return val;
 }
 
 template <typename T>
 PeriodicSupport<T>
-Wavelet<T,Primal,Periodic,CDF>::support(int j, int k) const
+Wavelet<T,Primal,Periodic,CDF>::support(int j, long k) const
 {    
     Support<T> suppR = psiR.support(j,k);
     if(suppR.length() >= 1){
@@ -139,7 +84,7 @@ Wavelet<T,Primal,Periodic,CDF>::support(int j, int k) const
 
 template <typename T>
 DenseVector<Array<T> >
-Wavelet<T,Primal,Periodic,CDF>::singularSupport(int j, int k) const
+Wavelet<T,Primal,Periodic,CDF>::singularSupport(int j, long k) const
 {    
     if((psiR.support(j,k).l1 >= 0) && (psiR.support(j,k).l2 <= 1)){
          return linspace(support(j,k).l1, support(j,k).l2, 2*(d+d_)-1);

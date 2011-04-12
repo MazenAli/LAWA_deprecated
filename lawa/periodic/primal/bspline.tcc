@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,39 +31,16 @@ using namespace flens;
 
 template <typename T>
 BSpline<T,Primal,Periodic,CDF>::BSpline(int _d)
-    : d(_d), mu(d&1), deriv(0), polynomialOrder(d),
-      phiR(_d)
+    : d(_d), mu(d&1), phiR(_d)
 {
     assert(_d>0);
-}
-
-template <typename T>
-BSpline<T,Primal,Periodic,CDF>::BSpline(int _d, int _deriv)
-    : d(_d), mu(d&1), deriv(_deriv), polynomialOrder(d-deriv),
-      phiR(_d, _deriv)
-{
-    assert(_d>0);
-    assert(deriv>=0);
-    assert(deriv<d);
 }
 
 template <typename T>
 BSpline<T,Primal,Periodic,CDF>::BSpline(const MRA<T,Primal,Periodic,CDF> &mra)
-    : d(mra.d), mu(d&1), deriv(0), polynomialOrder(d),
-      phiR(d)
+    : d(mra.d), mu(d&1), phiR(d)
 {
     assert(d>0);
-}
-
-template <typename T>
-BSpline<T,Primal,Periodic,CDF>::BSpline(const MRA<T,Primal,Periodic,CDF> &mra,
-                                        int _deriv)
-    : d(mra.d), mu(d&1), deriv(_deriv), polynomialOrder(d-deriv),
-      phiR(d, _deriv)
-{
-    assert(d>0);
-    assert(deriv>=0);
-    assert(deriv<d);
 }
 
 template <typename T>
@@ -73,7 +50,7 @@ BSpline<T,Primal,Periodic,CDF>::~BSpline()
 
 template <typename T>
 T
-BSpline<T,Primal,Periodic,CDF>::operator()(T x, int j, int k) const
+BSpline<T,Primal,Periodic,CDF>::operator()(T x, int j, long k, unsigned short deriv) const
 {
     // maximal support: [0,1]
     if((x < 0.) || (x > 1.)){
@@ -84,7 +61,7 @@ BSpline<T,Primal,Periodic,CDF>::operator()(T x, int j, int k) const
     // = 'wrapping' around [0,1]
     T val = 0;
     for(int l = ifloor(phiR.support(j,k).l1); l < iceil(phiR.support(j,k).l2); ++l){
-        val += phiR(l+x, j, k);
+        val += phiR(l+x, j, k, deriv);
     }
     return val;
     
@@ -92,7 +69,7 @@ BSpline<T,Primal,Periodic,CDF>::operator()(T x, int j, int k) const
 
 template <typename T>
 PeriodicSupport<T>
-BSpline<T,Primal,Periodic,CDF>::support(int j, int k) const
+BSpline<T,Primal,Periodic,CDF>::support(int j, long k) const
 {
     Support<T> suppR = phiR.support(j,k);
     if(suppR.length() >= 1){
@@ -110,7 +87,7 @@ BSpline<T,Primal,Periodic,CDF>::support(int j, int k) const
 
 template <typename T>
 DenseVector<Array<T> >
-BSpline<T,Primal,Periodic,CDF>::singularSupport(int j, int k) const
+BSpline<T,Primal,Periodic,CDF>::singularSupport(int j, long k) const
 {   
     if((phiR.support(j,k).l1 >= 0) && (phiR.support(j,k).l2 <= 1)){
          return linspace(support(j,k).l1, support(j,k).l2, d+1);

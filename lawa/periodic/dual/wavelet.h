@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #ifndef LAWA_PERIODIC_DUAL_WAVELET_H
 #define LAWA_PERIODIC_DUAL_WAVELET_H 1
 
+#include <lawa/basisfunction.h>
+#include <lawa/enum.h>
 #include <lawa/flensforlawa.h>
 #include <lawa/periodic/periodicsupport.h>
 #include <lawa/periodic/primal/bspline.h>
@@ -30,39 +32,36 @@ namespace lawa {
 
 using namespace flens;
 
-template <typename T>
-class Wavelet<T,Dual,Periodic,CDF>
+template <typename _T>
+struct Wavelet<_T,Dual,Periodic,CDF>
+    : public BasisFunction<_T,Dual,Periodic,CDF>
 {
-    public:
-        typedef T ElementType;
+    typedef _T T;
+    static const FunctionSide Side = Dual;
+    static const DomainType Domain = Periodic;
+    static const Construction Cons = CDF;
 
-        Wavelet(int _d, int _d_);
+    Wavelet(int _d, int _d_);
 
-        Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
-                const BSpline<T,Dual,Periodic,CDF> &_phi_);
-        
-        // TODO: muss man Wavelets aus der MRA konstruieren können?
-        Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
-                const MRA<T,Dual,Periodic,CDF> &mra_);
-                
-        Wavelet(const Basis<T,Dual,Periodic,CDF> &_basis);
+    Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
+            const BSpline<T,Dual,Periodic,CDF> &_phi_);
 
-        Wavelet(const Basis<T,Dual,Periodic,CDF> &_basis, int _deriv);
+    Wavelet(const Basis<T,Dual,Periodic,CDF> &_basis);
 
-        T
-        operator()(T x, int j, int k) const;
+    T
+    operator()(T x, int j, long k, unsigned short deriv=0) const;
 
-        PeriodicSupport<T>
-        support(int j, int k) const;
+    PeriodicSupport<T>
+    support(int j, long k) const;
 
-        const DenseVector<Array<T> > &
-        mask() const;
-        
-        static DenseVector<Array<T> >
-        mask(int d, int d_);
-        
-        const int d, d_, mu;
-        const Wavelet<T, Dual, R, CDF> psiR_;
+    const DenseVector<Array<T> > &
+    mask() const;
+
+    static DenseVector<Array<T> >
+    mask(int d, int d_);
+
+    const int d, d_, mu;
+    const Wavelet<T, Dual, R, CDF> psiR_;
 };
 
 } // namespace lawa

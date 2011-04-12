@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,51 +24,43 @@ namespace lawa {
 
 template <typename T>
     T
-    _evaluateUnitBSpline(int d, T x, int j, int k, int deriv);
+    _evaluateUnitBSpline(int d, T x, int j, long k, unsigned short deriv);
 
 //------------------------------------------------------------------------------
 
 template <typename T, Construction Cons>
 BSpline<T,Primal,Interval,Cons>::BSpline(const MRA<T,Primal,Interval,Cons> &_mra)
-    : mra(_mra), deriv(0), polynomialOrder(mra.d)
-{
-}
-
-template <typename T, Construction Cons>
-BSpline<T,Primal,Interval,Cons>::BSpline(const MRA<T,Primal,Interval,Cons> &_mra,
-                                         int _deriv)
-    : mra(_mra), deriv(_deriv), polynomialOrder(mra.d-_deriv)
+    : mra(_mra)
 {
 }
 
 template <typename T, Construction Cons>
 T
-BSpline<T,Primal,Interval,Cons>::operator()(T x, int j, int k) const
+BSpline<T,Primal,Interval,Cons>::operator()(T x, int j, long k, unsigned short deriv) const
 {
     assert(j>=mra.j0);
     assert(k>=mra.rangeI(j).firstIndex());
     assert(k<=mra.rangeI(j).lastIndex());
-    
     return _evaluateUnitBSpline(mra.d, x, j, k, deriv);
 }
 
 template <typename T, Construction Cons>
 Support<T>
-BSpline<T,Primal,Interval,Cons>::support(int j, int k) const
+BSpline<T,Primal,Interval,Cons>::support(int j, long k) const
 {
     assert(j>=mra.j0);
     assert(k>=mra.rangeI(j).firstIndex());
     assert(k<=mra.rangeI(j).lastIndex());
-    return pow2i<T>(-j) * Support<T>(std::max(0,k-mra.d),
-                                     std::min(T(k),pow2i<T>(j)));
+    return pow2i<T>(-j) * Support<T>(std::max(0L,k-mra.d),
+                                     std::min(k,pow2i<long>(j)));
 }
 
 template <typename T, Construction Cons>
 DenseVector<Array<T> >
-BSpline<T,Primal,Interval,Cons>::singularSupport(int j, int k) const
+BSpline<T,Primal,Interval,Cons>::singularSupport(int j, long k) const
 {
     const int tics = (k<mra.d) ? k+1 : (k>pow2i<T>(j)) ? pow2i<T>(j)+mra.d-1-k+2 : mra.d+1;
-    return linspace(pow2i<T>(-j) * std::max(0,k-mra.d),
+    return linspace(pow2i<T>(-j) * std::max(0L,k-mra.d),
                     pow2i<T>(-j) * std::min(T(k),pow2i<T>(j)),
                     tics);
 }
@@ -84,7 +76,7 @@ BSpline<T,Primal,Interval,Cons>::tic(int j) const
 
 template <typename T>
 T
-_evaluateUnitBSpline(int d, T x, int j, int k, int deriv)
+_evaluateUnitBSpline(int d, T x, int j, long k, unsigned short deriv)
 {
     assert(x>=0.0);
     assert(x<=1.0);
@@ -120,10 +112,10 @@ _evaluateUnitBSpline(int d, T x, int j, int k, int deriv)
             for (int m=2; m<=d; ++m) {
                 for (int i=0; i<=d-m; ++i) {
                     if (m+i+k-1>d) {
-                        values(i) = (x-std::max(0,i+k-d))*values(i) / (m+i+k-1-d-std::max(k+i-d,0));                    
+                        values(i) = (x-std::max(0L,i+k-d))*values(i) / (m+i+k-1-d-std::max(k+i-d,0L));                    
                     }
                     if (m+i+k>d) {
-                        values(i) += (m+i+k-d-x)*values(i+1) / (m+i+k-d-std::max(k+i+1-d,0));                    
+                        values(i) += (m+i+k-d-x)*values(i+1) / (m+i+k-d-std::max(k+i+1-d,0L));                    
                     }
                 }
             }
@@ -131,7 +123,7 @@ _evaluateUnitBSpline(int d, T x, int j, int k, int deriv)
         }
 
         // utilizing right multiplicities.
-        int t = twoj;
+        long t = twoj;
         if (k>t) {
             for (int m=2; m<=d; ++m) {
                 for (int i=0; i<=d-m; ++i) {

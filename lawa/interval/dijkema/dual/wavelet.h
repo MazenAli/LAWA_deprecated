@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,25 +22,29 @@
 
 #include <lawa/support.h>
 #include <lawa/basis.h>
+#include <lawa/basisfunction.h>
 #include <lawa/wavelet.h>
 
 namespace lawa {
 
-template <typename T>
-struct Wavelet<T,Dual,Interval,Dijkema>
+template <typename _T>
+struct Wavelet<_T,Dual,Interval,Dijkema>
+    : public BasisFunction<_T,Dual,Interval,Dijkema>
 {
-    typedef T ElementType;
+    typedef _T T;
+    static const FunctionSide Side = Dual;
+    static const DomainType Domain = Interval;
+    static const Construction Cons = Dijkema;
 
     Wavelet(const Basis<T,Dual,Interval,Dijkema> &_basis_);
 
     T
-    operator()(T x, int j, int k) const;
+    operator()(T x, int j, long k, unsigned short deriv=0) const;
 
     Support<T>
-    support(int j, int k) const;
+    support(int j, long k) const;
 
     const Basis<T,Dual,Interval,Dijkema> &basis_;
-    const BSpline<T,Dual,Interval,Dijkema> phi_;
 };
 
 } // namespace lawa

@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,21 +22,21 @@
 namespace lawa {
 
 template <typename T>
-Wavelet<T,Dual,Interval,Dijkema>::Wavelet(
-                                    const Basis<T,Dual,Interval,Dijkema> &_basis_)
-    : basis_(_basis_), phi_(_basis_.mra_)
+Wavelet<T,Dual,Interval,Dijkema>::Wavelet(const Basis<T,Dual,Interval,Dijkema> &_basis_)
+    : basis_(_basis_)
 {
 }
 
 template <typename T>
 T
-Wavelet<T,Dual,Interval,Dijkema>::operator()(T x, int j, int k) const
+Wavelet<T,Dual,Interval,Dijkema>::operator()(T x, int j, long k, unsigned short deriv) const
 {
     assert(x>=0.);
     assert(x<=1.);
     assert(j>=basis_.min_j0);
     assert(k>=basis_.rangeJ_(j).firstIndex());
     assert(k<=basis_.rangeJ_(j).lastIndex());
+    assert(deriv==0);
     
     const typename DenseVector<Array<T> >::ConstView coeffs = basis_.M1_(j,_,k);
     T ret = 0;
@@ -48,7 +48,7 @@ Wavelet<T,Dual,Interval,Dijkema>::operator()(T x, int j, int k) const
 
 template <typename T>
 Support<T>
-Wavelet<T,Dual,Interval,Dijkema>::support(int j, int k) const
+Wavelet<T,Dual,Interval,Dijkema>::support(int j, long k) const
 {
     assert(j>=basis_.min_j0);
     assert(k>=basis_.rangeJ_(j).firstIndex());

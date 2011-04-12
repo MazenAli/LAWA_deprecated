@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,10 +29,18 @@ namespace lawa {
 
 using namespace flens;
 
-template <typename T>
-class MRA<T,Primal,Interval,DKU>
+template <typename _T>
+class MRA<_T,Primal,Interval,DKU>
 {
     public:
+        typedef _T T;
+        static const FunctionSide Side = Primal;
+        static const DomainType Domain = Interval;
+        static const Construction Cons = DKU;
+
+        typedef BasisFunction<T,Primal,Interval,DKU> BasisFunction;
+        typedef BSpline<T,Primal,Interval,DKU> BSplineType;
+
         MRA(int d, int d_, int j=-1);
 
         ~MRA();
@@ -83,6 +91,7 @@ class MRA<T,Primal,Interval,DKU>
 //        BSpline<T,Primal,R,CDF> phi_R;
 //        RefinementMatrix<T,Interval,Primbs> M0;
 
+        BSpline<T,Primal,Interval,DKU> phi;
         RefinementMatrix<T,Interval,DKU> M0;
     private:
         void

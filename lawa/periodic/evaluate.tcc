@@ -31,11 +31,11 @@ evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, int j,
     assert(x>=0.);
     assert(x<=1.);
     
-    BSpline<T,Primal,Periodic,CDF> phi(mra.d, deriv);
+    BSpline<T,Primal,Periodic,CDF> phi(mra.d);
     int offsetI = mra.rangeI(mra.j0).firstIndex()-coeffs.firstIndex();
     T ret = 0.0;
     for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {
-        ret += coeffs(k-offsetI) * phi(x,j,k);
+        ret += coeffs(k-offsetI) * phi(x,j,k,deriv);
     }
     return ret;
 }
@@ -59,10 +59,10 @@ evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis,
     Range<int> range(coeffs.firstIndex(), coeffs.firstIndex() + basis.cardJ(j0) - 1);
     
     ret += evaluate(basis.mra,j0,coeffs(range),x,deriv);
-    Wavelet<T,Primal,Periodic,CDF> psi(basis.d, basis.d_, deriv);
+    Wavelet<T,Primal,Periodic,CDF> psi(basis.d, basis.d_);
     for (int j=j0; j<=J-1; ++j) {
         for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
-            ret += coeffs(basis.mra.cardI(j) + k - offsetJ) * basis.psi(x, j, k);
+            ret += coeffs(basis.mra.cardI(j) + k - offsetJ) * basis.psi(x,j,k,deriv);
         }
     }
     return ret;

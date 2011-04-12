@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -42,8 +42,10 @@ Wavelet<T,Dual,R,CDF>::Wavelet(const BSpline<T,Primal,R,CDF> &_phi,
 
 template <typename T>
 T
-Wavelet<T,Dual,R,CDF>::operator()(T x, int j, int k) const
+Wavelet<T,Dual,R,CDF>::operator()(T x, int j, long k, unsigned short deriv) const
 {
+    assert(deriv==0);
+    
     T ret = T(0);
     x = pow2i<T>(j)*x-k;
     for (int i=b_.firstIndex(); i<=b_.lastIndex(); ++i) {
@@ -54,7 +56,7 @@ Wavelet<T,Dual,R,CDF>::operator()(T x, int j, int k) const
 
 template <typename T>
 Support<T>
-Wavelet<T,Dual,R,CDF>::support(int j, int k) const
+Wavelet<T,Dual,R,CDF>::support(int j, long k) const
 {
     return pow2i<T>(-j) * Support<T>(l1_+k, l2_+k);
 }

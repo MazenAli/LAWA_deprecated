@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -71,13 +71,24 @@ Basis<T,Dual,Interval,Dijkema>::enforceBoundaryCondition()
     }
 }
 
+template <typename T>
+const BasisFunction<T,Dual,Interval,Dijkema> &
+Basis<T,Dual,Interval,Dijkema>::generator(XType xtype) const
+{
+    if (xtype==XBSpline) {
+        return mra.phi_;
+    } else {
+        return psi_;
+    }
+}
+
 // cardinalities of whole, left, inner, right index sets (primal).
 template <typename T>
 int
 Basis<T,Dual,Interval,Dijkema>::cardJ_(int j) const
 {
     assert(j>=j0);
-    return pow2i<T>(j);
+    return pow2i<long>(j);
 }
 
 template <typename T>
@@ -108,7 +119,7 @@ template <typename T>
 const Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_(int j) const
 {
-    return Range<int>(1,pow2i<T>(j));
+    return Range<int>(1,pow2i<long>(j));
 }
 
 template <typename T>
@@ -124,7 +135,7 @@ const Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_I(int j) const
 {
     assert(j>=j0);
-    return Range<int>(M1_.left.length()+1, pow2i<T>(j)-M1_.right.length());
+    return Range<int>(M1_.left.length()+1, pow2i<long>(j)-M1_.right.length());
 }
 
 template <typename T>
@@ -132,7 +143,7 @@ const Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_R(int j) const
 {
     assert(j>=j0);
-    return Range<int>(pow2i<T>(j)-M1_.right.length()+1, pow2i<T>(j));
+    return Range<int>(pow2i<long>(j)-M1_.right.length()+1, pow2i<long>(j));
 }
 
 } // namespace lawa

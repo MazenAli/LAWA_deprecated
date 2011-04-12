@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,37 +22,38 @@
 
 #include <lawa/support.h>
 #include <lawa/basis.h>
+#include <lawa/basisfunction.h>
 #include <lawa/wavelet.h>
 
 namespace lawa {
 
-template <typename T, Construction Cons>
-struct Wavelet<T,Primal,Interval,Cons>
+template <typename _T, Construction _Cons>
+struct Wavelet<_T,Primal,Interval,_Cons>
+    : public BasisFunction<_T,Primal,Interval,_Cons>
 {
-    typedef T ElementType;
+    typedef _T T;
+    static const FunctionSide Side = Primal;
+    static const DomainType Domain = Interval;
+    static const Construction Cons = _Cons;
 
     Wavelet(const Basis<T,Primal,Interval,Cons> &_basis);
 
-    Wavelet(const Basis<T,Primal,Interval,Cons> &_basis, int _deriv);
-
     T
-    operator()(T x, int j, int k) const;
+    operator()(T x, int j, long k, unsigned short deriv) const;
 
     Support<T>
-    support(int j, int k) const;
+    support(int j, long k) const;
 
     DenseVector<Array<T> >
-    singularSupport(int j, int k) const;
+    singularSupport(int j, long k) const;
 
     int
-    vanishingMoments(int j, int k) const;
-    
+    vanishingMoments(int j, long k) const;
+
     T
     tic(int j) const;
 
     const Basis<T,Primal,Interval,Cons> &basis;
-    const BSpline<T,Primal,Interval,Cons> phi;
-    const int deriv, polynomialOrder;
 };
 
 } // namespace lawa

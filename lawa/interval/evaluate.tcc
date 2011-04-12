@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,10 +31,10 @@ evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, int j,
 
     typedef typename X::ElementType T;
 
-    BSpline<T,Primal,Interval,Cons> phi(mra,deriv);
+    BSpline<T,Primal,Interval,Cons> phi(mra);
     T ret = 0.0;
     for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {
-        ret += coeffs(k) * phi(x,j,k);
+        ret += coeffs(k) * phi(x,j,k,deriv);
     }
     return ret;
 /*    if (x<mra.suppIL(j).l2) {
@@ -79,11 +79,11 @@ evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
     basis.setLevel(j0);
     T ret = 0.;
     ret += evaluate(basis.mra,j0,coeffs(basis.mra.rangeI(j0)),x,deriv);
-    Wavelet<T,Primal,Interval,Cons> psi(basis,deriv);
+    Wavelet<T,Primal,Interval,Cons> psi(basis);
     for (int j=j0; j<=J-1; ++j) {
         if (x<basis.suppJL(j).l2) {
             for (int k=basis.rangeJL(j).firstIndex(); k<=basis.rangeJL(j).lastIndex(); ++k) {
-                ret += coeffs(basis.rangeI(j).lastIndex() + k) * psi(x, j, k);
+                ret += coeffs(basis.rangeI(j).lastIndex() + k) * psi(x, j, k, deriv);
             }
         }
         if (x>basis.suppJR(j).l1) {
@@ -113,10 +113,10 @@ evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
 
     T ret = 0;
     ret += evaluate(basis.mra,j0,coeffs(basis.mra.rangeI(j0)),x,deriv);
-    Wavelet<T,Primal,Interval,Cons> psi(basis,deriv);
+    Wavelet<T,Primal,Interval,Cons> psi(basis);
     for (int j=j0; j<=J-1; ++j) {
         for (int k=1; k<=basis.cardJ(j); ++k) {
-            ret += coeffs(basis.mra.rangeI(j).lastIndex() + k) * psi(x, j, k);
+            ret += coeffs(basis.mra.rangeI(j).lastIndex() + k) * psi(x, j, k, deriv);
         }
     }
     return ret;

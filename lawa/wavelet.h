@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,12 +20,14 @@
 #ifndef LAWA_WAVELET_H
 #define LAWA_WAVELET_H 1
 
+#include <lawa/basisfunction.h>
 #include <lawa/enum.h>
 
 namespace lawa {
 
-template <typename T, FunctionSide Side, DomainType Domain, Construction=CDF>
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
 struct Wavelet
+    : public BasisFunction<T,Side,Domain,Cons>
 {
 };
 

@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -71,6 +71,17 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
     }
 }
 
+template <typename T>
+const BasisFunction<T,Primal,Interval,Dijkema> &
+Basis<T,Primal,Interval,Dijkema>::generator(XType xtype) const
+{
+    if (xtype==XBSpline) {
+        return mra.phi; 
+    } else {
+        return psi;
+    }
+}
+
 // cardinalities of whole, left, inner, right index sets (primal).
 template <typename T>
 int
@@ -127,7 +138,6 @@ Basis<T,Primal,Interval,Dijkema>::rangeJI(int j) const
 {
     assert(j>=min_j0);
     return _(d+d_-1,pow2i<T>(j)-(d+d_-3));
-    
 }
 
 template <typename T>
@@ -136,42 +146,6 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 {
     assert(j>=min_j0);
     return _(pow2i<T>(j)-(d+d_-2),pow2i<T>(j));
-    
 }
-
-// TODO: get rid of the following support functions.
-template <typename T>
-const Support<T>
-Basis<T,Primal,Interval,Dijkema>::support(int j, int k, int e) const
-{
-    assert(j>=min_j0);
-    BSpline<T,Primal,Interval,Dijkema> phi(this->mra);
-    Wavelet<T,Primal,Interval,Dijkema> psi(*this);
-    if (e==0) {
-        return phi.support(j,k);
-    } else if (e==1) {
-        return psi.support(j,k);
-    } else {
-        assert(0);
-    }
-}
-
-template <typename T>
-const DenseVector<Array<T> >
-Basis<T,Primal,Interval,Dijkema>::singularSupport(int j, int k, int e) const
-{
-    assert(j>=min_j0);
-    BSpline<T,Primal,Interval,Primbs> phi(this->mra);
-    Wavelet<T,Primal,Interval,Dijkema> psi(*this);
-    if (e==0) {
-        return phi.singularSupport(j,k);
-    } else if (e==1) {
-        return psi.singularSupport(j,k);
-    } else {
-        assert(0);
-    }
-}
-
-
 
 } // namespace lawa
