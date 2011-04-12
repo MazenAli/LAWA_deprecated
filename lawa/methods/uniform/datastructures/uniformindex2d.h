@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_INFRASTRUCTURE_UNIFORMINDEX2D_H
-#define LAWA_INFRASTRUCTURE_UNIFORMINDEX2D_H 1
+#ifndef LAWA_METHODS_UNIFORM_DATASTRUCTURES_UNIFORMINDEX2D_H
+#define LAWA_METHODS_UNIFORM_DATASTRUCTURES_UNIFORMINDEX2D_H 1
 
 #include <lawa/settings/enum.h>
 
@@ -47,6 +47,6 @@ class UniformIndex2D
     
 } // namespace lawa
 
-#include <lawa/infrastructure/uniformindex2d.tcc>
+#include <lawa/methods/uniform/datastructures/uniformindex2d.tcc>
 
-#endif // LAWA_INFRASTRUCTURE_UNIFORMINDEX2D_H
+#endif // LAWA_METHODS_UNIFORM_DATASTRUCTURES_UNIFORMINDEX2D_H

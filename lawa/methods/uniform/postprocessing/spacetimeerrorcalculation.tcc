@@ -1,4 +1,4 @@
-#include <lawa/infrastructure/uniformindex2d.h>
+#include <lawa/methods/uniform/datastructures/uniformindex2d.h>
 
 namespace lawa{
     

@@ -1,5 +1,5 @@
-#ifndef LAWA_BOX_SPACETIMEERRORCALCULATION_H
-#define LAWA_BOX_SPACETIMEERRORCALCULATION_H 1
+#ifndef LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEERRORCALCULATION_H
+#define LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEERRORCALCULATION_H 1
 
 namespace lawa{
 
@@ -23,6 +23,6 @@ calculateSpaceTimeL2Error(const BoxBasis& basis, T (*sol)(T, T), T (*dx_sol)(T,T
 
 } // namespace lawa
 
-#include <lawa/box/spacetimeerrorcalculation.tcc>
+#include <lawa/methods/uniform/postprocessing/spacetimeerrorcalculation.tcc>
 
-#endif // LAWA_BOX_SPACETIMEERRORCALCULATION_H
+#endif // LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEERRORCALCULATION_H

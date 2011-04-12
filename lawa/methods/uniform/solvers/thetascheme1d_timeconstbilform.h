@@ -1,5 +1,5 @@
-#ifndef LAWA_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H
-#define LAWA_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H 1
+#ifndef LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H
+#define LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H 1
 
 #include <lawa/settings/enum.h>
 
@@ -123,6 +123,6 @@ class ThetaScheme1D_TimeConstBilForm
       
 } // namespace lawa
 
-#include <lawa/solvers/thetascheme1d_timeconstbilform.tcc>
+#include <lawa/methods/uniform/solvers/thetascheme1d_timeconstbilform.tcc>
 
-#endif // LAWA_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H
+#endif // LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H

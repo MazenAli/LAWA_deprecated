@@ -1,5 +1,5 @@
-#ifndef LAWA_SOLVERS_THETASCHEME1D_H
-#define LAWA_SOLVERS_THETASCHEME1D_H 1
+#ifndef LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_H
+#define LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_H 1
 
 #include <lawa/settings/enum.h>
 
@@ -120,6 +120,6 @@ class ThetaScheme1D
       
 } // namespace lawa
 
-#include <lawa/solvers/thetascheme1d.tcc>
+#include <lawa/methods/uniform/solvers/thetascheme1d.tcc>
 
-#endif // LAWA_SOLVERS_THETASCHEME1D_H
+#endif // LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_H

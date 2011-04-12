@@ -18,39 +18,39 @@
  */
 
 
-#ifndef LAWA_INFRASTRUCTURE_PROBLEM2D_H
-#define LAWA_INFRASTRUCTURE_PROBLEM2D_H 1
+#ifndef LAWA_METHODS_UNIFORM_ALGORITHMS_ASSEMBLER2D_H 
+#define LAWA_METHODS_UNIFORM_ALGORITHMS_ASSEMBLER2D_H 1
 
-#include <lawa/infrastructure/uniformindex2d.h>
+#include <lawa/methods/uniform/datastructures/uniformindex2d.h>
 #include <lawa/settings/enum.h>
 #include <extensions/extensions.h>
 
 namespace lawa{    
 
 template<typename T, typename Basis>
-class Problem2D
+class Assembler2D
 {
     private:
         Basis& basis;
    
     public: 
-        Problem2D(Basis& _basis);
+        Assembler2D(Basis& _basis);
     
         template <typename BilinearForm>
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-        getStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol = 10e-15);
+        assembleStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol = 10e-15);
     
         template <typename RHSIntegral>
         flens::DenseVector<flens::Array<T> >
-        getRHS(RHSIntegral& rhs, int J_x, int J_y);
+        assembleRHS(RHSIntegral& rhs, int J_x, int J_y);
         
         template <typename Preconditioner>
         flens::DiagonalMatrix<T>    
-        getPreconditioner(Preconditioner& P, int J_x, int J_y);
+        assemblePreconditioner(Preconditioner& P, int J_x, int J_y);
 };
 
 } // namespace lawa
 
-#include <lawa/infrastructure/problem2d.tcc>
+#include <lawa/methods/uniform/algorithms/assembler2d.tcc>
 
-#endif // LAWA_INFRASTRUCTURE_PROBLEM2D_H
+#endif // LAWA_METHODS_UNIFORM_ALGORITHMS_ASSEMBLER2D_H

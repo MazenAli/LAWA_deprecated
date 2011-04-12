@@ -20,8 +20,8 @@
 namespace lawa{
     
 template<typename T, typename Basis>
-Problem2D<T, Basis>::
-Problem2D(Basis& _basis)
+Assembler2D<T, Basis>::
+Assembler2D(Basis& _basis)
     : basis(_basis)
 {        
 }
@@ -30,8 +30,8 @@ Problem2D(Basis& _basis)
 template<typename T, typename Basis>
 template<typename BilinearForm>
 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-Problem2D<T, Basis>::
-getStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol)
+Assembler2D<T, Basis>::
+assembleStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol)
 {   
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
@@ -387,7 +387,7 @@ getStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol)
 template<typename T, typename Basis>
 template<typename RHSIntegral>
 flens::DenseVector<flens::Array<T> >
-Problem2D<T, Basis>::getRHS(RHSIntegral& rhs, int J_x, int J_y)
+Assembler2D<T, Basis>::assembleRHS(RHSIntegral& rhs, int J_x, int J_y)
 {
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
@@ -465,8 +465,8 @@ Problem2D<T, Basis>::getRHS(RHSIntegral& rhs, int J_x, int J_y)
 template<typename T, typename Basis>
 template<typename Preconditioner>
 flens::DiagonalMatrix<T>    
-Problem2D<T, Basis>::
-getPreconditioner(Preconditioner& P, int J_x, int J_y)
+Assembler2D<T, Basis>::
+assemblePreconditioner(Preconditioner& P, int J_x, int J_y)
 {
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;

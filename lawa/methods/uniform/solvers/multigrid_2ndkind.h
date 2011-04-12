@@ -1,9 +1,8 @@
-#ifndef LAWA_SOLVERS_MULTIGRID_2NDKIND_H
-#define LAWA_SOLVERS_MULTIGRID_2NDKIND_H 1
+#ifndef LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRID_2NDKIND_H
+#define LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRID_2NDKIND_H 1
 
-#include <lawa/infrastructure/infrastructure.h>
+#include <lawa/methods/uniform/datastructures.h>
 #include <lawa/righthandsides/homogeneousrhs.h>
-#include <lawa/solvers/solvers.h>
 
 namespace lawa{
     
@@ -80,6 +79,6 @@ class MultiGrid_2ndKind{
 
 } // namespace lawa
 
-#include <lawa/solvers/multigrid_2ndkind.tcc>
+#include <lawa/methods/uniform/solvers/multigrid_2ndkind.tcc>
 
-#endif // LAWA_SOLVERS_MULTIGRID_2NDKIND_H
+#endif // LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRID_2NDKIND_H

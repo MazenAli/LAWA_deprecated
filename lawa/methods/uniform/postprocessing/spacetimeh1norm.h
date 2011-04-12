@@ -1,5 +1,5 @@
-#ifndef LAWA_BOX_SPACETIMEH1NORM_H
-#define LAWA_BOX_SPACETIMEH1NORM_H 1
+#ifndef LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEH1NORM_H
+#define LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEH1NORM_H 1
     
 template <typename T, typename Basis>
 class SpaceTimeH1Norm{
@@ -36,6 +36,6 @@ class SpaceTimeH1Norm{
 };
     
     
-#include "lawa/box/spacetimeh1norm.tcc"
+#include "lawa/methods/uniform/postprocessing/spacetimeh1norm.tcc"
 
-#endif // LAWA_BOX_SPACETIMEH1NORM_H
+#endif // LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEH1NORM_H

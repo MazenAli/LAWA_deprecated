@@ -1,5 +1,5 @@
-#ifndef LAWA_BOX_EVALUATE_H
-#define LAWA_BOX_EVALUATE_H 1
+#ifndef LAWA_METHODS_UNIFORM_POSTPROCESSING_EVALUATE_H
+#define LAWA_METHODS_UNIFORM_POSTPROCESSING_EVALUATE_H 1
 
 namespace lawa {
 
@@ -11,7 +11,7 @@ evaluate(const Basis &basis, const int J_x, const int J_y, const flens::DenseVec
 
 } // namespace lawa
 
-#include <lawa/box/evaluate.tcc>
+#include <lawa/methods/uniform/postprocessing/evaluate.tcc>
 
 
-#endif // LAWA_BOX_EVALUATE_H
+#endif // LAWA_METHODS_UNIFORM_POSTPROCESSING_EVALUATE_H

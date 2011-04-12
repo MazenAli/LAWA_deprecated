@@ -1,5 +1,5 @@
-#ifndef LAWA_SOLVERS_TIMESTEPPING_H
-#define LAWA_SOLVERS_TIMESTEPPING_H 1
+#ifndef LAWA_METHODS_UNIFORM_SOLVERS_TIMESTEPPING_H
+#define LAWA_METHODS_UNIFORM_SOLVERS_TIMESTEPPING_H 1
 
 namespace lawa{
 
@@ -50,6 +50,6 @@ class TimeStepping
 
 } // namespace lawa
 
-#include <lawa/solvers/timestepping.tcc>
+#include <lawa/methods/uniform/solvers/timestepping.tcc>
 
-#endif // LAWA_SOLVERS_TIMESTEPPING_H
+#endif // LAWA_METHODS_UNIFORM_SOLVERS_TIMESTEPPING_H

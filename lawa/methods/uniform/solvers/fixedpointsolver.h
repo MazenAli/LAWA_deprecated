@@ -1,5 +1,7 @@
-#ifndef LAWA_SOLVERS_FIXEDPOINTSOLVER_H
-#define LAWA_SOLVERS_FIXEDPOINTSOLVER_H 1
+#ifndef LAWA_METHODS_UNIFORM_SOLVERS_FIXEDPOINTSOLVER_H
+#define LAWA_METHODS_UNIFORM_SOLVERS_FIXEDPOINTSOLVER_H 1
+
+#include <lawa/flensforlawa.h>
 
 namespace lawa{
     
@@ -37,6 +39,6 @@ class FixedPointSolver
   
 } // namespace lawa
 
-#include <lawa/solvers/fixedpointsolver.tcc>
+#include <lawa/methods/uniform/solvers/fixedpointsolver.tcc>
 
-#endif // LAWA_SOLVERS_FIXEDPOINTSOLVER_H
+#endif // LAWA_METHODS_UNIFORM_SOLVERS_FIXEDPOINTSOLVER_H

@@ -1,12 +1,12 @@
-#ifndef LAWA_SOLVERS_MULTIGRIDSOLVER_H
-#define LAWA_SOLVERS_MULTIGRIDSOLVER_H 1
+#ifndef LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRIDSOLVER_H
+#define LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRIDSOLVER_H 1
 
 namespace lawa{
 
 template<typename T, typename PrimalBasis, typename DualBasis, typename Smoother, typename Solver>
 class MultigridSolver{
     
-    typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
+      typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
     
   private:
       PrimalBasis& primalbasis;
@@ -31,6 +31,6 @@ class MultigridSolver{
 
 } //  namespace lawa
 
-#include <lawa/solvers/multigridsolver.tcc>
+#include <lawa/methods/uniform/solvers/multigridsolver.tcc>
 
-#endif // LAWA_SOLVERS_MULTIGRIDSOLVER_H
+#endif // LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRIDSOLVER_H

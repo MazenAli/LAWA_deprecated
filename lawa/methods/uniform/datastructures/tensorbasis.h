@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_BOX_TENSORBASIS_H
-#define LAWA_BOX_TENSORBASIS_H 1
+#ifndef LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H
+#define LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H 1
 
 namespace lawa{
     
@@ -61,7 +61,7 @@ struct TensorBasis3D
     
 } // namespace lawa
 
-#include <lawa/box/tensorbasis.tcc>
+#include <lawa/methods/uniform/datastructures/tensorbasis.tcc>
 
 
-#endif // LAWA_BOX_TENSORBASIS_H
+#endif // LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H
