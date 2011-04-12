@@ -21,8 +21,8 @@
 #ifndef LAWA_SPARSEGRID_SPARSEGRID2D_H
 #define LAWA_SPARSEGRID_SPARSEGRID2D_H 1
 
-#include <lawa/adaptive/index.h>
-#include <lawa/adaptive/datastructures/datastructures.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/datastructures.h>
 #include <lawa/operators/operators.h>
 
 
