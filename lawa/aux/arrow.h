@@ -21,7 +21,7 @@
 #define LAWA_AUX_ARROW_H 1
 
 #include <lawa/flensforlawa.h>
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
