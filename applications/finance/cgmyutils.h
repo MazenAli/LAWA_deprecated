@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_MATH_CGMYUTILS_H
-#define LAWA_MATH_CGMYUTILS_H 1
+#ifndef APPLICATIONS_FINANCE_CGMYUTILS_H
+#define APPLICATIONS_FINANCE_CGMYUTILS_H 1
 
 #include <gsl/gsl_sf_gamma.h>
 #include <boost/math/special_functions/gamma.hpp>
@@ -76,7 +76,7 @@ struct CGMYUtils {
 
 }	//namespace lawa
 
-#include <lawa/math/cgmyutils.tcc>
+#include <applications/finance/cgmyutils.tcc>
 
 
 #endif // LAWA_MATH_CGMYUTILS_H

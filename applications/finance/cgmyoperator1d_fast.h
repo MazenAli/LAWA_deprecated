@@ -18,10 +18,10 @@
  */
 
 
-#ifndef LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_FAST_H
-#define LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_FAST_H 1
+#ifndef APPLICATIONS_FINANCE_CGMYOPERATOR1D_FAST_H
+#define APPLICATIONS_FINANCE_CGMYOPERATOR1D_FAST_H 1
 
-#include <lawa/math/cgmyutils.h>
+#include <applications/finance/cgmyutils.h>
 
 namespace lawa {
 
@@ -73,7 +73,7 @@ class CGMYOperator1D_Fast{
 
 }	//namespace lawa
 
-#include <lawa/operators/integraloperators/cgmyoperator1d_fast.tcc>
+#include <applications/finance/cgmyoperator1d_fast.tcc>
 
 
-#endif // LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_FAST_H
+#endif // APPLICATIONS_FINANCE_CGMYOPERATOR1D_FAST_H

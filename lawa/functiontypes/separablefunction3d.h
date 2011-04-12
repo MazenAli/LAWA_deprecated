@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,31 +17,34 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_FUNCTIONTYPES_FUNCTION_H
-#define LAWA_FUNCTIONTYPES_FUNCTION_H 1
+#ifndef LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION3D_H
+#define LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION3D_H 1
 
-#include <lawa/flensforlawa.h>
+#include <lawa/functiontypes/function.h>
 
 namespace lawa {
 
 using namespace flens;
 
-template <typename T>
-struct Function
+template<typename T>
+struct SeparableFunction3D
 {
-    Function(T (*_f)(T));
+    SeparableFunction3D(Function<T> _F_x, Function<T>  _F_y, Function<T>  _F_z);
 
-    Function(T (*_f)(T), const DenseVector<Array<T> > &_singularPoints);
+    SeparableFunction3D(T (*_f_x)(T), const DenseVector<Array<T> > &_singularPts_x,
+                        T (*_f_y)(T), const DenseVector<Array<T> > &_singularPts_y,
+                        T (*_f_z)(T), const DenseVector<Array<T> > &_singularPts_z);
 
     T
-    operator()(T x) const;
+    operator()(T x, T y, T z) const;
 
-    T (*f)(T);
-    const DenseVector<Array<T> > singularPoints;
+    Function<T> F_x;
+    Function<T> F_y;
+    Function<T> F_z;
 };
 
 } // namespace lawa
 
-#include <lawa/functiontypes/function.tcc>
+#include <lawa/functiontypes/separablefunction3d.tcc>
 
-#endif //LAWA_FUNCTIONTYPES_FUNCTION_H
+#endif // LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION3D_H

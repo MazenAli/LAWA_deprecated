@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_RIGHTHANDSIDES_RHSFORCGMYOPERATOR_H
-#define LAWA_RIGHTHANDSIDES_RHSFORCGMYOPERATOR_H 1
+#ifndef APPLICATIONS_FINANCE_RHSFORCGMYOPERATOR_H
+#define APPLICATIONS_FINANCE_RHSFORCGMYOPERATOR_H 1
 
-#include <lawa/math/cgmyutils.h>
+#include <applications/finance/cgmyutils.h>
 
 namespace lawa {
 
@@ -69,6 +69,6 @@ private:
 
 }	//namespace lawa
 
-#include <lawa/righthandsides/rhsforcgmyoperator.tcc>
+#include <applications/finance/rhsforcgmyoperator.tcc>
 
-#endif	//LAWA_RIGHTHANDSIDES_RHSFORCGMYOPERATOR_H
+#endif	//APPLICATIONS_FINANCE_RHSFORCGMYOPERATOR_H

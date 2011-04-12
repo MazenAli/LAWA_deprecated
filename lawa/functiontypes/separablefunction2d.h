@@ -17,49 +17,32 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H
-#define LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H 1
+#ifndef LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H
+#define LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H 1
 
-#include <lawa/function.h>
+#include <lawa/functiontypes/function.h>
 
 namespace lawa {
-    
+
 using namespace flens;
-    
+
 template<typename T>
 struct SeparableFunction2D
 {
     SeparableFunction2D(Function<T> _F_x, Function<T>  _F_y);
-    
+
     SeparableFunction2D(T (*_f_x)(T), const DenseVector<Array<T> > &_singularPts_x,
                         T (*_f_y)(T), const DenseVector<Array<T> > &_singularPts_y);
-    
+
     T
     operator()(T x, T y) const;
-    
+
     Function<T> F_x;
     Function<T> F_y;
 };
 
-template<typename T>
-struct SeparableFunction3D
-{
-    SeparableFunction3D(Function<T> _F_x, Function<T>  _F_y, Function<T>  _F_z);
-
-    SeparableFunction3D(T (*_f_x)(T), const DenseVector<Array<T> > &_singularPts_x,
-                        T (*_f_y)(T), const DenseVector<Array<T> > &_singularPts_y,
-                        T (*_f_z)(T), const DenseVector<Array<T> > &_singularPts_z);
-
-    T
-    operator()(T x, T y, T z) const;
-
-    Function<T> F_x;
-    Function<T> F_y;
-    Function<T> F_z;
-};
-    
 } // namespace lawa
 
-#include <lawa/righthandsides/separablefunctionnd.tcc>
+#include <lawa/functiontypes/separablefunction2d.tcc>
 
-#endif // LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H
+#endif // LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H

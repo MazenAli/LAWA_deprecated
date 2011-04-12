@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_H
-#define LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_H 1
+#ifndef APPLICATIONS_FINANCE_CGMYOPERATOR1D_H
+#define APPLICATIONS_FINANCE_CGMYOPERATOR1D_H 1
 
-#include <lawa/math/cgmyutils.h>
+#include <applications/finance/cgmyutils.h>
 
 namespace lawa {
 
@@ -89,6 +89,6 @@ class CGMYOperator1D
 
 }	//namespace lawa
 
-#include <lawa/operators/integraloperators/cgmyoperator1d.tcc>
+#include <applications/finance/cgmyoperator1d.tcc>
 
 #endif	//LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_H

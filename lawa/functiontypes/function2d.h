@@ -17,35 +17,30 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef LAWA_FUNCTIONTYPES_FUNCTION2D_H
+#define LAWA_FUNCTIONTYPES_FUNCTION2D_H 1
+
 namespace lawa {
 
-template <typename T>
-Function2D<T>::Function2D(T (*_f)(T,T), const DenseVector<Array<T> > &_singularPts_x,
-		 const DenseVector<Array<T> > &_singularPts_y)
-    : f(_f), singularPts_x(_singularPts_x), singularPts_y(_singularPts_y)
+using namespace flens;
+
+template<typename T>
+struct Function2D
 {
-}
+public:
+    Function2D(T (*_f)(T,T), const DenseVector<Array<T> > &_singularPts_x,
+                             const DenseVector<Array<T> > &_singularPts_y);
 
-template <typename T>
-T
-Function2D<T>::operator()(T x, T y) const
-{
-	return f(x,y);
-}
+    T
+    operator()(T x, T y) const;
 
+    const DenseVector<Array<T> > singularPts_x; //x-aligned singularities
+    const DenseVector<Array<T> > singularPts_y; //y-aligned singularities
+    T (*f)(T,T);
+};
 
-template <typename T>
-Function3D<T>::Function3D(T (*_f)(T,T,T), const DenseVector<Array<T> > &_singularPts_x,
-		 const DenseVector<Array<T> > &_singularPts_y, const DenseVector<Array<T> > &_singularPts_z)
-    : f(_f), singularPts_x(_singularPts_x), singularPts_y(_singularPts_y), singularPts_z(_singularPts_z)
-{
-}
+} // namespace lawa
 
-template <typename T>
-T
-Function3D<T>::operator()(T x, T y, T z) const
-{
-	return f(x,y,z);
-}
+#include <lawa/functiontypes/function2d.tcc>
 
-}	//namespace lawa
+#endif // LAWA_FUNCTIONTYPES_FUNCTION2D_H

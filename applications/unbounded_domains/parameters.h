@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_ADAPTIVE_ALGORITHMS_PARAMETERS_H
-#define LAWA_ADAPTIVE_ALGORITHMS_PARAMETERS_H 1
+#ifndef APPLICATIONS_UNBOUNDEDDOMAINS_PARAMETERS_H
+#define APPLICATIONS_UNBOUNDEDDOMAINS_PARAMETERS_H 1
 
-#include <lawa/basis.h>
+#include <lawa/constructions/basis.h>
 #include <lawa/operators/operators.h>
 
 
@@ -65,6 +65,6 @@ public:
 
 }	//namespace lawa
 
-#include<lawa/adaptive/algorithms/parameters.tcc>
+#include<applications/unbounded_domains/parameters.tcc>
 
-#endif	//LAWA_ADAPTIVE_ALGORITHMS_PARAMETERS_H
+#endif	//APPLICATIONS_UNBOUNDEDDOMAINS_PARAMETERS_H
