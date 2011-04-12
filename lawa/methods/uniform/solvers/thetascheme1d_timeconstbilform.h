@@ -1,7 +1,7 @@
 #ifndef LAWA_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H
 #define LAWA_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa{
     

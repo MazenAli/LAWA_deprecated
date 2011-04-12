@@ -20,7 +20,7 @@
 #ifndef LAWA_INFRASTRUCTURE_UNIFORMINDEX2D_H
 #define LAWA_INFRASTRUCTURE_UNIFORMINDEX2D_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
   

@@ -22,7 +22,7 @@
 #define LAWA_INFRASTRUCTURE_PROBLEM2D_H 1
 
 #include <lawa/infrastructure/uniformindex2d.h>
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 #include <extensions/extensions.h>
 
 namespace lawa{    

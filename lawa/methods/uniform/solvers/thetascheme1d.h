@@ -1,7 +1,7 @@
 #ifndef LAWA_SOLVERS_THETASCHEME1D_H
 #define LAWA_SOLVERS_THETASCHEME1D_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa{
     
