@@ -19,23 +19,13 @@
 
 #include <lawa/flensforlawa.h>
 
-#include <lawa/adaptive/adaptive.h>
 #include <lawa/aux/aux.h>
-#include <lawa/box/box.h>
-#include <lawa/bspline.h>
-#include <lawa/enum.h>
-#include <lawa/function.h>
-#include <lawa/infrastructure/infrastructure.h>
-#include <lawa/integrals.h>
-#include <lawa/interval/interval.h>
+#include <lawa/constructions/constructions.h>
+#include <lawa/functiontypes/functiontypes.h>
+#include <lawa/integrals/integrals.h>
 #include <lawa/math/math.h>
-#include <lawa/mra.h>
+#include <lawa/methods/methods.h>
 #include <lawa/operators/operators.h>
-#include <lawa/param.h>
-#include <lawa/periodic/periodic.h>
-#include <lawa/quadrature.h>
-#include <lawa/realline/realline.h>
+#include <lawa/preconditioners/preconditioners.h>
 #include <lawa/righthandsides/righthandsides.h>
-#include <lawa/solvers/solvers.h>
-#include <lawa/support.h>
-#include <lawa/wavelet.h>
+#include <lawa/settings/settings.h>
