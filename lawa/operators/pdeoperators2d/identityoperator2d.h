@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_OPERATORS_IDENTITYOPERATOR2D_H
-#define LAWA_OPERATORS_IDENTITYOPERATOR2D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS2D_IDENTITYOPERATOR2D_H
+#define LAWA_OPERATORS_PDEOPERATORS2D_IDENTITYOPERATOR2D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
@@ -81,4 +81,4 @@ public:
 
 #include <lawa/operators/pdeoperators2d/identityoperator2d.tcc>
 
-#endif   //LAWA_OPERATORS_IDENTITYOPERATOR2D_H
+#endif   //LAWA_OPERATORS_PDEOPERATORS2D_IDENTITYOPERATOR2D_H

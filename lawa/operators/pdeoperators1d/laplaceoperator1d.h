@@ -18,12 +18,12 @@
  */
 
 
-#ifndef LAWA_OPERATORS_LAPLACEOPERATOR1D_H
-#define LAWA_OPERATORS_LAPLACEOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS1D_LAPLACEOPERATOR1D_H
+#define LAWA_OPERATORS_PDEOPERATORS1D_LAPLACEOPERATOR1D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/integrals.h>
+#include <lawa/integrals/integral.h>
 
 namespace lawa {
 
@@ -60,4 +60,4 @@ private:
 
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.tcc>
 
-#endif  //LAWA_OPERATORS_LAPLACEOPERATOR1D_H 1
+#endif  //LAWA_OPERATORS_PDEOPERATORS1D_LAPLACEOPERATOR1D_H 1

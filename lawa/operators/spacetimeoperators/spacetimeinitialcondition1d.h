@@ -18,11 +18,11 @@
  */
 
 
-#ifndef LAWA_OPERATORS_SPACETIMEINITIALCONDITION1D_H
-#define LAWA_OPERATORS_SPACETIMEINITIALCONDITION1D_H 1
+#ifndef LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEINITIALCONDITION1D_H
+#define LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEINITIALCONDITION1D_H 1
 
 
-#include <lawa/integrals.h>
+#include <lawa/integrals/integral.h>
 
 namespace lawa {
 
@@ -75,4 +75,4 @@ class SpaceTimeInitialCondition1D{
 
 #include <lawa/operators/spacetimeoperators/spacetimeinitialcondition1d.tcc>
 
-#endif // LAWA_OPERATORS_SPACETIMEINITIALCONDITION1D_H
+#endif // LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEINITIALCONDITION1D_H

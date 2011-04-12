@@ -18,14 +18,14 @@
  */
 
 
-#ifndef LAWA_OPERATORS_HELMHOLTZOPERATOR2D_H
-#define LAWA_OPERATORS_HELMHOLTZOPERATOR2D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS2D_HELMHOLTZOPERATOR2D_H
+#define LAWA_OPERATORS_PDEOPERATORS2D_HELMHOLTZOPERATOR2D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
-#include <lawa/integrals.h>
+#include <lawa/integrals/integral.h>
 
 namespace lawa {
 
@@ -97,4 +97,4 @@ class HelmholtzOperator2D{
 
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.tcc>
 
-#endif //  LAWA_METHODS_ADAPTIVE_HELMHOLTZOPERATOR2D_H
+#endif //  LAWA_OPERATORS_PDEOPERATORS2D_HELMHOLTZOPERATOR2D_H
