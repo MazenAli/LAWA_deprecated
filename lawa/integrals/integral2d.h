@@ -17,11 +17,11 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_INTEGRALS2D_H
-#define LAWA_RIGHTHANDSIDES_INTEGRALS2D_H 1
+#ifndef LAWA_INTEGRALS_INTEGRAL2D_H
+#define LAWA_INTEGRALS_INTEGRAL2D_H 1
 
-#include <lawa/righthandsides/functionnd.h>
-#include <lawa/righthandsides/quadrature2d.h>
+#include <lawa/functiontypes/function2d.h>
+#include <lawa/integrals/quadrature2d.h>
 
 namespace lawa {
 
@@ -45,7 +45,7 @@ struct Integral2D
 
 } // namespace lawa
 
-#include <lawa/righthandsides/integrals2d.tcc>
+#include <lawa/integrals/integral2d.tcc>
 
 
-#endif	//LAWA_INTEGRALS2D_H
+#endif	//LAWA_INTEGRALS_INTEGRAL2D_H

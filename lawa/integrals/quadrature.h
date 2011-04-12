@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_QUADRATURE_H
-#define LAWA_QUADRATURE_H 1
+#ifndef LAWA_INTEGRALS_QUADRATURE_H
+#define LAWA_INTEGRALS_QUADRATURE_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 #include <lawa/flensforlawa.h>
 
 namespace lawa {
@@ -84,6 +84,6 @@ class Quadrature<Trapezoidal,Integral>
 
 } // namespace lawa
 
-#include <lawa/quadrature.tcc>
+#include <lawa/integrals/quadrature.tcc>
 
 #endif // LAWA_QUADRATURE_H

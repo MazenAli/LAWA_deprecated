@@ -17,10 +17,10 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_QUADRATURE2D_H
-#define LAWA_RIGHTHANDSIDES_QUADRATURE2D_H 1
+#ifndef LAWA_INTEGRALS_QUADRATURE2D_H
+#define LAWA_INTEGRALS_QUADRATURE2D_H 1
 
-#include <sparse_grid_mixed.h>
+#include <extensions/sparsegrid/sparse_grid_mixed.h>
 #include <lawa/math/math.h>
 
 namespace lawa {
@@ -82,6 +82,6 @@ class Quadrature2D<T,FullGridGL,Integral2D>
 
 }   //namespace lawa
 
-#include <lawa/righthandsides/quadrature2d.tcc>
+#include <lawa/integrals/quadrature2d.tcc>
 
 #endif   //LAWA_RIGHTHANDSIDES_QUADRATURE2D_H

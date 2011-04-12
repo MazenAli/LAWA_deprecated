@@ -18,15 +18,16 @@
 */
 
 #include <cassert>
-#include <lawa/aux/typetraits.h>
-#include <lawa/basisfunction.h>
-#include <lawa/enum.h>
-#include <lawa/bspline.h>
+#include <lawa/constructions/basisfunction.h>
+#include <lawa/constructions/bspline.h>
+#include <lawa/constructions/support.h>
+#include <lawa/constructions/wavelet.h>
+#include <lawa/constructions/periodic/integrals.h>
 #include <lawa/math/math.h>
-#include <lawa/param.h>
-#include <lawa/support.h>
-#include <lawa/wavelet.h>
-#include <lawa/periodic/integrals.h>
+#include <lawa/settings/enum.h>
+#include <lawa/settings/typetraits.h>
+#include <lawa/settings/param.h>
+
 
 namespace lawa {
    
