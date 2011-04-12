@@ -21,4 +21,4 @@
 #include <lawa/aux/densify.h>
 // #include <lawa/aux/integral_vs_gmp.h> TODO: remove or review GMP
 #include <lawa/aux/sorting.h>
-#include <lawa/aux/typetraits.h>
+#include <lawa/aux/timer.h>
