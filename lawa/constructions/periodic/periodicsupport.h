@@ -1,8 +1,8 @@
-#ifndef LAWA_PERIODIC_PERIODICSUPPORT_H
-#define LAWA_PERIODIC_PERIODICSUPPORT_H 1
+#ifndef LAWA_CONSTRUCTIONS_PERIODIC_PERIODICSUPPORT_H
+#define LAWA_CONSTRUCTIONS_PERIODIC_PERIODICSUPPORT_H 1
 
 #include <lawa/flensforlawa.h>
-#include <lawa/support.h>
+#include <lawa/constructions/support.h>
 
 namespace lawa {
 
@@ -98,6 +98,6 @@ template <typename T>
 
 } // namespace lawa
 
-#include <lawa/periodic/periodicsupport.tcc>
+#include <lawa/constructions/periodic/periodicsupport.tcc>
 
-#endif // LAWA_PERIODIC_PERIODICSUPPORT_H
+#endif // LAWA_CONSTRUCTIONS_PERIODIC_PERIODICSUPPORT_H

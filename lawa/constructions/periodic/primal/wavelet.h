@@ -17,16 +17,16 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_PERIODIC_PRIMAL_WAVELET_H
-#define LAWA_PERIODIC_PRIMAL_WAVELET_H 1
+#ifndef LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_WAVELET_H
+#define LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_WAVELET_H 1
 
-#include <lawa/basisfunction.h>
-#include <lawa/enum.h>
+#include <lawa/constructions/basisfunction.h>
+#include <lawa/settings/enum.h>
 #include <lawa/flensforlawa.h>
-#include <lawa/periodic/periodicsupport.h>
-#include <lawa/periodic/primal/bspline.h>
-#include <lawa/periodic/dual/bspline.h>
-#include <lawa/wavelet.h>
+#include <lawa/constructions/periodic/periodicsupport.h>
+#include <lawa/constructions/periodic/primal/bspline.h>
+#include <lawa/constructions/periodic/dual/bspline.h>
+#include <lawa/constructions/wavelet.h>
 
 namespace lawa {
 
@@ -73,6 +73,6 @@ struct Wavelet<_T,Primal,Periodic,CDF>
 
 } // namespace lawa
 
-#include <lawa/periodic/primal/wavelet.tcc>
+#include <lawa/constructions/periodic/primal/wavelet.tcc>
 
-#endif // LAWA_PERIODIC_PRIMAL_WAVELET_H
+#endif // LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_WAVELET_H

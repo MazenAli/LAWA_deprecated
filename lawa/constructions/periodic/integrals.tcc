@@ -18,7 +18,7 @@
 */
 
 #include <lawa/math/math.h>
-#include <lawa/support.h>
+#include <lawa/constructions/support.h>
 
 namespace lawa {
 

@@ -17,14 +17,14 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_REALLINE_DUAL_BSPLINE_H
-#define LAWA_REALLINE_DUAL_BSPLINE_H 1
+#ifndef LAWA_CONSTRUCTIONS_REALLINE_DUAL_BSPLINE_H
+#define LAWA_CONSTRUCTIONS_REALLINE_DUAL_BSPLINE_H 1
 
 #include <lawa/flensforlawa.h>
 
-#include <lawa/basisfunction.h>
-#include <lawa/bspline.h>
-#include <lawa/support.h>
+#include <lawa/constructions/basisfunction.h>
+#include <lawa/constructions/bspline.h>
+#include <lawa/constructions/support.h>
 
 namespace lawa {
 
@@ -182,6 +182,6 @@ N_10_10();
 
 } // namespace lawa
 
-#include <lawa/realline/dual/bspline.tcc>
+#include <lawa/constructions/realline/dual/bspline.tcc>
 
-#endif // LAWA_REALLINE_DUAL_BSPLINE_H
+#endif // LAWA_CONSTRUCTIONS_REALLINE_DUAL_BSPLINE_H

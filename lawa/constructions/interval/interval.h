@@ -17,11 +17,11 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include <lawa/interval/dijkema/dijkema.h>
-#include <lawa/interval/dku/dku.h>
-#include <lawa/interval/fwt.h>
-#include <lawa/interval/primal/primal.h>
-#include <lawa/interval/primbs/primbs.h>
-#include <lawa/interval/initial_stable_completion.h>
-#include <lawa/interval/evaluate.h>
-#include <lawa/interval/refinementmatrix.h>
+#include <lawa/constructions/interval/dijkema/dijkema.h>
+#include <lawa/constructions/interval/dku/dku.h>
+#include <lawa/constructions/interval/fwt.h>
+#include <lawa/constructions/interval/primal/primal.h>
+#include <lawa/constructions/interval/primbs/primbs.h>
+#include <lawa/constructions/interval/initial_stable_completion.h>
+#include <lawa/constructions/interval/evaluate.h>
+#include <lawa/constructions/interval/refinementmatrix.h>

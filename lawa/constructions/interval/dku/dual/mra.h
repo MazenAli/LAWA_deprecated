@@ -17,11 +17,11 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_INTERVAL_DKU_DUAL_MRA_H
-#define LAWA_INTERVAL_DKU_DUAL_MRA_H 1
+#ifndef LAWA_CONSTRUCTIONS_INTERVAL_DKU_DUAL_MRA_H
+#define LAWA_CONSTRUCTIONS_INTERVAL_DKU_DUAL_MRA_H 1
 
-#include <lawa/mra.h>
-#include <lawa/interval/refinementmatrix.h>
+#include <lawa/constructions/mra.h>
+#include <lawa/constructions/interval/refinementmatrix.h>
 
 namespace lawa {
 
@@ -125,6 +125,6 @@ class MRA<_T,Dual,Interval,DKU>
 
 } // namespace lawa
 
-#include <lawa/interval/dku/dual/mra.tcc>
+#include <lawa/constructions/interval/dku/dual/mra.tcc>
 
-#endif // LAWA_INTERVAL_DKU_DUAL_MRA_H
+#endif // LAWA_CONSTRUCTIONS_INTERVAL_DKU_DUAL_MRA_H

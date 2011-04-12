@@ -17,15 +17,15 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_PERIODIC_DUAL_BSPLINE_H
-#define LAWA_PERIODIC_DUAL_BSPLINE_H 1
+#ifndef LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BSPLINE_H
+#define LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BSPLINE_H 1
 
 #include <lawa/flensforlawa.h>
 
-#include <lawa/periodic/periodicsupport.h>
-#include <lawa/basisfunction.h>
-#include <lawa/bspline.h>
-#include <lawa/enum.h>
+#include <lawa/constructions/periodic/periodicsupport.h>
+#include <lawa/constructions/basisfunction.h>
+#include <lawa/constructions/bspline.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -60,6 +60,6 @@ struct BSpline<_T,Dual,Periodic,CDF>
 
 } // namespace lawa
 
-#include <lawa/periodic/dual/bspline.tcc>
+#include <lawa/constructions/periodic/dual/bspline.tcc>
 
-#endif // LAWA_PERIODIC_DUAL_BSPLINE_H
+#endif // LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BSPLINE_H

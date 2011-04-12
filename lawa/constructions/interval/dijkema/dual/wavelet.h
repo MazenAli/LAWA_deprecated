@@ -17,13 +17,13 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_INTERVAL_DIJKEMA_DUAL_WAVELET_H
-#define LAWA_INTERVAL_DIJKEMA_DUAL_WAVELET_H 1
+#ifndef LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_WAVELET_H
+#define LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_WAVELET_H 1
 
-#include <lawa/support.h>
-#include <lawa/basis.h>
-#include <lawa/basisfunction.h>
-#include <lawa/wavelet.h>
+#include <lawa/constructions/support.h>
+#include <lawa/constructions/basis.h>
+#include <lawa/constructions/basisfunction.h>
+#include <lawa/constructions/wavelet.h>
 
 namespace lawa {
 
@@ -49,6 +49,6 @@ struct Wavelet<_T,Dual,Interval,Dijkema>
 
 } // namespace lawa
 
-#include <lawa/interval/dijkema/dual/wavelet.tcc>
+#include <lawa/constructions/interval/dijkema/dual/wavelet.tcc>
 
-#endif // LAWA_INTERVAL_DIJKEMA_DUAL_WAVELET_H
+#endif // LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_WAVELET_H

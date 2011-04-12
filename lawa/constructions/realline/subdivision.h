@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_REALLINE_SUBDIVISION_H
-#define LAWA_REALLINE_SUBDIVISION_H 1
+#ifndef LAWA_CONSTRUCTIONS_REALLINE_SUBDIVISION_H
+#define LAWA_CONSTRUCTIONS_REALLINE_SUBDIVISION_H 1
 
 #include <lawa/flensforlawa.h>
 
@@ -31,9 +31,9 @@ template <typename T, FunctionSide Side>
 
 } // namespace lawa
 
-#include <lawa/realline/subdivision.tcc>
+#include <lawa/constructions/realline/subdivision.tcc>
 
 //Das süßeste, kleine KoalaBÄRCHEN könnte doch nie nie nie niemals 
 //jemandem böse sein, der so einen Schrott in diesen schönen Header schreibt!!!!!!!!
 
-#endif // LAWA_REALLINE_SUBDIVISION_H
+#endif // LAWA_CONSTRUCTIONS_REALLINE_SUBDIVISION_H

@@ -20,8 +20,8 @@
 #include <cassert>
 #include <lawa/flensforlawa.h>
 #include <lawa/math/polynomial.h>
-#include <lawa/param.h>
-#include <lawa/realline/subdivision.h>
+#include <lawa/settings/param.h>
+#include <lawa/constructions/realline/subdivision.h>
 
 namespace lawa {
 

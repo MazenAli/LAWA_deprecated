@@ -17,13 +17,13 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_PERIODIC_DUAL_BASIS_H
-#define LAWA_PERIODIC_DUAL_BASIS_H 1
+#ifndef LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BASIS_H
+#define LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BASIS_H 1
 
-#include <lawa/periodic/refinementmatrix.h>
-#include <lawa/periodic/primal/mra.h>
-#include <lawa/periodic/dual/mra.h>
-#include <lawa/periodic/dual/wavelet.h>
+#include <lawa/constructions/periodic/refinementmatrix.h>
+#include <lawa/constructions/periodic/primal/mra.h>
+#include <lawa/constructions/periodic/dual/mra.h>
+#include <lawa/constructions/periodic/dual/wavelet.h>
 
 namespace lawa {
 
@@ -69,6 +69,6 @@ class Basis<_T,Dual,Periodic,CDF>
 
 } // namespace lawa
 
-#include <lawa/periodic/dual/basis.tcc>
+#include <lawa/constructions/periodic/dual/basis.tcc>
 
-#endif // LAWA_PERIODIC_DUAL_BASIS_H
+#endif // LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BASIS_H

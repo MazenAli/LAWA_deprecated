@@ -17,7 +17,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <lawa/interval/dijkema/dual/basis.h>
-#include <lawa/interval/dijkema/dual/bspline.h>
-#include <lawa/interval/dijkema/dual/mra.h>
-#include <lawa/interval/dijkema/dual/wavelet.h>
+#include <lawa/constructions/interval/dijkema/dual/basis.h>
+#include <lawa/constructions/interval/dijkema/dual/bspline.h>
+#include <lawa/constructions/interval/dijkema/dual/mra.h>
+#include <lawa/constructions/interval/dijkema/dual/wavelet.h>

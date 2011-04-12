@@ -17,12 +17,12 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_INTERVAL_PRIMBS_PRIMAL_BASIS_H
-#define LAWA_INTERVAL_PRIMBS_PRIMAL_BASIS_H 1
+#ifndef LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_BASIS_H
+#define LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_BASIS_H 1
 
-#include <lawa/basis.h>
-#include <lawa/interval/primbs/dual/mra.h>
-#include <lawa/interval/primbs/primal/mra.h>
+#include <lawa/constructions/basis.h>
+#include <lawa/constructions/interval/primbs/dual/mra.h>
+#include <lawa/constructions/interval/primbs/primal/mra.h>
 
 namespace lawa {
     
@@ -105,6 +105,6 @@ class Basis<_T,Primal,Interval,Primbs>
 
 } // namespace lawa
 
-#include <lawa/interval/primbs/primal/basis.tcc>
+#include <lawa/constructions/interval/primbs/primal/basis.tcc>
 
-#endif // LAWA_INTERVAL_PRIMBS_PRIMAL_BASIS_H
+#endif // LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_BASIS_H

@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_REALLINE_CASCADE_H
-#define LAWA_REALLINE_CASCADE_H 1
+#ifndef LAWA_CONSTRUCTIONS_REALLINE_CASCADE_H
+#define LAWA_CONSTRUCTIONS_REALLINE_CASCADE_H 1
 
-#include <lawa/bspline.h>
+#include <lawa/constructions/bspline.h>
 #include <lawa/flensforlawa.h>
 
 namespace lawa {
@@ -32,6 +32,6 @@ evalAtDyadicGrid_Cascade(const DenseVector<X> &sf, int J,
 
 } // namespace lawa
 
-#include <lawa/realline/cascade.tcc>
+#include <lawa/constructions/realline/cascade.tcc>
 
-#endif // LAWA_REALLINE_CASCADE_H
+#endif // LAWA_CONSTRUCTIONS_REALLINE_CASCADE_H

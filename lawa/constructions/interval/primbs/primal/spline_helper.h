@@ -1,5 +1,5 @@
-#ifndef LAWA_INTERVAL_PRIMBS_PRIMAL_SPLINE_HELPER_H
-#define LAWA_INTERVAL_PRIMBS_PRIMAL_SPLINE_HELPER_H 1
+#ifndef LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_SPLINE_HELPER_H
+#define LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_SPLINE_HELPER_H 1
 
 #include <cassert>
 #include <list>
@@ -17,6 +17,6 @@ template <typename T>
 
 } // namespace lawa
 
-#include <lawa/interval/primbs/primal/spline_helper.tcc>
+#include <lawa/constructions/interval/primbs/primal/spline_helper.tcc>
 
-#endif // LAWA_INTERVAL_PRIMBS_PRIMAL_SPLINE_HELPER_H
+#endif // LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_SPLINE_HELPER_H

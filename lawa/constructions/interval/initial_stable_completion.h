@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_INTERVAL_INITIAL_STABLE_COMPLETION_H
-#define LAWA_INTERVAL_INITIAL_STABLE_COMPLETION_H 1
+#ifndef LAWA_CONSTRUCTIONS_INTERVAL_INITIAL_STABLE_COMPLETION_H
+#define LAWA_CONSTRUCTIONS_INTERVAL_INITIAL_STABLE_COMPLETION_H 1
 
 #include <lawa/flensforlawa.h>
 
@@ -33,6 +33,6 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
 
 } // namespace lawa
 
-#include <lawa/interval/initial_stable_completion.tcc>
+#include <lawa/constructions/interval/initial_stable_completion.tcc>
 
-#endif // LAWA_INTERVAL_INITIAL_STABLE_COMPLETION_H
+#endif // LAWA_CONSTRUCTIONS_INTERVAL_INITIAL_STABLE_COMPLETION_H

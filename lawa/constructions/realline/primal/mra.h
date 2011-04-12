@@ -17,12 +17,12 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_REALLINE_PRIMAL_MRA_H
-#define LAWA_REALLINE_PRIMAL_MRA_H 1
+#ifndef LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_MRA_H
+#define LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_MRA_H 1
 
-#include <lawa/mra.h>
-#include <lawa/bspline.h>
-#include <lawa/enum.h>
+#include <lawa/constructions/mra.h>
+#include <lawa/constructions/bspline.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -56,6 +56,6 @@ class MRA<_T,Primal,R,CDF>
 
 } // namespace lawa
 
-#include <lawa/realline/primal/mra.tcc>
+#include <lawa/constructions/realline/primal/mra.tcc>
 
-#endif // LAWA_REALLINE_PRIMAL_MRA_H
+#endif // LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_MRA_H

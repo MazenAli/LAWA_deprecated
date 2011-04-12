@@ -17,15 +17,15 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_REALLINE_DUAL_WAVELET_H
-#define LAWA_REALLINE_DUAL_WAVELET_H 1
+#ifndef LAWA_CONSTRUCTIONS_REALLINE_DUAL_WAVELET_H
+#define LAWA_CONSTRUCTIONS_REALLINE_DUAL_WAVELET_H 1
 
-#include <lawa/basisfunction.h>
-#include <lawa/enum.h>
+#include <lawa/constructions/basisfunction.h>
+#include <lawa/settings/enum.h>
 #include <lawa/flensforlawa.h>
-#include <lawa/realline/primal/bspline.h>
-#include <lawa/realline/dual/bspline.h>
-#include <lawa/wavelet.h>
+#include <lawa/constructions/realline/primal/bspline.h>
+#include <lawa/constructions/realline/dual/bspline.h>
+#include <lawa/constructions/wavelet.h>
 
 namespace lawa {
 
@@ -66,6 +66,6 @@ struct Wavelet<_T,Dual,R,CDF>
 
 } // namespace lawa
 
-#include <lawa/realline/dual/wavelet.tcc>
+#include <lawa/constructions/realline/dual/wavelet.tcc>
 
-#endif // LAWA_REALLINE_DUAL_WAVELET_H
+#endif // LAWA_CONSTRUCTIONS_REALLINE_DUAL_WAVELET_H

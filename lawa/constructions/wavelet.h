@@ -17,11 +17,11 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_WAVELET_H
-#define LAWA_WAVELET_H 1
+#ifndef LAWA_CONSTRUCTIONS_WAVELET_H
+#define LAWA_CONSTRUCTIONS_WAVELET_H 1
 
-#include <lawa/basisfunction.h>
-#include <lawa/enum.h>
+#include <lawa/constructions/basisfunction.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -33,4 +33,4 @@ struct Wavelet
 
 } // namespace lawa
 
-#endif // LAWA_WAVELET_H
+#endif // LAWA_CONSTRUCTIONS_WAVELET_H

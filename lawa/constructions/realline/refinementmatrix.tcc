@@ -18,7 +18,7 @@
 */
 
 #include <cassert>
-#include <cxxblas/cxxblas.h>
+#include <lawa/flensforlawa.h>
 
 namespace flens {
 

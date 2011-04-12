@@ -17,16 +17,16 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_INTERVAL_DIJKEMA_DUAL_BSPLINE_H
-#define LAWA_INTERVAL_DIJKEMA_DUAL_BSPLINE_H 1
+#ifndef LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_BSPLINE_H
+#define LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_BSPLINE_H 1
 
 #include <lawa/flensforlawa.h>
 
-#include <lawa/basisfunction.h>
-#include <lawa/bspline.h>
-#include <lawa/enum.h>
-#include <lawa/support.h>
-#include <lawa/mra.h>
+#include <lawa/constructions/basisfunction.h>
+#include <lawa/constructions/bspline.h>
+#include <lawa/settings/enum.h>
+#include <lawa/constructions/support.h>
+#include <lawa/constructions/mra.h>
 
 namespace lawa {
 
@@ -52,6 +52,6 @@ struct BSpline<_T,Dual,Interval,Dijkema>
 
 } // namespace lawa
 
-#include <lawa/interval/dijkema/dual/bspline.tcc>
+#include <lawa/constructions/interval/dijkema/dual/bspline.tcc>
 
-#endif // LAWA_INTERVAL_DIJKEMA_DUAL_BSPLINE_H
+#endif // LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_BSPLINE_H

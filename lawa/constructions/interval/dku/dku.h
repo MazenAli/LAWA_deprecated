@@ -17,5 +17,5 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include <lawa/interval/dku/primal/primal.h>
-#include <lawa/interval/dku/dual/dual.h>
+#include <lawa/constructions/interval/dku/primal/primal.h>
+#include <lawa/constructions/interval/dku/dual/dual.h>

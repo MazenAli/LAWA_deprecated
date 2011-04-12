@@ -17,13 +17,13 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_REALLINE_PRIMAL_BASIS_H
-#define LAWA_REALLINE_PRIMAL_BASIS_H 1
+#ifndef LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_BASIS_H
+#define LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_BASIS_H 1
 
-#include <lawa/basis.h>
-#include <lawa/bspline.h>
-#include <lawa/enum.h>
-#include <lawa/wavelet.h>
+#include <lawa/constructions/basis.h>
+#include <lawa/constructions/bspline.h>
+#include <lawa/settings/enum.h>
+#include <lawa/constructions/wavelet.h>
 
 namespace lawa {
 
@@ -63,6 +63,6 @@ class Basis<_T,Primal,R,CDF>
 
 } // namespace lawa
 
-#include <lawa/realline/primal/basis.tcc>
+#include <lawa/constructions/realline/primal/basis.tcc>
 
-#endif // LAWA_REALLINE_PRIMAL_BASIS_H
+#endif // LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_BASIS_H

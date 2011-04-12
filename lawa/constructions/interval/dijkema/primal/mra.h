@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_INTERVAL_DIJKEMA_PRIMAL_MRA_H
-#define LAWA_INTERVAL_DIJKEMA_PRIMAL_MRA_H 1
+#ifndef LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_PRIMAL_MRA_H
+#define LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_PRIMAL_MRA_H 1
 
 // Since the primal MRA for the interval construction of Dijkema is
 // identical to the one of the Primbs construction, we just reuse that one.
@@ -26,8 +26,8 @@
 //       Primbs MRA implementation does NOT include other files where this
 //       macro substitution could be really dangerous!
 #define Primbs Dijkema
-#include <lawa/interval/primbs/primal/mra.h>
+#include <lawa/constructions/interval/primbs/primal/mra.h>
 #undef Primbs
-#undef LAWA_INTERVAL_PRIMBS_PRIMAL_MRA_H
+#undef LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_MRA_H
 
 #endif //LAWA_INTERVAL_DIJKEMA_PRIMAL_MRA_H

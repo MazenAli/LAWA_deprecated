@@ -17,7 +17,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include <lawa/interval/initial_stable_completion.h>
+#include <lawa/constructions/interval/initial_stable_completion.h>
 
 namespace lawa {
 

@@ -17,8 +17,8 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include <lawa/realline/cascade.h>
-#include <lawa/realline/dual/dual.h>
-#include <lawa/realline/primal/primal.h>
-#include <lawa/realline/refinementmatrix.h>
-#include <lawa/realline/subdivision.h>
+#include <lawa/constructions/realline/cascade.h>
+#include <lawa/constructions/realline/dual/dual.h>
+#include <lawa/constructions/realline/primal/primal.h>
+#include <lawa/constructions/realline/refinementmatrix.h>
+#include <lawa/constructions/realline/subdivision.h>

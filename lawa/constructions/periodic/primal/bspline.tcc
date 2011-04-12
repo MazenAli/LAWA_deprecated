@@ -22,7 +22,7 @@
 #include <lawa/flensforlawa.h>
 
 #include <lawa/math/math.h>
-#include <lawa/realline/primal/bspline.h>
+#include <lawa/constructions/realline/primal/bspline.h>
 #include <extensions/extensions.h>
 
 namespace lawa {

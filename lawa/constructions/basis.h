@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_BASIS_H
-#define LAWA_BASIS_H 1
+#ifndef LAWA_CONSTRUCTIONS_BASIS_H
+#define LAWA_CONSTRUCTIONS_BASIS_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -31,4 +31,4 @@ class Basis
 
 } // namespace lawa
 
-#endif // LAWA_BASIS_H
+#endif // LAWA_CONSTRUCTIONS_BASIS_H

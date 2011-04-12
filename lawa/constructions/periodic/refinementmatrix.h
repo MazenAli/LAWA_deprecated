@@ -17,14 +17,14 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_PERIODIC_REFINEMENTMATRIX_H
-#define LAWA_PERIODIC_REFINEMENTMATRIX_H 1
+#ifndef LAWA_CONSTRUCTIONS_PERIODIC_REFINEMENTMATRIX_H
+#define LAWA_CONSTRUCTIONS_PERIODIC_REFINEMENTMATRIX_H 1
 
 #include <lawa/flensforlawa.h>
-#include <lawa/refinementmatrix.h>
-#include <lawa/bspline.h>
-#include <lawa/wavelet.h>
-#include <lawa/enum.h>
+#include <lawa/constructions/refinementmatrix.h>
+#include <lawa/constructions/bspline.h>
+#include <lawa/constructions/wavelet.h>
+#include <lawa/settings/enum.h>
 
 namespace flens {
 
@@ -62,7 +62,7 @@ mv(Transpose transA, typename X::ElementType alpha,
 
 } // namespace flens
 
-#include <lawa/periodic/refinementmatrix.tcc>
+#include <lawa/constructions/periodic/refinementmatrix.tcc>
 
-#endif // LAWA_PERIODIC_REFINEMENTMATRIX_H
+#endif // LAWA_CONSTRUCTIONS_PERIODIC_REFINEMENTMATRIX_H
 

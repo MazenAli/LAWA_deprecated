@@ -18,7 +18,7 @@
  */
 
 #include <cassert>
-#include <lawa/interval/initial_stable_completion.h>
+#include <lawa/constructions/interval/initial_stable_completion.h>
 
 namespace lawa {
 

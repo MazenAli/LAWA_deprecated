@@ -17,11 +17,11 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_INTERVAL_REFINEMENTMATRIX_H
-#define LAWA_INTERVAL_REFINEMENTMATRIX_H 1
+#ifndef LAWA_CONSTRUCTIONS_INTERVAL_REFINEMENTMATRIX_H
+#define LAWA_CONSTRUCTIONS_INTERVAL_REFINEMENTMATRIX_H 1
 
 #include <lawa/flensforlawa.h>
-#include <lawa/refinementmatrix.h>
+#include <lawa/constructions/refinementmatrix.h>
 
 namespace flens {
 
@@ -105,6 +105,6 @@ mv(Transpose transA, typename X::ElementType alpha,
 
 } // namespace flens
 
-#include <lawa/interval/refinementmatrix.tcc>
+#include <lawa/constructions/interval/refinementmatrix.tcc>
 
-#endif // LAWA_REFINEMENTMATRIX_H
+#endif // LAWA_CONSTRUCTIONS_REFINEMENTMATRIX_H

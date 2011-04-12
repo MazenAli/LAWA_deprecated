@@ -17,11 +17,11 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_PERIODIC_PRIMAL_MRA_H
-#define LAWA_PERIODIC_PRIMAL_MRA_H 1
+#ifndef LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_MRA_H
+#define LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_MRA_H 1
 
-#include <lawa/periodic/primal/bspline.h>
-#include <lawa/periodic/refinementmatrix.h>
+#include <lawa/constructions/periodic/primal/bspline.h>
+#include <lawa/constructions/periodic/refinementmatrix.h>
 
 namespace lawa {
 
@@ -61,6 +61,6 @@ class MRA<_T,Primal,Periodic,CDF>
 
 } // namespace lawa
 
-#include <lawa/periodic/primal/mra.tcc>
+#include <lawa/constructions/periodic/primal/mra.tcc>
 
-#endif // LAWA_PERIODIC_PRIMAL_MRA_H
+#endif // LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_MRA_H

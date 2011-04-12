@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_SUPPORT_H
-#define LAWA_SUPPORT_H 1
+#ifndef LAWA_CONSTRUCTIONS_SUPPORT_H
+#define LAWA_CONSTRUCTIONS_SUPPORT_H 1
 
 #include <lawa/flensforlawa.h>
 
@@ -84,6 +84,6 @@ template <typename T>
 
 } // namespace lawa
 
-#include <lawa/support.tcc>
+#include <lawa/constructions/support.tcc>
 
-#endif // LAWA_SUPPORT_H
+#endif // LAWA_CONSTRUCTIONS_SUPPORT_H

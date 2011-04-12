@@ -17,11 +17,11 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_PERIODIC_EVALUATE_H
-#define LAWA_PERIODIC_EVALUATE_H 1
+#ifndef LAWA_CONSTRUCTIONS_PERIODIC_EVALUATE_H
+#define LAWA_CONSTRUCTIONS_PERIODIC_EVALUATE_H 1
 
-#include <lawa/basis.h>
-#include <lawa/enum.h>
+#include <lawa/constructions/basis.h>
+#include <lawa/settings/enum.h>
 #include <lawa/flensforlawa.h>
 
 namespace lawa {
@@ -40,6 +40,6 @@ template <typename X>
 
 } // namespace lawa
 
-#include <lawa/periodic/evaluate.tcc>
+#include <lawa/constructions/periodic/evaluate.tcc>
 
-#endif // LAWA_PERIODIC_EVALUATE_H
+#endif // LAWA_CONSTRUCTIONS_PERIODIC_EVALUATE_H

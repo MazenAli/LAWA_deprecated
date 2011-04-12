@@ -23,9 +23,9 @@
 
 #include <lawa/aux/arrow.h>
 #include <lawa/math/math.h>
-#include <lawa/realline/primal/bspline.h>
+#include <lawa/constructions/realline/primal/bspline.h>
 #include <extensions/flens/lapack_flens.h>
-#include <lawa/interval/primbs/primal/spline_helper.h>
+#include <lawa/constructions/interval/primbs/primal/spline_helper.h>
 
 namespace lawa {
 

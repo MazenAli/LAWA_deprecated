@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_REFINEMENTMATRIX_H
-#define LAWA_REFINEMENTMATRIX_H 1
+#ifndef LAWA_CONSTRUCTIONS_REFINEMENTMATRIX_H
+#define LAWA_CONSTRUCTIONS_REFINEMENTMATRIX_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 
 namespace flens {
 
@@ -40,4 +40,4 @@ struct TypeInfo<RefinementMatrix<T, Domain, Cons> >
 
 } // namespace flens
 
-#endif // LAWA_REFINEMENTMATRIX_H
+#endif // LAWA_CONSTRUCTIONS_REFINEMENTMATRIX_H

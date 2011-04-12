@@ -17,7 +17,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include <lawa/periodic/primal/mra.h>
-#include <lawa/periodic/primal/basis.h>
-#include <lawa/periodic/primal/bspline.h>
-#include <lawa/periodic/primal/wavelet.h>
+#include <lawa/constructions/periodic/primal/mra.h>
+#include <lawa/constructions/periodic/primal/basis.h>
+#include <lawa/constructions/periodic/primal/bspline.h>
+#include <lawa/constructions/periodic/primal/wavelet.h>

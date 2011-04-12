@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_MRA_H
-#define LAWA_MRA_H 1
+#ifndef LAWA_CONSTRUCTIONS_MRA_H
+#define LAWA_CONSTRUCTIONS_MRA_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -31,4 +31,4 @@ class MRA
 
 } // namespace lawa
 
-#endif // LAWA_MRA_H
+#endif // LAWA_CONSTRUCTIONS_MRA_H
