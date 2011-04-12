@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,15 +26,21 @@
 
 namespace lawa {
     
-template <typename T>
-class Basis<T,Primal,Interval,Dijkema>
+template <typename _T>
+class Basis<_T,Primal,Interval,Dijkema>
 {
     public:
-        typedef Wavelet<T,Primal,Interval,Dijkema> WaveletType;
+        typedef _T T;
+        static const FunctionSide Side = Primal;
+        static const DomainType Domain = Interval;
+        static const Construction Cons = Dijkema;
+
+        typedef BasisFunction<T,Primal,Interval,Dijkema> BasisFunction;
         typedef BSpline<T,Primal,Interval,Dijkema> BSplineType;
+        typedef Wavelet<T,Primal,Interval,Dijkema> WaveletType;
 
         Basis(int _d, int _d_, int j=-1);
-
+        
         int
         level() const;
 
@@ -44,6 +50,9 @@ class Basis<T,Primal,Interval,Dijkema>
         template <BoundaryCondition BC>
             void
             enforceBoundaryCondition();
+
+        const BasisFunction &
+        generator(XType xtype) const;
 
         // cardinalities of whole, left, inner, right index sets (primal).
         int
@@ -71,20 +80,6 @@ class Basis<T,Primal,Interval,Dijkema>
         const Range<int>
         rangeJR(int j=-1) const;
 
-// TODO: get rid of the following!!!!
-// support of underlying primal functions, e=0 scaling, e=1 wavelet
-const Support<T>
-support(int j, int k, int e) const;
-
-// support of underlying dual functions, e=0 scaling, e=1 wavelet
-const Support<T>
-support_(int j, int k, int e) const;
-
-// support of underlying functions, e=0 scaling, e=1 wavelet
-const DenseVector<Array<T> >
-singularSupport(int j, int k, int e) const;
-
-
         MRA<T,Primal,Interval,Dijkema> mra;
         MRA<T,Dual,Interval,Dijkema>  mra_;
 
@@ -101,11 +96,8 @@ singularSupport(int j, int k, int e) const;
 
         mutable int _j;                // the current level.
 
-
     public:
         Wavelet<T,Primal,Interval,Dijkema> psi;
-
-
 };
 
 } // namespace lawa

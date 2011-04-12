@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,34 +20,37 @@
 #ifndef LAWA_PERIODIC_PRIMAL_BSPLINE_H
 #define LAWA_PERIODIC_PRIMAL_BSPLINE_H 1
 
+#include <lawa/basisfunction.h>
+#include <lawa/bspline.h>
+#include <lawa/enum.h>
 #include <lawa/periodic/periodicsupport.h>
 
 namespace lawa {
 
-template <typename T>
-struct BSpline<T,Primal,Periodic,CDF>
+template <typename _T>
+struct BSpline<_T,Primal,Periodic,CDF>
+    : public BasisFunction<_T,Primal,Periodic,CDF>
 {
-    typedef T ElementType;
+    typedef _T T;
+    static const FunctionSide Side = Primal;
+    static const DomainType Domain = Periodic;
+    static const Construction Cons = CDF;
 
     BSpline(int _d);                        // Periodized Bspline on [0,1]
 
-    BSpline(int _d, int _deriv);
-
     BSpline(const MRA<T,Primal,Periodic,CDF> &mra);
-
-    BSpline(const MRA<T,Primal,Periodic,CDF> &mra, int _deriv);
 
     virtual
     ~BSpline();
 
     T
-    operator()(T x, int j, int k) const;    // (cumulated) evaluation on [0,1]
+    operator()(T x, int j, long k, unsigned short deriv) const;    // (cumulated) evaluation on [0,1]
 
     PeriodicSupport<T>
-    support(int j, int k) const;            // subset of [0,1], may be divided in 2 parts
+    support(int j, long k) const;            // subset of [0,1], may be divided in 2 parts
 
     DenseVector<Array<T> >
-    singularSupport(int j, int k) const;    // Points in [0,1]
+    singularSupport(int j, long k) const;    // Points in [0,1]
 
     T
 /**/tic(int j) const;                       // -> ???
@@ -56,7 +59,6 @@ struct BSpline<T,Primal,Periodic,CDF>
     mask() const;                           // mask of original Spline on R
 
     const int d, mu;
-    const int deriv, polynomialOrder;
     const BSpline<T, Primal, R, CDF> phiR;  // ''original'' Bspline on R    
 };
 

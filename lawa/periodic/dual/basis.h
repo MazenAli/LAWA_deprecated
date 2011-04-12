@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,12 +27,18 @@
 
 namespace lawa {
 
-template <typename T>
-class Basis<T,Dual,Periodic,CDF>
+template <typename _T>
+class Basis<_T,Dual,Periodic,CDF>
 {
     public:
-        typedef Wavelet<T,Dual,Periodic,CDF> WaveletType;
+        typedef _T T;
+        static const FunctionSide Side = Dual;
+        static const DomainType Domain = Periodic;
+        static const Construction Cons = CDF;
+
+        typedef BasisFunction<T,Dual,Periodic,CDF> BasisFunction;
         typedef BSpline<T,Dual,Periodic,CDF> BSplineType;
+        typedef Wavelet<T,Dual,Periodic,CDF> WaveletType;
 
         Basis(int _d, int _d_, int j=0);
 
@@ -41,6 +47,9 @@ class Basis<T,Dual,Periodic,CDF>
 
         void
         setLevel(int j) const;
+
+        const BasisFunction &
+        generator(XType xtype) const;
 
         int
         cardJ_(int j) const;

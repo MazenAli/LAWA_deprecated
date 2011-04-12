@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,6 +37,17 @@ void
 Basis<T,Primal,R,CDF>::setLevel(int j) const
 {
     _j = j;
+}
+
+template <typename T>
+const BasisFunction<T,Primal,R,CDF> &
+Basis<T,Primal,R,CDF>::generator(XType xtype) const
+{
+    if (xtype==XBSpline) {
+        return mra.phi;
+    } else {
+        return psi;
+    }
 }
 
 } // namespace lawa

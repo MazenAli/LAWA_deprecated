@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@ enum Dimension {
 };
 
 enum XType {
-    XBSpline,
-    XWavelet
+    XBSpline = 0,
+    XWavelet = 1
 };
 
 enum Construction {
@@ -59,8 +59,8 @@ enum BoundaryCondition {
 enum QuadratureType { 
     Gauss, 
     Trapezoidal,
-    SparseGridGP,	//Gauss-Patterson quadrature on a sparse grid
-    FullGridGL	    //Gauss-Legendre  quadrature on a full grid
+    SparseGridGP,    //Gauss-Patterson quadrature on a sparse grid
+    FullGridGL,        //Gauss-Legendre  quadrature on a full grid
 };
 
 enum SortingCriterion {

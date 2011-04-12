@@ -1,6 +1,6 @@
 /*
   This file is part of LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
+  Copyright (C) 2011  Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,40 +15,40 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ */
 
-#ifndef LAWA_INTERVAL_DIJKEMA_DUAL_WAVELET_H
-#define LAWA_INTERVAL_DIJKEMA_DUAL_WAVELET_H 1
+#ifndef LAWA_BASISFUNCTION_H
+#define LAWA_BASISFUNCTION_H 1
 
+#include <lawa/enum.h>
+#include <lawa/flensforlawa.h>
 #include <lawa/support.h>
-#include <lawa/basis.h>
-#include <lawa/basisfunction.h>
-#include <lawa/wavelet.h>
 
 namespace lawa {
 
-template <typename _T>
-struct Wavelet<_T,Dual,Interval,Dijkema>
-    : public BasisFunction<_T,Dual,Interval,Dijkema>
+template <typename _T, FunctionSide _Side, DomainType _Domain, Construction _Cons>
+struct BasisFunction
 {
     typedef _T T;
-    static const FunctionSide Side = Dual;
-    static const DomainType Domain = Interval;
-    static const Construction Cons = Dijkema;
+    static const FunctionSide Side = _Side;
+    static const DomainType Domain = _Domain;
+    static const Construction Cons = _Cons;
 
-    Wavelet(const Basis<T,Dual,Interval,Dijkema> &_basis_);
+    virtual T
+    operator()(T x, int j, long k, unsigned short deriv) const;
 
-    T
-    operator()(T x, int j, long k, unsigned short deriv=0) const;
-
-    Support<T>
+    virtual Support<T>
     support(int j, long k) const;
 
-    const Basis<T,Dual,Interval,Dijkema> &basis_;
+    virtual DenseVector<Array<T> >
+    singularSupport(int j, long k) const;
+
+    virtual T
+    tic(int j) const;
 };
 
 } // namespace lawa
 
-#include <lawa/interval/dijkema/dual/wavelet.tcc>
+#include <lawa/basisfunction.tcc>
 
-#endif // LAWA_INTERVAL_DIJKEMA_DUAL_WAVELET_H
+#endif // LAWA_BASISFUNCTION_H

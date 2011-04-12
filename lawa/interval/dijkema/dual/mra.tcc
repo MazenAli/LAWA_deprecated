@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <lawa/math/math.h>
 #include <lawa/realline/dual/bspline.h>
 #include <extensions/flens/lapack_flens.h>
+#include <lawa/interval/primbs/primal/spline_helper.h>
 
 namespace lawa {
 
@@ -34,6 +35,7 @@ MRA<T,Dual,Interval,Dijkema>::MRA(int _d, int _d_, int j)
       l1_(l1-d_+1), l2_(l2+d_-1),
       min_j0(iceil(log2(-2*l1_-1+mu))),
       j0((j==-1) ? min_j0 : j),
+      phi_(*this),
       phi_R(_d,_d_),
       _bc(2,0), _j(j0)
 {

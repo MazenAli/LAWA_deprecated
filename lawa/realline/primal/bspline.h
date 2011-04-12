@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,46 +22,46 @@
 
 #include <lawa/flensforlawa.h>
 
+#include <lawa/basisfunction.h>
 #include <lawa/bspline.h>
 #include <lawa/support.h>
 
 namespace lawa {
 
-template <typename T>
-struct BSpline<T,Primal,R,CDF>
+template <typename _T>
+struct BSpline<_T,Primal,R,CDF>
+    : public BasisFunction<_T,Primal,R,CDF>
 {
-        typedef T ElementType;
+    typedef _T T;
+    static const FunctionSide Side = Primal;
+    static const DomainType Domain = R;
+    static const Construction Cons = CDF;
 
-        BSpline(int _d);
+    BSpline(int _d);
 
-        BSpline(int _d, int _deriv);
+    BSpline(const MRA<T,Primal,R,CDF> &mra);
 
-        BSpline(const MRA<T,Primal,R,CDF> &mra);
+    virtual
+    ~BSpline();
 
-        BSpline(const MRA<T,Primal,R,CDF> &mra, int _deriv);
+    T
+    operator()(T x, int j, long k, unsigned short deriv) const;
 
-        virtual
-        ~BSpline();
+    Support<T>
+    support(int j, long k) const;
 
-        T
-        operator()(T x, int j, int k) const;
+    DenseVector<Array<T> >
+    singularSupport(int j, long k) const;
 
-        Support<T>
-        support(int j, int k) const;
+    T
+    tic(int j) const;
 
-        DenseVector<Array<T> >
-        singularSupport(int j, int k) const;
+    const DenseVector<Array<T> > &
+    mask() const;
 
-        T
-        tic(int j) const;
-
-        const DenseVector<Array<T> > &
-        mask() const;
-
-        const int d, mu;
-        const int deriv, polynomialOrder;
-        const int l1, l2;
-        const DenseVector<Array<T> > a;
+    const int d, mu;
+    const int l1, l2;
+    const DenseVector<Array<T> > a;
 };
 
 //------------------------------------------------------------------------------

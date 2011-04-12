@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -49,8 +49,10 @@ BSpline<T,Dual,R,CDF>::~BSpline()
 
 template <typename T>
 T
-BSpline<T,Dual,R,CDF>::operator()(T x, int j, int k) const
+BSpline<T,Dual,R,CDF>::operator()(T x, int j, long k, unsigned short deriv) const
 {
+    assert(deriv==0);
+    
     int resolution = Param<BSpline<T,Dual,R,CDF> >::resolution;
     // we precompute values for dual B-spline on first call ...
     static DenseVector<Array<T> > values;
@@ -81,10 +83,9 @@ BSpline<T,Dual,R,CDF>::operator()(T x, int j, int k) const
     return pow2ih<T>(j) * values(x);//(ifloor(values(x))+iceil(values(x)))/2;
 }
 
-
 template <typename T>
 Support<T>
-BSpline<T,Dual,R,CDF>::support(int j, int k) const
+BSpline<T,Dual,R,CDF>::support(int j, long k) const
 {
     return pow2i<T>(-j) * Support<T>(l1_+k, l2_+k);
 }

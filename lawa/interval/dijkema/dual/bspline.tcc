@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,11 +29,12 @@ BSpline<T,Dual,Interval,Dijkema>::BSpline(const MRA<T,Dual,Interval,Dijkema> &_m
 
 template <typename T>
 T
-BSpline<T,Dual,Interval,Dijkema>::operator()(T x, int j, int k) const
+BSpline<T,Dual,Interval,Dijkema>::operator()(T x, int j, long k, unsigned short deriv) const
 {
     assert(j>=mra_.j0);
     assert(k>=mra_.rangeI_(j).firstIndex());
     assert(k<=mra_.rangeI_(j).lastIndex());
+    assert(deriv==0);
 
     if (k<=mra_.rangeI_L().lastIndex()) {
         T value = 0.0;
@@ -60,7 +61,7 @@ BSpline<T,Dual,Interval,Dijkema>::operator()(T x, int j, int k) const
 
 template <typename T>
 Support<T>
-BSpline<T,Dual,Interval,Dijkema>::support(int j, int k) const
+BSpline<T,Dual,Interval,Dijkema>::support(int j, long k) const
 {
     if (k<=mra_.rangeI_L().lastIndex()) {
         return Support<T>(0.,pow2i<T>(-j)*(mra_.phi_R.a_.length()-2));
@@ -70,13 +71,6 @@ BSpline<T,Dual,Interval,Dijkema>::support(int j, int k) const
     }
     return pow2i<T>(-j)*Support<T>(k-(mra_.d+mra_.d_-1),
                                    k-(mra_.d+mra_.d_-1)+mra_.phi_R.l2_-mra_.phi_R.l1_);
-}
-
-template <typename T>
-DenseVector<Array<T> >
-BSpline<T,Dual,Interval,Dijkema>::singularSupport(int j, int k) const
-{
-    assert(0);
 }
 
 } // namespace lawa

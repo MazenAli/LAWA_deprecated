@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ namespace lawa {
 template <Construction Cons, typename X>
     typename X::ElementType
     evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, 
-             int j, const DenseVector<X>& coeffs, typename X::ElementType x, 
+             int j, const DenseVector<X> &coeffs, typename X::ElementType x, 
              int deriv);
 
 template <Construction Cons, typename X>

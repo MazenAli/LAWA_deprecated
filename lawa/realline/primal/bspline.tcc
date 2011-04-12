@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,44 +34,17 @@ template <typename T>
 
 template <typename T>
 BSpline<T,Primal,R,CDF>::BSpline(int _d)
-    : d(_d), mu(d&1), deriv(0), polynomialOrder(d),
-      l1(.5*(-d+mu)), l2(.5*(d+mu)),
+    : d(_d), mu(d&1), l1(.5*(-d+mu)), l2(.5*(d+mu)),
       a(_bspline_mask<T>(d))
 {
     assert(_d>0);
-}
-
-template <typename T>
-BSpline<T,Primal,R,CDF>::BSpline(int _d, int _deriv)
-    : d(_d), mu(d&1), deriv(_deriv), polynomialOrder(d-deriv),
-      l1(.5*(-d+mu)), l2(.5*(d+mu)),
-      a(_bspline_mask<T>(d))
-{
-    assert(_d>0);
-    assert(deriv>=0);
-    assert(deriv<d);
 }
 
 template <typename T>
 BSpline<T,Primal,R,CDF>::BSpline(const MRA<T,Primal,R,CDF> &mra)
-    : d(mra.d), mu(mra.d&1), deriv(0), polynomialOrder(d-deriv),
-      l1(.5*(-d+mu)), l2(.5*(d+mu)),
-      a(_bspline_mask<T>(d))
+    : d(mra.d), mu(mra.d&1), l1(.5*(-d+mu)), l2(.5*(d+mu)), a(_bspline_mask<T>(d))
 {
     assert(mra.d>0);
-    assert(deriv>=0);
-    assert(deriv<d);
-}
-
-template <typename T>
-BSpline<T,Primal,R,CDF>::BSpline(const MRA<T,Primal,R,CDF> &mra, int _deriv)
-    : d(mra.d), mu(mra.d&1), deriv(_deriv), polynomialOrder(d-deriv),
-      l1(.5*(-d+mu)), l2(.5*(d+mu)),
-      a(_bspline_mask<T>(d))
-{
-    assert(mra.d>0);
-    assert(deriv>=0);
-    assert(deriv<d);
 }
 
 template <typename T>
@@ -81,7 +54,7 @@ BSpline<T,Primal,R,CDF>::~BSpline()
 
 template <typename T>
 T
-BSpline<T,Primal,R,CDF>::operator()(T x, int j, int k) const
+BSpline<T,Primal,R,CDF>::operator()(T x, int j, long k, unsigned short deriv) const
 {
     if (inner(x,support(j,k))) {
         T ret = T(0);
@@ -109,7 +82,7 @@ BSpline<T,Primal,R,CDF>::operator()(T x, int j, int k) const
 
 template <typename T>
 Support<T>
-BSpline<T,Primal,R,CDF>::support(int j, int k) const
+BSpline<T,Primal,R,CDF>::support(int j, long k) const
 {
     return pow2i<T>(-j) * Support<T>(l1 + k, l2 + k);
 }
@@ -117,7 +90,7 @@ BSpline<T,Primal,R,CDF>::support(int j, int k) const
 
 template <typename T>
 DenseVector<Array<T> >
-BSpline<T,Primal,R,CDF>::singularSupport(int j, int k) const
+BSpline<T,Primal,R,CDF>::singularSupport(int j, long k) const
 {
     return linspace(support(j,k).l1, support(j,k).l2, d+1);
 }

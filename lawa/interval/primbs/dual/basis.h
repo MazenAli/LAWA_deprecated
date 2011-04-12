@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,10 +26,19 @@
 
 namespace lawa {
     
-template <typename T>
-class Basis<T,Dual,Interval,Primbs>
+template <typename _T>
+class Basis<_T,Dual,Interval,Primbs>
 {
     public:
+        typedef _T T;
+        static const FunctionSide Side = Dual;
+        static const DomainType Domain = Interval;
+        static const Construction Cons = Primbs;
+
+        typedef BasisFunction<T,Dual,Interval,Primbs> BasisFunction;
+        typedef BSpline<T,Dual,Interval,Primbs> BSplineType;
+        typedef Wavelet<T,Dual,Interval,Primbs> WaveletType;
+
         Basis(int _d, int _d_, int j=-1);
 
         int
@@ -41,6 +50,9 @@ class Basis<T,Dual,Interval,Primbs>
         template <BoundaryCondition BC>
             void
             enforceBoundaryCondition();
+
+        const BasisFunction &
+        generator(XType xtype) const;
 
         // cardinalities of whole, left, inner, right index sets (primal).
         int
@@ -87,6 +99,8 @@ class Basis<T,Dual,Interval,Primbs>
 
         mutable int _j;                // the current level.
 
+    public:
+        Wavelet<T,Dual,Interval,Primbs> psi_;
 };
 
 } // namespace lawa

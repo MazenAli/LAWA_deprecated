@@ -1,24 +1,25 @@
 /*
- LAWA - Library for Adaptive Wavelet Applications.
- Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
-
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+  LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+ 
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*/
 
 #include <cassert>
 #include <lawa/aux/typetraits.h>
+#include <lawa/basisfunction.h>
 #include <lawa/enum.h>
 #include <lawa/bspline.h>
 #include <lawa/math/math.h>
@@ -28,17 +29,20 @@
 #include <lawa/periodic/integrals.h>
 
 namespace lawa {
-
+   
 //--- primal * primal
-template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<BothPrimal<First,Second>::value, T>::Type
-_integrate(const Integral<T,Quad,First,Second> &integral)
+template <typename First, typename Second>
+typename RestrictTo<BothPrimal<First,Second>::value, typename First::T>::Type
+_integrate(const Integral<Gauss,First,Second> &integral)
 {
-    const First &first = integral.first;
-    const Second &second = integral.second;
+    typedef typename First::T T;
+    
+    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
 
     // the (minimal) width of the polynomial pieces.
     T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
+    integral.quadrature.setOrder((integral.first.d-integral.deriv1+integral.second.d-integral.deriv2)/2+1);
 
     T ret = 0.;
     Support<T> common;
@@ -48,49 +52,20 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
         for (T b=a+unit; b<=common.l2; b+=unit) {
             ret += integral.quadrature(a,b);
             a = b;
-         }
-     }
-     return ret;
-}
-
-//--- primal * function
-template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<IsPrimal<First>::value && !PrimalOrDual<Second>::value, T>::Type
-_integrate(const Integral<T,Quad,First,Second> &integral)
-{
-    const First &first = integral.first;
-    const Second &second = integral.second;
-
-    // merge singular points of bspline/wavelet and function to one list.
-    // -> implicit assumption: second.singularPoints are sorted!!
-    DenseVector<Array<T> > firstSingularPoints 
-                               = first.singularSupport(integral.j1,integral.k1);
-    int nFirst = firstSingularPoints.length(),
-        nSecond = second.singularPoints.length();
-    DenseVector<Array<T> > singularPoints(nFirst + nSecond);
-
-    std::merge(firstSingularPoints.engine().data(),
-               firstSingularPoints.engine().data() + nFirst,
-               second.singularPoints.engine().data(),
-               second.singularPoints.engine().data() + nSecond,
-               singularPoints.engine().data());
-               
-    T ret = 0.0;
-    for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
-        ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+        }
     }
-
     return ret;
 }
 
-//--- primal * dual
-template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<IsPrimal<First>::value && IsDual<Second>::value, T>::Type
-_integrate(const Integral<T,Quad,First,Second> &integral)
+//--- (primal * dual) || (dual * primal) || (dual * dual)
+template <QuadratureType Quad, typename First, typename Second>
+typename RestrictTo<IsDual<First>::value || IsDual<Second>::value, typename First::T>::Type
+_integrate(const Integral<Quad,First,Second> &integral)
 {
-    const First &first = integral.first;
-    const Second &second = integral.second;
-
+    typedef typename First::T T;
+    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    
     Support<T> common;
     if (overlap(first.support(integral.j1,integral.k1),
                 second.support(integral.j2,integral.k2),
@@ -100,46 +75,36 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
         return 0;
     }
 }
-
-//--- dual * dual
-template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<BothDual<First,Second>::value, T>::Type
-_integrate(const Integral<T,Quad,First,Second> &integral)
+    
+//--- function * primal/dual
+template <QuadratureType Quad, typename First, typename Second>
+typename First::T
+_integrate_f1(const IntegralF<Quad,First,Second> &integral)
 {
-    const First &first = integral.first;
-    const Second &second = integral.second;
+    typedef typename First::T T;
+    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
 
-    Support<T> common;
-    if (overlap(first.support(integral.j1,integral.k1),
-                second.support(integral.j2,integral.k2),
-                common) > 0) {
-        return integral.quadrature(common.l1, common.l2);
+    int p = integral.function.singularPoints.length();
+    DenseVector<Array<T> > singularPoints;
+    if (IsPrimal<First>::value) {
+        if (p>0) {
+            const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+            int m = firstSingularPoints.length();
+            singularPoints.engine().resize(m+p);
+
+            std::merge(firstSingularPoints.engine().data(),
+                       firstSingularPoints.engine().data() + m,
+                       integral.function.singularPoints.engine().data(),
+                       integral.function.singularPoints.engine().data() + p,
+                       singularPoints.engine().data());
+        } else {
+            singularPoints = first.singularSupport(integral.j1,integral.k1);
+        }
     } else {
-        return 0;
+        singularPoints.engine().resize(2);
+        Support<T> supp = first.support(integral.j1,integral.k1);
+        singularPoints = supp.l1, supp.l2;
     }
-}
-
-//--- dual * function
-template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<IsDual<First>::value && !PrimalOrDual<Second>::value, T>::Type
-_integrate(const Integral<T,Quad,First,Second> &integral)
-{
-    const First &first = integral.first;
-    const Second &second = integral.second;
-
-    Support<T> supp = first.support(integral.j1,integral.k1);
-    DenseVector<Array<T> > firstSupport(2);
-    firstSupport = supp.l1, supp.l2;
-    // merge singular points of bspline/wavelet and function to one list.
-    int nFirst = firstSupport.length(),
-        nSecond = second.singularPoints.length();
-    DenseVector<Array<T> > singularPoints(nFirst + nSecond);
-
-    std::merge(firstSupport.engine().data(),
-               firstSupport.engine().data() + nFirst,
-               second.singularPoints.engine().data(),
-               second.singularPoints.engine().data() + nSecond,
-               singularPoints.engine().data());
 
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
@@ -148,57 +113,183 @@ _integrate(const Integral<T,Quad,First,Second> &integral)
     return ret;
 }
 
+//--- function * primal/dual * primal/dual)
+template <QuadratureType Quad, typename First, typename Second>
+typename First::T
+_integrate_f2(const IntegralF<Quad,First,Second> &integral)
+{
+    typedef typename First::T T;
+    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    const Function<T> & function = integral.function;
+
+    DenseVector<Array<T> > singularPoints;
+    int p = function.singularPoints.length();
+
+    if (!BothDual<First,Second>::value) { // we do have (additional) singular points
+        // merge singular points of bsplines/wavelets and function to one list.
+        // -> implicit assumption: singular points are sorted!
+        if (BothPrimal<First,Second>::value) {
+            const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+            const DenseVector<Array<T> > & secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
+            int m = firstSingularPoints.length();
+            int n = secondSingularPoints.length();
+            singularPoints.resize(m+n+p);
+
+            std::merge(firstSingularPoints.engine().data(),
+                       firstSingularPoints.engine().data() + m,
+                       secondSingularPoints.engine().data(),
+                       secondSingularPoints.engine().data() + n,
+                       singularPoints.engine().data());
+            if (p>0) {
+                singularPoints(_(m+n+1,m+n+p)) = function.singularPoints;
+                std::inplace_merge(singularPoints.engine().data(),
+                                   singularPoints.engine().data() + m + n,
+                                   singularPoints.engine().data() + m + n + p);
+            }
+        } else {
+            if (IsPrimal<First>::value) {
+                if (p>0) {
+                    const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+                    int m = firstSingularPoints.length();
+                    singularPoints.resize(m+p);
+
+                    std::merge(firstSingularPoints.engine().data(),
+                               firstSingularPoints.engine().data() + m,
+                               function.singularPoints.engine().data(),
+                               function.ingularPoints.engine().data() + p,
+                               singularPoints.engine().data());
+                } else {
+                    singularPoints = first.singularSupport(integral.j1,integral.k1);
+                }
+            } else {
+                if (p>0) {
+                    const DenseVector<Array<T> > & secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
+                    int n = secondSingularPoints.length();
+                    singularPoints.resize(n+p);
+
+                    std::merge(secondSingularPoints.engine().data(),
+                               secondSingularPoints.engine().data() + n,
+                               function.singularPoints.engine().data(),
+                               function.ingularPoints.engine().data() + p,
+                               singularPoints.engine().data());
+                } else {
+                    singularPoints = second.singularSupport(integral.j2,integral.k2);
+                }
+            }
+        }
+
+    }
+
+    T ret = 0.0;
+    for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
+        ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+    }
+
+    return ret;
+}
+
 //-----------------------------------------------------------------------------
 
 //--- primal/dual * primal/dual
-template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<PrimalOrDual<First>::value && PrimalOrDual<Second>::value, T>::Type
-_integrand(const Integral<T,Quad,First,Second> &integral, T x)
+template <QuadratureType Quad, typename First, typename Second>
+typename First::T
+_integrand(const Integral<Quad,First,Second> &integral, typename First::T x)
 {
-    const First &first = integral.first;
-    const Second &second = integral.second;
-    return first(x,integral.j1,integral.k1) * second(x,integral.j2,integral.k2);
+    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    return first(x,integral.j1,integral.k1,integral.deriv1) * second(x,integral.j2,integral.k2,integral.deriv2);
 }
 
-//--- primal/dual * anything else
-template <typename T, QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<PrimalOrDual<First>::value && !PrimalOrDual<Second>::value, T>::Type
-_integrand(const Integral<T,Quad,First,Second> &integral, T x)
+//--- function * primal/dual
+template <QuadratureType Quad, typename First, typename Second>
+typename RestrictTo<PrimalOrDual<First>::value, typename First::T>::Type
+_integrand_f1(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {
-    const First &first = integral.first;
-    const Second &second = integral.second;
-    return first(x,integral.j1,integral.k1) * second(x);
+    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
+    return integral.function(x) * first(x,integral.j1,integral.k1,integral.deriv1);
 }
 
-//-----------------------------------------------------------------------------
+//--- function * primal/dual * primal/dual
+template <QuadratureType Quad, typename First, typename Second>
+typename RestrictTo<PrimalOrDual<First>::value && PrimalOrDual<Second>::value, typename First::T>::Type
+_integrand_f2(const IntegralF<Quad,First,Second> &integral, typename First::T x)
+{
+    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    return integral.function(x) * first(x,integral.j1,integral.k1,integral.deriv1)
+                                * second(x,integral.j2,integral.k2,integral.deriv2);
+}
 
-template <typename T, QuadratureType Quad, typename First, typename Second>
-Integral<T,Quad,First,Second>::Integral(const First &_first, const Second &_second)
+//------------------------------------------------------------------------------
+
+template <QuadratureType Quad, typename First, typename Second>
+Integral<Quad,First,Second>::Integral(const First &_first, 
+                                      const Second &_second)
     : first(_first), second(_second), quadrature(*this)
 {
 }
 
-template <typename T, QuadratureType Quad, typename First, typename Second>
-T
-Integral<T,Quad,First,Second>::operator()(int _j1, int _k1, int _j2, int _k2) const
+template <QuadratureType Quad, typename First, typename Second>
+typename First::T
+Integral<Quad,First,Second>::operator()(int _j1, long _k1, XType _e1, int _deriv1, 
+                                        int _j2, long _k2, XType _e2, int _deriv2) const
 {
-    j1 = _j1; k1 = _k1; j2 = _j2; k2 = _k2;
+    j1 = _j1; k1 = _k1; e1 = _e1; deriv1 = _deriv1;
+    j2 = _j2; k2 = _k2; e2 = _e2; deriv2 = _deriv2;
     return _integrate(*this);
 }
 
-template <typename T, QuadratureType Quad, typename First, typename Second>
-T
-Integral<T,Quad,First,Second>::operator()(int _j1, int _k1) const
-{
-    j1 = _j1; k1 = _k1;
-    return _integrate(*this);
-}
-
-template <typename T, QuadratureType Quad, typename First, typename Second>
-T
-Integral<T,Quad,First,Second>::integrand(T x) const
+template <QuadratureType Quad, typename First, typename Second>
+typename First::T
+Integral<Quad,First,Second>::integrand(typename First::T x) const
 {
     return _integrand(*this, x);
+}
+
+//------------------------------------------------------------------------------
+
+template <QuadratureType Quad, typename First, typename Second>
+IntegralF<Quad,First,Second>::IntegralF(const Function<T> &_function,
+                                        const First &_first)
+    : function(_function), first(_first), second(_first), quadrature(*this),
+      _f2(false)
+{
+}
+
+template <QuadratureType Quad, typename First, typename Second>
+IntegralF<Quad,First,Second>::IntegralF(const Function<T> &_function,
+                                        const First &_first, 
+                                        const Second &_second)
+    : function(_function), first(_first), second(_second), quadrature(*this),
+      _f2(true)
+
+{
+}
+
+template <QuadratureType Quad, typename First, typename Second>
+typename First::T
+IntegralF<Quad,First,Second>::operator()(int _j, long _k, XType _e, int _deriv) const
+{
+    j1 = _j; k1 = _k; e1 = _e; deriv1 = _deriv;
+    return _integrate_f1(*this);
+}
+
+template <QuadratureType Quad, typename First, typename Second>
+typename First::T
+IntegralF<Quad,First,Second>::operator()(int _j1, long _k1, XType _e1, int _deriv1,
+                                         int _j2, long _k2, XType _e2, int _deriv2) const
+{
+    j1 = _j1; k1 = _k1; e1 = _e1; deriv1 = _deriv1;
+    j2 = _j2; k2 = _k2; e2 = _e2; deriv2 = _deriv2;
+    return _integrate_f2(*this);
+}
+
+template <QuadratureType Quad, typename First, typename Second>
+typename First::T
+IntegralF<Quad,First,Second>::integrand(typename First::T x) const
+{
+    return _f2 ? _integrand_f2(*this,x) : _integrand_f1(*this,x);
 }
 
 } // namespace lawa

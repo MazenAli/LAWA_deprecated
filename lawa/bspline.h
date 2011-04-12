@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,11 +21,13 @@
 #define LAWA_BSPLINE_H 1
 
 #include <lawa/enum.h>
+#include <lawa/basisfunction.h>
 
 namespace lawa {
 
-template <typename T, FunctionSide Side, DomainType Domain, Construction Cons=CDF>
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
 struct BSpline
+    : public BasisFunction<T,Side,Domain,Cons>
 {
 };
 

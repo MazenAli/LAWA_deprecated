@@ -25,21 +25,18 @@
 
 namespace lawa {
 
-template <typename T, QuadratureType Quad, typename First, typename Second>
-    class Integral;
-
-//-----------------------------------------------------------------------------
-
-template <typename T, QuadratureType Quad, typename First, typename Second>
+template <QuadratureType Quad, typename Integral>
 class Quadrature
 {
 };
 
-template <typename T, typename First, typename Second>
-class Quadrature<T,Gauss,First,Second>
+template <typename Integral>
+class Quadrature<Gauss,Integral>
 {
     public:
-        Quadrature(const Integral<T,Gauss,First,Second> &_integral);
+        typedef typename Integral::T T;
+
+        Quadrature(const Integral &_integral);
 
         const T
         operator()(T a, T b) const;
@@ -50,27 +47,26 @@ class Quadrature<T,Gauss,First,Second>
         void
         setOrder(int order);
 
-        const Integral<T,Gauss,First,Second> &integral;
+        const Integral &integral;
     private:
-        void
-        _legendre();
+        static void
+        _legendre(int order);
 
         int _order;
-        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
-        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
+        static int _precalculatedOrder;
+        static flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
+        static flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
 };
-
-template <typename First, typename Second>
-    int
-    defaultGaussOrder(const First &first, const Second &second);
 
 //-----------------------------------------------------------------------------
 
-template <typename T, typename First, typename Second>
-class Quadrature<T,Trapezoidal,First,Second>
+template <typename Integral>
+class Quadrature<Trapezoidal,Integral>
 {
     public:
-        Quadrature(const Integral<T,Trapezoidal,First,Second> &_integral);
+        typedef typename Integral::T T;
+        
+        Quadrature(const Integral &_integral);
 
         const T
         operator()(T a, T b) const;
@@ -81,14 +77,10 @@ class Quadrature<T,Trapezoidal,First,Second>
         void
         setN(int n);
 
-        const Integral<T,Trapezoidal,First,Second>  &integral;
+        const Integral &integral;
     private:
         int _n;
 };
-
-template <typename First, typename Second>
-    int
-    defaultTrapezoidalN(const First &first, const Second &second);
 
 } // namespace lawa
 

@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #ifndef LAWA_PERIODIC_PRIMAL_WAVELET_H
 #define LAWA_PERIODIC_PRIMAL_WAVELET_H 1
 
+#include <lawa/basisfunction.h>
+#include <lawa/enum.h>
 #include <lawa/flensforlawa.h>
 #include <lawa/periodic/periodicsupport.h>
 #include <lawa/periodic/primal/bspline.h>
@@ -30,57 +32,43 @@ namespace lawa {
 
 using namespace flens;
 
-template <typename T>
-class Wavelet<T,Primal,Periodic,CDF>
+template <typename _T>
+struct Wavelet<_T,Primal,Periodic,CDF>
+    : public BasisFunction<_T,Primal,Periodic,CDF>
 {
-    public:
-        typedef T ElementType;
+    typedef _T T;
+    static const FunctionSide Side = Primal;
+    static const DomainType Domain = Periodic;
+    static const Construction Cons = CDF;
 
-        Wavelet(int _d, int _d_);
+    Wavelet(int _d, int _d_);
 
-        Wavelet(int _d, int _d_, int _deriv);
+    Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
+            const BSpline<T,Dual,Periodic,CDF> &_phi_);
 
-        Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
-                const BSpline<T,Dual,Periodic,CDF> &_phi_);
+    Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis);
 
-        Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
-                const BSpline<T,Dual,Periodic,CDF> &_phi_,
-                int _deriv);
+    T
+    operator()(T x, int j, long k, unsigned short deriv) const;
 
-        // TODO: muss man Wavelets aus der MRA konstruieren können?
-        Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
-                const MRA<T,Dual,Periodic,CDF> &mra_);
+    PeriodicSupport<T>
+    support(int j, long k) const;
 
-        Wavelet(const MRA<T,Primal,Periodic,CDF> &mra,
-                const MRA<T,Dual,Periodic,CDF> &mra_,
-                int _deriv);
-                
-        Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis);
+    DenseVector<Array<T> >
+    singularSupport(int j, long k) const;
 
-        Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis, int _deriv);
+    T
+    tic(int j) const;
 
-        T
-        operator()(T x, int j, int k) const;
+    const DenseVector<Array<T> > &
+    mask() const;
 
-        PeriodicSupport<T>
-        support(int j, int k) const;
+    static DenseVector<Array<T> >
+    mask(int d, int d_);
 
-        DenseVector<Array<T> >
-        singularSupport(int j, int k) const;
-        
-        T
-        tic(int j) const;
-
-        const DenseVector<Array<T> > &
-        mask() const;
-
-        static DenseVector<Array<T> >
-        mask(int d, int d_);
-
-        const int d, d_, mu;
-        const int deriv, polynomialOrder;
-        const int vanishingMoments;
-        const Wavelet<T, Primal, R, CDF> psiR;
+    const int d, d_, mu;
+    const int vanishingMoments;
+    const Wavelet<T, Primal, R, CDF> psiR;
 };
 
 } // namespace lawa

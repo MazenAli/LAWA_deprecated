@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -211,6 +211,17 @@ Basis<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         Mj1.engine().changeIndexBase(2,1);
         M1 = RefinementMatrix<T,Interval,Primbs>(numPrimalCols, numPrimalCols, Mj1, min_j0, min_j0);
         setLevel(_j);
+    }
+}
+
+template <typename T>
+const BasisFunction<T,Primal,Interval,Primbs> &
+Basis<T,Primal,Interval,Primbs>::generator(XType xtype) const
+{
+    if (xtype==XBSpline) {
+        return mra.phi; 
+    } else {
+        return psi;
     }
 }
 

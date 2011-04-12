@@ -27,13 +27,13 @@
 namespace lawa {
 
 template <typename X>
-typename X::ElementType   
+    typename X::ElementType   
     evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, 
              int j, const DenseVector<X> &coeffs, typename X::ElementType x, 
              int deriv);
 
 template <typename X>
-typename X::ElementType
+    typename X::ElementType
     evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis, 
              int J, const DenseVector<X> &coeffs, typename X::ElementType x, 
              int deriv);

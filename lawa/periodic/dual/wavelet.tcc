@@ -1,6 +1,6 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  This file is part of LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -48,8 +48,10 @@ Wavelet<T,Dual,Periodic,CDF>::Wavelet(const Basis<T,Dual,Periodic,CDF> &_basis)
 
 template <typename T>
 T
-Wavelet<T,Dual,Periodic,CDF>::operator()(T x, int j, int k) const
+Wavelet<T,Dual,Periodic,CDF>::operator()(T x, int j, long k, unsigned short deriv) const
 {
+    assert(deriv==0);
+    
     // maximal support: [0,1]
     if((x < 0.) || (x > 1.)){
         return 0.;
@@ -66,7 +68,7 @@ Wavelet<T,Dual,Periodic,CDF>::operator()(T x, int j, int k) const
 
 template <typename T>
 PeriodicSupport<T>
-Wavelet<T,Dual,Periodic,CDF>::support(int j, int k) const
+Wavelet<T,Dual,Periodic,CDF>::support(int j, long k) const
 {
     Support<T> suppR = psiR_.support(j,k);
     if(suppR.length() >= 1){
