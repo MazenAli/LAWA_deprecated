@@ -17,11 +17,11 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS1D_H
-#define LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS1D_H 1
+#ifndef TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS1D_H
+#define TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS1D_H 1
 
 #include <iostream>
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 #include <lawa/operators/pdeoperators1d/helmholtzoperator1d.h>
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
 
@@ -71,7 +71,7 @@ struct ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >
 
 } // namespace lawa
 
-#include <lawa/adaptive/referencesolutions/referencesolutions1d.tcc>
+#include <tutorials/examples/referencesolutions/referencesolutions1d.tcc>
 
 
-#endif // ADAPTIVE_REFERENCESOLUTIONS_H
+#endif // TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_H

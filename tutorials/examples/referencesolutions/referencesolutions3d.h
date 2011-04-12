@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H
-#define LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H 1
+#ifndef TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H
+#define TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H 1
 
 namespace lawa {
 
@@ -88,7 +88,7 @@ struct ReferenceSolutionTensor3D<T,Basis3D,HelmholtzOperator3D<T,Basis3D> >
 
 }	//namespace lawa
 
-#include <lawa/adaptive/referencesolutions/referencesolutions3d.tcc>
+#include <tutorials/examples/referencesolutions/referencesolutions3d.tcc>
 
 
-#endif // LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H
+#endif // TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H

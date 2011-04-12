@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H
-#define LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H 1
+#ifndef TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H
+#define TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H 1
 
 namespace lawa {
 
@@ -163,7 +163,7 @@ struct ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >
 
 }	//namespace lawa
 
-#include <lawa/adaptive/referencesolutions/referencesolutions2d.tcc>
+#include <tutorials/examples/referencesolutions/referencesolutions2d.tcc>
 
 
-#endif // LAWA_ADAPTIVE_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H
+#endif // TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS2D_H
