@@ -17,29 +17,14 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H
-#define LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H 1
+#ifndef LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION3D_H
+#define LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION3D_H 1
 
 #include <lawa/functiontypes/function.h>
 
 namespace lawa {
-    
+
 using namespace flens;
-    
-template<typename T>
-struct SeparableFunction2D
-{
-    SeparableFunction2D(Function<T> _F_x, Function<T>  _F_y);
-    
-    SeparableFunction2D(T (*_f_x)(T), const DenseVector<Array<T> > &_singularPts_x,
-                        T (*_f_y)(T), const DenseVector<Array<T> > &_singularPts_y);
-    
-    T
-    operator()(T x, T y) const;
-    
-    Function<T> F_x;
-    Function<T> F_y;
-};
 
 template<typename T>
 struct SeparableFunction3D
@@ -57,9 +42,9 @@ struct SeparableFunction3D
     Function<T> F_y;
     Function<T> F_z;
 };
-    
+
 } // namespace lawa
 
-#include <lawa/functiontypes/separablefunctionnd.tcc>
+#include <lawa/functiontypes/separablefunction3d.tcc>
 
-#endif // LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H
+#endif // LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION3D_H
