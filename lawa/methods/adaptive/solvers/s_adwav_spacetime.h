@@ -16,46 +16,44 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#ifndef ADAPTIVE_ALGORITHMS_S_ADWAV_SPACETIME_H
-#define ADAPTIVE_ALGORITHMS_S_ADWAV_SPACETIME_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_SOLVERS_S_ADWAV_SPACETIME_H
+#define LAWA_METHODS_ADAPTIVE_SOLVERS_S_ADWAV_SPACETIME_H 1
 
 #include <iostream>
 #include <vector>
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
-#include <lawa/adaptive/datastructures/matrixoperations.h>
-#include <lawa/adaptive/aux/postprocessing.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/matrixoperations.h>
+#include <lawa/methods/adaptive/postprocessing/postprocessing.h>
 
 namespace lawa {
 
-
-
 template <typename T, typename Index, typename SpaceIndex, typename Basis, typename MA, typename RHSOperator, typename RHSInitialCond>
 class S_ADWAV_SPACETIME {
-public:
-    S_ADWAV_SPACETIME(const Basis &basis, MA &A, RHSOperator &F, RHSInitialCond &U0, T contraction, T _threshTol,
-					  T _linTol, T _resTol=1e-4, int _NumOfIterations=10, int MaxItsPerThreshTol=5, T eps=1e-2);
+    public:
+        S_ADWAV_SPACETIME(const Basis &basis, MA &A, RHSOperator &F, RHSInitialCond &U0, T contraction, T _threshTol,
+    					  T _linTol, T _resTol=1e-4, int _NumOfIterations=10, int MaxItsPerThreshTol=5, T eps=1e-2);
 
-	void solve_cgls(const IndexSet<Index> &Initial_Lambda);
+    	void solve_cgls(const IndexSet<Index> &Initial_Lambda);
 
-    std::vector<Coefficients<Lexicographical,T,Index> > solutions;
-    std::vector<T>               residuals;
-    std::vector<T>               times;
+        std::vector<Coefficients<Lexicographical,T,Index> > solutions;
+        std::vector<T>               residuals;
+        std::vector<T>               times;
 
-private:
-    const Basis &basis;
-    MA &A;
-    RHSOperator &F;
-    RHSInitialCond &U0;
-    T contraction, threshTol, linTol, resTol;
-    int NumOfIterations;
-    int MaxItsPerThreshTol;
-    T eps;
+    private:
+        const Basis &basis;
+        MA &A;
+        RHSOperator &F;
+        RHSInitialCond &U0;
+        T contraction, threshTol, linTol, resTol;
+        int NumOfIterations;
+        int MaxItsPerThreshTol;
+        T eps;
 
 };
 
 } //namespace lawa
 
-#include <lawa/adaptive/algorithms/s_adwav_spacetime.tcc>
+#include <lawa/methods/adaptive/solvers/s_adwav_spacetime.tcc>
 
-#endif //ADAPTIVE_ALGORITHMS_S_ADWAV_SPACETIME_H
+#endif // LAWA_METHODS_ADAPTIVE_SOLVERS_S_ADWAV_SPACETIME_H

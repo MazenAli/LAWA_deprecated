@@ -17,17 +17,16 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ADAPTIVE_INDEX_H
-#define LAWA_ADAPTIVE_INDEX_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEX_H
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEX_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 #include <iostream>
 
 namespace lawa {
 
-class Index1D
+struct Index1D
 {
-public:
     short j;
     int k;
     XType xtype;
@@ -65,9 +64,8 @@ struct Index3D
 std::ostream& operator<<(std::ostream &s, const Index3D &_Index);
 
 template <typename Index>
-class Entry
+struct Entry
 {
-public:
     Entry(const Index &row_index, const Index &col_index);
     const Index row_index, col_index;    //todo: no copy, but only a reference possible ?!
 };
@@ -82,6 +80,6 @@ struct lt
 
 } //namespace lawa
 
-#include <lawa/adaptive/index.tcc>
+#include <lawa/methods/adaptive/datastructures/index.tcc>
 
-#endif //LAWA_ADAPTIVE_INDEX_H
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEX_H

@@ -17,11 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ADAPTIVE_INDEXSET_H
-#define LAWA_ADAPTIVE_INDEXSET_H 1
-
 #include <lawa/math/math.h>
-#include <lawa/support.h>
+#include <lawa/constructions/support.h>
 
 namespace lawa {
 
@@ -987,5 +984,3 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
 }
 
 } // namespace lawa
-
-#endif // LAWA_ADAPTIVE_INDEXSET_H

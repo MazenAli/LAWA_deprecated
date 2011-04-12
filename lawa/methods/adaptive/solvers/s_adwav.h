@@ -16,52 +16,52 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#ifndef ADAPTIVE_ALGORITHMS_S_ADWAV_H
-#define ADAPTIVE_ALGORITHMS_S_ADWAV_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_SOLVERS_S_ADWAV_H
+#define LAWA_METHODS_ADAPTIVE_SOLVERS_S_ADWAV_H 1
 
 #include <iostream>
 #include <vector>
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
-#include <lawa/adaptive/datastructures/matrixoperations.h>
-#include <lawa/adaptive/aux/postprocessing.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/matrixoperations.h>
+#include <lawa/methods/adaptive/postprocessing/postprocessing.h>
 
 namespace lawa {
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 class S_ADWAV {
-public:
-    S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
-            T _linTol=1e-6, T _resTol=1e-4, int _NumOfIterations=10, int MaxItsPerThreshTol=5, T eps=1e-2);
+    public:
+        S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
+                T _linTol=1e-6, T _resTol=1e-4, int _NumOfIterations=10, int MaxItsPerThreshTol=5, T eps=1e-2);
 
-    //solver for symmetric elliptic problems
-	void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
-    //solver for symmetric elliptic problems without B-Splines
-	void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
-	//solver for elliptic problems
-	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
-	//solver for indefinite problems
-	void solve_cgls(const IndexSet<Index> &Initial_Lambda);
+        //solver for symmetric elliptic problems
+    	void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
+        //solver for symmetric elliptic problems without B-Splines
+    	void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
+    	//solver for elliptic problems
+    	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
+    	//solver for indefinite problems
+    	void solve_cgls(const IndexSet<Index> &Initial_Lambda);
 
-    std::vector<Coefficients<Lexicographical,T,Index> > solutions;
-    std::vector<T>               residuals;
-    std::vector<T>               times;
-    std::vector<T>               cg_iterations;
-    std::vector<T>               toliters;
+        std::vector<Coefficients<Lexicographical,T,Index> > solutions;
+        std::vector<T>               residuals;
+        std::vector<T>               times;
+        std::vector<T>               cg_iterations;
+        std::vector<T>               toliters;
     
-private:
-    const Basis &basis;
-    MA &A;
-    RHS &F;
-    T contraction, threshTol, linTol, resTol;
-    int NumOfIterations;
-    int MaxItsPerThreshTol;
-    T eps;
+    private:
+        const Basis &basis;
+        MA &A;
+        RHS &F;
+        T contraction, threshTol, linTol, resTol;
+        int NumOfIterations;
+        int MaxItsPerThreshTol;
+        T eps;
 
 };
 
 } //namespace lawa
 
-#include <lawa/adaptive/algorithms/s_adwav.tcc>
+#include <lawa/methods/adaptive/solvers/s_adwav.tcc>
 
-#endif //ADAPTIVE_ALGORITHMS_S_ADWAV_H
+#endif //LAWA_METHODS_ADAPTIVE_SOLVERS_S_ADWAV_H

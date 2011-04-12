@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_ADAPTIVE_DATASTRUCTURES_MATRIXOPERATIONS_H
-#define LAWA_ADAPTIVE_DATASTRUCTURES_MATRIXOPERATIONS_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MATRIXOPERATIONS_H
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MATRIXOPERATIONS_H 1
 
 #include <extensions/flens/cg.h>
 #include <extensions/flens/gmres.h>
@@ -88,7 +88,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
 
 }	//namespace lawa
 
-#include <lawa/adaptive/datastructures/matrixoperations.tcc>
+#include <lawa/methods/adaptive/datastructures/matrixoperations.tcc>
 
-#endif	//LAWA_ADAPTIVE_DATASTRUCTURES_MATRIXOPERATIONS_H
+#endif	// LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MATRIXOPERATIONS_H
 

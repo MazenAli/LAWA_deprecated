@@ -18,22 +18,21 @@
  */
 
 
-#ifndef LAWA_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H
-#define LAWA_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H 1
 
 #include <utility>
-#include <lawa/adaptive/index.h>
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
-#include <lawa/adaptive/aux/timer.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/aux/timer.h>
 
 
 namespace lawa {
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-class MapMatrix
+struct MapMatrix
 {
-public:
     typedef typename std::map<Entry<Index>,T,lt<Lexicographical,Index > > EntryMap;
     typedef typename EntryMap::value_type val_type;
     EntryMap data;
@@ -43,8 +42,6 @@ public:
     Compression &c;
     Coefficients<Lexicographical,T,Index> P_data;
 
-
-public:
     MapMatrix(const BilinearForm &a, const Preconditioner &p, Compression &c);
 
 	T
@@ -59,7 +56,6 @@ public:
 
 } // namespace lawa
 
-#include <lawa/adaptive/datastructures/mapmatrix.tcc>
+#include <lawa/methods/adaptive/datastructures/mapmatrix.tcc>
 
-
-#endif // LAWA_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H
+#endif //  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H

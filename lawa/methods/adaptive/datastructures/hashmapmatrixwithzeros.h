@@ -18,18 +18,16 @@
  */
 
 
-#ifndef LAWA_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H
-#define LAWA_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H 1
 
 #include <utility>
 #include <ext/hash_map>
-#include <lawa/adaptive/index.h>
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
-#include <lawa/adaptive/aux/timer.h>
-#include <lawa/operators/preconditioner.h>
-
-
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/aux/timer.h>
+#include <lawa/preconditioners/preconditioners.h>
 
 #define ROW_SIZE_2D 4*8192
 #define COL_SIZE_2D 2*4*2048
@@ -62,9 +60,8 @@ struct equal_pair_of_int {
 };
 
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-class MapMatrixWithZeros
+struct MapMatrixWithZeros
 {
-public:
     typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
 	//typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int, equal_pair_of_int> EntryMap;
     typedef typename EntryMap::value_type val_type;
@@ -83,7 +80,6 @@ public:
     T entrybound;
 
 
-public:
     MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c,
 					   T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
@@ -97,9 +93,8 @@ public:
 
 
 template <typename T, typename Index, typename BilinearForm, typename Compression>
-class MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<T,Index> >
+struct MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<T,Index> >
 {
-public:
     typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
     typedef typename EntryMap::value_type val_type;
 
@@ -114,8 +109,6 @@ public:
     bool warning_overflow;
     T entrybound;
 
-
-public:
     MapMatrixWithZeros(const BilinearForm &a, Compression &c,
 					   T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
@@ -131,6 +124,6 @@ public:
 
 }	//namespace lawa
 
-#include <lawa/adaptive/datastructures/hashmapmatrixwithzeros.tcc>
+#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.tcc>
 
-#endif LAWA_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H
+#endif  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H

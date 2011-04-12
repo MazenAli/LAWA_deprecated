@@ -17,12 +17,12 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ADAPTIVE_COEFFICIENTS_H
-#define LAWA_ADAPTIVE_COEFFICIENTS_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_COEFFICIENTS_H
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_COEFFICIENTS_H 1
 
 #include <map>
-#include <lawa/adaptive/index.h>
-#include <lawa/adaptive/indexset.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
 
 namespace lawa {
 
@@ -120,6 +120,6 @@ THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta);
 
 } // namespace lawa
 
-#include <lawa/adaptive/coefficients.tcc>
+#include <lawa/methods/adaptive/datastructures/coefficients.tcc>
 
-#endif // COEFFICIENTS_H
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_COEFFICIENTS_H

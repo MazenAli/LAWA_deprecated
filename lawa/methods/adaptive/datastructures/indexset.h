@@ -17,16 +17,16 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_ADAPTIVE_INDEXSET_H_
-#define LAWA_ADAPTIVE_INDEXSET_H_ 1
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEXSET_H_
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEXSET_H_ 1
 
 #include <set>
-#include <lawa/adaptive/index.h>
-#include <lawa/basis.h>
-#include <lawa/bspline.h>
-#include <lawa/enum.h>
-#include <lawa/mra.h>
-#include <lawa/wavelet.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/constructions/basis.h>
+#include <lawa/constructions/bspline.h>
+#include <lawa/settings/enum.h>
+#include <lawa/constructions/mra.h>
+#include <lawa/constructions/wavelet.h>
 
 namespace lawa {
 
@@ -107,7 +107,7 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
 }   // namespace lawa
 
 
-#include <lawa/adaptive/indexset.tcc>
+#include <lawa/methods/adaptive/datastructures/indexset.tcc>
 
 
-#endif // LAWA_ADAPTIVE_INDEXSET_H_ */
+#endif //  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEXSET_H

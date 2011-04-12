@@ -17,14 +17,14 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef ADAPTIVE_AUX_PLOTTING_H
-#define ADAPTIVE_AUX_PLOTTING_H 1
+#ifndef ADAPTIVE_POSTPROCESSING_PLOTTING_H
+#define ADAPTIVE_POSTPROCESSING_PLOTTING_H 1
 
 #include <iostream>
 #include <fstream>
-#include <lawa/adaptive/index.h>
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
 
 namespace lawa {
 
@@ -76,6 +76,6 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
 
 }  // namespace lawa
 
-#include <lawa/adaptive/aux/plotting.tcc>
+#include <lawa/methods/adaptive/postprocessing/plotting.tcc>
 
-#endif // ADAPTIVE_AUX_PLOTTING_H
+#endif // ADAPTIVE_POSTPROCESSING_PLOTTING_H

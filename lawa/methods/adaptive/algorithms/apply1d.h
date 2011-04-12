@@ -17,11 +17,11 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_ADAPTIVE_ALGORITHMS_APPLY1D_H
-#define LAWA_ADAPTIVE_ALGORITHMS_APPLY1D_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY1D_H
+#define  LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY1D_H 1
 
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
 
 namespace lawa {
 
@@ -53,6 +53,6 @@ private:
 
 }	//namespace lawa
 
-#include <lawa/adaptive/algorithms/apply1d.tcc>
+#include <lawa/methods/adaptive/algorithms/apply1d.tcc>
 
-#endif //LAWA_ADAPTIVE_ALGORITHMS_APPLY1D_H
+#endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY1D_H

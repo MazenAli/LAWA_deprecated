@@ -1,10 +1,5 @@
-#include <lawa/adaptive/index.h>
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
-#include <lawa/adaptive/compression.h>
-#include <lawa/adaptive/datastructures/datastructures.h>
-//#include <lawa/adaptive/mapmatrix.h>
-#include <lawa/adaptive/referencesolutions/referencesolutions.h>
-#include <lawa/adaptive/algorithms/algorithms.h>
-#include <lawa/adaptive/aux/plotting.h>
-#include <lawa/adaptive/aux/postprocessing.h>
+#include <lawa/methods/adaptive/algorithms/algorithms.h>
+#include <lawa/methods/adaptive/compressions/compressions.h>
+#include <lawa/methods/adaptive/datastructures/datastructures.h>
+#include <lawa/methods/adaptive/postprocessing/postprocessing.h>
+#include <lawa/methods/adaptive/solvers/solvers.h>

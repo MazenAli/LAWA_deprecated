@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,27 +15,38 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ */
 
-#ifndef  LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY2D_H
-#define  LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY2D_H 1
+
+#ifndef  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE3D_H
+#define  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE3D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/aux/timer.h>
 
 namespace lawa {
 
-//template <typename T, typename Index, typename Basis, typename MA, typename BilinearForm>
-//Coefficients<Lexicographical,T,Index>
-//APPLY(MA &A, const Coefficients<Lexicographical,T,Index> &v, int k);
+template <typename T, typename Basis>
+struct CompressionPDE3D
+{
+	const Basis &basis;
+	short s_tilde_x, jmin_x, jmax_x;
+	short s_tilde_y, jmin_y, jmax_y;
+	short s_tilde_z, jmin_z, jmax_z;
 
-template <typename T, typename MA>
-Coefficients<Lexicographical,T,Index2D>
-APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k);
+	CompressionPDE3D(const Basis &_basis);
 
+	void
+	setParameters(const IndexSet<Index3D> &LambdaRow);
 
-}	//namespace lawa
+	IndexSet<Index3D>
+	SparsityPattern(const Index3D &lambda_col, const IndexSet<Index3D> &LambdaRow);
 
-#include <lawa/methods/adaptive/algorithms/apply2d.tcc>
+};
 
-#endif //  LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY2D_H
+} // namespace lawa
+
+#include <lawa/methods/adaptive/compressions/compression_pde3d.tcc>
+
+#endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE3D_H

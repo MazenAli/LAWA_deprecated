@@ -1,4 +1,4 @@
-#include <lawa/adaptive/aux/timer.h>
+#include <lawa/aux/timer.h>
 
 namespace lawa {
 

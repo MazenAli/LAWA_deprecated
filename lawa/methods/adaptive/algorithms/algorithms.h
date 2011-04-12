@@ -1,2 +1,2 @@
-#include <lawa/adaptive/algorithms/s_adwav.h>
-#include <lawa/adaptive/algorithms/s_adwav_spacetime.h>
+#include <lawa/methods/adaptive/algorithms/apply1d.h>
+#include <lawa/methods/adaptive/algorithms/apply2d.h>

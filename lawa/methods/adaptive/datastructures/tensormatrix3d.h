@@ -18,24 +18,25 @@
  */
 
 
-#ifndef LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H
-#define LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H 1
 
-#include <lawa/adaptive/index.h>
-#include <lawa/box/tensorbasis.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/constructions/tensorbasis.h>
 #include <lawa/operators/operators.h>
-#include <lawa/adaptive/compression.h>
-#include <lawa/adaptive/datastructures/hashmapmatrixwithzeros.h>
+#include <lawa/preconditioners/preconditioners.h>
+#include <lawa/methods/adaptive/compressions/compressions.h>
+#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 
 namespace lawa {
 
 
 template <typename T, typename Basis, typename BilinearForm, typename Compression, typename Preconditioner>
-class TensorMatrix3D {
+struct TensorMatrix3D {
 };
 
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
-class TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preconditioner>
+struct TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preconditioner>
 {
 	typedef CompressionPDE1D<T, Index1D, typename Basis::FirstBasisType> 	     Compression_x;
 	typedef CompressionPDE1D<T, Index1D, typename Basis::SecondBasisType> 	     Compression_y;
@@ -49,8 +50,6 @@ class TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preco
 	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner1D> DataReaction_y;
 	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_z, NoPreconditioner1D> DataDiffusion_z;
 	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_z, NoPreconditioner1D> DataReaction_z;
-
-public:
 
 	const HelmholtzOperator3D<T, Basis> &a;
 	const Preconditioner &p;
@@ -87,6 +86,6 @@ public:
 
 }	//namespace lawa
 
-#include <lawa/adaptive/datastructures/tensormatrix3d.tcc>
+#include <lawa/methods/adaptive/datastructures/tensormatrix3d.tcc>
 
-#endif //LAWA_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TENSORMATRIX3D_H
