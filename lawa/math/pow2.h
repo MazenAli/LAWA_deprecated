@@ -20,7 +20,7 @@
 #ifndef LAWA_MATH_POW2_H
 #define LAWA_MATH_POW2_H 1
 
-#include <lawa/aux/typetraits.h>
+#include <lawa/settings/typetraits.h>
 
 namespace lawa {
 
