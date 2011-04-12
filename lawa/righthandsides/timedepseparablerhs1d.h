@@ -3,8 +3,8 @@
 
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
-#include <lawa/righthandsides/separablefunctionnd.h>
-#include <lawa/integrals.h>
+#include <lawa/functiontypes/separablefunctionnd.h>
+#include <lawa/integrals/integrals.h>
 
 namespace lawa{
 

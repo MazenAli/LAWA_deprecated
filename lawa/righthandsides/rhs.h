@@ -25,32 +25,32 @@ namespace lawa {
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
 class RHS
 {
-public:
-    const RHSINTEGRAL &rhsintegral;
-    const Preconditioner &P;
-    Coefficients<Lexicographical,T,Index> rhs_data;
-    Coefficients<AbsoluteValue,T,Index>   rhs_abs_data;
+    public:
+        const RHSINTEGRAL &rhsintegral;
+        const Preconditioner &P;
+        Coefficients<Lexicographical,T,Index> rhs_data;
+        Coefficients<AbsoluteValue,T,Index>   rhs_abs_data;
 
-//public:
-    RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P);
+    //public:
+        RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P);
 
-    RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P,
-    	const Coefficients<Lexicographical,T,Index> &_rhs_data);
+        RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P,
+        	const Coefficients<Lexicographical,T,Index> &_rhs_data);
 
-    T
-    operator()(const Index &lambda);
+        T
+        operator()(const Index &lambda);
 
-    Coefficients<Lexicographical,T,Index>
-    operator()(const IndexSet<Index> &Lambda);
+        Coefficients<Lexicographical,T,Index>
+        operator()(const IndexSet<Index> &Lambda);
 
-	Coefficients<Lexicographical,T,Index>
-	operator()(T tol);
+    	Coefficients<Lexicographical,T,Index>
+    	operator()(T tol);
 	
-	T
-	operator()(T t, const Index &lambda);
+    	T
+    	operator()(T t, const Index &lambda);
 
-	Coefficients<Lexicographical,T,Index>
-	operator()(T t, const IndexSet<Index> &Lambda);
+    	Coefficients<Lexicographical,T,Index>
+    	operator()(T t, const IndexSet<Index> &Lambda);
 
 };
 

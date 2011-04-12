@@ -20,8 +20,8 @@
 #ifndef LAWA_RIGHTHANDSIDES_SEPARABLERHSWITHPEAKS_H
 #define LAWA_RIGHTHANDSIDES_SEPARABLERHSWITHPEAKS_H 1
 
-#include <lawa/righthandsides/separablefunctionnd.h>
-#include <lawa/integrals.h>
+#include <lawa/functiontypes/separablefunctionnd.h>
+#include <lawa/integrals/integrals.h>
 
 namespace lawa {
     

@@ -20,8 +20,8 @@
 #ifndef LAWA_RIGHTHANDSIDES_SEPARABLERHS3D_H
 #define LAWA_RIGHTHANDSIDES_SEPARABLERHS3D_H 1
 
-#include <lawa/righthandsides/separablefunctionnd.h>
-#include <lawa/integrals.h>
+#include <lawa/functiontypes/separablefunctionnd.h>
+#include <lawa/integrals/integrals.h>
 
 namespace lawa {
 
@@ -32,8 +32,8 @@ class SeparableRHS3D
         const Basis3D& basis;
         const SeparableFunction3D<T>& F;
         const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
-	const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
-	const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z;
+	    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
+	    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z;
 
         typedef typename Basis3D::FirstBasisType::BSplineType PrimalSpline_x;
         typedef typename Basis3D::SecondBasisType::BSplineType PrimalSpline_y;

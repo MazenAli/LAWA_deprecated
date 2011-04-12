@@ -1,9 +1,6 @@
-#include <lawa/righthandsides/functionnd.h>
 #include <lawa/righthandsides/homogeneousrhs.h>
-//#include <lawa/righthandsides/integrals2d.h>
 #include <lawa/righthandsides/rhs.h>
 #include <lawa/righthandsides/rhswithpeaks1d.h>
-#include <lawa/righthandsides/separablefunctionnd.h>
 #include <lawa/righthandsides/separablerhs2d.h>
 #include <lawa/righthandsides/separablerhs3d.h>
 #include <lawa/righthandsides/separablerhswithpeaks2d.h>

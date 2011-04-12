@@ -22,8 +22,8 @@
 
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
-#include <lawa/righthandsides/functionnd.h>
-#include <lawa/righthandsides/integrals2d.h>
+#include <lawa/functiontypes/functionnd.h>
+#include <lawa/integrals/integrals2d.h>
 
 namespace lawa {
 
