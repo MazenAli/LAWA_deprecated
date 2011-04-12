@@ -21,8 +21,8 @@
 #ifndef LAWA_OPERATORS_HELMHOLTZOPERATOR3D_H
 #define LAWA_OPERATORS_HELMHOLTZOPERATOR3D_H 1
 
-#include <lawa/enum.h>
-#include <lawa/adaptive/index.h>
+#include <lawa/settings/enum.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/integrals.h>
@@ -119,4 +119,4 @@ class HelmholtzOperator3D{
 
 #include <lawa/operators/pdeoperators3d/helmholtzoperator3d.tcc>
 
-#endif // LAWA_ADAPTIVE_HELMHOLTZOPERATOR3D_H
+#endif //  LAWA_METHODS_ADAPTIVE_HELMHOLTZOPERATOR3D_H

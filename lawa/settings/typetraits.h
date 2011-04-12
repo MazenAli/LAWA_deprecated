@@ -20,7 +20,7 @@
 #ifndef LAWA_AUX_TYPETRAITS_H
 #define LAWA_AUX_TYPETRAITS_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 #include <lawa/bspline.h>
 #include <lawa/wavelet.h>
 

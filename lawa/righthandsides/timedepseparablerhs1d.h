@@ -1,8 +1,8 @@
 #ifndef LAWA_RIGHTHANDSIDES_TIMEDEPSEPARABLERHS1D_H
 #define LAWA_RIGHTHANDSIDES_TIMEDEPSEPARABLERHS1D_H 1
 
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/righthandsides/separablefunctionnd.h>
 #include <lawa/integrals.h>
 

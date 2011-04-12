@@ -18,12 +18,12 @@
  */
 
 
-#ifndef LAWA_ADAPTIVE_RHSWITHPEAKS1D_H
-#define LAWA_ADAPTIVE_RHSWITHPEAKS1D_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_RHSWITHPEAKS1D_H
+#define  LAWA_METHODS_ADAPTIVE_RHSWITHPEAKS1D_H 1
 
-#include <lawa/adaptive/index.h>
-#include <lawa/adaptive/indexset.h>
-#include <lawa/adaptive/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/function.h>
 
 namespace lawa {
@@ -103,4 +103,4 @@ private:
 
 #include <lawa/righthandsides/rhswithpeaks1d.tcc>
 
-#endif // LAWA_ADAPTIVE_RHSWITHPEAKS1D_H
+#endif //  LAWA_METHODS_ADAPTIVE_RHSWITHPEAKS1D_H

@@ -20,7 +20,7 @@
 #ifndef LAWA_OPERATORS_DELTAS_H
 #define LAWA_OPERATORS_DELTAS_H 1
 
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 #include <lawa/bspline.h>
 #include <lawa/wavelet.h>
 #include <lawa/support.h>

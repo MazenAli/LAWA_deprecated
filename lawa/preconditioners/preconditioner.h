@@ -21,7 +21,7 @@
 #ifndef LAWA_OPERATORS_PRECONDITIONER_H
 #define LAWA_OPERATORS_PRECONDITIONER_H 1
 
-#include <lawa/adaptive/index.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/integrals.h>
 #include <lawa/operators/spacetimeoperators/spacetimeoperators.h>
 

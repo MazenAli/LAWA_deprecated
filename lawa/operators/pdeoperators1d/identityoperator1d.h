@@ -21,9 +21,9 @@
 #ifndef LAWA_OPERATORS_IDENTITYOPERATOR1D_H
 #define LAWA_OPERATORS_IDENTITYOPERATOR1D_H 1
 
-#include <lawa/adaptive/index.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/integrals.h>
-#include <lawa/enum.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 

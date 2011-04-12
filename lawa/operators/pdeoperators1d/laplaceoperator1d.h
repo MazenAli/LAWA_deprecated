@@ -21,8 +21,8 @@
 #ifndef LAWA_OPERATORS_LAPLACEOPERATOR1D_H
 #define LAWA_OPERATORS_LAPLACEOPERATOR1D_H 1
 
-#include <lawa/enum.h>
-#include <lawa/adaptive/index.h>
+#include <lawa/settings/enum.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/integrals.h>
 
 namespace lawa {
