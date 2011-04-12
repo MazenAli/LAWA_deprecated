@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_FUNCTIONND_H
-#define LAWA_RIGHTHANDSIDES_FUNCTIONND_H 1
+#ifndef LAWA_FUNCTIONTYPES_FUNCTIONND_H
+#define LAWA_FUNCTIONTYPES_FUNCTIONND_H 1
 
 namespace lawa {
 
@@ -58,6 +58,6 @@ public:
 
 } // namespace lawa
 
-#include <lawa/righthandsides/functionnd.tcc>
+#include <lawa/functiontypes/functionnd.tcc>
 
-#endif // LAWA_RIGHTHANDSIDES_FUNCTIONND_H
+#endif // LAWA_FUNCTIONTYPES_FUNCTIONND_H

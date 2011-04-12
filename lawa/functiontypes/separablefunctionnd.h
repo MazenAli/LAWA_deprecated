@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H
-#define LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H 1
+#ifndef LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H
+#define LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H 1
 
-#include <lawa/function.h>
+#include <lawa/functiontypes/function.h>
 
 namespace lawa {
     
@@ -60,6 +60,6 @@ struct SeparableFunction3D
     
 } // namespace lawa
 
-#include <lawa/righthandsides/separablefunctionnd.tcc>
+#include <lawa/functiontypes/separablefunctionnd.tcc>
 
-#endif // LAWA_RIGHTHANDSIDES_SEPARABLEFUNCTION2D_H
+#endif // LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H

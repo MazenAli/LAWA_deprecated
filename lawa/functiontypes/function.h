@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_FUNCTION_H
-#define LAWA_FUNCTION_H 1
+#ifndef LAWA_FUNCTIONTYPES_FUNCTION_H
+#define LAWA_FUNCTIONTYPES_FUNCTION_H 1
 
 #include <lawa/flensforlawa.h>
 
@@ -42,6 +42,6 @@ struct Function
 
 } // namespace lawa
 
-#include <lawa/function.tcc>
+#include <lawa/functiontypes/function.tcc>
 
-#endif // LAWA_FUNCTION_H
+#endif //LAWA_FUNCTIONTYPES_FUNCTION_H
