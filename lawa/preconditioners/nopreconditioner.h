@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,25 +17,29 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_BOX_DIAGONALSCALINGPRECONDITIONER_H
-#define LAWA_BOX_DIAGONALSCALINGPRECONDITIONER_H 1
+
+#ifndef LAWA_PRECONDITIONERS_NOPRECONDITIONER_H
+#define LAWA_PRECONDITIONERS_NOPRECONDITIONER_H 1
+
+#include <lawa/methods/adaptive/datastructures/index.h>
 
 namespace lawa {
 
-template<typename T>
-struct DiagonalScalingPreconditioner
+template <typename T, typename Index>
+struct NoPreconditioner
 {
-    DiagonalScalingPreconditioner(int _s_x, int _s_y);
-    int s_x;
-    int s_y;
-    
+    NoPreconditioner(void) {
+
+    };
+
     T
-    operator()(bool XisSpline, int j_x, int k_x,
-               bool YisSpline, int j_y, int k_y) const;
+    operator()(const Index &index) const;
+
 };
 
-} // namespace lawa
+}   // namespace lawa
 
-#include <lawa/box/diagonalscalingpreconditioner.tcc>
+#include <lawa/preconditioners/nopreconditioner.tcc>
 
-#endif // LAWA_BOX_DIAGONALSCALINGPRECONDITIONER_H
+
+#endif // LAWA_PRECONDITIONERS_NOPRECONDITIONER_H

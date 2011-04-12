@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,24 +17,31 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+
+#ifndef LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALLEVELPRECONDITIONER1D_H
+#define LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALLEVELPRECONDITIONER1D_H 1
+
+#include <lawa/methods/adaptive/datastructures/index.h>
+
 namespace lawa {
 
-template<typename T>
-DiagonalScalingPreconditioner<T>::DiagonalScalingPreconditioner(int _s_x, int _s_y)
-    : s_x(_s_x), s_y(_s_y)
+
+template <typename T>
+struct DiagonalLevelPreconditioner1D
 {
-    assert(s_x >= 0);
-    assert(s_y >= 0);
-}
+    DiagonalLevelPreconditioner1D(void) { };
 
-template<typename T>
-T
-DiagonalScalingPreconditioner<T>::operator()(bool XisSpline, int j_x, int k_x,
-                                        bool YisSpline, int j_y, int k_y) const
-{
-    return pow2i<T>(- s_x*j_x - s_y*j_y);
-}
+    T
+    operator()(XType xtype1, int j1, int k1) const;
+
+    T
+    operator()(const Index1D &index) const;
+
+};
+
+}   // namespace lawa
+
+#include <lawa/preconditioners/preconditioners1d/diagonallevelpreconditioner1d.tcc>
 
 
-
-} // namespace lawa
+#endif // LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALLEVELPRECONDITIONER1D_H
