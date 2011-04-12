@@ -35,23 +35,15 @@ namespace lawa {
 template <typename T, typename Basis>
 class HelmholtzOperator1D{
     
+    private:
+        
+        Integral<Gauss, Basis, Basis> integral;
+            
     public:
         
         const Basis& basis;
         const T c;
         
-        typedef typename Basis::BSplineType PrimalSpline;
-        typedef typename Basis::WaveletType PrimalWavelet;
-        
-        PrimalSpline phi, d_phi;
-        PrimalWavelet psi, d_psi;
-        
-        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf, d_integral_sfsf;
-        Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, dd_integral_sfw,  d_integral_sfw;
-        Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, dd_integral_wsf,  d_integral_wsf;
-        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww,   d_integral_ww;
-            
-    public:
         HelmholtzOperator1D(const Basis& _basis, const T _c);
         HelmholtzOperator1D(const HelmholtzOperator1D<T,Basis> &a);
 
@@ -71,16 +63,10 @@ class HelmholtzOperator1D{
         T
         operator()(T time, 
                    XType xtype1, int j1, int k1, 
-                   XType xtype2, int j2, int k2) const
-        {
-            return operator()(xtype1, j1, k1, xtype2, j2, k2);
-        }
+                   XType xtype2, int j2, int k2) const;
         
         T
-        operator()(T time, const Index1D &row_index, const Index1D &col_index) const
-        {
-            return operator()(row_index, col_index);
-        }
+        operator()(T time, const Index1D &row_index, const Index1D &col_index) const;
 };
     
     
