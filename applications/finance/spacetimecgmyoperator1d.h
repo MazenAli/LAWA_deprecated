@@ -18,11 +18,11 @@
  */
 
 
-#ifndef LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMECGMYOPERATOR1D_H
-#define LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMECGMYOPERATOR1D_H 1
+#ifndef APPLICATIONS_FINANCE_SPACETIMECGMYOPERATOR1D_H
+#define APPLICATIONS_FINANCE_SPACETIMECGMYOPERATOR1D_H 1
 
 
-#include <lawa/integrals.h>
+#include <lawa/integrals/integrals.h>
 #include <lawa/operators/pdeoperators1d/pdeoperators1d.h>
 
 namespace lawa {
@@ -97,7 +97,7 @@ public:
 
 }	//namespace
 
-#include <lawa/operators/spacetimeoperators/spacetimecgmyoperator1d.tcc>
+#include <applications/finance/spacetimecgmyoperator1d.tcc>
 
 
-#endif //LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMECGMYOPERATOR1D_H
+#endif //APPLICATIONS_FINANCE_SPACETIMECGMYOPERATOR1D_H

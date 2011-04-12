@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_RIGHTHANDSIDES_RHSEUROPEANPUT_H
-#define LAWA_RIGHTHANDSIDES_RHSEUROPEANPUT_H 1
+#ifndef APPLICATIONS_FINANCE_RHSEUROPEANPUT_H
+#define APPLICATIONS_FINANCE_RHSEUROPEANPUT_H 1
 
-#include <lawa/integrals.h>
+#include <lawa/integrals/integrals.h>
 
 namespace lawa {
 
@@ -84,6 +84,6 @@ private:
 
 }	//namespace lawa
 
-#include <lawa/righthandsides/rhseuropeanput.tcc>
+#include <applications/finance/rhseuropeanput.tcc>
 
-#endif //LAWA_RIGHTHANDSIDES_RHSEUROPEANPUT_H
+#endif //APPLICATIONS_FINANCE_RHSEUROPEANPUT_H
