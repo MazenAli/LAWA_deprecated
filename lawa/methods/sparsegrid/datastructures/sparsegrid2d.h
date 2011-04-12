@@ -18,10 +18,9 @@
  */
 
 
-#ifndef LAWA_SPARSEGRID_SPARSEGRID2D_H
-#define LAWA_SPARSEGRID_SPARSEGRID2D_H 1
+#ifndef LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSEGRID2D_H
+#define LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSEGRID2D_H 1
 
-#include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 #include <lawa/operators/operators.h>
 
@@ -30,35 +29,35 @@ namespace lawa {
 
 template <typename T, typename IndexOneD, typename Basis2D, typename BilinearForm, typename RHS>
 class SparseGrid2D{
-    typedef IndexSet<Index2D>::const_iterator const_set_it;
+        typedef IndexSet<Index2D>::const_iterator const_set_it;
 
-public:
-    SparseGrid2D(const Basis2D &_basis, BilinearForm &_a, RHS &_rhsintegral, T _J, T _gamma);
+    public:
+        SparseGrid2D(const Basis2D &_basis, BilinearForm &_a, RHS &_rhsintegral, T _J, T _gamma);
 
-    IndexSet<Index2D>
-    getIndexSet();
+        IndexSet<Index2D>
+        getIndexSet();
 
-    void
-    solve_cg(T &energynorm=0);
+        void
+        solve_cg(T &energynorm=0);
 
-    T
-    evaluate(T x, T y);
+        T
+        evaluate(T x, T y);
 
-private:
-    void
-    setupIndexSet();
+    private:
+        void
+        setupIndexSet();
 
-    const Basis2D        &basis;
-    BilinearForm   &a;
-    RHS            &rhs;
-    DenseVector<Array<T> > u;
-    T J;
-    T gamma;
-    IndexSet<Index2D>    Lambda;
+        const Basis2D        &basis;
+        BilinearForm   &a;
+        RHS            &rhs;
+        DenseVector<Array<T> > u;
+        T J;
+        T gamma;
+        IndexSet<Index2D>    Lambda;
 };
 
 }   //namespace lawa
 
-#include <lawa/sparsegrid/sparsegrid2d.tcc>
+#include <lawa/methods/sparsegrid/datastructures/sparsegrid2d.tcc>
 
-#endif  // LAWA_SPARSEGRID_SPARSEGRID2D_H
+#endif  // LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSEGRID2D_H

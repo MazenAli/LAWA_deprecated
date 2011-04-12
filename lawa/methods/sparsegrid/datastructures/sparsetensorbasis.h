@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_BOX_SPARSETENSORBASIS_H
-#define LAWA_BOX_SPARSETENSORBASIS_H 1
+#ifndef LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSETENSORBASIS_H
+#define LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSETENSORBASIS_H 1
 
 namespace lawa{
     
@@ -46,7 +46,7 @@ struct SparseTensorBasis
     
 } // namespace lawa
 
-#include <lawa/box/sparsetensorbasis.tcc>
+#include <lawa/methods/sparsegrid/datastructures/sparsetensorbasis.tcc>
 
 
-#endif // LAWA_BOX_SPARSETENSORBASIS_H
+#endif // LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSETENSORBASIS_H
