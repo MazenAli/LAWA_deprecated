@@ -23,7 +23,7 @@ CompressionPDE1D<T,Basis>::setParameters(const IndexSet<Index1D> &LambdaRow)
 }
 
 template <typename T, typename Basis>
-Index1DSet<Index1D>
+IndexSet<Index1D>
 CompressionPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col,
                                            const IndexSet<Index1D> &LambdaRow, int J)
 {
