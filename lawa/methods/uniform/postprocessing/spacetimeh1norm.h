@@ -1,40 +1,34 @@
 #ifndef LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEH1NORM_H
 #define LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEH1NORM_H 1
     
-template <typename T, typename Basis>
+namespace lawa {
+    
+template <typename T, typename Basis2D>
 class SpaceTimeH1Norm{
     
     private:
+                
+        typedef typename Basis2D::FirstBasisType Basis_t;
+        typedef typename Basis2D::SecondBasisType Basis_x;
         
-        const Basis& basis;
-        
-        typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_t;
-        typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_x;
-        typedef typename Basis::FirstBasisType::WaveletType PrimalWavelet_t;
-        typedef typename Basis::SecondBasisType::WaveletType PrimalWavelet_x;
-        
-        PrimalSpline_t phi_t, d_phi_t;
-        PrimalSpline_x phi_x, d_phi_x;
-        PrimalWavelet_t psi_t, d_psi_t;
-        PrimalWavelet_x psi_x, d_psi_x;
-        
-        lawa::Integral<T, lawa::Gauss, PrimalSpline_t, PrimalSpline_t> integral_sfsf_t,
-                                                        dd_integral_sfsf_t;
-        lawa::Integral<T, lawa::Gauss, PrimalSpline_x, PrimalSpline_x> integral_sfsf_x,
-                                                        dd_integral_sfsf_x;
-        lawa::Integral<T, lawa::Gauss, PrimalWavelet_t, PrimalWavelet_t>    integral_ww_t,
-                                                             dd_integral_ww_t;
-        lawa::Integral<T, lawa::Gauss, PrimalWavelet_x, PrimalWavelet_x>    integral_ww_x,
-                                                             dd_integral_ww_x;
+        Integral<Gauss, Basis_t, Basis_t> integral_t;
+        Integral<Gauss, Basis_x, Basis_x> integral_x; 
             
     public:
-        SpaceTimeH1Norm(const Basis& _basis);
+        
+        const Basis2D& basis;
+        
+        SpaceTimeH1Norm(const Basis2D& _basis);
     
+        /* Calculates the H1(0,T; H1)-norm (or W(0,T)-norm) for u = u1(t)*u2(x), 
+         *  ||u|| =  sqrt( ||u1||_L2 * ||u2||_H1 + |u1|_H1 * ||u2||_(H1)' )
+         */
         T
-        operator()(bool XisSpline, int j_t, int k_t, 
-                   bool YisSpline, int j_x, int k_x) const;
+        operator()(XType xtype_t, int j_t, int k_t, 
+                   XType xtype_x, int j_x, int k_x) const;
 };
-    
+  
+} // namespace lawa  
     
 #include "lawa/methods/uniform/postprocessing/spacetimeh1norm.tcc"
 

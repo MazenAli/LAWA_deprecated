@@ -36,6 +36,9 @@ class Assembler2D
     public: 
         Assembler2D(Basis& _basis);
     
+        /* Assemble Stiffness Matrix in transposed form, i.e.
+         * corresponding to a(v,u)
+         */
         template <typename BilinearForm>
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
         assembleStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol = 10e-15);
