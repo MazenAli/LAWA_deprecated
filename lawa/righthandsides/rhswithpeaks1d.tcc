@@ -24,7 +24,7 @@ RHSWithPeaks1D<T,Basis>::RHSWithPeaks1D(const Basis &_basis, Function<T> _f,
 										const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
 										int order, bool _with_singular_part, bool _with_smooth_part)
     : basis(_basis), f(_f), deltas(_deltas), with_singular_part(_with_singular_part),
-      with_smooth_part(_with_smooth_part), integralf(basis, f)
+      with_smooth_part(_with_smooth_part), integralf(f, basis)
 {
     integralf.quadrature.setOrder(order);
 }
