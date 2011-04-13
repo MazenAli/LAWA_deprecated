@@ -1,34 +1,16 @@
-/*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-
 namespace lawa {
 
-template <typename T, typename Index, typename Basis1D>
-CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::CompressionPDE1D_WO_XBSpline(const Basis1D &_basis)
+template <typename T, typename Basis>
+CompressionPDE1D_WO_XBSpline<T,Basis>::CompressionPDE1D_WO_XBSpline(const Basis &_basis)
     : basis(_basis), s_tilde(0), jmin(100), jmax(-30)
 {
 }
 
-template <typename T, typename Index, typename Basis1D>
+template <typename T, typename Basis>
 void
-CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::setParameters(const IndexSet<Index> &Lambda) {
-    typedef typename IndexSet<Index>::const_iterator set1d_const_it;
+CompressionPDE1D_WO_XBSpline<T,Basis>::setParameters(const IndexSet<Index1D> &Lambda)
+{
+    typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
     s_tilde = -1;
     jmin = 100;
     jmax = -30;
@@ -39,13 +21,14 @@ CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::setParameters(const IndexSet<Inde
     s_tilde = jmax-jmin;
 }
 
-template <typename T, typename Index, typename Basis1D>
+template <typename T, typename Basis>
 IndexSet<Index>
-CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::SparsityPattern(const Index &lambda,
-                                                               const IndexSet<Index> &Lambda, int J) {
-    typedef typename IndexSet<Index>::const_iterator set1d_const_it;
+CompressionPDE1D_WO_XBSpline<T,Basis>::SparsityPattern(const Index &lambda,
+                                                       const IndexSet<Index> &Lambda, int J)
+{
+    typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 
-    IndexSet<Index> LambdaRowSparse(Lambda.d,Lambda.d_), Lambda_x(Lambda.d,Lambda.d_);
+    Index1DSet<Index1D> LambdaRowSparse(Lambda.d,Lambda.d_), Lambda_x(Lambda.d,Lambda.d_);
     if (J==-1) {
         Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, s_tilde, jmin, jmax);
     }

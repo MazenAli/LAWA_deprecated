@@ -27,16 +27,16 @@
 
 namespace lawa {
 
-template <typename T, typename Basis>
+template <typename T, typename Basis2D>
 struct CompressionPDE2D
 {
-    const Basis &basis;
+    const Basis2D &basis;
     short s_tilde_x, jmin_x, jmax_x;
     short s_tilde_y, jmin_y, jmax_y;
     short J;
     bool levelthresh;
 
-    CompressionPDE2D(const Basis &_basis, bool _levelthresh);
+    CompressionPDE2D(const Basis2D &_basis, bool _levelthresh);
 
     void
     setParameters(const IndexSet<Index2D> &LambdaRow);
@@ -45,7 +45,8 @@ struct CompressionPDE2D
     SparsityPattern(const Index2D &lambda_col, const IndexSet<Index2D> &LambdaRow);
 
     IndexSet<Index2D>
-    SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde, int deriv_x, int deriv_y);
+    SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde,
+                    int deriv_x, int deriv_y);
 };
 
 } // namespace lawa

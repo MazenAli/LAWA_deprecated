@@ -28,19 +28,19 @@
 namespace lawa {
 
 //only for R-Basis!!
-template <typename T, typename Index, typename Basis1D>
+template <typename T, typename Basis>
 struct CompressionPDE1D_WO_XBSpline
 {
-    const Basis1D &basis;
+    const Basis &basis;
     short s_tilde, jmin, jmax;
 
     CompressionPDE1D_WO_XBSpline(const Basis1D &_basis);
 
     void
-    setParameters(const IndexSet<Index> &LambdaRow);
+    setParameters(const IndexSet<Index1D> &LambdaRow);
 
     IndexSet<Index>
-    SparsityPattern(const Index &lambda, const IndexSet<Index> &Lambda, int J=-1);
+    SparsityPattern(const Index1D &lambda, const IndexSet<Index> &Lambda, int J=-1);
 
 };
 
