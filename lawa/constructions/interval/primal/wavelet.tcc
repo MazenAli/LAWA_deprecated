@@ -36,7 +36,6 @@ Wavelet<T,Primal,Interval,Cons>::operator()(T x, int j, long k, unsigned short d
     assert(j>=basis.min_j0);
     assert(k>=basis.rangeJ(j).firstIndex());
     assert(k<=basis.rangeJ(j).lastIndex());
-    assert(deriv>=0);
 
     const typename DenseVector<Array<T> >::ConstView coeffs = basis.M1(j,_,k);
     T ret = 0;
