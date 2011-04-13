@@ -100,7 +100,7 @@ class ThetaScheme1D
         
         T theta;
         const Basis& basis;
-        Assembler1D<T, Basis> problem;
+        Assembler1D<T, Basis> assembler;
         
         Integral<Gauss, Basis, Basis> integral;
         
