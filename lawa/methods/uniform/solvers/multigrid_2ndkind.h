@@ -2,6 +2,7 @@
 #define LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRID_2NDKIND_H 1
 
 #include <lawa/methods/uniform/datastructures/datastructures.h>
+#include <lawa/methods/uniform/solvers/thetascheme1d.h>
 #include <lawa/righthandsides/homogeneousrhs.h>
 
 namespace lawa{

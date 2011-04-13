@@ -88,7 +88,7 @@ int
 Basis<T,Dual,Interval,Dijkema>::cardJ_(int j) const
 {
     assert(j>=j0);
-    return pow2i<long>(j);
+    return pow2i<int>(j);
 }
 
 template <typename T>
@@ -119,7 +119,7 @@ template <typename T>
 const Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_(int j) const
 {
-    return Range<int>(1,pow2i<long>(j));
+    return Range<int>(1,pow2i<int>(j));
 }
 
 template <typename T>
@@ -135,7 +135,7 @@ const Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_I(int j) const
 {
     assert(j>=j0);
-    return Range<int>(M1_.left.length()+1, pow2i<long>(j)-M1_.right.length());
+    return Range<int>(M1_.left.length()+1, pow2i<int>(j)-M1_.right.length());
 }
 
 template <typename T>
@@ -143,7 +143,7 @@ const Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_R(int j) const
 {
     assert(j>=j0);
-    return Range<int>(pow2i<long>(j)-M1_.right.length()+1, pow2i<long>(j));
+    return Range<int>(pow2i<int>(j)-M1_.right.length()+1, pow2i<int>(j));
 }
 
 } // namespace lawa
