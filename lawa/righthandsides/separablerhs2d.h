@@ -23,16 +23,23 @@
 #include <lawa/functiontypes/separablefunction2d.h>
 #include <lawa/integrals/integrals.h>
 
+/*
+ * Computes ( <fx, psix_{jx,kx}> + sum_{i=1}^n deltasx(i,2) * psix_{j,k}(deltasx(i,1)) )
+ *         +( <fy, psiy_{jy,ky}> + sum_{i=1}^m deltasy(i,2) * psiy_{j,k}(deltasy(i,1)) )
+ */
+
+
+
 namespace lawa {
 
 template<typename T, typename Basis2D>
-class SeparableRHSWithPeaks2D
+class SeparableRHS2D
 {
     public:
-        SeparableRHSWithPeaks2D(const Basis2D& _basis, const SeparableFunction2D<T>& _F,
-                                const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
-                                const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
-                                int order);
+        SeparableRHS2D(const Basis2D& _basis, const SeparableFunction2D<T>& _F,
+                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
+                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
+                       int order);
 
         T
         operator()(XType xtype_x, int j_x, int k_x,
@@ -55,6 +62,6 @@ class SeparableRHSWithPeaks2D
 
 } // namespace lawa
 
-#include <lawa/righthandsides/separablerhswithpeaks2d.tcc>
+#include <lawa/righthandsides/separablerhs2d.tcc>
 
 #endif // LAWA_RIGHTHANDSIDES_SEPARABLERHS2D_H

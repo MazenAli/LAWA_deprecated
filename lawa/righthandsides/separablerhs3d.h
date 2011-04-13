@@ -26,7 +26,7 @@
 namespace lawa {
 
 template<typename T, typename Basis3D>
-class SeparableRHSWithPeaks3D
+class SeparableRHS3D
 {
     private:
         const Basis3D& basis;
@@ -40,11 +40,11 @@ class SeparableRHSWithPeaks3D
         Integral<Gauss, Basis3D::ThirdBasisType>  integralf_z;
 
     public:
-        SeparableRHSWithPeaks3D(const Basis3D& _basis, const SeparableFunction3D<T>& _F,
-                                const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
-                                const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
-                                const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z,
-                                int order);
+        SeparableRHS3D(const Basis3D& _basis, const SeparableFunction3D<T>& _F,
+                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
+                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
+                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z,
+                       int order);
 
         T
         operator()(XType xtype_x, int j_x, int k_x,
@@ -57,6 +57,6 @@ class SeparableRHSWithPeaks3D
 
 } // namespace lawa
 
-#include <lawa/righthandsides/separablerhswithpeaks3d.tcc>
+#include <lawa/righthandsides/separablerhs3d.tcc>
 
 #endif // LAWA_RIGHTHANDSIDES_SEPARABLERHS3D_H

@@ -1,7 +1,7 @@
 namespace lawa {
 
 template<typename T, typename Basis3D>
-SeparableRHSWithPeaks3D<T, Basis3D>::SeparableRHSWithPeaks3D
+SeparableRHS3D<T, Basis3D>::SeparableRHS3D
                             (const Basis3D& _basis, const SeparableFunction3D<T>& _F,
                              const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_x,
                              const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_y,
@@ -19,9 +19,9 @@ SeparableRHSWithPeaks3D<T, Basis3D>::SeparableRHSWithPeaks3D
 
 template<typename T, typename Basis3D>
 T
-SeparableRHSWithPeaks3D<T, Basis3D>::operator()(XType xtype_x, int j_x, int k_x,
-                                                XType xtype_y, int j_y, int k_y,
-                                                XType xtype_z, int j_z, int k_z) const
+SeparableRHS3D<T, Basis3D>::operator()(XType xtype_x, int j_x, int k_x,
+                                       XType xtype_y, int j_y, int k_y,
+                                       XType xtype_z, int j_z, int k_z) const
 {
     T val_x = 0;
     T val_y = 0;
@@ -47,7 +47,7 @@ SeparableRHSWithPeaks3D<T, Basis3D>::operator()(XType xtype_x, int j_x, int k_x,
 
 template<typename T, typename Basis3D>
 T
-SeparableRHSWithPeaks3D<T, Basis3D>::operator()(const Index3D &index) const
+SeparableRHS3D<T, Basis3D>::operator()(const Index3D &index) const
 {
     return this->operator()(index.index1.xtype, index.index1.j, index.index1.k,
                             index.index2.xtype, index.index2.j, index.index2.k,
