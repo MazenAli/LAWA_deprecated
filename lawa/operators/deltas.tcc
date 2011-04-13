@@ -11,8 +11,8 @@ computeDeltas(const BSpline<T,Primal,Domain,Cons> &phi, int j, int k)
 	Support<T> supp = phi.support(j,k);
 	T step = pow2i<T>(-(j+5)); // 1.0/(1<<(j+1));
 	for (int i = 1; i<=ret.numRows(); ++i) {
-		ret(i,2) = ((ret(i,1)==supp.l2) ? 0.0 : phi(std::min(ret(i,1)+step, supp.l2),j,k))
-				 - ((ret(i,1)==supp.l1) ? 0.0 : phi(std::max(ret(i,1)-step, supp.l1),j,k));
+		ret(i,2) = ((ret(i,1)==supp.l2) ? 0.0 : phi(std::min(ret(i,1)+step, supp.l2),j,k,0))
+				 - ((ret(i,1)==supp.l1) ? 0.0 : phi(std::max(ret(i,1)-step, supp.l1),j,k,0));
 	}
 	return ret;
 }
@@ -28,8 +28,8 @@ computeDeltas(const Wavelet<T,Primal,Domain,Cons> &psi, int j, int k)
 	Support<T> supp = psi.support(j,k);
 	T step = pow2i<T>(-(j+5)); // 1.0/(1<<(j+1));
 	for (int i = 1; i<=ret.numRows(); ++i) {
-		ret(i,2) = ((ret(i,1)==supp.l2) ? 0.0 : psi(std::min(ret(i,1)+step, supp.l2),j,k))
-				 - ((ret(i,1)==supp.l1) ? 0.0 : psi(std::max(ret(i,1)-step, supp.l1),j,k));
+		ret(i,2) = ((ret(i,1)==supp.l2) ? 0.0 : psi(std::min(ret(i,1)+step, supp.l2),j,k,0))
+				 - ((ret(i,1)==supp.l1) ? 0.0 : psi(std::max(ret(i,1)-step, supp.l1),j,k,0));
 	}
 	return ret;
 }

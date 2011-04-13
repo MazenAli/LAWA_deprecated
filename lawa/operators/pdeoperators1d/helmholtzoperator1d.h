@@ -29,7 +29,7 @@ namespace lawa {
     
 /* HELMHOLTZ OPERATOR 
  *
- *    a(u,v) =  Integral(u_x * v_x) + c * Integral(u * v)
+ *    a(v,u) =  Integral(v_x * u_x) + c * Integral(v * u)
  *
  */
 template <typename T, typename Basis>

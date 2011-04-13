@@ -29,7 +29,7 @@ namespace lawa {
 
 /* Convection OPERATOR
  *
- *    a(u,v) =  Integral(u' * v)
+ *    a(v,u) =  Integral(v * u')
  *
  */
 template <typename T, typename Basis>
@@ -37,20 +37,11 @@ class ConvectionOperator1D{
 
     private:
 
-        const Basis& basis;
-
-        typedef typename Basis::BSplineType PrimalSpline;
-        typedef typename Basis::WaveletType PrimalWavelet;
-
-        PrimalSpline phi, d_phi;
-        PrimalWavelet psi, d_psi;
-
-        Integral<T, Gauss, PrimalSpline, PrimalSpline>   d_integral_sfsf;
-        Integral<T, Gauss, PrimalSpline, PrimalWavelet>  d_integral_sfw;
-        Integral<T, Gauss, PrimalWavelet, PrimalSpline>  d_integral_wsf;
-        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> d_integral_ww;
+        Integral<Gauss, Basis, Basis> integral;
 
     public:
+        const Basis& basis;
+        
         ConvectionOperator1D(const Basis& _basis);
 
         T

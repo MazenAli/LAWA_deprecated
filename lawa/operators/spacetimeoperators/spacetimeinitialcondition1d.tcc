@@ -2,14 +2,7 @@ namespace lawa{
 
 template <typename T, typename Basis>
 SpaceTimeInitialCondition1D<T, Basis>::SpaceTimeInitialCondition1D(const Basis& _basis)
-    : basis(_basis),
-      id_x(basis.second),
-      phi_t(basis.first.mra), phi_x(basis.second.mra),
-      psi_t(basis.first), psi_x(basis.second),
-      integral_sfsf_x(phi_x, phi_x),
-      integral_sfw_x (phi_x, psi_x),
-      integral_wsf_x (psi_x, phi_x),
-      integral_ww_x  (psi_x, psi_x)
+    : basis(_basis), integral_x(_basis.second, _basis.second)
 {
 }
 
@@ -26,21 +19,10 @@ SpaceTimeInitialCondition1D<T, Basis>::operator()(XType row_xtype_x, int j1_x, i
                                                   XType col_xtype_t, int j2_t, int k2_t,
                                                   XType col_xtype_x, int j2_x, int k2_x) const
 {
-    T val_x = 0.;
-    T factor = 0.;
-
-    if(row_xtype_x == XBSpline){
-         if(col_xtype_x == XBSpline)	val_x = integral_sfsf_x(j1_x, k1_x, j2_x, k2_x);
-         else							val_x = integral_sfw_x(j1_x,  k1_x, j2_x, k2_x);
-    }
-    else{
-         if(col_xtype_x == XBSpline)	val_x = integral_wsf_x(j1_x, k1_x, j2_x, k2_x);
-         else							val_x = integral_ww_x(j1_x,  k1_x, j2_x, k2_x);
-    }
-    if (col_xtype_t == XBSpline)    factor = phi_t(0,j2_t,k2_t);
-    else				     		factor = psi_t(0,j2_t,k2_t);
-
-    return factor * val_x;
+    T factor = basis.first.generator(col_xtype_t)(0, j2_t, k2_t, 0);
+    
+    // u1(0) * Integral(v2 * u2)
+    return factor * integral_x(j1_x, k1_x, row_xtype_x, 0, j2_x, k2_x, col_xtype_x, 0);
 
 }
 
