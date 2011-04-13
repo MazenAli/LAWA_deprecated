@@ -30,7 +30,7 @@ struct Index1D
     short j;
     int k;
     XType xtype;
-    long long val;
+    long val;
     mutable unsigned int linearindex;
 
     Index1D(void);
