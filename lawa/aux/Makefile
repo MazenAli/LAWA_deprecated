@@ -5,8 +5,8 @@ OBJECTS  := $(SOURCES:.cc=.o)
 DEPS     := $(SOURCES:.cc=.d)
 CPPFLAGS += -I $(LAWA_HOME) -I $(FLENS_HOME)
 
-all:
-	
+all: $(OBJECTS)
+    
 clean:
 	$(RM) *.o *.d $(DYLIB)
 
