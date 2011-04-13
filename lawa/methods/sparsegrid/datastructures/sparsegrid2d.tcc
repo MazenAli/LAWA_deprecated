@@ -53,16 +53,16 @@ SparseGrid2D<T, IndexOneD, Basis2D, BilinearForm, RHS>::evaluate(T x, T y)
         int j_x = (*it).index1.j,  k_x = (*it).index1.k;
         int j_y = (*it).index2.j,  k_y = (*it).index2.k;
         if (((*it).index1.xtype==XBSpline) && ((*it).index2.xtype==XBSpline)) {
-            tmp+=a.prec(*it)*u(count)*basis.first.mra.phi(x,j_x,k_x)*basis.second.mra.phi(y,j_y,k_y);
+            tmp+=a.prec(*it)*u(count)*basis.first.mra.phi(x,j_x,k_x,0)*basis.second.mra.phi(y,j_y,k_y,0);
         }
         else if (((*it).index1.xtype==XBSpline) && ((*it).index2.xtype==XWavelet)) {
-            tmp+=a.prec(*it)*u(count)*basis.first.mra.phi(x,j_x,k_x)*basis.second.psi(y,j_y,k_y);
+            tmp+=a.prec(*it)*u(count)*basis.first.mra.phi(x,j_x,k_x,0)*basis.second.psi(y,j_y,k_y,0);
         }
         else if (((*it).index1.xtype==XWavelet) && ((*it).index2.xtype==XBSpline)) {
-            tmp+=a.prec(*it)*u(count)*basis.first.psi(x,j_x,k_x)*basis.second.mra.phi(y,j_y,k_y);
+            tmp+=a.prec(*it)*u(count)*basis.first.psi(x,j_x,k_x,0)*basis.second.mra.phi(y,j_y,k_y,0);
         }
         else {
-            tmp+=a.prec(*it)*u(count)*basis.first.psi(x,j_x,k_x)*basis.second.psi(y,j_y,k_y);
+            tmp+=a.prec(*it)*u(count)*basis.first.psi(x,j_x,k_x,0)*basis.second.psi(y,j_y,k_y,0);
         }
     }
     return tmp;

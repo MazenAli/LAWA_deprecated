@@ -102,14 +102,7 @@ class ThetaScheme1D
         const Basis& basis;
         Problem1D<T, Basis> problem;
         
-        typedef typename Basis::BSplineType PrimalSpline;
-        typedef typename Basis::WaveletType PrimalWavelet;
-        PrimalSpline phi;
-        PrimalWavelet psi;
-        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf;
-        Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw;
-        Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf;
-        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww;
+        Integral<Gauss, Basis, Basis> integral;
         
         Operator_LHSMatrix op_LHSMatrix;
         Operator_RHSMatrix op_RHSMatrix;

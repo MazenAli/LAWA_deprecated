@@ -31,54 +31,52 @@ namespace lawa {
 template <typename T, typename Basis2D>
 class AdaptiveIdentityOperator2D
 {
-    typedef typename Basis2D::FirstBasisType  Basis_x;
-    typedef typename Basis2D::SecondBasisType Basis_y;
+        typedef typename Basis2D::FirstBasisType  Basis_x;
+        typedef typename Basis2D::SecondBasisType Basis_y;
 
-    typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
-    typedef NoPreconditioner<T,Index2D>                              NoPreconditioner2D;
+        typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
+        typedef NoPreconditioner<T,Index2D>                              NoPreconditioner2D;
 
-    typedef CompressionPDE1D<T, Index1D, Basis_x>                    Compression1D_x;
-    typedef CompressionPDE1D<T, Index1D, Basis_y>                    Compression1D_y;
-    typedef TensorCompression2D<T, Compression1D_x, Compression1D_y> Compression2D;
+        typedef CompressionPDE1D<T, Index1D, Basis_x>                    Compression1D_x;
+        typedef CompressionPDE1D<T, Index1D, Basis_y>                    Compression1D_y;
+        typedef TensorCompression2D<T, Compression1D_x, Compression1D_y> Compression2D;
 
-    typedef IdentityOperator1D<T, Basis_x>                           IdentityOperator_x;
-    typedef IdentityOperator1D<T, Basis_y>                           IdentityOperator_y;
+        typedef IdentityOperator1D<T, Basis_x>                           IdentityOperator_x;
+        typedef IdentityOperator1D<T, Basis_y>                           IdentityOperator_y;
 
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x,
-                               Compression1D_x, NoPreconditioner1D> DataReaction_x;
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_y,
-                               Compression1D_y, NoPreconditioner1D> DataReaction_y;
+        typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x,
+                                   Compression1D_x, NoPreconditioner1D> DataReaction_x;
+        typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_y,
+                                   Compression1D_y, NoPreconditioner1D> DataReaction_y;
+    public:
 
-public:
+        AdaptiveIdentityOperator2D(const Basis2D &_basis2d, T _entrybound=0.,
+                                   int _NumOfRows=4096, int _NumOfCols=2048);
 
-    AdaptiveIdentityOperator2D(const Basis2D &_basis2d, T _entrybound=0.,
-                       int _NumOfRows=4096, int _NumOfCols=2048);
+        T
+        operator()(const Index2D &row_index, const Index2D &col_index);
 
-    T
-    operator()(const Index2D &row_index, const Index2D &col_index);
+        T
+        prec(const Index2D &index);
 
-    T
-    prec(const Index2D &index);
+        const Basis2D                     &basis2d;
 
+        Compression1D_x                   c_1d_x;
+        Compression1D_y                   c_1d_y;
+        Compression2D                     c;
+        const NoPreconditioner2D          Prec;
+        const IdentityOperator_x          identity_op_x;
+        const IdentityOperator_y          identity_op_y;
 
-    const Basis2D                     &basis2d;
+        T entrybound;
+        int NumOfRows, NumOfCols;
 
-    Compression1D_x                   c_1d_x;
-    Compression1D_y                   c_1d_y;
-    Compression2D                     c;
-    const NoPreconditioner2D          Prec;
-    const IdentityOperator_x          identity_op_x;
-    const IdentityOperator_y          identity_op_y;
-
-    T entrybound;
-    int NumOfRows, NumOfCols;
-
-    DataReaction_x   data_reaction_x;
-    DataReaction_y   data_reaction_y;
+        DataReaction_x   data_reaction_x;
+        DataReaction_y   data_reaction_y;
 };
 
 }   //namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/operators/adaptiveidentityoperator2d.tcc>
 
-#endif   // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H

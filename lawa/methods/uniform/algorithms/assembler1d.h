@@ -13,7 +13,10 @@ class Assembler1D
    
     public: 
         Assembler1D(const Basis& _basis);
-    
+
+        /* Assemble Stiffness Matrix in transposed form, i.e.
+         * corresponding to a(v,u)
+         */
         template <typename BilinearForm>
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
         assembleStiffnessMatrix(BilinearForm& a, int J, T tol = 10e-15);

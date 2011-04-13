@@ -119,4 +119,4 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::clear()
     data.clear();
 }
 
-}    //namespace lawa
+} // namespace lawa

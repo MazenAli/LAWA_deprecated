@@ -17,7 +17,6 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H
 #define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H 1
 
@@ -26,7 +25,6 @@
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/aux/timer.h>
-
 
 namespace lawa {
 

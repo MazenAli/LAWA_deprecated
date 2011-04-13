@@ -95,29 +95,8 @@ operator()(XType xtype1, int j1, int k1,
            XType xtype2, int j2, int k2) const
 {
     // (M + deltaT * theta * A_k+1)
-    T timestep = time_new - time_old;
-    if(xtype1 == XBSpline){
-        if(xtype2 == XBSpline){
-            return scheme->integral_sfsf(j1,k1,j2,k2) 
-                    + timestep*scheme->theta*a(xtype1,j1,k1, xtype2, j2,k2);
-        }
-        else{
-            return scheme->integral_sfw(j1,k1,j2,k2) 
-                    + timestep*scheme->theta*a(xtype1,j1,k1, xtype2, j2,k2);            
-        }
-    }
-    else{
-        if(xtype2 == XBSpline){
-            return scheme->integral_wsf(j1,k1,j2,k2) 
-                    + timestep*scheme->theta*a(xtype1,j1,k1, xtype2, j2,k2);
-            
-        }
-        else{
-            return scheme->integral_ww(j1,k1,j2,k2) 
-                    + timestep*scheme->theta*a(xtype1,j1,k1, xtype2, j2,k2);
-        }
-    }
-    
+    return scheme->integral(j1, k1, xtype1, 0, j2, k2, xtype2, 0) 
+            + (time_new - time_old) * scheme->theta * a(xtype1, j1, k1, xtype2, j2, k2);
 }
 
 
@@ -139,28 +118,8 @@ operator()(XType xtype1, int j1, int k1,
            XType xtype2, int j2, int k2) const
 {
    // (M - deltaT * (1-theta) * A_k)
-   T timestep = time_new - time_old;
-   if(xtype1 == XBSpline){
-       if(xtype2 == XBSpline){
-           return scheme->integral_sfsf(j1,k1,j2,k2) 
-                    - timestep*(1.-scheme->theta)*a(xtype1,j1,k1, xtype2, j2,k2);
-       }
-       else{
-           return scheme->integral_sfw(j1,k1,j2,k2) 
-                    - timestep*(1.-scheme->theta)*a(xtype1,j1,k1, xtype2, j2,k2);            
-       }
-   }
-   else{
-       if(xtype2 == XBSpline){
-           return scheme->integral_wsf(j1,k1,j2,k2) 
-                    - timestep*(1.-scheme->theta)*a(xtype1,j1,k1, xtype2, j2,k2);
-       }
-       else{
-           return scheme->integral_ww(j1,k1,j2,k2) 
-                    - timestep*(1.-scheme->theta)*a(xtype1,j1,k1, xtype2, j2,k2);
-       }
-   }
-
+   return scheme->integral(j1, k1, xtype1, 0, j2, k2, xtype2, 0)
+        - (time_new - time_old) * (1. - scheme->theta) * a(xtype1,j1,k1, xtype2, j2,k2);
 }
 
 // OPERATOR_RHSVECTOR
@@ -179,8 +138,7 @@ ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_RH
 operator()(XType xtype, int j, int k) const
 {   
     // deltaT * (theta*f_k+1 - (1-theta)*f_k)
-    T timestep = time_new - time_old;
-    return timestep*(scheme->theta * rhs(time_new, xtype, j, k) 
+    return (time_new - time_old)*(scheme->theta * rhs(time_new, xtype, j, k) 
                     + (1. - scheme->theta)*rhs(time_old, xtype, j, k));
 } 
   

@@ -1,7 +1,7 @@
 namespace lawa {
 
 template <typename T, typename Basis2D>
-AdaptiveIdentityOperator2D<T, Basis2D>::IdentityOperator2D(const Basis2D &_basis2d, T _entrybound,
+AdaptiveIdentityOperator2D<T, Basis2D>::AdaptiveIdentityOperator2D(const Basis2D &_basis2d, T _entrybound,
                                                    int _NumOfRows, int _NumOfCols)
 : basis2d(_basis2d), c_1d_x(basis2d.first), c_1d_y(basis2d.second), c(c_1d_x,c_1d_y),
   Prec(), identity_op_x(basis2d.first), identity_op_y(basis2d.second),

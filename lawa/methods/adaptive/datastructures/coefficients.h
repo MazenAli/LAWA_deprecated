@@ -71,10 +71,6 @@ Coefficients<Lexicographical,T,Index>
 P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda);
 
 template <typename T, typename Index>
-Coefficients<Lexicographical,T,Index >
-THRESH(const Coefficients<Lexicographical,T,Index > &v, T eta);
-
-template <typename T, typename Index>
 IndexSet<Index>
 supp(const Coefficients<Lexicographical,T,Index> &v);
 
@@ -113,10 +109,6 @@ struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteVa
 
 template <typename T, typename Index>
 std::ostream& operator<< (std::ostream &s, const Coefficients<AbsoluteValue,T,Index> &c);
-
-template <typename T, typename Index>
-Coefficients<Lexicographical,T,Index >
-THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta);
 
 } // namespace lawa
 

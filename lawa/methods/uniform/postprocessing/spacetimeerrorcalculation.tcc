@@ -2,17 +2,17 @@
 
 namespace lawa{
     
-template<typename T, typename BoxBasis>
+template<typename T, typename Basis2D>
 T
-estimateSpaceTimeH1Error(const BoxBasis& basis,
+estimateSpaceTimeH1Error(const Basis2D& basis,
         const flens::DenseVector<flens::Array<T> >& u_approx,const int J_t_approx, const int J_x_approx, 
         const flens::DenseVector<flens::Array<T> >& u_exact, const int J_t_exact, const int J_x_exact)
 {
-    UniformIndex2D<BoxBasis>  I_approx(basis, J_t_approx, J_x_approx);
-    UniformIndex2D<BoxBasis>  I_exact(basis, J_t_exact, J_x_exact);
+    UniformIndex2D<Basis2D>  I_approx(basis, J_t_approx, J_x_approx);
+    UniformIndex2D<Basis2D>  I_exact(basis, J_t_exact, J_x_exact);
 
-    typename BoxBasis::FirstBasisType b1 = basis.first;
-    typename BoxBasis::SecondBasisType b2 = basis.second;
+    typename Basis2D::FirstBasisType b1 = basis.first;
+    typename Basis2D::SecondBasisType b2 = basis.second;
     T error = 0.;
 
     // SF x SF
@@ -169,9 +169,9 @@ estimateSpaceTimeH1Error(const BoxBasis& basis,
     return sqrt(error);
 }
 
-template<typename T, typename BoxBasis>
+template<typename T, typename Basis2D>
 T
-calculateSpaceTimeL2Error(const BoxBasis& basis, T (*sol)(T, T), T (*dx_sol)(T,T),
+calculateSpaceTimeL2Error(const Basis2D& basis, T (*sol)(T, T), T (*dx_sol)(T,T),
         const flens::DenseVector<flens::Array<T> > u, const int J_t, const int J_x, 
         const double deltaT, const double deltaX)
 {

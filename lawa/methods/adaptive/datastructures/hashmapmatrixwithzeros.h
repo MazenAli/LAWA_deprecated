@@ -90,8 +90,6 @@ struct MapMatrixWithZeros
     clear();
 };
 
-
-
 template <typename T, typename Index, typename BilinearForm, typename Compression>
 struct MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<T,Index> >
 {
@@ -120,10 +118,8 @@ struct MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<
 
 };
 
-
-
 }    //namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.tcc>
 
-#endif  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H

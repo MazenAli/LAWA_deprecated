@@ -16,14 +16,15 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     const int j0_y = basis.second.j0;   
     
     typedef typename X::ElementType T;
+   
     typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_x;
     typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_y;
     typedef typename Basis::FirstBasisType::WaveletType PrimalWavelet_x;
     typedef typename Basis::SecondBasisType::WaveletType PrimalWavelet_y;
-    PrimalSpline_x phi_x(basis.first.mra, deriv_x);
-    PrimalSpline_y phi_y(basis.second.mra, deriv_y);
-    PrimalWavelet_x psi_x(basis.first, deriv_x);             
-    PrimalWavelet_y psi_y(basis.second, deriv_y);
+    PrimalSpline_x phi_x(basis.first.mra);
+    PrimalSpline_y phi_y(basis.second.mra);
+    PrimalWavelet_x psi_x(basis.first);             
+    PrimalWavelet_y psi_y(basis.second);
     
     UniformIndex2D<Basis> I(basis, J_x, J_y);   
     
@@ -35,7 +36,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
         for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
             ret += coeffs(I(XBSpline, j0_x, kx, XBSpline, j0_y, ky)) 
-                    * phi_x(x,j0_x,kx) * phi_y(y,j0_y,ky);
+                    * phi_x(x,j0_x,kx,deriv_x) * phi_y(y,j0_y,ky,deriv_y);
         }
     }
     
@@ -46,7 +47,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
         for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
                 ret += coeffs(I(XBSpline, j0_x, kx, XWavelet, jy, ky)) 
-                        * phi_x(x,j0_x,kx) * psi_y(y,jy,ky);  
+                        * phi_x(x,j0_x,kx,deriv_x) * psi_y(y,jy,ky,deriv_y);  
             }
         }
     }
@@ -58,7 +59,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
         for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
             for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){  
                 ret += coeffs(I(XWavelet, jx, kx, XBSpline, j0_y, ky)) 
-                        * psi_x(x,jx,kx) * phi_y(y,j0_y,ky);   
+                        * psi_x(x,jx,kx,deriv_x) * phi_y(y,j0_y,ky,deriv_y);   
             }
         }
     }
@@ -71,7 +72,7 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
             for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
                 for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
                     ret += coeffs(I(XWavelet, jx, kx, XWavelet, jy, ky)) 
-                            * psi_x(x,jx,kx) * psi_y(y,jy,ky);  
+                            * psi_x(x,jx,kx,deriv_x) * psi_y(y,jy,ky,deriv_y);  
                 }
             }
         } 
