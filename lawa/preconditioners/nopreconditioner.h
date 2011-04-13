@@ -29,7 +29,7 @@ struct NoPreconditioner
 {
     NoPreconditioner(void) {
 
-    };
+    }
 
     T
     operator()(const Index &index) const;

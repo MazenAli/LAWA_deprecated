@@ -29,7 +29,7 @@ namespace lawa {
 template <typename T>
 struct DiagonalLevelPreconditioner1D
 {
-    DiagonalLevelPreconditioner1D(void) { };
+    DiagonalLevelPreconditioner1D(void) { }
 
     T
     operator()(XType xtype1, int j1, int k1) const;
