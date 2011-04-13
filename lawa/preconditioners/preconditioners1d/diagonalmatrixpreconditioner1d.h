@@ -22,14 +22,13 @@
 #define LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALMATRIXPRECONDITIONER1D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
-
 
 template <typename T, typename Basis, typename BilinearForm>
 class DiagonalMatrixPreconditioner1D
 {
-
     public:
         DiagonalMatrixPreconditioner1D(const BilinearForm &a);
 
@@ -40,13 +39,11 @@ class DiagonalMatrixPreconditioner1D
         operator()(const Index1D &index) const;
 
     private:
-        const BilinearForm &a;
-
+        const BilinearForm &_a;
 };
 
 }   // namespace lawa
 
 #include <lawa/preconditioners/preconditioners1d/diagonalmatrixpreconditioner1d.tcc>
-
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALMATRIXPRECONDITIONER1D_H

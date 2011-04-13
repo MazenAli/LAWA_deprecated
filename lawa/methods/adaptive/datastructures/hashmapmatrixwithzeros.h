@@ -126,4 +126,4 @@ struct MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<
 
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.tcc>
 
-#endif  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H
+#endif  // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H

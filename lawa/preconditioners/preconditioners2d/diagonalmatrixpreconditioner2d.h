@@ -22,6 +22,7 @@
 #define LAWA_PRECONDITIONERS_PRECONDITIONERS2D_DIAGONALMATRIXPRECONDITIONER2D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -33,19 +34,19 @@ class DiagonalMatrixPreconditioner2D
         DiagonalMatrixPreconditioner2D(const BilinearForm &a);
 
         T
-        operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
+        operator()(XType xtype1, int j1, int k1,
+                   XType xtype2, int j2, int k2) const;
 
         T
         operator()(const Index2D &index) const;
 
     private:
-        const BilinearForm &a;
+        const BilinearForm &_a;
 
 };
 
 }   // namespace lawa
 
 #include <lawa/preconditioners/preconditioners2d/diagonalmatrixpreconditioner2d.tcc>
-
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS2D_DIAGONALMATRIXPRECONDITIONER2D_H

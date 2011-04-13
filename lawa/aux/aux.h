@@ -18,6 +18,7 @@
  */
 
 #include <lawa/aux/arrow.h>
+#include <lawa/aux/compiletime_assert.h>
 #include <lawa/aux/densify.h>
 // #include <lawa/aux/integral_vs_gmp.h> TODO: remove or review GMP
 #include <lawa/aux/sorting.h>
