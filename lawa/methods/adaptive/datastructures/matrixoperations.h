@@ -23,7 +23,9 @@
 
 #include <extensions/flens/cg.h>
 #include <extensions/flens/gmres.h>
-
+#include <lawa/flensforlawa.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
 
 namespace lawa {
 
@@ -85,8 +87,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
            const Coefficients<Lexicographical,T,Index > &f,
            T &res, T tol = 1e-6, int maxIterations = 1000);
 
-
-}    //namespace lawa
+} // namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/matrixoperations.tcc>
 

@@ -56,54 +56,6 @@ split(const IndexSet<Index2D> &Lambda, IndexSet<Index1D> &Lambda_x, IndexSet<Ind
 IndexSet<Index1D>
 extractSpaceIndices(const IndexSet<Index2D> &Lambda);
 
-//Security zone for an 1d-index following Urban:2009, p.235 and KU:2010.
-template <typename T, DomainType Domain, Construction Cons>
-IndexSet<Index1D>
-C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
-
-template <typename T, DomainType Domain, Construction Cons>
-IndexSet<Index1D>
-C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
-
-template <typename T>
-IndexSet<Index1D>
-C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis, bool only_pos=false);
-
-template <typename T>
-IndexSet<Index1D>
-C_WO_XBSpline(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis);
-
-
-template <typename T, DomainType Domain, Construction Cons>
-void
-C(const Index1D &lambda, T c, const MRA<T,Primal,Domain,Cons> &mra,
-  const Basis<T,Primal,Domain,Cons> &basis, IndexSet<Index1D> &ret);
-
-// Computation of a security zone for 2d-tensor basis
-template <typename T, typename Basis2D>
-IndexSet<Index2D>
-C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
-
-template <typename T, typename Basis2D>
-IndexSet<Index2D>
-C_t(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
-
-template <typename T, typename Basis3D>
-IndexSet<Index3D>
-C(const IndexSet<Index3D> &Lambda, T c, const Basis3D &basis);
-
-
-// Realizations of lambdaTilde for different Basis
-template <typename T, typename Basis>
-IndexSet<Index1D>
-lambdaTilde1d_PDE(const Index1D &lambda, const Basis &basis,
-                  int s_tilde, int jmin, int jmax, bool update);
-
-template <typename T>
-IndexSet<Index1D>
-lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
-                               int s_tilde, int jmin, int jmax);
-
 }   // namespace lawa
 
 
