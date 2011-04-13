@@ -3,6 +3,8 @@
 
 #include <ctime>
 
+namespace lawa {
+    
 struct Timer
 {
     void
@@ -17,5 +19,7 @@ struct Timer
     clock_t _start;
     clock_t _stop;
 };
+
+} // namespace lawa
 
 #endif //LAWA_AUX_TIMER_H

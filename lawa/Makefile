@@ -9,13 +9,13 @@ CPPFLAGS += -I $(LAWA_HOME)
 DYLIB    = liblawa.$(DYLIB_EXT)
 
 all: $(DYLIB)
+
+$(DYLIB): $(OBJECTS)
 	$(SILENT) for i in $(SUBDIRS); \
 		do echo ""; echo "processing dir $$i"; \
 		$(MAKE) -C $$i all; \
 	done;
-
-$(DYLIB): $(OBJECTS)
-	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o aux/*.o math/*.o$(LDLIBS)
+	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o aux/*.o math/*.o $(LDLIBS)
 	$(CP) $(DYLIB) $(LAWA_HOME)
 
 clean:

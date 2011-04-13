@@ -12,7 +12,9 @@ clean:
 		do echo ""; echo "processing dir $$i"; \
 		$(MAKE) -C $$i clean; \
 	done;
-	$(RM) libextensionsflens.$(DYLIB_EXT) liblawa.$(DYLIB_EXT) \
+	$(RM) libextensionsflens.$(DYLIB_EXT) \
+              libextensionssparsegrid.$(DYLIB_EXT) \
+              liblawa.$(DYLIB_EXT) \
               liblawamath.$(DYLIB_EXT)
 	$(RM) *.tmp
 # DO NOT DELETE
