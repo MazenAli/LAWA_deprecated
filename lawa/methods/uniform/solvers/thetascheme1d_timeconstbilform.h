@@ -98,7 +98,7 @@ class ThetaScheme1D_TimeConstBilForm
         
         T theta;
         const Basis& basis;
-        Problem1D<T, Basis> problem;
+        Assembler1D<T, Basis> problem;
 
         Integral<Gauss, Basis, Basis> integral;
         

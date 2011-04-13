@@ -1,3 +1,5 @@
+#include <lawa/methods/uniform/solvers/timestepping.h>
+
 namespace lawa{
 
 // THETASCHEME
@@ -18,11 +20,11 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
     op_RHSMatrix.setTimes(time_old, time_new);
     op_RHSVector.setTimes(time_old, time_new);
     
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
+    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.assembleStiffnessMatrix(op_LHSMatrix, level);
+    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.assembleStiffnessMatrix(op_RHSMatrix, level);
     flens::DenseVector<flens::Array<T> > rhsvector = problem.getRHS(op_RHSVector, level);
     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
-    flens::DiagonalMatrix<T> P = problem.getPreconditioner(prec, level);
+    flens::DiagonalMatrix<T> P = problem.assemblePreconditioner(prec, level);
     flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
     pcg(P,lhsmatrix, u, rhs);
     //std::cout << cg(lhsmatrix, u, rhs) << "cg iterations" << std::endl;
@@ -42,10 +44,10 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init,
      op_RHSMatrix.setTimes(time_old, time_new);
      op_RHSVector.setTimes(time_old, time_new);
 
-     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
-     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
+     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.assembleStiffnessMatrix(op_LHSMatrix, level);
+     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = problem.assembleStiffnessMatrix(op_RHSMatrix, level);
      flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + f;
-     flens::DiagonalMatrix<T> P = problem.getPreconditioner(prec, level);
+     flens::DiagonalMatrix<T> P = problem.assemblePreconditioner(prec, level);
      flens::DenseVector<flens::Array<T> > u(u_init);
      pcg(P, lhsmatrix, u, rhs);
      //std::cout << cg(lhsmatrix, u, rhs) << "cg iterations" << std::endl;
@@ -69,7 +71,7 @@ ThetaScheme1D<T, Basis, BilinearForm, RHSIntegral>::
 getLHSMatrix(T time_old, T time_new, int level)
 {
     op_LHSMatrix.setTimes(time_old, time_new);
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
+    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = problem.assembleStiffnessMatrix(op_LHSMatrix, level);
     
     return lhsmatrix;
 }

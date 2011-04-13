@@ -80,7 +80,6 @@ _evaluateUnitBSpline(int d, T x, int j, long k, unsigned short deriv)
 {
     assert(x>=0.0);
     assert(x<=1.0);
-    assert(deriv>=0);
     
     if (deriv>=d) {
         return 0;

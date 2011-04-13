@@ -34,10 +34,6 @@ namespace lawa {
  */
 template <typename T, typename Basis>
 class IdentityOperator1D{
-
-    private:
-
-        Integral<Gauss, Basis, Basis>   integral;
     
     public:
 
@@ -51,6 +47,10 @@ class IdentityOperator1D{
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index) const;
+        
+    private:
+
+        Integral<Gauss, Basis, Basis>   integral;
 
 };
 

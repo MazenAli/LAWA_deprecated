@@ -34,10 +34,6 @@ namespace lawa {
  */
 template <typename T, typename Basis>
 class HelmholtzOperator1D{
-    
-    private:
-        
-        Integral<Gauss, Basis, Basis> integral;
             
     public:
         
@@ -67,6 +63,10 @@ class HelmholtzOperator1D{
         
         T
         operator()(T time, const Index1D &row_index, const Index1D &col_index) const;
+        
+    private:
+        
+        Integral<Gauss, Basis, Basis> integral;
 };
     
     
