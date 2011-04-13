@@ -25,19 +25,24 @@
 
 namespace lawa {
 
-template <typename T, QuadratureType Quad, typename BasisFunc_x, typename BasisFunc_y>
+template <QuadratureType Quad, typename BasisX, typename BasisY>
 struct Integral2D
 {
-    const Function2D<T>& F;
-    const BasisFunc_x &phi_x;
-    const BasisFunc_y &phi_y;
-    mutable int j_x, k_x, j_y, k_y;
-    Quadrature2D<T, Quad, Integral2D<T,Quad,BasisFunc_x,BasisFunc_y > > quadrature;
+    typedef typename BasisX::T T;
+    
+    const Function2D<T> &F;
+    const BasisX &basisx;
+    const BasisY &basisy;
+    mutable int jx, derivx, jy, derivy;
+    mutable long kx, ky;
+    mutable XType ex, ey;
+    Quadrature2D<Quad, Integral2D<Quad,BasisX,BasisY> > quadrature;
 
-    Integral2D(const Function2D<T> &_F, const BasisFunc_x &_phi_x, const BasisFunc_y &_phi_y);
+    Integral2D(const Function2D<T> &_F, const BasisX &basisx, const BasisY &basisy);
 
     T
-    operator()(int _j_x, int _k_x, int _j_y, int _k_y) const;
+    operator()(int _jx, long _kx, XType _ex, int _derivx, 
+               int _jy, long _ky, XType _ey, int _derivy) const;
 
     T
     integrand(T x, T y) const;
@@ -46,6 +51,5 @@ struct Integral2D
 } // namespace lawa
 
 #include <lawa/integrals/integral2d.tcc>
-
 
 #endif  //LAWA_INTEGRALS_INTEGRAL2D_H
