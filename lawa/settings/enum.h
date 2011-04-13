@@ -60,7 +60,7 @@ enum QuadratureType {
     Gauss, 
     Trapezoidal,
     SparseGridGP,    //Gauss-Patterson quadrature on a sparse grid
-    FullGridGL,        //Gauss-Legendre  quadrature on a full grid
+    FullGridGL        //Gauss-Legendre  quadrature on a full grid
 };
 
 enum SortingCriterion {
