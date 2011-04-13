@@ -2,9 +2,9 @@ include $(LAWA_HOME)/Makefile.common
 
 DYLIB    = libextensionssparsegrid.$(DYLIB_EXT)
 
-SOURCES  := sandia_rules.cc sparse_grid_mixed.cc sparse_grid_open.cc
-OBJECTS  := $(SOURCES:.cc=.o)
-DEPS     := $(SOURCES:.cc=.d)
+SOURCES  := sandia_rules.cpp sparse_grid_mixed.cpp sparse_grid_open.cpp
+OBJECTS  := $(SOURCES:.cpp=.o)
+DEPS     := $(SOURCES:.cpp=.d)
 
 all: $(DYLIB)
 
@@ -16,7 +16,7 @@ clean:
 	$(RM) *.o *.d $(DYLIB)
 
 # automatic dependencies -------------------------------------------------------
-%.d: %.cc
+%.d: %.cpp
 	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $< \
 		| sed 's/$*.o/& $(subst /,\/,$@)/g' > $@
 

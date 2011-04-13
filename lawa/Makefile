@@ -1,9 +1,9 @@
 include $(LAWA_HOME)/Makefile.common
 
 SUBDIRS := math aux 
-SOURCES  := $(wildcard *.cc)
-OBJECTS  := $(SOURCES:.cc=.o)
-DEPS     := $(SOURCES:.cc=.d)
+SOURCES  := $(wildcard *.cpp)
+OBJECTS  := $(SOURCES:.cpp=.o)
+DEPS     := $(SOURCES:.cpp=.d)
 CPPFLAGS += -I $(LAWA_HOME)
 
 DYLIB    = liblawa.$(DYLIB_EXT)
@@ -27,7 +27,7 @@ clean:
 	$(RM) -f *.tmp
 
 # automatic dependencies -------------------------------------------------------
-%.d: %.cc
+%.d: %.cpp
 	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $< \
 		| sed 's/$*.o/& $(subst /,\/,$@)/g' > $@
 

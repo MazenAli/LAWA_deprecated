@@ -22,13 +22,13 @@ CompressionPDE1D_WO_XBSpline<T,Basis>::setParameters(const IndexSet<Index1D> &La
 }
 
 template <typename T, typename Basis>
-IndexSet<Index>
-CompressionPDE1D_WO_XBSpline<T,Basis>::SparsityPattern(const Index &lambda,
-                                                       const IndexSet<Index> &Lambda, int J)
+IndexSet<Index1D>
+CompressionPDE1D_WO_XBSpline<T,Basis>::SparsityPattern(const Index1D &lambda,
+                                                       const IndexSet<Index1D> &Lambda, int J)
 {
     typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 
-    Index1DSet<Index1D> LambdaRowSparse(Lambda.d,Lambda.d_), Lambda_x(Lambda.d,Lambda.d_);
+    IndexSet<Index1D> LambdaRowSparse(Lambda.d,Lambda.d_), Lambda_x(Lambda.d,Lambda.d_);
     if (J==-1) {
         Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, s_tilde, jmin, jmax);
     }
