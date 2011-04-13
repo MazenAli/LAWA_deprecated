@@ -29,75 +29,32 @@
 
 namespace lawa {
 
+/* Helmholtz Operator 3D
+ * 
+ *      a(v,u) =      Integral(v1_x * u1_x) * Integral(v2 * u2)     * Integral(v3 * u3) 
+ *              +     Integral(v1 * u1)     * Integral(v2_y * u2_y) * Integral(v3 * u3) 
+ *              +     Integral(v1 * u1)     * Integral(v2 * u2)     * Integral(v3_x * u3_x)
+ *              + c * Integral(v1 * u1)     * Integral(v2 * u2)     * Integral(v3 * u3)
+ *
+ */
 template <typename T, typename Basis3D>
 class HelmholtzOperator3D{
 
-    public:
-
-        const Basis3D &basis;
-        const T c;
+    private:
 
         typedef typename Basis3D::FirstBasisType  Basis_x;
         typedef typename Basis3D::SecondBasisType Basis_y;
         typedef typename Basis3D::ThirdBasisType  Basis_z;
-
-        typedef LaplaceOperator1D<T, typename Basis3D::FirstBasisType>   Diffusion_x;
-        typedef IdentityOperator1D<T, typename Basis3D::FirstBasisType>          Reaction_x;
-        typedef LaplaceOperator1D<T, typename Basis3D::SecondBasisType>  Diffusion_y;
-        typedef IdentityOperator1D<T, typename Basis3D::SecondBasisType>          Reaction_y;
-        typedef LaplaceOperator1D<T, typename Basis3D::ThirdBasisType>   Diffusion_z;
-        typedef IdentityOperator1D<T, typename Basis3D::ThirdBasisType>          Reaction_z;
-
-        typedef typename Basis3D::FirstBasisType::BSplineType  PrimalSpline_x;
-        typedef typename Basis3D::SecondBasisType::BSplineType PrimalSpline_y;
-        typedef typename Basis3D::ThirdBasisType::BSplineType  PrimalSpline_z;
-        typedef typename Basis3D::FirstBasisType::WaveletType  PrimalWavelet_x;
-        typedef typename Basis3D::SecondBasisType::WaveletType PrimalWavelet_y;
-        typedef typename Basis3D::ThirdBasisType::WaveletType  PrimalWavelet_z;
-
-        Diffusion_x dd_x;
-        Reaction_x  id_x;
-        Diffusion_y dd_y;
-        Reaction_y  id_y;
-        Diffusion_y dd_z;
-        Reaction_y  id_z;
-
-        PrimalSpline_x phi_x, d_phi_x;
-        PrimalSpline_y phi_y, d_phi_y;
-        PrimalSpline_z phi_z, d_phi_z;
-        PrimalWavelet_x psi_x, d_psi_x;
-        PrimalWavelet_y psi_y, d_psi_y;
-        PrimalWavelet_z psi_z, d_psi_z;
-
-        Integral<T, Gauss, PrimalSpline_x, PrimalSpline_x> integral_sfsf_x,
-                                                        dd_integral_sfsf_x;
-        Integral<T, Gauss, PrimalSpline_y, PrimalSpline_y> integral_sfsf_y,
-                                                        dd_integral_sfsf_y;
-        Integral<T, Gauss, PrimalSpline_z, PrimalSpline_z> integral_sfsf_z,
-                                                        dd_integral_sfsf_z;
-
-        Integral<T, Gauss, PrimalSpline_x, PrimalWavelet_x>    integral_sfw_x,
-                                                            dd_integral_sfw_x;
-        Integral<T, Gauss, PrimalSpline_y, PrimalWavelet_y>    integral_sfw_y,
-                                                            dd_integral_sfw_y;
-        Integral<T, Gauss, PrimalSpline_z, PrimalWavelet_z>    integral_sfw_z,
-                                                            dd_integral_sfw_z;
-
-        Integral<T, Gauss, PrimalWavelet_x, PrimalSpline_x>    integral_wsf_x,
-                                                            dd_integral_wsf_x;
-        Integral<T, Gauss, PrimalWavelet_y, PrimalSpline_y>    integral_wsf_y,
-                                                            dd_integral_wsf_y;
-        Integral<T, Gauss, PrimalWavelet_z, PrimalSpline_z>     integral_wsf_z,
-                                                             dd_integral_wsf_z;
-
-        Integral<T, Gauss, PrimalWavelet_x, PrimalWavelet_x>    integral_ww_x,
-                                                             dd_integral_ww_x;
-        Integral<T, Gauss, PrimalWavelet_y, PrimalWavelet_y>    integral_ww_y,
-                                                             dd_integral_ww_y;
-        Integral<T, Gauss, PrimalWavelet_z, PrimalWavelet_z>    integral_ww_z,
-                                                             dd_integral_ww_z;
+        
+        Integral<Gauss, Basis_x, Basis_x> integral_x;
+        Integral<Gauss, Basis_y, Basis_y> integral_y;
+        Integral<Gauss, Basis_z, Basis_z> integral_z;
 
     public:
+        
+        const Basis3D &basis;
+        const T c;
+        
         HelmholtzOperator3D(const Basis3D& _basis, const T _c);
 
         T getc() const;

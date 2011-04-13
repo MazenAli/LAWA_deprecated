@@ -10,7 +10,7 @@ template <typename T, typename Basis>
 const Basis&
 SpaceTimeInitialCondition1D<T, Basis>::getBasis() const
 {
-    return basis;
+	return basis;
 }
 
 template <typename T, typename Basis>
@@ -29,10 +29,10 @@ SpaceTimeInitialCondition1D<T, Basis>::operator()(XType row_xtype_x, int j1_x, i
 template <typename T, typename Basis>
 T
 SpaceTimeInitialCondition1D<T, Basis>::operator()(const Index1D &row_index,
-                                                  const Index2D &col_index) const
+												  const Index2D &col_index) const
 {
     return operator()(row_index.xtype, row_index.j, row_index.k,
-                      col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
+					  col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
                       col_index.index2.xtype, col_index.index2.j, col_index.index2.k);
 
 }
