@@ -23,7 +23,9 @@ namespace lawa {
 
 
 template<typename T, typename Index, typename RHSIntegral1, typename RHSIntegral2>
-SumOfTwoRHSIntegrals<T, Index, RHSIntegral1, RHSIntegral2>::SumOfTwoRHSIntegrals(const RHSIntegral1 &_rhs1, const RHSIntegral2 &_rhs2)
+SumOfTwoRHSIntegrals<T, Index, RHSIntegral1, RHSIntegral2>::SumOfTwoRHSIntegrals
+                                                            (const RHSIntegral1 &_rhs1,
+                                                             const RHSIntegral2 &_rhs2)
     : rhs1(_rhs1), rhs2(_rhs2)
 {
 }
@@ -38,8 +40,9 @@ SumOfTwoRHSIntegrals<T, Index, RHSIntegral1, RHSIntegral2>::operator()(const Ind
 
 template<typename T, typename Index, typename RHSIntegral1, typename RHSIntegral2>
 T
-SumOfTwoRHSIntegrals<T, Index, RHSIntegral1, RHSIntegral2>::operator()(XType xtype_x, int j_x, int k_x,
-																	   XType xtype_y, int j_y, int k_y) const
+SumOfTwoRHSIntegrals<T, Index, RHSIntegral1, RHSIntegral2>::operator()
+                                                            (XType xtype_x, int j_x, int k_x,
+                                                             XType xtype_y, int j_y, int k_y) const
 {
     return rhs1(xtype_x, j_x, k_x, xtype_y, j_y, k_y)
          + rhs2(xtype_x, j_x, k_x, xtype_y, j_y, k_y);

@@ -17,44 +17,46 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_RIGHTHANDSIDES_SEPARABLERHS2D_H
-#define LAWA_RIGHTHANDSIDES_SEPARABLERHS2D_H 1
+#ifndef LAWA_RIGHTHANDSIDES_SEPARABLERHS3D_H
+#define LAWA_RIGHTHANDSIDES_SEPARABLERHS3D_H 1
 
-#include <lawa/functiontypes/separablefunction2d.h>
+#include <lawa/functiontypes/separablefunction3d.h>
 #include <lawa/integrals/integrals.h>
 
 namespace lawa {
 
-template<typename T, typename Basis2D>
-class SeparableRHSWithPeaks2D
+template<typename T, typename Basis3D>
+class SeparableRHSWithPeaks3D
 {
+    private:
+        const Basis3D& basis;
+        const SeparableFunction3D<T>& F;
+        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
+	    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
+	    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z;
+
+        Integral<Gauss, Basis3D::FirstBasisType>  integralf_x;
+        Integral<Gauss, Basis3D::SecondBasisType> integralf_y;
+        Integral<Gauss, Basis3D::ThirdBasisType>  integralf_z;
+
     public:
-        SeparableRHSWithPeaks2D(const Basis2D& _basis, const SeparableFunction2D<T>& _F,
+        SeparableRHSWithPeaks3D(const Basis3D& _basis, const SeparableFunction3D<T>& _F,
                                 const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
                                 const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
+                                const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z,
                                 int order);
 
         T
         operator()(XType xtype_x, int j_x, int k_x,
-                   XType xtype_y, int j_y, int k_y) const;
+                   XType xtype_y, int j_y, int k_y,
+                   XType xtype_z, int j_z, int k_z) const;
 
         T
-        operator()(const Index2D &index) const;
-
-
-    private:
-        const Basis2D& basis;
-        const SeparableFunction2D<T>& F;
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
-
-        IntegralF<Gauss, Basis2D::FirstBasisType>  integralf_x;
-        IntegralF<Gauss, Basis2D::SecondBasisType> integralf_y;
-
+        operator()(const Index3D &index) const;
 };
 
 } // namespace lawa
 
-#include <lawa/righthandsides/separablerhswithpeaks2d.tcc>
+#include <lawa/righthandsides/separablerhswithpeaks3d.tcc>
 
-#endif // LAWA_RIGHTHANDSIDES_SEPARABLERHS2D_H
+#endif // LAWA_RIGHTHANDSIDES_SEPARABLERHS3D_H

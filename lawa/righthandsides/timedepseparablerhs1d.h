@@ -3,7 +3,7 @@
 
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
-#include <lawa/functiontypes/separablefunctionnd.h>
+#include <lawa/functiontypes/functiontypes.h>
 #include <lawa/integrals/integrals.h>
 
 namespace lawa{
@@ -15,14 +15,7 @@ class TimedepSeparableRHS1D
         const Basis1D& basis;
         const SeparableFunction2D<T>& F;
         
-        typedef typename Basis1D::BSplineType PrimalSpline;
-        typedef typename Basis1D::WaveletType PrimalWavelet;
-        
-        PrimalSpline phi;
-        PrimalWavelet psi;
-        
-        Integral<T, Gauss, PrimalSpline, Function<T> >  integral_sff;
-        Integral<T, Gauss, PrimalWavelet, Function<T> > integral_wf;
+        IntegralF<Gauss, Basis1D>  integralf;
                 
     public:
         TimedepSeparableRHS1D(const Basis1D& _basis, const SeparableFunction2D<T>& _F, int order);
@@ -52,7 +45,7 @@ public:
     operator()(T t, const Index1D &index) const;
     
     Coefficients<Lexicographical,T,Index1D>
-        operator()(T t, const IndexSet<Index1D> &Lambda) const;
+    operator()(T t, const IndexSet<Index1D> &Lambda) const;
 };
 
 
