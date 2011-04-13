@@ -10139,7 +10139,7 @@ void level_growth_to_order ( int dim_num, int level[], int rule[], int growth[],
 {
   int dim;
   int l;
-  int o;
+  int o = 0;
   static int o_hgk[5] = { 1, 3, 9, 19, 35 };
   int p;
   static int p_hgk[5] = { 1, 5, 15, 29, 51 };

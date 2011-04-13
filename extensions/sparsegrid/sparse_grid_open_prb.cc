@@ -979,7 +979,7 @@ void test06 ( int dim_num, int level_max )
 }
 //****************************************************************************80
 
-void test08 ( int dim_num, int level_max )
+//void test08 ( int dim_num, int level_max )
 
 //****************************************************************************80
 //
@@ -999,7 +999,7 @@ void test08 ( int dim_num, int level_max )
 //
 //    John Burkardt
 //
-{
+/*{
   int dim;
   string file_name;
   int *grid_index;
@@ -1104,4 +1104,5 @@ void test08 ( int dim_num, int level_max )
 
   return;
 }
+*/
 
