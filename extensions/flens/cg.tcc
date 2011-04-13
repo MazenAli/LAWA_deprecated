@@ -26,7 +26,7 @@ namespace lawa {
 template <typename MA, typename VX, typename VB>
 int
 cg(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
-   long maxIterations)
+   int maxIterations)
 {
     typename _cg<VB>::T alpha, beta, rNormSquare, rNormSquarePrev;
     typename _cg<VB>::AuxVector Ap, r, p;
@@ -38,7 +38,7 @@ cg(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     r = A*x - b;
     p = -1*r;
     rNormSquare = r*r;
-    for (long k=1; k<=maxIterations; k++) {
+    for (int k=1; k<=maxIterations; k++) {
         #ifdef SOLVER_DEBUG
             std::cerr << "k = " << k << ", rho = " << sqrt(rNormSquare)
                 << std::endl;
@@ -62,7 +62,7 @@ cg(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
 template <typename MA, typename VX, typename VB>
 int
 cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
-     long maxIterations)
+     int maxIterations)
 {
     typename _cg<VB>::T alpha, beta, gammaPrev, gamma, b_norm;
     typename _cg<VB>::AuxVector r, q, s, p;
@@ -89,7 +89,7 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
     p = s;
     gammaPrev = s*s;
-    for (long k=1; k<=maxIterations; k++) {
+    for (int k=1; k<=maxIterations; k++) {
         q = A*p;
         alpha = gammaPrev/(q*q);
         x +=   alpha *p;
@@ -118,7 +118,7 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
 template <typename Prec, typename MA, typename VX, typename VB>
 int
 pcg(const Prec &P, const MA &A, VX &x, const VB &b,
-    typename _cg<VB>::T tol, long maxIterations)
+    typename _cg<VB>::T tol, int maxIterations)
 {
     typename _cg<VB>::T pNormSquare, alpha, beta, rHatq, rHatqPrev;
     typename _cg<VB>::AuxVector r, rHat, p, Ap;
@@ -133,7 +133,7 @@ pcg(const Prec &P, const MA &A, VX &x, const VB &b,
     rHat = transpose(P)*r;
     p = P*rHat;
     rHatq = rHat*rHat;
-    for (long k=1; k<=maxIterations; k++) {
+    for (int k=1; k<=maxIterations; k++) {
         Ap = A*p;
         alpha = rHatq/(Ap*p);
         x += alpha*p;
@@ -159,7 +159,7 @@ pcg(const Prec &P, const MA &A, VX &x, const VB &b,
 template <typename Prec, typename MA, typename VX, typename VB>
 int
 pcg(const Prec &B, const MA &A, VX &x, const VB &b,
-    typename _cg<VB>::T tol, long maxIterations)
+    typename _cg<VB>::T tol, int maxIterations)
 {
     typename _cg<VB>::T pNormSquare, alpha, beta, rq, rqPrev;
     typename _cg<VB>::AuxVector r, q, p, Ap;
@@ -173,7 +173,7 @@ pcg(const Prec &B, const MA &A, VX &x, const VB &b,
     p *= -1;
     rq = r*q;
 
-    for (long k=1; k<=maxIterations; k++) {
+    for (int k=1; k<=maxIterations; k++) {
         pNormSquare = p*p;
         if (sqrt(pNormSquare)<tol) {
             return k-1;
