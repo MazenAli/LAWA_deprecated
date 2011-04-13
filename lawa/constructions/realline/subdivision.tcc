@@ -20,6 +20,7 @@
 #include <cassert>
 #include <numeric>
 #include <extensions/flens/lapack.h>
+#include <cxxblas/cxxblas.h>
 
 namespace lawa {
 

@@ -52,7 +52,7 @@ PDEReferenceSolutions1D<T>::deltas;
 template <typename T>
 void
 PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _reaction,
-                                       DomainType domain)
+                                       DomainType _domain)
 {
     nr=_nr;
     diffusion = _diffusion;
@@ -289,23 +289,27 @@ PDEReferenceSolutions1D<T>::exact(T x, int deriv)
         	else						assert(0);
         }
 		*/
-        else                         assert(0);
-
+        else {
+            assert(0);
+            return 0;
+        }
     }
+    assert(0);
+    return 0;
 }
 
 template <typename T>
 T
 PDEReferenceSolutions1D<T>::exact(T x)
 {
-    return ReferenceSolution1D<T>::exact(x, 0);
+    return PDEReferenceSolutions1D<T>::exact(x, 0);
 }
 
 template <typename T>
 T
 PDEReferenceSolutions1D<T>::d_exact(T x)
 {
-    return PDEReferenceSolution1D<T>::exact(x, 1);
+    return PDEReferenceSolutions1D<T>::exact(x, 1);
 }
 
 template <typename T>
@@ -315,7 +319,7 @@ PDEReferenceSolutions1D<T>::rhs(T x)
 	return -diffusion*exact(x,2) + convection*exact(x,1) + reaction*exact(x,0);
 }
 
-template <typename T, typename Basis>
+template <typename T>
 T
 PDEReferenceSolutions1D<T>::H1norm()
 {
