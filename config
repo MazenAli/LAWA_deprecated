@@ -1,4 +1,4 @@
-TARGET = UNIX
+TARGET = OSX
 COMPILER = gcc
 BLASLAPACK = platform
 

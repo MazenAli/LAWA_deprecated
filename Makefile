@@ -1,5 +1,5 @@
 include $(LAWA_HOME)/Makefile.common
-SUBDIRS := lawa extensions
+SUBDIRS := lawa extensions tutorials applications
 
 all:
 	$(SILENT) for i in $(SUBDIRS); \
@@ -14,7 +14,6 @@ clean:
 	done;
 	$(RM) libextensionsflens.$(DYLIB_EXT) \
               libextensionssparsegrid.$(DYLIB_EXT) \
-              liblawa.$(DYLIB_EXT) \
-              liblawamath.$(DYLIB_EXT)
+              liblawa.$(DYLIB_EXT)
 	$(RM) *.tmp
 # DO NOT DELETE
