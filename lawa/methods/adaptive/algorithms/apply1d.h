@@ -20,6 +20,7 @@
 #ifndef  LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY1D_H
 #define  LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY1D_H 1
 
+#include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 
@@ -31,23 +32,23 @@ class SYM_APPLY_1D {
     typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_coeff_abs_it;
     typedef typename IndexSet<Index>::const_iterator const_set_it;
 
-public:
-    const Parameters &parameters;
-    const Basis1D &basis;
-    MA &A;
+    public:
+        const Parameters &parameters;
+        const Basis1D &basis;
+        MA &A;
 
-    SYM_APPLY_1D(const Parameters &_parameters, const Basis1D &_basis, MA &_A);
+        SYM_APPLY_1D(const Parameters &_parameters, const Basis1D &_basis, MA &_A);
 
-    Coefficients<Lexicographical,T,Index>
-    operator()(const Coefficients<Lexicographical,T,Index> &v, int k);
+        Coefficients<Lexicographical,T,Index>
+        operator()(const Coefficients<Lexicographical,T,Index> &v, int k);
 
-    Coefficients<Lexicographical,T,Index>
-    operator()(const Coefficients<Lexicographical,T,Index> &v, T eps);
+        Coefficients<Lexicographical,T,Index>
+        operator()(const Coefficients<Lexicographical,T,Index> &v, T eps);
 
-private:
+    private:
 
-    int
-    findK(const Coefficients<AbsoluteValue,T,Index> &v, T eps);
+        int
+        findK(const Coefficients<AbsoluteValue,T,Index> &v, T eps);
 
 };
 
