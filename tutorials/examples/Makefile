@@ -2,8 +2,16 @@ include $(LAWA_HOME)/config
 
 
 INCDIRS += -I$(FLENS_HOME) -I$(LAWA_HOME)
+
 LDFLAGS += -L$(FLENS_HOME) -L$(LAWA_HOME)
+LDFLAGS += -llawa -lextensionsflens -lextensionssparsegrid
+
 EX_LDFLAGS += -bind_at_load
+
+ifdef GMP_HOME
+  CXXFLAGS += -DMPFR -I$(MPFR_HOME)/include
+  LDFLAGS += -L$(MPFR_HOME)/lib -lgmpxx -lgmp
+endif
 
 
 SOURCEFILES  = $(wildcard *.cpp)
@@ -17,5 +25,5 @@ clean:
 	$(RM) $(TARGETS)
     
 $(TARGETS): % : %.cpp
-	$(CXX) $(CXXFLAGS) $(INCDIRS) -I . -o $@ $+ $(LINK)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCDIRS) -I . -o $@ $+ $(LINK)
 	
