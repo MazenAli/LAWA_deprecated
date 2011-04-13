@@ -7,7 +7,7 @@ ThetaScheme1D_TimeConstBilForm(const T _theta, const Basis& _basis, const Biline
     : theta(_theta), basis(_basis), problem(basis), phi(basis.mra), psi(basis),
       integral_sfsf(phi, phi), integral_sfw(phi, psi), integral_wsf(psi, phi), integral_ww(psi, psi),
       op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs), prec(op_LHSMatrix),
-      currentLevel(-1), P(problem.getPreconditioner(prec, 2))
+      currentLevel(-1), P(problem.assemblePreconditioner(prec, 2))
 {   
 }
  
@@ -20,12 +20,12 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
     if(level != currentLevel){
         op_LHSMatrix.setTimes(time_old, time_new);
         op_RHSMatrix.setTimes(time_old, time_new);
-        lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
-        rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
-        P = problem.getPreconditioner(prec, level);
+        lhsmatrix = problem.assembleStiffnessMatrix(op_LHSMatrix, level);
+        rhsmatrix = problem.assembleStiffnessMatrix(op_RHSMatrix, level);
+        P = problem.assemblePreconditioner(prec, level);
         currentLevel = level;
     }
-    flens::DenseVector<flens::Array<T> > rhsvector = problem.getRHS(op_RHSVector, level);
+    flens::DenseVector<flens::Array<T> > rhsvector = problem.assembleRHS(op_RHSVector, level);
     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
     flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
     pcg(P,lhsmatrix, u, rhs);
@@ -45,9 +45,9 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init,
      if(level != currentLevel){
          op_LHSMatrix.setTimes(time_old, time_new);
          op_RHSMatrix.setTimes(time_old, time_new);
-         lhsmatrix = problem.getStiffnessMatrix(op_LHSMatrix, level);
-         rhsmatrix = problem.getStiffnessMatrix(op_RHSMatrix, level);
-         P = problem.getPreconditioner(prec, level);
+         lhsmatrix = problem.assembleStiffnessMatrix(op_LHSMatrix, level);
+         rhsmatrix = problem.assembleStiffnessMatrix(op_RHSMatrix, level);
+         P = problem.assemblePreconditioner(prec, level);
          currentLevel = level;
      }
      flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + f;
