@@ -17,40 +17,38 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS1D_H
-#define TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS1D_H 1
+#ifndef TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_PDEREFERENCESOLUTIONS1D_H
+#define TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_PDEREFERENCESOLUTIONS1D_H 1
 
-#include <iostream>
 #include <lawa/settings/enum.h>
-#include <lawa/operators/pdeoperators1d/helmholtzoperator1d.h>
-#include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
+#include <lawa/flensforlawa.h>
 
 namespace lawa {
 
+/*
+ * Reference solutions u and corresponding righthand sides for second order PDEs
+ * with constant coefficients:
+ *       - diffusion * u'' + convection * u' + reaction * u = f
+ */
 
-template <typename T, typename Basis, typename BilinearForm>
-struct ReferenceSolution1D
-{
-};
-
-template<typename T, typename Basis>
-struct ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >
+template<typename T>
+struct PDEReferenceSolutions1D
 {
     static int nr;
-    static T c;
+
+    static T diffusion, convection, reaction;
+
     static DomainType domain;
+
+    static DenseVector<Array<T> > sing_pts;
+
+    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas;
+
+    static void
+    setExample(int _nr, T _diffusion, T _convection, T _reaction, DomainType domain);
 
     static T
     exact(T x, int deriv);
-
-    static DenseVector<Array<T> >
-    sing_pts;
-
-    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
-    deltas;
-
-    static void
-    setExample(int _nr, const HelmholtzOperator1D<T,Basis> &a, DomainType domain);
 
     static T
     exact(T x);
@@ -62,16 +60,13 @@ struct ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >
     rhs(T x);
 
     static T
-    smoothened_rhs(T x);
-
-    static T
     H1norm();
 };
 
 
 } // namespace lawa
 
-#include <tutorials/examples/referencesolutions/referencesolutions1d.tcc>
+#include <tutorials/examples/referencesolutions/pdereferencesolutions1d.tcc>
 
 
-#endif // TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_H
+#endif // TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_PDEREFERENCESOLUTIONS1D_H
