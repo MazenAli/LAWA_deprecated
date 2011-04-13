@@ -30,7 +30,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrixWi
    ConsecutiveIndices(2,2), Zeros( (NumOfRows*NumOfCols) >> 5), warning_overflow(false), entrybound(_entrybound)
 {
     PrecValues.engine().resize(int(NumOfRows));
-    Zeros.assign((NumOfRows*NumOfCols) >> 5, (long long) 0);
+    Zeros.assign((NumOfRows*NumOfCols) >> 5, (long) 0);
     //NonZeros.resize(3145739);
 }
 
@@ -55,7 +55,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
         (*col_index).linearindex = size;
     }
 
-    unsigned long long value, block;
+    unsigned long value, block;
     unsigned int block_num, block_pos;
 
     if (((*row_index).linearindex >= NumOfRows) || ((*col_index).linearindex >= NumOfCols)) {
@@ -66,8 +66,8 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
         block_pos = ( ( (*col_index).linearindex*NumOfRows + (*row_index).linearindex ) & 31 ) * 2;
 
         block = Zeros[block_num];
-        //long long value = ( (((long long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
-        value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
+        //long value = ( (((long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
+        value = ( (((long) 3) << block_pos) & (block) ) >> block_pos;
     }
 
 
@@ -101,11 +101,11 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
         val = prec * a(*row_index,*col_index);
         if (fabs(val)>entrybound) {
             NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)] = val;
-            Zeros[block_num] = (((long long) 2) << block_pos) | (block) ;
+            Zeros[block_num] = (((long) 2) << block_pos) | (block) ;
             return val;
         }
         else {
-            Zeros[block_num] = (((long long) 1) << block_pos) | (block) ;
+            Zeros[block_num] = (((long) 1) << block_pos) | (block) ;
             return 0.;
         }
     }
@@ -155,7 +155,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,
 :  a(_a), c(_c), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
    ConsecutiveIndices(2,2), Zeros( (NumOfRows*NumOfCols) >> 5), warning_overflow(false), entrybound(_entrybound)
 {
-    Zeros.assign((NumOfRows*NumOfCols) >> 5, (long long) 0);
+    Zeros.assign((NumOfRows*NumOfCols) >> 5, (long) 0);
     //NonZeros.resize(3145739);
 }
 
@@ -182,7 +182,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,
         (*col_index).linearindex = size;
     }
 
-    unsigned long long value, block;
+    unsigned long value, block;
     unsigned int block_num, block_pos;
 
     if (((*row_index).linearindex >= NumOfRows) || ((*col_index).linearindex >= NumOfCols)) {
@@ -193,8 +193,8 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,
         block_pos = ( ( (*col_index).linearindex*NumOfRows + (*row_index).linearindex ) & 31 ) * 2;
 
         block = Zeros[block_num];
-        //long long value = ( (((long long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
-        value = ( (((long long) 3) << block_pos) & (block) ) >> block_pos;
+        //long value = ( (((long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
+        value = ( (((long) 3) << block_pos) & (block) ) >> block_pos;
     }
 
 
@@ -209,11 +209,11 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,
         T val = a(*row_index,*col_index);
         if (fabs(val)>entrybound) {
             NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)] = val;
-            Zeros[block_num] = (((long long) 2) << block_pos) | (block) ;
+            Zeros[block_num] = (((long) 2) << block_pos) | (block) ;
             return val;
         }
         else {
-            Zeros[block_num] = (((long long) 1) << block_pos) | (block) ;
+            Zeros[block_num] = (((long) 1) << block_pos) | (block) ;
             return 0.;
         }
     }
