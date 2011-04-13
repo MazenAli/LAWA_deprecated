@@ -42,11 +42,11 @@ class HelmholtzOperator3D{
         typedef typename Basis3D::ThirdBasisType  Basis_z;
 
         typedef LaplaceOperator1D<T, typename Basis3D::FirstBasisType>   Diffusion_x;
-        typedef IdentityOperator1D<T, typename Basis3D::FirstBasisType> 	     Reaction_x;
+        typedef IdentityOperator1D<T, typename Basis3D::FirstBasisType>          Reaction_x;
         typedef LaplaceOperator1D<T, typename Basis3D::SecondBasisType>  Diffusion_y;
-        typedef IdentityOperator1D<T, typename Basis3D::SecondBasisType> 	     Reaction_y;
+        typedef IdentityOperator1D<T, typename Basis3D::SecondBasisType>          Reaction_y;
         typedef LaplaceOperator1D<T, typename Basis3D::ThirdBasisType>   Diffusion_z;
-        typedef IdentityOperator1D<T, typename Basis3D::ThirdBasisType> 	     Reaction_z;
+        typedef IdentityOperator1D<T, typename Basis3D::ThirdBasisType>          Reaction_z;
 
         typedef typename Basis3D::FirstBasisType::BSplineType  PrimalSpline_x;
         typedef typename Basis3D::SecondBasisType::BSplineType PrimalSpline_y;

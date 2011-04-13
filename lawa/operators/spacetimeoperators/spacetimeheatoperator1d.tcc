@@ -23,21 +23,21 @@ template <typename T, typename Basis>
 T
 SpaceTimeHeatOperator1D<T, Basis>::getc() const
 {
-	return c;
+    return c;
 }
 
 template <typename T, typename Basis>
 T
 SpaceTimeHeatOperator1D<T, Basis>::getreactionconstant() const
 {
-	return reaction;
+    return reaction;
 }
 
 template <typename T, typename Basis>
 const Basis&
 SpaceTimeHeatOperator1D<T, Basis>::getBasis() const
 {
-	return basis;
+    return basis;
 }
     
 template <typename T, typename Basis>      
@@ -112,14 +112,14 @@ T
 SpaceTimeHeatOperator1D<T, Basis>::operator()(const Index2D &row_index, 
                                               const Index2D &col_index) const
 {
-	/*
-	return d_t(row_index.index1,col_index.index1) * id_x(row_index.index2,col_index.index2) +
-	     c*id_t(row_index.index1,col_index.index1) * dd_x(row_index.index2,col_index.index2);
-	*/
+    /*
+    return d_t(row_index.index1,col_index.index1) * id_x(row_index.index2,col_index.index2) +
+         c*id_t(row_index.index1,col_index.index1) * dd_x(row_index.index2,col_index.index2);
+    */
 
     return operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
-					  row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
-					  col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
+                      row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
+                      col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
                       col_index.index2.xtype, col_index.index2.j, col_index.index2.k);
 
 }

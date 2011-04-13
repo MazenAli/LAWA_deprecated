@@ -229,7 +229,7 @@ overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2, Support<T> &co
 <<<<<<< HEAD
             }
 =======
-			}
+            }
 >>>>>>> master
             common.l1 = 0;
             common.l2 = -1;

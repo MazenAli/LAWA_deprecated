@@ -31,8 +31,8 @@ namespace lawa {
 
 enum AntiDerivativeType
 {
-	ZeroAtInfinity,
-	ZeroAtZero
+    ZeroAtInfinity,
+    ZeroAtZero
 };
 
 typedef boost::math::policies::policy<boost::math::policies::digits2<64> > my_prec_policy;
@@ -40,41 +40,41 @@ typedef boost::math::policies::policy<boost::math::policies::digits2<64> > my_pr
 template <typename T>
 struct CGMYUtils {
 
-	CGMYUtils(T C, T G, T M, T Y);
+    CGMYUtils(T C, T G, T M, T Y);
 
-	const T C, G, M, Y;
-	T c3,c4,c5,c6;
-	T ExpXmOnemX_k_pos, ExpXmOnemX_k_neg, ExpXmOnemX_k;
-	T ExpXmOne_k1_pos, ExpXmOne_k1_neg;
-	T ExpXmOne_k2_pos, ExpXmOne_k2_neg;
-	T constants[10];
+    const T C, G, M, Y;
+    T c3,c4,c5,c6;
+    T ExpXmOnemX_k_pos, ExpXmOnemX_k_neg, ExpXmOnemX_k;
+    T ExpXmOne_k1_pos, ExpXmOne_k1_neg;
+    T ExpXmOne_k2_pos, ExpXmOne_k2_neg;
+    T constants[10];
 
-	T powM_Ym5, powM_Ym4, powM_Ym3, powM_Ym2, powM_Ym1, powM_Y;
-	T powG_Ym5, powG_Ym4, powG_Ym3, powG_Ym2, powG_Ym1, powG_Y;
-	T CdivY, Cdiv1mY, Mdiv1mY, Gdiv1mY, OnedivSix;
+    T powM_Ym5, powM_Ym4, powM_Ym3, powM_Ym2, powM_Ym1, powM_Y;
+    T powG_Ym5, powG_Ym4, powG_Ym3, powG_Ym2, powG_Ym1, powG_Y;
+    T CdivY, Cdiv1mY, Mdiv1mY, Gdiv1mY, OnedivSix;
 
-	my_prec_policy Pol;
+    my_prec_policy Pol;
 
-	T TailIntegralMoments(T x, int l) const;
+    T TailIntegralMoments(T x, int l) const;
 
-	T nthTailIntegral(T x, int n, AntiDerivativeType type) const;
+    T nthTailIntegral(T x, int n, AntiDerivativeType type) const;
 
-	T FirstTailIntegral(T x) const;
-	T FirstTailFirstExpMomIntegral(T x) const;
-	T SecondTailIntegral(T x) const;
-	T SecondTailFirstExpMomIntegral(T x) const;
-	T ThirdTailIntegral(T x) const;
-	T ThirdTailFirstExpMomIntegral(T x) const;
-	T ForthTailIntegral(T x) const;
-	T ForthTailFirstExpMomIntegral(T x) const;
-	T ForthTailIntegral_test(T x) const;
-	T FifthTailIntegral(T x) const;
-	T SixthTailIntegral(T x) const;
+    T FirstTailIntegral(T x) const;
+    T FirstTailFirstExpMomIntegral(T x) const;
+    T SecondTailIntegral(T x) const;
+    T SecondTailFirstExpMomIntegral(T x) const;
+    T ThirdTailIntegral(T x) const;
+    T ThirdTailFirstExpMomIntegral(T x) const;
+    T ForthTailIntegral(T x) const;
+    T ForthTailFirstExpMomIntegral(T x) const;
+    T ForthTailIntegral_test(T x) const;
+    T FifthTailIntegral(T x) const;
+    T SixthTailIntegral(T x) const;
 
 
 };
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <applications/finance/cgmyutils.tcc>
 

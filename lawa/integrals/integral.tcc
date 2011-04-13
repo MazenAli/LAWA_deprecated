@@ -37,7 +37,7 @@ typename RestrictTo<BothPrimal<First,Second>::value, typename First::T>::Type
 _integrate(const Integral<Gauss,First,Second> &integral)
 {
     typedef typename First::T T;
-    
+
     const typename First::BasisFunction &first = integral.first.generator(integral.e1);
     const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
 
@@ -66,7 +66,7 @@ _integrate(const Integral<Quad,First,Second> &integral)
     typedef typename First::T T;
     const typename First::BasisFunction &first = integral.first.generator(integral.e1);
     const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
-    
+
     Support<T> common;
     if (overlap(first.support(integral.j1,integral.k1),
                 second.support(integral.j2,integral.k2),

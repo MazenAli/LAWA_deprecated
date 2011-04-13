@@ -39,11 +39,11 @@ ConvectionOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
 
     if(xtype1 == XBSpline){
          if(xtype2 == XBSpline) val = d_integral_sfsf(j1, k1, j2, k2);
-         else					val = d_integral_sfw(j1, k1, j2, k2);
+         else                    val = d_integral_sfw(j1, k1, j2, k2);
     }
     else{
          if(xtype2 == XBSpline) val = d_integral_wsf(j1, k1, j2, k2);
-         else					val = d_integral_ww(j1, k1, j2, k2);
+         else                    val = d_integral_ww(j1, k1, j2, k2);
     }
     return val;
 }
@@ -58,4 +58,4 @@ ConvectionOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index
 
 
 
-}	//namespace lawa
+}    //namespace lawa

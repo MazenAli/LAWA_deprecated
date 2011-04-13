@@ -36,26 +36,26 @@ namespace lawa {
 
 struct lt_int_vs_int
 {
-	inline
-	bool operator()(const std::pair<int,int> &left, const std::pair<int,int> &right) const
-	{
-		if (left.first != right.first) return left.first < right.first;
-		else						   return left.second < right.second;
-	}
+    inline
+    bool operator()(const std::pair<int,int> &left, const std::pair<int,int> &right) const
+    {
+        if (left.first != right.first) return left.first < right.first;
+        else                           return left.second < right.second;
+    }
 };
 
 struct hash_pair_of_int {
-	inline
+    inline
     size_t operator()(const std::pair<int,int>& p) const {
         return ( (p.first+p.second)*(p.first+p.second+1)/2 + p.second ) %  9369319;
     }
 };
 
 struct equal_pair_of_int {
-	inline
+    inline
     bool operator()(const std::pair<int,int>& p_left, const std::pair<int,int>& p_right) const {
         if (p_left.first != p_right.first) return false;
-        else							   return (p_left.second == p_right.second);
+        else                               return (p_left.second == p_right.second);
     }
 };
 
@@ -63,7 +63,7 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 struct MapMatrixWithZeros
 {
     typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
-	//typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int, equal_pair_of_int> EntryMap;
+    //typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int, equal_pair_of_int> EntryMap;
     typedef typename EntryMap::value_type val_type;
 
     EntryMap NonZeros;
@@ -81,12 +81,12 @@ struct MapMatrixWithZeros
 
 
     MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c,
-					   T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
+                       T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
-	T
-	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
+    T
+    operator()(const Index &row_index, const Index &col_index);        //todo: writes into data -> no const declaration -> better solution?!
 
-	void
+    void
     clear();
 };
 
@@ -110,19 +110,19 @@ struct MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<
     T entrybound;
 
     MapMatrixWithZeros(const BilinearForm &a, Compression &c,
-					   T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
+                       T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
-	T
-	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
+    T
+    operator()(const Index &row_index, const Index &col_index);        //todo: writes into data -> no const declaration -> better solution?!
 
-	void
+    void
     clear();
 
 };
 
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.tcc>
 

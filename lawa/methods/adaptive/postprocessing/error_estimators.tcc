@@ -60,9 +60,9 @@ estimate_SpaceTimeError_L0T_L2(Coefficients<Lexicographical,T,Index2D> & u,
     IndexSet<Index2D> ExpandedLambda = supp(u_exact);
     
     typedef typename IndexSet<Index2D>::const_iterator const_set_it;
-	
-	for (const_set_it it=ExpandedLambda.begin(); it!=ExpandedLambda.end(); ++it) {
-	    T prec = P((*it));
+    
+    for (const_set_it it=ExpandedLambda.begin(); it!=ExpandedLambda.end(); ++it) {
+        T prec = P((*it));
         if( Lambda.count(*it) > 0){
             //std::cout << (*it) << " u - u_exact = " << (u[*it] - u_exact[*it]) << std::endl;
             error_est += prec * (u[*it] - u_exact[*it]) * prec * (u[*it] - u_exact[*it]);
@@ -73,7 +73,7 @@ estimate_SpaceTimeError_L0T_L2(Coefficients<Lexicographical,T,Index2D> & u,
         }
     }
     for (const_set_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
-	    T prec = P((*it));
+        T prec = P((*it));
         if( ExpandedLambda.count(*it) == 0){
             //std::cout << (*it) << " u - u_exact = " << (u[*it] - u_exact[*it]) << std::endl;
             error_est += prec * u[*it] * prec * u[*it];
@@ -93,9 +93,9 @@ estimate_SpaceTimeError_L0T_H1(Coefficients<Lexicographical,T,Index2D> & u,
     IndexSet<Index2D> ExpandedLambda = supp(u_exact);
     
     typedef typename IndexSet<Index2D>::const_iterator const_set_it;
-	
-	for (const_set_it it=ExpandedLambda.begin(); it!=ExpandedLambda.end(); ++it) {
-	    T prec = P((*it));
+    
+    for (const_set_it it=ExpandedLambda.begin(); it!=ExpandedLambda.end(); ++it) {
+        T prec = P((*it));
         if( Lambda.count(*it) > 0){
             //std::cout << (*it) << " u - u_exact = " << (u[*it] - u_exact[*it]) << std::endl;
             error_est += pow2i<T>(2*(*it).index2.j) * prec * (u[*it] - u_exact[*it]) * prec * (u[*it] - u_exact[*it]);
@@ -106,7 +106,7 @@ estimate_SpaceTimeError_L0T_H1(Coefficients<Lexicographical,T,Index2D> & u,
         }
     }
     for (const_set_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
-	    T prec = P((*it));
+        T prec = P((*it));
         if( ExpandedLambda.count(*it) == 0){
             //std::cout << (*it) << " u - u_exact = " << (u[*it] - u_exact[*it]) << std::endl;
             error_est += pow2i<T>(2*(*it).index2.j) * prec * u[*it] * prec * u[*it];
@@ -126,9 +126,9 @@ estimate_SpaceTimeError_W0T(Coefficients<Lexicographical,T,Index2D> & u,
     IndexSet<Index2D> ExpandedLambda = supp(u_exact);
     
     typedef typename IndexSet<Index2D>::const_iterator const_set_it;
-	
-	for (const_set_it it=ExpandedLambda.begin(); it!=ExpandedLambda.end(); ++it) {
-	    T prec = P((*it));
+    
+    for (const_set_it it=ExpandedLambda.begin(); it!=ExpandedLambda.end(); ++it) {
+        T prec = P((*it));
         if( Lambda.count(*it) > 0){
             //std::cout << (*it) << " u - u_exact = " << (u[*it] - u_exact[*it]) << std::endl;
             error_est += (pow2i<T>(2*(*it).index1.j - 2*(*it).index2.j) + pow2i<T>(2*(*it).index2.j)) 
@@ -141,7 +141,7 @@ estimate_SpaceTimeError_W0T(Coefficients<Lexicographical,T,Index2D> & u,
         }
     }
     for (const_set_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
-	    T prec = P((*it));
+        T prec = P((*it));
         if( ExpandedLambda.count(*it) == 0){
             //std::cout << (*it) << " u - u_exact = " << (u[*it] - u_exact[*it]) << std::endl;
             error_est += pow2i<T>(2*(*it).index2.j) * prec * u[*it] * prec * u[*it];

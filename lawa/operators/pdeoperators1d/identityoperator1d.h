@@ -29,37 +29,28 @@ namespace lawa {
 
 /* Riesz OPERATOR
  *
- *    a(u,v) =  Integral(u * v)
+ *    a(v,u) =  Integral(v * u)
  *
  */
 template <typename T, typename Basis>
 class IdentityOperator1D{
-    typedef typename Basis::BSplineType PrimalSpline;
-    typedef typename Basis::WaveletType PrimalWavelet;
 
+    private:
 
-public:
-    IdentityOperator1D(const Basis& _basis);
+        Integral<Gauss, Basis, Basis>   integral;
+    
+    public:
 
-    T
-    operator()(XType xtype1, int j1, int k1,
-               XType xtype2, int j2, int k2) const;
+        const Basis& basis;
 
-    T
-    operator()(const Index1D &row_index, const Index1D &col_index) const;
+        IdentityOperator1D(const Basis& _basis);
 
-private:
+        T
+        operator()(XType xtype1, int j1, int k1,
+                   XType xtype2, int j2, int k2) const;
 
-    const Basis& basis;
-
-    PrimalSpline phi;
-    PrimalWavelet psi;
-
-    Integral<T, Gauss, PrimalSpline, PrimalSpline>   integral_sfsf;
-    Integral<T, Gauss, PrimalSpline, PrimalWavelet>  integral_sfw;
-    Integral<T, Gauss, PrimalWavelet, PrimalSpline>  integral_wsf;
-    Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww;
-
+        T
+        operator()(const Index1D &row_index, const Index1D &col_index) const;
 
 };
 

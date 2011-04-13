@@ -162,13 +162,13 @@ P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda)
     Coefficients<Lexicographical,T,Index> ret(v.d,v.d_);
     const_it v_end = v.end();
     for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
-    	const_it it = v.find(*lambda);
-    	if (it != v_end) {
-    		ret[*lambda] = (*it).second;
-    	}
-    	else {
-    		ret[*lambda] = 0.;
-    	}
+        const_it it = v.find(*lambda);
+        if (it != v_end) {
+            ret[*lambda] = (*it).second;
+        }
+        else {
+            ret[*lambda] = 0.;
+        }
     }
     return ret;
 }
@@ -291,7 +291,7 @@ Coefficients<AbsoluteValue,T,Index>::l2bestnterm(int n) const
     int count=(*this).size();
     for (const_rev_it lambda=Coefficients<AbsoluteValue,T,Index>::rbegin(); lambda!=Coefficients<AbsoluteValue,T,Index>::rend(); ++lambda) {
         if (count>=n) {
-        	result += fabs((*lambda).first) * fabs((*lambda).first);
+            result += fabs((*lambda).first) * fabs((*lambda).first);
         }
         --count;
     }
@@ -326,7 +326,7 @@ Coefficients<AbsoluteValue,T,Index>::norm_sections() const
 
     if (Coefficients<AbsoluteValue,T,Index>::size() > 0) {
         //result.engine().resizeOrClear(_(0, int(log(T(Coefficients<AbsoluteValue,T,Index>::size()))/log(T(2))+1)));
-    	result.engine().resize(int(log(T(Coefficients<AbsoluteValue,T,Index>::size()))/log(T(2))+1));
+        result.engine().resize(int(log(T(Coefficients<AbsoluteValue,T,Index>::size()))/log(T(2))+1));
         T help=0.0;
         int count=0, s=0;
 

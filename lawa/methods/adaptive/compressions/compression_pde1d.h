@@ -30,16 +30,16 @@ namespace lawa {
 template <typename T, typename Index, typename Basis>
 struct CompressionPDE1D
 {
-	const Basis &basis;
-	short s_tilde, jmin, jmax;
+    const Basis &basis;
+    short s_tilde, jmin, jmax;
 
-	CompressionPDE1D(const Basis &_basis);
+    CompressionPDE1D(const Basis &_basis);
 
-	void
-	setParameters(const IndexSet<Index> &LambdaRow);
+    void
+    setParameters(const IndexSet<Index> &LambdaRow);
 
-	IndexSet<Index>
-	SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow, int J=-1);
+    IndexSet<Index>
+    SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow, int J=-1);
 };
 
 } // namespace lawa

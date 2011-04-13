@@ -22,9 +22,9 @@
 #define LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALLEVELPRECONDITIONER1D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
-
 
 template <typename T>
 struct DiagonalLevelPreconditioner1D
@@ -42,6 +42,5 @@ struct DiagonalLevelPreconditioner1D
 }   // namespace lawa
 
 #include <lawa/preconditioners/preconditioners1d/diagonallevelpreconditioner1d.tcc>
-
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALLEVELPRECONDITIONER1D_H

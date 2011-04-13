@@ -30,9 +30,9 @@ template <QuadratureType Quad, typename First, typename Second>
 struct Integral
 {
     typedef typename First::T T;
-    
+
     Integral(const First &first, const Second &second);
-    
+
     T
     operator()(int _j1, long _k1, XType _e1, int _deriv1,
                int _j2, long _k2, XType _e2, int _deriv2) const;
@@ -53,21 +53,21 @@ template <QuadratureType Quad, typename First, typename Second=First>
 struct IntegralF
 {
     typedef typename First::T T;
-    
+
     IntegralF(const Function<T> &_function, const First &_first);
-    
+
     IntegralF(const Function<T> &_function, const First &_first, const Second &_second);
-    
+
     T
     operator()(int _j1, long _k1, XType _e1, int _deriv) const;
 
     T
     operator()(int _j1, long _k1, XType _e1, int _deriv1,
                int _j2, long _k2, XType _e2, int _deriv2) const;
-    
+
     T
     integrand(T x) const;
-    
+
     const Function<T> &function;
     const First &first;
     const Second &second;

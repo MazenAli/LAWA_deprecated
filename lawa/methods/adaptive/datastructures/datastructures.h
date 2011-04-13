@@ -4,5 +4,4 @@
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 #include <lawa/methods/adaptive/datastructures/matrixoperations.h>
-#include <lawa/methods/adaptive/datastructures/tensormatrix2d.h>
-#include <lawa/methods/adaptive/datastructures/tensormatrix3d.h>
+#include <lawa/methods/adaptive/datastructures/operators/operators.h>

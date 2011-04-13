@@ -1,3 +1,5 @@
+#include <cmath>
+
 namespace lawa {
 
 template <typename T>
@@ -11,7 +13,7 @@ template <typename T>
 T
 DiagonalLevelPreconditioner1D<T>::operator()(const Index1D &index) const
 {
-    return 1./std::sqrt(1+pow2i<T>(2*index.j));
+    return this->operator()(index.xtype,index.j,index.k);
 }
 
 }   // namespace lawa

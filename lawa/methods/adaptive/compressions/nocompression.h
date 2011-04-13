@@ -30,15 +30,15 @@ namespace lawa {
 template <typename T, typename Index, typename Basis>
 struct NoCompression
 {
-	const Basis &basis;
+    const Basis &basis;
 
-	NoCompression(const Basis &_basis);
+    NoCompression(const Basis &_basis);
 
-	void
-	setParameters(const IndexSet<Index> &LambdaRow);
+    void
+    setParameters(const IndexSet<Index> &LambdaRow);
 
-	IndexSet<Index>
-	SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow);
+    IndexSet<Index>
+    SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow);
 };
 
 } // namespace lawa

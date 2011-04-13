@@ -28,13 +28,13 @@ namespace lawa {
 template <typename T, QuadratureType Quad, typename BasisFunc_x, typename BasisFunc_y>
 struct Integral2D
 {
-	const Function2D<T>& F;
-	const BasisFunc_x &phi_x;
-	const BasisFunc_y &phi_y;
+    const Function2D<T>& F;
+    const BasisFunc_x &phi_x;
+    const BasisFunc_y &phi_y;
     mutable int j_x, k_x, j_y, k_y;
     Quadrature2D<T, Quad, Integral2D<T,Quad,BasisFunc_x,BasisFunc_y > > quadrature;
 
-	Integral2D(const Function2D<T> &_F, const BasisFunc_x &_phi_x, const BasisFunc_y &_phi_y);
+    Integral2D(const Function2D<T> &_F, const BasisFunc_x &_phi_x, const BasisFunc_y &_phi_y);
 
     T
     operator()(int _j_x, int _k_x, int _j_y, int _k_y) const;
@@ -48,4 +48,4 @@ struct Integral2D
 #include <lawa/integrals/integral2d.tcc>
 
 
-#endif	//LAWA_INTEGRALS_INTEGRAL2D_H
+#endif  //LAWA_INTEGRALS_INTEGRAL2D_H

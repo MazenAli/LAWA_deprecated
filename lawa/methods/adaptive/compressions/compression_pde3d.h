@@ -30,18 +30,18 @@ namespace lawa {
 template <typename T, typename Basis>
 struct CompressionPDE3D
 {
-	const Basis &basis;
-	short s_tilde_x, jmin_x, jmax_x;
-	short s_tilde_y, jmin_y, jmax_y;
-	short s_tilde_z, jmin_z, jmax_z;
+    const Basis &basis;
+    short s_tilde_x, jmin_x, jmax_x;
+    short s_tilde_y, jmin_y, jmax_y;
+    short s_tilde_z, jmin_z, jmax_z;
 
-	CompressionPDE3D(const Basis &_basis);
+    CompressionPDE3D(const Basis &_basis);
 
-	void
-	setParameters(const IndexSet<Index3D> &LambdaRow);
+    void
+    setParameters(const IndexSet<Index3D> &LambdaRow);
 
-	IndexSet<Index3D>
-	SparsityPattern(const Index3D &lambda_col, const IndexSet<Index3D> &LambdaRow);
+    IndexSet<Index3D>
+    SparsityPattern(const Index3D &lambda_col, const IndexSet<Index3D> &LambdaRow);
 
 };
 

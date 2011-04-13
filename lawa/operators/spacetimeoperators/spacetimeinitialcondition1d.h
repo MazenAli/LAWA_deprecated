@@ -26,37 +26,25 @@
 
 namespace lawa {
 
+/* Space-Time Initial Condition
+ *
+ *      a(v,u) = u1(0) * Integral(v2 * u2)
+ * 
+ */
 template <typename T, typename Basis>
 class SpaceTimeInitialCondition1D{
 
-    public:
-
-        const Basis& basis;
+    private:
 
         typedef typename Basis::FirstBasisType Basis_t;
         typedef typename Basis::SecondBasisType Basis_x;
 
-        typedef IdentityOperator1D<T, typename Basis::SecondBasisType> Reaction_x;
-
-        Reaction_x  id_x;
-
-    private:
-        typedef typename Basis::FirstBasisType::BSplineType PrimalSpline_t;
-        typedef typename Basis::SecondBasisType::BSplineType PrimalSpline_x;
-        typedef typename Basis::FirstBasisType::WaveletType PrimalWavelet_t;
-        typedef typename Basis::SecondBasisType::WaveletType PrimalWavelet_x;
-
-        PrimalSpline_t phi_t;
-        PrimalSpline_x phi_x;
-        PrimalWavelet_t psi_t;
-        PrimalWavelet_x psi_x;
-
-        Integral<T, Gauss, PrimalSpline_x, PrimalSpline_x>   integral_sfsf_x;
-        Integral<T, Gauss, PrimalSpline_x, PrimalWavelet_x>  integral_sfw_x;
-        Integral<T, Gauss, PrimalWavelet_x, PrimalSpline_x>  integral_wsf_x;
-        Integral<T, Gauss, PrimalWavelet_x, PrimalWavelet_x> integral_ww_x;
+        Integral<Gauss, Basis_x, Basis_x>   integral_x;
 
     public:
+        
+        const Basis& basis;
+                
         SpaceTimeInitialCondition1D(const Basis& _basis);
 
         const Basis& getBasis() const;

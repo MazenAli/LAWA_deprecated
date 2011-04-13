@@ -108,78 +108,78 @@ mv(T alpha, const SparseSyMatrix<CRS<T, Storage> > &A,
 template <typename T>
 void
 my_mm_t(const SparseGeMatrix<CRS<T> > &A,
-		SparseGeMatrix<CRS<T> > &B)
+        SparseGeMatrix<CRS<T> > &B)
 {
-	assert(B.numRows() == A.numCols());
-	assert(B.numCols() == A.numCols());
-	int m = A.numRows();
-	const T *a;
-	const int *ia, *ja;
-	a  = A.engine().values.engine().data();
-	ia = A.engine().rows.engine().data();
-	ja = A.engine().columns.engine().data();
-	a = a-1;
-	ia = ia-1;
-	ja = ja-1;
+    assert(B.numRows() == A.numCols());
+    assert(B.numCols() == A.numCols());
+    int m = A.numRows();
+    const T *a;
+    const int *ia, *ja;
+    a  = A.engine().values.engine().data();
+    ia = A.engine().rows.engine().data();
+    ja = A.engine().columns.engine().data();
+    a = a-1;
+    ia = ia-1;
+    ja = ja-1;
 
-	for (int i_t=1; i_t<=m; ++i_t) {
-	    for (int k_t=ia[i_t]; k_t<ia[i_t+1]; ++k_t) {
-	        //i_t = row index of A = column index of A^t
-	    	//k_t = column index of A = row index of A^t
-	    	T a_k_t_i_t = a[k_t];
-	    	for (int i=1; i<=m; ++i) {
-	    	    for (int k=ia[i]; k<ia[i+1]; ++k) {
-	    	    	//i = row index of A
-	    	    	//k = column index of A
-	    	    	if (i_t == i) B(ja[k_t],ja[k]) = a_k_t_i_t * a[k];
-	    	    }
-	    	}
-	    }
-	}
-	B.finalize();
+    for (int i_t=1; i_t<=m; ++i_t) {
+        for (int k_t=ia[i_t]; k_t<ia[i_t+1]; ++k_t) {
+            //i_t = row index of A = column index of A^t
+            //k_t = column index of A = row index of A^t
+            T a_k_t_i_t = a[k_t];
+            for (int i=1; i<=m; ++i) {
+                for (int k=ia[i]; k<ia[i+1]; ++k) {
+                    //i = row index of A
+                    //k = column index of A
+                    if (i_t == i) B(ja[k_t],ja[k]) = a_k_t_i_t * a[k];
+                }
+            }
+        }
+    }
+    B.finalize();
 }
 
 template <typename T>
 void
 my_mm_At_A(const SparseGeMatrix<CRS<T> > &A,
-		   SparseGeMatrix<CRS<T> > &B)
+           SparseGeMatrix<CRS<T> > &B)
 {
-	assert(B.numRows() == A.numRows());
-	assert(B.numCols() == A.numRows());
-	int m = A.numRows();
-	const T *a;
-	const int *ia, *ja;
-	a  = A.engine().values.engine().data();
-	ia = A.engine().rows.engine().data();
-	ja = A.engine().columns.engine().data();
-	a = a-1;
-	ia = ia-1;
-	ja = ja-1;
+    assert(B.numRows() == A.numRows());
+    assert(B.numCols() == A.numRows());
+    int m = A.numRows();
+    const T *a;
+    const int *ia, *ja;
+    a  = A.engine().values.engine().data();
+    ia = A.engine().rows.engine().data();
+    ja = A.engine().columns.engine().data();
+    a = a-1;
+    ia = ia-1;
+    ja = ja-1;
 
-	for (int i_t=1; i_t<=m; ++i_t) {
-		//int col_At_left =  ja[ia[i_t]];
-		//int col_At_right = ja[ia[i_t+1]-1];
-	    for (int i=1; i<=i_t; ++i) {
-	    	T a_i_t_i = 0.;
-	    	//int row_A_left  =  ja[ia[i]];
-	    	//int row_A_right  = ja[ia[i+1]-1];
-	    	//int left  = std::max(col_At_left,row_A_left);
-	    	//int right = std::min(col_At_right,row_A_right);
-	    	for (int k_t=ia[i_t]; k_t<=ia[i_t+1]-1; ++k_t) {
-	    		//if (ja[k_t]<left)  continue;
-	    		//if (ja[k_t]>right) break;
-	    		T a_k_t = a[k_t];
-	    		for (int k=ia[i]; k<=ia[i+1]-1; ++k) {
-	    			//if (ja[k]<left)  continue;
-	    			//if (ja[k]>right) break;
-	    			if (ja[k_t] == ja[k]) a_i_t_i += a_k_t * a[k];
-	    		}
-	    	}
-	    	B(i_t,i) = a_i_t_i;
-	    	if (i != i_t) B(i,i_t) = a_i_t_i;
-	    }
-	}
-	B.finalize();
+    for (int i_t=1; i_t<=m; ++i_t) {
+        //int col_At_left =  ja[ia[i_t]];
+        //int col_At_right = ja[ia[i_t+1]-1];
+        for (int i=1; i<=i_t; ++i) {
+            T a_i_t_i = 0.;
+            //int row_A_left  =  ja[ia[i]];
+            //int row_A_right  = ja[ia[i+1]-1];
+            //int left  = std::max(col_At_left,row_A_left);
+            //int right = std::min(col_At_right,row_A_right);
+            for (int k_t=ia[i_t]; k_t<=ia[i_t+1]-1; ++k_t) {
+                //if (ja[k_t]<left)  continue;
+                //if (ja[k_t]>right) break;
+                T a_k_t = a[k_t];
+                for (int k=ia[i]; k<=ia[i+1]-1; ++k) {
+                    //if (ja[k]<left)  continue;
+                    //if (ja[k]>right) break;
+                    if (ja[k_t] == ja[k]) a_i_t_i += a_k_t * a[k];
+                }
+            }
+            B(i_t,i) = a_i_t_i;
+            if (i != i_t) B(i,i_t) = a_i_t_i;
+        }
+    }
+    B.finalize();
 }
 
 // sparse_gemm (matrix B dense!)

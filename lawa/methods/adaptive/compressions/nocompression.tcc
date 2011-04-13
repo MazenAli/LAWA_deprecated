@@ -36,7 +36,7 @@ template <typename T, typename Index, typename Basis>
 IndexSet<Index>
 NoCompression<T,Index,Basis>::SparsityPattern(const Index &lambda_col, const IndexSet<Index> &LambdaRow)
 {
-	return LambdaRow;
+    return LambdaRow;
 }
 
-}	//namespace lawa
+}    //namespace lawa

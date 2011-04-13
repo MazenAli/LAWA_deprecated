@@ -102,10 +102,10 @@ Wavelet<T,Primal,Interval,Cons>::singularSupport(int j, int k) const
                                    // FIXME: understand why 2*n instead of 2*n-1  ... (+d+1)
                                    2*(basis.M1.leftband.length())+basis.d+1.);
 =======
-								   // FIXME: understand why value in last line is too large
-								   2*(basis.d+basis.d_)-1);
-								   // FIXME: understand why 2*n instead of 2*n-1  ... (+d+1)
-								   //2*(basis.M1.leftband.length())+basis.d+1.);
+                                   // FIXME: understand why value in last line is too large
+                                   2*(basis.d+basis.d_)-1);
+                                   // FIXME: understand why 2*n instead of 2*n-1  ... (+d+1)
+                                   //2*(basis.M1.leftband.length())+basis.d+1.);
 >>>>>>> master
 }
 

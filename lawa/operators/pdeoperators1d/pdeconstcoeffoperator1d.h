@@ -27,37 +27,35 @@
 
 namespace lawa {
 
+/* PDE ConstCoefficient OPERATOR 
+ *
+ *    a(v,u) =  diffusion * Integral(v_x * u_x) +  convection * Integral(v * u_x)
+ *              + reaction * Integral(v * u)
+ *
+ */
 template <typename T, typename Basis>
 class PDEConstCoeffOperator1D{
+    
+    private:
 
-    typedef typename Basis::BSplineType PrimalSpline;
-    typedef typename Basis::WaveletType PrimalWavelet;
+        Integral<Gauss, Basis, Basis> integral;
 
-public:
-    PDEConstCoeffOperator1D(const Basis& _basis, T _reaction, T _convection, T _diffusion);
+    public:
 
-    const Basis&
-    getBasis() const;
+        const Basis& basis;
+        T reaction, convection, diffusion;
 
-    T
-    operator()(XType xtype1, int j1, int k1,
-               XType xtype2, int j2, int k2) const;
+        PDEConstCoeffOperator1D(const Basis& _basis, T _reaction, T _convection, T _diffusion);
 
-    T
-    operator()(const Index1D &row_index, const Index1D &col_index) const;
+        const Basis&
+        getBasis() const;
 
+        T
+        operator()(XType xtype1, int j1, int k1,
+                   XType xtype2, int j2, int k2) const;
 
-private:
-
-    const Basis& basis;
-    T reaction, convection, diffusion;
-    PrimalSpline phi, d_phi;
-    PrimalWavelet psi, d_psi;
-
-    Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf, d_integral_sfsf;
-    Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, dd_integral_sfw,  d_integral_sfw;
-    Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, dd_integral_wsf,  d_integral_wsf;
-    Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww,   d_integral_ww;
+        T
+        operator()(const Index1D &row_index, const Index1D &col_index) const;
 
 };
 

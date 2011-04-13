@@ -17,20 +17,20 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #ifndef LAWA_PRECONDITIONERS_PRECONDITIONERS1D_H1NORMPRECONDITIONER1D_H
 #define LAWA_PRECONDITIONERS_PRECONDITIONERS1D_H1NORMPRECONDITIONER1D_H 1
 
+#include <lawa/integrals/integrals.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/integrals/integral.h>
+#include <lawa/settings/enum.h>
+#include <lawa/aux/compiletime_assert.h>
 
 namespace lawa {
 
 template <typename T, typename Basis>
 class H1NormPreconditioner1D
 {
-    typedef typename Basis::BSplineType PrimalSpline;
-    typedef typename Basis::WaveletType PrimalWavelet;
+    ct_assert(IsPrimal<Basis>::value);
 
     public:
         H1NormPreconditioner1D(const Basis &_basis);
@@ -42,19 +42,11 @@ class H1NormPreconditioner1D
         operator()(const Index1D &index) const;
 
     private:
-        const Basis &basis;
-
-        PrimalSpline phi, d_phi;
-        PrimalWavelet psi, d_psi;
-
-        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, dd_integral_sfsf;
-        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, dd_integral_ww;
-
+        Integral<Gauss, Basis, Basis> _integral;
 };
 
 }   // namespace lawa
 
 #include <lawa/preconditioners/preconditioners1d/H1normpreconditioner1d.tcc>
-
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS1D_H1NORMPRECONDITIONER1D_H

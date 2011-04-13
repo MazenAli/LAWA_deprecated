@@ -37,8 +37,8 @@ GeMatrix<FullStorage<T,ColMajor> >
 computeDeltas(const Wavelet<T,Primal,Domain,Cons> &psi, int j, int k);
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/operators/deltas.tcc>
 
-#endif	//LAWA_OPERATORS_DELTAS_H
+#endif    //LAWA_OPERATORS_DELTAS_H

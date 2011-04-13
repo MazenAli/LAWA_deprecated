@@ -19,11 +19,11 @@ IdentityOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
 
     if(xtype1 == XBSpline){
          if(xtype2 == XBSpline) val = integral_sfsf(j1, k1, j2, k2);
-         else					val = integral_sfw(j1, k1, j2, k2);
+         else                    val = integral_sfw(j1, k1, j2, k2);
     }
     else{
          if(xtype2 == XBSpline) val = integral_wsf(j1, k1, j2, k2);
-         else					val = integral_ww(j1, k1, j2, k2);
+         else                    val = integral_ww(j1, k1, j2, k2);
     }
 
 

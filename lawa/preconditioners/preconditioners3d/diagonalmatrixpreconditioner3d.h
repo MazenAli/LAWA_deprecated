@@ -22,10 +22,10 @@
 #define LAWA_PRECONDITIONERS_PRECONDITIONERS3D_DIAGONALMATRIXPRECONDITIONER3D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/integrals/integral.h>
+#include <lawa/integrals/integrals.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
-
 
 template <typename T, typename Basis3D, typename BilinearForm>
 class DiagonalMatrixPreconditioner3D
@@ -35,20 +35,19 @@ class DiagonalMatrixPreconditioner3D
         DiagonalMatrixPreconditioner3D(const BilinearForm &a);
 
         T
-        operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2,
+        operator()(XType xtype1, int j1, int k1, 
+                   XType xtype2, int j2, int k2,
                    XType xtype3, int j3, int k3) const;
 
         T
         operator()(const Index3D &index) const;
 
     private:
-        const BilinearForm &a;
-
+        const BilinearForm &_a;
 };
 
 }   // namespace lawa
 
 #include <lawa/preconditioners/preconditioners3d/diagonalmatrixpreconditioner3d.tcc>
-
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS3D_DIAGONALMATRIXPRECONDITIONER3D_H

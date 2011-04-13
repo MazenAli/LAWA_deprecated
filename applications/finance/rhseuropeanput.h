@@ -36,7 +36,7 @@ struct StabilizingExpFunction
 template <typename T, typename Basis>
 class RHSEuropeanPut
 {
-	typedef typename Basis::FirstBasisType Basis_t;
+    typedef typename Basis::FirstBasisType Basis_t;
     typedef typename Basis::SecondBasisType Basis_x;
 
     typedef typename Basis_t::BSplineType PrimalSpline_t;
@@ -46,7 +46,7 @@ class RHSEuropeanPut
 
 public:
     RHSEuropeanPut(const Basis &basis, T (*f)(T), DenseVector<Array<T> > &sing_pts,
-				   T _C, T _G, T _M, T _Y, T _r, T _K, T _maturity, T _sigma=0.);
+                   T _C, T _G, T _M, T _Y, T _r, T _K, T _maturity, T _sigma=0.);
 
     T
     operator()(XType xtype, int j, int k) const;
@@ -82,7 +82,7 @@ private:
 };
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <applications/finance/rhseuropeanput.tcc>
 

@@ -43,7 +43,7 @@ std::ostream& operator<<(std::ostream &s, const Index1D &_Index);
 
 struct Index2D
 {
-	mutable unsigned int linearindex;
+    mutable unsigned int linearindex;
     Index2D(const Index1D &index1, const Index1D &index2);
     ~Index2D();
     Index1D index1, index2;
@@ -54,7 +54,7 @@ std::ostream& operator<<(std::ostream &s, const Index2D &_Index);
 
 struct Index3D
 {
-	mutable unsigned int linearindex;
+    mutable unsigned int linearindex;
     Index3D(const Index1D &index1, const Index1D &index2, const Index1D &index3);
     ~Index3D();
     Index1D index1, index2, index3;

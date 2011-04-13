@@ -27,32 +27,30 @@
 
 namespace lawa {
 
+/* Laplace OPERATOR
+ *
+ *    a(v,u) =  Integral(v_x * u_x)
+ *
+ */
 template <typename T, typename Basis>
 class LaplaceOperator1D{
 
-    typedef typename Basis::BSplineType PrimalSpline;
-    typedef typename Basis::WaveletType PrimalWavelet;
+    private:
 
-public:
-    LaplaceOperator1D(const Basis& _basis);
+        Integral<Gauss, Basis, Basis> integral;
+    
+    public:
+        
+        const Basis& basis;
 
-    T
-    operator()(XType xtype1, int j1, int k1,
-               XType xtype2, int j2, int k2) const;
+        LaplaceOperator1D(const Basis& _basis);
 
-    T
-    operator()(const Index1D &row_index, const Index1D &col_index) const;
+        T
+        operator()(XType xtype1, int j1, int k1,
+                   XType xtype2, int j2, int k2) const;
 
-private:
-    const Basis& basis;
-
-    PrimalSpline d_phi;
-    PrimalWavelet d_psi;
-
-    Integral<T, Gauss, PrimalSpline, PrimalSpline>   dd_integral_sfsf;
-    Integral<T, Gauss, PrimalSpline, PrimalWavelet>  dd_integral_sfw;
-    Integral<T, Gauss, PrimalWavelet, PrimalSpline>  dd_integral_wsf;
-    Integral<T, Gauss, PrimalWavelet, PrimalWavelet> dd_integral_ww;
+        T
+        operator()(const Index1D &row_index, const Index1D &col_index) const;
 
 };
 

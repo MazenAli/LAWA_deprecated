@@ -28,37 +28,37 @@ CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::CompressionPDE1D_WO_XBSpline(cons
 template <typename T, typename Index, typename Basis1D>
 void
 CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::setParameters(const IndexSet<Index> &Lambda) {
-	typedef typename IndexSet<Index>::const_iterator set1d_const_it;
-	s_tilde = -1;
-	jmin = 100;
-	jmax = -30;
-	for (set1d_const_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
-	    jmin = std::min(jmin,(*lambda).j);
-	    jmax = std::max(jmax,(*lambda).j);
-	}
-	s_tilde = jmax-jmin;
+    typedef typename IndexSet<Index>::const_iterator set1d_const_it;
+    s_tilde = -1;
+    jmin = 100;
+    jmax = -30;
+    for (set1d_const_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+        jmin = std::min(jmin,(*lambda).j);
+        jmax = std::max(jmax,(*lambda).j);
+    }
+    s_tilde = jmax-jmin;
 }
 
 template <typename T, typename Index, typename Basis1D>
 IndexSet<Index>
 CompressionPDE1D_WO_XBSpline<T,Index,Basis1D>::SparsityPattern(const Index &lambda,
-															   const IndexSet<Index> &Lambda, int J) {
-	typedef typename IndexSet<Index>::const_iterator set1d_const_it;
+                                                               const IndexSet<Index> &Lambda, int J) {
+    typedef typename IndexSet<Index>::const_iterator set1d_const_it;
 
-	IndexSet<Index> LambdaRowSparse(Lambda.d,Lambda.d_), Lambda_x(Lambda.d,Lambda.d_);
-	if (J==-1) {
-		Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, s_tilde, jmin, jmax);
-	}
-	else {
-		Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, std::min(int(s_tilde),J), jmin, jmax);
-	}
+    IndexSet<Index> LambdaRowSparse(Lambda.d,Lambda.d_), Lambda_x(Lambda.d,Lambda.d_);
+    if (J==-1) {
+        Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, s_tilde, jmin, jmax);
+    }
+    else {
+        Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, std::min(int(s_tilde),J), jmin, jmax);
+    }
 
-	for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
-		if (Lambda.count(*lambda_x)>0) {
-			LambdaRowSparse.insert(*lambda_x);
-		}
-	}
-	return LambdaRowSparse;
+    for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
+        if (Lambda.count(*lambda_x)>0) {
+            LambdaRowSparse.insert(*lambda_x);
+        }
+    }
+    return LambdaRowSparse;
 }
 
-}	//namespace lawa
+}    //namespace lawa

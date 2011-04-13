@@ -38,21 +38,21 @@ struct TensorMatrix3D {
 template <typename T, typename Basis, typename Compression, typename Preconditioner>
 struct TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Preconditioner>
 {
-	typedef CompressionPDE1D<T, Index1D, typename Basis::FirstBasisType> 	     Compression_x;
-	typedef CompressionPDE1D<T, Index1D, typename Basis::SecondBasisType> 	     Compression_y;
-	typedef CompressionPDE1D<T, Index1D, typename Basis::ThirdBasisType> 	     Compression_z;
+    typedef CompressionPDE1D<T, Index1D, typename Basis::FirstBasisType>          Compression_x;
+    typedef CompressionPDE1D<T, Index1D, typename Basis::SecondBasisType>          Compression_y;
+    typedef CompressionPDE1D<T, Index1D, typename Basis::ThirdBasisType>          Compression_z;
 
-	typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
+    typedef NoPreconditioner<T,Index1D> NoPreconditioner1D;
 
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_x, Compression_x, NoPreconditioner1D> DataDiffusion_x;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_x,  Compression_x, NoPreconditioner1D> DataReaction_x;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_y, NoPreconditioner1D> DataDiffusion_y;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner1D> DataReaction_y;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_z, NoPreconditioner1D> DataDiffusion_z;
-	typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_z, NoPreconditioner1D> DataReaction_z;
+    typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_x, Compression_x, NoPreconditioner1D> DataDiffusion_x;
+    typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_x,  Compression_x, NoPreconditioner1D> DataReaction_x;
+    typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_y, NoPreconditioner1D> DataDiffusion_y;
+    typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_y, NoPreconditioner1D> DataReaction_y;
+    typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Diffusion_y, Compression_z, NoPreconditioner1D> DataDiffusion_z;
+    typedef MapMatrixWithZeros<T, Index1D, typename HelmholtzOperator2D<T, Basis>::Reaction_y,  Compression_z, NoPreconditioner1D> DataReaction_z;
 
-	const HelmholtzOperator3D<T, Basis> &a;
-	const Preconditioner &p;
+    const HelmholtzOperator3D<T, Basis> &a;
+    const Preconditioner &p;
     Compression &c;
     Coefficients<Lexicographical,T,Index3D> P_data;
 
@@ -70,7 +70,7 @@ struct TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Prec
     DataReaction_z  data_id_z;
 
     TensorMatrix3D(const HelmholtzOperator3D<T, Basis> &a, const Preconditioner &p, Compression &c, T entrybound=0.,
-    	           int NumOfRows=4096, int NumOfCols=2048);
+                   int NumOfRows=4096, int NumOfCols=2048);
 
     T
     operator()(const Index3D &row_index, const Index3D &col_index);
@@ -84,7 +84,7 @@ struct TensorMatrix3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression, Prec
 };
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/tensormatrix3d.tcc>
 

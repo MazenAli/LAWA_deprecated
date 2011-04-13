@@ -28,30 +28,30 @@ namespace lawa {
 template <typename T, typename Index, typename Basis1D, typename Parameters, typename MA>
 class SYM_APPLY_1D {
 
-	typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_coeff_abs_it;
-	typedef typename IndexSet<Index>::const_iterator const_set_it;
+    typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_coeff_abs_it;
+    typedef typename IndexSet<Index>::const_iterator const_set_it;
 
 public:
-	const Parameters &parameters;
-	const Basis1D &basis;
-	MA &A;
+    const Parameters &parameters;
+    const Basis1D &basis;
+    MA &A;
 
-	SYM_APPLY_1D(const Parameters &_parameters, const Basis1D &_basis, MA &_A);
+    SYM_APPLY_1D(const Parameters &_parameters, const Basis1D &_basis, MA &_A);
 
-	Coefficients<Lexicographical,T,Index>
-	operator()(const Coefficients<Lexicographical,T,Index> &v, int k);
+    Coefficients<Lexicographical,T,Index>
+    operator()(const Coefficients<Lexicographical,T,Index> &v, int k);
 
-	Coefficients<Lexicographical,T,Index>
-	operator()(const Coefficients<Lexicographical,T,Index> &v, T eps);
+    Coefficients<Lexicographical,T,Index>
+    operator()(const Coefficients<Lexicographical,T,Index> &v, T eps);
 
 private:
 
-	int
-	findK(const Coefficients<AbsoluteValue,T,Index> &v, T eps);
+    int
+    findK(const Coefficients<AbsoluteValue,T,Index> &v, T eps);
 
 };
 
-}	//namespace lawa
+}   //namespace lawa
 
 #include <lawa/methods/adaptive/algorithms/apply1d.tcc>
 
