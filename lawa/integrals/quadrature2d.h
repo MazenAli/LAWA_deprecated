@@ -25,19 +25,21 @@
 
 namespace lawa {
 
-template <typename T, QuadratureType Quad, typename Integral2D>
+template <QuadratureType Quad, typename Integral2D>
 class Quadrature2D
 {
 };
 
-template <typename T, typename Integral2D>
-class Quadrature2D<T,SparseGridGP,Integral2D>
+template <typename Integral2D>
+class Quadrature2D<SparseGridGP,Integral2D>
 {
     public:
-        Quadrature2D(const Integral2D &_integral);
+        typedef typename Integral2D::T T;
+
+        Quadrature2D(const Integral2D &integral);
 
         const T
-        operator()(T a_x, T b_x, T a_y, T b_y) const;
+        operator()(T ax, T bx, T ay, T by) const;
 
         void setOrder(int order);
         void setLevel(int level);
@@ -45,8 +47,8 @@ class Quadrature2D<T,SparseGridGP,Integral2D>
         int numGridPoints;
 
     private:
-        const Integral2D &integral;
-        int level;
+        const Integral2D &_integral;
+        int _level;
 
         void
         _initSparseGrid();
@@ -55,21 +57,22 @@ class Quadrature2D<T,SparseGridGP,Integral2D>
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
 };
 
-template <typename T, typename Integral2D>
-class Quadrature2D<T,FullGridGL,Integral2D>
+template <typename Integral2D>
+class Quadrature2D<FullGridGL,Integral2D>
 {
     public:
-        Quadrature2D(const Integral2D &_integral);
+        typedef typename Integral2D::T T;
+        
+        Quadrature2D(const Integral2D &integral);
 
         const T
-        operator()(T a_x, T b_x, T a_y, T b_y) const;
+        operator()(T ax, T bx, T ay, T by) const;
 
-        void setOrder(int _order);
-
+        void setOrder(int order);
 
     private:
-        const Integral2D &integral;
-        int order;
+        const Integral2D &_integral;
+        int _order;
 
         void
         _initFullGrid();
@@ -77,8 +80,6 @@ class Quadrature2D<T,FullGridGL,Integral2D>
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
 };
-
-
 
 }   //namespace lawa
 

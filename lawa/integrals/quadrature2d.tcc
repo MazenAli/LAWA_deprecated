@@ -17,45 +17,48 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <cmath>
 
 namespace lawa {
 
-template <typename T, typename Integral2D>
-Quadrature2D<T,SparseGridGP,Integral2D>::Quadrature2D(const Integral2D &_integral)
-   : integral(_integral), level(1), numGridPoints(0)
+template <typename Integral2D>
+Quadrature2D<SparseGridGP,Integral2D>::Quadrature2D(const Integral2D &integral)
+   : _integral(integral), _level(1), numGridPoints(0)
 {
     _initSparseGrid();
 }
 
-template <typename T, typename Integral2D>
-const T
-Quadrature2D<T,SparseGridGP,Integral2D>::operator()(T a_x, T b_x, T a_y, T b_y) const
+template <typename Integral2D>
+const typename Integral2D::T
+Quadrature2D<SparseGridGP,Integral2D>::operator()(T ax, T bx, T ay, T by) const
 {
-    if ((a_x == b_x) || (a_y == b_y))   return 0.;
-    T result = 0.;
-    for (int i=1; i<=_weights.engine().numRows(); ++i) {
-        T x1 = 0.5*( (b_x-a_x)*_knots(i,1) + (b_x+a_x));
-        T x2 = 0.5*( (b_y-a_y)*_knots(i,2) + (b_y+a_y));
-        result += _weights(i,1) * integral.integrand(x1,x2);
+    if ((ax == bx) || (ay == by)) {
+        return 0.;
     }
-    result *= 0.25*(b_x-a_x)*(b_y-a_y);
+    
+    T result = 0.;
+    for (int i=1; i<=_weights.numRows(); ++i) {
+        T x1 = 0.5*( (bx-ax)*_knots(i,1) + (bx+ax));
+        T x2 = 0.5*( (by-ay)*_knots(i,2) + (by+ay));
+        result += _weights(i,1) * _integral.integrand(x1,x2);
+    }
+    result *= 0.25*(bx-ax)*(by-ay);
     return result;
 }
 
-template <typename T, typename Integral2D>
+template <typename Integral2D>
 void
-Quadrature2D<T,SparseGridGP,Integral2D>::setOrder(int _order)
+Quadrature2D<SparseGridGP,Integral2D>::setOrder(int order)
 {
-    level = ceil(log2(_order+1));
-    std::cout << "Quadrature2D: Level was set to " << level << std::endl;
+    _level = ceil(log2(order+1));
     _initSparseGrid();
 }
 
-template <typename T, typename Integral2D>
+template <typename Integral2D>
 void
-Quadrature2D<T,SparseGridGP,Integral2D>::setLevel(int _level)
+Quadrature2D<SparseGridGP,Integral2D>::setLevel(int level)
 {
-    level = _level;
+    _level = level;
     _initSparseGrid();
 }
 
@@ -68,15 +71,15 @@ Quadrature2D<T,SparseGridGP,Integral2D>::setLevel(int _level)
  * published under GNU LGPL and available online
  * location: "http://people.sc.fsu.edu/~jburkardt/cpp_src/cpp_src.html"
  */
-template <typename T, typename Integral2D>
+template <typename Integral2D>
 void
-Quadrature2D<T,SparseGridGP,Integral2D>::_initSparseGrid()
+Quadrature2D<SparseGridGP,Integral2D>::_initSparseGrid()
 {
     int dim_num = 2;
     int rule[2] = {3,3};     //3 = identifier for GP in libsparsegrid
     T alpha[2]  = {0.,0.}; //weight function = 1
     T beta[2]   = {0.,0.}; //weight function = 1
-    int max_level = level-1;
+    int max_level = _level-1;
     T tol = 1e-16;
     int point_num;
     int point_total_num;
@@ -124,51 +127,56 @@ Quadrature2D<T,SparseGridGP,Integral2D>::_initSparseGrid()
             _weights(j+1,1)   = sparse_weight[j];
         }
     }
-
+    
+    delete[] sparse_unique_index;
+    delete[] sparse_order;
+    delete[] sparse_index;
+    delete[] sparse_point;
+    delete[] sparse_weight;
 }
 
 
 
-template <typename T, typename Integral2D>
-Quadrature2D<T,FullGridGL,Integral2D>::Quadrature2D(const Integral2D &_integral)
-   : integral(_integral), order(1)
+template <typename Integral2D>
+Quadrature2D<FullGridGL,Integral2D>::Quadrature2D(const Integral2D &integral)
+   : _integral(integral), _order(1)
 {
     _initFullGrid();
 }
 
-template <typename T, typename Integral2D>
-const T
-Quadrature2D<T,FullGridGL,Integral2D>::operator()(T a_x, T b_x, T a_y, T b_y) const
+template <typename Integral2D>
+const typename Integral2D::T
+Quadrature2D<FullGridGL,Integral2D>::operator()(T ax, T bx, T ay, T by) const
 {
-    if ((a_x == b_x) || (a_y == b_y))   return 0.;
+    if ((ax == bx) || (ay == by))   return 0.;
     T result = 0.;
-    for (int i=1; i<=_weights.engine().numRows(); ++i) {
-        T x1 = 0.5*( (b_x-a_x)*_knots(i,1) + (b_x+a_x));
-        T x2 = 0.5*( (b_y-a_y)*_knots(i,2) + (b_y+a_y));
-        result += _weights(i,1) * integral.integrand(x1,x2);
+    for (int i=1; i<=_weights.numRows(); ++i) {
+        T x1 = 0.5*( (bx-ax)*_knots(i,1) + (bx+ax));
+        T x2 = 0.5*( (by-ay)*_knots(i,2) + (by+ay));
+        result += _weights(i,1) * _integral.integrand(x1,x2);
     }
-    result *= 0.25*(b_x-a_x)*(b_y-a_y);
+    result *= 0.25*(bx-ax)*(by-ay);
     return result;
 }
 
-template <typename T, typename Integral2D>
+template <typename Integral2D>
 void
-Quadrature2D<T,FullGridGL,Integral2D>::setOrder(int _order)
+Quadrature2D<FullGridGL,Integral2D>::setOrder(int order)
 {
-    order = _order;
+    _order = order;
     _initFullGrid();
 }
 
-template <typename T, typename Integral2D>
+template <typename Integral2D>
 void
-Quadrature2D<T,FullGridGL,Integral2D>::_initFullGrid()
+Quadrature2D<FullGridGL,Integral2D>::_initFullGrid()
 {
-    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots1d(order,order);
-    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights1d(order,order);
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots1d(_order,_order);
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights1d(_order,_order);
     T eps = Const<T>::EQUALITY_EPS;
     T x1 = -1,
       x2 =  1;
-    for (int k=1; k<=order; ++k) {
+    for (int k=1; k<=_order; ++k) {
        int     m = (k+1)/2;
        T xm = 0.5 * (x2+x1),
          xl = 0.5 * (x2-x1);
@@ -193,20 +201,18 @@ Quadrature2D<T,FullGridGL,Integral2D>::_initFullGrid()
            _weights1d(k,k+1-i) = _weights1d(k,i);
         }
     }
-    _knots.engine().resize(order*order, 2);
-    _weights.engine().resize(order*order, 1);
+    _knots.engine().resize(_order*_order, 2);
+    _weights.engine().resize(_order*_order, 1);
 
     int count=1;
-    for (int i = 1; i <= order; ++i) {
-        for (int j = 1; j <= order; ++j) {
-            _knots(count,1)   = _knots1d(order,i);
-            _knots(count,2)   = _knots1d(order,j);
-            _weights(count,1) = _weights1d(order,i)*_weights1d(order,j);
+    for (int i = 1; i <= _order; ++i) {
+        for (int j = 1; j <= _order; ++j) {
+            _knots(count,1)   = _knots1d(_order,i);
+            _knots(count,2)   = _knots1d(_order,j);
+            _weights(count,1) = _weights1d(_order,i)*_weights1d(_order,j);
             ++count;
         }
     }
-
 }
-
 
 }    //namespace lawa

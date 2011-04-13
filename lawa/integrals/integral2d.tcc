@@ -19,16 +19,19 @@
 
 namespace lawa {
 
-template <typename T, QuadratureType Quad, typename BasisFunc_x, typename BasisFunc_y>
-T
-_integrate(const Integral2D<T,Quad,BasisFunc_x,BasisFunc_y> integral) {
-    const BasisFunc_x &phi_x   = integral.phi_x;
-    const BasisFunc_y &phi_y   = integral.phi_y;
+template <QuadratureType Quad, typename BasisX, typename BasisY>
+typename BasisX::T
+_integrate(const Integral2D<Quad,BasisX,BasisY> integral) 
+{
+    typedef typename BasisX::T T;
+    // note: called phi_... but can also be a wavelet.
+    const typename BasisX::BasisFunction &phi_x   = integral.basisx.generator(integral.ex);
+    const typename BasisY::BasisFunction &phi_y   = integral.basisy.generator(integral.ey);
 
     // merge singular points of bspline/wavelet and function to one list.
     // -> implicit assumption: second.singularPoints are sorted!!
     DenseVector<Array<T> > SingularPoints_phi_x
-                                  = phi_x.singularSupport(integral.j_x,integral.k_x);
+                                  = phi_x.singularSupport(integral.jx,integral.kx);
     int n_phi_x = SingularPoints_phi_x.length(),
         n_F_x   = integral.F.singularPts_x.length();
 
@@ -41,7 +44,7 @@ _integrate(const Integral2D<T,Quad,BasisFunc_x,BasisFunc_y> integral) {
                AllSingularPoints_x.engine().data());
 
     DenseVector<Array<T> > SingularPoints_phi_y
-                                       = phi_y.singularSupport(integral.j_y,integral.k_y);
+                                       = phi_y.singularSupport(integral.jy,integral.ky);
     int n_phi_y = SingularPoints_phi_y.length(),
         n_F_y   = integral.F.singularPts_y.length();
 
@@ -67,37 +70,35 @@ _integrate(const Integral2D<T,Quad,BasisFunc_x,BasisFunc_y> integral) {
             if ((b_y <= left_y) || (a_y >= right_y)) continue;
             T tmp = integral.quadrature(a_x,b_x,a_y,b_y);
             ret += tmp;
-            //std::cout << "[" << AllSingularPoints_x(i) << ", " << AllSingularPoints_x(i+1) << "] x "
-            //          << "[" << AllSingularPoints_y(j) << ", " << AllSingularPoints_y(j+1) << "] : " << tmp << std::endl;
         }
     }
-
     return ret;
-
-
-    return 0;
 }
 
-template <typename T, QuadratureType Quad, typename BasisFunc_x, typename BasisFunc_y>
-Integral2D<T,Quad,BasisFunc_x,BasisFunc_y>::Integral2D(const Function2D<T> &_F,
-                                        const BasisFunc_x &_phi_x, const BasisFunc_y &_phi_y)
-    : F(_F), phi_x(_phi_x), phi_y(_phi_y), j_x(0), k_x(0), j_y(0), k_y(0), quadrature(*this)
+template <QuadratureType Quad, typename BasisX, typename BasisY>
+Integral2D<Quad,BasisX,BasisY>::Integral2D(const Function2D<T> &_F,
+                                           const BasisX &_basisx, 
+                                           const BasisY &_basisy)
+    : F(_F), basisx(_basisx), basisy(_basisy), quadrature(*this)
 {
 }
 
-template <typename T, QuadratureType Quad, typename BasisFunc_x, typename BasisFunc_y>
-T
-Integral2D<T,Quad,BasisFunc_x,BasisFunc_y>::operator()(int _j_x, int _k_x, int _j_y, int _k_y) const
+template <QuadratureType Quad, typename BasisX, typename BasisY>
+typename BasisX::T
+Integral2D<Quad,BasisX,BasisY>::operator()(int _jx, long _kx, XType _ex, int _derivx,
+                                           int _jy, long _ky, XType _ey, int _derivy) const
 {
-    j_x = _j_x, k_x = _k_x, j_y = _j_y, k_y = _k_y;
+    jx = _jx; kx = _kx; ex = _ex; derivx = _derivx;
+    jy = _jy; ky = _ky; ey = _ey; derivy = _derivy;
     return _integrate(*this);
 }
 
-template <typename T, QuadratureType Quad, typename BasisFunc_x, typename BasisFunc_y>
-T
-Integral2D<T,Quad,BasisFunc_x,BasisFunc_y>::integrand(T x, T y) const
+template <QuadratureType Quad, typename BasisX, typename BasisY>
+typename BasisX::T
+Integral2D<Quad,BasisX,BasisY>::integrand(T x, T y) const
 {
-    return F(x,y) * phi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
+    return F(x,y) * basisx.generator(ex)(x,jx,kx,ex,derivx)
+                  * basisy.generator(ey)(y,jy,ky,ey,derivy);
 }
 
 }   //namespace lawa
