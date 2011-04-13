@@ -19,7 +19,7 @@
 
 
 #ifndef  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE1D_WO_XBSPLINE_H
-#define  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_WO_XBSPLINE_H 1
+#define  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE1D_WO_XBSPLINE_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
@@ -48,4 +48,4 @@ struct CompressionPDE1D_WO_XBSpline
 
 #include <lawa/methods/adaptive/compressions/compression_pde1d_wo_xbspline.tcc>
 
-#endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_WO_XBSPLINE_H
+#endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE1D_WO_XBSPLINE_H
