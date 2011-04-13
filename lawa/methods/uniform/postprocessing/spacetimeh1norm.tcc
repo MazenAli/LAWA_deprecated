@@ -1,9 +1,11 @@
 #include <iostream>
 
+namespace lawa {
+    
 template<typename T, typename Basis2D>
 SpaceTimeH1Norm<T,Basis2D>::SpaceTimeH1Norm(const Basis2D& _basis)
     : basis(_basis), integral_t(_basis.first, _basis.first), integral_x(_basis.second, _basis.second)
-}
+{}
 
 template<typename T, typename Basis2D>
 T
@@ -20,3 +22,5 @@ SpaceTimeH1Norm<T,Basis2D>::operator()(XType xtype_t, int j_t, int k_t,
     //      (norm_x_H1')^2 ~ (norm_x_H1)^(-2)      
     return std::sqrt(norm_t_L2 * norm_x_H1 + lawa::pow2i<T>(2*j_t) * norm_t_L2 / norm_x_H1);                              
 }
+
+} // namespace lawa
