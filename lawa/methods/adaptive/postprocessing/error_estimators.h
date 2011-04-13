@@ -22,7 +22,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <lawa/methods/adaptive/datastructures.h>
+#include <lawa/methods/adaptive/datastructures/datastructures.h>
 #include <vector>
 
 namespace lawa {
