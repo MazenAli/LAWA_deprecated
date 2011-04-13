@@ -17,7 +17,6 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #ifndef LAWA_PRECONDITIONERS_NOPRECONDITIONER_H
 #define LAWA_PRECONDITIONERS_NOPRECONDITIONER_H 1
 
@@ -40,6 +39,5 @@ struct NoPreconditioner
 }   // namespace lawa
 
 #include <lawa/preconditioners/nopreconditioner.tcc>
-
 
 #endif // LAWA_PRECONDITIONERS_NOPRECONDITIONER_H

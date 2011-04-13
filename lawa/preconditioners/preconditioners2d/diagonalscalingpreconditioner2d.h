@@ -23,15 +23,18 @@
 namespace lawa {
 
 template<typename T>
-struct DiagonalScalingPreconditioner2D
+class DiagonalScalingPreconditioner2D
 {
-    DiagonalScalingPreconditioner2D(int _s_x, int _s_y);
-    int s_x;
-    int s_y;
-    
-    T
-    operator()(bool XisSpline, int j_x, int k_x,
-               bool YisSpline, int j_y, int k_y) const;
+    public:
+        DiagonalScalingPreconditioner2D(int sx, int sy);
+
+        T
+        operator()(XType XisSpline, int jx, int kx,
+                   XType YisSpline, int jy, int ky) const;
+
+    private:
+        int _sx;
+        int _sy;
 };
 
 } // namespace lawa
