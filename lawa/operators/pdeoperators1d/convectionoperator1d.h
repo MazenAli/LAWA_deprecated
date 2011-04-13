@@ -35,10 +35,6 @@ namespace lawa {
 template <typename T, typename Basis>
 class ConvectionOperator1D{
 
-    private:
-
-        Integral<Gauss, Basis, Basis> integral;
-
     public:
         const Basis& basis;
         
@@ -50,6 +46,10 @@ class ConvectionOperator1D{
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index) const;
+        
+    private:
+
+        Integral<Gauss, Basis, Basis> integral;
 
 };
 

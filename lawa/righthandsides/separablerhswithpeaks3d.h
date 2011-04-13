@@ -34,10 +34,14 @@ class SeparableRHSWithPeaks3D
         const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
 	    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
 	    const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z;
+	    
+        typedef typename Basis3D::FirstBasisType Basis_x;
+        typedef typename Basis3D::SecondBasisType Basis_y;
+        typedef typename Basis3D::ThirdBasisType Basis_z;
 
-        Integral<Gauss, Basis3D::FirstBasisType>  integralf_x;
-        Integral<Gauss, Basis3D::SecondBasisType> integralf_y;
-        Integral<Gauss, Basis3D::ThirdBasisType>  integralf_z;
+        Integral<Gauss, Basis_x, Basis_x>  integralf_x;
+        Integral<Gauss, Basis_y, Basis_y> integralf_y;
+        Integral<Gauss, Basis_z, Basis_z>  integralf_z;
 
     public:
         SeparableRHSWithPeaks3D(const Basis3D& _basis, const SeparableFunction3D<T>& _F,

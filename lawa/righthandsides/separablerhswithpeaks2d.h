@@ -47,9 +47,12 @@ class SeparableRHSWithPeaks2D
         const SeparableFunction2D<T>& F;
         const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
         const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
+        
+        typedef typename Basis2D::FirstBasisType Basis_x;
+        typedef typename Basis2D::SecondBasisType Basis_y;
 
-        IntegralF<Gauss, Basis2D::FirstBasisType>  integralf_x;
-        IntegralF<Gauss, Basis2D::SecondBasisType> integralf_y;
+        IntegralF<Gauss, Basis_x, Basis_x>  integralf_x;
+        IntegralF<Gauss, Basis_y, Basis_y>  integralf_y;
 
 };
 
