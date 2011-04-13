@@ -25,20 +25,15 @@ template <typename T, typename Basis>
 void
 getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff, DenseVector<Array<T> > &sing_pts)
 {
-    typedef typename Basis::BSplineType PrimalSpline;
-    typedef typename Basis::WaveletType PrimalWavelet;
-    PrimalSpline phi(basis.mra);
-    PrimalWavelet psi(basis);
 
     typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
     std::list<T> temp;
     for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-        DenseVector<Array<T> > phi_singpts;
-        if ((*it).first.xtype == XBSpline) phi_singpts = phi.singularSupport((*it).first.j, (*it).first.k);
-        else                               phi_singpts = psi.singularSupport((*it).first.j, (*it).first.k);
+        
+        DenseVector<Array<T> > bf_singpts = basis.generator((*it).first.xtype).singularSupport((*it).first.j, (*it).first.k);
 
-        for (int i = phi_singpts.firstIndex(); i <= phi_singpts.lastIndex(); ++i) {
-            temp.push_back(phi_singpts(i));
+        for (int i = bf_singpts.firstIndex(); i <= bf_singpts.lastIndex(); ++i) {
+            temp.push_back(bf_singpts(i));
         }
     }
     temp.sort(); temp.unique();
@@ -54,12 +49,7 @@ void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
      const Preconditioner &P, T (*u)(T), const char* filename)
 {
-    typedef typename Basis::BSplineType PrimalSpline;
-    typedef typename Basis::WaveletType PrimalWavelet;
     typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
-
-    PrimalSpline phi(basis.mra);
-    PrimalWavelet psi(basis);
 
     std::stringstream PlotFileName;
     PlotFileName << filename << ".dat";
@@ -75,12 +65,9 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
         for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
             int j = (*it).first.j, k = (*it).first.k;
             T coeff = (*it).second, prec = P((*it).first);
-            if ((*it).first.xtype == XBSpline) {
-                appr  += prec * coeff * phi(x,j,k);
-            }
-            else {
-                appr  += prec * coeff * psi(x,j,k);
-            }
+            
+            appr += prec * coeff * basis.generator((*it).first.xtype)(x,j,k,0);
+
         }
         plotfile << x << " " << exact << " " << appr  << std::endl;
     }
@@ -92,12 +79,7 @@ void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
      const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, T &H1norm, const char* filename)
 {
-    typedef typename Basis::BSplineType PrimalSpline;
-    typedef typename Basis::WaveletType PrimalWavelet;
     typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
-
-    PrimalSpline phi(basis.mra), d_phi(basis.mra,1);
-    PrimalWavelet psi(basis), d_psi(basis,1);
 
     std::stringstream PlotFileName;
     PlotFileName << filename << ".dat";
@@ -115,14 +97,10 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
         for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
             int j = (*it).first.j, k = (*it).first.k;
             T coeff = (*it).second, prec = P((*it).first);
-            if ((*it).first.xtype == XBSpline) {
-                appr  += prec * coeff * phi(x,j,k);
-                d_appr  += prec * coeff * d_phi(x,j,k);
-            }
-            else {
-                appr  += prec * coeff * psi(x,j,k);
-                d_appr  += prec * coeff * d_psi(x,j,k);
-            }
+            
+            appr   += prec * coeff * basis.generator((*it).first.xtype)(x,j,k,0);
+            d_appr += prec * coeff * basis.generator((*it).first.xtype)(x,j,k,1);
+
         }
         L2norm += (exact-appr)*(exact-appr);
         H1seminorm += (d_exact-d_appr)*(d_exact-d_appr);
@@ -139,17 +117,8 @@ void
 plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,
        const Preconditioner &P, T (*u)(T,T), T a1, T b1, T a2, T b2, T h, const char* filename)
 {
-    typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
-    typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
-    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_y;
-    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_y;
 
     typedef typename Coefficients<Lexicographical,T,Index2D >::const_iterator coeff_it;
-
-    PrimalSpline_x  phi_x(basis.first.mra);
-    PrimalWavelet_x psi_x(basis.first);
-    PrimalSpline_y  phi_y(basis.second.mra);
-    PrimalWavelet_y psi_y(basis.second);
 
     std::stringstream PlotFileName;
     PlotFileName << filename << ".dat";
@@ -166,22 +135,9 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
                 int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
 
                 T coeff = (*it).second, prec = P((*it).first);
-                if (xtype_x == XBSpline) {
-                    if (xtype_y == XBSpline) {
-                        appr  += prec * coeff * phi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
-                    }
-                    else {
-                        appr  += prec * coeff * phi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
-                    }
-                }
-                else {
-                    if (xtype_y == XBSpline) {
-                        appr  += prec * coeff * psi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
-                    }
-                    else {
-                        appr  += prec * coeff * psi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
-                    }
-                }
+                
+                appr += prec * coeff * basis.first.generator(xtype_x)(x,j_x,k_x,0) * basis.second.generator(xtype_y)(y,j_y,k_y,0);
+
             }
             plotfile << x << " " << y << " " << exact << " " << appr  << std::endl;
         }
@@ -196,19 +152,8 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
        const Preconditioner &P, T (*u)(T,T), T (*dy_u)(T,T), T a1, T b1, T a2, T b2, 
        T h1, T h2, const char* filename)
 {
-    typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
-    typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
-    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_y;
-    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_y;
 
     typedef typename Coefficients<Lexicographical,T,Index2D >::const_iterator coeff_it;
-
-    PrimalSpline_x  phi_x(basis.first.mra);
-    PrimalWavelet_x psi_x(basis.first);
-    PrimalSpline_y  phi_y(basis.second.mra);
-    PrimalSpline_y  d_phi_y(basis.second.mra,1);
-    PrimalWavelet_y psi_y(basis.second);
-    PrimalWavelet_y d_psi_y(basis.second,1);
 
     std::stringstream PlotFileName;
     PlotFileName << filename << ".dat";
@@ -227,26 +172,10 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
                 int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
 
                 T coeff = (*it).second, prec = P((*it).first);
-                if (xtype_x == XBSpline) {
-                    if (xtype_y == XBSpline) {
-                        appr  += prec * coeff * phi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
-                        dy_appr += prec * coeff * phi_x(x,j_x,k_x) * d_phi_y(y,j_y,k_y);
-                    }
-                    else {
-                        appr  += prec * coeff * phi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
-                        dy_appr  += prec * coeff * phi_x(x,j_x,k_x) * d_psi_y(y,j_y,k_y);
-                    }
-                }
-                else {
-                    if (xtype_y == XBSpline) {
-                        appr  += prec * coeff * psi_x(x,j_x,k_x) * phi_y(y,j_y,k_y);
-                        dy_appr  += prec * coeff * psi_x(x,j_x,k_x) * d_phi_y(y,j_y,k_y);
-                    }
-                    else {
-                        appr  += prec * coeff * psi_x(x,j_x,k_x) * psi_y(y,j_y,k_y);
-                        dy_appr  += prec * coeff * psi_x(x,j_x,k_x) * d_psi_y(y,j_y,k_y);
-                    }
-                }
+                
+                appr    += prec * coeff * basis.first.generator(xtype_x)(x,j_x,k_x,0) * basis.second.generator(xtype_y)(y,j_y,k_y,0);
+                dy_appr += prec * coeff * basis.first.generator(xtype_x)(x,j_x,k_x,0) * basis.second.generator(xtype_y)(y,j_y,k_y,1);
+
             }
             plotfile << x << " " << y << " " << exact << " " << appr  << " "
                      << dy_exact << " " << dy_appr << std::endl;
@@ -274,9 +203,6 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Pri
     gps << "set terminal postscript eps enh color; set output '" << filename << ".eps'" << std::endl;
     gps << "set palette color; set colorbox vertical" << std::endl;
 
-    BSpline<T,Primal,R> phi(basis.mra);
-    Wavelet<T,Primal,R> psi(basis);
-
     T maxCoeffSca = -1.0;
     T maxCoeffWav = -1.0;
     int j = (*coeff.begin()).second.j, k = (*coeff.begin()).second.k;
@@ -290,18 +216,18 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Pri
         J  = std::max(J, j);
         if ((*it).second.xtype == XBSpline) {
             maxCoeffSca = std::max(maxCoeffSca, fabs((*it).first));
-            a_sca = std::min(a_sca, phi.support(j,k).l1);
-            b_sca = std::max(b_sca, phi.support(j,k).l2);
+            a_sca = std::min(a_sca, basis.mra.phi.support(j,k).l1);
+            b_sca = std::max(b_sca, basis.mra.phi.support(j,k).l2);
         }
         else {
             maxCoeffWav = std::max(maxCoeffWav, fabs((*it).first));
-            a_wav = std::min(a_wav, psi.support(j,k).l1);
-            b_wav = std::max(b_wav, psi.support(j,k).l2);
+            a_wav = std::min(a_wav, basis.psi.support(j,k).l1);
+            b_wav = std::max(b_wav, basis.psi.support(j,k).l2);
         }
     }
     T maxCoeff = std::max(maxCoeffWav,maxCoeffSca);
-    T l1_sca = phi.support(0,0).l1, l2_sca = phi.support(0,0).l2;
-    T l1_wav = psi.support(0,0).l1, l2_wav = psi.support(0,0).l2;
+    T l1_sca = basis.mra.phi.support(0,0).l1, l2_sca = basis.mra.phi.support(0,0).l2;
+    T l1_wav = basis.psi.support(0,0).l1,     l2_wav = basis.psi.support(0,0).l2;
 
     for (const_it it = coeff.begin(); it != coeff.end(); ++it) {
         T lineWidth = 0.1;
@@ -381,11 +307,10 @@ plotCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis_x &bas
     for (const_coeff_abs_it it = coeff.begin(); it != coeff.end(); ++it) {
         int j1=(*it).second.index1.j, k1=(*it).second.index1.k, j2=(*it).second.index2.j, k2=(*it).second.index2.k;
         XType type1=(*it).second.index1.xtype, type2=(*it).second.index2.xtype;
-        double x, y; //center of the support
-        if (type1 == XBSpline)  x = 0.5*(basis_x.mra.phi.support(j1,k1).l2 + basis_x.mra.phi.support(j1,k1).l1);
-        else                    x = 0.5*(basis_x.psi.support(j1,k1).l2 + basis_x.psi.support(j1,k1).l1);
-        if (type2 == XBSpline)  y = 0.5*(basis_y.mra.phi.support(j2,k2).l2 + basis_y.mra.phi.support(j2,k2).l1);
-        else                    y = 0.5*(basis_y.psi.support(j2,k2).l2 + basis_y.psi.support(j2,k2).l1);
+        
+        //center of the support
+        double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
+        double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
         min_x = std::min(min_x,x); max_x = std::max(max_x,x);
         min_y = std::min(min_y,y); max_y = std::max(max_y,y);
@@ -393,16 +318,13 @@ plotCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis_x &bas
 
     T ratio = (max_y-min_y)/(max_x-min_x);
 
-
-
     for (const_coeff_abs_it it = coeff.begin(); it != coeff.end(); ++it) {
         int j1=(*it).second.index1.j, k1=(*it).second.index1.k, j2=(*it).second.index2.j, k2=(*it).second.index2.k;
         XType type1=(*it).second.index1.xtype, type2=(*it).second.index2.xtype;
-        double x, y; //center of the support
-        if (type1 == XBSpline)  x = 0.5*(basis_x.mra.phi.support(j1,k1).l2 + basis_x.mra.phi.support(j1,k1).l1);
-        else                    x = 0.5*(basis_x.psi.support(j1,k1).l2 + basis_x.psi.support(j1,k1).l1);
-        if (type2 == XBSpline)  y = 0.5*(basis_y.mra.phi.support(j2,k2).l2 + basis_y.mra.phi.support(j2,k2).l1);
-        else                    y = 0.5*(basis_y.psi.support(j2,k2).l2 + basis_y.psi.support(j2,k2).l1);
+     
+        //center of the support
+        double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
+        double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
         min_x = std::min(min_x,x); max_x = std::max(max_x,x);
         min_y = std::min(min_y,y); max_y = std::max(max_y,y);
@@ -449,11 +371,10 @@ plotScatterCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis
     for (const_coeff_abs_it it = coeff.begin(); it != coeff.end(); ++it) {
         int j1=(*it).second.index1.j, k1=(*it).second.index1.k, j2=(*it).second.index2.j, k2=(*it).second.index2.k;
         XType type1=(*it).second.index1.xtype, type2=(*it).second.index2.xtype;
-        double x, y; //center of the support
-        if (type1 == XBSpline)  x = 0.5*(basis_x.mra.phi.support(j1,k1).l2 + basis_x.mra.phi.support(j1,k1).l1);
-        else                    x = 0.5*(basis_x.psi.support(j1,k1).l2 + basis_x.psi.support(j1,k1).l1);
-        if (type2 == XBSpline)  y = 0.5*(basis_y.mra.phi.support(j2,k2).l2 + basis_y.mra.phi.support(j2,k2).l1);
-        else                    y = 0.5*(basis_y.psi.support(j2,k2).l2 + basis_y.psi.support(j2,k2).l1);
+
+        //center of the support
+        double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
+        double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
         data << x << " " << y << std::endl;
     }
@@ -476,11 +397,10 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
     for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
         int j1=(*it).first.index1.j, k1=(*it).first.index1.k, j2=(*it).first.index2.j, k2=(*it).first.index2.k;
         XType type1=(*it).first.index1.xtype, type2=(*it).first.index2.xtype;
-        double x, y; //center of the support
-        if (type1 == XBSpline)  x = 0.5*(basis_x.mra.phi.support(j1,k1).l2 + basis_x.mra.phi.support(j1,k1).l1);
-        else                    x = 0.5*(basis_x.psi.support(j1,k1).l2 + basis_x.psi.support(j1,k1).l1);
-        if (type2 == XBSpline)  y = 0.5*(basis_y.mra.phi.support(j2,k2).l2 + basis_y.mra.phi.support(j2,k2).l1);
-        else                    y = 0.5*(basis_y.psi.support(j2,k2).l2 + basis_y.psi.support(j2,k2).l1);
+
+        //center of the support
+        double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
+        double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
         data << x << " " << y << std::endl;
     }
