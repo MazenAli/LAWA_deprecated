@@ -1,7 +1,7 @@
 namespace lawa {
 
 template<typename T, typename Basis2D>
-SeparableRHSWithPeaks2D<T, Basis2D>::SeparableRHSWithPeaks2D
+SeparableRHS2D<T, Basis2D>::SeparableRHS2D
                             (const Basis2D& _basis, const SeparableFunction2D<T>& _F,
                              const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_x,
                              const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_y,
@@ -15,7 +15,7 @@ SeparableRHSWithPeaks2D<T, Basis2D>::SeparableRHSWithPeaks2D
 
 template<typename T, typename Basis2D>
 T
-SeparableRHSWithPeaks2D<T, Basis2D>::operator()(XType xtype_x, int j_x, int k_x,
+SeparableRHS2D<T, Basis2D>::operator()(XType xtype_x, int j_x, int k_x,
                                                 XType xtype_y, int j_y, int k_y) const
 {
     T val_x = 0;
@@ -36,7 +36,7 @@ SeparableRHSWithPeaks2D<T, Basis2D>::operator()(XType xtype_x, int j_x, int k_x,
 
 template<typename T, typename Basis2D>
 T
-SeparableRHSWithPeaks2D<T, Basis2D>::operator()(const Index2D &index) const
+SeparableRHS2D<T, Basis2D>::operator()(const Index2D &index) const
 {
     return this->operator()(index.index1.xtype, index.index1.j, index.index1.k,
                             index.index2.xtype, index.index2.j, index.index2.k);

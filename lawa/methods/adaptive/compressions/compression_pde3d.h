@@ -27,15 +27,15 @@
 
 namespace lawa {
 
-template <typename T, typename Basis>
+template <typename T, typename Basis3D>
 struct CompressionPDE3D
 {
-    const Basis &basis;
+    const Basis3D &basis;
     short s_tilde_x, jmin_x, jmax_x;
     short s_tilde_y, jmin_y, jmax_y;
     short s_tilde_z, jmin_z, jmax_z;
 
-    CompressionPDE3D(const Basis &_basis);
+    CompressionPDE3D(const Basis3D &_basis);
 
     void
     setParameters(const IndexSet<Index3D> &LambdaRow);

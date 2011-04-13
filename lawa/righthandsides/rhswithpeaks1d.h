@@ -28,6 +28,12 @@
 
 namespace lawa {
 
+/*
+ * Computes <f, psi_{j,k}> + sum_{i=1}^n deltas(i,2) * psi_{j,k}(deltas(i,1))
+ * _with_singular_part:  indicates whether sum_{i=1}^n deltas(i,2) * psi_{j,k}(deltas(i,1))
+ *                       is computed or not
+ * _with_smooth_part:    indicates whether  <f, psi_{j,k}> is computed or not
+ */
 
 template <typename T, typename Basis>
 class RHSWithPeaks1D

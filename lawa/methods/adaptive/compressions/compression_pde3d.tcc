@@ -1,37 +1,19 @@
-/*
-  LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009 Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-
 namespace lawa {
 
-template <typename T, typename Basis>
-CompressionPDE3D<T,Basis>::CompressionPDE3D(const Basis &_basis)
-    : basis(_basis), s_tilde_x(-1), jmin_x(100), jmax_x(-30), s_tilde_y(-1), jmin_y(100), jmax_y(-30),
-      s_tilde_z(-1), jmin_z(100), jmax_z(-30)
+template <typename T, typename Basis3D>
+CompressionPDE3D<T,Basis3D>::CompressionPDE3D(const Basis3D &_basis)
+    : basis(_basis), s_tilde_x(-1), jmin_x(100), jmax_x(-30), s_tilde_y(-1), jmin_y(100),
+      jmax_y(-30), s_tilde_z(-1), jmin_z(100), jmax_z(-30)
 {
 }
 
-template <typename T, typename Basis>
+template <typename T, typename Basis3D>
 void
-CompressionPDE3D<T,Basis>::setParameters(const IndexSet<Index3D> &LambdaRow) {
+CompressionPDE3D<T,Basis3D>::setParameters(const IndexSet<Index3D> &LambdaRow)
+{
     typedef typename IndexSet<Index3D>::const_iterator set3d_const_it;
     jmin_x = 100, jmax_x=-30, jmin_y = 100, jmax_y=-30, jmin_z = 100, jmax_z=-30;
-    for (set3d_const_it lambda_col = LambdaRow.begin(); lambda_col != LambdaRow.end(); ++lambda_col) {
+    for (set3d_const_it lambda_col=LambdaRow.begin(); lambda_col!=LambdaRow.end(); ++lambda_col) {
         jmin_x = std::min(jmin_x,(*lambda_col).index1.j);
         jmax_x = std::max(jmax_x,(*lambda_col).index1.j);
         jmin_y = std::min(jmin_y,(*lambda_col).index2.j);
@@ -44,18 +26,23 @@ CompressionPDE3D<T,Basis>::setParameters(const IndexSet<Index3D> &LambdaRow) {
     s_tilde_z = jmax_z-jmin_z;
 }
 
-template <typename T, typename Basis>
+template <typename T, typename Basis3D>
 IndexSet<Index3D>
-CompressionPDE3D<T,Basis>::SparsityPattern(const Index3D &lambda_col, const IndexSet<Index3D> &LambdaRow) {
+CompressionPDE3D<T,Basis3D>::SparsityPattern(const Index3D &lambda_col,
+                                             const IndexSet<Index3D> &LambdaRow)
+{
     typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
     typedef typename IndexSet<Index3D>::const_iterator set3d_const_it;
 
     set3d_const_it LambdaRow_end = LambdaRow.end();
     IndexSet<Index3D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
 
-    IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col.index1, basis.first, s_tilde_x, jmin_x, jmax_x, false);
-    IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y, jmax_y, false);
-    IndexSet<Index1D> Lambda_z = lambdaTilde1d_PDE(lambda_col.index3, basis.third, s_tilde_z, jmin_z, jmax_z, false);
+    IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col.index1, basis.first, s_tilde_x,
+                                                   jmin_x, jmax_x, false);
+    IndexSet<Index1D> Lambda_y = lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y,
+                                                   jmin_y, jmax_y, false);
+    IndexSet<Index1D> Lambda_z = lambdaTilde1d_PDE(lambda_col.index3, basis.third, s_tilde_z,
+                                                   jmin_z, jmax_z, false);
 
     for (set3d_const_it it=LambdaRow.begin(); it!=LambdaRow.end(); ++it) {
         if (Lambda_x.count((*it).index1) >0 ) {

@@ -19,35 +19,45 @@
 
 namespace lawa {
 
-template <typename T, typename Basis>
-flens::DenseVector<Array<T> >
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::sing_pts;
-
-template <typename T, typename Basis>
-flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::deltas;
-
-template <typename T, typename Basis>
-T
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::c;
-
-template <typename T, typename Basis>
+template <typename T>
 int
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::nr;
+PDEReferenceSolutions1D<T>::nr;
 
-template <typename T, typename Basis>
+template <typename T>
+T
+PDEReferenceSolutions1D<T>::diffusion;
+
+template <typename T>
+T
+PDEReferenceSolutions1D<T>::convection;
+
+template <typename T>
+T
+PDEReferenceSolutions1D<T>::reaction;
+
+
+template <typename T>
 DomainType
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::domain;
+PDEReferenceSolutions1D<T>::domain;
+
+template <typename T>
+flens::DenseVector<Array<T> >
+PDEReferenceSolutions1D<T>::sing_pts;
+
+template <typename T>
+flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
+PDEReferenceSolutions1D<T>::deltas;
 
 
-template <typename T, typename Basis>
+template <typename T>
 void
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::setExample(int _nr,
-                        const HelmholtzOperator1D<T,Basis> &a, DomainType _domain)
+PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _reaction,
+                                       DomainType domain)
 {
-    c=a.getc();
-    assert(c>=0);
     nr=_nr;
+    diffusion = _diffusion;
+    convection = _convection;
+    reaction = _reaction;
     domain = _domain;
 
     if (domain == Interval) {
@@ -57,6 +67,8 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::setExample(int _nr,
 
     }
     else {     //domain == R
+        assert(nr>=1);
+        assert(nr<=6);
         if (nr==1) {
         }
         else if (nr==2) {
@@ -106,36 +118,37 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::setExample(int _nr,
 
         }
     }
+    deltas *= diffusion;
 }
 
-template <typename T, typename Basis>
+template <typename T>
 T
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(T x, int deriv)
+PDEReferenceSolutions1D<T>::exact(T x, int deriv)
 {
     if (domain==Interval) {
         if (nr==1) {
             T a = 100;
             if (deriv==0)         return exp(-a*(x-0.5)*(x-0.5));
             else if (deriv==1)    return -exp(-a*(x-0.5)*(x-0.5))*(2*a*(x-0.5));
-            else if (deriv==2)    return exp(-a*(x-0.5)*(x-0.5)) * ((2*a*(x-0.5))*(2*a*(x-0.5))-2*a);
-            else                assert(0);
+            else if (deriv==2)    return exp(-a*(x-0.5)*(x-0.5))*((2*a*(x-0.5))*(2*a*(x-0.5))-2*a);
+            else                  assert(0);
         }
         else                     assert(0);
     }
     else if (domain==Periodic) {
         if (nr==1) {
-            if (deriv == 0)            return std::cos(2*M_PI*x);
-            else if (deriv == 1)     return -2*M_PI*std::sin(2*M_PI*x);
-            else if (deriv == 2)     return -4*M_PI*M_PI*std::cos(2*M_PI*x);
+            if (deriv == 0)         return std::cos(2*M_PI*x);
+            else if (deriv == 1)    return -2*M_PI*std::sin(2*M_PI*x);
+            else if (deriv == 2)    return -4*M_PI*M_PI*std::cos(2*M_PI*x);
             else                    assert(0);
         }
         else                         assert(0);
     }
     else { //domain == R
         if 	    (nr==1) {
-            if (deriv == 0)             return 10.*std::exp(-0.1*(x-0.1)*(x-0.1));
-            else if (deriv == 1)     return -2*(x-0.1)*std::exp(-0.1*(x-0.1)*(x-0.1));
-            else if (deriv == 2)     return (4*0.1*(x-0.1)*(x-0.1)-2)*std::exp(-0.1*(x-0.1)*(x-0.1));
+            if (deriv == 0)         return 10.*std::exp(-0.1*(x-0.1)*(x-0.1));
+            else if (deriv == 1)    return -2*(x-0.1)*std::exp(-0.1*(x-0.1)*(x-0.1));
+            else if (deriv == 2)    return (4*0.1*(x-0.1)*(x-0.1)-2)*std::exp(-0.1*(x-0.1)*(x-0.1));
             else                    assert(0);
         }
         else if (nr==2) {
@@ -198,11 +211,13 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(T x, int deriv
                 else                       return 0;
             }
             else if (deriv==1) {
-                if ((x>-0.4) && (x<0.9))  return 200*(x+0.4)*(x-0.9)*(x-0.9) + 200*(x+0.4)*(x+0.4)*(x-0.9);
+                if ((x>-0.4) && (x<0.9))  return   200*(x+0.4)*(x-0.9)*(x-0.9)
+                                                 + 200*(x+0.4)*(x+0.4)*(x-0.9);
                 else                       return 0;
             }
             else if (deriv==2) {
-                if ((x>-0.4) && (x<0.9))  return 200*(x-0.9)*(x-0.9) + 800.*(x+0.4)*(x-0.9) + 200.*(x+0.4)*(x+0.4);
+                if ((x>-0.4) && (x<0.9))  return   200*(x-0.9)*(x-0.9) + 800.*(x+0.4)*(x-0.9)
+                                                 + 200.*(x+0.4)*(x+0.4);
                 else                       return 0;
             }
             else                         assert(0);
@@ -213,11 +228,13 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(T x, int deriv
             	else return 0;
             }
             else if (deriv==1) {
-                if ((x>-0.4) && (x<0.9))   return 100*(x-0.9)*x*x + 200*(x-0.9)*x*(x+0.4) + 100*x*x*(x+0.4);
+                if ((x>-0.4) && (x<0.9))   return   100*(x-0.9)*x*x + 200*(x-0.9)*x*(x+0.4)
+                                                  + 100*x*x*(x+0.4);
                 else return 0;
             }
             else if (deriv==2) {
-                if ((x>-0.4) && (x<0.9))   return 400*x*(x-0.9) + 200*x*x + 200*(x-0.9)*(x+0.4) + 400*(x+0.4)*x;
+                if ((x>-0.4) && (x<0.9))   return   400*x*(x-0.9) + 200*x*x + 200*(x-0.9)*(x+0.4)
+                                                  + 400*(x+0.4)*x;
                 else                       return 0;
             }
             else                         assert(0);
@@ -277,69 +294,33 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(T x, int deriv
     }
 }
 
-template <typename T, typename Basis>
+template <typename T>
 T
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(T x)
+PDEReferenceSolutions1D<T>::exact(T x)
 {
-    return ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(x, 0);
+    return ReferenceSolution1D<T>::exact(x, 0);
+}
+
+template <typename T>
+T
+PDEReferenceSolutions1D<T>::d_exact(T x)
+{
+    return PDEReferenceSolution1D<T>::exact(x, 1);
+}
+
+template <typename T>
+T
+PDEReferenceSolutions1D<T>::rhs(T x)
+{
+	return -diffusion*exact(x,2) + convection*exact(x,1) + reaction*exact(x,0);
 }
 
 template <typename T, typename Basis>
 T
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::d_exact(T x)
-{
-    return ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::exact(x, 1);
-}
-
-template <typename T, typename Basis>
-T
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::rhs(T x)
-{
-	return -exact(x,2) + c * exact(x,0);// + 10*exact(x,1);
-}
-
-template <typename T, typename Basis>
-T
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x)
-{
-    if (c!=1) {
-    	std::cout << "ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x) not implemented for c=" << c << std::endl;
-    	exit(1);
-    }
-    if (domain!=R) {
-    	std::cout << "ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x) only implemented for domain R."<< std::endl;
-    	exit(1);
-    }
-    if (nr==1) {
-    	return -exact(x,2) + exact(x,0);
-    }
-    else if (nr==2) {
-    	if      (x<=0.01-0.00001) return -exact(x,2) + exact(x,0);
-    	else if (x>=0.01+0.00001) return -exact(x,2) + exact(x,0);
-    	else {
-    		T p = 9.89999010000495 +
-    			  (-0.9899990100004951 + (0.04949995050002475 + (-0.0016499983500008252 +
-    		      (-1.2375000000003575*1e14 + (-1.2374999999999955*1e19 + (-6.18750000000023*1e23 + 0.*(-0.00999 + x))*(-0.00999 + x))*
-    			  (-0.00999 + x))*(-0.01001 + x))*(-0.01001 + x))*(-0.01001 + x))*(-0.01001 + x);
-    		return p;
-    	}
-    }
-    else if (nr==6) {
-    	return -exact(x,2) + exact(x,0);
-    }
-    else {
-    	std::cout << "ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::smoothened_rhs(T x): "
-				  << " Not implemented for example " << nr << " yet." << std::endl;
-    	exit(1);
-    }
-}
-
-template <typename T, typename Basis>
-T
-ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::H1norm()
+PDEReferenceSolutions1D<T>::H1norm()
 {
     if (domain==Interval) {
-        if (nr==1)            { return sqrt(0.12533141373155 + 12.533141373155); }
+        if (nr==1)          return sqrt(0.12533141373155 + 12.533141373155);
         else                return 0.;
     }
     else if (domain==Periodic) {
@@ -347,16 +328,16 @@ ReferenceSolution1D<T,Basis,HelmholtzOperator1D<T,Basis> >::H1norm()
         else                return 0.;
     }
     else  {    // (domain==R)
-        if (nr==1)             { return std::sqrt(100*std::sqrt(0.5*M_PI/(0.1)) + std::sqrt(0.5*M_PI)/std::pow(0.1,(T)1.5) );    }
-        else if (nr==2)        { return std::sqrt(1000. + 10.); }
-        else if (nr==3) 	   { return std::sqrt( (16+7.*M_PI)/56. + (2./9.)*(16.+9.*M_PI)   ); }
-        //else if (nr==3)        { return std::sqrt(1637492008./612673215.  + 656353759./204224405.); }
-        else if (nr==4)        { return std::sqrt(168.3253868730168 + 1195.209847619049); }
-        else if (nr==5)		   { return std::sqrt(43.3676117539685 + 980.929114285711); }
-        //else if (nr==6)		   { return std::sqrt(0.75 + 1.5); }
-        else if (nr==6)		   { return std::sqrt(0.253968253968254 + 4.05050505050505); }
-        //else if (nr==6)		   { return std::sqrt(0.5333333333333333 + 2.085714285714286); }
-        else {    std::cerr << "ReferenceSolution<1d> exits!" << std::endl; exit(1);    }
+        if (nr==1)          return   std::sqrt(100*std::sqrt(0.5*M_PI/(0.1))
+                                   + std::sqrt(0.5*M_PI)/std::pow(0.1,(T)1.5) );
+        else if (nr==2)     return std::sqrt(1000. + 10.);
+        else if (nr==3)     return std::sqrt( (16+7.*M_PI)/56. + (2./9.)*(16.+9.*M_PI)   );
+//      else if (nr==3)     return std::sqrt(1637492008./612673215.  + 656353759./204224405.);
+        else if (nr==4)     return std::sqrt(168.3253868730168 + 1195.209847619049);
+        else if (nr==5)		return std::sqrt(43.3676117539685 + 980.929114285711);
+//      else if (nr==6)		return std::sqrt(0.75 + 1.5);
+        else if (nr==6)		return std::sqrt(0.253968253968254 + 4.05050505050505);
+//      else if (nr==6)		return std::sqrt(0.5333333333333333 + 2.085714285714286);
     }
 }
 
