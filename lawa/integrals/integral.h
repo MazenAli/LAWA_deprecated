@@ -71,8 +71,8 @@ struct IntegralF
     const Function<T> &function;
     const First &first;
     const Second &second;
-    const bool _f2;
     Quadrature<Quad,IntegralF<Quad,First,Second> > quadrature;
+    const bool _f2;
     mutable int j1, deriv1,
                 j2, deriv2;
     mutable long k1, k2;
