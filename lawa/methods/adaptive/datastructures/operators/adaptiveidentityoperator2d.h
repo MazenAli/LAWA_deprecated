@@ -37,8 +37,8 @@ class AdaptiveIdentityOperator2D
         typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
         typedef NoPreconditioner<T,Index2D>                              NoPreconditioner2D;
 
-        typedef CompressionPDE1D<T, Index1D, Basis_x>                    Compression1D_x;
-        typedef CompressionPDE1D<T, Index1D, Basis_y>                    Compression1D_y;
+        typedef CompressionPDE1D<T, Basis_x>                    Compression1D_x;
+        typedef CompressionPDE1D<T, Basis_y>                    Compression1D_y;
         typedef TensorCompression2D<T, Compression1D_x, Compression1D_y> Compression2D;
 
         typedef IdentityOperator1D<T, Basis_x>                           IdentityOperator_x;
