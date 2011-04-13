@@ -39,7 +39,7 @@ class RHS
         RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P);
 
         RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P,
-        	const Coefficients<Lexicographical,T,Index> &_rhs_data);
+            const Coefficients<Lexicographical,T,Index> &_rhs_data);
 
         T
         operator()(const Index &lambda);
@@ -47,14 +47,14 @@ class RHS
         Coefficients<Lexicographical,T,Index>
         operator()(const IndexSet<Index> &Lambda);
 
-    	Coefficients<Lexicographical,T,Index>
-    	operator()(T tol);
-	
-    	T
-    	operator()(T t, const Index &lambda);
+        Coefficients<Lexicographical,T,Index>
+        operator()(T tol);
 
-    	Coefficients<Lexicographical,T,Index>
-    	operator()(T t, const IndexSet<Index> &Lambda);
+        T
+        operator()(T t, const Index &lambda);
+
+        Coefficients<Lexicographical,T,Index>
+        operator()(T t, const IndexSet<Index> &Lambda);
 
 };
 
