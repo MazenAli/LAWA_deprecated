@@ -20,6 +20,10 @@
 #ifndef LAWA_RIGHTHANDSIDES_RHS_H
 #define LAWA_RIGHTHANDSIDES_RHS_H 1
 
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/settings/enum.h>
+
 namespace lawa {
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
