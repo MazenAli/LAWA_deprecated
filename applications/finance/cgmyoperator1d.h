@@ -27,68 +27,68 @@ namespace lawa {
 template <typename T, typename Basis>
 class CGMYOperator1D
 {
-	typedef typename Basis::BSplineType PrimalSpline;
+    typedef typename Basis::BSplineType PrimalSpline;
     typedef typename Basis::WaveletType PrimalWavelet;
 
-	public:
-		CGMYOperator1D(const Basis &basis, T _diffusion, T _convection, T _reaction,
-							  T C, T G, T M, T Y, int _order=20, int _n=10, T _sigma=0.3);
+    public:
+        CGMYOperator1D(const Basis &basis, T _diffusion, T _convection, T _reaction,
+                              T C, T G, T M, T Y, int _order=20, int _n=10, T _sigma=0.3);
 
-		T
-		getc() const;
+        T
+        getc() const;
 
-		const Basis&
-		getBasis() const;
+        const Basis&
+        getBasis() const;
 
-		T
-		operator()(const Index1D &row_index, const Index1D &col_index) const;
+        T
+        operator()(const Index1D &row_index, const Index1D &col_index) const;
 
-		T
-		operator()(XType xtype_row, int j_row, int k_row, XType xtype_col, int j_col, int k_col, const CGMYUtils<T> &cgmy_comp) const;
+        T
+        operator()(XType xtype_row, int j_row, int k_row, XType xtype_col, int j_col, int k_col, const CGMYUtils<T> &cgmy_comp) const;
 
-	private:
-		const Basis &basis;
-		T diffusion, convection, reaction;
+    private:
+        const Basis &basis;
+        T diffusion, convection, reaction;
 
-		PrimalSpline phi, d_phi;
-		PrimalWavelet psi, d_psi;
-		Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, d_integral_sfsf, dd_integral_sfsf;
-		Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, d_integral_sfw,  dd_integral_sfw;
-		Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, d_integral_wsf,  dd_integral_wsf;
-		Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, d_integral_ww,   dd_integral_ww;
+        PrimalSpline phi, d_phi;
+        PrimalWavelet psi, d_psi;
+        Integral<T, Gauss, PrimalSpline, PrimalSpline> integral_sfsf, d_integral_sfsf, dd_integral_sfsf;
+        Integral<T, Gauss, PrimalSpline, PrimalWavelet> integral_sfw, d_integral_sfw,  dd_integral_sfw;
+        Integral<T, Gauss, PrimalWavelet, PrimalSpline> integral_wsf, d_integral_wsf,  dd_integral_wsf;
+        Integral<T, Gauss, PrimalWavelet, PrimalWavelet> integral_ww, d_integral_ww,   dd_integral_ww;
 
-		CGMYUtils<T> cgmy, cgmy_adjoint;
+        CGMYUtils<T> cgmy, cgmy_adjoint;
 
-		int n;				//parameters for composite variable order Gauss-Legendre quadrature
-		T sigma;
-		T omega;
-		T mu;
-		int order;			//fixed Legendre order for outer integral
+        int n;                //parameters for composite variable order Gauss-Legendre quadrature
+        T sigma;
+        T omega;
+        T mu;
+        int order;            //fixed Legendre order for outer integral
 
-		flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
-		flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
 
 
-		T
-		_integrate_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
-												   XType xtype_col, int j_col, int k_col,
-												   const CGMYUtils<T> &cgmy_comp) const;
+        T
+        _integrate_dpsi_vs_int_dpsi_k(T a, T b, XType xtype_row, int j_row, int k_row,
+                                                   XType xtype_col, int j_col, int k_col,
+                                                   const CGMYUtils<T> &cgmy_comp) const;
 
-		T
-		_nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,
-												   XType xtype_col, int j_col, int k_col,
-												   const CGMYUtils<T> &cgmy_comp) const;
+        T
+        _nonsingular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,
+                                                   XType xtype_col, int j_col, int k_col,
+                                                   const CGMYUtils<T> &cgmy_comp) const;
 
-		T
-		_singular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,
-												XType xtype_col, int j_col, int k_col,
-												bool cutoff,
-												const CGMYUtils<T> &cgmy_comp) const;
+        T
+        _singular_quadrature_dpsi_vs_CGMYkernel(T x_ast, T a, T b,
+                                                XType xtype_col, int j_col, int k_col,
+                                                bool cutoff,
+                                                const CGMYUtils<T> &cgmy_comp) const;
 
 };
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <applications/finance/cgmyoperator1d.tcc>
 
-#endif	//LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_H
+#endif    //LAWA_OPERATORS_INTEGRALOPERATORS_CGMYOPERATOR1D_H

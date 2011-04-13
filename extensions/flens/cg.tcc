@@ -73,15 +73,15 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         x.engine().resize(A.numCols());
     }
     for (int i=x.firstIndex(); i<=x.lastIndex(); ++i) {
-    	x(i) = 0;
+        x(i) = 0;
     }
 */
     b_norm = b*b;
     if (std::sqrt(b_norm) < 1e-15) {
         for (int i=x.firstIndex(); i<=x.lastIndex(); ++i) {
-        	x(i) = 0;
+            x(i) = 0;
         }
-    	return 0;
+        return 0;
     }
 
     //r = b;
@@ -90,20 +90,20 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     p = s;
     gammaPrev = s*s;
     for (long k=1; k<=maxIterations; k++) {
-    	q = A*p;
-    	alpha = gammaPrev/(q*q);
-    	x +=   alpha *p;
-    	r += (-alpha)*q;
-    	flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
-    	gamma = s*s;
-    	if (sqrt(gamma)<=tol) {
-    		std::cerr << "    cgls: gamma = " << gamma << std::endl;
-    		return k-1;
-    	}
-    	beta  = gamma/gammaPrev;
-    	p *= beta;
-    	p += s;
-    	gammaPrev = gamma;
+        q = A*p;
+        alpha = gammaPrev/(q*q);
+        x +=   alpha *p;
+        r += (-alpha)*q;
+        flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+        gamma = s*s;
+        if (sqrt(gamma)<=tol) {
+            std::cerr << "    cgls: gamma = " << gamma << std::endl;
+            return k-1;
+        }
+        beta  = gamma/gammaPrev;
+        p *= beta;
+        p += s;
+        gammaPrev = gamma;
     }
     return maxIterations;
 }

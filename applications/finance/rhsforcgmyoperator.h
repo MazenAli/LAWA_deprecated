@@ -32,8 +32,8 @@ class RHSForCGMYOperator1D
 
 public:
     RHSForCGMYOperator1D(const Basis &basis, T (*f)(T), T (*df)(T),
-					     const DenseVector<Array<T> > &_singularPoints,
-					     T C, T G, T M, T Y, int _order);
+                         const DenseVector<Array<T> > &_singularPoints,
+                         T C, T G, T M, T Y, int _order);
 
     T
     operator()(XType xtype, int j, int k) const;
@@ -43,7 +43,7 @@ public:
 
 private:
     flens::GeMatrix<FullStorage<T,ColMajor> >
-	_computeDeltas(XType xtype, int j, int k) const;
+    _computeDeltas(XType xtype, int j, int k) const;
 
     T
     _evaluate_acal_u(T x_ast, T a, T b) const;
@@ -67,8 +67,8 @@ private:
 
 };
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <applications/finance/rhsforcgmyoperator.tcc>
 
-#endif	//APPLICATIONS_FINANCE_RHSFORCGMYOPERATOR_H
+#endif    //APPLICATIONS_FINANCE_RHSFORCGMYOPERATOR_H

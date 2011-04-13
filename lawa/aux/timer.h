@@ -5,7 +5,7 @@
 
 struct Timer
 {
-	void
+    void
     start();
 
     void

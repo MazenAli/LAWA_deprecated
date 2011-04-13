@@ -493,12 +493,12 @@ double chebyshev1_integral ( int expon )
       top = top * ( i - 1 );
       bot = bot *   i;
     }
-	
+    
     exact = pi * ( double ) ( top ) / ( double ) ( bot );
   }
   else
   {
-    exact = 0.0;	
+    exact = 0.0;    
   }
 
   return exact;
@@ -910,7 +910,7 @@ double chebyshev2_integral ( int expon )
       bot = bot *   i;
     }
 
-	bot = bot * ( double ) ( expon + 2 );
+    bot = bot * ( double ) ( expon + 2 );
 
     exact = pi * ( double ) ( top ) / ( double ) ( bot );
   }
@@ -2683,7 +2683,7 @@ void gen_hermite_compute ( int order, double alpha, double x[], double w[] )
     for ( i = 0; i < order_laguerre; i++ )
     {
       x[order_laguerre+i] = std::sqrt ( x_laguerre[i] );
-	}
+    }
     for ( i = 0; i < order_laguerre; i++ )
     {
       w[i] = 0.5 * w_laguerre[order_laguerre-1-i];
@@ -2703,7 +2703,7 @@ void gen_hermite_compute ( int order, double alpha, double x[], double w[] )
     for ( i = 0; i < order_laguerre; i++ )
     {
       x[order_laguerre+1+i] = std::sqrt ( x_laguerre[i] );
-	}
+    }
     for ( i = 0; i < order_laguerre; i++ )
     {
       w[i] = 0.5 * w_laguerre[order_laguerre-1-i] / x_laguerre[order_laguerre-1-i];

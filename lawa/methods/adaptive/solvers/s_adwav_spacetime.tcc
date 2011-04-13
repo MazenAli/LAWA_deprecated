@@ -5,8 +5,8 @@ namespace lawa {
 
 template <typename T, typename Index, typename SpaceIndex, typename Basis, typename MA, typename RHSOperator, typename RHSInitialCond>
 S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::S_ADWAV_SPACETIME
-													 (const Basis &_basis, MA &_A, RHSOperator &_F, RHSInitialCond &_U0,
-													  T _contraction, T _threshTol, T _linTol, T _resTol,
+                                                     (const Basis &_basis, MA &_A, RHSOperator &_F, RHSInitialCond &_U0,
+                                                      T _contraction, T _threshTol, T _linTol, T _resTol,
                                                       int _NumOfIterations, int _MaxItsPerThreshTol, T _eps)
     : basis(_basis), A(_A), F(_F), U0(_U0), contraction(_contraction), threshTol(_threshTol), linTol(_linTol),
       resTol(_resTol), NumOfIterations(_NumOfIterations), MaxItsPerThreshTol(_MaxItsPerThreshTol), eps(_eps)
@@ -25,7 +25,7 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
 
     int d=InitialLambda.d, d_=InitialLambda.d_;
     IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_);
-    IndexSet<Index> 	 LambdaActive_test_operator(d,d_), DeltaLambda_test_operator(d,d_);
+    IndexSet<Index>      LambdaActive_test_operator(d,d_), DeltaLambda_test_operator(d,d_);
     IndexSet<SpaceIndex> LambdaActive_test_initcond(d,d_), DeltaLambda_test_initcond(d,d_);
     Coefficients<Lexicographical,T, Index>      u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
     Coefficients<Lexicographical,T, SpaceIndex> u0(d,d_), r0(d,d_), Au_0(d,d_);
@@ -39,7 +39,7 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
     std::ofstream file(filename.str().c_str());
 
     for (int its=0; its<NumOfIterations; ++its) {
-    	std::cout << "*** " << its+1 << ".iteration" << std::endl;
+        std::cout << "*** " << its+1 << ".iteration" << std::endl;
 
         timer.start();
 
@@ -56,7 +56,7 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations = CGLS_Solve(LambdaActive_test_operator, LambdaActive_test_initcond, A, LambdaActive,
-									u, f, u0, r_norm_LambdaActive, linTol, 100000);
+                                    u, f, u0, r_norm_LambdaActive, linTol, 100000);
         std::cout << "   ...finished after " << iterations << " iterations with residual = " << r_norm_LambdaActive << std::endl;
 
         //Threshold step
@@ -85,9 +85,9 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
         T r0_norm_DeltaLambda_initcond = r0.norm(2.);
 
         T numerator   = r_norm_DeltaLambda_test_operator*r_norm_DeltaLambda_test_operator +
-        		        r0_norm_DeltaLambda_initcond*r0_norm_DeltaLambda_initcond;
+                        r0_norm_DeltaLambda_initcond*r0_norm_DeltaLambda_initcond;
         T denominator = f_norm_DeltaLambda_test_operator*f_norm_DeltaLambda_test_operator +
-						u0_norm_DeltaLambda_test_initcond*u0_norm_DeltaLambda_test_initcond;
+                        u0_norm_DeltaLambda_test_initcond*u0_norm_DeltaLambda_test_initcond;
         T estim_res   = std::sqrt(numerator/denominator);
         std::cout << "   ...finished" << std::endl;
         residuals[its] = estim_res;
@@ -108,7 +108,7 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
         old_res = estim_res;
         timer.stop();
         if (its==0) times[its] = timer.elapsed();
-        else		times[its] = times[its-1] + timer.elapsed();
+        else        times[its] = times[its-1] + timer.elapsed();
 
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations
                   << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
@@ -116,4 +116,4 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
     }
 }
 
-}	//namespace lawa
+}    //namespace lawa

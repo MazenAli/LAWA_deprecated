@@ -35,13 +35,13 @@ class S_ADWAV {
                 T _linTol=1e-6, T _resTol=1e-4, int _NumOfIterations=10, int MaxItsPerThreshTol=5, T eps=1e-2);
 
         //solver for symmetric elliptic problems
-    	void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
+        void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
         //solver for symmetric elliptic problems without B-Splines
-    	void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
-    	//solver for elliptic problems
-    	void solve_gmres(const IndexSet<Index> &Initial_Lambda);
-    	//solver for indefinite problems
-    	void solve_cgls(const IndexSet<Index> &Initial_Lambda);
+        void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
+        //solver for elliptic problems
+        void solve_gmres(const IndexSet<Index> &Initial_Lambda);
+        //solver for indefinite problems
+        void solve_cgls(const IndexSet<Index> &Initial_Lambda);
 
         std::vector<Coefficients<Lexicographical,T,Index> > solutions;
         std::vector<T>               residuals;

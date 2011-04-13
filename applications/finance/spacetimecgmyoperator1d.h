@@ -32,7 +32,7 @@ class SpaceTimeCGMYOperator1D{
 
 public:
 
-	typedef typename Basis::FirstBasisType Basis_t;
+    typedef typename Basis::FirstBasisType Basis_t;
     typedef typename Basis::SecondBasisType Basis_x;
 
     typedef typename Basis_t::BSplineType PrimalSpline_t;
@@ -41,8 +41,8 @@ public:
     typedef typename Basis_x::WaveletType PrimalWavelet_x;
 
     typedef ConvectionOperator1D<T, Basis_t>   Convection_t;
-    typedef IdentityOperator1D<T, Basis_t> 	   Reaction_t;
-    typedef IdentityOperator1D<T, Basis_x> 	   Reaction_x;
+    typedef IdentityOperator1D<T, Basis_t>        Reaction_t;
+    typedef IdentityOperator1D<T, Basis_x>        Reaction_x;
 
 
     const Basis& basis;
@@ -95,7 +95,7 @@ public:
 
 };
 
-}	//namespace
+}    //namespace
 
 #include <applications/finance/spacetimecgmyoperator1d.tcc>
 

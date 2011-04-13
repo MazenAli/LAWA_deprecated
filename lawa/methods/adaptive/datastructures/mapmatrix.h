@@ -44,13 +44,13 @@ struct MapMatrix
 
     MapMatrix(const BilinearForm &a, const Preconditioner &p, Compression &c);
 
-	T
-	operator()(const Index &row_index, const Index &col_index);		//todo: writes into data -> no const declaration -> better solution?!
+    T
+    operator()(const Index &row_index, const Index &col_index);        //todo: writes into data -> no const declaration -> better solution?!
 
-	//T
+    //T
     //operator()(T t, const  Index &row_index, const Index &col_index);
 
-	void
+    void
     clear();
 };
 

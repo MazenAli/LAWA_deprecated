@@ -37,33 +37,33 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
     const_map_it it_entry = data.find(entry);
 
     if (it_entry != it_end) {
-    	return (*it_entry).second;
+        return (*it_entry).second;
     }
     else {
-    	T prec = 1.;
-    	const_coeff_it it_P_end       = P_data.end();
-    	const_coeff_it it_row_index = P_data.find(row_index);
-    	if (it_row_index != it_P_end) {
-    		prec *= (*it_row_index).second;
-    	}
-    	else {
-    		T tmp = p(row_index);
-    		P_data[row_index] = tmp;
-    		prec *= tmp;
-    	}
-    	it_P_end       = P_data.end();
-    	const_coeff_it it_col_index   = P_data.find(col_index);
-    	if (it_col_index != it_P_end) {
-    		prec *= (*it_col_index).second;
-    	}
-    	else {
-    		T tmp = p(col_index);
-    		P_data[col_index] = tmp;
-    		prec *= tmp;
-    	}
-    	T val = prec * a(row_index,col_index);
-    	if (fabs(val) > 0) data.insert(val_type(entry,val));
-    	return val;
+        T prec = 1.;
+        const_coeff_it it_P_end       = P_data.end();
+        const_coeff_it it_row_index = P_data.find(row_index);
+        if (it_row_index != it_P_end) {
+            prec *= (*it_row_index).second;
+        }
+        else {
+            T tmp = p(row_index);
+            P_data[row_index] = tmp;
+            prec *= tmp;
+        }
+        it_P_end       = P_data.end();
+        const_coeff_it it_col_index   = P_data.find(col_index);
+        if (it_col_index != it_P_end) {
+            prec *= (*it_col_index).second;
+        }
+        else {
+            T tmp = p(col_index);
+            P_data[col_index] = tmp;
+            prec *= tmp;
+        }
+        T val = prec * a(row_index,col_index);
+        if (fabs(val) > 0) data.insert(val_type(entry,val));
+        return val;
     }
 
 }
@@ -73,42 +73,42 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 T
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(T t, const  Index &row_index, const Index &col_index)
 {
-	Entry<Index> entry(row_index,col_index);
+    Entry<Index> entry(row_index,col_index);
 
-	typedef typename EntryMap::const_iterator const_map_it;
-	typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
-	const_map_it it_end = data.end();
-	const_map_it it_entry = data.find(entry);
+    typedef typename EntryMap::const_iterator const_map_it;
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
+    const_map_it it_end = data.end();
+    const_map_it it_entry = data.find(entry);
 
-	if (it_entry != it_end) {
-	 	return (*it_entry).second;
-	}
-	else {
-	  	T prec = 1.;
-	   	const_coeff_it it_P_end       = P_data.end();
-	   	const_coeff_it it_row_index = P_data.find(row_index);
-	   	if (it_row_index != it_P_end) {
-	   		prec *= (*it_row_index).second;
-	   	}
-	   	else {
-	   		T tmp = p(row_index);
-	   		P_data[row_index] = tmp;
-	   		prec *= tmp;
-	   	}
-	   	it_P_end       = P_data.end();
-	   	const_coeff_it it_col_index   = P_data.find(col_index);
-	   	if (it_col_index != it_P_end) {
-	   		prec *= (*it_col_index).second;
-	   	}
-	   	else {
-	   		T tmp = p(col_index);
-	   		P_data[col_index] = tmp;
-	   		prec *= tmp;
-	   	}
-	   	T val = prec * a(row_index,col_index);
-	   	if (fabs(val) > 0) data.insert(val_type(entry,val));
-	   	return val;
-	}
+    if (it_entry != it_end) {
+         return (*it_entry).second;
+    }
+    else {
+          T prec = 1.;
+           const_coeff_it it_P_end       = P_data.end();
+           const_coeff_it it_row_index = P_data.find(row_index);
+           if (it_row_index != it_P_end) {
+               prec *= (*it_row_index).second;
+           }
+           else {
+               T tmp = p(row_index);
+               P_data[row_index] = tmp;
+               prec *= tmp;
+           }
+           it_P_end       = P_data.end();
+           const_coeff_it it_col_index   = P_data.find(col_index);
+           if (it_col_index != it_P_end) {
+               prec *= (*it_col_index).second;
+           }
+           else {
+               T tmp = p(col_index);
+               P_data[col_index] = tmp;
+               prec *= tmp;
+           }
+           T val = prec * a(row_index,col_index);
+           if (fabs(val) > 0) data.insert(val_type(entry,val));
+           return val;
+    }
 }
 */
 
@@ -119,4 +119,4 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::clear()
     data.clear();
 }
 
-}	//namespace lawa
+}    //namespace lawa

@@ -38,19 +38,19 @@ struct CompressionCGMYOperator1D<T, Basis<T,Primal,R,CDF> >
 {
     typedef typename Basis<T,Primal,R,CDF>::WaveletType PrimalWavelet;
 
-	const Basis<T,Primal,R,CDF> &basis;
-	short jmin, jmax;
-	T compr_c;
-	T compr_alpha;
-	PrimalWavelet psi;
+    const Basis<T,Primal,R,CDF> &basis;
+    short jmin, jmax;
+    T compr_c;
+    T compr_alpha;
+    PrimalWavelet psi;
 
-	CompressionCGMYOperator1D(const Basis<T,Primal,R,CDF> &_basis, T Y);
+    CompressionCGMYOperator1D(const Basis<T,Primal,R,CDF> &_basis, T Y);
 
-	void
-	setParameters(const IndexSet<Index1D> &LambdaRow);
+    void
+    setParameters(const IndexSet<Index1D> &LambdaRow);
 
-	IndexSet<Index1D>
-	SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow);
+    IndexSet<Index1D>
+    SparsityPattern(const Index1D &lambda_col, const IndexSet<Index1D> &LambdaRow);
 
 };
 

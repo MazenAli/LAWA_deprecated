@@ -34,7 +34,7 @@ Coefficients<Lexicographical,T,Index2D>
 APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k);
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/methods/adaptive/algorithms/apply2d.tcc>
 

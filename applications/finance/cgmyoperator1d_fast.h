@@ -71,7 +71,7 @@ class CGMYOperator1D_Fast{
 
 };
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <applications/finance/cgmyoperator1d_fast.tcc>
 

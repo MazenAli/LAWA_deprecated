@@ -31,13 +31,13 @@ namespace lawa {
 template <typename T, typename Index, typename MA>
 void
 toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-	                flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens);
+                    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens);
 
 template <typename T, typename Index, typename SpaceIndex, typename MA>
 void
 toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRowOp, const IndexSet<SpaceIndex>& LambdaRowInitCond,
-					const IndexSet<Index>& LambdaCol,
-	                flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens);
+                    const IndexSet<Index>& LambdaCol,
+                    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens);
 
 template <typename T, typename RowIndex, typename ColIndex, typename MA>
 Coefficients<Lexicographical,T,RowIndex>
@@ -61,7 +61,7 @@ mv_sparse(t, const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexic
 template <typename T, typename Index, typename MA>
 int
 CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
-		 const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 1e-6, int maxIterations = 1000);
+         const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 1e-6, int maxIterations = 1000);
 
 template <typename T, typename Index, typename MA>
 int
@@ -71,24 +71,24 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
 template <typename T, typename Index, typename SpaceIndex, typename MA>
 int
 CGLS_Solve(const IndexSet<Index> &LambdaRowOp,
-		   const IndexSet<SpaceIndex> &LambdaRowInitCond, MA &A,
-		   const IndexSet<Index> &LambdaCol,
-		   Coefficients<Lexicographical,T,Index > &u,
-		   const Coefficients<Lexicographical,T,Index > &f,
-		   const Coefficients<Lexicographical,T,SpaceIndex > &u0,
-		   T &res, T tol = 1e-6, int maxIterations = 1000);
+           const IndexSet<SpaceIndex> &LambdaRowInitCond, MA &A,
+           const IndexSet<Index> &LambdaCol,
+           Coefficients<Lexicographical,T,Index > &u,
+           const Coefficients<Lexicographical,T,Index > &f,
+           const Coefficients<Lexicographical,T,SpaceIndex > &u0,
+           T &res, T tol = 1e-6, int maxIterations = 1000);
 
 template <typename T, typename Index, typename MA>
 int
 CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
-		   MA &A, Coefficients<Lexicographical,T,Index > &u,
-		   const Coefficients<Lexicographical,T,Index > &f,
-		   T &res, T tol = 1e-6, int maxIterations = 1000);
+           MA &A, Coefficients<Lexicographical,T,Index > &u,
+           const Coefficients<Lexicographical,T,Index > &f,
+           T &res, T tol = 1e-6, int maxIterations = 1000);
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/matrixoperations.tcc>
 
-#endif	// LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MATRIXOPERATIONS_H
+#endif    // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MATRIXOPERATIONS_H
 

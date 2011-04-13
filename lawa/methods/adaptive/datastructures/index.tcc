@@ -27,24 +27,24 @@ Index1D::Index1D(void)
 Index1D::Index1D(int _j, int _k, XType _xtype)
 : j(_j), k(_k), xtype(_xtype), val(xtype), linearindex(0)
 {
-	/*
-	std::cout << "Index1D.val = " << val << std::endl;
-	for (int i=63; i>=0; --i) {
-		std::cout << ((val & (1l << i)) ? 1 : 0);
-	}
-	std::cout<<std::endl;
-	val = (val << 16) | j;
-	for (int i=63; i>=0; --i) {
-		std::cout << ((val & (1l << i)) ? 1 : 0);
-	}
-	std::cout<<std::endl;
-	val = (val << 32 | (unsigned int) k);
-	for (int i=63; i>=0; --i) {
-		std::cout << ((val & (1l << i)) ? 1 : 0);
-	}
-	std::cout<<	std::endl;
-	*/
-	val = (((val << 16) | (unsigned short) j) << 32) | (unsigned int) k;
+    /*
+    std::cout << "Index1D.val = " << val << std::endl;
+    for (int i=63; i>=0; --i) {
+        std::cout << ((val & (1l << i)) ? 1 : 0);
+    }
+    std::cout<<std::endl;
+    val = (val << 16) | j;
+    for (int i=63; i>=0; --i) {
+        std::cout << ((val & (1l << i)) ? 1 : 0);
+    }
+    std::cout<<std::endl;
+    val = (val << 32 | (unsigned int) k);
+    for (int i=63; i>=0; --i) {
+        std::cout << ((val & (1l << i)) ? 1 : 0);
+    }
+    std::cout<<    std::endl;
+    */
+    val = (((val << 16) | (unsigned short) j) << 32) | (unsigned int) k;
 }
 
 Index1D::Index1D(const Index1D &index)
@@ -203,18 +203,18 @@ template <>
 struct lt<Lexicographical, Index1D>
 {
 
-	inline
-	bool operator()(const Index1D &left, const Index1D &right) const
-	{
-		return left.val < right.val;
-	}
+    inline
+    bool operator()(const Index1D &left, const Index1D &right) const
+    {
+        return left.val < right.val;
+    }
 
     inline
     bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const
     {
         // sort Operator row-wise
-    	if (left.row_index.val != right.row_index.val) return left.row_index.val < right.row_index.val;
-    	else										   return left.col_index.val < right.col_index.val;
+        if (left.row_index.val != right.row_index.val) return left.row_index.val < right.row_index.val;
+        else                                           return left.col_index.val < right.col_index.val;
     }
 
 };
@@ -223,22 +223,22 @@ template <>
 struct lt<Lexicographical, Index2D >
 {
 
-	inline
-	bool operator()(const Index2D &left, const Index2D &right) const
-	{
-		if (left.index1.val != right.index1.val) return left.index1.val < right.index1.val;
-		else									 return left.index2.val < right.index2.val;
-	}
+    inline
+    bool operator()(const Index2D &left, const Index2D &right) const
+    {
+        if (left.index1.val != right.index1.val) return left.index1.val < right.index1.val;
+        else                                     return left.index2.val < right.index2.val;
+    }
 
     inline
     bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const
     {
     // sort Operator row-wise
         if (left.row_index.index1.val != right.row_index.index1.val) {
-        	return left.row_index.index1.val < right.row_index.index1.val;
+            return left.row_index.index1.val < right.row_index.index1.val;
         }
         else if (left.row_index.index2.val != right.row_index.index2.val) {
-        	return left.row_index.index2.val < right.row_index.index2.val;
+            return left.row_index.index2.val < right.row_index.index2.val;
         }
         if (left.col_index.index1.val != right.col_index.index1.val) {
             return left.col_index.index1.val < right.col_index.index1.val;
@@ -254,23 +254,23 @@ template <>
 struct lt<Lexicographical, Index3D >
 {
 
-	inline
-	bool operator()(const Index3D &left, const Index3D &right) const
-	{
-		if (left.index1.val != right.index1.val) 		return left.index1.val < right.index1.val;
-		else if (left.index2.val != right.index2.val)   return left.index2.val < right.index2.val;
-		else											return left.index3.val < right.index3.val;
-	}
+    inline
+    bool operator()(const Index3D &left, const Index3D &right) const
+    {
+        if (left.index1.val != right.index1.val)         return left.index1.val < right.index1.val;
+        else if (left.index2.val != right.index2.val)   return left.index2.val < right.index2.val;
+        else                                            return left.index3.val < right.index3.val;
+    }
 
     inline
     bool operator()(const Entry<Index3D> &left, const Entry<Index3D> &right) const
     {
     // sort Operator row-wise
         if (left.row_index.index1.val != right.row_index.index1.val) {
-        	return left.row_index.index1.val < right.row_index.index1.val;
+            return left.row_index.index1.val < right.row_index.index1.val;
         }
         else if (left.row_index.index2.val != right.row_index.index2.val) {
-        	return left.row_index.index2.val < right.row_index.index2.val;
+            return left.row_index.index2.val < right.row_index.index2.val;
         }
         else if (left.row_index.index3.val != right.row_index.index3.val) {
             return left.row_index.index3.val < right.row_index.index3.val;
@@ -282,7 +282,7 @@ struct lt<Lexicographical, Index3D >
             return left.col_index.index2.val < right.col_index.index2.val;
         }
         else {
-        	return left.col_index.index3.val < right.col_index.index3.val;
+            return left.col_index.index3.val < right.col_index.index3.val;
         }
     }
 
