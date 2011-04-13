@@ -42,12 +42,6 @@ class HelmholtzOperator1D{
         
         HelmholtzOperator1D(const Basis& _basis, const T _c);
         HelmholtzOperator1D(const HelmholtzOperator1D<T,Basis> &a);
-
-        T
-        getc() const;
-
-        const Basis&
-        getBasis() const;
     
         T
         operator()(XType xtype1, int j1, int k1, 

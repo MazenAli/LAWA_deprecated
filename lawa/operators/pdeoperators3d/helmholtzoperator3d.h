@@ -57,9 +57,6 @@ class HelmholtzOperator3D{
         
         HelmholtzOperator3D(const Basis3D& _basis, const T _c);
 
-        T getc() const;
-        const Basis3D& getBasis() const;
-
         T
         operator()(XType row_xtype_x, int j1_x, int k1_x,
                    XType row_xtype_y, int j1_y, int k1_y,

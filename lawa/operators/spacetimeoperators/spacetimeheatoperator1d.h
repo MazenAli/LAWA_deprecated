@@ -51,10 +51,6 @@ class SpaceTimeHeatOperator1D{
         const T reaction;
         
         SpaceTimeHeatOperator1D(const Basis& _basis, const T _c, const T _reaction=0.);
-        
-        T getc() const;
-        T getreactionconstant() const;
-        const Basis& getBasis() const;
     
         T                                                           // returns a(v,u)
         operator()(XType row_xtype_t, int j1_t, int k1_t, 

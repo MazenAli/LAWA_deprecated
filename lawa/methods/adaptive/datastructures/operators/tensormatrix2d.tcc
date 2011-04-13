@@ -159,12 +159,12 @@ TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, NoInitialCondition,
         prec *= tmp;
     }
     T reaction_term = 0.;
-    T reaction_constant = a.getreactionconstant();
+    T reaction_constant = a.reaction;
     if (reaction_constant>0) reaction_term = data_id_t(row_index.index1,col_index.index1) *
                                              data_id_x(row_index.index2,col_index.index2);
     return prec * (
           data_d_t(row_index.index1,col_index.index1) * data_id_x(row_index.index2,col_index.index2) +
-          a.getc() * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2)
+          a.c * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2)
            + reaction_constant * reaction_term);
 }
 
@@ -232,11 +232,11 @@ TensorMatrix2D<T, Basis, SpaceTimeHeatOperator1D<T, Basis>, SpaceTimeInitialCond
         prec *= tmp;
     }
     T reaction_term = 0.;
-    T reaction_constant = a_operator.getreactionconstant();
+    T reaction_constant = a_operator.reaction;
     if (reaction_constant>0) reaction_term = data_id_t(row_index.index1,col_index.index1) *
                                                 data_id_x(row_index.index2,col_index.index2);
     return prec * ( data_d_t(row_index.index1,col_index.index1) * data_id_x(row_index.index2,col_index.index2) +
-                       a_operator.getc() * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2) +
+                       a_operator.c * data_id_t(row_index.index1,col_index.index1) * data_dd_x(row_index.index2,col_index.index2) +
                        reaction_constant * reaction_term);
 }
 

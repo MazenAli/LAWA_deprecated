@@ -7,13 +7,6 @@ SpaceTimeInitialCondition1D<T, Basis>::SpaceTimeInitialCondition1D(const Basis& 
 }
 
 template <typename T, typename Basis>
-const Basis&
-SpaceTimeInitialCondition1D<T, Basis>::getBasis() const
-{
-	return basis;
-}
-
-template <typename T, typename Basis>
 T
 SpaceTimeInitialCondition1D<T, Basis>::operator()(XType row_xtype_x, int j1_x, int k1_x,
                                                   XType col_xtype_t, int j2_t, int k2_t,
