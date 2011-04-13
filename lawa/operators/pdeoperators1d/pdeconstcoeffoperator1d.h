@@ -43,9 +43,6 @@ class PDEConstCoeffOperator1D{
 
         PDEConstCoeffOperator1D(const Basis& _basis, T _reaction, T _convection, T _diffusion);
 
-        const Basis&
-        getBasis() const;
-
         T
         operator()(XType xtype1, int j1, int k1,
                    XType xtype2, int j2, int k2) const;

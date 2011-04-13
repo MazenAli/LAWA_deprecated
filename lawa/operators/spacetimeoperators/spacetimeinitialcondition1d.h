@@ -47,8 +47,6 @@ class SpaceTimeInitialCondition1D{
                 
         SpaceTimeInitialCondition1D(const Basis& _basis);
 
-        const Basis& getBasis() const;
-
         T                                                           // returns a(v,u)
         operator()(XType row_xtype_x, int j1_x, int k1_x,
                    XType col_xtype_t, int j2_t, int k2_t,

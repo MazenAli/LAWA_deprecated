@@ -52,9 +52,6 @@ class HelmholtzOperator2D{
         
         HelmholtzOperator2D(const Basis2D& _basis, const T _c);
 
-        T getc() const;
-        const Basis2D& getBasis() const;
-
         T
         operator()(XType row_xtype_x, int j1_x, int k1_x,
                    XType row_xtype_y, int j1_y, int k1_y,

@@ -27,20 +27,6 @@ HelmholtzOperator2D<T, Basis2D>::HelmholtzOperator2D(const Basis2D & _basis, con
 
 template <typename T, typename Basis2D>
 T
-HelmholtzOperator2D<T,Basis2D>::getc() const
-{
-    return c;
-}
-
-template <typename T, typename Basis2D>
-const Basis2D&
-HelmholtzOperator2D<T,Basis2D>::getBasis() const
-{
-    return basis;
-}
-
-template <typename T, typename Basis2D>
-T
 HelmholtzOperator2D<T, Basis2D>::operator()(XType row_xtype_x, int j1_x, int k1_x,
                                             XType row_xtype_y, int j1_y, int k1_y,
                                             XType col_xtype_x, int j2_x, int k2_x,
