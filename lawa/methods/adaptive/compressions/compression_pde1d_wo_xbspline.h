@@ -34,13 +34,13 @@ struct CompressionPDE1D_WO_XBSpline
     const Basis &basis;
     short s_tilde, jmin, jmax;
 
-    CompressionPDE1D_WO_XBSpline(const Basis1D &_basis);
+    CompressionPDE1D_WO_XBSpline(const Basis &_basis);
 
     void
     setParameters(const IndexSet<Index1D> &LambdaRow);
 
-    IndexSet<Index>
-    SparsityPattern(const Index1D &lambda, const IndexSet<Index> &Lambda, int J=-1);
+    IndexSet<Index1D>
+    SparsityPattern(const Index1D &lambda, const IndexSet<Index1D> &Lambda, int J=-1);
 
 };
 
