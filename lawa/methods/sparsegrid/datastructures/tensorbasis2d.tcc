@@ -62,7 +62,7 @@ TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::J1_max(const int J_x, const 
 
 template<typename FirstBasis, typename SecondBasis>
 int 
-TensorBasis2D<FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
+TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
 {
     return std::min(J_y, std::max(J_x + second.j0 - 2, J_y + first.j0 - 2)- jx  + 1);
 }
