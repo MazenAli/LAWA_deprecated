@@ -1,0 +1,13 @@
+..docId:    lawa::projects
+
+Projects based on / using LAWA
+------------------------------
+
+
+LAWA has in the meanwhile been successfully used to realize several projects:
+
+...LIST(class=projects).........................................................
+-> many examples of the book <a href="http://www.oup.com/us/catalog/general/subject/Mathematics/ComputationalMathematics/?view=usa&ci=9780198526056#">"Wavelet Methods for Elliptic Partial Differential Equations"</a>, (Karsten Urban, OUP) have been realized with LAWA.
+-> "A Wavelet Tour of Option Pricing", (<a href="http://vts.uni-ulm.de/query/longview.meta.asp?document_id=7522">pdf</a>,tarball (<a href="Rometsch2011.tgz">.tgz</a>)), thesis of Mario Rometsch (<a href="mailto:mario.rometsch@googlemail.com">mario.rometsch@googlemail.com</a>)
+-> Wavelets in der Optik, thesis of Philipp Jester
+................................................................................

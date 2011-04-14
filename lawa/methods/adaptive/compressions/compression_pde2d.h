@@ -25,18 +25,27 @@
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/aux/timer.h>
 
+/*
+ * Implements the compression from Schwab, Stevenson: "Adaptive Wavelet Algorithms for Elliptic PDEs
+ * on Product Domains" (Theorem 4.1).
+ * Parameters: J = compression level
+ *             levelthresh = apply compression ("true") or not ("false")
+ */
+
+
 namespace lawa {
 
 template <typename T, typename Basis2D>
 struct CompressionPDE2D
 {
     const Basis2D &basis;
-    short s_tilde_x, jmin_x, jmax_x;
-    short s_tilde_y, jmin_y, jmax_y;
-    short J;
     bool levelthresh;
+    int J;
+    int s_tilde_x, jmin_x, jmax_x;
+    int s_tilde_y, jmin_y, jmax_y;
 
-    CompressionPDE2D(const Basis2D &_basis, bool _levelthresh);
+
+    CompressionPDE2D(const Basis2D &_basis, bool _levelthresh=false, int _J=10);
 
     void
     setParameters(const IndexSet<Index2D> &LambdaRow);
@@ -44,9 +53,9 @@ struct CompressionPDE2D
     IndexSet<Index2D>
     SparsityPattern(const Index2D &lambda_col, const IndexSet<Index2D> &LambdaRow);
 
-    IndexSet<Index2D>
-    SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde,
-                    int deriv_x, int deriv_y);
+//  IndexSet<Index2D>
+//  SparsityPattern(const Index2D &lambda_col, int jmin_x, int jmin_y, int s_tilde,
+//                  int deriv_x, int deriv_y);
 };
 
 } // namespace lawa
