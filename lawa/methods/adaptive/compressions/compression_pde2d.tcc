@@ -1,7 +1,7 @@
 namespace lawa {
 
 template <typename T, typename Basis2D>
-CompressionPDE2D<T,Basis2D>::CompressionPDE2D(const Basis2D &_basis, bool _levelthresh, int _J)
+CompressionPDE2D<T,Basis2D>::CompressionPDE2D(const Basis2D &_basis, bool _levelthresh, short _J)
     : basis(_basis), levelthresh(_levelthresh), J(_J),
       s_tilde_x(-1), jmin_x(100), jmax_x(-30), s_tilde_y(-1), jmin_y(100), jmax_y(-30)
 {
@@ -42,7 +42,7 @@ CompressionPDE2D<T,Basis2D>::SparsityPattern(const Index2D &lambda_col,
     for (set2d_const_it lambda=LambdaRow.begin(); lambda!=LambdaRow.end(); ++lambda) {
         short level_diff =   fabs((*lambda).index1.j-lambda_col.index1.j)
                            + fabs((*lambda).index2.j-lambda_col.index2.j);
-        if ( (level_thresh) && ((0.5+LambdaRow.d-2)*level_diff > J) ) {
+        if ( (levelthresh) && ((0.5+LambdaRow.d-2)*level_diff > J) ) {
             continue;
         }
         if ((Lambda_x.count((*lambda).index1)>0) && (Lambda_y.count((*lambda).index2)>0))  {

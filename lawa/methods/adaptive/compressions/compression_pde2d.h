@@ -40,12 +40,12 @@ struct CompressionPDE2D
 {
     const Basis2D &basis;
     bool levelthresh;
-    int J;
-    int s_tilde_x, jmin_x, jmax_x;
-    int s_tilde_y, jmin_y, jmax_y;
+    short J;
+    short s_tilde_x, jmin_x, jmax_x;
+    short s_tilde_y, jmin_y, jmax_y;
 
 
-    CompressionPDE2D(const Basis2D &_basis, bool _levelthresh=false, int _J=10);
+    CompressionPDE2D(const Basis2D &_basis, bool _levelthresh=false, short _J=10);
 
     void
     setParameters(const IndexSet<Index2D> &LambdaRow);
