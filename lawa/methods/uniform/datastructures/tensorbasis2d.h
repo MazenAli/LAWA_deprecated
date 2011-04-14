@@ -17,18 +17,18 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H
-#define LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H 1
+#ifndef LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS2D_H
+#define LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS2D_H 1
 
 namespace lawa{
     
 template<typename FirstBasis, typename SecondBasis>
-struct TensorBasis
+struct TensorBasis2D<Uniform, FirstBasis, SecondBasis>
 {
     typedef FirstBasis FirstBasisType;
     typedef SecondBasis SecondBasisType;
     
-    TensorBasis(const FirstBasis &_basis1, const SecondBasis &_basis2);
+    TensorBasis2D(const FirstBasis &_basis1, const SecondBasis &_basis2);
 
     const FirstBasis &first;
     const SecondBasis &second;
@@ -42,26 +42,10 @@ struct TensorBasis
     int 
     J2_max(const int J_x, const int J_y, const int jx) const;
 };
-
-template<typename FirstBasis, typename SecondBasis, typename ThirdBasis>
-struct TensorBasis3D
-{
-    typedef FirstBasis  FirstBasisType;
-    typedef SecondBasis SecondBasisType;
-    typedef ThirdBasis  ThirdBasisType;
-
-    TensorBasis3D(const FirstBasis &_basis1, const SecondBasis &_basis2, const ThirdBasis &_basis3);
-
-    const FirstBasis  &first;
-    const SecondBasis &second;
-    const ThirdBasis  &third;
-
-};
-    
     
 } // namespace lawa
 
-#include <lawa/methods/uniform/datastructures/tensorbasis.tcc>
+#include <lawa/methods/uniform/datastructures/tensorbasis2d.tcc>
 
 
-#endif // LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H
+#endif // LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS2D_H

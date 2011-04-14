@@ -20,38 +20,38 @@
 namespace lawa{
     
 template<typename FirstBasis, typename SecondBasis>
-TensorBasis<FirstBasis, SecondBasis>::TensorBasis(const FirstBasis &_basis1, const SecondBasis &_basis2)  
+TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::TensorBasis2D(const FirstBasis &_basis1, 
+                                                                  const SecondBasis &_basis2)  
     : first(_basis1), second(_basis2)
 {
 }
 
 template<typename FirstBasis, typename SecondBasis>
 int
-TensorBasis<FirstBasis, SecondBasis>::dim(int J_x, int J_y) const
+TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::dim(const int J_x, const int J_y) const
 {
-    return first.mra.cardI(J_x) * second.mra.cardI(J_y);
+    int d = first.mra.cardI(first.j0) * second.mra.cardI(J2_max(J_x, J_y, first.j0 - 1));
+    for(int jx = first.j0; jx <= J1_max(J_x, J_y, second.j0-1) - 1; ++jx){
+        d += first.cardJ(jx)*second.mra.cardI(second.j0);
+        for(int jy = second.j0; jy <= J2_max(J_x,J_y, jx) - 1; ++jy){
+            d += first.cardJ(jx) * second.cardJ(jy);
+        }
+    }
+    return d;
 }
 
 template<typename FirstBasis, typename SecondBasis>
 int 
-TensorBasis<FirstBasis, SecondBasis>::J1_max(const int J_x, const int J_y, const int jy) const
+TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::J1_max(const int J_x, const int J_y, const int jy) const
 {
-    return J_x;
-}
+    return std::min(J_x, std::max(J_x + second.j0 - 2, J_y + first.j0 - 2) - jy + 1);
+} 
 
 template<typename FirstBasis, typename SecondBasis>
 int 
-TensorBasis<FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
+TensorBasis2D<FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
 {
-    return J_y;
+    return std::min(J_y, std::max(J_x + second.j0 - 2, J_y + first.j0 - 2)- jx  + 1);
 }
-
-
-template<typename FirstBasis, typename SecondBasis, typename ThirdBasis>
-TensorBasis3D<FirstBasis, SecondBasis, ThirdBasis>::TensorBasis3D(const FirstBasis &_basis1, const SecondBasis &_basis2,
-                                                                  const ThirdBasis &_basis3)
-    : first(_basis1), second(_basis2), third(_basis3)
-{
-}
-
+    
 } // namespace lawa
