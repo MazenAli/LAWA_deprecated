@@ -31,20 +31,6 @@ HelmholtzOperator1D<T,Basis>::HelmholtzOperator1D(const HelmholtzOperator1D<T,Ba
 {
 }
 
-template <typename T, typename Basis>
-T
-HelmholtzOperator1D<T,Basis>::getc() const
-{
-    return c;
-}
-    
-template <typename T, typename Basis>
-const Basis&
-HelmholtzOperator1D<T,Basis>::getBasis() const
-{
-    return basis;
-}
-
 template <typename T, typename Basis>      
 T
 HelmholtzOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1, 

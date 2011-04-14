@@ -21,6 +21,7 @@
 #include <numeric>
 #include <cxxblas/cxxblas.h>
 #include <extensions/flens/lapack.h>
+#include <cxxblas/cxxblas.h>
 
 namespace lawa {
 

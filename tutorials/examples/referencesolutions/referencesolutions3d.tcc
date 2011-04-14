@@ -74,7 +74,7 @@ ReferenceSolutionTensor3D<T,Basis3D,HelmholtzOperator3D<T,Basis3D> >::setExample
                                                             DomainType _domain1, DomainType _domain2,
                                                             DomainType _domain3)
 {
-    c=a.getc();
+    c=a.c;
     assert(c>=0);
     nr=_nr;
     domain1 = _domain1;

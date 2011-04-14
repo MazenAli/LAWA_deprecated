@@ -61,7 +61,7 @@ ReferenceSolutionTensor2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample
                                                             const HelmholtzOperator2D<T,Basis2D> &a,
                                                             DomainType _domain1, DomainType _domain2)
 {
-    c=a.getc();
+    c=a.c;
     assert(c>=0);
     nr=_nr;
     domain1 = _domain1;
@@ -408,7 +408,7 @@ ReferenceSolution2D<T,Basis2D,HelmholtzOperator2D<T,Basis2D> >::setExample(int _
                                                             const HelmholtzOperator2D<T,Basis2D> &a,
                                                             DomainType _domain1, DomainType _domain2)
 {
-    c=a.getc();
+    c=a.c;
     assert(c>=0);
     nr=_nr;
     domain1 = _domain1;
@@ -590,7 +590,7 @@ ReferenceSolutionTensor2D<T,Basis2D,SpaceTimeHeatOperator1D<T,Basis2D> >::setExa
 															const SpaceTimeHeatOperator1D<T,Basis2D> &a,
 															DomainType _domain1, DomainType _domain2)
 {
-    c=a.getc();
+    c=a.c;
     assert(c>=0);
     nr=_nr;
     domain1 = _domain1;

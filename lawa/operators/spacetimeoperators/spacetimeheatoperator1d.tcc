@@ -6,27 +6,6 @@ SpaceTimeHeatOperator1D<T, Basis>::SpaceTimeHeatOperator1D(const Basis& _basis, 
       integral_t(_basis.first, _basis.first), integral_x(_basis.second, _basis.second)
 {
 }
-
-template <typename T, typename Basis>
-T
-SpaceTimeHeatOperator1D<T, Basis>::getc() const
-{
-	return c;
-}
-
-template <typename T, typename Basis>
-T
-SpaceTimeHeatOperator1D<T, Basis>::getreactionconstant() const
-{
-	return reaction;
-}
-
-template <typename T, typename Basis>
-const Basis&
-SpaceTimeHeatOperator1D<T, Basis>::getBasis() const
-{
-	return basis;
-}
     
 template <typename T, typename Basis>      
 T

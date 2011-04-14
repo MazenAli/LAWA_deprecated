@@ -12,8 +12,8 @@ template <typename T, typename Basis>
 T
 H1NormPreconditioner1D<T,Basis>::operator()(XType xtype, int j, int k) const
 {
-    return 1./std::sqrt(_integral(xtype,j,k,0, xtype,j,k,0)
-                      + _integral(xtype,j,k,1, xtype,j,k,1));
+    return 1./std::sqrt(_integral(j,k,xtype,0,j,k,xtype,0)
+                      + _integral(j,k,xtype,1,j,k,xtype,1));
 }
 
 template <typename T, typename Basis>

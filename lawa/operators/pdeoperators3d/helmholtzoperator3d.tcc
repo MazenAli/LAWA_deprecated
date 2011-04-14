@@ -29,20 +29,6 @@ HelmholtzOperator3D<T, Basis3D>::HelmholtzOperator3D(const Basis3D & _basis, con
 
 template <typename T, typename Basis3D>
 T
-HelmholtzOperator3D<T,Basis3D>::getc() const
-{
-    return c;
-}
-
-template <typename T, typename Basis3D>
-const Basis3D&
-HelmholtzOperator3D<T,Basis3D>::getBasis() const
-{
-    return basis;
-}
-
-template <typename T, typename Basis3D>
-T
 HelmholtzOperator3D<T, Basis3D>::operator()(XType row_xtype_x, int j1_x, int k1_x,
                                             XType row_xtype_y, int j1_y, int k1_y,
                                             XType row_xtype_z, int j1_z, int k1_z,
