@@ -19,6 +19,7 @@
 
 #include <cassert>
 #include <numeric>
+#include <cxxblas/cxxblas.h>
 #include <extensions/flens/lapack.h>
 
 namespace lawa {
@@ -49,6 +50,7 @@ _evalAtIntegersByEVP(const DenseVector<Array<T> > &a,
                                                 VR(A.numRows(),A.numRows()); // left and right eigenvectors
     ev(false, true, A, wr, wi, VL, VR); //only calculate right eigenvectors.
     // TODO: as soon as iamax is in FLENS, take next line one level higher!!!!
+    int pos = wr.firstIndex() + cblas_idamax(wr.length(), wr.engine().data(), 1);
     valuesAtIntegers = VR(_,pos); // choosing the corresponding eigenvector.
     
     // the elements of the eigenvector have to sum up to 1.
