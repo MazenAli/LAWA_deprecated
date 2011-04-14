@@ -65,7 +65,13 @@ enum QuadratureType {
 
 enum SortingCriterion {
     AbsoluteValue,
-    Lexicographical,
+    Lexicographical
+    //Uniform
+};
+
+enum MethodType {
+    Adaptive,
+    SparseGrid,
     Uniform
 };
 
