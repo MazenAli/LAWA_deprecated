@@ -49,7 +49,6 @@ _evalAtIntegersByEVP(const DenseVector<Array<T> > &a,
                                                 VR(A.numRows(),A.numRows()); // left and right eigenvectors
     ev(false, true, A, wr, wi, VL, VR); //only calculate right eigenvectors.
     // TODO: as soon as iamax is in FLENS, take next line one level higher!!!!
-    int pos = wr.firstIndex() + cblas_idamax(wr.length(), wr.engine().data(), 1);  // index of largest eigenvalue in modulus.
     valuesAtIntegers = VR(_,pos); // choosing the corresponding eigenvector.
     
     // the elements of the eigenvector have to sum up to 1.

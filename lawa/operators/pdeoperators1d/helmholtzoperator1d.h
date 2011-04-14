@@ -33,13 +33,13 @@ namespace lawa {
  *
  */
 template <typename T, typename Basis>
-class HelmholtzOperator1D{
-            
+class HelmholtzOperator1D
+{
     public:
-        
+
         const Basis& basis;
         const T c;
-        
+
         HelmholtzOperator1D(const Basis& _basis, const T _c);
         HelmholtzOperator1D(const HelmholtzOperator1D<T,Basis> &a);
 
@@ -48,28 +48,27 @@ class HelmholtzOperator1D{
 
         const Basis&
         getBasis() const;
-    
+
         T
-        operator()(XType xtype1, int j1, int k1, 
+        operator()(XType xtype1, int j1, int k1,
                    XType xtype2, int j2, int k2) const;
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index) const;
-    
+
         T
-        operator()(T time, 
-                   XType xtype1, int j1, int k1, 
+        operator()(T time,
+                   XType xtype1, int j1, int k1,
                    XType xtype2, int j2, int k2) const;
-        
+
         T
         operator()(T time, const Index1D &row_index, const Index1D &col_index) const;
-        
+
     private:
-        
+
         Integral<Gauss, Basis, Basis> integral;
 };
-    
-    
+
 } // namespace lawa
 
 #include <lawa/operators/pdeoperators1d/helmholtzoperator1d.tcc>
