@@ -40,6 +40,19 @@ TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::dim(const int J_x, const int
     return d;
 }
 
+/* Calculate maximal level in dimension 1 if level in dimension 2 is jy.
+ * 
+ *  Convention: Level of scaling function space (S_j) is set to j-1 
+ *
+ *  Isotropic Spaces: Full Diagonals
+ *      C = C_x = (J_x - 1) + (j0_y - 1) = C_y (= (J_y - 1) + (j0_x - 1))
+ *  Anisotropic Spaces: always include spaces with maximal levels J_x, J_y, 
+ *      then fill diagonals as much as possible
+ *      C = max(C_x, C_y)
+ * 
+ *  Constraints: j_x < J_x & j_x <= C - j_y
+ *  => j_x < min(J_x, C - j_y + 1)
+ */
 template<typename FirstBasis, typename SecondBasis>
 int 
 TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::J1_max(const int J_x, const int J_y, const int jy) const

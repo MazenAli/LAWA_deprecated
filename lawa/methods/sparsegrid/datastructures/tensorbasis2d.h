@@ -36,6 +36,14 @@ struct TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>
     int
     dim(const int J_x, const  int J_y) const;
     
+    /* J1_max and J2_max return the maximal level in dimension 1 (2) 
+     * if the level in the other dimension is jy (jx).
+     * This allows to use the uniform assembling code also for sparsegrid
+     * tensorbases.  
+     * Here: only "diagonal" spaces (i.e. jx + jy <= C)
+     *  For anisotropic bases, we fill the diagonals "as much as possible", i.e.
+     *  C = max(C_x, C_y).
+     */
     int 
     J1_max(const int J_x, const int J_y, const int jy) const;
     
