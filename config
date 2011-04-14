@@ -1,8 +1,8 @@
-TARGET = UNIX
+TARGET = $(shell uname)
 COMPILER = gcc
 BLASLAPACK = platform
 
-ifeq ($(TARGET),OSX)
+ifeq ($(TARGET),Darwin)
   CXXDYLIB  = -dynamiclib
   DYLIB_EXT = dylib
   ifeq ($(COMPILER),gcc)
@@ -23,7 +23,7 @@ ifeq ($(TARGET),OSX)
   endif
 endif
 
-ifeq ($(TARGET),UNIX)
+ifeq ($(TARGET),Linux)
   CXXDYLIB  = -shared
   DYLIB_EXT = so
   ifeq ($(COMPILER),gcc)
