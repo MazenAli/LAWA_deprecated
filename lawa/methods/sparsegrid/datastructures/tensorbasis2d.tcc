@@ -20,15 +20,15 @@
 namespace lawa{
     
 template<typename FirstBasis, typename SecondBasis>
-SparseTensorBasis<FirstBasis, SecondBasis>::SparseTensorBasis(const FirstBasis &_basis1, 
-                                                              const SecondBasis &_basis2)  
+TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::TensorBasis2D(const FirstBasis &_basis1, 
+                                                                  const SecondBasis &_basis2)  
     : first(_basis1), second(_basis2)
 {
 }
 
 template<typename FirstBasis, typename SecondBasis>
 int
-SparseTensorBasis<FirstBasis, SecondBasis>::dim(const int J_x, const int J_y) const
+TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::dim(const int J_x, const int J_y) const
 {
     int d = first.mra.cardI(first.j0) * second.mra.cardI(J2_max(J_x, J_y, first.j0 - 1));
     for(int jx = first.j0; jx <= J1_max(J_x, J_y, second.j0-1) - 1; ++jx){
@@ -40,16 +40,29 @@ SparseTensorBasis<FirstBasis, SecondBasis>::dim(const int J_x, const int J_y) co
     return d;
 }
 
+/* Calculate maximal level in dimension 1 if level in dimension 2 is jy.
+ * 
+ *  Convention: Level of scaling function space (S_j) is set to j-1 
+ *
+ *  Isotropic Spaces: Full Diagonals
+ *      C = C_x = (J_x - 1) + (j0_y - 1) = C_y (= (J_y - 1) + (j0_x - 1))
+ *  Anisotropic Spaces: always include spaces with maximal levels J_x, J_y, 
+ *      then fill diagonals as much as possible
+ *      C = max(C_x, C_y)
+ * 
+ *  Constraints: j_x < J_x & j_x <= C - j_y
+ *  => j_x < min(J_x, C - j_y + 1)
+ */
 template<typename FirstBasis, typename SecondBasis>
 int 
-SparseTensorBasis<FirstBasis, SecondBasis>::J1_max(const int J_x, const int J_y, const int jy) const
+TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>::J1_max(const int J_x, const int J_y, const int jy) const
 {
     return std::min(J_x, std::max(J_x + second.j0 - 2, J_y + first.j0 - 2) - jy + 1);
 } 
 
 template<typename FirstBasis, typename SecondBasis>
 int 
-SparseTensorBasis<FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
+TensorBasis2D<FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
 {
     return std::min(J_y, std::max(J_x + second.j0 - 2, J_y + first.j0 - 2)- jx  + 1);
 }

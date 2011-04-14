@@ -17,51 +17,44 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H
-#define LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H 1
+#ifndef LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_TENSORBASIS2D_H
+#define LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_TENSORBASIS2D_H 1
 
 namespace lawa{
     
 template<typename FirstBasis, typename SecondBasis>
-struct TensorBasis
+struct TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>
 {
     typedef FirstBasis FirstBasisType;
     typedef SecondBasis SecondBasisType;
     
-    TensorBasis(const FirstBasis &_basis1, const SecondBasis &_basis2);
+    TensorBasis2D(const FirstBasis &_basis1, const SecondBasis &_basis2);
 
     const FirstBasis &first;
     const SecondBasis &second;
     
     int
-    dim(const int J_x, const int J_y) const;
+    dim(const int J_x, const  int J_y) const;
     
+    /* J1_max and J2_max return the maximal level in dimension 1 (2) 
+     * if the level in the other dimension is jy (jx).
+     * This allows to use the uniform assembling code also for sparsegrid
+     * tensorbases.  
+     * Here: only "diagonal" spaces (i.e. jx + jy <= C)
+     *  For anisotropic bases, we fill the diagonals "as much as possible", i.e.
+     *  C = max(C_x, C_y).
+     */
     int 
     J1_max(const int J_x, const int J_y, const int jy) const;
     
     int 
     J2_max(const int J_x, const int J_y, const int jx) const;
 };
-
-template<typename FirstBasis, typename SecondBasis, typename ThirdBasis>
-struct TensorBasis3D
-{
-    typedef FirstBasis  FirstBasisType;
-    typedef SecondBasis SecondBasisType;
-    typedef ThirdBasis  ThirdBasisType;
-
-    TensorBasis3D(const FirstBasis &_basis1, const SecondBasis &_basis2, const ThirdBasis &_basis3);
-
-    const FirstBasis  &first;
-    const SecondBasis &second;
-    const ThirdBasis  &third;
-
-};
     
     
 } // namespace lawa
 
-#include <lawa/methods/uniform/datastructures/tensorbasis.tcc>
+#include <lawa/methods/sparsegrid/datastructures/tensorbasis2d.tcc>
 
 
-#endif // LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS_H
+#endif // LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_TENSORBASIS2D_H

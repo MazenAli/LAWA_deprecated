@@ -1,0 +1,31 @@
+Installation of LAWA
+====================
+
+..link: __download lawa__ -> http://sf.net/projects/lawa/files
+
+At the moment LAWA is distibuted as tarball, which can be downloaded from
+the project-site at sourceforge (download lawa).
+
+LAWA is currently bundled with a slightly modified version of FLENS. In the
+long term the minor modifications will be integrated into FLENS so that the
+standard version of FLENS will match the LAWA requirements. For the moment 
+a suitable FLENS comes directly with LAWA. 
+
+The installation of FLENS and LAWA on a Unix-like system (the only ones we give
+installation support for) takes the following steps:
+
+==LIST:BEGIN==
+-> Download and extract the tarball from the sourceforge-site. This will result
+   in two folders in the current directory:
+==CODE:BEGIN==
+  FLENS-lite
+  LAWA-lite
+==CODE:END==
+-> You have to set two environment-variables pointing to the two project roots:
+==CODE:BEGIN==
+  export FLENS_HOME=/path/to/the/flens/installation
+  export LAWA_HOME=/path/to/the/lawa/installation
+==CODE:END==
+Probably you should place these two lines in one of [.bashrc] or [.profile]
+depending on your system to have the variables set automatically.
+==LIST:END== 

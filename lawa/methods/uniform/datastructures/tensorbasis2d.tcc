@@ -16,37 +16,34 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-#ifndef LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSETENSORBASIS_H
-#define LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSETENSORBASIS_H 1
-
+ 
 namespace lawa{
     
 template<typename FirstBasis, typename SecondBasis>
-struct SparseTensorBasis
+TensorBasis2D<Uniform, FirstBasis, SecondBasis>::TensorBasis2D(const FirstBasis &_basis1, const SecondBasis &_basis2)  
+    : first(_basis1), second(_basis2)
 {
-    typedef FirstBasis FirstBasisType;
-    typedef SecondBasis SecondBasisType;
-    
-    SparseTensorBasis(const FirstBasis &_basis1, const SecondBasis &_basis2);
+}
 
-    const FirstBasis &first;
-    const SecondBasis &second;
-    
-    int
-    dim(const int J_x, const  int J_y) const;
-    
-    int 
-    J1_max(const int J_x, const int J_y, const int jy) const;
-    
-    int 
-    J2_max(const int J_x, const int J_y, const int jx) const;
-};
-    
-    
+template<typename FirstBasis, typename SecondBasis>
+int
+TensorBasis2D<Uniform, FirstBasis, SecondBasis>::dim(int J_x, int J_y) const
+{
+    return first.mra.cardI(J_x) * second.mra.cardI(J_y);
+}
+
+template<typename FirstBasis, typename SecondBasis>
+int 
+TensorBasis2D<Uniform, FirstBasis, SecondBasis>::J1_max(const int J_x, const int J_y, const int jy) const
+{
+    return J_x;
+}
+
+template<typename FirstBasis, typename SecondBasis>
+int 
+TensorBasis2D<Uniform, FirstBasis, SecondBasis>::J2_max(const int J_x, const int J_y, const int jx) const
+{
+    return J_y;
+}
+
 } // namespace lawa
-
-#include <lawa/methods/sparsegrid/datastructures/sparsetensorbasis.tcc>
-
-
-#endif // LAWA_METHODS_SPARSEGRID_DATASTRUCTURES_SPARSETENSORBASIS_H
