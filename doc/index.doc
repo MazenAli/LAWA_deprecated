@@ -1,4 +1,4 @@
-..docId:    lawa::home
+:document:    lawa::home
 
 Welcome to LAWA!
 ----------------
@@ -8,21 +8,18 @@ especially for adaptive methods.
 
 Key features of LAWA are:
 
-...LIST.........................................................................
--> wavelet bases for different domains
--> realizations of adaptive algorithms
--> ease of use
-................................................................................
+- wavelet bases for different domains
+- realizations of adaptive algorithms
+- ease of use
 
 Consequences of the design:
-...LIST.........................................................................
--> extensibility
--> flexibility
-................................................................................
 
-..link: __roadmap__ -> lawa::roadmap
-..link: __documentation__ -> lawa::documentation
-..link: __available features__ -> lawa::features
+- extensibility
+- flexibility
+
+:link: __roadmap__ -> lawa::roadmap
+:link: __documentation__ -> lawa::documentation
+:link: __available features__ -> lawa::features
 
 LAWA is still in continuous development. Several parts have reached some quite 
 stable state whereas others still underly permanent change and improvements 

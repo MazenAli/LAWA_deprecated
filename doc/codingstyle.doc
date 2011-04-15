@@ -1,7 +1,10 @@
-..docId:     misc::codingstyle
+============
+Coding Style
+============
 
-==TITLE:Coding Style==
-The following documents the coding style we use in LAWA.  It has evolved
+:document:     doc::codingstyle
+
+The following documents the coding style we use in LAWA. It has evolved
 since the beginning of LAWA and was mainly established by Alexander
 Stippler and Michael Lehn.  Some of the rules might seem strange but most
 of them are there for some good reason.
@@ -11,7 +14,7 @@ expressiveness of the developed code.  Furthermore, it sometimes prevents
 us from producing nasty bugs in the middle of the night.  And at least it helps
 us to understand each others code.
 
-Our coding style does not conform to the [STL] coding style.  And we do not
+Our coding style does not conform to the `STL` coding style.  And we do not
 want to.  Instead we clearly want to distinct between functionality
 provided by C++ out of the box and functionality given by LAWA used as
 an add on.
