@@ -56,6 +56,7 @@ struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographic
     T
     norm(T tau=2.0) const;
 
+    //  deprecated: not necessary for operators, only for information in plotting routines
     const int d, d_;
 };
 
