@@ -9,7 +9,7 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::AdaptiveHelmholtzOperat
 : basis(_basis), c(_c), Prec(_Prec),
   compression_1d_x(basis.first), compression_1d_y(basis.second), compression(basis),
   Prec(), op_identity_x(basis.first), op_identity_y(basis.second),
-  op_laplace_x(basis.first,1.), op_laplace_y(basis.second),
+  op_laplace_x(basis.first), op_laplace_y(basis.second),
   entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
   data_identity_x(op_identity_x, compression_1d_x, entrybound, NumOfRows, NumOfCols),
   data_identity_y(op_identity_y, compression_1d_y, entrybound, NumOfRows, NumOfCols),

@@ -31,7 +31,7 @@
 namespace lawa {
 
 template <typename T, typename Basis2D, typename Preconditioner>
-class AdaptiveHelmholtzOperator2D
+struct AdaptiveHelmholtzOperator2D
 {
     typedef typename Basis2D::FirstBasisType  Basis_x;
     typedef typename Basis2D::SecondBasisType Basis_y;
@@ -51,11 +51,11 @@ class AdaptiveHelmholtzOperator2D
     typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataIdentity_x;
     typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_y,
-                               Compression1D_x, NoPreconditioner1D>  DataIdentity_y;
+                               Compression1D_y, NoPreconditioner1D>  DataIdentity_y;
     typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataLaplace_x;
-    typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
-                               Compression1D_x, NoPreconditioner1D>  DataLaplace_y;
+    typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_y,
+                               Compression1D_y, NoPreconditioner1D>  DataLaplace_y;
 
     AdaptiveHelmholtzOperator2D(const Basis2D &_basis2d, T _c, const Preconditioner &_Prec,
                                 T _entrybound=0., int _NumOfRows=4096, int _NumOfCols=2048);
