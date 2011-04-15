@@ -1,5 +1,3 @@
-FLENS_HOME=/Users/stip/FLENS-lite
-LAWA_HOME=/Users/stip/Desktop/LAWA-lite
 include $(LAWA_HOME)/config
 
 
