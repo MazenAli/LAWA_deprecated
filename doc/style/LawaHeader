@@ -3,7 +3,7 @@
 <head>
 <title>LAWA - Library for Adaptive Wavelet Applications</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
-<link type="text/css" href="/doc/style/documentation.css" rel=stylesheet>
+<link type="text/css" href="/documentation.css" rel=stylesheet>
 </head>
 <body>
 
@@ -23,7 +23,7 @@
 <td valign="top" id="leftmenu">
 <ul id="menu">
 <li class="subtitle">lawa</li>
-<li><a href="/doc/index.html">home</a></li>
+<li><a href="/index.html">home</a></li>
 <li><a href="/doc/license.html">license</a></li>
 <li><a href="/doc/roadmap.html">roadmap</a></li>
 

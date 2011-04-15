@@ -19,7 +19,7 @@ available. The whole library is centered around biorthogonal wavelets; this is
 indeed the main focus.
 
 +---------------------+-------------------------+--------------------------------+
-|   domain            | construction            | status                         |
+|   _domain_          | _construction_          | _status_                       |
 +=====================+=========================+================================+
 | R                   | CDF                     | final                          |
 +---------------------+-------------------------+--------------------------------+
@@ -38,7 +38,7 @@ and the corresponding duals for the B-splines and the wavelets.
 LAWA provides different kinds of wavelets:
 
 +---------------------+-------------------------+--------------------+--------------------------+
-| kind of wavelets    | domain                  | construction       | status                   |
+| _kind of wavelets_  | _domain_                | _construction_     | _status_                 |
 +=====================+=========================+====================+==========================+
 | orthogonal          |  R                      | Daubechies         | just coefficients, final |
 +---------------------+-------------------------+--------------------+--------------------------+
