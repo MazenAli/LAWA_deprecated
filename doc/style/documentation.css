@@ -71,7 +71,7 @@ h6                          { font-size: xx-small;  }
 }
 
 #menu a:hover { 
-	color: black; 
+color: black; 
 }
 
 
@@ -115,7 +115,7 @@ h6                          { font-size: xx-small;  }
 }
 
 .main {
-	margin-top: 0px;
+margin-top: 0px;
     font-size:     .9em;
 }
 
@@ -143,7 +143,7 @@ li.section:before {
 }
 
 li.section {
-	margin-bottom: 3px;
+margin-bottom: 3px;
     list-style-type: none;
 }
 
@@ -187,7 +187,7 @@ div.code {
 
 tt  {
     font-family:  Courier, Monaco, 'Andale Mono', monospace, Consolas;
-	font-size: 1.1em;
+font-size: 1.1em;
     /*color: #1a9e1f;*/
     color: firebrick;
 }

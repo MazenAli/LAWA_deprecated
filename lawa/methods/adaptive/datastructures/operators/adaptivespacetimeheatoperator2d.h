@@ -28,12 +28,24 @@
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/convectionoperator1d.h>
+#include <lawa/operators/spacetimeoperators/spacetimeoperators.h>
 #include <lawa/preconditioners/nopreconditioner.h>
 #include <lawa/preconditioners/spacetimepreconditioner/spacetimepreconditioners.h>
  
 namespace lawa {
-    
-template <typename T, typename Basis2D, typename LeftPreconditioner2D, typename RightPreconditioner2D>
+
+/* Space-Time Heat Operator
+ *
+ *  a(v,u) =             Integral(v1 * u1_t) * Integral(v2 * u2) 
+ *          + c *        Integral(v1 * u1)   * Integral(v2_x * u2_x)
+ *          + reaction * Integral(v1 * u1)   * Integral(v2 * u2)
+ *
+ *  Template Parameters:
+ *      LeftPrec2D :        left preconditioner
+ *      RightPrec2D:        right preconditioner
+ *      InitialCondition:   operator for initial condition, can be NoInitialCondition
+ */
+template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 struct AdaptiveSpaceTimeHeatOperator2D{
     
     typedef typename Basis2D::FirstBasisType    Basis_t;
@@ -49,7 +61,6 @@ struct AdaptiveSpaceTimeHeatOperator2D{
     typedef IdentityOperator1D<T, Basis_x>      IdentityOperator_x;
     typedef ConvectionOperator1D<T, Basis_t>    ConvectionOperator_t;
     typedef LaplaceOperator1D<T, Basis_x>       LaplaceOperator_x;
-                                          
 
     typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_t, 
                                Compression_t, NoPreconditioner1D>   DataIdentity_t;
@@ -61,11 +72,16 @@ struct AdaptiveSpaceTimeHeatOperator2D{
                                Compression_x, NoPreconditioner1D>   DataLaplace_x;
                                
     AdaptiveSpaceTimeHeatOperator2D(const Basis2D& _basis, T _c, T _reaction = 0, 
-                                    LeftPreconditioner2D _p_left, RightPreconditioner2D _p_right,
+                                    LeftPrec2D _p_left, RightPrec2D _p_right,
                                     T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
                                     
+    // call of p_left * a_operator * p_right
     T
     operator()(const Index2D &row_index, const Index2D &col_index);
+    
+    //call of op_initcond * p_right
+    T
+    operator()(const Index1D &row_index, const Index2D &col_index);
 
     void
     clear();
@@ -82,13 +98,15 @@ struct AdaptiveSpaceTimeHeatOperator2D{
     Coefficients<Lexicographical,T,Index2D> P_left_data;
     Coefficients<Lexicographical,T,Index2D> P_right_data;
     
-    const LeftPreconditioner2D&   p_left;
-    const RightPreconditioner2D&  p_right; 
+    const LeftPrec2D&   p_left;
+    const RightPrec2D&  p_right; 
     
     const IdentityOperator_t    op_identity_t;
     const IdentityOperator_x    op_identity_x;
     const ConvectionOperator_t  op_convection_t;
     const LaplaceOperator_x     op_laplace_x;
+    
+    const InitialCondition&     op_initcond;
     
     T   entrybound;
     int NumOfRows, NumOfCols;
