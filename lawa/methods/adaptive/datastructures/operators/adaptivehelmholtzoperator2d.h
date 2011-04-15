@@ -22,6 +22,7 @@
 #define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR2D_H 1
 
 #include <lawa/settings/enum.h>
+#include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
@@ -56,7 +57,7 @@ class AdaptiveHelmholtzOperator2D
     typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataLaplace_y;
 
-    AdaptiveHelmholtzOperator2D(const Basis2D &_basis2d, T _c,
+    AdaptiveHelmholtzOperator2D(const Basis2D &_basis2d, T _c, const Preconditioner &_Prec,
                                 T _entrybound=0., int _NumOfRows=4096, int _NumOfCols=2048);
 
     T
@@ -65,13 +66,18 @@ class AdaptiveHelmholtzOperator2D
     T
     prec(const Index2D &index);
 
+    void
+    clear();
+
+
     const Basis2D              &basis;
     T c;
+    const Preconditioner       &Prec;
 
     Compression1D_x            compression_1d_x;
     Compression1D_y            compression_1d_y;
     Compression2D              compression;
-    const NoPreconditioner2D   Prec;
+
     const IdentityOperator_x   op_identity_x;
     const IdentityOperator_y   op_identity_y;
     const LaplaceOperator_x    op_laplace_x;
@@ -84,6 +90,8 @@ class AdaptiveHelmholtzOperator2D
     DataIdentity_y   data_identity_y;
     DataLaplace_x    data_laplace_x;
     DataLaplace_y    data_laplace_y;
+
+    Coefficients<Lexicographical,T,Index2D> P_data;
 };
 
 }   //namespace lawa
