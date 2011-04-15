@@ -75,7 +75,7 @@ PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _
             sing_pts.engine().resize(1);
             sing_pts(1) = 0.01;
             deltas.engine().resize(1,2);
-            deltas(1,1) = 0.01; deltas(1,2) = 2.;
+            deltas(1,1) = 0.01; deltas(1,2) = diffusion*2.;
         }
         /*
         else if (nr==3) {
@@ -92,8 +92,8 @@ PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _
             sing_pts(1) = -M_PI/8.;
             sing_pts(2) =  M_PI/8.;
             deltas.engine().resize(2,2);
-            deltas(1,1) = -M_PI/8.; deltas(1,2) = -4.;
-            deltas(2,1) =  M_PI/8.; deltas(2,2) = 4.;
+            deltas(1,1) = -M_PI/8.; deltas(1,2) = -diffusion*4.;
+            deltas(2,1) =  M_PI/8.; deltas(2,2) = diffusion*4.;
         }
         else if (nr==4) {    //second derivative not continuous on R!!
             sing_pts.engine().resize(2);
@@ -105,20 +105,19 @@ PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _
             sing_pts(1) = -0.4;
             sing_pts(2) =  0.9;
             deltas.engine().resize(2,2);
-			deltas(1,1) = -0.4; deltas(1,2) = 20.8;
-			deltas(2,1) =  0.9; deltas(2,2) = 105.3;
+			deltas(1,1) = -0.4; deltas(1,2) = diffusion*20.8;
+			deltas(2,1) =  0.9; deltas(2,2) = diffusion*105.3;
         }
         else if (nr==6) {
         	sing_pts.engine().resize(1);
         	sing_pts(1) = 0.0001;
         	deltas.engine().resize(1,2);
         	//deltas(1,1) = 0.0001; deltas(1,2) = 3.;
-        	deltas(1,1) = 0.0001; deltas(1,2) = 9.;
+        	deltas(1,1) = 0.0001; deltas(1,2) = diffusion*9.;
         	//deltas(1,1) = 0.0001; deltas(1,2) = 5.;
 
         }
     }
-    deltas *= diffusion;
 }
 
 template <typename T>

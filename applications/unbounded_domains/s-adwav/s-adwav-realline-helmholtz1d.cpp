@@ -49,7 +49,6 @@ typedef S_ADWAV<T,Index1D, Basis1D, MA, Rhs> S_Adwav;
 int
 estimateMinimalLevel(int example, T c, int d, int d_);
 
-
 int main (int argc, char *argv[]) {
 	if (argc != 5 && argc != 6) {
 		cout << "usage " << argv[0] << " d d_ max_its example [jmin]" << endl; exit(1);
@@ -117,13 +116,9 @@ int main (int argc, char *argv[]) {
 
 	Timer time;
 	time.start();
-	s_adwav.solve_cg(InitialLambda);//, refsol.H1norm());
+	s_adwav.solve_cg(InitialLambda, refsol.H1norm());
 	time.stop();
 	cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
-
-	Coefficients<AbsoluteValue,T,Index1D > u_abs;
-	u_abs = s_adwav.solutions[NumOfIterations-1];
-	plotCoeff(u_abs, basis, "convection_index_set");
 
 	//T H1norm = 0.;
 	//plot(basis, s_adwav.solutions[NumOfIterations-1], P, refsol.rhs, refsol.d_exact, -30.,120., pow2i<T>(-5), H1norm,  "s-adwav-realline-helmholtz1d");
