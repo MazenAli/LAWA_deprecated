@@ -33,9 +33,9 @@ toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Inde
     for (const_set_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
     	row_indices[(*row)] = row_count;
     }
-    A.c.setParameters(LambdaRow);
+    A.compression.setParameters(LambdaRow);
     for (const_set_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
-    	IndexSet<Index> LambdaRowSparse = A.c.SparsityPattern(*col, LambdaRow);
+    	IndexSet<Index> LambdaRowSparse = A.compression.SparsityPattern(*col, LambdaRow);
     	for (const_set_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
     		T tmp = A(*row,*col);
     		if (fabs(tmp)>0)				A_flens(row_indices[*row],col_count) = tmp;
@@ -113,11 +113,11 @@ mv_sparse(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicograp
 
 	Timer timer;
     timer.start();
-    A.c.setParameters(LambdaRow);
-    Coefficients<Lexicographical,T,Index> w_(v.d,v.d_);
+    A.compression.setParameters(LambdaRow);
+    Coefficients<Lexicographical,T,Index> w_;
 	for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
-		IndexSet<Index> LambdaRowSparse = A.c.SparsityPattern((*mu).first, LambdaRow);
-		for (set_const_it lambda = LambdaRowSparse.begin(); lambda != LambdaRowSparse.end(); ++lambda) {
+		IndexSet<Index> LambdaRowSparse = A.compression.SparsityPattern((*mu).first, LambdaRow);
+		for (set_const_it lambda=LambdaRowSparse.begin(); lambda!=LambdaRowSparse.end(); ++lambda) {
 			w_[*lambda] += A(*lambda,(*mu).first) * (*mu).second;
 		}
 	}

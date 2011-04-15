@@ -29,7 +29,7 @@ CompressionPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col,
 {
     typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 
-    IndexSet<Index1D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
+    IndexSet<Index1D> LambdaRowSparse;
     int s = std::max(abs(lambda_col.j-jmin),abs(lambda_col.j-jmax));
     s = std::max(s,int(s_tilde));
     if (J!=-1) s = std::min(s,J);

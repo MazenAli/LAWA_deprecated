@@ -343,6 +343,8 @@ PDEReferenceSolutions1D<T>::H1norm()
         else if (nr==6)		return std::sqrt(0.253968253968254 + 4.05050505050505);
 //      else if (nr==6)		return std::sqrt(0.5333333333333333 + 2.085714285714286);
     }
+    assert(0);
+    return 0;
 }
 
 } //namespace lawa

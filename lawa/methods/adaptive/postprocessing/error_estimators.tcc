@@ -39,7 +39,7 @@ T
 estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
                        T HNormOfExactSolution)
 {
-    Coefficients<Lexicographical,T,Index> Au(u.d,u.d_), f_H(u.d,u.d_);
+    Coefficients<Lexicographical,T,Index> Au, f_H;
     Au = mv_sparse(supp(u),A_H,u);
     T uAu = u*Au;
     f_H   = F_H(supp(u));

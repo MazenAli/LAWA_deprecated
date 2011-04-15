@@ -25,14 +25,8 @@ namespace lawa {
 
 template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index>::Coefficients()
-    : d(0), d_(0)
 {
-}
 
-template <typename T, typename Index>
-Coefficients<Lexicographical,T,Index>::Coefficients(const int _d, const int _d_)
-    : d(_d), d_(_d_)
-{
 }
 
 template <typename T, typename Index>
@@ -178,7 +172,7 @@ IndexSet<Index>
 supp(const Coefficients<Lexicographical,T,Index> &v)
 {
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
-    IndexSet<Index> ret(v.d, v.d_);
+    IndexSet<Index> ret;
     if (v.size() > 0) {
         for (const_it lambda = v.begin(); lambda != v.end(); ++lambda) {
             ret.insert((*lambda).first);
@@ -204,14 +198,8 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
  */
 template <typename T, typename Index>
 Coefficients<AbsoluteValue,T,Index>::Coefficients()
-    : d(0), d_(0)
 {
-}
 
-template <typename T, typename Index>
-Coefficients<AbsoluteValue,T,Index>::Coefficients(const int _d, const int _d_)
-    : d(_d), d_(_d_)
-{
 }
 
 template <typename T, typename Index>

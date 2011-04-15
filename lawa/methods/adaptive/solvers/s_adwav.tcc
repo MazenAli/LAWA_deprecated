@@ -40,17 +40,16 @@ void
 S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T H1norm)
 {
     Timer timer;
-    
-    int d=InitialLambda.d, d_=InitialLambda.d_;
-    IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_), DeltaLambda(d,d_);
-    Coefficients<Lexicographical,T, Index> u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
+
+    IndexSet<Index> LambdaActive, LambdaThresh, LambdaActivable, DeltaLambda;
+    Coefficients<Lexicographical,T, Index> u, f, Au, r;
 
     LambdaActive = InitialLambda;
     T old_res = 0.;
     int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
     std::stringstream filename;
-    filename << "s-adwav-otf_" << d << "_" << d_ << ".dat";
+    filename << "s-adwav-otf.dat";
     std::ofstream file(filename.str().c_str());
 
     for (int its=0; its<NumOfIterations; ++its) {
@@ -78,9 +77,6 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         int current_jmin, current_jmax;
         std::stringstream filename_coefficients;
         filename_coefficients << "coefficients_" << its+1;
-        plotScatterCoeff2D(u, basis.first, basis.second,filename_coefficients.str().c_str());
-        //getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
-        //std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
         timer.stop();
         T time1 = timer.elapsed();

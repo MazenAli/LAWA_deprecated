@@ -23,9 +23,9 @@
 namespace lawa {
 
 template <typename Index>
-IndexSet<Index>::IndexSet(int _d, int _d_)
-: d(_d), d_(_d_)
+IndexSet<Index>::IndexSet(void)
 {
+
 }
 
 template <typename Index>
@@ -94,7 +94,7 @@ IndexSet<Index1D>
 extractSpaceIndices(const IndexSet<Index2D> &Lambda)
 {
     typedef IndexSet<Index2D>::const_iterator set2d_const_it;
-    IndexSet<Index1D> ret(Lambda.d,Lambda.d_);
+    IndexSet<Index1D> ret;
     for (set2d_const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
         ret.insert((*lambda).index2);
     }

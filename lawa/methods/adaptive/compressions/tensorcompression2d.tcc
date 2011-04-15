@@ -13,9 +13,7 @@ template <typename T, typename Compression_x, typename Compression_y>
 void
 TensorCompression2D<T,Compression_x,Compression_y>::setParameters(const IndexSet<Index2D> &_LambdaRow)
 {
-    int d=LambdaRow.d, d_=LambdaRow.d_;
-
-    IndexSet<Index1D> LambdaRow_x_tmp(d,d_), LambdaRow_y_tmp(d,d_);
+    IndexSet<Index1D> LambdaRow_x_tmp, LambdaRow_y_tmp;
     LambdaRow=_LambdaRow;
     split(LambdaRow, LambdaRow_x_tmp, LambdaRow_y_tmp);
     LambdaRow_x = LambdaRow_x_tmp;
@@ -31,11 +29,10 @@ TensorCompression2D<T,Compression_x,Compression_y>::SparsityPattern(const Index2
 {
     typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
 
-    int d=LambdaRow.d, d_=LambdaRow.d_;
     IndexSet<Index1D> ret_x = c_x.SparsityPattern(lambda_col.index1, LambdaRow_x);
     IndexSet<Index1D> ret_y = c_y.SparsityPattern(lambda_col.index2, LambdaRow_y);
 
-    IndexSet<Index2D> LambdaRowSparse(d,d_);
+    IndexSet<Index2D> LambdaRowSparse;
     for (set2d_const_it lambda=LambdaRow.begin(); lambda!=LambdaRow.end(); ++lambda) {
         if ((ret_x.count((*lambda).index1)>0) && (ret_y.count((*lambda).index2)>0))  {
             LambdaRowSparse.insert(*lambda);

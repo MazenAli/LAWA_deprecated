@@ -59,18 +59,20 @@ struct equal_pair_of_int {
     }
 };
 
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
 struct MapMatrixWithZeros
 {
     typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
-    //typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int, equal_pair_of_int> EntryMap;
+    //typedef typename __gnu_cxx::hash_map<std::pair<int,int>, T, hash_pair_of_int,
+    // equal_pair_of_int> EntryMap;
     typedef typename EntryMap::value_type val_type;
 
     EntryMap NonZeros;
 
     const BilinearForm &a;
     const Preconditioner &p;
-    Compression &c;
+    Compression &compression;
 
     unsigned int NumOfRows, NumOfCols;
     IndexSet<Index> ConsecutiveIndices;
@@ -84,7 +86,7 @@ struct MapMatrixWithZeros
                        T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
     T
-    operator()(const Index &row_index, const Index &col_index);        //todo: writes into data -> no const declaration -> better solution?!
+    operator()(const Index &row_index, const Index &col_index);
 
     void
     clear();
@@ -111,7 +113,7 @@ struct MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<
                        T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
     T
-    operator()(const Index &row_index, const Index &col_index);        //todo: writes into data -> no const declaration -> better solution?!
+    operator()(const Index &row_index, const Index &col_index);
 
     void
     clear();

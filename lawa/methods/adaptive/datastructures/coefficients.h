@@ -36,8 +36,6 @@ struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographic
 {
     Coefficients();        //required in rhs.h
 
-    Coefficients(const int d, const int d_);
-
     Coefficients<Lexicographical,T,Index>&
     operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
 
@@ -55,9 +53,6 @@ struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographic
 
     T
     norm(T tau=2.0) const;
-
-    //  deprecated: not necessary for operators, only for information in plotting routines
-    const int d, d_;
 };
 
 template <typename T, typename Index>
@@ -83,9 +78,7 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
 template <typename T, typename Index>
 struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteValue,T> >
 {
-    Coefficients();        //required in rhs.h
-
-    Coefficients(const int d, const int d_);
+    Coefficients();
 
     Coefficients<AbsoluteValue,T,Index>&
     operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
@@ -104,8 +97,6 @@ struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteVa
 
     DenseVector<Array<T> >
     norm_sections() const;
-
-    const int d, d_;
 };
 
 template <typename T, typename Index>

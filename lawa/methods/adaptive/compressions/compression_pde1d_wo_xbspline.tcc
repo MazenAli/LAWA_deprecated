@@ -28,7 +28,7 @@ CompressionPDE1D_WO_XBSpline<T,Basis>::SparsityPattern(const Index1D &lambda,
 {
     typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
 
-    IndexSet<Index1D> LambdaRowSparse(Lambda.d,Lambda.d_), Lambda_x(Lambda.d,Lambda.d_);
+    IndexSet<Index1D> LambdaRowSparse, Lambda_x;
     if (J==-1) {
         Lambda_x = lambdaTilde1d_PDE_WO_XBSpline(lambda, basis, s_tilde, jmin, jmax);
     }

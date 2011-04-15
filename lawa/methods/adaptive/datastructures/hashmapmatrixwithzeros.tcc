@@ -21,22 +21,29 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrixWithZeros(const BilinearForm &_a,
-                                                                     const Preconditioner &_p, Compression &_c,
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrixWithZeros
+                                                                    (const BilinearForm &_a,
+                                                                     const Preconditioner &_p,
+                                                                     Compression &_compression,
                                                                      T _entrybound,
                                                                      int _NumOfRows, int _NumOfCols)
-:  a(_a), p(_p), c(_c), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-   ConsecutiveIndices(2,2), Zeros( (NumOfRows*NumOfCols) >> 5), warning_overflow(false), entrybound(_entrybound)
+:  a(_a), p(_p), compression(_compression), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
+   ConsecutiveIndices(2,2), Zeros( (NumOfRows*NumOfCols) >> 5), warning_overflow(false),
+   entrybound(_entrybound)
 {
     PrecValues.engine().resize(int(NumOfRows));
     Zeros.assign((NumOfRows*NumOfCols) >> 5, (long) 0);
     //NonZeros.resize(3145739);
 }
 
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
 T
-MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Index &_row_index, const Index &_col_index)
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()
+                                                                     (const Index &_row_index,
+                                                                      const Index &_col_index)
 {
     Index temp_row_index = _row_index;
     Index temp_col_index = _col_index;
@@ -115,13 +122,15 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()(
             warning_overflow = true;
         }
         T prec = 1.;
-        if (((*row_index).linearindex < NumOfRows) && (fabs(PrecValues((*row_index).linearindex+1)) > 0)) {
+        if (   ((*row_index).linearindex < NumOfRows)
+            && (fabs(PrecValues((*row_index).linearindex+1)) > 0)) {
             prec *= PrecValues((*row_index).linearindex+1);
         }
         else {
             prec *= p(*row_index);
         }
-        if (((*col_index).linearindex < NumOfRows) && (fabs(PrecValues((*col_index).linearindex+1)) > 0)) {
+        if (   ((*col_index).linearindex < NumOfRows)
+            && (fabs(PrecValues((*col_index).linearindex+1)) > 0)) {
             prec *= PrecValues((*col_index).linearindex+1);
         }
         else {

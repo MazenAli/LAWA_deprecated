@@ -28,7 +28,8 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
 struct MapMatrix
 {
     typedef typename std::map<Entry<Index>,T,lt<Lexicographical,Index > > EntryMap;
@@ -37,13 +38,13 @@ struct MapMatrix
 
     const BilinearForm &a;
     const Preconditioner &p;
-    Compression &c;
+    Compression &compression;
     Coefficients<Lexicographical,T,Index> P_data;
 
-    MapMatrix(const BilinearForm &a, const Preconditioner &p, Compression &c);
+    MapMatrix(const BilinearForm &a, const Preconditioner &p, Compression &_compression);
 
     T
-    operator()(const Index &row_index, const Index &col_index);        //todo: writes into data -> no const declaration -> better solution?!
+    operator()(const Index &row_index, const Index &col_index);
 
     //T
     //operator()(T t, const  Index &row_index, const Index &col_index);

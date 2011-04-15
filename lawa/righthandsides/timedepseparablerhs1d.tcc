@@ -55,7 +55,7 @@ Coefficients<Lexicographical,T,Index1D>
 SumOfTimedepRHS1D<T, TimedepRHS>::operator()(T t, const IndexSet<Index1D> &Lambda) const
 {
 	typedef typename IndexSet<Index1D>::iterator const_set_it;
-	Coefficients<Lexicographical,T,Index1D> ret(Lambda.d,Lambda.d_);
+	Coefficients<Lexicographical,T,Index1D> ret;
 	for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
 		T tmp = this->operator()(t, *lambda);
 		ret[*lambda] = tmp;

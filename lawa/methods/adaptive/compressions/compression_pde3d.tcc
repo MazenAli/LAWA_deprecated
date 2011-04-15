@@ -35,7 +35,7 @@ CompressionPDE3D<T,Basis3D>::SparsityPattern(const Index3D &lambda_col,
     typedef typename IndexSet<Index3D>::const_iterator set3d_const_it;
 
     set3d_const_it LambdaRow_end = LambdaRow.end();
-    IndexSet<Index3D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
+    IndexSet<Index3D> LambdaRowSparse;
 
     IndexSet<Index1D> Lambda_x = lambdaTilde1d_PDE(lambda_col.index1, basis.first, s_tilde_x,
                                                    jmin_x, jmax_x, false);

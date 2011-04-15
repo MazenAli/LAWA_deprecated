@@ -19,15 +19,20 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
-MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a, const Preconditioner &_p, Compression &_c)
-:  a(_a), p(_p), c(_c), P_data()
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
+MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a,
+                                                                      const Preconditioner &_p,
+                                                                      Compression &_compression)
+:  a(_a), p(_p), compression(_compression), P_data()
 {
 }
 
-template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
 T
-MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Index &row_index, const Index &col_index)
+MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Index &row_index,
+                                                                       const Index &col_index)
 {
     Entry<Index> entry(row_index,col_index);
 

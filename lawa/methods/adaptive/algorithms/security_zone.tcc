@@ -5,7 +5,7 @@ namespace lawa {
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
 C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis) {
-    IndexSet<Index1D> ret(Lambda.d,Lambda.d_), tmp(Lambda.d, Lambda.d_);
+    IndexSet<Index1D> ret, tmp;
     typedef typename IndexSet<Index1D>::const_iterator const_it;
 
     for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
@@ -20,10 +20,7 @@ C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis
 template <typename T, DomainType Domain, Construction Cons>
 IndexSet<Index1D>
 C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis) {
-    IndexSet<Index1D> ret(basis.d,basis.d_);
-    const BSpline<T,Primal,Domain,Cons> phi(basis.mra,0);
-    const Wavelet<T,Primal,Domain,Cons> psi(basis,0);
-
+    IndexSet<Index1D> ret;
     C(lambda,c,basis.mra,basis,ret);
     return ret;
 }
@@ -32,7 +29,7 @@ template <typename T>
 IndexSet<Index1D>
 C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis, bool only_pos)
 {
-    IndexSet<Index1D> ret(Lambda.d,Lambda.d_), tmp(Lambda.d, Lambda.d_);
+    IndexSet<Index1D> ret, tmp;
     typedef typename IndexSet<Index1D>::const_iterator const_it;
 
     for (const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
@@ -250,13 +247,11 @@ C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
     typedef typename IndexSet<Index2D>::const_iterator const_it_2d;
     typedef typename IndexSet<Index1D>::const_iterator const_it;
 
-    int d = Lambda.d, d_ = Lambda.d_;
-
-    IndexSet<Index2D>  ret(d,d_);
+    IndexSet<Index2D>  ret;
 
     //Security zone of Lambda should not contain indices which are already in Lambda
     for (const_it_2d lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-        IndexSet<Index1D > C_index1(d,d_), C_index2(d,d_);
+        IndexSet<Index1D > C_index1, C_index2;
         C_index1 = C((*lambda).index1, c, basis.first);
         C_index2 = C((*lambda).index2, c, basis.second);
 
@@ -290,13 +285,11 @@ C_t(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
     typedef typename IndexSet<Index2D>::const_iterator const_it_2d;
     typedef typename IndexSet<Index1D>::const_iterator const_it;
 
-    int d = Lambda.d, d_ = Lambda.d_;
-
-    IndexSet<Index2D>  ret(d,d_);
+    IndexSet<Index2D>  ret;
 
     //Security zone of Lambda should not contain indices which are already in Lambda
     for (const_it_2d lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-        IndexSet<Index1D > C_index1(d,d_), C_index2(d,d_);
+        IndexSet<Index1D > C_index1, C_index2;
         C_index1 = C((*lambda).index1, c, basis.first);
         //C_index2 = C((*lambda).index2, c, basis.second);
 
@@ -318,13 +311,11 @@ C(const IndexSet<Index3D> &Lambda, T c, const Basis3D &basis)
     typedef typename IndexSet<Index3D>::const_iterator const_it_3d;
     typedef typename IndexSet<Index1D>::const_iterator const_it;
 
-    int d = Lambda.d, d_ = Lambda.d_;
-
-    IndexSet<Index3D>  ret(d,d_);
+    IndexSet<Index3D>  ret;
 
     //Security zone of Lambda should not contain indices which are already in Lambda
     for (const_it_3d lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-        IndexSet<Index1D > C_index1(d,d_), C_index2(d,d_), C_index3(d,d_);
+        IndexSet<Index1D > C_index1, C_index2, C_index3;
         C_index1 = C((*lambda).index1, c, basis.first);
         C_index2 = C((*lambda).index2, c, basis.second);
         C_index3 = C((*lambda).index3, c, basis.third);

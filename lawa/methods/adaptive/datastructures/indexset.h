@@ -33,15 +33,13 @@ namespace lawa {
 template <typename Index>
 struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
 {
-    IndexSet(int d, int d_);
+    IndexSet(void);
 
     IndexSet<Index>&
     operator= (const IndexSet<Index> &_set);
 
     IndexSet<Index>
     operator+ (const IndexSet<Index> &_set) const;
-
-    const int d,d_;
 };
 
 template <typename Index>

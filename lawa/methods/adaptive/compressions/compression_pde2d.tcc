@@ -31,7 +31,7 @@ CompressionPDE2D<T,Basis2D>::SparsityPattern(const Index2D &lambda_col,
     typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
     typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
 
-    IndexSet<Index2D> LambdaRowSparse(LambdaRow.d,LambdaRow.d_);
+    IndexSet<Index2D> LambdaRowSparse;
     IndexSet<Index1D> Lambda_x =
                lambdaTilde1d_PDE(lambda_col.index1, basis.first,  s_tilde_x, jmin_x, jmax_x, false);
     IndexSet<Index1D> Lambda_y =
@@ -42,7 +42,7 @@ CompressionPDE2D<T,Basis2D>::SparsityPattern(const Index2D &lambda_col,
     for (set2d_const_it lambda=LambdaRow.begin(); lambda!=LambdaRow.end(); ++lambda) {
         short level_diff =   fabs((*lambda).index1.j-lambda_col.index1.j)
                            + fabs((*lambda).index2.j-lambda_col.index2.j);
-        if ( (levelthresh) && ((0.5+LambdaRow.d-2)*level_diff > J) ) {
+        if ( (levelthresh) && ((0.5+basis.first.d-2)*level_diff > J) ) {
             continue;
         }
         if ((Lambda_x.count((*lambda).index1)>0) && (Lambda_y.count((*lambda).index2)>0))  {

@@ -13,7 +13,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
     Wavelet<T,Primal,R,CDF> psi(basis);
     int j = lambda.j, k = lambda.k;
     int d = psi.d, d_= psi.d_;
-    IndexSet<Index1D> ret(d,d_);
+    IndexSet<Index1D> ret;
     Support<T> support_refbspline = phi.support(0,0);
     Support<T> support_refwavelet = psi.support(0,0);
 
