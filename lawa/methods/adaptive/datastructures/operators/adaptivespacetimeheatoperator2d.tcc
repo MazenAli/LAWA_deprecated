@@ -1,3 +1,4 @@
+#include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 
 namespace lawa {
@@ -28,7 +29,7 @@ operator()(const Index2D &row_index, const Index2D &col_index)
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     T prec = 1.;
     
-    if (!flens::IsSame<NoPreconditioner2D, LeftPrec2D>::value) {
+    if (!flens::IsSame<NoPreconditioner<T,Index2D>, LeftPrec2D>::value) {
         // Left precondioning:
         const_coeff_it it_row_index   = P_left_data.find(row_index);
         //  Entry has already been computed:
@@ -43,7 +44,7 @@ operator()(const Index2D &row_index, const Index2D &col_index)
         }
     }
 
-    if (!flens::IsSame<NoPreconditioner2D, RightPrec2D>::value) {
+    if (!flens::IsSame<NoPreconditioner<T,Index2D>, RightPrec2D>::value) {
         // Right precondioning:
         const_coeff_it it_col_index   = P_right_data.find(col_index);
         //  Entry has already been computed:
@@ -61,11 +62,11 @@ operator()(const Index2D &row_index, const Index2D &col_index)
     // Calculate reaction term only if constant not 0
     T reaction_term = 0.;
     if (reaction != 0) {
-        reaction_term = op_identity_t(row_index.index1,col_index.index1) * op_identity_x(row_index.index2,col_index.index2);
+        reaction_term = data_identity_t(row_index.index1,col_index.index1) * data_identity_x(row_index.index2,col_index.index2);
     }
     
-    return prec * ( op_convection_t(row_index.index1,col_index.index1) * op_identity_x(row_index.index2,col_index.index2) 
-                    + c * op_identity_t(row_index.index1,col_index.index1) * op_laplace_x(row_index.index2,col_index.index2) 
+    return prec * ( data_convection_t(row_index.index1,col_index.index1) * data_identity_x(row_index.index2,col_index.index2) 
+                    + c * data_identity_t(row_index.index1,col_index.index1) * data_laplace_x(row_index.index2,col_index.index2) 
                     + reaction * reaction_term);
 }
 
@@ -79,7 +80,7 @@ operator()(const Index1D &row_index, const Index2D &col_index)
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     T prec = 1.;
 
-    if (!flens::IsSame<NoPreconditioner2D, RightPrec2D>::value) {
+    if (!flens::IsSame<NoPreconditioner<T,Index2D>, RightPrec2D>::value) {
         // Right precondioning:
         const_coeff_it it_col_index   = P_right_data.find(col_index);
         //  Entry has already been computed:
