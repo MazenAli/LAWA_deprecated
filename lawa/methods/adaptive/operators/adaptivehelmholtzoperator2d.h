@@ -102,6 +102,6 @@ struct AdaptiveHelmholtzOperator2D
 
 }   //namespace lawa
 
-#include <lawa/methods/adaptive/datastructures/operators/adaptivehelmholtzoperator2d.tcc>
+#include <lawa/methods/adaptive/operators/adaptivehelmholtzoperator2d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR2D_H
