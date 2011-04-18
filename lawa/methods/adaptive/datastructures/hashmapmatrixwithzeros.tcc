@@ -30,7 +30,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrixWi
                                                                      T _entrybound,
                                                                      int _NumOfRows, int _NumOfCols)
 :  a(_a), p(_p), compression(_compression), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-   ConsecutiveIndices(2,2), Zeros( (NumOfRows*NumOfCols) >> 5), warning_overflow(false),
+   ConsecutiveIndices(), Zeros( (NumOfRows*NumOfCols) >> 5), warning_overflow(false),
    entrybound(_entrybound)
 {
     PrecValues.engine().resize(int(NumOfRows));
@@ -158,11 +158,13 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()
 
 template <typename T, typename Index, typename BilinearForm, typename Compression>
 MapMatrixWithZeros<T,Index,BilinearForm,Compression,
-                   NoPreconditioner<T,Index> >::MapMatrixWithZeros(const BilinearForm &_a, Compression &_c,
+                   NoPreconditioner<T,Index> >::MapMatrixWithZeros(const BilinearForm &_a,
+                                                                   Compression &_c,
                                                                    T _entrybound,
                                                                    int _NumOfRows, int _NumOfCols)
 :  a(_a), c(_c), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-   ConsecutiveIndices(2,2), Zeros( (NumOfRows*NumOfCols) >> 5), warning_overflow(false), entrybound(_entrybound)
+   ConsecutiveIndices(), Zeros( (NumOfRows*NumOfCols) >> 5),
+   warning_overflow(false), entrybound(_entrybound)
 {
     Zeros.assign((NumOfRows*NumOfCols) >> 5, (long) 0);
     //NonZeros.resize(3145739);

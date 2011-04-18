@@ -23,6 +23,7 @@
 #include <utility>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/preconditioners/nopreconditioner.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/aux/timer.h>
 

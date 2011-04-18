@@ -46,20 +46,22 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
     }
     else {
         T prec = 1.;
-        const_coeff_it it_P_end       = P_data.end();
-        const_coeff_it it_row_index = P_data.find(row_index);
-        if (it_row_index != it_P_end) {
-            prec *= (*it_row_index).second;
-        }
-        else {
-            T tmp = p(row_index);
-            P_data[row_index] = tmp;
-            prec *= tmp;
-        }
-        it_P_end       = P_data.end();
-        const_coeff_it it_col_index   = P_data.find(col_index);
-        if (it_col_index != it_P_end) {
-            prec *= (*it_col_index).second;
+        if (!flens::IsSame<NoPreconditioner<T, Index1D>, Preconditioner>::value) {
+            const_coeff_it it_P_end       = P_data.end();
+            const_coeff_it it_row_index = P_data.find(row_index);
+            if (it_row_index != it_P_end) {
+                prec *= (*it_row_index).second;
+            }
+            else {
+                T tmp = p(row_index);
+                P_data[row_index] = tmp;
+                prec *= tmp;
+            }
+            it_P_end       = P_data.end();
+            const_coeff_it it_col_index   = P_data.find(col_index);
+            if (it_col_index != it_P_end) {
+                prec *= (*it_col_index).second;
+            }
         }
         else {
             T tmp = p(col_index);

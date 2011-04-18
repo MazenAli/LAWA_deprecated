@@ -3,18 +3,16 @@ namespace lawa {
 template <typename T, typename Basis2D, typename Preconditioner>
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::AdaptiveHelmholtzOperator2D
                                                          (const Basis2D &_basis, T _c,
-                                                          const Preconditioner &_Prec,
-                                                          T _entrybound, int _NumOfRows,
-                                                          int _NumOfCols)
+                                                          const Preconditioner &_Prec)
 : basis(_basis), c(_c), Prec(_Prec),
   compression_1d_x(basis.first), compression_1d_y(basis.second), compression(basis),
-  Prec(), op_identity_x(basis.first), op_identity_y(basis.second),
+  op_identity_x(basis.first), op_identity_y(basis.second),
   op_laplace_x(basis.first), op_laplace_y(basis.second),
-  entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-  data_identity_x(op_identity_x, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-  data_identity_y(op_identity_y, compression_1d_y, entrybound, NumOfRows, NumOfCols),
-  data_laplace_x(op_laplace_x, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-  data_laplace_y(op_laplace_y, compression_1d_y, entrybound, NumOfRows, NumOfCols),
+  Prec1D(),
+  data_identity_x(op_identity_x, Prec1D, compression_1d_x),
+  data_identity_y(op_identity_y, Prec1D, compression_1d_y),
+  data_laplace_x(op_laplace_x,   Prec1D, compression_1d_x),
+  data_laplace_y(op_laplace_y,   Prec1D, compression_1d_y),
   P_data()
 {
 

@@ -26,7 +26,7 @@
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+#include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 
 namespace lawa {
 
@@ -48,17 +48,16 @@ struct AdaptiveHelmholtzOperator2D
     typedef LaplaceOperator1D<T, Basis_x>                            LaplaceOperator_x;
     typedef LaplaceOperator1D<T, Basis_y>                            LaplaceOperator_y;
 
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x,
-                               Compression1D_x, NoPreconditioner1D>  DataIdentity_x;
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_y,
-                               Compression1D_y, NoPreconditioner1D>  DataIdentity_y;
-    typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
-                               Compression1D_x, NoPreconditioner1D>  DataLaplace_x;
-    typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_y,
-                               Compression1D_y, NoPreconditioner1D>  DataLaplace_y;
+    typedef MapMatrix<T, Index1D, IdentityOperator_x,
+                      Compression1D_x, NoPreconditioner1D>  DataIdentity_x;
+    typedef MapMatrix<T, Index1D, IdentityOperator_y,
+                      Compression1D_y, NoPreconditioner1D>  DataIdentity_y;
+    typedef MapMatrix<T, Index1D, LaplaceOperator_x,
+                      Compression1D_x, NoPreconditioner1D>  DataLaplace_x;
+    typedef MapMatrix<T, Index1D, LaplaceOperator_y,
+                      Compression1D_y, NoPreconditioner1D>  DataLaplace_y;
 
-    AdaptiveHelmholtzOperator2D(const Basis2D &_basis2d, T _c, const Preconditioner &_Prec,
-                                T _entrybound=0., int _NumOfRows=4096, int _NumOfCols=2048);
+    AdaptiveHelmholtzOperator2D(const Basis2D &_basis2d, T _c, const Preconditioner &_Prec);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);
@@ -83,8 +82,8 @@ struct AdaptiveHelmholtzOperator2D
     const LaplaceOperator_x    op_laplace_x;
     const LaplaceOperator_y    op_laplace_y;
 
-    T entrybound;
-    int NumOfRows, NumOfCols;
+    NoPreconditioner1D         Prec1D;
+
 
     DataIdentity_x   data_identity_x;
     DataIdentity_y   data_identity_y;

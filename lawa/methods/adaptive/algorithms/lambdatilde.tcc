@@ -9,8 +9,9 @@ IndexSet<Index1D>
 lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, 
                   int s_tilde, int jmin, int jmax, bool update)
 {
-    BSpline<T,Primal,R,CDF> phi(basis.mra);
-    Wavelet<T,Primal,R,CDF> psi(basis);
+    const BSpline<T,Primal,R,CDF> phi = basis.mra.phi;
+    const Wavelet<T,Primal,R,CDF> psi = basis.psi;
+
     int j = lambda.j, k = lambda.k;
     int d = psi.d, d_= psi.d_;
     IndexSet<Index1D> ret;
