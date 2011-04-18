@@ -5,5 +5,7 @@ all:
 		do echo ""; echo "processing dir $$i"; \
 		$(MAKE) -C $$i all; \
 	done;
-	
+
+clean:
+
 # DO NOT DELETE
