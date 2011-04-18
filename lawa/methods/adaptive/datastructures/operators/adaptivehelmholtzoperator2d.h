@@ -26,7 +26,9 @@
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
-#include <lawa/methods/adaptive/datastructures/mapmatrix.h>
+#include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
+#include <lawa/preconditioners/preconditioners.h>
+#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 
 namespace lawa {
 
@@ -48,16 +50,21 @@ struct AdaptiveHelmholtzOperator2D
     typedef LaplaceOperator1D<T, Basis_x>                            LaplaceOperator_x;
     typedef LaplaceOperator1D<T, Basis_y>                            LaplaceOperator_y;
 
-    typedef MapMatrix<T, Index1D, IdentityOperator_x,
-                      Compression1D_x, NoPreconditioner1D>  DataIdentity_x;
-    typedef MapMatrix<T, Index1D, IdentityOperator_y,
-                      Compression1D_y, NoPreconditioner1D>  DataIdentity_y;
-    typedef MapMatrix<T, Index1D, LaplaceOperator_x,
-                      Compression1D_x, NoPreconditioner1D>  DataLaplace_x;
-    typedef MapMatrix<T, Index1D, LaplaceOperator_y,
-                      Compression1D_y, NoPreconditioner1D>  DataLaplace_y;
+    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x,
+                               Compression1D_x, NoPreconditioner1D>  DataIdentity_x;
+    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_y,
+                               Compression1D_y, NoPreconditioner1D>  DataIdentity_y;
+    typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
+                               Compression1D_x, NoPreconditioner1D>  DataLaplace_x;
+    typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_y,
+                               Compression1D_y, NoPreconditioner1D>  DataLaplace_y;
 
-    AdaptiveHelmholtzOperator2D(const Basis2D &_basis2d, T _c, const Preconditioner &_Prec);
+    typedef HelmholtzOperator2D<T, Basis2D>                 HelmholtzBilinearForm2D;
+    typedef DiagonalMatrixPreconditioner2D<T, Basis2D,
+                                        HelmholtzBilinearForm2D>  DiagonalHelmholtzPreconditioner2D;
+
+    AdaptiveHelmholtzOperator2D(const Basis2D &_basis2d, T _c, const Preconditioner &_Prec,
+                                T thresh=0., int NumOfCols=4096, int NumOfRows=4096);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);
