@@ -4,8 +4,8 @@
 namespace lawa {
 
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-AdaptiveSpaceTimeHeatOperator2D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
-AdaptiveSpaceTimeHeatOperator2D(const Basis2D& _basis, T _c, T _reaction,
+AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, T _c, T _reaction,
                                 LeftPrec2D& _p_left, RightPrec2D& _p_right, InitialCondition& _init_cond,
                                 T _entrybound, int _NumOfRows, int _NumOfCols)
     : basis(_basis), c(_c), reaction(_reaction),
@@ -23,7 +23,7 @@ AdaptiveSpaceTimeHeatOperator2D(const Basis2D& _basis, T _c, T _reaction,
 
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 T
-AdaptiveSpaceTimeHeatOperator2D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
 operator()(const Index2D &row_index, const Index2D &col_index)
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
@@ -72,7 +72,7 @@ operator()(const Index2D &row_index, const Index2D &col_index)
 
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 T
-AdaptiveSpaceTimeHeatOperator2D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
 operator()(const Index1D &row_index, const Index2D &col_index)
 {
     assert(!flens::IsSame<NoInitialCondition, InitialCondition>::value);
@@ -100,7 +100,7 @@ operator()(const Index1D &row_index, const Index2D &col_index)
 
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 void
-AdaptiveSpaceTimeHeatOperator2D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
 clear()
 {
     data_identity_t.clear();

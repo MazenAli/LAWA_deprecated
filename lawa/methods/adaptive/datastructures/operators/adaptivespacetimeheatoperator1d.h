@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
  
-#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR2D_H
-#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR2D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
+#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H 1
  
 #include <lawa/setting/enum.h>
 #include <lawa/methods/adaptive/compressions/compressions_pde1d.h>
@@ -46,7 +46,7 @@ namespace lawa {
  *      InitialCondition:   operator for initial condition, can be NoInitialCondition
  */
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-struct AdaptiveSpaceTimeHeatOperator2D{
+struct AdaptiveSpaceTimeHeatOperator1D{
     
     typedef typename Basis2D::FirstBasisType    Basis_t;
     typedef typename Basis2D::SecondBasisType   Basis_x;
@@ -71,7 +71,7 @@ struct AdaptiveSpaceTimeHeatOperator2D{
     typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
                                Compression_x, NoPreconditioner1D>   DataLaplace_x;
                                
-    AdaptiveSpaceTimeHeatOperator2D(const Basis2D& _basis, T _c, T _reaction = 0, 
+    AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, T _c, T _reaction = 0, 
                                     LeftPrec2D _p_left, RightPrec2D _p_right,
                                     T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
                                     
@@ -120,8 +120,8 @@ struct AdaptiveSpaceTimeHeatOperator2D{
       
 } // namespace lawa
 
-#include <lawa/methods/adaptive/datastructures/operators/adaptivespacetimeheatoperator2d.tcc>
+#include <lawa/methods/adaptive/datastructures/operators/adaptivespacetimeheatoperator1d.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR2D_H
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
  
  
