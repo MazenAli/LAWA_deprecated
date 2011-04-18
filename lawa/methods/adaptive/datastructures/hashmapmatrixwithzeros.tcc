@@ -87,22 +87,24 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()
     }
     else if (value == 0) {     //value == 0
         T prec = 1.;
-        if (fabs(PrecValues((*row_index).linearindex+1)) > 0) {
-            prec *= PrecValues((*row_index).linearindex+1);
-        }
-        else {
-            T tmp = p(*row_index);
-            prec *= tmp;
-            PrecValues((*row_index).linearindex+1) = tmp;
-        }
-        if (fabs(PrecValues((*col_index).linearindex+1)) > 0) {
-            prec *= PrecValues((*col_index).linearindex+1);
+        if (!flens::IsSame<NoPreconditioner<T, Index>, Preconditioner>::value) {
+            if (fabs(PrecValues((*row_index).linearindex+1)) > 0) {
+                prec *= PrecValues((*row_index).linearindex+1);
+            }
+            else {
+                T tmp = p(*row_index);
+                prec *= tmp;
+                PrecValues((*row_index).linearindex+1) = tmp;
+            }
+            if (fabs(PrecValues((*col_index).linearindex+1)) > 0) {
+                prec *= PrecValues((*col_index).linearindex+1);
 
-        }
-        else {
-            T tmp = p(*col_index);
-            prec *= tmp;
-            PrecValues((*col_index).linearindex+1) = tmp;
+            }
+            else {
+                T tmp = p(*col_index);
+                prec *= tmp;
+                PrecValues((*col_index).linearindex+1) = tmp;
+            }
         }
         T val = 0.;
         val = prec * a(*row_index,*col_index);
@@ -148,105 +150,9 @@ void
 MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()
 {
     NonZeros.clear();
-    //NonZeros.clear();
     Zeros.clear();
     ConsecutiveIndices.clear();
     PrecValues.engine().resize(0);
-}
-
-
-
-template <typename T, typename Index, typename BilinearForm, typename Compression>
-MapMatrixWithZeros<T,Index,BilinearForm,Compression,
-                   NoPreconditioner<T,Index> >::MapMatrixWithZeros(const BilinearForm &_a,
-                                                                   Compression &_c,
-                                                                   T _entrybound,
-                                                                   int _NumOfRows, int _NumOfCols)
-:  a(_a), c(_c), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-   ConsecutiveIndices(), Zeros( (NumOfRows*NumOfCols) >> 5),
-   warning_overflow(false), entrybound(_entrybound)
-{
-    Zeros.assign((NumOfRows*NumOfCols) >> 5, (long) 0);
-    //NonZeros.resize(3145739);
-}
-
-
-template <typename T, typename Index, typename BilinearForm, typename Compression>
-T
-MapMatrixWithZeros<T,Index,BilinearForm,Compression,
-                   NoPreconditioner<T,Index> >::operator()(const Index &_row_index, const Index &_col_index)
-{
-    Index temp_row_index = _row_index;
-    Index temp_col_index = _col_index;
-    typedef typename IndexSet<Index>::iterator set_it;
-    int size = ConsecutiveIndices.size();
-    std::pair<set_it,bool> row = ConsecutiveIndices.insert(temp_row_index);
-    std::pair<set_it,bool> col = ConsecutiveIndices.insert(temp_col_index);
-
-    set_it row_index = row.first;
-    if (row.second) {
-        (*row_index).linearindex = size;
-        ++size;
-    }
-    set_it col_index = col.first;
-    if (col.second) {
-        (*col_index).linearindex = size;
-    }
-
-    unsigned long value, block;
-    unsigned int block_num, block_pos;
-
-    if (((*row_index).linearindex >= NumOfRows) || ((*col_index).linearindex >= NumOfCols)) {
-        value = 3;
-    }
-    else {
-        block_num = (   (*col_index).linearindex*NumOfRows + (*row_index).linearindex ) >> 5;
-        block_pos = ( ( (*col_index).linearindex*NumOfRows + (*row_index).linearindex ) & 31 ) * 2;
-
-        block = Zeros[block_num];
-        //long value = ( (((long) 3) << (62-block_pos)*2) & (block) ) >> (62-block_pos);
-        value = ( (((long) 3) << block_pos) & (block) ) >> block_pos;
-    }
-
-
-    if (value == 1) {
-        return 0.;
-    }
-    else if (value == 2) {
-        T tmp = NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)];
-        return tmp;
-    }
-    else if (value == 0) {     //value == 0
-        T val = a(*row_index,*col_index);
-        if (fabs(val)>entrybound) {
-            NonZeros[std::pair<int,int>((*row_index).linearindex, (*col_index).linearindex)] = val;
-            Zeros[block_num] = (((long) 2) << block_pos) | (block) ;
-            return val;
-        }
-        else {
-            Zeros[block_num] = (((long) 1) << block_pos) | (block) ;
-            return 0.;
-        }
-    }
-    else {
-        if (!warning_overflow) {
-            std::cout << "WARNING: Not enough storage for zeros!!" << std::endl;
-            warning_overflow = true;
-        }
-        T val = a(*row_index,*col_index);
-        if (fabs(val)>entrybound) return val;
-        else                       return 0.;
-    }
-}
-
-template <typename T, typename Index, typename BilinearForm, typename Compression>
-void
-MapMatrixWithZeros<T,Index,BilinearForm,Compression,NoPreconditioner<T,Index> >::clear()
-{
-    NonZeros.clear();
-    //NonZeros.clear();
-    Zeros.clear();
-    ConsecutiveIndices.clear();
 }
 
 }    //namespace lawa

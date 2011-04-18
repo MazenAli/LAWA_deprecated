@@ -82,7 +82,7 @@ struct MapMatrixWithZeros
     T entrybound;
 
 
-    MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &c,
+    MapMatrixWithZeros(const BilinearForm &a, const Preconditioner &p, Compression &_compression,
                        T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
 
     T
@@ -92,33 +92,6 @@ struct MapMatrixWithZeros
     clear();
 };
 
-template <typename T, typename Index, typename BilinearForm, typename Compression>
-struct MapMatrixWithZeros<T, Index, BilinearForm, Compression, NoPreconditioner<T,Index> >
-{
-    typedef typename std::map<std::pair<int,int>,T,lt_int_vs_int > EntryMap;
-    typedef typename EntryMap::value_type val_type;
-
-    EntryMap NonZeros;
-
-    const BilinearForm &a;
-    Compression &c;
-
-    unsigned int NumOfRows, NumOfCols;
-    IndexSet<Index> ConsecutiveIndices;
-    std::vector<unsigned long> Zeros;
-    bool warning_overflow;
-    T entrybound;
-
-    MapMatrixWithZeros(const BilinearForm &a, Compression &c,
-                       T _entrybound=0., int NumOfRow=ROW_SIZE_2D, int NumOfCols=COL_SIZE_2D);
-
-    T
-    operator()(const Index &row_index, const Index &col_index);
-
-    void
-    clear();
-
-};
 
 }    //namespace lawa
 

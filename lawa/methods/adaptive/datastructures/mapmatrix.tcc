@@ -46,7 +46,7 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
     }
     else {
         T prec = 1.;
-        if (!flens::IsSame<NoPreconditioner<T, Index1D>, Preconditioner>::value) {
+        if (!flens::IsSame<NoPreconditioner<T, Index>, Preconditioner>::value) {
             const_coeff_it it_P_end       = P_data.end();
             const_coeff_it it_row_index = P_data.find(row_index);
             if (it_row_index != it_P_end) {
