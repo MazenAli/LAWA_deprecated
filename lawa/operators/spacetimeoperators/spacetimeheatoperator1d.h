@@ -35,14 +35,6 @@ namespace lawa {
  */    
 template <typename T, typename Basis>
 class SpaceTimeHeatOperator1D{
-    
-    private:
-        
-        typedef typename Basis::FirstBasisType Basis_t;
-        typedef typename Basis::SecondBasisType Basis_x;
-        
-        Integral<Gauss, Basis_t, Basis_t> integral_t;
-        Integral<Gauss, Basis_x, Basis_x> integral_x;
             
     public:
         
@@ -63,6 +55,14 @@ class SpaceTimeHeatOperator1D{
         
         T
         operator()(const Index2D &row_index, const Index2D &col_index) const;
+    
+    private:
+        
+        typedef typename Basis::FirstBasisType Basis_t;
+        typedef typename Basis::SecondBasisType Basis_x;
+        
+        Integral<Gauss, Basis_t, Basis_t> integral_t;
+        Integral<Gauss, Basis_x, Basis_x> integral_x;
 };
     
     

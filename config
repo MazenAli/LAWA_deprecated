@@ -6,8 +6,8 @@ ifeq ($(TARGET),Darwin)
   CXXDYLIB  = -dynamiclib
   DYLIB_EXT = dylib
   ifeq ($(COMPILER),gcc)
-    CC  = gcc-4.2
-    CXX = g++-4.2
+    CC  = gcc
+    CXX = g++
     ifeq ($(BLASLAPACK),platform)
       CPPFLAGS += -DWITH_VECLIB
       LDFLAGS  += -framework Accelerate
@@ -27,8 +27,8 @@ ifeq ($(TARGET),Linux)
   CXXDYLIB  = -shared
   DYLIB_EXT = so
   ifeq ($(COMPILER),gcc)
-    CC  = gcc-4.4
-    CXX = g++-4.4
+    CC  = gcc
+    CXX = g++
     ifeq ($(BLASLAPACK),platform)
       CPPFLAGS += -DWITH_ATLAS -DHAVE_CBLAS -I/usr/include
       LIBS     += -llapack -lblas -lmpfr -lgmpxx -lgmp
@@ -39,23 +39,22 @@ endif
 
 
 # compilation modes ------------------------------------------------------------
+
 # --- debug mode -----------------------
-# DEBUGLAWA += -DSOLVER_DEBUG
-# DEBUGLAWA += -DLAMBDA_TILDE_DEBUG
-# DEBUGLAWA += -DPREDICTION_DEBUG
-# DEBUGLAWA += -DQUASI_INTERPOLATION_DEBUG
-# DEBUGLAWA += -DPROJECT_DEBUG
+DEBUGLAWA += -DCHECK_INTERVAL_CONSTRUCTION
 DEBUGMODE = -g -DDEBUG -D_GLIBCXX_DEBUG_PEDANTIC=1 $(DEBUGLAWA) \
-            -DCHECK_INTERVAL_CONSTRUCTION -O2 \
-            -Wfatal-errors -pedantic -Wextra -std=c++98 -fPIC -Wno-sign-compare \
-            -Wreturn-type
+            -O2 -Wfatal-errors -pedantic -Wextra \
+            -std=c++98 -fPIC -Wno-sign-compare -Wreturn-type
+
 # --- release mode ----------------------
 RELEASEMODE = -O3 -DNDEBUG
+
 # --- profiling mode --------------------
 PROFILEMODE = -p -g -DNDEBUG
 
-#CXXFLAGS += $(DEBUGMODE)
-CXXFLAGS += $(RELEASEMODE)
+# --- select compilation-mode here by commenting / uncommenting
+CXXFLAGS += $(DEBUGMODE)
+#CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
