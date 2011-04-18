@@ -20,8 +20,9 @@
 namespace lawa {
 
 template <typename T, typename Basis2D>
-HelmholtzOperator2D<T, Basis2D>::HelmholtzOperator2D(const Basis2D & _basis, const T _c)
-    : basis(_basis), c(_c), integral_x(basis.first, basis.first), integral_y(basis.second, basis.second)
+HelmholtzOperator2D<T, Basis2D>::HelmholtzOperator2D(const Basis2D &_basis, const T _c)
+    : basis(_basis), c(_c), integral_x(basis.first, basis.first),
+      integral_y(basis.second, basis.second)
 {
 }
 
@@ -43,12 +44,13 @@ HelmholtzOperator2D<T, Basis2D>::operator()(XType row_xtype_x, int j1_x, int k1_
 
 template <typename T, typename Basis2D>
 T
-HelmholtzOperator2D<T, Basis2D>::operator()(const Index2D &row_index, const Index2D &col_index) const
+HelmholtzOperator2D<T, Basis2D>::operator()(const Index2D &row_index,
+                                            const Index2D &col_index) const
 {
-    return HelmholtzOperator2D<T, Basis2D>::operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
-                                                          row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
-                                                       col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
-                                                       col_index.index2.xtype, col_index.index2.j, col_index.index2.k);
+    return this->operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
+                            row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
+                            col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
+                            col_index.index2.xtype, col_index.index2.j, col_index.index2.k);
 }
 
 }    //namespace lawa
