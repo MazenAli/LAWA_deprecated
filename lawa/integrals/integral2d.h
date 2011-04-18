@@ -20,6 +20,7 @@
 #ifndef LAWA_INTEGRALS_INTEGRAL2D_H
 #define LAWA_INTEGRALS_INTEGRAL2D_H 1
 
+#include <lawa/constructions/constructions.h>
 #include <lawa/functiontypes/function2d.h>
 #include <lawa/integrals/quadrature2d.h>
 
@@ -33,7 +34,8 @@ struct Integral2D
     const Function2D<T> &F;
     const BasisX &basisx;
     const BasisY &basisy;
-    mutable int jx, derivx, jy, derivy;
+    mutable int jx, jy;
+    mutable unsigned short derivx, derivy;
     mutable long kx, ky;
     mutable XType ex, ey;
     Quadrature2D<Quad, Integral2D<Quad,BasisX,BasisY> > quadrature;
@@ -41,8 +43,8 @@ struct Integral2D
     Integral2D(const Function2D<T> &_F, const BasisX &basisx, const BasisY &basisy);
 
     T
-    operator()(int _jx, long _kx, XType _ex, int _derivx, 
-               int _jy, long _ky, XType _ey, int _derivy) const;
+    operator()(int _jx, long _kx, XType _ex, unsigned short _derivx,
+               int _jy, long _ky, XType _ey, unsigned short _derivy) const;
 
     T
     integrand(T x, T y) const;

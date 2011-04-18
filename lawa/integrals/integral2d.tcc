@@ -85,8 +85,9 @@ Integral2D<Quad,BasisX,BasisY>::Integral2D(const Function2D<T> &_F,
 
 template <QuadratureType Quad, typename BasisX, typename BasisY>
 typename BasisX::T
-Integral2D<Quad,BasisX,BasisY>::operator()(int _jx, long _kx, XType _ex, int _derivx,
-                                           int _jy, long _ky, XType _ey, int _derivy) const
+Integral2D<Quad,BasisX,BasisY>::operator()(int _jx, long _kx, XType _ex, unsigned short _derivx,
+                                           int _jy, long _ky, XType _ey, unsigned short _derivy)
+                                           const
 {
     jx = _jx; kx = _kx; ex = _ex; derivx = _derivx;
     jy = _jy; ky = _ky; ey = _ey; derivy = _derivy;
@@ -97,8 +98,8 @@ template <QuadratureType Quad, typename BasisX, typename BasisY>
 typename BasisX::T
 Integral2D<Quad,BasisX,BasisY>::integrand(T x, T y) const
 {
-    return F(x,y) * basisx.generator(ex)(x,jx,kx,ex,derivx)
-                  * basisy.generator(ey)(y,jy,ky,ey,derivy);
+    return F(x,y) * basisx.generator(ex)(x,jx,kx,derivx)
+                  * basisy.generator(ey)(y,jy,ky,derivy);
 }
 
 }   //namespace lawa

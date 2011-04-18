@@ -22,36 +22,16 @@
 
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
-#include <lawa/functiontypes/functionnd.h>
-#include <lawa/integrals/integrals2d.h>
+#include <lawa/functiontypes/function2d.h>
+#include <lawa/integrals/integral2d.h>
 
 namespace lawa {
 
 template<typename T, typename Basis2D, QuadratureType Quad>
-class SmoothRHSWithAlignedSing2D
+struct SmoothRHSWithAlignedSing2D
 {
-	const Basis2D& basis;
-
-    typedef typename Basis2D::FirstBasisType::BSplineType PrimalSpline_x;
-    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_y;
-    typedef typename Basis2D::FirstBasisType::WaveletType PrimalWavelet_x;
-    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_y;
-
-    PrimalSpline_x phi_x;
-    PrimalSpline_y phi_y;
-    PrimalWavelet_x psi_x;
-    PrimalWavelet_y psi_y;
-
-    Integral2D<T,Quad,PrimalSpline_x, PrimalSpline_y>  integral2d_phi_x_phi_y;
-    Integral2D<T,Quad,PrimalWavelet_x,PrimalSpline_y>  integral2d_psi_x_phi_y;
-    Integral2D<T,Quad,PrimalSpline_x, PrimalWavelet_y> integral2d_phi_x_psi_y;
-    Integral2D<T,Quad,PrimalWavelet_x,PrimalWavelet_y> integral2d_psi_x_psi_y;
-
-public:
-    SmoothRHSWithAlignedSing2D(const Basis2D& _basis, const Function2D<T>& _F, int order);
-
-    SmoothRHSWithAlignedSing2D(const Basis2D& _basis, const Function2D<T>& _F, int deriv_x,
-							   int deriv_y, int order);
+    SmoothRHSWithAlignedSing2D(const Basis2D& _basis, const Function2D<T>& _F,
+                               int order, unsigned short _derivx=0, unsigned short _derivy=0);
 
     T
     operator()(XType xtype_x, int j_x, int k_x,
@@ -59,6 +39,12 @@ public:
 
     T
     operator()(const Index2D &index) const;
+
+    const Basis2D &basis;
+    const unsigned short derivx, derivy;
+    Integral2D<Quad, typename Basis2D::FirstBasisType,
+                     typename Basis2D::SecondBasisType> integral2d;
+
 
 };
 
