@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_RIGHTHANDSIDES_RHS_H
-#define LAWA_RIGHTHANDSIDES_RHS_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_ALGORITHMS_RHS_H
+#define LAWA_METHODS_ADAPTIVE_ALGORITHMS_RHS_H 1
 
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
@@ -60,6 +60,6 @@ class RHS
 
 }    //namespace lawa
 
-#include <lawa/righthandsides/rhs.tcc>
+#include <lawa/methods/adaptive/algorithms/rhs.tcc>
 
-#endif // LAWA_RIGHTHANDSIDES_RHS_H
+#endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_RHS_H
