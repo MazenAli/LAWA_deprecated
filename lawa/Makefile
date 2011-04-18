@@ -4,7 +4,6 @@ SUBDIRS := math aux
 SOURCES  := $(wildcard *.cpp)
 OBJECTS  := $(SOURCES:.cpp=.o)
 DEPS     := $(SOURCES:.cpp=.d)
-CPPFLAGS += -I $(LAWA_HOME)
 
 DYLIB    = liblawa.$(DYLIB_EXT)
 
