@@ -17,6 +17,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include <lawa/constructions/periodic/basisfunction.h>
 #include <lawa/constructions/periodic/dual/dual.h>
 #include <lawa/constructions/periodic/primal/primal.h>
 #include <lawa/constructions/periodic/evaluate.h>
