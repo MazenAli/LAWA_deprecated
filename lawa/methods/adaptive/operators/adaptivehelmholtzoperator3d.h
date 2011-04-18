@@ -18,8 +18,8 @@
  */
 
 
-#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_ADAPTIVEHELMHOLTZOPERATOR3D_H
-#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_ADAPTIVEHELMHOLTZOPERATOR_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR3D_H
+#define  LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR_H 1
 
 #include <lawa/setting/enum.h>
 #include <lawa/methods/adaptive/compressions/compressions_pde1d.h>
@@ -120,6 +120,6 @@ struct AdaptiveHelmholtzOperator3D<T, Basis3D, HelmholtzOperator3D<T, Basis3D>, 
 
 }    //namespace lawa
 
-#include <lawa/methods/adaptive/datastructures/adaptivehelmholtzoperator3dada.tcc>
+#include <lawa/methods/adaptive/operators/adaptivehelmholtzoperator3d.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_ADAPTIVEHELMHOLTZOPERATOR3D_H
+#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR3D_H

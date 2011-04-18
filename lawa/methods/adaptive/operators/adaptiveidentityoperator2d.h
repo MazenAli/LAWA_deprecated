@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H
-#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
@@ -76,6 +76,6 @@ struct AdaptiveIdentityOperator2D
 
 }   //namespace lawa
 
-#include <lawa/methods/adaptive/datastructures/operators/adaptiveidentityoperator2d.tcc>
+#include <lawa/methods/adaptive/operators/adaptiveidentityoperator2d.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H
+#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H

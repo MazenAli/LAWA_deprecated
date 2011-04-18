@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
  
-#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
-#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H 1
  
 #include <lawa/setting/enum.h>
 #include <lawa/methods/adaptive/compressions/compressions_pde1d.h>
@@ -120,8 +120,8 @@ struct AdaptiveSpaceTimeHeatOperator1D{
       
 } // namespace lawa
 
-#include <lawa/methods/adaptive/datastructures/operators/adaptivespacetimeheatoperator1d.tcc>
+#include <lawa/methods/adaptive/operators/adaptivespacetimeheatoperator1d.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
+#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
  
  
