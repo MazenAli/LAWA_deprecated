@@ -45,17 +45,17 @@ endif
 # DEBUGLAWA += -DPREDICTION_DEBUG
 # DEBUGLAWA += -DQUASI_INTERPOLATION_DEBUG
 # DEBUGLAWA += -DPROJECT_DEBUG
-DEBUGMODE = -g -DDEBUG -D_GLIBCXX_DEBUG_PEDANTIC=1 $(DEBUGLAWA)
+DEBUGMODE = -g -DDEBUG -D_GLIBCXX_DEBUG_PEDANTIC=1 $(DEBUGLAWA) \
+            -DCHECK_INTERVAL_CONSTRUCTION -O2 \
+            -Wfatal-errors -pedantic -Wextra -std=c++98 -fPIC -Wno-sign-compare \
+            -Wreturn-type
 # --- release mode ----------------------
 RELEASEMODE = -O3 -DNDEBUG
 # --- profiling mode --------------------
 PROFILEMODE = -p -g -DNDEBUG
 
-CXXFLAGS += $(DEBUGMODE)
-#CXXFLAGS += $(RELEASEMODE)
+#CXXFLAGS += $(DEBUGMODE)
+CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
-CXXFLAGS += -Wfatal-errors -pedantic -Wextra -std=c++98 -fPIC -Wno-sign-compare \
-            -Wreturn-type
-CXXFLAGS += -O2 -DCHECK_INTERVAL_CONSTRUCTION 
