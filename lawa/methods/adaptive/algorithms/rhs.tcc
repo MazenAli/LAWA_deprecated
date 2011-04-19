@@ -76,7 +76,7 @@ template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditio
 Coefficients<Lexicographical,T,Index>
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(T tol)
 {
-    Coefficients<Lexicographical,T,Index> ret(rhs_data.d,rhs_data.d_);
+    Coefficients<Lexicographical,T,Index> ret;
     ret = THRESH(rhs_abs_data,tol);
     return ret;
 }

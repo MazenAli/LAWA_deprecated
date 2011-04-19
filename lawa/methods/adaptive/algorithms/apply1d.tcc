@@ -12,16 +12,16 @@ Coefficients<Lexicographical,T,Index>
 SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexicographical,T,Index> &v, int k)
 {
     int d=basis.d, d_=basis.d_;
-    Coefficients<Lexicographical,T,Index> ret(d, d_);
+    Coefficients<Lexicographical,T,Index> ret;
     if (v.size() == 0) return ret;
 
-    Coefficients<AbsoluteValue,T,Index> temp(d,d_);
+    Coefficients<AbsoluteValue,T,Index> temp;
     temp = v;
 
     if (parameters.w_XBSpline) {
         int s = 0, count = 0;
         for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
-            IndexSet<Index> Lambda_v(d,d_);
+            IndexSet<Index> Lambda_v;
             Lambda_v=lambdaTilde1d_PDE((*it).second, basis,(k-s), basis.j0, (*it).second.j+(k-s)+1,false);
             for (const_set_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
                 ret[*mu] += A(*mu, (*it).second) * (*it).first;
@@ -49,7 +49,7 @@ SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexic
         T beta2 = beta1 - 0.1;
 
         for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
-            IndexSet<Index> Lambda_v(d,d_);
+            IndexSet<Index> Lambda_v;
             int kj = k-s;
             int minlevel, maxlevel;
             int j=(*it).second.j;
@@ -82,10 +82,10 @@ template <typename T, typename Index, typename Basis1D, typename Parameters, typ
 Coefficients<Lexicographical,T,Index>
 SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexicographical,T,Index> &v, T eps) {
     int d=basis.d, d_=basis.d_;
-    Coefficients<AbsoluteValue,T,Index> v_abs(d, d_);
+    Coefficients<AbsoluteValue,T,Index> v_abs;
     v_abs = v;
     int k = SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::findK(v_abs, eps);
-    Coefficients<Lexicographical,T,Index> ret(d,d_);
+    Coefficients<Lexicographical,T,Index> ret;
     ret = SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(v, k);
     return ret;
 }

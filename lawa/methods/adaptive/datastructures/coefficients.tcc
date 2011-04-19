@@ -153,7 +153,7 @@ P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda)
 {
     typedef typename IndexSet<Index>::const_iterator const_set_it;
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
-    Coefficients<Lexicographical,T,Index> ret(v.d,v.d_);
+    Coefficients<Lexicographical,T,Index> ret;
     const_it v_end = v.end();
     for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
         const_it it = v.find(*lambda);

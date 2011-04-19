@@ -26,7 +26,7 @@ Coefficients<Lexicographical,T,Index >
 THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta) 
 {
     typedef typename Coefficients<AbsoluteValue,T,Index >::iterator it;
-    Coefficients<AbsoluteValue,T,Index > temp(v.d,v.d_);
+    Coefficients<AbsoluteValue,T,Index > temp;
     temp = v;
     if (temp.size() > 0) {
         it lambda = temp.begin();
@@ -37,7 +37,7 @@ THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta)
         } while ((lambda != temp.end()) && (sum < bound));
         temp.erase(lambda, temp.end());
     }
-    Coefficients<Lexicographical,T,Index > ret(v.d,v.d_);
+    Coefficients<Lexicographical,T,Index > ret;
     ret = temp;
     return ret;
 }

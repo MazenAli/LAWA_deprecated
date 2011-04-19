@@ -20,6 +20,7 @@
 #ifndef LAWA_METHODS_ADAPTIVE_ALGORITHMS_RHS_H
 #define LAWA_METHODS_ADAPTIVE_ALGORITHMS_RHS_H 1
 
+#include <lawa/methods/adaptive/algorithms/thresh.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/settings/enum.h>

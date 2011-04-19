@@ -21,6 +21,7 @@
 #ifndef  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE1D_WO_XBSPLINE_H
 #define  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE1D_WO_XBSPLINE_H 1
 
+#include <lawa/settings/settings.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/aux/timer.h>
