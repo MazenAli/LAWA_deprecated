@@ -2,7 +2,7 @@
  *
  *  This example calculates a poisson problem with constant forcing f on the 
  *  one-dimensional domain [0,1], i.e.
- *          - u_xx = f on (0,1) , u(0) = u(1) = 0.
+ *          - u'' = f on (0,1) , u(0) = u(1) = 0.
  *  The solution is obtained using a uniform Wavelet-Galerkin method with a
  *  diagonal scaling preconditioner.
  */

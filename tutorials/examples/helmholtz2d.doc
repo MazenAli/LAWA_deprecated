@@ -1,6 +1,5 @@
-====================================
 Tutorial 2: Helmholtz Equation in 2D
-====================================
+------------------------------------
 
 :document:  tutorials::examples::helmholtz2d
 
@@ -17,7 +16,7 @@ i.e. we have
 
 ___ LATEX _______________________________________
 \begin{cases}
-\ \    - u_{xx} + c\cdot u = f  & \text{ on } (0,1)^2 \\
+\ \    - \Delta u + c\cdot u = f  & \text{ on } (0,1)^2 \\
 \ \    u(1,y) = u(0,y)     & \text{ for } y \in [0,1] \\
 \ \    u(x,0) = u(x,1) = 0 & \text{ for } x \in [0,1]
 \end{cases}         

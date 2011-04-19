@@ -26,9 +26,9 @@ typedef flens::DiagonalMatrix<T>                                    DiagonalMatr
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 //* Typedefs for problem components:
-//*      Periodic Basis using CDF construction
-//*      Interval Basis using Dijkema construction
-//*      TensorBasis: uniform (= full) basis
+//*     Periodic Basis using CDF construction
+//*     Interval Basis using Dijkema construction
+//*     TensorBasis: uniform (= full) basis
 typedef Basis<T, Primal, Periodic, CDF>                             PrimalBasis_x;
 typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis_y;
 typedef TensorBasis2D<Uniform, PrimalBasis_x, PrimalBasis_y>          Basis2D;
@@ -44,18 +44,27 @@ typedef SumOfTwoRHSIntegrals<T, Index2D, RHS2D, RHS2D>              SumOf2RHS;
 //* The constant 'c' in the Helmholtz equation.
 const double c =  2.;
 
-//* Solution u(x) = f_x(x) * f_y(y)
-//*                 1.5 x + 0.5,          0 <= x <= 0.25
-//*     f_x(x) =   -1.5 x + 1.25,       0.25 < x <= 0.75
-//*                 1.5(x-1) + 0.5,     0.75 < x <= 1
+//* The solution u is given as $u(x,y) = u_1(x) \cdot u_2(y)$.
 //*
-//*     f_y(y) =    y,                   0 <= y <= 0.5
-//*               1-y,                  0.5 < y <= 1
+//* ___ LATEX __________________________________________________________________
+//* u_1(x) = \begin{cases}
+//*             1.5 x + 0.5,    &      0 \leq x \leq 0.25 \\
+//*            -1.5 x + 1.25,   &      0.25 < x \leq 0.75 \\
+//*             1.5(x-1) + 0.5, &      0.75 < x \leq 1 
+//*          \end{cases}\hspace{1.5cm}
+//* u_2(y) = \begin{cases}
+//*                y,   &               0 \leq y \leq 0.5 \\
+//*              1-y,   &               0.5 < y \leq 1
+//*          \end{cases}
+//* ____________________________________________________________________________
 
-//* Right Hand Side for Laplace Operator and separable u(x,y) = u1(x) * u2(y)
-//*  - u_xx(x,y) - u_yy(x,y) + c * u = ( - u1_xx + 0.5 * c * u1) * u2 + u1 * ( -u2_yy + 0.5 * c * u2)
-//*                                  =: f_rhs_x * f_y + f_x * f_rhs_y
-T f_x(T x)
+//* Right Hand Side for Laplace Operator and separable u (as given):
+//*
+//* ___ LATEX __________________________________________________________________
+//* -u_{xx}(x,y) - u_{yy}(x,y) + c \cdot u = (-u_{1_{xx}} + 0.5 \cdot c \cdot u_1) \cdot u_2 + u_1 \cdot (-u_{2_{yy}} + 0.5 \cdot c \cdot u_2)
+//* ____________________________________________________________________________
+//*  which will be represented as `f_rhs_x * u1 + u2 * f_rhs_y`.
+T u1(T x)
 {
     if(x <= 0.25){
         return 1.5*x + 0.5;
@@ -66,7 +75,7 @@ T f_x(T x)
     return 1.5*(x-1.) + 0.5;
 }
 
-T f_y(T y)
+T u2(T y)
 {
     if(y <= 0.5){
         return y;
@@ -76,36 +85,36 @@ T f_y(T y)
 
 T f_rhs_x(T x)
 {
-    return 0.5 * c * f_x(x);
+    return 0.5 * c * u1(x);
 }
 
 T f_rhs_y(T y)
 {
-    return 0.5 * c * f_y(y);
+    return 0.5 * c * u2(y);
 }
 
 T sol(T x, T y)
 {
-    return f_x(x) * f_y(y);
+    return u1(x) * u2(y);
 }
 
 T dx_sol(T x, T y)
 {
     if(x <= 0.25){
-        return 1.5 * f_y(y);
+        return 1.5 * u2(y);
     }
     if(x <= 0.75){
-        return -1.5 * f_y(y);
+        return -1.5 * u2(y);
     }
-    return 1.5 * f_y(y);
+    return 1.5 * u2(y);
 }
 
 T dy_sol(T x, T y)
 {
     if(y <= 0.5){
-        return f_x(x);
+        return u1(x);
     }
-    return -f_x(x);
+    return -u1(x);
 }
 
 //* again we provide a function that writes the results into a file for later visualization.
@@ -183,8 +192,8 @@ int main (int argc, char*argv[])
     sing_support_x = 0., 0.25, 0.75, 1.;
     sing_support_y = 0., 0.5, 1.;
     //*      Forcing Functions
-    SeparableFunction2D<T> F1(f_rhs_x, sing_support_x, f_y, sing_support_y);
-    SeparableFunction2D<T> F2(f_x, sing_support_x, f_rhs_y, sing_support_y);
+    SeparableFunction2D<T> F1(f_rhs_x, sing_support_x, u2, sing_support_y);
+    SeparableFunction2D<T> F2(u1, sing_support_x, f_rhs_y, sing_support_y);
     //*     Peaks: points and corresponding coefficients
     //*             (heights of jumps in derivatives)
     FullColMatrixT deltas_x(2, 2);
