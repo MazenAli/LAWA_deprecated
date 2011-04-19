@@ -206,8 +206,8 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Periodic,CDF> &bas
     BSpline<T,Primal,Periodic,CDF> phi_col(basis.mra), phi_row(basis.mra);
     Wavelet<T,Primal,Periodic,CDF> psi_col(basis), psi_row(basis);
     int j = lambda.j, k = lambda.k;
-    int d = basis.d, d_= basis.d_;
-    IndexSet<Index1D> ret(d,d_);
+
+    IndexSet<Index1D> ret;
     Support<T> support_refbspline = phi_col.phiR.support(0,0);
     Support<T> support_refwavelet = psi_col.psiR.support(0,0);
 
@@ -360,8 +360,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &ba
         BSpline<T,Primal,Interval,Cons> phi_col(basis.mra), phi_row(basis.mra);
         Wavelet<T,Primal,Interval,Cons> psi_col(basis), psi_row(basis);
         int j = lambda.j, k = lambda.k;
-        int d = basis.d, d_= basis.d_;
-        IndexSet<Index1D> ret(d,d_);
+        IndexSet<Index1D> ret;
 
         if (lambda.xtype==XBSpline) {
 
