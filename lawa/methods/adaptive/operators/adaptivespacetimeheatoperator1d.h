@@ -71,8 +71,8 @@ struct AdaptiveSpaceTimeHeatOperator1D{
     typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
                                Compression_x, NoPreconditioner1D>   DataLaplace_x;
                                
-    AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, T _c, T _reaction = 0, 
-                                    LeftPrec2D _p_left, RightPrec2D _p_right,
+    AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
+                                    T _c, T _reaction = 0, 
                                     T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
                                     
     // call of p_left * a_operator * p_right
