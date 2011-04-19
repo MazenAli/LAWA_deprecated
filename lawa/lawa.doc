@@ -4,26 +4,20 @@ The main library
 
 :document:  lawa::documentation
 
-Well, the front page is currently the ugliest part of the documentation :-)
+LAWA mainly consists of two parts: _basis constructions_ and _adaptive wavelet algorithms_.
+This first release of LAWA covers large parts of the first, but at the moment does not really
+provide very much of the second topic.
 
-Modules
--------
+The documentation will mainly be given in tutorial form to provide a simple entry point. At
+the moment a simple uniform example for 1D and 2D is provided to demonstrate the usage of
+B-splines, wavelets and bases as well as integral calculations. This documentation will 
+steadily grow and bit by bit we will add adaptive stuff soon.
 
-The real line
-~~~~~~~~~~~~~
+Tutorials
+---------
 
-==toc:realline/==
-==toc:realline/primal==
-==toc:realline/dual==
+:link: __Poisson Equation in 1D__ -> tutorials::examples::poisson1d
+:link: __Helmholtz Equation in 2D__ -> tutorials::examples::helmholtz2d
 
-The unit interval
-~~~~~~~~~~~~~~~~~
-
-==toc:interval/dku/==
-==toc:interval/primbs/==
-==toc:interval/dijkema/==
-
-Glossary
---------
-
-==toc:../concepts/==
+- _Tutorial 1_:  __Poisson Equation in 1D__
+- _Tutorial 2_:  __Helmholtz Equation in 2D__
