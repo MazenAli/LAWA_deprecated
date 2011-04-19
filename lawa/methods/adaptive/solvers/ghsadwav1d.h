@@ -25,42 +25,42 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename Basis1D, typename APPLY1D, typename RHS>
+template <typename T, typename Basis, typename APPLY1D, typename RHS>
 class GHS_ADWAV1D {
 
-        typedef typename IndexSet<Index>::iterator                                 set_it;
-        typedef typename IndexSet<Index>::const_iterator                         const_set_it;
-        typedef typename Coefficients<Lexicographical,T,Index>::const_iterator  const_coeff_it;
-        typedef typename Coefficients<AbsoluteValue,T,Index1D >::const_iterator const_coeff_abs_it;
-        typedef typename Coefficients<Lexicographical,T,Index>::value_type      val_type;
+        typedef typename IndexSet<Index1D>::iterator                             set_it;
+        typedef typename IndexSet<Index1D>::const_iterator                       const_set_it;
+        typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff_it;
+        typedef typename Coefficients<AbsoluteValue,T,Index1D >::const_iterator  const_coeff_abs_it;
+        typedef typename Coefficients<Lexicographical,T,Index1D>::value_type     val_type;
 
 
     public:
 
-        GHS_ADWAV1D(const Basis1D &_basis, APPLY1D &_Apply, RHS &_F);
+        GHS_ADWAV1D(const Basis &_basis, APPLY1D &_Apply, RHS &_F);
 
-        Coefficients<Lexicographical,T,Index>
+        Coefficients<Lexicographical,T,Index1D>
         SOLVE(T nuM1, T _eps, int NumOfIterations=100, T H1norm=0.);
 
-        std::vector<Coefficients<Lexicographical,T,Index> > solutions;
+        std::vector<Coefficients<Lexicographical,T,Index1D> > solutions;
         std::vector<T>               residuals;
         std::vector<T>               times;
 
 
     private:
-        const Basis1D &basis;
+        const Basis &basis;
         APPLY1D &Apply;
         RHS &F;
         T cA, CA, kappa;
         T alpha, omega, gamma, theta;
         T eps;
 
-        IndexSet<Index>
-        GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu);
+        IndexSet<Index1D>
+        GROW(const Coefficients<Lexicographical,T,Index1D> &w, T nu_bar, T &nu);
 
-        Coefficients<Lexicographical,T,Index>
-        GALSOLVE(const IndexSet<Index> &Lambda, const Coefficients<Lexicographical,T,Index> &g,
-                 const Coefficients<Lexicographical,T,Index> &w, T delta, T tol);
+        Coefficients<Lexicographical,T,Index1D>
+        GALSOLVE(const IndexSet<Index1D> &Lambda, const Coefficients<Lexicographical,T,Index1D> &g,
+                 const Coefficients<Lexicographical,T,Index1D> &w, T delta, T tol);
 };
 
 

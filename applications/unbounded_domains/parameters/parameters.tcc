@@ -2,10 +2,9 @@ namespace lawa {
 
 template <typename T>
 Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> >,
-           H1Preconditioner1D<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > > >::
-           Parameters(const Basis<T,Primal,R,CDF> &_basis,
-                      const HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > &_Bil,
-                      bool _w_XBSpline, int _j0)
+           H1NormPreconditioner1D<T, Basis<T,Primal,R,CDF> > >::Parameters
+           (const Basis<T,Primal,R,CDF> &_basis,
+            const HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > &_Bil, bool _w_XBSpline, int _j0)
            : basis(_basis), Bil(_Bil), w_XBSpline(_w_XBSpline), j0(_j0),
              cA(0.), CA(0.), kappa(0.),
              alpha(0.), omega(0.), gamma(0.), theta(0.)
@@ -71,15 +70,17 @@ Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF>
     gamma = 0.5 * (1./6.) * 1./sqrt(kappa) * (alpha-omega)/(1+omega);
     theta = 2./7.;
 
-    assert(cA>0); assert(CA>0); assert(omega>0.); assert(alpha>0.); assert(gamma>0.); assert(theta>0.);
+    assert(cA>0); assert(CA>0); assert(omega>0.);
+    assert(alpha>0.); assert(gamma>0.); assert(theta>0.);
     assert((alpha+omega)/(1-omega)<1./std::sqrt(kappa));
 }
 
 template <typename T>
 void
 Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> >,
-           H1Preconditioner1D<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > > >::
-           getGHSADWAVParameters(T &_alpha, T &_omega, T &_gamma, T &_theta) const
+           H1NormPreconditioner1D<T, Basis<T,Primal,R,CDF> > >::getGHSADWAVParameters
+                                                                (T &_alpha, T &_omega,
+                                                                 T &_gamma, T &_theta) const
 {
     _alpha = alpha; _omega = omega; _gamma = gamma; _theta = theta;
 }
@@ -87,10 +88,12 @@ Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF>
 template <typename T>
 void
 Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> >,
-           H1Preconditioner1D<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > > >::
-    getRHS_W_XBSplineParameters(T &_left_bound, T &_right_bound, int &_J_plus_smooth,
-                                 int &_J_plus_singular, bool &_singular_integral,
-                                 int example) const
+           H1NormPreconditioner1D<T, Basis<T,Primal,R,CDF> > >::getRHS_W_XBSplineParameters
+                                                                (T &_left_bound, T &_right_bound,
+                                                                 int &_J_plus_smooth,
+                                                                 int &_J_plus_singular,
+                                                                 bool &_singular_integral,
+                                                                 int example) const
 {
     int d=basis.d, d_=basis.d_;
     if (example == 1) {
@@ -181,10 +184,11 @@ Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF>
 template <typename T>
 void
 Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> >,
-           H1Preconditioner1D<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > > >::
-    getRHS_WO_XBSplineParameters(T &_left_bound, T &_right_bound, int &_J_plus_smooth, int &_J_minus_smooth,
-                                 int &_J_plus_singular, int &_J_minus_singular, bool &_singular_integral,
-                                 int example) const
+           H1NormPreconditioner1D<T, Basis<T,Primal,R,CDF> > >::getRHS_WO_XBSplineParameters
+                                 (T &_left_bound, T &_right_bound, int &_J_plus_smooth,
+                                  int &_J_minus_smooth, int &_J_plus_singular,
+                                  int &_J_minus_singular, bool &_singular_integral,
+                                  int example) const
 {
     int d=basis.d, d_=basis.d_;
     if (example == 1) {

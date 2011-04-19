@@ -22,6 +22,7 @@
 
 #include <lawa/constructions/basis.h>
 #include <lawa/operators/operators.h>
+#include <lawa/preconditioners/preconditioners.h>
 
 
 
@@ -32,11 +33,10 @@ template <typename T, typename Basis1D, typename BilinearForm, typename Precondi
 class Parameters;
 
 template <typename T>
-class Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> >,
-                 H1Preconditioner1D<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > > >
+struct Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> >,
+                  H1NormPreconditioner1D<T, Basis<T,Primal,R,CDF> > >
 {
-public:
-    const Basis<T,Primal,R,CDF> &basis;
+    const Basis<T,Primal,R,CDF>                         &basis;
     const HelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > &Bil;
     bool w_XBSpline;
     int j0;
@@ -65,6 +65,6 @@ public:
 
 }    //namespace lawa
 
-#include<applications/unbounded_domains/parameters.tcc>
+#include <applications/unbounded_domains/parameters/parameters.tcc>
 
 #endif    //APPLICATIONS_UNBOUNDEDDOMAINS_PARAMETERS_H

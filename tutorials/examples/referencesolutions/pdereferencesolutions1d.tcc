@@ -68,8 +68,9 @@ PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _
     }
     else {     //domain == R
         assert(nr>=1);
-        assert(nr<=6);
+        assert(nr<=8);
         if (nr==1) {
+
         }
         else if (nr==2) {
             sing_pts.engine().resize(1);
@@ -77,16 +78,6 @@ PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _
             deltas.engine().resize(1,2);
             deltas(1,1) = 0.01; deltas(1,2) = diffusion*2.;
         }
-        /*
-        else if (nr==3) {
-            sing_pts.engine().resize(2);
-            sing_pts(1) = -16./3.;
-            sing_pts(2) =  16./3.;
-            deltas.engine().resize(2,2);
-            deltas(1,1) = -16./3.; deltas(1,2) = 22773./6391.;
-            deltas(2,1) =  16./3.; deltas(2,2) = 16382./6391.;
-        }
-        */
         else if (nr==3) {
             sing_pts.engine().resize(2);
             sing_pts(1) = -M_PI/8.;
@@ -114,8 +105,20 @@ PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _
         	deltas.engine().resize(1,2);
         	//deltas(1,1) = 0.0001; deltas(1,2) = 3.;
         	deltas(1,1) = 0.0001; deltas(1,2) = diffusion*9.;
-        	//deltas(1,1) = 0.0001; deltas(1,2) = 5.;
-
+        }
+        else if (nr==7) {
+            sing_pts.engine().resize(1);
+            sing_pts(1) = 0.0001;
+            deltas.engine().resize(1,2);
+            deltas(1,1) = 0.0001; deltas(1,2) = diffusion*3.;
+        }
+        else if (nr==8) {
+            sing_pts.engine().resize(2);
+            sing_pts(1) = -16./3.;
+            sing_pts(2) =  16./3.;
+            deltas.engine().resize(2,2);
+            deltas(1,1) = -16./3.; deltas(1,2) = 22773./6391.;
+            deltas(2,1) =  16./3.; deltas(2,2) = 16382./6391.;
         }
     }
 }
@@ -162,29 +165,6 @@ PDEReferenceSolutions1D<T>::exact(T x, int deriv)
             }
             else                    assert(0);
         }
-        /*
-        else if (nr == 3){
-            if (deriv == 0) {
-                T coeff1 = 675./12782., coeff2 = -3209./6391.;
-                if (x<-16./3.)         return -1./std::pow(x-1+16./3.,(T)3.);
-                else if (x>16/3.)      return  1./std::pow(x+1-16./3.,(T)2.);
-                else                 return coeff1*x*x+coeff2;
-            }
-            else if (deriv == 1) {
-                T coeff1 = 675./12782.;
-                if (x<-16./3.)             return  3./std::pow(x-1+16./3.,(T)4.);
-                else if (x>16./3.)      return -2./std::pow(x+1-16./3.,(T)3.);
-                else                     return 2.*coeff1*x;
-            }
-            else if (deriv == 2) {
-                T coeff1 = 675./12782.;
-                if (x<-16./3.)             return  -12./std::pow(x-1+16./3.,(T)5.);
-                else if (x>16./3.)      return 6./std::pow(x+1-16./3.,(T)4.);
-                else                     return 2.*coeff1;
-            }
-            else                         assert(0);
-        }
-        */
         else if (nr == 3){
             if (deriv == 0) {
                 if (x<-M_PI/8.)    	     return -1./std::pow(x+M_PI/8.-1,(T)4);
@@ -238,24 +218,6 @@ PDEReferenceSolutions1D<T>::exact(T x, int deriv)
             }
             else                         assert(0);
         }
-        /*
-        else if (nr==6) {
-        	T tmp = x-0.0001-1;
-            if (deriv==0) {
-                if (x<=0.0001)     	return exp(2*(x-0.0001));
-                else 			 	return exp(-(x-0.0001));
-            }
-            else if (deriv==1) {
-                if (x<=0.0001)      return 2*exp(2*(x-0.0001));
-                else 		 	 	return -exp(-(x-0.0001));
-            }
-            else if (deriv==2) {
-                if (x<=0.0001)      return 4*exp(2*(x-0.0001));
-                else 		 	 	return exp(-(x-0.0001));
-            }
-        }
-        */
-
         else if (nr==6) {
         	if (deriv==0) {
         		if (x<=0.0001)     	return 1./(std::pow(x-0.0001-1,(T)4));
@@ -270,24 +232,42 @@ PDEReferenceSolutions1D<T>::exact(T x, int deriv)
             	else 		 	 	return 30./(std::pow(x-0.0001+1,(T)7));
             }
         }
-
-        /*
-        else if (nr==6) {
-        	if (deriv==0) {
-        		if (x<=0.0001)     return 1./((x-0.0001-1)*(x-0.0001-1));
-        		else 			 return 1./((x-0.0001+1)*(x-0.0001+1)*(x-0.0001+1));
-        	}
-        	else if (deriv==1) {
-        		if (x<=0.0001)     return -2./(std::pow(x-0.0001-1,(T)3.));
-        		else 		 	 return -3./(std::pow(x-0.0001+1,(T)4.));
-        	}
-        	else if (deriv==2) {
-        		if (x<=0.0001)     return  6./(std::pow(x-0.0001-1,(T)4.));
-        		else 		 	 return 12./(std::pow(x-0.0001+1,(T)5.));
-        	}
-        	else						assert(0);
+        else if (nr==7) {
+            T tmp = x-0.0001-1;
+            if (deriv==0) {
+                if (x<=0.0001)      return exp(2*(x-0.0001));
+                else                return exp(-(x-0.0001));
+            }
+            else if (deriv==1) {
+                if (x<=0.0001)      return 2*exp(2*(x-0.0001));
+                else                return -exp(-(x-0.0001));
+            }
+            else if (deriv==2) {
+                if (x<=0.0001)      return 4*exp(2*(x-0.0001));
+                else                return exp(-(x-0.0001));
+            }
         }
-		*/
+        else if (nr == 8){
+            if (deriv == 0) {
+                T coeff1 = 675./12782., coeff2 = -3209./6391.;
+                if (x<-16./3.)         return -1./std::pow(x-1+16./3.,(T)3.);
+                else if (x>16/3.)      return  1./std::pow(x+1-16./3.,(T)2.);
+                else                 return coeff1*x*x+coeff2;
+            }
+            else if (deriv == 1) {
+                T coeff1 = 675./12782.;
+                if (x<-16./3.)             return  3./std::pow(x-1+16./3.,(T)4.);
+                else if (x>16./3.)      return -2./std::pow(x+1-16./3.,(T)3.);
+                else                     return 2.*coeff1*x;
+            }
+            else if (deriv == 2) {
+                T coeff1 = 675./12782.;
+                if (x<-16./3.)             return  -12./std::pow(x-1+16./3.,(T)5.);
+                else if (x>16./3.)      return 6./std::pow(x+1-16./3.,(T)4.);
+                else                     return 2.*coeff1;
+            }
+            else                         assert(0);
+        }
         else {
             assert(0);
             return 0;
