@@ -20,9 +20,9 @@
 #ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
 #define LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H 1
  
-#include <lawa/setting/enum.h>
-#include <lawa/methods/adaptive/compressions/compressions_pde1d.h>
-#include <lawa/methods/adaptive/compressions/compressions_pde2d.h>
+#include <lawa/settings/enum.h>
+#include <lawa/methods/adaptive/compressions/compression_pde1d.h>
+#include <lawa/methods/adaptive/compressions/compression_pde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
@@ -30,7 +30,7 @@
 #include <lawa/operators/pdeoperators1d/convectionoperator1d.h>
 #include <lawa/operators/spacetimeoperators/spacetimeoperators.h>
 #include <lawa/preconditioners/nopreconditioner.h>
-#include <lawa/preconditioners/spacetimepreconditioner/spacetimepreconditioners.h>
+#include <lawa/preconditioners/spacetimepreconditioners/spacetimepreconditioners.h>
  
 namespace lawa {
 
@@ -51,8 +51,8 @@ struct AdaptiveSpaceTimeHeatOperator1D{
     typedef typename Basis2D::FirstBasisType    Basis_t;
     typedef typename Basis2D::SecondBasisType   Basis_x;
     
-    typedef CompressionPDE1D<T, Basis_x>        Compression1D_t;
-    typedef CompressionPDE1D<T, Basis_y>        Compression1D_x;  
+    typedef CompressionPDE1D<T, Basis_t>        Compression1D_t;
+    typedef CompressionPDE1D<T, Basis_x>        Compression1D_x;  
     typedef CompressionPDE2D<T, Basis2D>        Compression2D;
     
     typedef NoPreconditioner<T,Index1D>         NoPreconditioner1D;
@@ -63,16 +63,16 @@ struct AdaptiveSpaceTimeHeatOperator1D{
     typedef LaplaceOperator1D<T, Basis_x>       LaplaceOperator_x;
 
     typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_t, 
-                               Compression_t, NoPreconditioner1D>   DataIdentity_t;
+                               Compression1D_t, NoPreconditioner1D>   DataIdentity_t;
     typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x, 
-                               Compression_x, NoPreconditioner1D>   DataIdentity_x;    
+                               Compression1D_x, NoPreconditioner1D>   DataIdentity_x;    
     typedef MapMatrixWithZeros<T, Index1D, ConvectionOperator_t, 
-                               Compression_t, NoPreconditioner1D>   DataConvection_t;
+                               Compression1D_t, NoPreconditioner1D>   DataConvection_t;
     typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
-                               Compression_x, NoPreconditioner1D>   DataLaplace_x;
+                               Compression1D_x, NoPreconditioner1D>   DataLaplace_x;
                                
     AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    T _c, T _reaction = 0, 
+                                    T _c, T _reaction = 0, InitialCondition& _init_cond = NULL,
                                     T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
                                     
     // call of p_left * a_operator * p_right

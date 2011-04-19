@@ -1,3 +1,4 @@
+#include <iostream>
 #include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 
@@ -6,8 +7,8 @@ namespace lawa {
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
     AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    T _c, T _reaction = 0, 
-                                    T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048)
+                                    T _c, T _reaction, InitialCondition& _init_cond,
+									T _entrybound, int _NumOfRows, int _NumOfCols)
     : basis(_basis), c(_c), reaction(_reaction),
       compression_1d_t(_basis.first), compression_1d_x(_basis.second), compression_2d(_basis),
       P_left_data(), P_left_data(), p_left(_p_left), p_right(_p_right),
@@ -17,7 +18,7 @@ AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCond
       data_identity_t(op_identity_t, compression_1d_t, entrybound, NumOfRows, NumOfCols),
       data_identity_x(op_identity_x, compression_1d_x, entrybound, NumOfRows, NumOfCols),
       data_convection_t(op_convection_t, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-      data_laplace_x(op_laplace_x, compression_1d_x, entrybound, NumOfRows, NumOfCols),
+      data_laplace_x(op_laplace_x, compression_1d_x, entrybound, NumOfRows, NumOfCols)
 {
 }
 
@@ -75,7 +76,10 @@ T
 AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
 operator()(const Index1D &row_index, const Index2D &col_index)
 {
-    assert(!flens::IsSame<NoInitialCondition, InitialCondition>::value);
+    if(flens::IsSame<NoInitialCondition, InitialCondition>::value){
+		std::cerr << " Operator cannot be called without Initial Condition " << std::endl;
+		exit(1);
+	}
     
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     T prec = 1.;
