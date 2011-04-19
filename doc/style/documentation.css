@@ -9,7 +9,7 @@ body {
     /*background:             #c1d4ff;*/
     background:             #bfb9c6;
     font:                   1em "Lucida Grande", "Arial", sans-serif;
-    margin:                 3em 1em 3em 1em;
+    margin:                 1em 1em 3em 1em;
 }
 
 #body {
@@ -20,7 +20,7 @@ body {
     border-bottom: 1px solid #666;
     border-left:   1px solid #666;
     border-right:  1px solid #666;
-    padding:       0px 50px 30px 0px;
+    padding:       35px 20px 30px 0px;
     background-color:     white;
     -moz-border-radius:   0px 0px 4px 4px;
     -khtml-border-radius: 0px 0px 4px 4px;
@@ -45,11 +45,11 @@ h6                          { font-size: xx-small;  }
     font-size:       1em;
     line-height:     1.2em;
     list-style-type: none;
-    float: left;
 }
 
 #leftmenu {
     width: 12em;
+    float: left;
 }
 
 #menu .subtitle {
@@ -86,7 +86,7 @@ color: black;
 }
 
 #wavelet {
-    margin-top: -94px;
+    margin-top: -79px;
 }
 
 /* --- Copyright notice --- */
@@ -114,9 +114,10 @@ color: black;
     color:#5073b9;
 }
 
-.main {
-margin-top: 0px;
-    font-size:     .9em;
+#main {
+    margin-top: 0px;
+    font-size:  .9em;
+    margin-left: 14.5em;
 }
 
 h2.projects {
@@ -181,8 +182,9 @@ div.code {
     margin-top:0px;
 
     font-size:14px;
-    -moz-border-radius:10px;
-    -khtml-border-radius:10px;
+    -moz-border-radius:4px;
+    -khtml-border-radius:4px;
+    border: 1px solid #aaa;
 }
 
 tt  {
@@ -287,4 +289,15 @@ td.ranks.oddRow {
 td.ranks.evenRow {
     background-color: #E9E9F3;
 }
+
+.centered {
+    text-align:center;
+}
+
+.latex_block {
+    margin-bottom:10px;
+    margin-top:10px;
+}
+
+
 
