@@ -30,8 +30,7 @@ template <typename T, typename Basis2D>
 class LeftNormPreconditioner2D
 {
 
-    typedef typename Basis2D::SecondBasisType::BSplineType PrimalSpline_x;
-    typedef typename Basis2D::SecondBasisType::WaveletType PrimalWavelet_x;
+    typedef typename Basis2D::SecondBasisType SecondBasis;
 
 public:
     LeftNormPreconditioner2D(const Basis2D &basis, T s=2.); //s=2: A: H^1 -> H^{-1}
@@ -46,7 +45,7 @@ public:
 private:
     const Basis2D &_basis;
     T              _s;        //scaling for certain classes of integral operators
-    Integral<Gauss,Basis2D,Basis2D> _integral;
+    Integral<Gauss,SecondBasis,SecondBasis> _integral;
 };
 
 }   // namespace lawa

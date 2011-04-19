@@ -37,7 +37,7 @@ CompressionPDE2D<T,Basis2D>::SparsityPattern(const Index2D &lambda_col,
     IndexSet<Index1D> Lambda_y =
                lambdaTilde1d_PDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y, jmax_y, false);
 
-    int level_thresh_bound = std::min(J,std::max(s_tilde_x,s_tilde_y));
+    //int level_thresh_bound = std::min(J,std::max(s_tilde_x,s_tilde_y));
 
     for (set2d_const_it lambda=LambdaRow.begin(); lambda!=LambdaRow.end(); ++lambda) {
         short level_diff =   fabs((*lambda).index1.j-lambda_col.index1.j)

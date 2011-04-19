@@ -7,18 +7,35 @@ namespace lawa {
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
     AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    T _c, T _reaction, InitialCondition& _init_cond,
-									T _entrybound, int _NumOfRows, int _NumOfCols)
+                                    T _c, T _reaction, T _entrybound, int _NumOfRows, int _NumOfCols)
     : basis(_basis), c(_c), reaction(_reaction),
-      compression_1d_t(_basis.first), compression_1d_x(_basis.second), compression_2d(_basis),
-      P_left_data(), P_left_data(), p_left(_p_left), p_right(_p_right),
+      compression_1d_t(_basis.first), compression_1d_x(_basis.second), compression(_basis),
+      P_left_data(), P_right_data(), p_left(_p_left), p_right(_p_right), noprec(),
       op_identity_t(_basis.first), op_identity_x(_basis.second), op_convection_t(_basis.first),
-      op_laplace_x(_basis.second), op_initcond(_init_cond),
+      op_laplace_x(_basis.second), op_noinitcond(), op_initcond(op_noinitcond),
       entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-      data_identity_t(op_identity_t, compression_1d_t, entrybound, NumOfRows, NumOfCols),
-      data_identity_x(op_identity_x, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-      data_convection_t(op_convection_t, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-      data_laplace_x(op_laplace_x, compression_1d_x, entrybound, NumOfRows, NumOfCols)
+      data_identity_t(op_identity_t,	 noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
+      data_identity_x(op_identity_x,	 noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
+      data_convection_t(op_convection_t, noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
+      data_laplace_x(op_laplace_x,		 noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols)
+{
+}
+	
+template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
+AdaptiveSpaceTimeHeatOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+	AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
+                                    InitialCondition& _init_cond, T _c, T _reaction, 
+									T _entrybound, int _NumOfRows, int _NumOfCols)
+: basis(_basis), c(_c), reaction(_reaction),
+compression_1d_t(_basis.first), compression_1d_x(_basis.second), compression(_basis),
+P_left_data(), P_right_data(), p_left(_p_left), p_right(_p_right), noprec(),
+op_identity_t(_basis.first), op_identity_x(_basis.second), op_convection_t(_basis.first),
+op_laplace_x(_basis.second), op_noinitcond(), op_initcond(_init_cond),
+entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
+data_identity_t(op_identity_t,	   noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
+data_identity_x(op_identity_x,	   noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
+data_convection_t(op_convection_t, noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
+data_laplace_x(op_laplace_x,	   noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols)
 {
 }
 

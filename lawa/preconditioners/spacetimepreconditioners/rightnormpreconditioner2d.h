@@ -43,7 +43,7 @@ class RightNormPreconditioner2D
         operator()(const Index2D &index) const;
 
     private:
-        const Basis2D &_basis;
+        //const Basis2D &_basis;
         T              _s;  // scaling for certain classes of integral operators
         Integral<Gauss,FirstBasis,FirstBasis>   _integral_t;
         Integral<Gauss,SecondBasis,SecondBasis> _integral_x;

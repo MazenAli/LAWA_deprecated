@@ -151,7 +151,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
     int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
     std::stringstream filename;
-    filename << "s-adwav-realline-helmholtz-otf_" << d << "_" << d_ << ".dat";
+    filename << "s-adwav-realline-helmholtz-otf.dat";
     std::ofstream file(filename.str().c_str());
 
     for (int its=0; its<NumOfIterations; ++its) {
@@ -233,16 +233,15 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 {
     Timer timer;
     
-    int d=InitialLambda.d, d_=InitialLambda.d_;
-    IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_), DeltaLambda(d,d_);
-    Coefficients<Lexicographical,T, Index> u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
+    IndexSet<Index> LambdaActive, LambdaThresh, LambdaActivable, DeltaLambda;
+    Coefficients<Lexicographical,T, Index> u, f, Au, r;
 
     LambdaActive = InitialLambda;
     T old_res = 0.;
     int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
     std::stringstream filename;
-    filename << "s-adwav-otf_" << d << "_" << d_ << ".dat";
+    filename << "s-adwav-otf-gmres.dat";
     std::ofstream file(filename.str().c_str());
     T total_time = 0.;
 
@@ -269,9 +268,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
-        int current_jmin, current_jmax;
-        getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
-        std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
+        //int current_jmin, current_jmax;
+        //getMinAndMaxLevel(LambdaThresh, current_jmin, current_jmax);
+        //std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
         //Computing residual
         DeltaLambda = C(LambdaThresh, contraction, basis);
@@ -331,17 +330,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
 {
     Timer timer;
 
-    int d=InitialLambda.d, d_=InitialLambda.d_;
-    IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_);
-    IndexSet<Index>      LambdaActive_test(d,d_), DeltaLambda(d,d_);
-    Coefficients<Lexicographical,T, Index>      u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
+    IndexSet<Index> LambdaActive, LambdaThresh, LambdaActivable;
+    IndexSet<Index>      LambdaActive_test, DeltaLambda;
+    Coefficients<Lexicographical,T, Index>      u, f, Au, r;
 
     LambdaActive = InitialLambda;
     T old_res = 0.;
     int its_per_threshTol=0;
     std::cout << "Simple adaptive cgls time solver started." << std::endl;
     std::stringstream filename;
-    filename << "s-adwav-cgls_" << d << "_" << d_ << ".dat";
+    filename << "s-adwav-cgls.dat";
     std::ofstream file(filename.str().c_str());
 
     for (int its=0; its<NumOfIterations; ++its) {
