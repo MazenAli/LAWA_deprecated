@@ -93,7 +93,7 @@ int main()
     /// Solve problem using pcg
     cout << pcg(P, A, u, f) << " pcg iterations" << endl;
     
-    x Print solution to file "u.txt"
+    /// Print solution to file "u.txt"
     printU(u, basis, J, "u.txt");
     
     return 0;
