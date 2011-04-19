@@ -3,7 +3,7 @@ Installation of LAWA
 
 :document:  lawa::installation
 
-:link: __download lawa__ -> http://sf.net/projects/lawa/files
+:link: __download site__ -> http://sf.net/projects/lawa/files
 
 LAWA is distributed as release to be downloaded from
 the project-site at sourceforge (download lawa).
@@ -16,7 +16,7 @@ a suitable FLENS comes directly with LAWA.
 The installation of FLENS and LAWA on a Unix-like system (the only ones we give
 installation support for) takes the following steps:
 
-- Download and extract the release from the sourceforge-site. This will result
+- Download and extract the release from the sourceforge __download site__. This will result
   in two folders in the current directory:
   
   ___ CODE __________________

@@ -254,7 +254,7 @@ td.header {
 }
 
 /* Test-Table */
-table.test {
+table.default {
     border-left: solid 0px;
     border-top: solid 0px;
     border-right: solid 1px;
@@ -262,11 +262,11 @@ table.test {
     width:90%;
 }
 
-td.test.row_0 {
+td.default.row_0 {
     font-weight:bold;
 }
 
-td.test {
+td.default {
     border-top: solid 1px;
     border-left: solid 1px;
 }
@@ -299,5 +299,8 @@ td.ranks.evenRow {
     margin-top:10px;
 }
 
+.Statement {
+    color : #8B4513;
+}
 
 
