@@ -23,8 +23,6 @@
 
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/operators/pdeoperators1d/identityoperator1d.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 
 namespace lawa {
 

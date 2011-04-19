@@ -1,8 +1,7 @@
 #ifndef LAWA_RIGHTHANDSIDES_TIMEDEPSEPARABLERHS1D_H
 #define LAWA_RIGHTHANDSIDES_TIMEDEPSEPARABLERHS1D_H 1
 
-#include <lawa/methods/adaptive/datastructures/indexset.h>
-#include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/functiontypes/functiontypes.h>
 #include <lawa/integrals/integrals.h>
 

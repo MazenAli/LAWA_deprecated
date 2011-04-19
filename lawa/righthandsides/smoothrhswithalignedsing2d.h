@@ -20,8 +20,7 @@
 #ifndef LAWA_RIGHTHANDSIDES_SMOOTHRHSWITHALIGNEDSING2D_H
 #define LAWA_RIGHTHANDSIDES_SMOOTHRHSWITHALIGNEDSING2D_H 1
 
-#include <lawa/methods/adaptive/datastructures/indexset.h>
-#include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/functiontypes/function2d.h>
 #include <lawa/integrals/integral2d.h>
 

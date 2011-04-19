@@ -22,8 +22,6 @@
 #define  LAWA_RIGHTHANDSIDES_RHSWITHPEAKS1D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/methods/adaptive/datastructures/indexset.h>
-#include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/functiontypes/function.h>
 
 namespace lawa {
