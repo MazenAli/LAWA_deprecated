@@ -148,6 +148,13 @@ SpaceTimeTensorRefSols1D<T, Basis2D>::sol(T t, T x, int deriv_t, int deriv_x)
 {
     return sol_t(t, deriv_t) * sol_x(x, deriv_x);
 }
+
+template < typename T, typename Basis2D>
+T
+SpaceTimeTensorRefSols1D<T, Basis2D>::sol(T t, T x)
+{
+    return sol_t(t, 0) * sol_x(x, 0);
+}
     
 template < typename T, typename Basis2D>
 T

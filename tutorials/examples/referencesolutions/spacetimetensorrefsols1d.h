@@ -29,8 +29,9 @@ struct SpaceTimeTensorRefSols1D {
     static T sol_t(T t, int deriv_t);
     static T sol_x(T x, int deriv_x);
     static T sol(T t, T x, int deriv_t, int deriv_x);
+	static T sol(T t, T x);
     
-    // Space-Time Heat Examples
+    // Space-Time Diffusion-Convection-Reaction Examples
     // u(t,x) = u_t(t) * u_x(x)
     // d/dt u - c * d/dxx u + k * d/dx u + r * u 
     //          = (d/dt u_t - 0.5 * r * u_x) * u_x + u_t * ( - c * d/dxx u_x + k * d/dx u_x + 0.5 * r * u_x)
