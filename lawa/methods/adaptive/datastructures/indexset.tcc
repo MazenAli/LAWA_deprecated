@@ -25,7 +25,6 @@ namespace lawa {
 template <typename Index>
 IndexSet<Index>::IndexSet(void)
 {
-
 }
 
 template <typename Index>

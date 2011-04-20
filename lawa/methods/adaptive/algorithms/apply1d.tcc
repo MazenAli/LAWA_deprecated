@@ -34,7 +34,7 @@ SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexic
         /*
         int s = 0, count = 0;
         for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
-            IndexSet<Index1D> Lambda_v(v.d,v.d_);
+            IndexSet<Index1D> Lambda_v;
             Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, A.a.basis, (k-s), -50, 30);
             for (const_set_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
                 ret[*mu] += A(*mu, (*it).second) * (*it).first;

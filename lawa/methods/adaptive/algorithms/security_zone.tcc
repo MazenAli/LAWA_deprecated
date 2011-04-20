@@ -47,7 +47,7 @@ IndexSet<Index1D>
 C_WO_XBSpline(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis) {
     const Wavelet<T,Primal,R,CDF> psi(basis,0);
     int j = lambda.j, k = lambda.k;
-    IndexSet<Index1D> ret(basis.d,basis.d_);
+    IndexSet<Index1D> ret;
     Support<T> contractedSupp, supp = basis.psi.support(j,k);
     T center = 0.5*(supp.l1 + supp.l2);
     contractedSupp.l1 = c*supp.l1 + (1-c)*center;
