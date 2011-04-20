@@ -18,37 +18,40 @@
  */
 
 
-#ifndef LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEHEATOPERATOR1D_H
-#define LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEHEATOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEPDEOPERATOR1D_H
+#define LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEPDEOPERATOR1D_H 1
 
 
 #include <lawa/integrals/integral.h>
 
 namespace lawa {
 
-/* Space-Time Heat Operator
+/* Space-Time PDE Operator
  *
- *  a(v,u) =             Integral(v1 * u1_t) * Integral(v2 * u2) 
- *          + c *        Integral(v1 * u1)   * Integral(v2_x * u2_x)
- *          + reaction * Integral(v1 * u1)   * Integral(v2 * u2)
+ *  a(v,u) =               Integral(v1 * u1_t) * Integral(v2 * u2) 
+ *          + diffusion  * Integral(v1 * u1)   * Integral(v2_x * u2_x)
+ *          + convection * Integral(v1 * u1)   * Integral(v2 * u2_x)
+ *          + reaction   * Integral(v1 * u1)   * Integral(v2 * u2)
  *
  */    
 template <typename T, typename Basis>
-class SpaceTimeHeatOperator1D{
+class SpaceTimePDEOperator1D{
             
     public:
         
         const Basis& basis;
-        const T c;
+        const T diffusion;
+        const T convection;
         const T reaction;
         
-        SpaceTimeHeatOperator1D(const Basis& _basis, const T _c, const T _reaction=0.);
+        SpaceTimePDEOperator1D(const Basis& _basis, const T _diffusion = 1.,
+                               const T _convection = 0, const T _reaction=0.);
     
         T                                                           // returns a(v,u)
         operator()(XType row_xtype_t, int j1_t, int k1_t, 
                    XType row_xtype_x, int j1_x, int k1_x,
-                   XType col_xtype_t,int j2_t, int k2_t, 
-                   XType col_xtype_x,int j2_x, int k2_x) const;
+                   XType col_xtype_t, int j2_t, int k2_t, 
+                   XType col_xtype_x, int j2_x, int k2_x) const;
         T
         operator()(XType xtype_t, int j_t, int k_t,                 // returns a(u,u)
                    XType xtype_x, int j_x, int k_x) const;
@@ -68,6 +71,6 @@ class SpaceTimeHeatOperator1D{
     
 } // namespace lawa
 
-#include <lawa/operators/spacetimeoperators/spacetimeheatoperator1d.tcc>
+#include <lawa/operators/spacetimeoperators/spacetimepdeoperator1d.tcc>
 
-#endif // LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEHEATOPERATOR1D_H
+#endif // LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEPDEOPERATOR1D_H
