@@ -2,6 +2,7 @@
 #define LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_H 1
 
 #include <lawa/settings/enum.h>
+#include <lawa/preconditioners/preconditioners1d/diagonalmatrixpreconditioner1d.h>
 
 namespace lawa{
     
