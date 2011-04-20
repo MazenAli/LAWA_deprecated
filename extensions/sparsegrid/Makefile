@@ -14,6 +14,8 @@ $(DYLIB): $(OBJECTS)
 
 clean:
 	$(RM) *.o *.d $(DYLIB)
+	$(RMDIR) *.dSYM
+
 
 # automatic dependencies -------------------------------------------------------
 %.d: %.cpp

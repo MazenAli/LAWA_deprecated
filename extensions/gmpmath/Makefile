@@ -5,7 +5,6 @@ DYLIB    = libextensionsgmpmath.$(DYLIB_EXT)
 SOURCES  := $(wildcard *.cc)
 OBJECTS  := $(SOURCES:.cc=.o)
 DEPS     := $(SOURCES:.cc=.d)
-CPPFLAGS += -I $(LAWA_HOME)
 
 all: $(DYLIB)
 
@@ -14,7 +13,8 @@ $(DYLIB): $(OBJECTS)
 	$(CP) $(DYLIB) $(LAWA_HOME)
 
 clean:
-	$(RM) *.o *.d $(DYLIB)
+	$(RM) *.o *.d
+	$(RMDIR) *.dSYM
 
 # automatic dependencies -------------------------------------------------------
 %.d: %.cc
