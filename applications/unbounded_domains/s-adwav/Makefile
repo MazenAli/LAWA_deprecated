@@ -1,4 +1,4 @@
-include $(LAWA_HOME)/config
+include $(LAWA_HOME)/Makefile.common
 
 SOURCEFILES  = $(wildcard *.cpp)
 TARGETS      = $(patsubst %.cpp,%,$(SOURCEFILES))
@@ -16,4 +16,4 @@ all: $(TARGETS)
 clean:
 	$(RM) *.o
 	$(RM) $(TARGETS)
-    
+	$(RMDIR) *.dSYM

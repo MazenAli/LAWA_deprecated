@@ -5,7 +5,6 @@ DYLIB    = libextensionsflens.$(DYLIB_EXT)
 SOURCES  := $(wildcard *.cpp)
 OBJECTS  := $(SOURCES:.cpp=.o)
 DEPS     := $(SOURCES:.cpp=.d)
-CPPFLAGS += -I $(LAWA_HOME)
 
 all: $(DYLIB)
 
@@ -15,6 +14,8 @@ $(DYLIB): $(OBJECTS)
 
 clean:
 	$(RM) *.o *.d $(DYLIB)
+	$(RMDIR) *.dSYM
+
 
 # automatic dependencies -------------------------------------------------------
 %.d: %.cpp
