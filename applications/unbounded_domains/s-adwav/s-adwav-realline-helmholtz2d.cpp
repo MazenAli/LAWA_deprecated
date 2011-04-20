@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include <lawa/lawa.h>
-#include <tutorials/examples/referencesolutions/referencesolutions.h>
+#include <applications/unbounded_domains/referencesolutions/referencesolutions.h>
 
 #define ROW_SIZE 4*8192
 #define COL_SIZE 4*2048
@@ -36,35 +36,41 @@ typedef Basis<T,Primal,domain,cons> ReallineBasis;
 typedef TensorBasis2D<Adaptive, ReallineBasis,ReallineBasis> Basis2D;
 
 //Operator definitions
-typedef HelmholtzOperator2D<T, Basis2D>                                     HelmholtzBilinearForm2D;
-typedef DiagonalMatrixPreconditioner2D<T,Basis2D, HelmholtzBilinearForm2D > Preconditioner2D;
-typedef AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner2D>           MA;
+typedef HelmholtzOperator2D<T, Basis2D>                             HelmholtzBilinearForm2D;
+typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
+                                       HelmholtzBilinearForm2D >    Preconditioner2D;
+typedef AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner2D>   MA;
 
 //Righthandsides definitions (tensor)
-typedef SeparableRHS2D<T,Basis2D >                                     SeparableRhsIntegral2D;
+typedef SeparableRHS2D<T,Basis2D >                                  SeparableRhsIntegral2D;
 typedef SumOfTwoRHSIntegrals<T,Index2D,SeparableRhsIntegral2D,
-                             SeparableRhsIntegral2D>                   SumOfSeparableRhsIntegral2D;
-typedef RHS<T,Index2D, SumOfSeparableRhsIntegral2D, Preconditioner2D>  SumOfSeparableRhs;
+                             SeparableRhsIntegral2D>                SumOfSeparableRhsIntegral2D;
+typedef RHS<T,Index2D, SumOfSeparableRhsIntegral2D,
+            Preconditioner2D>                                       SumOfSeparableRhs;
 
 //Righthandsides definitions (non tensor, smooth rhs)
-typedef SmoothRHSWithAlignedSing2D<T, Basis2D, SparseGridGP>              NonSeparableRhsIntegral2D;
-typedef RHS<T,Index2D, NonSeparableRhsIntegral2D, Preconditioner2D>       NonSeparableRhs;
+typedef SmoothRHSWithAlignedSing2D<T, Basis2D, SparseGridGP>        NonSeparableRhsIntegral2D;
+typedef RHS<T,Index2D, NonSeparableRhsIntegral2D,
+            Preconditioner2D>                                       NonSeparableRhs;
 
 //Righthandsides definitions (non tensor, non smooth rhs)
-typedef SumOfThreeRHSIntegrals<T, Index2D, NonSeparableRhsIntegral2D>     SumOfNonSeparableRhsIntegral2D;
-typedef RHS<T,Index2D, SumOfNonSeparableRhsIntegral2D, Preconditioner2D>  SumOfNonSeparableRhs;
+typedef SumOfThreeRHSIntegrals<T, Index2D,
+                               NonSeparableRhsIntegral2D>           SumOfNonSeparableRhsIntegral2D;
+typedef RHS<T,Index2D, SumOfNonSeparableRhsIntegral2D,
+            Preconditioner2D>                                       SumOfNonSeparableRhs;
 
 //Algorithm definition
-typedef S_ADWAV<T,Index2D, Basis2D, MA, SumOfSeparableRhs> S_Adwav_Tensor;
-typedef S_ADWAV<T,Index2D, Basis2D, MA, NonSeparableRhs>   S_Adwav_NonTensor1;
-typedef S_ADWAV<T,Index2D, Basis2D, MA, SumOfNonSeparableRhs> S_Adwav_NonTensor2;
+typedef S_ADWAV<T,Index2D, Basis2D, MA, SumOfSeparableRhs>          S_Adwav_Tensor;
+typedef S_ADWAV<T,Index2D, Basis2D, MA, NonSeparableRhs>            S_Adwav_NonTensor1;
+typedef S_ADWAV<T,Index2D, Basis2D, MA, SumOfNonSeparableRhs>       S_Adwav_NonTensor2;
 
 void
 estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y);
 
 template <typename T, typename RHS, typename S_ADWAV>
 void
-postprocessing(const Basis2D &basis2d, HelmholtzBilinearForm2D &Bil, Preconditioner2D &P, RHS &F, S_ADWAV &s_adwav, int example, T H1norm);
+postprocessing(const Basis2D &basis2d, HelmholtzBilinearForm2D &Bil, Preconditioner2D &P, RHS &F,
+               S_ADWAV &s_adwav, int example, T H1norm);
 
 int main (int argc, char *argv[]) {
 	if (argc!=5 && argc !=7) {
@@ -102,9 +108,8 @@ int main (int argc, char *argv[]) {
 	//Righthand side construction for tensor solution
 	if (example==1 || example==2 || example==3) {
 		int order = 64;
-		ReferenceSolutionTensor2D<T,Basis2D,HelmholtzBilinearForm2D> refsol;
-		//refsol.setExample(example, Bil, domain, domain);
-		refsol.setExample(example, Bil, domain, domain);
+		TensorRefSols_PDE_Realline2D<T> refsol;
+		refsol.setExample(example, 1.);
 		SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
 								    	refsol.exact_y, refsol.sing_pts_y);
 
@@ -116,7 +121,8 @@ int main (int argc, char *argv[]) {
 		SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
 		SumOfSeparableRhs F(rhsintegral2d,P);
 
-		S_Adwav_Tensor s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol, NumOfIterations, 3, 1e-2);
+		S_Adwav_Tensor s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol,
+                               NumOfIterations, 3, 1e-2);
 		Timer time;
 		time.start();
 		s_adwav.solve_cg(InitialLambda, refsol.H1norm());
@@ -129,19 +135,21 @@ int main (int argc, char *argv[]) {
 		cout << "Postprocessing finished." << endl;
 
 		cout << "Plot of solution started." << endl;
-		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -4., 4., -4., 4., pow2i<T>(-3), "s-adwav-realline-helmholtz2d");
+		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -4., 4., -4., 4.,
+		       pow2i<T>(-3), "s-adwav-realline-helmholtz2d");
 		cout << "Plot of solution finished." << endl;
 	}
 	//Righthand side construction for non tensor solution and smooth rhs
 	else if (example==4) {
 		int order = 31;
-		ReferenceSolution2D<T,Basis2D,HelmholtzBilinearForm2D> refsol;
-		refsol.setExample(1, Bil, domain, domain);
+		RefSols_PDE_Realline2D<T> refsol;
+		refsol.setExample(1, 1.);
 		Function2D<T> Func2d(refsol.rhs, refsol.sing_pts_x, refsol.sing_pts_y);
 		NonSeparableRhsIntegral2D rhsintegral2d(basis2d, Func2d, order);
 		NonSeparableRhs F(rhsintegral2d,P);
 
-		S_Adwav_NonTensor1 s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol, NumOfIterations, 3, 1e-2);
+		S_Adwav_NonTensor1 s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol,
+                                   NumOfIterations, 3, 1e-2);
 		Timer time;
 		time.start();
 		s_adwav.solve_cg(InitialLambda, refsol.H1norm());
@@ -154,30 +162,28 @@ int main (int argc, char *argv[]) {
 		cout << "Postprocessing finished." << endl;
 
 		cout << "Plot of solution started." << endl;
-		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -3., 3., -3., 3., pow2i<T>(-3), "s-adwav-realline-helmholtz2d");
+		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -3., 3., -3., 3.,
+               pow2i<T>(-3), "s-adwav-realline-helmholtz2d");
 		cout << "Plot of solution finished." << endl;
 	}
 	//Righthand side construction for non tensor solution and sum of non-smooth rhs
-	else if (example==5 || example==6) {
+	else if (example==5) {
 		int order = 63;
-		ReferenceSolution2D<T,Basis2D,HelmholtzBilinearForm2D> refsol;
-		refsol.setExample(example-3, Bil, domain, domain);
+		RefSols_PDE_Realline2D<T> refsol;
+		refsol.setExample(2, 1.);
 		Function2D<T> Func2d(refsol.exact, refsol.sing_pts_x, refsol.sing_pts_y);
 		Function2D<T> Minus_Func2d(refsol.minus_exact, refsol.sing_pts_x, refsol.sing_pts_y);
 		Function2D<T> Func2d_x(refsol.exact_dx, refsol.sing_pts_x, refsol.sing_pts_y);
 		Function2D<T> Func2d_y(refsol.exact_dy, refsol.sing_pts_x, refsol.sing_pts_y);
 		NonSeparableRhsIntegral2D rhsintegral_reaction(basis2d, Func2d, order);
-		cout << "Singular points x-direction: " << refsol.sing_pts_x << endl;
-		cout << "Singular points y-direction: " << refsol.sing_pts_y << endl;
-
-		//NonSeparableRhsIntegral2D rhsintegral_diffusion_x(basis2d, Minus_Func2d, order, 2, 0);
-		//NonSeparableRhsIntegral2D rhsintegral_diffusion_y(basis2d, Minus_Func2d, order, 0, 2);
 		NonSeparableRhsIntegral2D rhsintegral_diffusion_x(basis2d, Func2d_x, order, 1, 0);
 		NonSeparableRhsIntegral2D rhsintegral_diffusion_y(basis2d, Func2d_y, order, 0, 1);
-		SumOfNonSeparableRhsIntegral2D rhsintegral2d(rhsintegral_diffusion_x,rhsintegral_diffusion_y,rhsintegral_reaction);
+		SumOfNonSeparableRhsIntegral2D rhsintegral2d(rhsintegral_diffusion_x,
+                                                     rhsintegral_diffusion_y,rhsintegral_reaction);
 		SumOfNonSeparableRhs F(rhsintegral2d,P);
 
-		S_Adwav_NonTensor2 s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol, NumOfIterations, 3, 1e-2);
+		S_Adwav_NonTensor2 s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol,
+                                   NumOfIterations, 3, 1e-2);
 		Timer time;
 		time.start();
 		s_adwav.solve_cg(InitialLambda, refsol.H1norm());
@@ -190,7 +196,8 @@ int main (int argc, char *argv[]) {
 		cout << "Postprocessing finished." << endl;
 
 		cout << "Plot of solution started." << endl;
-		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -3., 3., -3., 3., pow2i<T>(-3), "s-adwav-realline-helmholtz2d");
+		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -3., 3., -3., 3.,
+		       pow2i<T>(-3), "s-adwav-realline-helmholtz2d");
 		cout << "Plot of solution finished." << endl;
 	}
 
@@ -212,8 +219,8 @@ estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
 
 	//Righthand side construction for tensor solution
 	if (example==1 || example==2 || example==3) {
-		ReferenceSolutionTensor2D<T,Basis2D,HelmholtzBilinearForm2D> refsol;
-		refsol.setExample(example, Bil, domain, domain);
+	    TensorRefSols_PDE_Realline2D<T> refsol;
+	    refsol.setExample(example, 1.);
 		SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
 									    refsol.exact_y, refsol.sing_pts_y);
 
@@ -240,8 +247,8 @@ estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
 		}
 	}
 	else if (example==4) {
-		ReferenceSolution2D<T,Basis2D,HelmholtzBilinearForm2D> refsol;
-		refsol.setExample(1, Bil, domain, domain);
+	    RefSols_PDE_Realline2D<T> refsol;
+	    refsol.setExample(1, 1.);
 		Function2D<T> Func2d(refsol.rhs, refsol.sing_pts_x, refsol.sing_pts_y);
 		NonSeparableRhsIntegral2D rhsintegral2d(basis2d, Func2d, 4);
 		int count = 0;
@@ -263,15 +270,16 @@ estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
 		}
 	}
 	else if (example==5 || example==6) {
-		ReferenceSolution2D<T,Basis2D,HelmholtzBilinearForm2D> refsol;
-		refsol.setExample(example-3, Bil, domain, domain);
+	    RefSols_PDE_Realline2D<T> refsol;
+	    refsol.setExample(1, 1.);
 		Function2D<T> Func2d(refsol.exact, refsol.sing_pts_x, refsol.sing_pts_y);
 		Function2D<T> Func2d_x(refsol.exact_dx, refsol.sing_pts_x, refsol.sing_pts_y);
 		Function2D<T> Func2d_y(refsol.exact_dy, refsol.sing_pts_x, refsol.sing_pts_y);
 		NonSeparableRhsIntegral2D rhsintegral_reaction(basis2d, Func2d, 7);
 		NonSeparableRhsIntegral2D rhsintegral_diffusion_x(basis2d, Func2d_x, 7, 1, 0);
 		NonSeparableRhsIntegral2D rhsintegral_diffusion_y(basis2d, Func2d_y, 7, 0, 1);
-		SumOfNonSeparableRhsIntegral2D rhsintegral2d(rhsintegral_diffusion_x,rhsintegral_diffusion_y,rhsintegral_reaction);
+		SumOfNonSeparableRhsIntegral2D rhsintegral2d(rhsintegral_diffusion_x,
+                                                     rhsintegral_diffusion_y,rhsintegral_reaction);
 		int count = 0;
 		for (int j_x=0; j_x>=-4; --j_x) {
 			for (int j_y=0; j_y>=-4; --j_y) {
@@ -284,7 +292,7 @@ estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
 						f_LambdaWavelet[waveletindex] = wavelet_val;
 						f_LambdaBSpline[bsplineindex] = bspline_val;
 						++count;
-						if (count %100 == 0) cout << "Estimale minimal level: " << count << endl;
+						if (count %100 == 0) cout << "Estimate minimal level: " << count << endl;
 					}
 				}
 			}
@@ -310,14 +318,16 @@ estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
 
 template <typename T, typename RHS, typename S_ADWAV>
 void
-postprocessing(const Basis2D &basis2d, HelmholtzBilinearForm2D &Bil, Preconditioner2D &P, RHS &F, S_ADWAV &s_adwav, int example, T H1norm)
+postprocessing(const Basis2D &basis2d, HelmholtzBilinearForm2D &Bil, Preconditioner2D &P,
+               RHS &F, S_ADWAV &s_adwav, int example, T H1norm)
 {
 	int d=basis2d.first.d, d_=basis2d.first.d_;
 	int jmin_x = basis2d.first.j0, jmin_y = basis2d.second.j0;
 
 	Coefficients<Lexicographical,T,Index2D> u;
 	stringstream filename;
-	filename << "s-adwav-realline-helmholtz2d-conv_" << example << "_" << d << "_" << d_ << "_" << jmin_x << "_" << jmin_y << ".dat";
+	filename << "s-adwav-realline-helmholtz2d-conv_" << example << "_" << d << "_" << d_
+             << "_" << jmin_x << "_" << jmin_y << ".dat";
 	ofstream file(filename.str().c_str());
 
 	MA A_error(basis2d, 1., P);
@@ -335,18 +345,3 @@ postprocessing(const Basis2D &basis2d, HelmholtzBilinearForm2D &Bil, Preconditio
 	A_error.clear();
 }
 
-/*
- *  ofstream file_wav("tensorwavelet.txt");
-    Wavelet<T,Primal,R,CDF> psi(d,d_);
-    for (T x=psi.support(1,0).l1; x<=psi.support(1,0).l2; x+=pow2i<T>(-6)) {
-        for (T y=psi.support(0,0).l1; y<=psi.support(0,0).l2; y+=pow2i<T>(-6)) {
-            file_wav << x << " " << y << " " << psi(x,1,0)*psi(y,0,0) << endl;
-        }
-        file_wav << endl;
-    }
-    cout << psi.support(0,0) << endl;
-    cout << psi.support(3,0) << endl;
-    file_wav.close();
-    return 0;
- *
- */

@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include <lawa/lawa.h>
-#include <tutorials/examples/referencesolutions/referencesolutions.h>
+#include <applications/unbounded_domains/referencesolutions/referencesolutions.h>
 
 typedef double T;
 using namespace lawa;
@@ -69,7 +69,7 @@ int main (int argc, char *argv[]) {
 			else if (example==3) jmin=-1;
 			else if (example==4) jmin=0;
 			else if (example==5) jmin=0;
-			else if (example==6) jmin=-1;		//better convergence behaviour, works also for higher levels
+			else if (example==6) jmin=-1;       //better convergence behaviour
 		}
 		else if (d==3 && d_==3) {
 			if (example==1) 	 jmin=-2;
@@ -77,7 +77,7 @@ int main (int argc, char *argv[]) {
 			else if (example==3) jmin=-1;
 			else if (example==4) jmin=0;
 			else if (example==5) jmin=-1;
-			else if (example==6) jmin=-1;		//better convergence behaviour, works also for higher levels
+			else if (example==6) jmin=-1;		//better convergence behaviour
 		}
 		else if (d==3 && d_==5) {
 			if (example==1) 	 jmin=-2;
@@ -85,7 +85,7 @@ int main (int argc, char *argv[]) {
 			else if (example==3) jmin=-1;
 			else if (example==4) jmin=0;
 			else if (example==5) jmin=-1;
-			else if (example==6) jmin=-1;		//better convergence behaviour, works also for higher levels
+			else if (example==6) jmin=-1;		//better convergence behaviour
 		}
 		//jmin = estimateMinimalLevel(example, c, d,d_);
 	}
@@ -102,8 +102,8 @@ int main (int argc, char *argv[]) {
 	Compression1D Compr(basis);
 	//MA A(Bil,P,Compr,0,2*8192,2*8192);
 	MA A(Bil,P,Compr);
-	PDEReferenceSolutions1D<T> refsol;
-	refsol.setExample(example, 1., 0, c, domain);
+	RefSols_PDE_Realline1D<T> refsol;
+	refsol.setExample(example, 1., 0, c);
 	Function<T> rhs(refsol.rhs,refsol.sing_pts);
 	RhsIntegral1D rhsintegral1d(basis, rhs, refsol.deltas, 25);
 	Rhs F(rhsintegral1d,P);
@@ -168,8 +168,8 @@ estimateMinimalLevel(int example, T c, int d, int d_)
 	Basis1D basis(d,d_,0);
 	HelmholtzBilinearForm1D Bil(basis,c);
 	Preconditioner1D P(basis);
-	PDEReferenceSolutions1D<T> refsol;
-	refsol.setExample(example, 1., 0., c, domain);
+	RefSols_PDE_Realline1D<T> refsol;
+	refsol.setExample(example, 1., 0., c);
 	Function<T> rhs_func(refsol.rhs,refsol.sing_pts);
 	RhsIntegral1D rhsintegral(basis, rhs_func, refsol.deltas,25);
 

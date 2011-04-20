@@ -17,41 +17,35 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H
-#define TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H 1
+#ifndef APPLICATIONS_UNBOUNDED_DOMAINS_REFERENCESOLUTIONS_TENSORREFSOLS_PDE_REALLINE2D_H
+#define APPLICATIONS_UNBOUNDED_DOMAINS_REFERENCESOLUTIONS_TENSORREFSOLS_PDE_REALLINE2D_H 1
+
+#include <lawa/settings/enum.h>
+#include <lawa/flensforlawa.h>
 
 namespace lawa {
 
-template <typename T, typename Basis3D, typename BilinearForm>
-struct ReferenceSolutionTensor3D
-{
-};
-
-template<typename T, typename Basis3D>
-struct ReferenceSolutionTensor3D<T,Basis3D,HelmholtzOperator3D<T,Basis3D> >
+template<typename T>
+struct TensorRefSols_PDE_Realline2D
 {
     static int nr;
     static T c;
-    static DomainType domain1, domain2, domain3;
 
-    static DenseVector<Array<T> > sing_pts_x, sing_pts_y, sing_pts_z;	//aligned singularities
+    static DenseVector<Array<T> > sing_pts_x, sing_pts_y;   //aligned singularities
 
-    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas_x, deltas_y, deltas_z;
+    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas_x, deltas_y;
 
     static void
-    setExample(int _nr, const HelmholtzOperator3D<T,Basis3D> &a, DomainType domain1, DomainType domain2, DomainType domain3);
+    setExample(int _nr, T _c);
 
     static T
-    exact(T x, T y, T z);
+    exact(T x, T y);
 
     static T
-    exact_dx(T x, T y, T z);
+    exact_dx(T x, T y);
 
     static T
-    exact_dy(T x, T y, T z);
-
-    static T
-    exact_dz(T x, T y, T z);
+    exact_dy(T x, T y);
 
     static T
     exact_x(T x);
@@ -66,29 +60,17 @@ struct ReferenceSolutionTensor3D<T,Basis3D,HelmholtzOperator3D<T,Basis3D> >
     exact_y(T y, int deriv_y);
 
     static T
-    exact_z(T z);
-
-    static T
-    exact_z(T z, int deriv_z);
-
-    static T
     rhs_x(T x);
 
     static T
     rhs_y(T y);
 
     static T
-    rhs_z(T z);
-
-    static T
     H1norm();
 };
 
+}   // namespace lawa
 
+#include <applications/unbounded_domains/referencesolutions/tensorrefsols_pde_realline2d.tcc>
 
-}	//namespace lawa
-
-#include <tutorials/examples/referencesolutions/referencesolutions3d.tcc>
-
-
-#endif // TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H
+#endif  // APPLICATIONS_UNBOUNDED_DOMAINS_REFERENCESOLUTIONS_TENSORREFSOLS_PDE_REALLINE2D_H

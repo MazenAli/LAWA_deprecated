@@ -17,56 +17,50 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_PDEREFERENCESOLUTIONS1D_H
-#define TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_PDEREFERENCESOLUTIONS1D_H 1
+#ifndef APPLICATIONS_UNBOUNDED_DOMAINS_REFERENCESOLUTIONS_REFSOLS_PDE_REALLINE2D_H
+#define APPLICATIONS_UNBOUNDED_DOMAINS_REFERENCESOLUTIONS_REFSOLS_PDE_REALLINE2D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/flensforlawa.h>
 
 namespace lawa {
 
-/*
- * Reference solutions u and corresponding righthand sides for second order PDEs
- * with constant coefficients:
- *       - diffusion * u'' + convection * u' + reaction * u = f
- */
-
 template<typename T>
-struct PDEReferenceSolutions1D
+struct RefSols_PDE_Realline2D
 {
     static int nr;
+    static T c;
 
-    static T diffusion, convection, reaction;
-
-    static DomainType domain;
-
-    static DenseVector<Array<T> > sing_pts;
-
-    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas;
+    static DenseVector<Array<T> > sing_pts_x, sing_pts_y;
 
     static void
-    setExample(int _nr, T _diffusion, T _convection, T _reaction, DomainType domain);
+    setExample(int _nr, T _c);
 
     static T
-    exact(T x, int deriv);
+    exact(T x, T y);
 
     static T
-    exact(T x);
+    minus_exact(T x, T y);
 
     static T
-    d_exact(T x);
+    exact_dx(T x, T y);
 
     static T
-    rhs(T x);
+    exact_dy(T x, T y);
+
+    static T
+    rhs(T x, T y);
+
+    static T
+    exact(T x, T y, int deriv_x, int deriv_y);
 
     static T
     H1norm();
+
 };
 
+}   // namespace lawa
 
-} // namespace lawa
+#include <applications/unbounded_domains/referencesolutions/refsols_pde_realline2d.tcc>
 
-#include <tutorials/examples/referencesolutions/pdereferencesolutions1d.tcc>
-
-
-#endif // TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_PDEREFERENCESOLUTIONS1D_H
+#endif  // APPLICATIONS_UNBOUNDED_DOMAINS_REFERENCESOLUTIONS_REFSOLS_PDE_REALLINE2D_H
