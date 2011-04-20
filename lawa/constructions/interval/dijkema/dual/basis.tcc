@@ -25,7 +25,7 @@ template <typename T>
 Basis<T,Dual,Interval,Dijkema>::Basis(int _d, int _d_, int j)
     : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
-      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1)
+      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1), psi_(*this)
 {
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
