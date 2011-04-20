@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
  
-#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
-#define LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEPDEOPERATOR1D_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEPDEOPERATOR1D_H 1
  
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/compressions/compression_pde1d.h>
@@ -34,11 +34,12 @@
  
 namespace lawa {
 
-/* Space-Time Heat Operator
+/* Space-Time PDE Operator
  *
- *  a(v,u) =             Integral(v1 * u1_t) * Integral(v2 * u2) 
- *          + c *        Integral(v1 * u1)   * Integral(v2_x * u2_x)
- *          + reaction * Integral(v1 * u1)   * Integral(v2 * u2)
+ *  a(v,u) =               Integral(v1 * u1_t) * Integral(v2 * u2) 
+ *          + diffusion  * Integral(v1 * u1)   * Integral(v2_x * u2_x)
+ *			+ convection * Integral(v1 * u1)   * Integral(v2 * u2_x)
+ *          + reaction   * Integral(v1 * u1)   * Integral(v2 * u2)
  *
  *  Template Parameters:
  *      LeftPrec2D :        left preconditioner
@@ -46,7 +47,7 @@ namespace lawa {
  *      InitialCondition:   operator for initial condition, can be NoInitialCondition
  */
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-struct AdaptiveSpaceTimeHeatOperator1D{
+struct AdaptiveSpaceTimePDEOperator1D{
     
     typedef typename Basis2D::FirstBasisType    Basis_t;
     typedef typename Basis2D::SecondBasisType   Basis_x;
@@ -60,6 +61,7 @@ struct AdaptiveSpaceTimeHeatOperator1D{
     typedef IdentityOperator1D<T, Basis_t>      IdentityOperator_t;
     typedef IdentityOperator1D<T, Basis_x>      IdentityOperator_x;
     typedef ConvectionOperator1D<T, Basis_t>    ConvectionOperator_t;
+    typedef ConvectionOperator1D<T, Basis_x>    ConvectionOperator_x;
     typedef LaplaceOperator1D<T, Basis_x>       LaplaceOperator_x;
 
     typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_t, 
@@ -68,15 +70,18 @@ struct AdaptiveSpaceTimeHeatOperator1D{
                                Compression1D_x, NoPreconditioner1D>   DataIdentity_x;    
     typedef MapMatrixWithZeros<T, Index1D, ConvectionOperator_t, 
                                Compression1D_t, NoPreconditioner1D>   DataConvection_t;
+    typedef MapMatrixWithZeros<T, Index1D, ConvectionOperator_x, 
+                               Compression1D_x, NoPreconditioner1D>   DataConvection_x;
     typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
                                Compression1D_x, NoPreconditioner1D>   DataLaplace_x;
                                
-    AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-									T _c, T _reaction = 0, 
+    AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
+									T _diffusion = 1., T _convection = 0, T _reaction = 0, 
 									T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
 	
-	AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    InitialCondition& _init_cond, T _c, T _reaction = 0, 
+	AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
+                                    InitialCondition& _init_cond,
+                                    T _diffusion = 1., T _convection = 0, T _reaction = 0, 
 									T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
                                     
     // call of p_left * a_operator * p_right
@@ -92,7 +97,8 @@ struct AdaptiveSpaceTimeHeatOperator1D{
     
     
     const Basis2D&      basis;
-    T                   c;
+    T                   diffusion;
+    T                   convection;
     T                   reaction;
     
     Compression1D_t     compression_1d_t;
@@ -109,6 +115,7 @@ struct AdaptiveSpaceTimeHeatOperator1D{
     const IdentityOperator_t    op_identity_t;
     const IdentityOperator_x    op_identity_x;
     const ConvectionOperator_t  op_convection_t;
+    const ConvectionOperator_x  op_convection_x;
     const LaplaceOperator_x     op_laplace_x;
     
 	const NoInitialCondition	op_noinitcond;
@@ -120,14 +127,15 @@ struct AdaptiveSpaceTimeHeatOperator1D{
     DataIdentity_t      data_identity_t;
     DataIdentity_x      data_identity_x;
     DataConvection_t    data_convection_t;
+    DataConvection_x    data_convection_x;
     DataLaplace_x       data_laplace_x;
     
 };    
       
 } // namespace lawa
 
-#include <lawa/methods/adaptive/operators/adaptivespacetimeheatoperator1d.tcc>
+#include <lawa/methods/adaptive/operators/adaptivespacetimepdeoperator1d.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEHEATOPERATOR1D_H
+#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEPDEOPERATOR1D_H
  
  
