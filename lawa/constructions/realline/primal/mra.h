@@ -20,6 +20,7 @@
 #ifndef LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_MRA_H
 #define LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_MRA_H 1
 
+#include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/mra.h>
 #include <lawa/constructions/bspline.h>
 #include <lawa/settings/enum.h>
@@ -35,7 +36,7 @@ class MRA<_T,Primal,R,CDF>
         static const DomainType Domain = R;
         static const Construction Cons = CDF;
 
-        typedef BasisFunction<T,Primal,R,CDF> BasisFunction;
+        typedef BasisFunction<T,Primal,R,CDF> BasisFunctionType;
         typedef BSpline<T,Primal,R,CDF> BSplineType;
 
         MRA(int _d, int j=0);

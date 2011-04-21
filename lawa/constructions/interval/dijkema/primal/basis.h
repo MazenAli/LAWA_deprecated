@@ -21,6 +21,7 @@
 #define LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_PRIMAL_BASIS_H 1
 
 #include <lawa/constructions/basis.h>
+#include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/interval/dijkema/dual/mra.h>
 #include <lawa/constructions/interval/dijkema/primal/mra.h>
 
@@ -35,7 +36,7 @@ class Basis<_T,Primal,Interval,Dijkema>
         static const DomainType Domain = Interval;
         static const Construction Cons = Dijkema;
 
-        typedef BasisFunction<T,Primal,Interval,Dijkema> BasisFunction;
+        typedef BasisFunction<T,Primal,Interval,Dijkema> BasisFunctionType;
         typedef BSpline<T,Primal,Interval,Dijkema> BSplineType;
         typedef Wavelet<T,Primal,Interval,Dijkema> WaveletType;
 
@@ -51,7 +52,7 @@ class Basis<_T,Primal,Interval,Dijkema>
             void
             enforceBoundaryCondition();
 
-        const BasisFunction &
+        const BasisFunctionType &
         generator(XType xtype) const;
 
         // cardinalities of whole, left, inner, right index sets (primal).
