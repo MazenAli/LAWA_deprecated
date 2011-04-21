@@ -13,7 +13,7 @@ MultiGrid_2ndKind_LTV(PrimalBasis& _b, DualBasis& _b_, BilinearForm& a, RHSInteg
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
 flens::DenseVector<flens::Array<T> > 
 MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::
-run_MG_2ndKind(flens::DenseVector<flens::Array<T> >& u0, int maxLevel)
+solve(flens::DenseVector<flens::Array<T> >& u0, int maxLevel)
 {
     flens::DenseVector<flens::Array<T> > u(u0), zeros;
     for(int i = mg.getMinLevel() + 1; i <= maxLevel; ++i){

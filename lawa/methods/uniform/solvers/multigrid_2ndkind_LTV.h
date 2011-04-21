@@ -21,7 +21,7 @@ class MultiGrid_2ndKind_LTV{
                           T theta, T deltaT, int timesteps, int minLevel);
         
         flens::DenseVector<flens::Array<T> > 
-        run_MG_2ndKind(flens::DenseVector<flens::Array<T> >& u0, int maxLevel);
+        solve(flens::DenseVector<flens::Array<T> >& u0, int maxLevel);
     
     private:
         

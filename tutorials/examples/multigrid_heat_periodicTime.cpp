@@ -89,7 +89,7 @@ int main(int argc, char* argv[]){
     Timer timer;
     
     timer.start();
-    DenseVectorT u = mgsolver.run_MG_2ndKind(u_0, J);
+    DenseVectorT u = mgsolver.solve(u_0, J);
     timer.stop();    
 	
     // Postprocessing
