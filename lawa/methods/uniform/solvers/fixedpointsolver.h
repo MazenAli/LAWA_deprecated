@@ -5,6 +5,11 @@
 
 namespace lawa{
     
+/* Fixed Point Solver for periodic problems
+ *      This class solves periodic problems by repeatedly calling
+ *      an underlying method (e.g. TimeStepping) with u_0^(i) = u(T)^(i-1)
+ *      until || u_0^(i) - u(T)^(i) ||_l2 < tol 
+ */
 template<typename T, typename Method>
 class FixedPointSolver
 {

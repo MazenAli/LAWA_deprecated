@@ -3,6 +3,11 @@
 
 namespace lawa{
 
+/* TimeStepping
+ *      This class performs a time-stepping method.
+ *      For each t=1,..,K, the underlying solver (e.g. a ThetaScheme) is called.
+ *      Optionally, the solutions for each t are stored in U (u(t_k) in k-th col).
+ */
 template <typename T, typename Solver>
 class TimeStepping
 {

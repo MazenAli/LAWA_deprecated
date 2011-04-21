@@ -3,10 +3,16 @@
 
 #include <lawa/methods/uniform/datastructures/datastructures.h>
 #include <lawa/methods/uniform/solvers/thetascheme1d.h>
+#include <lawa/methods/uniform/solvers/thetascheme1d_timeconstbilform.h>
 #include <lawa/righthandsides/homogeneousrhs.h>
 
 namespace lawa{
     
+/* MultiGrid of the 2nd kind
+ * 		This class solves periodic problems using the MultiGrid Algorithm of the second kind
+ * 		(see W. Hackbusch "Fast Numerical Solution Of Time-Periodic Parabolic Problems by a 
+ *		 Multigrid Method", SIAM J. Sci. Stat. Comp. 2 (2), pp. 198-206 (1981))
+ */    
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
 class MultiGrid_2ndKind{
     
@@ -22,9 +28,9 @@ class MultiGrid_2ndKind{
         
         PrimalBasis& b;
         DualBasis& b_;
-        typedef ThetaScheme1D<T, PrimalBasis, BilinearForm, RHSIntegral> FullThetaScheme;
+        typedef ThetaScheme1D_TimeConstBilForm<T, PrimalBasis, BilinearForm, RHSIntegral> FullThetaScheme;
         typedef TimeStepping<T, FullThetaScheme> FullTimeStepMethod;    
-        typedef ThetaScheme1D<T, PrimalBasis, BilinearForm, HomogeneousRHS<T> > HomThetaScheme;
+        typedef ThetaScheme1D_TimeConstBilForm<T, PrimalBasis, BilinearForm, HomogeneousRHS<T> > HomThetaScheme;
         typedef TimeStepping<T, HomThetaScheme> HomTimeStepMethod;
         typedef FixedPointSolver<T, HomTimeStepMethod> ThetaFPSolver;
         

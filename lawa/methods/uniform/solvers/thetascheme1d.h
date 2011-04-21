@@ -6,6 +6,10 @@
 
 namespace lawa{
     
+/* ThetaScheme:
+ *      This class solves an implicit linear system that arises in each time step of a 
+ *		timestepping scheme for a linear but time-dependent operator.
+ */
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 class ThetaScheme1D
 {
