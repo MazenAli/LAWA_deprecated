@@ -30,6 +30,7 @@ struct SpaceTimeTensorRefSols1D {
     static T sol_x(T x, int deriv_x);
     static T sol(T t, T x, int deriv_t, int deriv_x);
 	static T sol(T t, T x);
+    static T dx_sol(T t, T x);
     
     // Space-Time Diffusion-Convection-Reaction Examples
     // u(t,x) = u_t(t) * u_x(x)
