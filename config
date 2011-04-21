@@ -21,6 +21,14 @@ ifeq ($(TARGET),Darwin)
       LDFLAGS  += -framework Accelerate
     endif
   endif
+  ifeq ($(COMPILER),clang)
+    CC  = clang
+    CXX = clang++
+    ifeq ($(BLASLAPACK),platform)
+      CPPFLAGS += -DWITH_VECLIB
+      LDFLAGS  += -framework Accelerate
+    endif
+  endif
 endif
 
 ifeq ($(TARGET),Linux)
