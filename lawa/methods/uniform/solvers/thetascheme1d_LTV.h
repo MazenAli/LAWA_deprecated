@@ -1,5 +1,5 @@
-#ifndef LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_H
-#define LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_H 1
+#ifndef LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_LTV_H
+#define LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_LTV_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/preconditioners/preconditioners1d/diagonalmatrixpreconditioner1d.h>
@@ -11,12 +11,12 @@ namespace lawa{
  *		timestepping scheme for a linear but time-dependent operator.
  */
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-class ThetaScheme1D
+class ThetaScheme1D_LTV
 {
     public: 
         typedef RHSIntegral RHSType;       
         
-        ThetaScheme1D(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs);
+        ThetaScheme1D_LTV(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs);
     
         flens::DenseVector<flens::Array<T> > 
         solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
@@ -39,13 +39,13 @@ class ThetaScheme1D
     private:
         class Operator_LHSMatrix{
             private:
-                ThetaScheme1D<T, Basis, BilinearForm, RHSIntegral>* scheme;
+                ThetaScheme1D_LTV<T, Basis, BilinearForm, RHSIntegral>* scheme;
                 const BilinearForm& a;
                 T time_old;
                 T time_new;
             
             public:                
-                Operator_LHSMatrix(ThetaScheme1D<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_LHSMatrix(ThetaScheme1D_LTV<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                                    const BilinearForm& _a);
                 
                 T 
@@ -60,13 +60,13 @@ class ThetaScheme1D
         
         class Operator_RHSMatrix{
             private:
-                const ThetaScheme1D<T, Basis, BilinearForm, RHSIntegral>* scheme; 
+                const ThetaScheme1D_LTV<T, Basis, BilinearForm, RHSIntegral>* scheme; 
                 const BilinearForm& a;
                 T time_old;
                 T time_new;
             
             public:                
-                Operator_RHSMatrix(const ThetaScheme1D<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_RHSMatrix(const ThetaScheme1D_LTV<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                                    const BilinearForm& _a);
                 
                 T 
@@ -80,13 +80,13 @@ class ThetaScheme1D
         
         class Operator_RHSVector{
             private:
-                const ThetaScheme1D<T, Basis, BilinearForm, RHSIntegral>* scheme; 
+                const ThetaScheme1D_LTV<T, Basis, BilinearForm, RHSIntegral>* scheme; 
                 RHSIntegral& rhs;
                 T time_old;
                 T time_new;
                 
             public:                
-                Operator_RHSVector(const ThetaScheme1D<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_RHSVector(const ThetaScheme1D_LTV<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                                    RHSIntegral& _rhs);
                 
                 T operator()(XType xtype, int j, int k) const;
@@ -118,7 +118,7 @@ class ThetaScheme1D
       
 } // namespace lawa
 
-#include <lawa/methods/uniform/solvers/thetascheme1d.tcc>
+#include <lawa/methods/uniform/solvers/thetascheme1d_LTV.tcc>
 
-#endif // LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_H
+#endif // LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_LTV_H
 

@@ -2,8 +2,8 @@ namespace lawa{
 
 // THETASCHEME
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
-ThetaScheme1D_TimeConstBilForm(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs)
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
+ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs)
     : theta(_theta), basis(_basis), assembler(basis), integral(_basis, _basis),
       op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs), prec(op_LHSMatrix),
       currentLevel(-1), P(assembler.assemblePreconditioner(prec, 2))
@@ -12,7 +12,7 @@ ThetaScheme1D_TimeConstBilForm(const T _theta, const Basis& _basis, const Biline
  
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 flens::DenseVector<flens::Array<T> > 
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
 solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level)
 {   
     op_RHSVector.setTimes(time_old, time_new);
@@ -37,7 +37,7 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 flens::DenseVector<flens::Array<T> > 
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
 solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, 
       flens::DenseVector<flens::Array<T> > f, int level)
 {
@@ -61,7 +61,7 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init,
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 void
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
 setRHS(RHSIntegral& _rhs)
 {
     op_RHSVector.setRHS(_rhs);
@@ -69,7 +69,7 @@ setRHS(RHSIntegral& _rhs)
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
 getLHSMatrix(int level)
 {   
 	if (level != currentLevel) {
@@ -79,24 +79,11 @@ getLHSMatrix(int level)
     return lhsmatrix;
 }
 
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
-getLHSMatrix(T time_old, T time_new, int level)
-{   
-	if (level != currentLevel) {
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > matrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
-        return matrix;
-    }
-    return lhsmatrix;
-}
-
-
 /*======================================================================================*/    
 // OPERATOR_LHSMATRIX
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_LHSMatrix::
-Operator_LHSMatrix(ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::Operator_LHSMatrix::
+Operator_LHSMatrix(ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                    const BilinearForm& _a)
     : a(_a)
 {   
@@ -105,7 +92,7 @@ Operator_LHSMatrix(ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSInt
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 T 
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_LHSMatrix::
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::Operator_LHSMatrix::
 operator()(XType xtype1, int j1, int k1,
            XType xtype2, int j2, int k2) const
 {
@@ -118,8 +105,8 @@ operator()(XType xtype1, int j1, int k1,
 /*======================================================================================*/    
 // OPERATOR_RHSMATRIX
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSMatrix::
-Operator_RHSMatrix(const ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSMatrix::
+Operator_RHSMatrix(const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                    const BilinearForm& _a)
     : a(_a)
 {
@@ -129,7 +116,7 @@ Operator_RHSMatrix(const ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, 
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 T 
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSMatrix::
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSMatrix::
 operator()(XType xtype1, int j1, int k1,
            XType xtype2, int j2, int k2) const
 {
@@ -141,8 +128,8 @@ operator()(XType xtype1, int j1, int k1,
 /*======================================================================================*/    
 // OPERATOR_RHSVECTOR
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSVector::
-Operator_RHSVector(const ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSVector::
+Operator_RHSVector(const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                    RHSIntegral& _rhs)
     : rhs(_rhs)
 {
@@ -151,7 +138,7 @@ Operator_RHSVector(const ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, 
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 T 
-ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSVector::
+ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSVector::
 operator()(XType xtype, int j, int k) const
 {   
     // deltaT * (theta*f_k+1 - (1-theta)*f_k)

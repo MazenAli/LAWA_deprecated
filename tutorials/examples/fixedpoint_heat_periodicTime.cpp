@@ -21,7 +21,7 @@ typedef TimedepSeparableRHS1D<T, PrimalBasis>    TimedepRHS1D;
 typedef SumOfTimedepRHS1D<T, TimedepRHS1D>       SumOfRHS1D;
 
 // TimeStepping Methods
-typedef ThetaScheme1D_TimeConstBilForm<T, PrimalBasis, PDE1DOp, SumOfRHS1D> Theta;
+typedef ThetaScheme1D_LTI<T, PrimalBasis, PDE1DOp, SumOfRHS1D> Theta;
 typedef TimeStepping<T, Theta>                                              TimeStepper;
 typedef FixedPointSolver<T, TimeStepper>                                    ThetaFPSolver;
 

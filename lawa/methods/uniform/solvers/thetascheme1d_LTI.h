@@ -1,5 +1,5 @@
-#ifndef LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H
-#define LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H 1
+#ifndef LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_LTI_H
+#define LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_LTI_H 1
 
 #include <lawa/settings/enum.h>
 
@@ -12,12 +12,12 @@ namespace lawa{
  *      are only assembled once. 
  */    
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-class ThetaScheme1D_TimeConstBilForm
+class ThetaScheme1D_LTI
 {
     public: 
         typedef RHSIntegral RHSType;       
         
-        ThetaScheme1D_TimeConstBilForm(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs);
+        ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs);
     
         flens::DenseVector<flens::Array<T> > 
         solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
@@ -30,10 +30,7 @@ class ThetaScheme1D_TimeConstBilForm
         setRHS(RHSIntegral& _rhs);
         
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
-        getLHSMatrix(int level);
-        
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
-        getLHSMatrix(T time_old, T time_new, int level);                           
+        getLHSMatrix(int level);                         
         
         // Adaptive Erweiterung: Timestep in jedem Lösungsschritt neu setzen,
         //flens::DenseVector<flens::Array<T> > 
@@ -43,13 +40,13 @@ class ThetaScheme1D_TimeConstBilForm
     private:
         class Operator_LHSMatrix{
             private:
-                ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* scheme;
+                ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* scheme;
                 const BilinearForm& a;
                 T time_old;
                 T time_new;
             
             public:                
-                Operator_LHSMatrix(ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_LHSMatrix(ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                                    const BilinearForm& _a);
                 
                 T 
@@ -63,13 +60,13 @@ class ThetaScheme1D_TimeConstBilForm
         
         class Operator_RHSMatrix{
             private:
-                const ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* scheme; 
+                const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* scheme; 
                 const BilinearForm& a;
                 T time_old;
                 T time_new;
             
             public:                
-                Operator_RHSMatrix(const ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_RHSMatrix(const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                                    const BilinearForm& _a);
                 
                 T 
@@ -82,13 +79,13 @@ class ThetaScheme1D_TimeConstBilForm
         
         class Operator_RHSVector{
             private:
-                const ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* scheme; 
+                const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* scheme; 
                 RHSIntegral& rhs;
                 T time_old;
                 T time_new;
                 
             public:                
-                Operator_RHSVector(const ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_RHSVector(const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
                                    RHSIntegral& _rhs);
                 
                 T operator()(XType xtype, int j, int k) const;
@@ -125,7 +122,7 @@ class ThetaScheme1D_TimeConstBilForm
       
 } // namespace lawa
 
-#include <lawa/methods/uniform/solvers/thetascheme1d_timeconstbilform.tcc>
+#include <lawa/methods/uniform/solvers/thetascheme1d_LTI.tcc>
 
-#endif // LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H
+#endif // LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_LTI_H
 
