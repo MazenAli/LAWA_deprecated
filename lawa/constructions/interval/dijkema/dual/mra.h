@@ -20,6 +20,7 @@
 #ifndef LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_MRA_H
 #define LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_MRA_H 1
 
+#include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/mra.h>
 #include <lawa/constructions/interval/refinementmatrix.h>
 
@@ -36,7 +37,7 @@ class MRA<_T,Dual,Interval,Dijkema>
         static const DomainType Domain = Interval;
         static const Construction Cons = Dijkema;
 
-        typedef BasisFunction<T,Dual,Interval,Dijkema> BasisFunction;
+        typedef BasisFunction<T,Dual,Interval,Dijkema> BasisFunctionType;
         typedef BSpline<T,Dual,Interval,Dijkema> BSplineType;
 
         MRA(int d, int d_, int j=-1);

@@ -21,6 +21,7 @@
 #define LAWA_CONSTRUCTIONS_REALLINE_DUAL_BASIS_H 1
 
 #include <lawa/constructions/basis.h>
+#include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/bspline.h>
 #include <lawa/settings/enum.h>
 #include <lawa/constructions/wavelet.h>
@@ -36,7 +37,7 @@ class Basis<_T,Dual,R,CDF>
         static const DomainType Domain = R;
         static const Construction Cons = CDF;
 
-        typedef BasisFunction<T,Dual,R,CDF> BasisFunction;
+        typedef BasisFunction<T,Dual,R,CDF> BasisFunctionType;
         typedef BSpline<T,Dual,R,CDF> BSplineType;
         typedef Wavelet<T,Dual,R,CDF> WaveletType;
 
@@ -48,7 +49,7 @@ class Basis<_T,Dual,R,CDF>
         void
         setLevel(int level) const;
 
-        const BasisFunction &
+        const BasisFunctionType &
         generator(XType xtype) const;
 
         const int d, d_, j0;
