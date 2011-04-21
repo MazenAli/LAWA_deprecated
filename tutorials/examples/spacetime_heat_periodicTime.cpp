@@ -37,10 +37,6 @@ typedef Basis<T,Primal,Periodic,CDF>                        PeriodicBasis;
 typedef Basis<T,Primal,Interval,Dijkema>                    IntervalBasis;
 typedef TensorBasis2D<Adaptive,PeriodicBasis,IntervalBasis> Basis2D;
 
-typedef Basis<T,Dual,Periodic,CDF>                                      DualPeriodicBasis;
-typedef Basis<T,Dual,Interval,Dijkema>                                  DualIntervalBasis;
-typedef TensorBasis2D<Adaptive, DualPeriodicBasis, DualIntervalBasis>	DualBasis2D;
-
 // Operator definitions
 typedef LeftNormPreconditioner2D<T,Basis2D>                             LeftPrec2D;
 typedef RightNormPreconditioner2D_c<T,Basis2D>                          RightPrec2D;
