@@ -87,3 +87,4 @@ class Quadrature<Trapezoidal,Integral>
 #include <lawa/integrals/quadrature.tcc>
 
 #endif // LAWA_QUADRATURE_H
+

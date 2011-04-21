@@ -129,3 +129,4 @@ class MRA<_T,Dual,Interval,DKU>
 #include <lawa/constructions/interval/dku/dual/mra.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_DKU_DUAL_MRA_H
+

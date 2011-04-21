@@ -156,3 +156,4 @@ Quadrature<Trapezoidal,Integral>::setN(const int n)
 }
 
 } // namespace lawa
+

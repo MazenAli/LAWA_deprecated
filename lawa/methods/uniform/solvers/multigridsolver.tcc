@@ -105,3 +105,4 @@ wCycle(int i, int level, DenseVectorT& u, DenseVectorT& f)
     return u;
 }
 }
+

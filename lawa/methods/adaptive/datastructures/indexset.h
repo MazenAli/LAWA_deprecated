@@ -33,6 +33,9 @@ namespace lawa {
 template <typename Index>
 struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
 {
+    using std::set<Index, lt<Lexicographical, Index > >::erase;
+    using std::set<Index, lt<Lexicographical, Index > >::insert;
+
     IndexSet(void);
 
     IndexSet<Index>&
@@ -61,3 +64,4 @@ extractSpaceIndices(const IndexSet<Index2D> &Lambda);
 
 
 #endif //  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEXSET_H
+

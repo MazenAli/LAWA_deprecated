@@ -247,3 +247,4 @@ struct TypeInfo<SparseSymmetricMatrix<I> >
 #include <extensions/flens/sparsematrix.tcc>
 
 #endif // EXTENSIONS_FLENS_SPARSEMATRIX_H
+

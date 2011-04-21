@@ -60,3 +60,4 @@ class MRA<_T,Primal,R,CDF>
 #include <lawa/constructions/realline/primal/mra.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_MRA_H
+

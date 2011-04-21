@@ -46,3 +46,4 @@ public:
 #include <lawa/functiontypes/function3d.tcc>
 
 #endif // LAWA_FUNCTIONTYPES_FUNCTION3D_H
+

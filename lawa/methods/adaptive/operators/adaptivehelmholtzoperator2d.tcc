@@ -127,3 +127,4 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::clear()
 
 
 }   // namespace lawa
+

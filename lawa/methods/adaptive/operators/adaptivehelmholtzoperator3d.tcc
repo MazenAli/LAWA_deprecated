@@ -128,3 +128,4 @@ AdaptiveHelmholtzOperator3D<T, Basis, HelmholtzOperator3D<T, Basis>, Compression
 }
 
 }    //namespace lawa
+

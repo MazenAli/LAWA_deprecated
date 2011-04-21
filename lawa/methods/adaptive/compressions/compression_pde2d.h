@@ -63,3 +63,4 @@ struct CompressionPDE2D
 #include <lawa/methods/adaptive/compressions/compression_pde2d.tcc>
 
 #endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE2D_H
+

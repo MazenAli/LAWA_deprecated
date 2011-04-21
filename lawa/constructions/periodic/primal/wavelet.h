@@ -76,3 +76,4 @@ struct Wavelet<_T,Primal,Periodic,CDF>
 #include <lawa/constructions/periodic/primal/wavelet.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_WAVELET_H
+

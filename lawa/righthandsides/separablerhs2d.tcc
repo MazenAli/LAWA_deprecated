@@ -9,8 +9,8 @@ SeparableRHS2D<T, Basis2D>::SeparableRHS2D
     : basis(_basis), F(_F), deltas_x(_deltas_x), deltas_y(_deltas_y),
       integralf_x(F.F_x, basis.first), integralf_y(F.F_y, basis.second)
 {
-	integralf_x.quadrature.setOrder(order);
-	integralf_y.quadrature.setOrder(order);
+    integralf_x.quadrature.setOrder(order);
+    integralf_y.quadrature.setOrder(order);
 }
 
 template<typename T, typename Basis2D>

@@ -24,3 +24,4 @@ IdentityOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1D
 
 
 } // namespace lawa
+

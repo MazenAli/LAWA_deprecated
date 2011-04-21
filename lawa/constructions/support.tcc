@@ -139,3 +139,4 @@ operator<<(std::ostream &out, const Support<T> &supp)
 }
 
 } // namespace lawa
+

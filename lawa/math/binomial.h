@@ -28,3 +28,4 @@ binomial(int n, int k);
 } // namespace lawa
 
 #endif // LAWA_MATH_BINOMIAL_H
+

@@ -46,3 +46,4 @@ CompressionPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col,
 }
 
 }    //namespace lawa
+

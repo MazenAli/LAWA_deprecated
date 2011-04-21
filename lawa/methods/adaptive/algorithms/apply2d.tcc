@@ -92,3 +92,4 @@ APPLY_Helmholtz2D(MA &A, const Coefficients<Lexicographical,T,Index2D> &v, int k
 
 
 }    //namespace lawa
+

@@ -45,3 +45,4 @@ struct Function
 #include <lawa/functiontypes/function.tcc>
 
 #endif //LAWA_FUNCTIONTYPES_FUNCTION_H
+

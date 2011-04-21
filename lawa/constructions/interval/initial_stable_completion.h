@@ -36,3 +36,4 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
 #include <lawa/constructions/interval/initial_stable_completion.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_INITIAL_STABLE_COMPLETION_H
+

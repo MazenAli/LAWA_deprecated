@@ -41,3 +41,4 @@ mpf_class Const<mpf_class>::SQRT2 = mpf_sqrt2();
 mpf_class Const<mpf_class>::R_SQRT2 = mpf_sqrt2();
 
 } // namespace lawa
+

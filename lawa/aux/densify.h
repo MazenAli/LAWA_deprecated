@@ -37,3 +37,4 @@ densify(cxxblas::Transpose trans, const Matrix<I> &A,
 #include <lawa/aux/densify.tcc>
 
 #endif // LAWA_AUX_DENSIFY_H
+

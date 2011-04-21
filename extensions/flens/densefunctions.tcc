@@ -30,3 +30,4 @@ concatenate(const DenseVector<DX> &x, const DenseVector<DY> &y,
 }
 
 } // namespace flens
+

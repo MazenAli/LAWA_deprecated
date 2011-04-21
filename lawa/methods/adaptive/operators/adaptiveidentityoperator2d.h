@@ -79,3 +79,4 @@ struct AdaptiveIdentityOperator2D
 #include <lawa/methods/adaptive/operators/adaptiveidentityoperator2d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H
+

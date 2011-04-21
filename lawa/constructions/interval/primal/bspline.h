@@ -61,3 +61,4 @@ struct BSpline<_T,Primal,Interval,_Cons>
 #include <lawa/constructions/interval/primal/bspline.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_PRIMAL_BSPLINE_H
+

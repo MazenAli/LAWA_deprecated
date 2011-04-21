@@ -25,8 +25,8 @@ namespace lawa{
 template<MethodType Method, typename FirstBasis, typename SecondBasis, typename ThirdBasis>
 struct TensorBasis3D
 {
-	typedef typename FirstBasis::T T;
-	typedef FirstBasis  FirstBasisType;
+    typedef typename FirstBasis::T T;
+    typedef FirstBasis  FirstBasisType;
     typedef SecondBasis SecondBasisType;
     typedef ThirdBasis  ThirdBasisType;
 

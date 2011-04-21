@@ -119,3 +119,4 @@ class ThetaScheme1D_TimeConstBilForm
 #include <lawa/methods/uniform/solvers/thetascheme1d_timeconstbilform.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_TIMECONSTBILFORM_H
+

@@ -26,3 +26,4 @@ calculateSpaceTimeL2Error(const Basis2D& basis, T (*sol)(T, T), T (*dx_sol)(T,T)
 #include <lawa/methods/uniform/postprocessing/spacetimeerrorcalculation.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEERRORCALCULATION_H
+

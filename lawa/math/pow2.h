@@ -42,3 +42,4 @@ pow2ih(int expo);
 #include <lawa/math/pow2.tcc>
 
 #endif //  LAWA_MATH_POW2_H
+

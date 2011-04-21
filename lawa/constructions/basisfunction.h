@@ -52,3 +52,4 @@ struct BasisFunction
 #include <lawa/constructions/basisfunction.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_BASISFUNCTION_H
+

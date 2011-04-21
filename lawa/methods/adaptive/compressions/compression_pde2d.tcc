@@ -100,3 +100,4 @@ CompressionPDE2D<T,Basis2D>::SparsityPattern(const Index2D &lambda_col, int jmin
 */
 
 }    //namespace lawa
+

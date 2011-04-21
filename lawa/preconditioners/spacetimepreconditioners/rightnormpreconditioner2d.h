@@ -54,3 +54,4 @@ class RightNormPreconditioner2D
 #include <lawa/preconditioners/spacetimepreconditioners/rightnormpreconditioner2d.tcc>
 
 #endif // LAWA_PRECONDITIONERS_SPACETIMEPRECONDITIONERS_RIGHTNORMPRECONDITIONER2D_H
+

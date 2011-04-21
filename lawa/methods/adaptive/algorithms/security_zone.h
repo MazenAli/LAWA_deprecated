@@ -47,3 +47,4 @@ template <typename T, typename Basis3D>
 #include <lawa/methods/adaptive/algorithms/security_zone.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_SECURITY_ZONE_H
+

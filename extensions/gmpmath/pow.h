@@ -29,3 +29,4 @@ template <typename T, typename U>
 #include <extensions/gmpmath/pow.tcc>
 
 #endif // EXTENSIONS_GMPMATH_POW_H
+

@@ -35,3 +35,4 @@ evalAtDyadicGrid_Cascade(const DenseVector<X> &sf, int J,
 #include <lawa/constructions/realline/cascade.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_CASCADE_H
+

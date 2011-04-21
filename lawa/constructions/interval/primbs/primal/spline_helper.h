@@ -20,3 +20,4 @@ template <typename T>
 #include <lawa/constructions/interval/primbs/primal/spline_helper.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_SPLINE_HELPER_H
+

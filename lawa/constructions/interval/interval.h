@@ -25,3 +25,4 @@
 #include <lawa/constructions/interval/initial_stable_completion.h>
 #include <lawa/constructions/interval/evaluate.h>
 #include <lawa/constructions/interval/refinementmatrix.h>
+

@@ -33,3 +33,4 @@ struct Param
 #include <lawa/settings/param.tcc>
 
 #endif // LAWA_SETTINGS_PARAM_H
+

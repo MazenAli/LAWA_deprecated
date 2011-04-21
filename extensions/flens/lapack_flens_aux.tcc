@@ -60,3 +60,4 @@ mm(Transpose transB, Transpose transA, ALPHA alpha,
 }
 
 } // namespace flens
+

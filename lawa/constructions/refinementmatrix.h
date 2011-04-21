@@ -41,3 +41,4 @@ struct TypeInfo<RefinementMatrix<T, Domain, Cons> >
 } // namespace flens
 
 #endif // LAWA_CONSTRUCTIONS_REFINEMENTMATRIX_H
+

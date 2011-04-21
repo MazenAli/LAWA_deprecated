@@ -317,3 +317,4 @@ _bspline_mask(int d)
 }
 
 } // namespace lawa
+

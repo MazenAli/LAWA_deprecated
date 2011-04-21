@@ -4,3 +4,4 @@
 #include <lawa/methods/adaptive/operators/operators.h>
 #include <lawa/methods/adaptive/postprocessing/postprocessing.h>
 #include <lawa/methods/adaptive/solvers/solvers.h>
+

@@ -35,3 +35,4 @@ template <typename T>
 #include <lawa/methods/adaptive/algorithms/lambdatilde.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_LAMBDATILDE_H
+

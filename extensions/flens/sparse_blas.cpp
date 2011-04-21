@@ -109,3 +109,4 @@ csrmm(Transpose transA, int m, int n, int k, double alpha, char *matdescrA,
 #endif // MKL
 
 } // namespace flens
+

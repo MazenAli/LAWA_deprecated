@@ -98,3 +98,4 @@ struct MapMatrixWithZeros
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HASHMAPMATRIXWITHZEROS_H
+

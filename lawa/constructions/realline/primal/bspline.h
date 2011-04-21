@@ -115,3 +115,4 @@ N10();
 #include <lawa/constructions/realline/primal/bspline.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_BSPLINE_H
+

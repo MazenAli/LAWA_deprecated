@@ -12,9 +12,9 @@ SeparableRHS3D<T, Basis3D>::SeparableRHS3D
       integralf_x(F.F_x, basis.first), integralf_y(F.F_y, basis.second),
       integralf_z(F.F_z, basis.third)
 {
-	integralf_x.quadrature.setOrder(order);
-	integralf_y.quadrature.setOrder(order);
-	integralf_z.quadrature.setOrder(order);
+    integralf_x.quadrature.setOrder(order);
+    integralf_y.quadrature.setOrder(order);
+    integralf_z.quadrature.setOrder(order);
 }
 
 template<typename T, typename Basis3D>

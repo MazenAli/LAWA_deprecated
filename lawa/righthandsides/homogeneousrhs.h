@@ -16,3 +16,4 @@ struct HomogeneousRHS{
 #include <lawa/righthandsides/homogeneousrhs.tcc>
 
 #endif // LAWA_RIGHTHANDSIDES_HOMOGENEOUSRHS_H
+

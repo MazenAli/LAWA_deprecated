@@ -41,3 +41,4 @@ struct Const<double>
 } // namespace lawa
 
 #endif // LAWA_MATH_CONST_H
+

@@ -188,3 +188,4 @@ spy(const Matrix<I> &A, const char* filename, bool absoluteValues,
     gps.close();
 }
 } // namespace lawa
+

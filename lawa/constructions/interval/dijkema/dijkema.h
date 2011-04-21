@@ -19,3 +19,4 @@
 
 #include <lawa/constructions/interval/dijkema/primal/primal.h>
 #include <lawa/constructions/interval/dijkema/dual/dual.h>
+

@@ -34,3 +34,4 @@ linspace(T from, T to, int numTicks)
 }
 
 } // namespace lawa
+

@@ -65,3 +65,4 @@ Wavelet<T,Dual,Interval,Dijkema>::support(int j, long k) const
 }
 
 } // namespace lawa
+

@@ -37,3 +37,4 @@ struct descending_by_magnitude
 #include <lawa/aux/sorting.tcc>
 
 #endif // LAWA_AUX_SORTING_H
+

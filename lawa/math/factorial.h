@@ -28,3 +28,4 @@ factorial(int n);
 } // namespace lawa
 
 #endif // LAWA_MATH_FACTORIAL_H
+

@@ -71,3 +71,4 @@ class SpaceTimeHeatOperator1D{
 #include <lawa/operators/spacetimeoperators/spacetimeheatoperator1d.tcc>
 
 #endif // LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEHEATOPERATOR1D_H
+

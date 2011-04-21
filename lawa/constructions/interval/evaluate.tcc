@@ -123,3 +123,4 @@ evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
 }
 
 } // namespace lawa
+

@@ -35,3 +35,4 @@ class Assembler1D
 #include <lawa/methods/uniform/algorithms/assembler1d.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_ALGORITHMS_ASSEMBLER1D_H
+

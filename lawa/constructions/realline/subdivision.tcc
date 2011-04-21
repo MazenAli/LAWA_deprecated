@@ -162,3 +162,4 @@ subdivide(const BSpline<T,Dual,R,CDF> &phi_, int j,
 }
 
 } // namespace lawa
+

@@ -25,7 +25,7 @@ AdaptiveIdentityOperator2D<T, Basis2D>::operator()(const Index2D &row_index,
 
 template <typename T, typename Basis2D>
 T
-AdaptiveIdentityOperator2D<T, Basis2D>::prec(const Index2D &index)
+AdaptiveIdentityOperator2D<T, Basis2D>::prec(const Index2D &/*index*/)
 {
     return 1.;
 }

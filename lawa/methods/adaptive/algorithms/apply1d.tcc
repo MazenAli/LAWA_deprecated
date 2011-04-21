@@ -139,3 +139,4 @@ SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::findK(const Coefficients<AbsoluteVa
 
 
 }    //namespace lawa
+

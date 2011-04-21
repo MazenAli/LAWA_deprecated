@@ -25,3 +25,4 @@ namespace lawa {
 } // namespace lawa
 
 #endif // LAWA_MATH_LOG_H
+

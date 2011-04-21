@@ -24,3 +24,4 @@ SpaceTimeH1Norm<T,Basis2D>::operator()(XType xtype_t, int j_t, int k_t,
 }
 
 } // namespace lawa
+

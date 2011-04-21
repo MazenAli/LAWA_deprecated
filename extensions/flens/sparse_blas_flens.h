@@ -79,3 +79,4 @@ mm(cxxblas::Transpose transA,
 #include <extensions/flens/sparse_blas_flens.tcc>
 
 #endif // EXTENSIONS_FLENS_SPARSE_BLAS_FLENS_H
+

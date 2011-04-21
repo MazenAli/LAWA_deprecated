@@ -69,3 +69,4 @@ class GHS_ADWAV1D {
 #include <lawa/methods/adaptive/solvers/ghsadwav1d.tcc>
 
 #endif    // LAWA_METHODS_ADAPTIVE_SOLVERS_GHSADWAV1D_H
+

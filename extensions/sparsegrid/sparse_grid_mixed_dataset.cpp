@@ -566,3 +566,4 @@ void sparse_grid_mixed_dataset_handle ( int dim_num, int level_max, int rule[],
 
   return;
 }
+

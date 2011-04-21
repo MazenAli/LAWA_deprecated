@@ -61,3 +61,4 @@ HelmholtzOperator3D<T, Basis3D>::operator()(const Index3D &row_index, const Inde
 }
 
 }    //namespace lawa
+
