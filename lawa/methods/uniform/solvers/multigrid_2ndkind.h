@@ -89,3 +89,4 @@ class MultiGrid_2ndKind{
 #include <lawa/methods/uniform/solvers/multigrid_2ndkind.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRID_2NDKIND_H
+

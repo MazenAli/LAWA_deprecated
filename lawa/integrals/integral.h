@@ -84,3 +84,4 @@ struct IntegralF
 #include <lawa/integrals/integral.tcc>
 
 #endif // LAWA_INTEGRALS_INTEGRAL_H
+

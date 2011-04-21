@@ -7,3 +7,4 @@ double Const<double>::SQRT2 = M_SQRT2;
 double Const<double>::R_SQRT2 = 1./M_SQRT2;
 
 } // namespace lawa
+

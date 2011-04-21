@@ -73,3 +73,4 @@ Basis<T,Dual,Periodic,CDF>::rangeJ_(int j) const
 }
 
 } // namespace lawa
+

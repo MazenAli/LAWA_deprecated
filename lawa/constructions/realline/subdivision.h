@@ -37,3 +37,4 @@ template <typename T, FunctionSide Side>
 //jemandem böse sein, der so einen Schrott in diesen schönen Header schreibt!!!!!!!!
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_SUBDIVISION_H
+

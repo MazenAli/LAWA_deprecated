@@ -53,3 +53,4 @@ densify(cxxblas::Transpose trans, const Matrix<I> &A,
 }
 
 } // namespace lawa
+

@@ -106,3 +106,4 @@ class Basis<_T,Primal,Interval,Dijkema>
 #include <lawa/constructions/interval/dijkema/primal/basis.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_PRIMAL_BASIS_H
+

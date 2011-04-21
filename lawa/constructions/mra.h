@@ -32,3 +32,4 @@ class MRA
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_MRA_H
+

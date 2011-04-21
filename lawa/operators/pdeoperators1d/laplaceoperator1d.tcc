@@ -23,4 +23,4 @@ LaplaceOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1D 
                                                    col_index.xtype, col_index.j, col_index.k);
 }
 
-}	//namespace lawa
+}    //namespace lawa

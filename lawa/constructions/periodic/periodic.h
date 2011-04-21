@@ -25,3 +25,4 @@
 #include <lawa/constructions/periodic/integrals.h>
 #include <lawa/constructions/periodic/periodicsupport.h>
 #include <lawa/constructions/periodic/refinementmatrix.h>
+

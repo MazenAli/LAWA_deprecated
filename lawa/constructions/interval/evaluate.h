@@ -43,3 +43,4 @@ template <Construction Cons, typename X>
 #include <lawa/constructions/interval/evaluate.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_EVALUATE_H
+

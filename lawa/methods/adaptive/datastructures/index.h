@@ -83,3 +83,4 @@ struct lt
 #include <lawa/methods/adaptive/datastructures/index.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEX_H
+

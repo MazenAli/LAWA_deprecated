@@ -69,3 +69,4 @@ evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis,
 }
 
 } // namespace lawa
+

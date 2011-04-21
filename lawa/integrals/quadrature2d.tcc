@@ -216,3 +216,4 @@ Quadrature2D<FullGridGL,Integral2D>::_initFullGrid()
 }
 
 }    //namespace lawa
+

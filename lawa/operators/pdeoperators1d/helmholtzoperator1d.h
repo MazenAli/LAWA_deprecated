@@ -68,3 +68,4 @@ class HelmholtzOperator1D
 #include <lawa/operators/pdeoperators1d/helmholtzoperator1d.tcc>
 
 #endif // LAWA_OPERATORS_PDEOPERATORS1D_HELMHOLTZOPERATOR1D_H
+

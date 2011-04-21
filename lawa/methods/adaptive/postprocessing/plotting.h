@@ -79,3 +79,4 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
 #include <lawa/methods/adaptive/postprocessing/plotting.tcc>
 
 #endif // ADAPTIVE_POSTPROCESSING_PLOTTING_H
+

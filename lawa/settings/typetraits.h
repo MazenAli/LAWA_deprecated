@@ -134,3 +134,4 @@ struct IsPeriodic<BSpline<T,Side,Periodic,Cons> >
  
 #endif // LAWA_SETTINGS_TYPETRAITS_H
  
+

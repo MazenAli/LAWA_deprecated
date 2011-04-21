@@ -69,3 +69,4 @@ struct Wavelet<_T,Dual,R,CDF>
 #include <lawa/constructions/realline/dual/wavelet.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_DUAL_WAVELET_H
+

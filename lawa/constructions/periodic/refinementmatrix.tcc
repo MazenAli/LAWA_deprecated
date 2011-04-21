@@ -146,3 +146,4 @@ mv(Transpose transA, typename X::ElementType alpha,
 }
 
 } // namespace flens
+

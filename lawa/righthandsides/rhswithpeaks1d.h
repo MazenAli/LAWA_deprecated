@@ -100,3 +100,4 @@ class RHSWithPeaks1D_WO_XBSpline
 #include <lawa/righthandsides/rhswithpeaks1d.tcc>
 
 #endif //  LAWA_RIGHTHANDSIDES_RHSWITHPEAKS1D_H
+

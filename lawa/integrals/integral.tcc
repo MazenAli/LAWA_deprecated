@@ -135,13 +135,13 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
             const DenseVector<Array<T> > & secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
             int m = firstSingularPoints.length();
             int n = secondSingularPoints.length();
-            singularPoints.resize(m+n+p);
+            singularPoints.engine().resize(m+n+p);
 
             std::merge(firstSingularPoints.engine().data(),
                        firstSingularPoints.engine().data() + m,
                        secondSingularPoints.engine().data(),
                        secondSingularPoints.engine().data() + n,
-                       singularPoints.engine().data());
+                       singularPoints.engine().engine().data());
             if (p>0) {
                 singularPoints(_(m+n+1,m+n+p)) = function.singularPoints;
                 std::inplace_merge(singularPoints.engine().data(),
@@ -153,12 +153,12 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
                 if (p>0) {
                     const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
                     int m = firstSingularPoints.length();
-                    singularPoints.resize(m+p);
+                    singularPoints.engine().resize(m+p);
 
                     std::merge(firstSingularPoints.engine().data(),
                                firstSingularPoints.engine().data() + m,
                                function.singularPoints.engine().data(),
-                               function.ingularPoints.engine().data() + p,
+                               function.singularPoints.engine().data() + p,
                                singularPoints.engine().data());
                 } else {
                     singularPoints = first.singularSupport(integral.j1,integral.k1);
@@ -167,12 +167,12 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
                 if (p>0) {
                     const DenseVector<Array<T> > & secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
                     int n = secondSingularPoints.length();
-                    singularPoints.resize(n+p);
+                    singularPoints.engine().resize(n+p);
 
                     std::merge(secondSingularPoints.engine().data(),
                                secondSingularPoints.engine().data() + n,
                                function.singularPoints.engine().data(),
-                               function.ingularPoints.engine().data() + p,
+                               function.singularPoints.engine().data() + p,
                                singularPoints.engine().data());
                 } else {
                     singularPoints = second.singularSupport(integral.j2,integral.k2);
@@ -294,3 +294,4 @@ IntegralF<Quad,First,Second>::integrand(typename First::T x) const
 }
 
 } // namespace lawa
+

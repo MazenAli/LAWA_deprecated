@@ -27,3 +27,4 @@ descending_by_magnitude<T>::operator()(T x, T y)
 }
 
 } // namespace lawa
+

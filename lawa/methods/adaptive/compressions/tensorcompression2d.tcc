@@ -25,7 +25,7 @@ TensorCompression2D<T,Compression_x,Compression_y>::setParameters(const IndexSet
 template <typename T, typename Compression_x, typename Compression_y>
 IndexSet<Index2D>
 TensorCompression2D<T,Compression_x,Compression_y>::SparsityPattern(const Index2D &lambda_col,
-                                                                    const IndexSet<Index2D> &_Lambda)
+                                                                    const IndexSet<Index2D> &/*_Lambda*/)
 {
     typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
 
@@ -42,3 +42,4 @@ TensorCompression2D<T,Compression_x,Compression_y>::SparsityPattern(const Index2
 }
 
 }    //namespace lawa
+

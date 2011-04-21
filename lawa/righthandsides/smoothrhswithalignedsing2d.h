@@ -48,9 +48,10 @@ struct SmoothRHSWithAlignedSing2D
 };
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/righthandsides/smoothrhswithalignedsing2d.tcc>
 
 
 #endif //LAWA_RIGHTHANDSIDES_SMOOTHRHSWITHALIGNEDSING2D_H 1
+

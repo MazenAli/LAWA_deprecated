@@ -39,3 +39,4 @@ class MultigridSolver{
 #include <lawa/methods/uniform/solvers/multigridsolver.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_SOLVERS_MULTIGRIDSOLVER_H
+

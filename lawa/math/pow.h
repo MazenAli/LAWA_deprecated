@@ -31,3 +31,4 @@ powii(int x, int expo);
 } // namespace lawa
 
 #endif //  LAWA_MATH_POW_H
+

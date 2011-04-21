@@ -23,3 +23,4 @@ SeparableFunction3D<T>::operator()(T x, T y, T z) const
 
 
 } //  namespace lawa
+

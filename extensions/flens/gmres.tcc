@@ -269,3 +269,4 @@ pgmresm(const Prec &Pr, const MA &A, VX &x, const VB &b,
 }
 
 } // namespace lawa
+

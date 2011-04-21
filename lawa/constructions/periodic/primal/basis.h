@@ -75,3 +75,4 @@ class Basis<_T,Primal,Periodic,CDF>
 #include <lawa/constructions/periodic/primal/basis.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_BASIS_H
+

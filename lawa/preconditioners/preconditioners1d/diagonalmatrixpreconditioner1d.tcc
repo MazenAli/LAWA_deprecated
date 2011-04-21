@@ -23,3 +23,4 @@ DiagonalMatrixPreconditioner1D<T,Basis,BilinearForm>::operator()(const Index1D &
 }
 
 }   // namespace lawa
+

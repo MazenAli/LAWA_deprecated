@@ -50,3 +50,4 @@ struct CompressionPDE3D
 #include <lawa/methods/adaptive/compressions/compression_pde3d.tcc>
 
 #endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE3D_H
+

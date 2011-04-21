@@ -8,3 +8,4 @@ TensorBasis2D<Method, FirstBasis, SecondBasis>::TensorBasis2D(const FirstBasis &
 }
 
 } // namespace lawa
+

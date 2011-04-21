@@ -352,7 +352,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Periodic,CDF> &bas
 template <typename T, Construction Cons>
 IndexSet<Index1D>
 lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &basis,
-                  int s_tilde, int jmin, int jmax, bool update) 
+                  int s_tilde, int jmin, int jmax, bool /*update*/) 
 {
         using std::min;
         using std::max;
@@ -539,3 +539,4 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
 }
 
 } // namespace lawa
+

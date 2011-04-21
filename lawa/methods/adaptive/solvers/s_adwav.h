@@ -66,3 +66,4 @@ class S_ADWAV {
 #include <lawa/methods/adaptive/solvers/s_adwav.tcc>
 
 #endif //LAWA_METHODS_ADAPTIVE_SOLVERS_S_ADWAV_H
+

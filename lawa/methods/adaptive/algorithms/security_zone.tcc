@@ -77,7 +77,7 @@ C_WO_XBSpline(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis) {
 // Security zone interval
 template <typename T, Construction Cons>
 void
-C(const Index1D &lambda, T c, const MRA<T,Primal,Interval,Cons> &mra,
+C(const Index1D &lambda, T c, const MRA<T,Primal,Interval,Cons> &/*mra*/,
   const Basis<T,Primal,Interval,Cons> &basis, IndexSet<Index1D> &ret)
 {
     using std::min;
@@ -340,3 +340,4 @@ C(const IndexSet<Index3D> &Lambda, T c, const Basis3D &basis)
 }
 
 } // namespace lawa
+

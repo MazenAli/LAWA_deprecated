@@ -46,3 +46,4 @@ template <typename T>
 #include <extensions/flens/inv.tcc>
 
 #endif // EXTENSIONS_FLENS_INV_H
+

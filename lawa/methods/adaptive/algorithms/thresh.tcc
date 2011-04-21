@@ -43,3 +43,4 @@ THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta)
 }
 
 } // namespace lawa
+

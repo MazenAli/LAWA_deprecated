@@ -63,3 +63,4 @@ struct BSpline<_T,Dual,Periodic,CDF>
 #include <lawa/constructions/periodic/dual/bspline.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BSPLINE_H
+

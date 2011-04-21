@@ -69,3 +69,4 @@ struct _gmres<Matrix<I> >
 #include <extensions/flens/gmres.tcc>
 
 #endif // EXTENSIONS_FLENS_GMRES_H
+

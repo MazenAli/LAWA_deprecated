@@ -382,3 +382,4 @@ gecon(char norm,
 } // namespace flens
 
 #endif // EXTENSIONS_FLENS_LAPACK_H
+

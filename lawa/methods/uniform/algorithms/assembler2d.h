@@ -57,3 +57,4 @@ class Assembler2D
 #include <lawa/methods/uniform/algorithms/assembler2d.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_ALGORITHMS_ASSEMBLER2D_H
+

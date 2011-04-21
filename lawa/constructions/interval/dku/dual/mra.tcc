@@ -67,7 +67,7 @@ MRA<T,Dual,Interval,DKU>::cardI_(int j) const
 
 template <typename T>
 int
-MRA<T,Dual,Interval,DKU>::cardI_L(int j) const
+MRA<T,Dual,Interval,DKU>::cardI_L(int /*j*/) const
 {
     return d_-_bc(0);
 }
@@ -82,7 +82,7 @@ MRA<T,Dual,Interval,DKU>::cardI_I(int j) const
 
 template <typename T>
 int
-MRA<T,Dual,Interval,DKU>::cardI_R(int j) const
+MRA<T,Dual,Interval,DKU>::cardI_R(int /*j*/) const
 {
     return d_-_bc(1);
 }
@@ -99,7 +99,7 @@ MRA<T,Dual,Interval,DKU>::rangeI_(int j) const
 
 template <typename T>
 Range<int>
-MRA<T,Dual,Interval,DKU>::rangeI_L(int j) const
+MRA<T,Dual,Interval,DKU>::rangeI_L(int /*j*/) const
 {
     return Range<int>(l_-d_+_bc(0),l_-1);
 }
@@ -287,3 +287,4 @@ MRA<T,Dual,Interval,DKU>::_integral0toInfPhiPhi_()
 
 
 } // namespace lawa
+

@@ -59,3 +59,4 @@ class ConvectionOperator1D{
 #include <lawa/operators/pdeoperators1d/convectionoperator1d.tcc>
 
 #endif // LAWA_OPERATORS_PDEOPERATORS1D_CONVECTIONOPERATOR1D_H
+

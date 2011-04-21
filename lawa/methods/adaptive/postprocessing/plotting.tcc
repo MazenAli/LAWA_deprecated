@@ -410,3 +410,4 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
 
 
 }  // namespace lawa
+

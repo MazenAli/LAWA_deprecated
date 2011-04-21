@@ -46,3 +46,4 @@ struct SeparableFunction2D
 #include <lawa/functiontypes/separablefunction2d.tcc>
 
 #endif // LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION2D_H
+

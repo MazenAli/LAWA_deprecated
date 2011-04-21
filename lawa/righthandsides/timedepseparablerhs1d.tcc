@@ -6,7 +6,7 @@ TimedepSeparableRHS1D<T, Basis1D>::TimedepSeparableRHS1D(const Basis1D& _basis,
                                                          int order)
     : basis(_basis), F(_F), integralf(_F.F_y, basis)
 {
-	integralf.quadrature.setOrder(order);
+    integralf.quadrature.setOrder(order);
 }
     
 template<typename T, typename Basis1D>
@@ -38,8 +38,8 @@ template<typename T, typename TimedepRHS>
 T
 SumOfTimedepRHS1D<T, TimedepRHS>::operator()(T t, XType xtype, int j, int k) const
 {
-   	return rhs1(t, xtype, j, k)
-		  +rhs2(t, xtype, j, k); 
+       return rhs1(t, xtype, j, k)
+          +rhs2(t, xtype, j, k); 
 }
 
 template<typename T, typename TimedepRHS>
@@ -47,20 +47,20 @@ T
 SumOfTimedepRHS1D<T, TimedepRHS>::operator()(T t, const Index1D &index) const
 {
     return rhs1(t, index.xtype, index.j, index.k)
-		  +rhs2(t, index.xtype, index.j, index.k);
+          +rhs2(t, index.xtype, index.j, index.k);
 }
 
 template<typename T, typename TimedepRHS>
 Coefficients<Lexicographical,T,Index1D>
 SumOfTimedepRHS1D<T, TimedepRHS>::operator()(T t, const IndexSet<Index1D> &Lambda) const
 {
-	typedef typename IndexSet<Index1D>::iterator const_set_it;
-	Coefficients<Lexicographical,T,Index1D> ret;
-	for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
-		T tmp = this->operator()(t, *lambda);
-		ret[*lambda] = tmp;
-	}
-	return ret;
+    typedef typename IndexSet<Index1D>::iterator const_set_it;
+    Coefficients<Lexicographical,T,Index1D> ret;
+    for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+        T tmp = this->operator()(t, *lambda);
+        ret[*lambda] = tmp;
+    }
+    return ret;
 }
 
 } // namespace lawa

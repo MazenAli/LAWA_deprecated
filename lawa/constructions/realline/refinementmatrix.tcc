@@ -39,6 +39,7 @@ RefinementMatrix<T,R,CDF>::RefinementMatrix(const Wavelet<T,Side,R,CDF> &wavelet
 
 //------------------------------------------------------------------------------
 
+/*
 template <typename X, typename Y>
 void
 mv(cxxblas::Transpose transA, typename X::ElementType alpha,
@@ -46,7 +47,7 @@ mv(cxxblas::Transpose transA, typename X::ElementType alpha,
    const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y)
 {
     assert(0);
-/*    typedef typename X::ElementType T;
+    typedef typename X::ElementType T;
 
     assert(alpha==1.);
     assert(x.engine().stride()==1);
@@ -85,6 +86,8 @@ mv(cxxblas::Transpose transA, typename X::ElementType alpha,
             *iter += dotValue;
         }
     }
-*/}
+}
+*/
 
 } // namespace flens
+

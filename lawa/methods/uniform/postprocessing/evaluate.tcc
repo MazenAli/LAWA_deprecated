@@ -82,3 +82,4 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
 }
     
 } // namespace lawa
+

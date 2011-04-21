@@ -121,3 +121,4 @@ class ThetaScheme1D
 #include <lawa/methods/uniform/solvers/thetascheme1d.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_H
+

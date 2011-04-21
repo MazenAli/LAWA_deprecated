@@ -101,3 +101,4 @@ template <typename T>
 #include <lawa/constructions/periodic/periodicsupport.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_PERIODICSUPPORT_H
+

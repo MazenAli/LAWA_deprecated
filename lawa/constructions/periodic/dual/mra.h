@@ -65,3 +65,4 @@ class MRA<_T,Dual,Periodic,CDF>
 #include <lawa/constructions/periodic/dual/mra.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_DUAL_MRA_H
+

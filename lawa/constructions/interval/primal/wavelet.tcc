@@ -111,3 +111,4 @@ Wavelet<T,Primal,Interval,Cons>::tic(int j) const
 }
 
 } // namespace lawa
+

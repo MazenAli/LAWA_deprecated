@@ -44,3 +44,4 @@ struct DiagonalLevelPreconditioner1D
 #include <lawa/preconditioners/preconditioners1d/diagonallevelpreconditioner1d.tcc>
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALLEVELPRECONDITIONER1D_H
+

@@ -78,3 +78,4 @@ enum MethodType {
 } // namespace lawa
 
 #endif // LAWA_SETTINGS_ENUM_H
+

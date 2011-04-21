@@ -35,3 +35,4 @@ powii(int x, int expo)
 }
 
 } // namespace lawa
+

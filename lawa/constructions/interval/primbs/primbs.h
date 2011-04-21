@@ -19,3 +19,4 @@
 
 #include <lawa/constructions/interval/primbs/primal/primal.h>
 #include <lawa/constructions/interval/primbs/dual/dual.h>
+

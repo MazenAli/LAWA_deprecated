@@ -67,3 +67,4 @@ class HelmholtzOperator2D{
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.tcc>
 
 #endif //  LAWA_OPERATORS_PDEOPERATORS2D_HELMHOLTZOPERATOR2D_H
+

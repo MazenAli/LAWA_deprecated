@@ -52,3 +52,4 @@ struct Wavelet<_T,Dual,Interval,Dijkema>
 #include <lawa/constructions/interval/dijkema/dual/wavelet.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_WAVELET_H
+

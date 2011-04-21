@@ -70,7 +70,7 @@ setRHS(RHSIntegral& _rhs)
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
 ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
-getLHSMatrix(int level)
+getLHSMatrix(int /*level*/)
 {   
 	if (level != currentLevel) {
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > matrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
@@ -160,3 +160,4 @@ operator()(XType xtype, int j, int k) const
 } 
   
 }
+

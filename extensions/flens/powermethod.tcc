@@ -191,3 +191,4 @@ condition(const Prec &P, const MatA &A, typename MatA::ElementType tol)
 }
 
 } // namespace lawa
+

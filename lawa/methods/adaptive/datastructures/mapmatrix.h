@@ -59,3 +59,4 @@ struct MapMatrix
 #include <lawa/methods/adaptive/datastructures/mapmatrix.tcc>
 
 #endif //  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H
+

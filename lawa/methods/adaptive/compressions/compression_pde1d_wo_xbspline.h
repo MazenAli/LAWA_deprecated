@@ -50,3 +50,4 @@ struct CompressionPDE1D_WO_XBSpline
 #include <lawa/methods/adaptive/compressions/compression_pde1d_wo_xbspline.tcc>
 
 #endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE1D_WO_XBSPLINE_H
+

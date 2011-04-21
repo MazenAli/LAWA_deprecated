@@ -67,3 +67,4 @@ class Basis<_T,Primal,R,CDF>
 #include <lawa/constructions/realline/primal/basis.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_BASIS_H
+

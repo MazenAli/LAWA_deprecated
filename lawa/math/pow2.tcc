@@ -46,3 +46,4 @@ pow2ih(int expo)
 }
 
 } // namespace lawa
+

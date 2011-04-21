@@ -19,3 +19,4 @@
 
 #include <lawa/constructions/interval/dijkema/primal/basis.h>
 #include <lawa/constructions/interval/dijkema/primal/mra.h>
+

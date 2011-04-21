@@ -51,3 +51,4 @@ class DiagonalMatrixPreconditioner3D
 #include <lawa/preconditioners/preconditioners3d/diagonalmatrixpreconditioner3d.tcc>
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS3D_DIAGONALMATRIXPRECONDITIONER3D_H
+

@@ -24,3 +24,4 @@ H1NormPreconditioner1D<T,Basis>::operator()(const Index1D &index) const
 }
 
 }   // namespace lawa
+

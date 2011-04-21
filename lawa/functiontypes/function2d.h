@@ -44,3 +44,4 @@ public:
 #include <lawa/functiontypes/function2d.tcc>
 
 #endif // LAWA_FUNCTIONTYPES_FUNCTION2D_H
+

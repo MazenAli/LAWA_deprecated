@@ -32,3 +32,4 @@ fabs(const __gmp_expr<T,U> &x)
 {
     return ::abs(x);
 }
+

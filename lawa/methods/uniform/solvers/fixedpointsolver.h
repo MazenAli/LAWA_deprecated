@@ -47,3 +47,4 @@ class FixedPointSolver
 #include <lawa/methods/uniform/solvers/fixedpointsolver.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_SOLVERS_FIXEDPOINTSOLVER_H
+

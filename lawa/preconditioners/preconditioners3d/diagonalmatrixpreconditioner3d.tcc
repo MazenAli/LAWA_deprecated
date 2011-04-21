@@ -28,3 +28,4 @@ DiagonalMatrixPreconditioner3D<T,Basis3D,BilinearForm>::operator()(const Index3D
 }
 
 } // namespace lawa
+
