@@ -8,4 +8,3 @@ TensorBasis3D<Method, FirstBasis, SecondBasis, ThirdBasis>::TensorBasis3D(const 
 }
 
 } // namespace lawa
-
