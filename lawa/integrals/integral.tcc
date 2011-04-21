@@ -38,8 +38,8 @@ _integrate(const Integral<Gauss,First,Second> &integral)
 {
     typedef typename First::T T;
 
-    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
-    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
 
     // the (minimal) width of the polynomial pieces.
     T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
@@ -64,8 +64,8 @@ typename RestrictTo<IsDual<First>::value || IsDual<Second>::value, typename Firs
 _integrate(const Integral<Quad,First,Second> &integral)
 {
     typedef typename First::T T;
-    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
-    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
 
     Support<T> common;
     if (overlap(first.support(integral.j1,integral.k1),
@@ -83,7 +83,7 @@ typename First::T
 _integrate_f1(const IntegralF<Quad,First,Second> &integral)
 {
     typedef typename First::T T;
-    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
+    const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
 
     int p = integral.function.singularPoints.length();
     DenseVector<Array<T> > singularPoints;
@@ -120,8 +120,8 @@ typename First::T
 _integrate_f2(const IntegralF<Quad,First,Second> &integral)
 {
     typedef typename First::T T;
-    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
-    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
     const Function<T> & function = integral.function;
 
     DenseVector<Array<T> > singularPoints;
@@ -197,8 +197,8 @@ template <QuadratureType Quad, typename First, typename Second>
 typename First::T
 _integrand(const Integral<Quad,First,Second> &integral, typename First::T x)
 {
-    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
-    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
     return first(x,integral.j1,integral.k1,integral.deriv1) * second(x,integral.j2,integral.k2,integral.deriv2);
 }
 
@@ -207,7 +207,7 @@ template <QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<PrimalOrDual<First>::value, typename First::T>::Type
 _integrand_f1(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {
-    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
+    const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
     return integral.function(x) * first(x,integral.j1,integral.k1,integral.deriv1);
 }
 
@@ -216,8 +216,8 @@ template <QuadratureType Quad, typename First, typename Second>
 typename RestrictTo<PrimalOrDual<First>::value && PrimalOrDual<Second>::value, typename First::T>::Type
 _integrand_f2(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {
-    const typename First::BasisFunction &first = integral.first.generator(integral.e1);
-    const typename Second::BasisFunction &second = integral.second.generator(integral.e2);
+    const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
+    const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
     return integral.function(x) * first(x,integral.j1,integral.k1,integral.deriv1)
                                 * second(x,integral.j2,integral.k2,integral.deriv2);
 }

@@ -21,6 +21,7 @@
 #define LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_MRA_H 1
 
 #include <lawa/flensforlawa.h>
+#include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/mra.h>
 #include <lawa/constructions/support.h>
 #include <lawa/constructions/interval/refinementmatrix.h>
@@ -38,7 +39,7 @@ class MRA<_T,Primal,Interval,Primbs>
         static const DomainType Domain = Interval;
         static const Construction Cons = Primbs;
 
-        typedef BasisFunction<T,Primal,Interval,Primbs> BasisFunction;
+        typedef BasisFunction<T,Primal,Interval,Primbs> BasisFunctionType;
         typedef BSpline<T,Primal,Interval,Primbs> BSplineType;
 
         MRA(int d, int j=-1);

@@ -20,6 +20,7 @@
 #ifndef LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_MRA_H
 #define LAWA_CONSTRUCTIONS_PERIODIC_PRIMAL_MRA_H 1
 
+#include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/periodic/primal/bspline.h>
 #include <lawa/constructions/periodic/refinementmatrix.h>
 
@@ -34,7 +35,7 @@ class MRA<_T,Primal,Periodic,CDF>
         static const DomainType Domain = Periodic;
         static const Construction Cons = CDF;
 
-        typedef BasisFunction<T,Primal,Periodic,CDF> BasisFunction;
+        typedef BasisFunction<T,Primal,Periodic,CDF> BasisFunctionType;
         typedef BSpline<T,Primal,Periodic,CDF> BSplineType;
 
         MRA(int _d, int _d_, int j=0);

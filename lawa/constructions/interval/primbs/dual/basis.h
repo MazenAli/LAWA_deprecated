@@ -21,6 +21,7 @@
 #define LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_DUAL_BASIS_H 1
 
 #include <lawa/constructions/basis.h>
+#include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/interval/primbs/dual/mra.h>
 #include <lawa/constructions/interval/primbs/primal/mra.h>
 
@@ -35,7 +36,7 @@ class Basis<_T,Dual,Interval,Primbs>
         static const DomainType Domain = Interval;
         static const Construction Cons = Primbs;
 
-        typedef BasisFunction<T,Dual,Interval,Primbs> BasisFunction;
+        typedef BasisFunction<T,Dual,Interval,Primbs> BasisFunctionType;
         typedef BSpline<T,Dual,Interval,Primbs> BSplineType;
         typedef Wavelet<T,Dual,Interval,Primbs> WaveletType;
 
@@ -51,7 +52,7 @@ class Basis<_T,Dual,Interval,Primbs>
             void
             enforceBoundaryCondition();
 
-        const BasisFunction &
+        const BasisFunctionType &
         generator(XType xtype) const;
 
         // cardinalities of whole, left, inner, right index sets (primal).
