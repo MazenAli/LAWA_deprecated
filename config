@@ -53,8 +53,7 @@ RELEASEMODE = -O3 -DNDEBUG
 PROFILEMODE = -p -g -DNDEBUG
 
 # --- select compilation-mode here by commenting / uncommenting
+CPPFLAGS += -I$(FLENS_HOME) -I$(BOOST_HOME) -I$(LAWA_HOME)
 CXXFLAGS += $(DEBUGMODE)
 #CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
-
-CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
