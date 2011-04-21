@@ -20,6 +20,7 @@
 #ifndef LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BASIS_H
 #define LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BASIS_H 1
 
+#include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/periodic/refinementmatrix.h>
 #include <lawa/constructions/periodic/primal/mra.h>
 #include <lawa/constructions/periodic/dual/mra.h>
@@ -36,7 +37,7 @@ class Basis<_T,Dual,Periodic,CDF>
         static const DomainType Domain = Periodic;
         static const Construction Cons = CDF;
 
-        typedef BasisFunction<T,Dual,Periodic,CDF> BasisFunction;
+        typedef BasisFunction<T,Dual,Periodic,CDF> BasisFunctionType;
         typedef BSpline<T,Dual,Periodic,CDF> BSplineType;
         typedef Wavelet<T,Dual,Periodic,CDF> WaveletType;
 
@@ -48,7 +49,7 @@ class Basis<_T,Dual,Periodic,CDF>
         void
         setLevel(int j) const;
 
-        const BasisFunction &
+        const BasisFunctionType &
         generator(XType xtype) const;
 
         int

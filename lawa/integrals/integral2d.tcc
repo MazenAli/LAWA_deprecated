@@ -25,8 +25,8 @@ _integrate(const Integral2D<Quad,BasisX,BasisY> integral)
 {
     typedef typename BasisX::T T;
     // note: called phi_... but can also be a wavelet.
-    const typename BasisX::BasisFunction &phi_x   = integral.basisx.generator(integral.ex);
-    const typename BasisY::BasisFunction &phi_y   = integral.basisy.generator(integral.ey);
+    const typename BasisX::BasisFunctionType &phi_x   = integral.basisx.generator(integral.ex);
+    const typename BasisY::BasisFunctionType &phi_y   = integral.basisy.generator(integral.ey);
 
     // merge singular points of bspline/wavelet and function to one list.
     // -> implicit assumption: second.singularPoints are sorted!!
