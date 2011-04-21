@@ -4,12 +4,14 @@ template <typename T, typename Basis>
 PDENonConstCoeffOperator1D<T, Basis>::PDENonConstCoeffOperator1D(const Basis& _basis,
                                                                  Function<T>& _reaction_f,
                                                                  Function<T>& _convection_f,
-                                                                 T _diffusion)
+                                                                 T _diffusion, int order)
     : basis(_basis), reaction_f(_reaction_f), convection_f(_convection_f), diffusion(_diffusion),
       reaction_integral(reaction_f, basis, basis), convection_integral(convection_f, basis, basis),
       diffusion_integral(basis, basis)
 
 {
+    reaction_integral.quadrature.setOrder(order);
+    convection_integral.quadrature.setOrder(order);
 }
 
 template <typename T, typename Basis>

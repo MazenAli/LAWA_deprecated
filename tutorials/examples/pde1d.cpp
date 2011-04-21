@@ -61,14 +61,19 @@ u_xx_f(T x)
 T
 a_f(T x)
 {
-    return std::sqrt(x);
+    return 1+exp(x);
 }
 
 /// Non-constant convection term
 T
 b_f(T x)
 {
-    return 1.;
+    if (x<=0.4) {
+        return 1.;
+    }
+    else {
+        return -1.;
+    }
 }
 
 /// Forcing function of the form `T f(T x)` - here a constant function
@@ -93,16 +98,16 @@ printU(const DenseVectorT u, const PrimalBasis& basis, const int J,
 
 /// Auxiliary function to print solution values, generates `.txt`-file with
 /// columns: `x u(x)`
-T
-H1errorU(const DenseVectorT u, const PrimalBasis& basis, const int J, T &L2error, T &H1error,
+void
+H1errorU(const DenseVectorT u, const PrimalBasis& basis, const int j, T &L2error, T &H1error,
          const double deltaX=1./128.)
 {
     L2error = 0.;
     H1error = 0.;
     T H1seminormerror = 0.;
     for(double x = 0; x <= 1.; x += deltaX) {
-        T diff_u   = u_f(x)   - evaluate(basis,J, u, x, 0);
-        T diff_u_x = u_x_f(x) - evaluate(basis,J, u, x, 1);
+        T diff_u   = u_f(x)   - evaluate(basis,j, u, x, 0);
+        T diff_u_x = u_x_f(x) - evaluate(basis,j, u, x, 1);
         L2error += diff_u*diff_u;
         H1seminormerror += diff_u_x*diff_u_x;
     }
@@ -117,9 +122,9 @@ H1errorU(const DenseVectorT u, const PrimalBasis& basis, const int J, T &L2error
 int main()
 {
     /// wavelet basis parameters:
-    int d = 2;          // (d,d_)-wavelets
-    int d_ = 2;
-    int j0 = 2;         // minimal level
+    int d = 3;          // (d,d_)-wavelets
+    int d_ = 3;
+    int j0 = 3;         // minimal level
     int J = 8;          // maximal level
 
     /// Basis initialization, using Dirichlet boundary conditions
@@ -127,7 +132,8 @@ int main()
     basis.enforceBoundaryCondition<DirichletBC>();
 
     /// Operator initialization
-    DenseVectorT a_singPts, b_singPts;         // singular points of the rhs forcing function: here none
+    DenseVectorT a_singPts;
+    DenseVectorT b_singPts(1); b_singPts = 0.5;
     Function<T> a(a_f, a_singPts);
     Function<T> b(b_f, b_singPts);
     PDEOp       op(basis, a, b, 1.);
@@ -141,21 +147,28 @@ int main()
                                                //      if there are singular parts (false) and/or smooth parts (true)
                                                //      in the integral
 
+    ofstream file("pde1d_convergence.txt");
     for (int j=j0; j<=J; ++j) {
-    /// Assembler: assemble the problem components
+        /// Assembler: assemble the problem components
         Assembler1D<T, PrimalBasis> assembler(basis);
-        SparseMatrixT   A = assembler.assembleStiffnessMatrix(op, J);
-        DiagonalMatrixT P = assembler.assemblePreconditioner(p, J);
-        DenseVectorT    f = assembler.assembleRHS(rhs, J);
+        SparseMatrixT   A = assembler.assembleStiffnessMatrix(op, j);
+        DiagonalMatrixT P = assembler.assemblePreconditioner(p, j);
+        DenseVectorT    f = assembler.assembleRHS(rhs, j);
 
         /// Initialize empty solution vector
-        DenseVectorT u(basis.mra.rangeI(J));
+        DenseVectorT u(basis.mra.rangeI(j));
 
         /// Solve problem using pcg
-        cout << pcg(P, A, u, f) << " pcg iterations" << endl;
+        cout << pgmres(P, A, u, f) << " pgmres iterations" << endl;
+
+        /// Compute errors
+        T L2error=0, H1error=0.;
+        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-2));
+        file << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
 
         /// Print solution to file "u.txt"
-        printU(u, basis, J, "u.txt");
+        printU(u, basis, j, "u.txt");
     }
+    file.close();
     return 0;
 }

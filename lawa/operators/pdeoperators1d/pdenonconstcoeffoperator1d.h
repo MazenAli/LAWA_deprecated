@@ -44,7 +44,7 @@ class PDENonConstCoeffOperator1D{
         T diffusion;
 
         PDENonConstCoeffOperator1D(const Basis& _basis, Function<T> &_reaction_f,
-                                   Function<T> &_convection_f, T _diffusion);
+                                   Function<T> &_convection_f, T _diffusion, int order=10);
 
         T
         operator()(XType xtype1, int j1, int k1,
