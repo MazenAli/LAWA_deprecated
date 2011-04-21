@@ -85,9 +85,4 @@ struct TensorRefSols_PDE_Realline3D
 
 #include <applications/unbounded_domains/referencesolutions/tensorrefsols_pde_realline3d.tcc>
 
-}    //namespace lawa
-
-#include <tutorials/examples/referencesolutions/referencesolutions3d.tcc>
-
-
-#endif // TUTORIALS_EXAMPLES_REFERENCESOLUTIONS_REFERENCESOLUTIONS3D_H
+#endif  // APPLICATIONS_UNBOUNDED_DOMAINS_REFERENCESOLUTIONS_TENSORREFSOLS_PDE_REALLINE3D_H

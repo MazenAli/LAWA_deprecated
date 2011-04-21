@@ -75,13 +75,14 @@ struct AdaptiveSpaceTimePDEOperator1D{
     typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
                                Compression1D_x, NoPreconditioner1D>   DataLaplace_x;
                                
-    AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    T _c, T _reaction = 0, 
-                                    T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
-    
-    AdaptiveSpaceTimeHeatOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    InitialCondition& _init_cond, T _c, T _reaction = 0, 
-                                    T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
+    AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
+									T _diffusion = 1., T _convection = 0, T _reaction = 0, 
+									T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
+	
+	AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
+                                    InitialCondition& _init_cond,
+                                    T _diffusion = 1., T _convection = 0, T _reaction = 0, 
+									T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
                                     
     // call of p_left * a_operator * p_right
     T
@@ -109,7 +110,7 @@ struct AdaptiveSpaceTimePDEOperator1D{
     
     const LeftPrec2D&   p_left;
     const RightPrec2D&  p_right; 
-    NoPreconditioner1D    noprec;
+	NoPreconditioner1D	noprec;
     
     const IdentityOperator_t    op_identity_t;
     const IdentityOperator_x    op_identity_x;
@@ -117,7 +118,7 @@ struct AdaptiveSpaceTimePDEOperator1D{
     const ConvectionOperator_x  op_convection_x;
     const LaplaceOperator_x     op_laplace_x;
     
-    const NoInitialCondition    op_noinitcond;
+	const NoInitialCondition	op_noinitcond;
     const InitialCondition&     op_initcond;
     
     T   entrybound;

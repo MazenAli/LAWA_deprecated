@@ -70,8 +70,24 @@ setRHS(RHSIntegral& _rhs)
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
 ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
-getLHSMatrix(int /*level*/)
+getLHSMatrix(int level)
 {   
+	if (level != currentLevel) {
+        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > matrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
+        return matrix;
+    }
+    return lhsmatrix;
+}
+
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
+flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
+ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::
+getLHSMatrix(T time_old, T time_new, int level)
+{   
+	if (level != currentLevel) {
+        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > matrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
+        return matrix;
+    }
     return lhsmatrix;
 }
 
@@ -99,6 +115,7 @@ operator()(XType xtype1, int j1, int k1,
 }
 
 
+/*======================================================================================*/    
 // OPERATOR_RHSMATRIX
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSMatrix::
@@ -121,6 +138,7 @@ operator()(XType xtype1, int j1, int k1,
         - (time_new - time_old) * (1. - scheme->theta) * a(xtype1,j1,k1, xtype2, j2,k2);
 }
 
+/*======================================================================================*/    
 // OPERATOR_RHSVECTOR
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 ThetaScheme1D_TimeConstBilForm<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSVector::

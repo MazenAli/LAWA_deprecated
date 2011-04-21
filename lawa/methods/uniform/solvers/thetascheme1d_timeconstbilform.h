@@ -4,7 +4,13 @@
 #include <lawa/settings/enum.h>
 
 namespace lawa{
-    
+
+/* ThetaScheme:
+ *      This class solves an implicit linear system that arises in each time step of
+ * 		a time-stepping scheme for a linear and time-constant operator.
+ *      It assumes a time-constant bilinear form, so that the system matrices
+ *      are only assembled once. 
+ */    
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 class ThetaScheme1D_TimeConstBilForm
 {
@@ -25,7 +31,10 @@ class ThetaScheme1D_TimeConstBilForm
         
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
         getLHSMatrix(int level);
-                           
+        
+        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
+        getLHSMatrix(T time_old, T time_new, int level);                           
+        
         // Adaptive Erweiterung: Timestep in jedem Lösungsschritt neu setzen,
         //flens::DenseVector<flens::Array<T> > 
         //solve(T time, flens::DenseVector<flens::Array<T> > u_init, int level, T timestep);

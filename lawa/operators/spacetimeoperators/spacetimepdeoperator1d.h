@@ -73,4 +73,5 @@ class SpaceTimePDEOperator1D{
 
 #include <lawa/operators/spacetimeoperators/spacetimepdeoperator1d.tcc>
 
-#endif // LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEPDEOPERATOR1D_H
+#endif // LAWA_OPERATORS_SPACETIMEOPERATORS_SPACETIMEHEATOPERATOR1D_H
+

@@ -16,14 +16,14 @@ AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondi
       op_convection_x(_basis.second), op_laplace_x(_basis.second), 
       op_noinitcond(), op_initcond(op_noinitcond),
       entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-      data_identity_t(op_identity_t,     noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
-      data_identity_x(op_identity_x,     noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
+      data_identity_t(op_identity_t,	 noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
+      data_identity_x(op_identity_x,	 noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
       data_convection_t(op_convection_t, noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
       data_convection_x(op_convection_x, noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
       data_laplace_x(op_laplace_x,		 noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols)
 {
 }
-    
+	
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
 	AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
@@ -104,9 +104,9 @@ AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondi
 operator()(const Index1D &row_index, const Index2D &col_index)
 {
     if(flens::IsSame<NoInitialCondition, InitialCondition>::value){
-        std::cerr << " Operator cannot be called without Initial Condition " << std::endl;
-        exit(1);
-    }
+		std::cerr << " Operator cannot be called without Initial Condition " << std::endl;
+		exit(1);
+	}
     
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     T prec = 1.;

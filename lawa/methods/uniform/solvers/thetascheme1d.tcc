@@ -22,7 +22,7 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
     
     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level);
-    flens::DenseVector<flens::Array<T> > rhsvector = assembler.getRHS(op_RHSVector, level);
+    flens::DenseVector<flens::Array<T> > rhsvector = assembler.assembleRHS(op_RHSVector, level);
     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
     flens::DiagonalMatrix<T> P = assembler.assemblePreconditioner(prec, level);
     flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));

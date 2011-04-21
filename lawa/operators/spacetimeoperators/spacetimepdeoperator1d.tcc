@@ -43,8 +43,8 @@ SpaceTimePDEOperator1D<T, Basis>::operator()(const Index2D &row_index,
                                               const Index2D &col_index) const
 {
     return operator()(row_index.index1.xtype, row_index.index1.j, row_index.index1.k,
-                      row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
-                      col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
+					  row_index.index2.xtype, row_index.index2.j, row_index.index2.k,
+					  col_index.index1.xtype, col_index.index1.j, col_index.index1.k,
                       col_index.index2.xtype, col_index.index2.j, col_index.index2.k);
 
 }
