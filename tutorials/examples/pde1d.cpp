@@ -99,7 +99,7 @@ H1errorU(const DenseVectorT u, const PrimalBasis& basis, const int J, T &L2error
 {
     L2error = 0.;
     H1error = 0.;
-    H1seminormerror = 0.;
+    T H1seminormerror = 0.;
     for(double x = 0; x <= 1.; x += deltaX) {
         T diff_u   = u_f(x)   - evaluate(basis,J, u, x, 0);
         T diff_u_x = u_x_f(x) - evaluate(basis,J, u, x, 1);
