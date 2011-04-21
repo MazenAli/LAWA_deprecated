@@ -47,3 +47,4 @@ class DiagonalMatrixPreconditioner1D
 #include <lawa/preconditioners/preconditioners1d/diagonalmatrixpreconditioner1d.tcc>
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS1D_DIAGONALMATRIXPRECONDITIONER1D_H
+

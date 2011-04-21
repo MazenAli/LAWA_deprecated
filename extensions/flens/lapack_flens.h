@@ -189,3 +189,4 @@ template <typename MA, typename VS, typename VU, typename VVT>
 #include <extensions/flens/lapack_flens.tcc>
 
 #endif // FLENS_LAPACK_FLENS_H
+

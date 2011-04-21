@@ -28,3 +28,4 @@ int sparse_grid_onn_size ( int dim_num, int level_max );
 int sparse_grid_own_size ( int dim_num, int level_max );
 void timestamp ( );
 void vec_colex_next2 ( int dim_num, int base[], int a[], bool *more );
+

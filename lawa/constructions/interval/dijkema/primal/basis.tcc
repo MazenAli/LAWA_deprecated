@@ -149,3 +149,4 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 }
 
 } // namespace lawa
+

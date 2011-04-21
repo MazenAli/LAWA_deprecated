@@ -32,3 +32,4 @@ class Basis
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_BASIS_H
+

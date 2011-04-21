@@ -217,3 +217,4 @@ mm(cxxblas::Transpose transA,
 }
 
 } } // namespase blas, flens
+

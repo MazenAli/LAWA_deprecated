@@ -65,3 +65,4 @@ class IdentityOperator2D
 #include <lawa/operators/pdeoperators2d/identityoperator2d.tcc>
 
 #endif   // LAWA_OPERATORS_PDEOPERATORS2D_IDENTITYOPERATOR2D_H
+

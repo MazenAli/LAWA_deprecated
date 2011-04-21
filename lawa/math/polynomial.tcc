@@ -116,3 +116,4 @@ operator<<(std::ostream &out, const Polynomial<T> &rhs)
 }
 
 } // namespace lawa
+

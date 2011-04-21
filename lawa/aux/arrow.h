@@ -35,3 +35,4 @@ template <cxxblas::StorageOrder Order, typename T>
 #include <lawa/aux/arrow.tcc>
 
 #endif // LAWA_AUX_ARROW_H
+

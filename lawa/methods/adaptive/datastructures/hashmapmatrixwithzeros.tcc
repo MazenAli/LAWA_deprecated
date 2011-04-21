@@ -156,3 +156,4 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()
 }
 
 }    //namespace lawa
+

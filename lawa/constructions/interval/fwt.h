@@ -54,3 +54,4 @@ template <typename X, typename Y, Construction Cons>
 #include <lawa/constructions/interval/fwt.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_FWT_H
+

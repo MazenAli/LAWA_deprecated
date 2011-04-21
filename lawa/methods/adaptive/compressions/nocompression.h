@@ -46,3 +46,4 @@ struct NoCompression
 #include <lawa/methods/adaptive/compressions/nocompression.tcc>
 
 #endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_NOCOMPRESSION_H
+

@@ -73,3 +73,4 @@ CompressionPDE3D<T,Basis3D>::SparsityPattern(const Index3D &lambda_col,
 }
 
 }    //namespace lawa
+

@@ -101,3 +101,4 @@ extractSpaceIndices(const IndexSet<Index2D> &Lambda)
 }
 
 } // namespace lawa
+

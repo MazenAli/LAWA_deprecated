@@ -22,3 +22,4 @@
 #include <lawa/functiontypes/function3d.h>
 #include <lawa/functiontypes/separablefunction2d.h>
 #include <lawa/functiontypes/separablefunction3d.h>
+

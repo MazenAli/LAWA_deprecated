@@ -73,37 +73,37 @@ postprocessing(const Basis2D &basis2d, HelmholtzBilinearForm2D &Bil, Preconditio
                S_ADWAV &s_adwav, int example, T H1norm);
 
 int main (int argc, char *argv[]) {
-	if (argc!=5 && argc !=7) {
-		cout << "usage " << argv[0] << " d d_ max_its example [jmin_x jmin_y]" << endl; exit(1);
-	}
-	cout.precision(16);
-	T contraction = 0.125;
-	T threshTol = 0.4, cgTol = 0.1*threshTol, resTol=1e-4;
+    if (argc!=5 && argc !=7) {
+        cout << "usage " << argv[0] << " d d_ max_its example [jmin_x jmin_y]" << endl; exit(1);
+    }
+    cout.precision(16);
+    T contraction = 0.125;
+    T threshTol = 0.4, cgTol = 0.1*threshTol, resTol=1e-4;
 
-	int d=atoi(argv[1]), d_=atoi(argv[2]);
-	int NumOfIterations=atoi(argv[3]);
-	int example=atoi(argv[4]);
-	int jmin_x, jmin_y;
-	if (argc==5) {
-		estimateMinimalLevel(example, d, d_, jmin_x, jmin_y);
-	}
-	else {
-		jmin_x=atoi(argv[5]);
-		jmin_y=atoi(argv[6]);
-	}
+    int d=atoi(argv[1]), d_=atoi(argv[2]);
+    int NumOfIterations=atoi(argv[3]);
+    int example=atoi(argv[4]);
+    int jmin_x, jmin_y;
+    if (argc==5) {
+        estimateMinimalLevel(example, d, d_, jmin_x, jmin_y);
+    }
+    else {
+        jmin_x=atoi(argv[5]);
+        jmin_y=atoi(argv[6]);
+    }
 
-	ReallineBasis basis_x(d,d_,jmin_x);
-	ReallineBasis basis_y(d,d_,jmin_y);
+    ReallineBasis basis_x(d,d_,jmin_x);
+    ReallineBasis basis_y(d,d_,jmin_y);
 
-	Basis2D basis2d(basis_x,basis_y);
-	HelmholtzBilinearForm2D Bil(basis2d, 1.);
-	Preconditioner2D P(Bil);
-	MA A(basis2d, 1., P, 1e-12, 8092, 8092);
+    Basis2D basis2d(basis_x,basis_y);
+    HelmholtzBilinearForm2D Bil(basis2d, 1.);
+    Preconditioner2D P(Bil);
+    MA A(basis2d, 1., P, 1e-12, 8092, 8092);
 
-	IndexSet<Index2D> InitialLambda;
-	Index1D index_x(jmin_x,0,XBSpline);
-	Index1D index_y(jmin_y,0,XBSpline);
-	InitialLambda.insert(Index2D(index_x,index_y));
+    IndexSet<Index2D> InitialLambda;
+    Index1D index_x(jmin_x,0,XBSpline);
+    Index1D index_y(jmin_y,0,XBSpline);
+    InitialLambda.insert(Index2D(index_x,index_y));
 
 	//Righthand side construction for tensor solution
 	if (example==1 || example==2 || example==3) {
@@ -113,26 +113,25 @@ int main (int argc, char *argv[]) {
 		SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
 								    	refsol.exact_y, refsol.sing_pts_y);
 
-		SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
-								        refsol.rhs_y, refsol.sing_pts_y);
-		GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
-		SeparableRhsIntegral2D rhsintegral_x(basis2d, SepFunc1, refsol.deltas_x, no_deltas, order);
-		SeparableRhsIntegral2D rhsintegral_y(basis2d, SepFunc2, no_deltas, refsol.deltas_y, order);
-		SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
-		SumOfSeparableRhs F(rhsintegral2d,P);
+        SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
+                                        refsol.rhs_y, refsol.sing_pts_y);
+        GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
+        SeparableRhsIntegral2D rhsintegral_x(basis2d, SepFunc1, refsol.deltas_x, no_deltas, order);
+        SeparableRhsIntegral2D rhsintegral_y(basis2d, SepFunc2, no_deltas, refsol.deltas_y, order);
+        SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
+        SumOfSeparableRhs F(rhsintegral2d,P);
 
-		S_Adwav_Tensor s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol,
-                               NumOfIterations, 3, 1e-2);
-		Timer time;
-		time.start();
-		s_adwav.solve_cg(InitialLambda, refsol.H1norm());
-		time.stop();
-		cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
-		A.clear();
+        S_Adwav_Tensor s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol, NumOfIterations, 3, 1e-2);
+        Timer time;
+        time.start();
+        s_adwav.solve_cg(InitialLambda, refsol.H1norm());
+        time.stop();
+        cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
+        A.clear();
 
-		cout << "Postprocessing started." << endl;
-		postprocessing(basis2d, Bil, P, F, s_adwav, example, refsol.H1norm());
-		cout << "Postprocessing finished." << endl;
+        cout << "Postprocessing started." << endl;
+        postprocessing(basis2d, Bil, P, F, s_adwav, example, refsol.H1norm());
+        cout << "Postprocessing finished." << endl;
 
 		cout << "Plot of solution started." << endl;
 		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -4., 4., -4., 4.,
@@ -148,18 +147,17 @@ int main (int argc, char *argv[]) {
 		NonSeparableRhsIntegral2D rhsintegral2d(basis2d, Func2d, order);
 		NonSeparableRhs F(rhsintegral2d,P);
 
-		S_Adwav_NonTensor1 s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol,
-                                   NumOfIterations, 3, 1e-2);
-		Timer time;
-		time.start();
-		s_adwav.solve_cg(InitialLambda, refsol.H1norm());
-		time.stop();
-		cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
-		A.clear();
+        S_Adwav_NonTensor1 s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol, NumOfIterations, 3, 1e-2);
+        Timer time;
+        time.start();
+        s_adwav.solve_cg(InitialLambda, refsol.H1norm());
+        time.stop();
+        cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
+        A.clear();
 
-		cout << "Postprocessing started." << endl;
-		postprocessing(basis2d, Bil, P, F, s_adwav, example, refsol.H1norm());
-		cout << "Postprocessing finished." << endl;
+        cout << "Postprocessing started." << endl;
+        postprocessing(basis2d, Bil, P, F, s_adwav, example, refsol.H1norm());
+        cout << "Postprocessing finished." << endl;
 
 		cout << "Plot of solution started." << endl;
 		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -3., 3., -3., 3.,
@@ -182,40 +180,38 @@ int main (int argc, char *argv[]) {
                                                      rhsintegral_diffusion_y,rhsintegral_reaction);
 		SumOfNonSeparableRhs F(rhsintegral2d,P);
 
-		S_Adwav_NonTensor2 s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol,
-                                   NumOfIterations, 3, 1e-2);
-		Timer time;
-		time.start();
-		s_adwav.solve_cg(InitialLambda, refsol.H1norm());
-		time.stop();
-		cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
-		A.clear();
+        S_Adwav_NonTensor2 s_adwav(basis2d, A, F, contraction, threshTol, cgTol, resTol, NumOfIterations, 3, 1e-2);
+        Timer time;
+        time.start();
+        s_adwav.solve_cg(InitialLambda, refsol.H1norm());
+        time.stop();
+        cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
+        A.clear();
 
-		cout << "Postprocessing started." << endl;
-		postprocessing(basis2d, Bil, P, F, s_adwav, example, refsol.H1norm());
-		cout << "Postprocessing finished." << endl;
+        cout << "Postprocessing started." << endl;
+        postprocessing(basis2d, Bil, P, F, s_adwav, example, refsol.H1norm());
+        cout << "Postprocessing finished." << endl;
 
-		cout << "Plot of solution started." << endl;
-		plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -3., 3., -3., 3.,
-		       pow2i<T>(-3), "s-adwav-realline-helmholtz2d");
-		cout << "Plot of solution finished." << endl;
-	}
+        cout << "Plot of solution started." << endl;
+        plot2D(basis2d, s_adwav.solutions[NumOfIterations-1], P, refsol.exact, -3., 3., -3., 3., pow2i<T>(-3), "s-adwav-realline-helmholtz2d");
+        cout << "Plot of solution finished." << endl;
+    }
 
-	return 0;
+    return 0;
 
 }
 
 void
 estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
 {
-	ReallineBasis basis_x(d,d_,0);
-	ReallineBasis basis_y(d,d_,0);
-	Basis2D basis2d(basis_x,basis_y);
-	HelmholtzBilinearForm2D Bil(basis2d,1.);
-	Preconditioner2D P(Bil);
+    ReallineBasis basis_x(d,d_,0);
+    ReallineBasis basis_y(d,d_,0);
+    Basis2D basis2d(basis_x,basis_y);
+    HelmholtzBilinearForm2D Bil(basis2d,1.);
+    Preconditioner2D P(Bil);
 
-	Coefficients<Lexicographical,T,Index2D> f_LambdaWavelet, f_LambdaBSpline;
-	Coefficients<AbsoluteValue,T,Index2D>   f_LambdaWavelet_abs, f_LambdaBSpline_abs;
+    Coefficients<Lexicographical,T,Index2D> f_LambdaWavelet, f_LambdaBSpline;
+    Coefficients<AbsoluteValue,T,Index2D>   f_LambdaWavelet_abs, f_LambdaBSpline_abs;
 
 	//Righthand side construction for tensor solution
 	if (example==1 || example==2 || example==3) {
@@ -224,12 +220,12 @@ estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
 		SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
 									    refsol.exact_y, refsol.sing_pts_y);
 
-		SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
-									    refsol.rhs_y, refsol.sing_pts_y);
-		GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
-		SeparableRhsIntegral2D rhsintegral_x(basis2d, SepFunc1, refsol.deltas_x, no_deltas, 6);
-		SeparableRhsIntegral2D rhsintegral_y(basis2d, SepFunc2, no_deltas, refsol.deltas_y, 6);
-		SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
+        SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
+                                        refsol.rhs_y, refsol.sing_pts_y);
+        GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
+        SeparableRhsIntegral2D rhsintegral_x(basis2d, SepFunc1, refsol.deltas_x, no_deltas, 6);
+        SeparableRhsIntegral2D rhsintegral_y(basis2d, SepFunc2, no_deltas, refsol.deltas_y, 6);
+        SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
 
 		for (int j_x=0; j_x>=-4; --j_x) {
 			for (int j_y=0; j_y>=-4; --j_y) {
@@ -299,49 +295,48 @@ estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
 		}
 	}
 
-	f_LambdaWavelet_abs = f_LambdaWavelet;
-	f_LambdaBSpline_abs = f_LambdaBSpline;
+    f_LambdaWavelet_abs = f_LambdaWavelet;
+    f_LambdaBSpline_abs = f_LambdaBSpline;
 
-	typedef Coefficients<AbsoluteValue,T,Index2D>::const_iterator const_it;
-	const_it wavelet_estim = f_LambdaWavelet_abs.begin();
-	const_it bspline_estim = f_LambdaBSpline_abs.begin();
-	cout << "Wavelet estimate: " << (*wavelet_estim).second << endl;
-	cout << "BSpline estimate: " << (*bspline_estim).second << endl;
+    typedef Coefficients<AbsoluteValue,T,Index2D>::const_iterator const_it;
+    const_it wavelet_estim = f_LambdaWavelet_abs.begin();
+    const_it bspline_estim = f_LambdaBSpline_abs.begin();
+    cout << "Wavelet estimate: " << (*wavelet_estim).second << endl;
+    cout << "BSpline estimate: " << (*bspline_estim).second << endl;
 
-	//jmin_x = (*bspline_estim).second.index1.j;
-	//jmin_y = (*bspline_estim).second.index2.j;
-	jmin_x = (*wavelet_estim).second.index1.j;
-	jmin_y = (*wavelet_estim).second.index2.j;
+    //jmin_x = (*bspline_estim).second.index1.j;
+    //jmin_y = (*bspline_estim).second.index2.j;
+    jmin_x = (*wavelet_estim).second.index1.j;
+    jmin_y = (*wavelet_estim).second.index2.j;
 
 
 }
 
 template <typename T, typename RHS, typename S_ADWAV>
 void
-postprocessing(const Basis2D &basis2d, HelmholtzBilinearForm2D &Bil, Preconditioner2D &P,
-               RHS &F, S_ADWAV &s_adwav, int example, T H1norm)
+postprocessing(const Basis2D &basis2d, HelmholtzBilinearForm2D &/*Bil*/, 
+               Preconditioner2D &P, RHS &F, S_ADWAV &s_adwav, int example, T H1norm)
 {
-	int d=basis2d.first.d, d_=basis2d.first.d_;
-	int jmin_x = basis2d.first.j0, jmin_y = basis2d.second.j0;
+    int d=basis2d.first.d, d_=basis2d.first.d_;
+    int jmin_x = basis2d.first.j0, jmin_y = basis2d.second.j0;
 
-	Coefficients<Lexicographical,T,Index2D> u;
-	stringstream filename;
-	filename << "s-adwav-realline-helmholtz2d-conv_" << example << "_" << d << "_" << d_
-             << "_" << jmin_x << "_" << jmin_y << ".dat";
-	ofstream file(filename.str().c_str());
+    Coefficients<Lexicographical,T,Index2D> u;
+    stringstream filename;
+    filename << "s-adwav-realline-helmholtz2d-conv_" << example << "_" << d << "_" << d_ << "_" << jmin_x << "_" << jmin_y << ".dat";
+    ofstream file(filename.str().c_str());
 
-	MA A_error(basis2d, 1., P);
-	for (int i=0; i<int(s_adwav.solutions.size()); ++i) {
-		u = s_adwav.solutions[i];
-		cout << "   Iteration " << i+1 << ", Lambda.size() = " << supp(u).size() << endl;
-		T Error_Au_M_f   = 0.;//estimateError_Au_M_f(A, F, u, LambdaCol);
-		cout << "      Error ||Au_h-f|| = " << Error_Au_M_f << endl;
-		T Error_H_energy = estimateError_H_energy(A_error, F, u, H1norm);
-		cout << "      Error ||u_h-u||  = " << Error_H_energy << endl;
-		file << supp(u).size() << " " << s_adwav.times[i] << " " << s_adwav.residuals[i]
-			 << " " << Error_Au_M_f << " " << Error_H_energy << endl;
-	}
+    MA A_error(basis2d, 1., P);
+    for (int i=0; i<int(s_adwav.solutions.size()); ++i) {
+        u = s_adwav.solutions[i];
+        cout << "   Iteration " << i+1 << ", Lambda.size() = " << supp(u).size() << endl;
+        T Error_Au_M_f   = 0.;//estimateError_Au_M_f(A, F, u, LambdaCol);
+        cout << "      Error ||Au_h-f|| = " << Error_Au_M_f << endl;
+        T Error_H_energy = estimateError_H_energy(A_error, F, u, H1norm);
+        cout << "      Error ||u_h-u||  = " << Error_H_energy << endl;
+        file << supp(u).size() << " " << s_adwav.times[i] << " " << s_adwav.residuals[i]
+             << " " << Error_Au_M_f << " " << Error_H_energy << endl;
+    }
 
-	A_error.clear();
+    A_error.clear();
 }
 

@@ -34,3 +34,4 @@ struct BSpline
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_BSPLINE_H
+

@@ -453,3 +453,4 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
 
 
 } // namespace lawa
+

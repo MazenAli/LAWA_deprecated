@@ -36,3 +36,4 @@ pow(const __gmp_expr<T,U> &x, int i)
     mpf_pow_ui(ret.get_mpf_t(), y.get_mpf_t(), i);
     return ret;
 }
+

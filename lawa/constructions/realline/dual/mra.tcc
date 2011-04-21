@@ -40,3 +40,4 @@ MRA<T,Dual,R,CDF>::setLevel(int j) const
 }
 
 } // namespace lawa
+

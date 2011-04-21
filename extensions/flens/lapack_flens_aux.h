@@ -80,3 +80,4 @@ mm(Transpose transB, Transpose transA, ALPHA alpha,
 #include <flens/lapack_flens_aux.tcc>
 
 #endif // FLENS_LAPACK_FLENS_AUX_H
+

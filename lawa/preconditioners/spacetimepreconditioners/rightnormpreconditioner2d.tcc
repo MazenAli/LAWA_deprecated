@@ -37,3 +37,4 @@ RightNormPreconditioner2D<T,Basis2D>::operator()(const Index2D &index) const
 }
 
 }   // namespace lawa
+

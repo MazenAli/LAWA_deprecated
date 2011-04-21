@@ -395,3 +395,4 @@ svdGMP(const GeMatrix<FullStorage<T,Order> > &A,
 }
 
 } // namespace flens
+

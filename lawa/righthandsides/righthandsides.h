@@ -5,3 +5,4 @@
 #include <lawa/righthandsides/smoothrhswithalignedsing2d.h>
 #include <lawa/righthandsides/sumofrhsintegrals.h>
 #include <lawa/righthandsides/timedepseparablerhs1d.h>
+

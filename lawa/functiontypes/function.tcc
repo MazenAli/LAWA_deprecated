@@ -40,3 +40,4 @@ Function<T>::operator()(T x) const
 }
 
 } // namespace lawa
+

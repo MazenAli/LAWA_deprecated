@@ -981,3 +981,4 @@ _bspline_mask(int d, int d_)
 }
 
 } // namespace lawa
+

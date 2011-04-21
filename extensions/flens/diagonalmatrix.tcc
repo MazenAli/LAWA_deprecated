@@ -50,7 +50,7 @@ DiagonalMatrix<T>::numCols() const
 
 template <typename ALPHA,typename T,typename VX,typename BETA,typename VY>
 void
-mv(cxxblas::Transpose trans, ALPHA alpha, const DiagonalMatrix<T> &D,
+mv(cxxblas::Transpose /*trans*/, ALPHA alpha, const DiagonalMatrix<T> &D,
    const VX &x, BETA beta, VY &y)
 {
     assert(D.diag().length()==x.length());
@@ -94,3 +94,4 @@ operator<<(std::ostream &out, const DiagonalMatrix<T> &D)
 
 
 } // namespace flens
+

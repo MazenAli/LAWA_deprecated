@@ -46,13 +46,13 @@ SumOfTwoRHSIntegrals<T, Index, RHSIntegral1, RHSIntegral2>::operator()
 {
     return rhs1(xtype_x, j_x, k_x, xtype_y, j_y, k_y)
          + rhs2(xtype_x, j_x, k_x, xtype_y, j_y, k_y);
-}    	                                                
+}                                                        
 
 
 template<typename T, typename Index, typename RHSIntegral>
 SumOfThreeRHSIntegrals<T, Index, RHSIntegral>::SumOfThreeRHSIntegrals(const RHSIntegral &_rhs1,
-																      const RHSIntegral &_rhs2,
-	                                                                  const RHSIntegral &_rhs3)
+                                                                      const RHSIntegral &_rhs2,
+                                                                      const RHSIntegral &_rhs3)
     : rhs1(_rhs1), rhs2(_rhs2), rhs3(_rhs3)
 {
 }
@@ -62,10 +62,10 @@ T
 SumOfThreeRHSIntegrals<T, Index, RHSIntegral>::operator()(const Index &index) const
 {
     return rhs1(index)
-		  +rhs2(index)
+          +rhs2(index)
           +rhs3(index);
 }
 
 
 
-}	//namespace lawa
+}    //namespace lawa

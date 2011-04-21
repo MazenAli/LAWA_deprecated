@@ -53,3 +53,4 @@ struct BasisFunction<_T, _Side, Periodic, _Cons>
 #include <lawa/constructions/periodic/basisfunction.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_BASISFUNCTION_H
+

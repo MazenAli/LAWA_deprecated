@@ -67,3 +67,4 @@ class Basis<_T,Dual,R,CDF>
 #include <lawa/constructions/realline/dual/basis.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_DUAL_BASIS_H
+

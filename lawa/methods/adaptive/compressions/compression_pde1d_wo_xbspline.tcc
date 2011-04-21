@@ -45,3 +45,4 @@ CompressionPDE1D_WO_XBSpline<T,Basis>::SparsityPattern(const Index1D &lambda,
 }
 
 }    //namespace lawa
+

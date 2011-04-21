@@ -141,3 +141,4 @@ Wavelet<T,Primal,Periodic,CDF>::mask(int d, int d_)
 }
 
 } // namespace lawa
+

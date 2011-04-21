@@ -123,3 +123,4 @@ struct AdaptiveHelmholtzOperator3D<T, Basis3D, HelmholtzOperator3D<T, Basis3D>, 
 #include <lawa/methods/adaptive/operators/adaptivehelmholtzoperator3d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR3D_H
+

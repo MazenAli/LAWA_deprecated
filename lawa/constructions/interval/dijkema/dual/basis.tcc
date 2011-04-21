@@ -109,7 +109,7 @@ Basis<T,Dual,Interval,Dijkema>::cardJ_I(int j) const
 
 template <typename T>
 int
-Basis<T,Dual,Interval,Dijkema>::cardJ_R(int j) const
+Basis<T,Dual,Interval,Dijkema>::cardJ_R(int /*j*/) const
 {
     return M1_.right.length();
 }
@@ -147,3 +147,4 @@ Basis<T,Dual,Interval,Dijkema>::rangeJ_R(int j) const
 }
 
 } // namespace lawa
+

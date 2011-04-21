@@ -42,3 +42,4 @@ class DiagonalScalingPreconditioner2D
 #include <lawa/preconditioners/preconditioners2d/diagonalscalingpreconditioner2d.tcc>
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS2D_DIAGONALSCALINGPRECONDITIONER2D_H
+

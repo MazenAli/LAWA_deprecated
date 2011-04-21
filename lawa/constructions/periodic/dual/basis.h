@@ -73,3 +73,4 @@ class Basis<_T,Dual,Periodic,CDF>
 #include <lawa/constructions/periodic/dual/basis.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_DUAL_BASIS_H
+

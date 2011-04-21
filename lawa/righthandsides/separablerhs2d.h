@@ -68,3 +68,4 @@ class SeparableRHS2D
 #include <lawa/righthandsides/separablerhs2d.tcc>
 
 #endif // LAWA_RIGHTHANDSIDES_SEPARABLERHS2D_H
+

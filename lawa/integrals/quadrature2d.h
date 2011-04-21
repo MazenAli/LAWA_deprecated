@@ -86,3 +86,4 @@ class Quadrature2D<FullGridGL,Integral2D>
 #include <lawa/integrals/quadrature2d.tcc>
 
 #endif   //LAWA_RIGHTHANDSIDES_QUADRATURE2D_H
+

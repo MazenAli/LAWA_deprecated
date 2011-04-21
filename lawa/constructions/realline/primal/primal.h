@@ -21,3 +21,4 @@
 #include <lawa/constructions/realline/primal/bspline.h>
 #include <lawa/constructions/realline/primal/mra.h>
 #include <lawa/constructions/realline/primal/wavelet.h>
+

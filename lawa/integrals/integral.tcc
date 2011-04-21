@@ -141,7 +141,7 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
                        firstSingularPoints.engine().data() + m,
                        secondSingularPoints.engine().data(),
                        secondSingularPoints.engine().data() + n,
-                       singularPoints.engine().data());
+                       singularPoints.engine().engine().data());
             if (p>0) {
                 singularPoints(_(m+n+1,m+n+p)) = function.singularPoints;
                 std::inplace_merge(singularPoints.engine().data(),
@@ -294,3 +294,4 @@ IntegralF<Quad,First,Second>::integrand(typename First::T x) const
 }
 
 } // namespace lawa
+

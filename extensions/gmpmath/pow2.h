@@ -38,3 +38,4 @@ template <typename T>
 #include <extensions/gmpmath/pow2.tcc>
 
 #endif //  EXTENSIONS_GMPMATH_POW2_H
+

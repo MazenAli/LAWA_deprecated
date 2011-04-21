@@ -49,3 +49,4 @@ _adapt_k(const Support<T> &supp1,
 }
 
 } // namespace lawa
+

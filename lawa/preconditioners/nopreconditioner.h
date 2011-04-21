@@ -41,3 +41,4 @@ struct NoPreconditioner
 #include <lawa/preconditioners/nopreconditioner.tcc>
 
 #endif // LAWA_PRECONDITIONERS_NOPRECONDITIONER_H
+

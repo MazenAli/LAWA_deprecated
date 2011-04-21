@@ -50,3 +50,4 @@ class UniformIndex2D
 #include <lawa/methods/uniform/datastructures/uniformindex2d.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_DATASTRUCTURES_UNIFORMINDEX2D_H
+

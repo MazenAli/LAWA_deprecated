@@ -109,3 +109,4 @@ class Basis<_T,Primal,Interval,Primbs>
 #include <lawa/constructions/interval/primbs/primal/basis.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_PRIMAL_BASIS_H
+

@@ -86,3 +86,4 @@ ifwt(const DenseVector<X> &x,
 }
 
 } // namespace lawa
+

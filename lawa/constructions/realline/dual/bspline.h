@@ -185,3 +185,4 @@ N_10_10();
 #include <lawa/constructions/realline/dual/bspline.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_DUAL_BSPLINE_H
+

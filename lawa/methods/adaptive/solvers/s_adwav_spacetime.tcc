@@ -117,3 +117,4 @@ S_ADWAV_SPACETIME<T,Index,SpaceIndex,Basis,MA,RHSOperator,RHSInitialCond>::solve
 }
 
 }    //namespace lawa
+

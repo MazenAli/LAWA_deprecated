@@ -55,3 +55,4 @@ struct Integral2D
 #include <lawa/integrals/integral2d.tcc>
 
 #endif  //LAWA_INTEGRALS_INTEGRAL2D_H
+

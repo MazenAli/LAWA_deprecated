@@ -51,3 +51,4 @@ struct TensorCompression2D
 #include <lawa/methods/adaptive/compressions/tensorcompression2d.tcc>
 
 #endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_TENSORCOMPRESSION2D_H
+

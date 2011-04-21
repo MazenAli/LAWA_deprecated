@@ -170,7 +170,7 @@ void chebyshev1_compute ( int n, double x[], double w[] )
 }
 //****************************************************************************80
 
-void chebyshev1_compute_np ( int n, int np, double p[], double x[], 
+void chebyshev1_compute_np ( int n, int /*np*/, double /*p*/[], double x[], 
   double w[] )
 
 //****************************************************************************80
@@ -292,7 +292,7 @@ void chebyshev1_compute_points ( int n, double x[] )
 }
 //****************************************************************************80
 
-void chebyshev1_compute_points_np ( int n, int np, double p[], double x[] )
+void chebyshev1_compute_points_np ( int n, int /*np*/, double /*p*/[], double x[] )
 
 //****************************************************************************80
 //
@@ -396,7 +396,7 @@ void chebyshev1_compute_weights ( int n, double w[] )
 }
 //****************************************************************************80
 
-void chebyshev1_compute_weights_np ( int n, int np, double p[], double w[] )
+void chebyshev1_compute_weights_np ( int n, int /*np*/, double /*p*/[], double w[] )
 
 //****************************************************************************80
 //
@@ -582,7 +582,7 @@ void chebyshev2_compute ( int n, double x[], double w[] )
 }
 //****************************************************************************80
 
-void chebyshev2_compute_np ( int n, int np, double p[], double x[], 
+void chebyshev2_compute_np ( int n, int /*np*/, double /*p*/[], double x[], 
   double w[] )
 
 //****************************************************************************80
@@ -706,7 +706,7 @@ void chebyshev2_compute_points ( int n, double x[] )
 }
 //****************************************************************************80
 
-void chebyshev2_compute_points_np ( int n, int np, double p[], double x[] )
+void chebyshev2_compute_points_np ( int n, int /*np*/, double /*p*/[], double x[] )
 
 //****************************************************************************80
 //
@@ -812,7 +812,7 @@ void chebyshev2_compute_weights ( int n, double w[] )
 }
 //****************************************************************************80
 
-void chebyshev2_compute_weights_np ( int n, int np, double p[], double w[] )
+void chebyshev2_compute_weights_np ( int n, int /*np*/, double /*p*/[], double w[] )
 
 //****************************************************************************80
 //
@@ -1028,7 +1028,7 @@ void clenshaw_curtis_compute ( int n, double x[], double w[] )
 }
 //****************************************************************************80
 
-void clenshaw_curtis_compute_np ( int n, int np, double p[], double x[], 
+void clenshaw_curtis_compute_np ( int n, int /*np*/, double /*p*/[], double x[], 
   double w[] )
 
 //****************************************************************************80
@@ -1144,7 +1144,7 @@ void clenshaw_curtis_compute_points ( int n, double x[] )
 }
 //****************************************************************************80
 
-void clenshaw_curtis_compute_points_np ( int n, int np, double p[], double x[] )
+void clenshaw_curtis_compute_points_np ( int n, int /*np*/, double /*p*/[], double x[] )
 
 //****************************************************************************80
 //
@@ -1277,7 +1277,7 @@ void clenshaw_curtis_compute_weights ( int n, double w[] )
 }
 //****************************************************************************80
 
-void clenshaw_curtis_compute_weights_np ( int n, int np, double p[], 
+void clenshaw_curtis_compute_weights_np ( int n, int /*np*/, double /*p*/[], 
   double w[] )
 
 //****************************************************************************80
@@ -1597,7 +1597,7 @@ void fejer2_compute ( int n, double x[], double w[] )
 }
 //****************************************************************************80
 
-void fejer2_compute_np ( int n, int np, double p[], double x[], double w[] )
+void fejer2_compute_np ( int n, int /*np*/, double /*p*/[], double x[], double w[] )
 
 //****************************************************************************80
 //
@@ -1707,7 +1707,7 @@ void fejer2_compute_points ( int n, double x[] )
 }
 //****************************************************************************80
 
-void fejer2_compute_points_np ( int n, int np, double p[], double x[] )
+void fejer2_compute_points_np ( int n, int /*np*/, double /*p*/[], double x[] )
 
 //****************************************************************************80
 //
@@ -1849,7 +1849,7 @@ void fejer2_compute_weights ( int n, double w[] )
 }
 //****************************************************************************80
 
-void fejer2_compute_weights_np ( int n, int np, double p[], double w[] )
+void fejer2_compute_weights_np ( int n, int /*np*/, double /*p*/[], double w[] )
 
 //****************************************************************************80
 //
@@ -2121,7 +2121,7 @@ void gegenbauer_compute ( int order, double alpha, double x[], double w[] )
 }
 //****************************************************************************80
 
-void gegenbauer_compute_np ( int order, int np, double p[], double x[], 
+void gegenbauer_compute_np ( int order, int /*np*/, double p[], double x[], 
   double w[] )
 
 //****************************************************************************80
@@ -2236,7 +2236,7 @@ void gegenbauer_compute_points ( int order, double alpha, double x[] )
 }
 //****************************************************************************80
 
-void gegenbauer_compute_points_np ( int order, int np, double p[], double x[] )
+void gegenbauer_compute_points_np ( int order, int /*np*/, double p[], double x[] )
 
 //****************************************************************************80
 //
@@ -2335,7 +2335,7 @@ void gegenbauer_compute_weights ( int order, double alpha, double w[] )
 }
 //****************************************************************************80
 
-void gegenbauer_compute_weights_np ( int order, int np, double p[], double w[] )
+void gegenbauer_compute_weights_np ( int order, int /*np*/, double p[], double w[] )
 
 //****************************************************************************80
 //
@@ -2448,7 +2448,7 @@ double gegenbauer_integral ( int expon, double alpha )
 //****************************************************************************80
 
 void gegenbauer_recur ( double *p2, double *dp2, double *p1, double x, 
-  int order, double alpha, double c[] )
+  int order, double /*alpha*/, double c[] )
 
 //****************************************************************************80
 //
@@ -2728,7 +2728,7 @@ void gen_hermite_compute ( int order, double alpha, double x[], double w[] )
 }
 //****************************************************************************80
 
-void gen_hermite_compute_np ( int order, int np, double p[], double x[], 
+void gen_hermite_compute_np ( int order, int /*np*/, double p[], double x[], 
   double w[] )
 
 //****************************************************************************80
@@ -2831,7 +2831,7 @@ void gen_hermite_compute_points ( int order, double alpha, double x[] )
 }
 //****************************************************************************80
 
-void gen_hermite_compute_points_np ( int order, int np, double p[], double x[] )
+void gen_hermite_compute_points_np ( int order, int /*np*/, double p[], double x[] )
 
 //****************************************************************************80
 //
@@ -2915,7 +2915,7 @@ void gen_hermite_compute_weights ( int order, double alpha, double w[] )
 }
 //****************************************************************************80
 
-void gen_hermite_compute_weights_np ( int order, int np, double p[], 
+void gen_hermite_compute_weights_np ( int order, int /*np*/, double p[], 
   double w[] )
 
 //****************************************************************************80
@@ -3183,7 +3183,7 @@ void gen_laguerre_compute ( int order, double alpha, double x[], double w[] )
 }
 //****************************************************************************80
 
-void gen_laguerre_compute_np ( int order, int np, double p[], double x[], 
+void gen_laguerre_compute_np ( int order, int /*np*/, double p[], double x[], 
   double w[] )
 
 //****************************************************************************80
@@ -3317,7 +3317,7 @@ void gen_laguerre_compute_points ( int order, double alpha, double x[] )
 }
 //****************************************************************************80
 
-void gen_laguerre_compute_points_np ( int order, int np, double p[], 
+void gen_laguerre_compute_points_np ( int order, int /*np*/, double p[], 
   double x[] )
 
 //****************************************************************************80
@@ -3405,7 +3405,7 @@ void gen_laguerre_compute_weights ( int order, double alpha, double w[] )
 }
 //****************************************************************************80
 
-void gen_laguerre_compute_weights_np ( int order, int np, double p[], 
+void gen_laguerre_compute_weights_np ( int order, int /*np*/, double p[], 
   double w[] )
 
 //****************************************************************************80
@@ -3759,7 +3759,7 @@ void hermite_compute ( int order, double x[], double w[] )
 }
 //****************************************************************************80
 
-void hermite_compute_np ( int order, int np, double p[], double x[], 
+void hermite_compute_np ( int order, int /*np*/, double /*p*/[], double x[], 
   double w[] )
 
 //****************************************************************************80
@@ -3859,7 +3859,7 @@ void hermite_compute_points ( int order, double x[] )
 }
 //****************************************************************************80
 
-void hermite_compute_points_np ( int order, int np, double p[], double x[] )
+void hermite_compute_points_np ( int order, int /*np*/, double /*p*/[], double x[] )
 
 //****************************************************************************80
 //
@@ -3935,7 +3935,7 @@ void hermite_compute_weights ( int order, double w[] )
 }
 //****************************************************************************80
 
-void hermite_compute_weights_np ( int order, int np, double p[], double w[] )
+void hermite_compute_weights_np ( int order, int /*np*/, double /*p*/[], double w[] )
 
 //****************************************************************************80
 //
@@ -4201,7 +4201,7 @@ void hermite_genz_keister_lookup_points ( int n, double x[] )
 }
 //****************************************************************************80
 
-void hermite_genz_keister_lookup_points_np ( int n, int np, double p[], 
+void hermite_genz_keister_lookup_points_np ( int n, int /*np*/, double /*p*/[], 
   double x[] )
 
 //****************************************************************************80
@@ -4432,7 +4432,7 @@ void hermite_genz_keister_lookup_weights ( int n, double w[] )
 }
 //****************************************************************************80
 
-void hermite_genz_keister_lookup_weights_np ( int n, int np, double p[], 
+void hermite_genz_keister_lookup_weights_np ( int n, int /*np*/, double /*p*/[], 
   double w[] )
 
 //****************************************************************************80
@@ -6306,7 +6306,7 @@ void jacobi_compute ( int order, double alpha, double beta, double x[],
 }
 //****************************************************************************80
 
-void jacobi_compute_np ( int order, int np, double p[], double x[], double w[] )
+void jacobi_compute_np ( int order, int /*np*/, double p[], double x[], double w[] )
 
 //****************************************************************************80
 //
@@ -6418,7 +6418,7 @@ void jacobi_compute_points ( int order, double alpha, double beta,
 }
 //****************************************************************************80
 
-void jacobi_compute_points_np ( int order, int np, double p[], double x[] )
+void jacobi_compute_points_np ( int order, int /*np*/, double p[], double x[] )
 
 //****************************************************************************80
 //
@@ -6506,7 +6506,7 @@ void jacobi_compute_weights ( int order, double alpha, double beta,
 }
 //****************************************************************************80
 
-void jacobi_compute_weights_np ( int order, int np, double p[], double w[] )
+void jacobi_compute_weights_np ( int order, int /*np*/, double p[], double w[] )
 
 //****************************************************************************80
 //
@@ -6926,7 +6926,7 @@ void laguerre_compute ( int order, double x[], double w[] )
 }
 //****************************************************************************80
 
-void laguerre_compute_np ( int order, int np, double p[], double x[], 
+void laguerre_compute_np ( int order, int /*np*/, double /*p*/[], double x[], 
   double w[] )
 
 //****************************************************************************80
@@ -7032,7 +7032,7 @@ void laguerre_compute_points ( int order, double x[] )
 }
 //****************************************************************************80
 
-void laguerre_compute_points_np ( int order, int np, double p[], double x[] )
+void laguerre_compute_points_np ( int order, int /*np*/, double /*p*/[], double x[] )
 
 //****************************************************************************80
 //
@@ -7108,7 +7108,7 @@ void laguerre_compute_weights ( int order, double w[] )
 }
 //****************************************************************************80
 
-void laguerre_compute_weights_np ( int order, int np, double p[], double w[] )
+void laguerre_compute_weights_np ( int order, int /*np*/, double /*p*/[], double w[] )
 
 //****************************************************************************80
 //
@@ -8280,7 +8280,7 @@ void legendre_compute ( int n, double x[], double w[] )
 }
 //****************************************************************************80
 
-void legendre_compute_np ( int n, int np, double p[], double x[], double w[] )
+void legendre_compute_np ( int n, int /*np*/, double /*p*/[], double x[], double w[] )
 
 //****************************************************************************80
 //
@@ -8379,7 +8379,7 @@ void legendre_compute_points ( int n, double x[] )
 }
 //****************************************************************************80
 
-void legendre_compute_points_np ( int n, int np, double p[], double x[] )
+void legendre_compute_points_np ( int n, int /*np*/, double /*p*/[], double x[] )
 
 //****************************************************************************80
 //
@@ -8455,7 +8455,7 @@ void legendre_compute_weights ( int n, double w[] )
 }
 //****************************************************************************80
 
-void legendre_compute_weights_np ( int n, int np, double p[], double w[] )
+void legendre_compute_weights_np ( int n, int /*np*/, double /*p*/[], double w[] )
 
 //****************************************************************************80
 //
@@ -11258,7 +11258,7 @@ void level_to_order_exponential_slow ( int dim_num, int level[], int rule[],
 }
 //****************************************************************************80
 
-void level_to_order_linear ( int dim_num, int level[], int rule[], 
+void level_to_order_linear ( int dim_num, int level[], int /*rule*/[], 
   int order[] )
 
 //****************************************************************************80
@@ -12305,7 +12305,7 @@ void patterson_lookup_points ( int n, double x[] )
 }
 //****************************************************************************80
 
-void patterson_lookup_points_np ( int n, int np, double p[], double x[] )
+void patterson_lookup_points_np ( int n, int /*np*/, double /*p*/[], double x[] )
 
 //****************************************************************************80
 //
@@ -12981,7 +12981,7 @@ void patterson_lookup_weights ( int n, double w[] )
 }
 //****************************************************************************80
 
-void patterson_lookup_weights_np ( int n, int np, double p[], double w[] )
+void patterson_lookup_weights_np ( int n, int /*np*/, double /*p*/[], double w[] )
 
 //****************************************************************************80
 //
@@ -13395,7 +13395,7 @@ int point_radial_tol_unique_index ( int m, int n, double a[], double tol,
 }
 //****************************************************************************80
 
-void point_unique_index ( int m, int n, double a[], int unique_num, int undx[], 
+void point_unique_index ( int m, int n, double a[], int /*unique_num*/, int undx[], 
   int xdnu[] )
 
 //****************************************************************************80
@@ -15718,7 +15718,7 @@ void r8col_swap ( int m, int n, double a[], int j1, int j2 )
 }
 //****************************************************************************80
 
-void r8col_tol_undex ( int m, int n, double a[], int unique_num, double tol, 
+void r8col_tol_undex ( int m, int n, double a[], int /*unique_num*/, double tol, 
   int undx[], int xdnu[] )
 
 //****************************************************************************80
@@ -15995,7 +15995,7 @@ int r8col_tol_unique_count ( int m, int n, double a[], double tol )
 }
 //****************************************************************************80
 
-void r8col_undex ( int x_dim, int x_num, double x_val[], int x_unique_num, 
+void r8col_undex ( int x_dim, int x_num, double x_val[], int /*x_unique_num*/, 
   double tol, int undx[], int xdnu[] )
 
 //****************************************************************************80
@@ -16581,7 +16581,7 @@ double r8vec_diff_norm_li ( int n, double a[], double b[] )
 //****************************************************************************80
 
 void r8vec_direct_product2 ( int factor_index, int factor_order, 
-  double factor_value[], int factor_num, int point_num, double w[] )
+  double factor_value[], int /*factor_num*/, int point_num, double w[] )
 
 //****************************************************************************80
 //
@@ -17749,3 +17749,4 @@ void vec_colex_next3 ( int dim_num, int base[], int a[], bool *more )
 
 
 }
+

@@ -183,3 +183,4 @@ _evaluateUnitBSpline(int d, T x, int j, long k, unsigned short deriv)
 }
 
 } // namespace lawa
+

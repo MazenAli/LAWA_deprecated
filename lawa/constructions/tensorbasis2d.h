@@ -25,8 +25,8 @@ namespace lawa{
 template<MethodType Method, typename FirstBasis, typename SecondBasis>
 struct TensorBasis2D
 {
-	typedef typename FirstBasis::T T;
-	typedef FirstBasis FirstBasisType;
+    typedef typename FirstBasis::T T;
+    typedef FirstBasis FirstBasisType;
     typedef SecondBasis SecondBasisType;
     
     TensorBasis2D(const FirstBasis &_basis1, const SecondBasis &_basis2);
@@ -40,3 +40,4 @@ struct TensorBasis2D
 #include <lawa/constructions/tensorbasis2d.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_TENSORBASIS2D_H
+

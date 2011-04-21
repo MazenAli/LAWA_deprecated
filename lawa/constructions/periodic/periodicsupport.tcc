@@ -381,3 +381,4 @@ operator<<(std::ostream &out, const PeriodicSupport<T> &supp)
 
 
 } // namespace lawa
+

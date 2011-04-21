@@ -112,3 +112,4 @@ class MRA<_T,Dual,Interval,Dijkema>
 #include <lawa/constructions/interval/dijkema/dual/mra.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_MRA_H
+

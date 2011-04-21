@@ -63,7 +63,7 @@ RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
 
 template <typename T, Construction Cons>
 const typename DenseVector<Array<T> >::ConstView
-RefinementMatrix<T,Interval,Cons>::operator()(int j, const Underscore<int> &u,
+RefinementMatrix<T,Interval,Cons>::operator()(int j, const Underscore<int> &/*u*/,
                                               int col) const
 {
     assert(j>=min_j0);
@@ -372,3 +372,4 @@ mv(Transpose transA, typename X::ElementType alpha,
 }
 
 } // namespace flens
+

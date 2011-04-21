@@ -43,3 +43,4 @@ template <typename X>
 #include <lawa/constructions/periodic/evaluate.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_EVALUATE_H
+

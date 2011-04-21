@@ -47,3 +47,4 @@ binomial(int n, int k)
 }
 
 } // namespace lawa
+

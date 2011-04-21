@@ -37,7 +37,7 @@ public:
     
     T
     operator()(XType xtype_x, int j_x, int k_x,
-        	   XType xtype_y, int j_y, int k_y) const;
+               XType xtype_y, int j_y, int k_y) const;
 };
 
 
@@ -57,7 +57,7 @@ public:
 };
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/righthandsides/sumofrhsintegrals.tcc>
 

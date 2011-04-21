@@ -41,8 +41,8 @@ template <typename T, typename Basis>
 GeMatrix<FullStorage<T,ColMajor> >
 computeDeltas(const Basis &basis, int j, int k, XType e);
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <lawa/operators/deltas.tcc>
 
-#endif	//LAWA_OPERATORS_DELTAS_H
+#endif    //LAWA_OPERATORS_DELTAS_H

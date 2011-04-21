@@ -86,3 +86,4 @@ Wavelet<T,Dual,R,CDF>::mask(int d, int d_)
 }
 
 } // namespace lawa
+

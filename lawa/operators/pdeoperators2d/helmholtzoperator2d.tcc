@@ -54,3 +54,4 @@ HelmholtzOperator2D<T, Basis2D>::operator()(const Index2D &row_index,
 }
 
 }    //namespace lawa
+

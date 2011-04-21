@@ -48,3 +48,4 @@ struct SeparableFunction3D
 #include <lawa/functiontypes/separablefunction3d.tcc>
 
 #endif // LAWA_FUNCTIONTYPES_SEPARABLEFUNCTION3D_H
+

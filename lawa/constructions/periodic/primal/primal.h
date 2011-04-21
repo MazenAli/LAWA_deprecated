@@ -21,3 +21,4 @@
 #include <lawa/constructions/periodic/primal/basis.h>
 #include <lawa/constructions/periodic/primal/bspline.h>
 #include <lawa/constructions/periodic/primal/wavelet.h>
+

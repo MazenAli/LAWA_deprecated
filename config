@@ -44,7 +44,7 @@ endif
 DEBUGLAWA += -DCHECK_INTERVAL_CONSTRUCTION
 DEBUGMODE = -g -DDEBUG -D_GLIBCXX_DEBUG_PEDANTIC=1 $(DEBUGLAWA) \
             -O2 -Wfatal-errors -pedantic -Wextra \
-            -std=c++98 -fPIC -Wno-sign-compare -Wreturn-type
+            -fPIC
 
 # --- release mode ----------------------
 RELEASEMODE = -O3 -DNDEBUG
@@ -53,7 +53,9 @@ RELEASEMODE = -O3 -DNDEBUG
 PROFILEMODE = -p -g -DNDEBUG
 
 # --- select compilation-mode here by commenting / uncommenting
-CPPFLAGS += -I$(FLENS_HOME) -I$(BOOST_HOME) -I$(LAWA_HOME)
 CXXFLAGS += $(DEBUGMODE)
 #CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
+
+CPPFLAGS += -D_GLIBCXX_PERMIT_BACKWARD_HASH
+CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)

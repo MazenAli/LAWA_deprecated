@@ -55,3 +55,4 @@ template <typename X, typename Y>
 #include <lawa/constructions/periodic/fwt.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_FWT_H
+

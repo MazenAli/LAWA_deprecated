@@ -63,3 +63,4 @@ UniformIndex2D<Basis>::operator()(XType xtype_x, int jx, int kx,
 }
     
 } // namespace lawa
+
