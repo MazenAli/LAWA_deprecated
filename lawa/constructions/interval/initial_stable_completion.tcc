@@ -189,3 +189,4 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
 }
 
 } // namespace lawa
+

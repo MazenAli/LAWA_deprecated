@@ -96,3 +96,4 @@ value(Diag diag)
 } // namespace CBLAS
 
 } // namespace cxxblas
+

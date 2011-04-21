@@ -106,3 +106,4 @@ class Basis<_T,Dual,Interval,Dijkema>
 #include <lawa/constructions/interval/dijkema/dual/basis.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_BASIS_H
+

@@ -127,3 +127,4 @@ BSpline<T,Primal,Periodic,CDF>::mask() const
 }
 
 } // namespace lawa
+

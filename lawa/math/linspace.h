@@ -33,3 +33,4 @@ template <typename T>
 #include <lawa/math/linspace.tcc>
 
 #endif // LAWA_MATH_LINSPACE_H
+

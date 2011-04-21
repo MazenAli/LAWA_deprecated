@@ -43,3 +43,4 @@ insertKnot(int d, DenseVector<Array<T> > &knots, T x)
 }
 
 } // namespace lawa
+

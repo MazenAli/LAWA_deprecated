@@ -45,4 +45,4 @@ ConvectionOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index
 
 
 
-}	//namespace lawa
+}    //namespace lawa

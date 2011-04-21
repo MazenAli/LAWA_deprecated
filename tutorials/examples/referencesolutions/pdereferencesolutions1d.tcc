@@ -96,15 +96,15 @@ PDEReferenceSolutions1D<T>::setExample(int _nr, T _diffusion, T _convection, T _
             sing_pts(1) = -0.4;
             sing_pts(2) =  0.9;
             deltas.engine().resize(2,2);
-			deltas(1,1) = -0.4; deltas(1,2) = diffusion*20.8;
-			deltas(2,1) =  0.9; deltas(2,2) = diffusion*105.3;
+            deltas(1,1) = -0.4; deltas(1,2) = diffusion*20.8;
+            deltas(2,1) =  0.9; deltas(2,2) = diffusion*105.3;
         }
         else if (nr==6) {
-        	sing_pts.engine().resize(1);
-        	sing_pts(1) = 0.0001;
-        	deltas.engine().resize(1,2);
-        	//deltas(1,1) = 0.0001; deltas(1,2) = 3.;
-        	deltas(1,1) = 0.0001; deltas(1,2) = diffusion*9.;
+            sing_pts.engine().resize(1);
+            sing_pts(1) = 0.0001;
+            deltas.engine().resize(1,2);
+            //deltas(1,1) = 0.0001; deltas(1,2) = 3.;
+            deltas(1,1) = 0.0001; deltas(1,2) = diffusion*9.;
         }
         else if (nr==7) {
             sing_pts.engine().resize(1);
@@ -147,7 +147,7 @@ PDEReferenceSolutions1D<T>::exact(T x, int deriv)
         else                         assert(0);
     }
     else { //domain == R
-        if 	    (nr==1) {
+        if         (nr==1) {
             if (deriv == 0)         return 10.*std::exp(-0.1*(x-0.1)*(x-0.1));
             else if (deriv == 1)    return -2*(x-0.1)*std::exp(-0.1*(x-0.1)*(x-0.1));
             else if (deriv == 2)    return (4*0.1*(x-0.1)*(x-0.1)-2)*std::exp(-0.1*(x-0.1)*(x-0.1));
@@ -167,19 +167,19 @@ PDEReferenceSolutions1D<T>::exact(T x, int deriv)
         }
         else if (nr == 3){
             if (deriv == 0) {
-                if (x<-M_PI/8.)    	     return -1./std::pow(x+M_PI/8.-1,(T)4);
+                if (x<-M_PI/8.)             return -1./std::pow(x+M_PI/8.-1,(T)4);
                 else if (x>M_PI/8.)      return  1./std::pow(x-M_PI/8.+1,(T)4);
-                else                	 return std::sin(4*x);
+                else                     return std::sin(4*x);
              }
              else if (deriv == 1) {
-                 if (x<-M_PI/8.)    	 return  4./std::pow(x+M_PI/8.-1,(T)5);
+                 if (x<-M_PI/8.)         return  4./std::pow(x+M_PI/8.-1,(T)5);
                  else if (x>M_PI/8.)     return -4./std::pow(x-M_PI/8.+1,(T)5);
-                 else                	 return 4*std::cos(4*x);
+                 else                     return 4*std::cos(4*x);
              }
              else if (deriv == 2) {
-                 if (x<-M_PI/8.)    	 return -20./std::pow(x+M_PI/8.-1,(T)6);
+                 if (x<-M_PI/8.)         return -20./std::pow(x+M_PI/8.-1,(T)6);
                  else if (x>M_PI/8.)     return  20./std::pow(x-M_PI/8.+1,(T)6);
-                 else                	 return -16*std::sin(4*x);
+                 else                     return -16*std::sin(4*x);
 
              }
              else                         assert(0);
@@ -203,8 +203,8 @@ PDEReferenceSolutions1D<T>::exact(T x, int deriv)
         }
         else if (nr==5) {
             if (deriv==0) {
-            	if ((x>-0.4) && (x<0.9))   return 100*(x+0.4)*x*x*(x-0.9);
-            	else return 0;
+                if ((x>-0.4) && (x<0.9))   return 100*(x+0.4)*x*x*(x-0.9);
+                else return 0;
             }
             else if (deriv==1) {
                 if ((x>-0.4) && (x<0.9))   return   100*(x-0.9)*x*x + 200*(x-0.9)*x*(x+0.4)
@@ -219,17 +219,17 @@ PDEReferenceSolutions1D<T>::exact(T x, int deriv)
             else                         assert(0);
         }
         else if (nr==6) {
-        	if (deriv==0) {
-        		if (x<=0.0001)     	return 1./(std::pow(x-0.0001-1,(T)4));
-                else 			 	return 1./(std::pow(x-0.0001+1,(T)5));
+            if (deriv==0) {
+                if (x<=0.0001)         return 1./(std::pow(x-0.0001-1,(T)4));
+                else                  return 1./(std::pow(x-0.0001+1,(T)5));
             }
             else if (deriv==1) {
-            	if (x<=0.0001)      return -4./(std::pow(x-0.0001-1,(T)5));
-                else 		 	 	return -5./(std::pow(x-0.0001+1,(T)6));
+                if (x<=0.0001)      return -4./(std::pow(x-0.0001-1,(T)5));
+                else                   return -5./(std::pow(x-0.0001+1,(T)6));
             }
             else if (deriv==2) {
-            	if (x<=0.0001)      return 20./(std::pow(x-0.0001-1,(T)6));
-            	else 		 	 	return 30./(std::pow(x-0.0001+1,(T)7));
+                if (x<=0.0001)      return 20./(std::pow(x-0.0001-1,(T)6));
+                else                   return 30./(std::pow(x-0.0001+1,(T)7));
             }
         }
         else if (nr==7) {
@@ -295,7 +295,7 @@ template <typename T>
 T
 PDEReferenceSolutions1D<T>::rhs(T x)
 {
-	return -diffusion*exact(x,2) + convection*exact(x,1) + reaction*exact(x,0);
+    return -diffusion*exact(x,2) + convection*exact(x,1) + reaction*exact(x,0);
 }
 
 template <typename T>
@@ -317,10 +317,10 @@ PDEReferenceSolutions1D<T>::H1norm()
         else if (nr==3)     return std::sqrt( (16+7.*M_PI)/56. + (2./9.)*(16.+9.*M_PI)   );
 //      else if (nr==3)     return std::sqrt(1637492008./612673215.  + 656353759./204224405.);
         else if (nr==4)     return std::sqrt(168.3253868730168 + 1195.209847619049);
-        else if (nr==5)		return std::sqrt(43.3676117539685 + 980.929114285711);
-//      else if (nr==6)		return std::sqrt(0.75 + 1.5);
-        else if (nr==6)		return std::sqrt(0.253968253968254 + 4.05050505050505);
-//      else if (nr==6)		return std::sqrt(0.5333333333333333 + 2.085714285714286);
+        else if (nr==5)        return std::sqrt(43.3676117539685 + 980.929114285711);
+//      else if (nr==6)        return std::sqrt(0.75 + 1.5);
+        else if (nr==6)        return std::sqrt(0.253968253968254 + 4.05050505050505);
+//      else if (nr==6)        return std::sqrt(0.5333333333333333 + 2.085714285714286);
     }
     assert(0);
     return 0;

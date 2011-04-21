@@ -57,3 +57,4 @@ class SYM_APPLY_1D {
 #include <lawa/methods/adaptive/algorithms/apply1d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_APPLY1D_H
+

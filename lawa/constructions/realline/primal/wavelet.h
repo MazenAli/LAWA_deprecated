@@ -82,3 +82,4 @@ struct Wavelet<_T,Primal,R,CDF>
 #include <lawa/constructions/realline/primal/wavelet.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REALLINE_PRIMAL_WAVELET_H
+

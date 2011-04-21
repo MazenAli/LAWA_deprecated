@@ -47,3 +47,4 @@ struct CompressionPDE1D
 #include <lawa/methods/adaptive/compressions/compression_pde1d.tcc>
 
 #endif //  LAWA_METHODS_ADAPTIVE_COMPRESSIONS_COMPRESSION_PDE1D_H
+

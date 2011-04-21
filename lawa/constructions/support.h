@@ -87,3 +87,4 @@ template <typename T>
 #include <lawa/constructions/support.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_SUPPORT_H
+

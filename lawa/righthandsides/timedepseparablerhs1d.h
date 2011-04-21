@@ -31,11 +31,11 @@ template <typename T, typename TimedepRHS>
 class SumOfTimedepRHS1D
 {
 private:
-	const TimedepRHS &rhs1;
-	const TimedepRHS &rhs2;
+    const TimedepRHS &rhs1;
+    const TimedepRHS &rhs2;
 
 public:
-	SumOfTimedepRHS1D(const TimedepRHS &rhs1, const TimedepRHS &rhs2);
+    SumOfTimedepRHS1D(const TimedepRHS &rhs1, const TimedepRHS &rhs2);
     
     T
     operator()(T t, XType xtype, int j, int k) const;

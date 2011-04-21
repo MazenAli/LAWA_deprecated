@@ -332,3 +332,4 @@ std::ostream& operator<< (std::ostream &s, const Coefficients<AbsoluteValue,T,In
 
 
 }   //namespace lawa
+

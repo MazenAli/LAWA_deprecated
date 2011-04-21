@@ -42,8 +42,8 @@ template<typename T, typename Basis2D, QuadratureType Quad>
 T
 SmoothRHSWithAlignedSing2D<T,Basis2D,Quad>::operator()(const Index2D &index) const
 {
-	return this->operator()(index.index1.xtype, index.index1.j, index.index1.k,
-	                        index.index2.xtype, index.index2.j, index.index2.k);
+    return this->operator()(index.index1.xtype, index.index1.j, index.index1.k,
+                            index.index2.xtype, index.index2.j, index.index2.k);
 }
 
-}	//namespace lawa
+}    //namespace lawa

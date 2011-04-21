@@ -32,3 +32,4 @@ class SpaceTimeH1Norm
 #include <lawa/methods/uniform/postprocessing/spacetimeh1norm.tcc>
 
 #endif // LAWA_METHODS_UNIFORM_POSTPROCESSING_SPACETIMEH1NORM_H
+

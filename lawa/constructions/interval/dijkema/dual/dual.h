@@ -21,3 +21,4 @@
 #include <lawa/constructions/interval/dijkema/dual/bspline.h>
 #include <lawa/constructions/interval/dijkema/dual/mra.h>
 #include <lawa/constructions/interval/dijkema/dual/wavelet.h>
+

@@ -20,3 +20,4 @@ template <typename T, typename Index>
 #include <lawa/methods/adaptive/algorithms/thresh.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_THRESH_H
+

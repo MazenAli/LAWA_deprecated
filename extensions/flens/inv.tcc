@@ -56,3 +56,4 @@ inv(const GeMatrix<FullStorage<T,cxxblas::ColMajor> > &A)
 }
 
 } // namespace flens
+

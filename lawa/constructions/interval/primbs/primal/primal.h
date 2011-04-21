@@ -20,3 +20,4 @@
 #include <lawa/constructions/interval/primbs/primal/basis.h>
 #include <lawa/constructions/interval/primbs/primal/mra.h>
 #include <lawa/constructions/interval/primbs/primal/spline_helper.h>
+

@@ -65,7 +65,7 @@ cascade_output(cascade<T>* c)
 
 template <typename T>
 cascade<T>*
-eval(const T* mask, int length, int start, int end, int level)
+eval(const T* mask, int /*length*/, int start, int end, int level)
 {
   cascade<T>* old, *newv;
   int i,k,m,n;
@@ -141,3 +141,4 @@ evalAtDyadicGrid_Cascade(const DenseVector<X> &sf, int J,
 }
 
 } // namespace lawa
+

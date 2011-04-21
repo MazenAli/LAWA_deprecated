@@ -34,3 +34,4 @@ struct Wavelet
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_WAVELET_H
+

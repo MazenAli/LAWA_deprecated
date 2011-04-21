@@ -315,7 +315,7 @@ void
 RefSols_PDE_Realline1D<T>::getRHS_W_XBSplineParameters(int d, int d_,
                                                        T &_left_bound, T &_right_bound,
                                                        int &_J_plus_smooth, int &_J_plus_singular,
-                                                       bool &_singular_integral, T eps)
+                                                       bool &_singular_integral, T /*eps*/)
 {
     if (diffusion!=1 || convection!=0 || reaction!=1) {
         std::cerr << "Right-hand side parameters only implemented for -u'' + u" << std::endl;
@@ -413,7 +413,7 @@ RefSols_PDE_Realline1D<T>::getRHS_WO_XBSplineParameters(int d, int d_,
                                                         int &_J_plus_smooth, int &_J_minus_smooth,
                                                         int &_J_plus_singular,
                                                         int &_J_minus_singular,
-                                                        bool &_singular_integral, T eps)
+                                                        bool &_singular_integral, T /*eps*/)
 {
     if (diffusion!=1 || convection!=0 || reaction!=1) {
         std::cerr << "Right-hand side parameters only implemented for -u'' + u" << std::endl;

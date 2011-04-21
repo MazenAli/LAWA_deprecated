@@ -64,3 +64,4 @@ class RHS
 #include <lawa/methods/adaptive/algorithms/rhs.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_RHS_H
+

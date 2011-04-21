@@ -61,3 +61,4 @@ MRA<T,Dual,Periodic,CDF>::rangeI_(int j) const
 }
 
 } // namespace lawa
+

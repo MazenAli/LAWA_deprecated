@@ -25,8 +25,8 @@ namespace lawa{
 template<typename FirstBasis, typename SecondBasis>
 struct TensorBasis2D<SparseGrid, FirstBasis, SecondBasis>
 {
-	typedef typename FirstBasis::T T;
-	typedef FirstBasis FirstBasisType;
+    typedef typename FirstBasis::T T;
+    typedef FirstBasis FirstBasisType;
     typedef SecondBasis SecondBasisType;
     
     TensorBasis2D(const FirstBasis &_basis1, const SecondBasis &_basis2);

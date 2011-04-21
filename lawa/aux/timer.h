@@ -23,3 +23,4 @@ struct Timer
 } // namespace lawa
 
 #endif //LAWA_AUX_TIMER_H
+

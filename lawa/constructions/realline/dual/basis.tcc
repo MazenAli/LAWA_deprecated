@@ -51,3 +51,4 @@ Basis<T,Dual,R,CDF>::generator(XType xtype) const
 }
 
 } // namespace lawa
+

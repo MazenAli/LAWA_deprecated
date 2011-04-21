@@ -131,3 +131,4 @@ class MRA<_T,Dual,Interval,Primbs>
 #include <lawa/constructions/interval/primbs/dual/mra.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_PRIMBS_DUAL_MRA_H
+

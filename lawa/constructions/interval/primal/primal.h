@@ -19,3 +19,4 @@
 
 #include <lawa/constructions/interval/primal/bspline.h>
 #include <lawa/constructions/interval/primal/wavelet.h>
+

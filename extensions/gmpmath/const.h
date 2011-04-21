@@ -36,3 +36,4 @@ struct Const<mpf_class>
 } // namespace lawa
 
 #endif // EXTENSIONS_GMPMATH_CONST_H
+

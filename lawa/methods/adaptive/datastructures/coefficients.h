@@ -34,6 +34,9 @@ struct Coefficients
 template <typename T, typename Index>
 struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
 {
+    using std::map<Index,T,lt<Lexicographical,Index> >::insert;
+    using std::map<Index,T,lt<Lexicographical,Index> >::erase;
+    
     Coefficients();        //required in rhs.h
 
     Coefficients<Lexicographical,T,Index>&
@@ -78,6 +81,9 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
 template <typename T, typename Index>
 struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteValue,T> >
 {
+    using std::multimap<T,Index,lt<AbsoluteValue,T> >::insert;
+    using std::multimap<T,Index,lt<AbsoluteValue,T> >::erase;
+    
     Coefficients();
 
     Coefficients<AbsoluteValue,T,Index>&
@@ -107,3 +113,4 @@ std::ostream& operator<< (std::ostream &s, const Coefficients<AbsoluteValue,T,In
 #include <lawa/methods/adaptive/datastructures/coefficients.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_COEFFICIENTS_H
+

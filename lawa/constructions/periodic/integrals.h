@@ -26,3 +26,4 @@
 #include <lawa/constructions/periodic/integrals.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_PERIODIC_INTEGRALS_H
+

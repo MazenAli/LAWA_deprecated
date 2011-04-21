@@ -15,3 +15,4 @@ evaluate(const Basis &basis, const int J_x, const int J_y, const flens::DenseVec
 
 
 #endif // LAWA_METHODS_UNIFORM_POSTPROCESSING_EVALUATE_H
+

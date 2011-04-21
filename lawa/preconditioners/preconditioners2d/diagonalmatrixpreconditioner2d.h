@@ -50,3 +50,4 @@ class DiagonalMatrixPreconditioner2D
 #include <lawa/preconditioners/preconditioners2d/diagonalmatrixpreconditioner2d.tcc>
 
 #endif // LAWA_PRECONDITIONERS_PRECONDITIONERS2D_DIAGONALMATRIXPRECONDITIONER2D_H
+

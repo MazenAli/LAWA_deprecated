@@ -66,3 +66,4 @@ struct _cg<DenseVector<I> >
 #include <extensions/flens/cg.tcc>
 
 #endif // LAWA_EXTENSIONS_FLENS_CG_H
+

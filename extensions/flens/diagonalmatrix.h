@@ -78,3 +78,4 @@ template <typename T>
 #include <extensions/flens/diagonalmatrix.tcc>
 
 #endif // EXTENSIONS_FLENS_DIAGONALMATRIX_H 
+

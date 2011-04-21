@@ -57,3 +57,4 @@ class S_ADWAV_SPACETIME {
 #include <lawa/methods/adaptive/solvers/s_adwav_spacetime.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_SOLVERS_S_ADWAV_SPACETIME_H
+

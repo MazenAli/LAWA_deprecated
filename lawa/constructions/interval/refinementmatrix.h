@@ -108,3 +108,4 @@ mv(Transpose transA, typename X::ElementType alpha,
 #include <lawa/constructions/interval/refinementmatrix.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_REFINEMENTMATRIX_H
+

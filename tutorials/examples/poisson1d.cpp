@@ -39,7 +39,7 @@ typedef RHSWithPeaks1D<T, PrimalBasis>                              Rhs;
 
 /// Forcing function of the form `T f(T x)` - here a constant function
 T
-rhs_f(T x)
+rhs_f(T /*x*/)
 {
     return 1.;
 }

@@ -22,3 +22,4 @@ SeparableFunction2D<T>::operator()(T x, T y) const
 }
 
 } //  namespace lawa
+

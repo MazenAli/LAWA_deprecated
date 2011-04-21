@@ -152,3 +152,4 @@ estimate_SpaceTimeError_W0T(Coefficients<Lexicographical,T,Index2D> & u,
 }
 
 } // namespace lawa
+

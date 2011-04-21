@@ -17,12 +17,14 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <algorithm>
+
 namespace lawa {
 
 template <typename T, typename Basis>
 RHSWithPeaks1D<T,Basis>::RHSWithPeaks1D(const Basis &_basis, Function<T> _f,
-										const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
-										int order, bool _with_singular_part, bool _with_smooth_part)
+                                        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
+                                        int order, bool _with_singular_part, bool _with_smooth_part)
     : basis(_basis), f(_f), deltas(_deltas), with_singular_part(_with_singular_part),
       with_smooth_part(_with_smooth_part), integralf(f, basis)
 {
@@ -64,23 +66,23 @@ RHSWithPeaks1D_WO_XBSpline<T>::RHSWithPeaks1D_WO_XBSpline
   left_bound(_left_bound), right_bound(_right_bound), h(_h), order(_order),
   with_singular_part(_with_singular_part), with_smooth_part(_with_smooth_part)
 {
-	DenseVector<Array<T> > bounds(2);
-	bounds(1) = left_bound;
-	bounds(2) = right_bound;
+    DenseVector<Array<T> > bounds(2);
+    bounds(1) = left_bound;
+    bounds(2) = right_bound;
 
-	int nFirst  = bounds.length(),
-		nSecond = f_singularPoints.length();
+    int nFirst  = bounds.length(),
+        nSecond = f_singularPoints.length();
 
-	f_singularPoints_interval.engine().resize(nFirst + nSecond);
+    f_singularPoints_interval.engine().resize(nFirst + nSecond);
 
-	std::merge(bounds.engine().data(),
-		       bounds.engine().data() + nFirst,
-		       f_singularPoints.engine().data(),
-		       f_singularPoints.engine().data() + nSecond,
-		       f_singularPoints_interval.engine().data());
+    std::merge(bounds.engine().data(),
+               bounds.engine().data() + nFirst,
+               f_singularPoints.engine().data(),
+               f_singularPoints.engine().data() + nSecond,
+               f_singularPoints_interval.engine().data());
 
 
-	T eps = Const<T>::EQUALITY_EPS;
+    T eps = Const<T>::EQUALITY_EPS;
     _knots.engine().resize(_order, _order);
     _weights.engine().resize(_order, _order);
 
@@ -117,113 +119,113 @@ template <typename T>
 T
 RHSWithPeaks1D_WO_XBSpline<T>::truncated_f(T x) const
 {
-	if 		(x <= left_bound-1) return 0.;
-	else if ((left_bound-1 < x) && (x<left_bound)) {
-		T help1 = (-left_bound+1+x)*(-left_bound+1+x);
-		T help2 = (-left_bound+x)*(-left_bound+x);
-		return f(x)*std::exp(-1./help1)/(std::exp(-1./help1)+std::exp(-1./help2));
-	}
-	else if ((left_bound <= x) && (x<=right_bound)) return f(x);
-	else if ((right_bound < x) && (x<right_bound+1)) {
-		T help1 = (right_bound+1-x)*(right_bound+1-x);
-		T help2 = (right_bound-x)*(right_bound-x);
-		return f(x)*std::exp(-1./help1)/(std::exp(-1./help1)+std::exp(-1./help2));
-	}
-	else return 0.;
+    if      (x <= left_bound-1) return 0.;
+    else if ((left_bound-1 < x) && (x<left_bound)) {
+        T help1 = (-left_bound+1+x)*(-left_bound+1+x);
+        T help2 = (-left_bound+x)*(-left_bound+x);
+        return f(x)*std::exp(-1./help1)/(std::exp(-1./help1)+std::exp(-1./help2));
+    }
+    else if ((left_bound <= x) && (x<=right_bound)) return f(x);
+    else if ((right_bound < x) && (x<right_bound+1)) {
+        T help1 = (right_bound+1-x)*(right_bound+1-x);
+        T help2 = (right_bound-x)*(right_bound-x);
+        return f(x)*std::exp(-1./help1)/(std::exp(-1./help1)+std::exp(-1./help2));
+    }
+    else return 0.;
 }
 
 template <typename T>
 T
 RHSWithPeaks1D_WO_XBSpline<T>::operator()(const Index1D &lambda) const
 {
-	//std::cout << "Integral_WO_XBSpline<T>::operator(" << lambda << ") was called." << std::endl;
+    //std::cout << "Integral_WO_XBSpline<T>::operator(" << lambda << ") was called." << std::endl;
 
-	T ret = 0.0;
+    T ret = 0.0;
 
-	if (with_singular_part) {
-		for (int i=1; i<=deltas.numRows(); ++i) {
-			ret += deltas(i,2) * psi(deltas(i,1),lambda.j,lambda.k,0);
-		}
-	}
+    if (with_singular_part) {
+        for (int i=1; i<=deltas.numRows(); ++i) {
+            ret += deltas(i,2) * psi(deltas(i,1),lambda.j,lambda.k,0);
+        }
+    }
 
-	if (with_smooth_part) {
-		DenseVector<Array<T> > psi_singularPoints = psi.singularSupport(lambda.j,lambda.k);
+    if (with_smooth_part) {
+        DenseVector<Array<T> > psi_singularPoints = psi.singularSupport(lambda.j,lambda.k);
 
-		if (lambda.j >= 0) {
-			int nFirst  = psi_singularPoints.length(),
-				nSecond = f_singularPoints.length();
+        if (lambda.j >= 0) {
+            int nFirst  = psi_singularPoints.length(),
+                nSecond = f_singularPoints.length();
 
-			DenseVector<Array<T> > singularPoints(nFirst + nSecond);
+            DenseVector<Array<T> > singularPoints(nFirst + nSecond);
 
-			std::merge(psi_singularPoints.engine().data(),
-					   psi_singularPoints.engine().data() + nFirst,
-					   f_singularPoints.engine().data(),
-					   f_singularPoints.engine().data() + nSecond,
-					   singularPoints.engine().data());
+            std::merge(psi_singularPoints.engine().data(),
+                       psi_singularPoints.engine().data() + nFirst,
+                       f_singularPoints.engine().data(),
+                       f_singularPoints.engine().data() + nSecond,
+                       singularPoints.engine().data());
 
 
-			for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
-				ret += this->operator()(lambda.j,lambda.k,singularPoints(i),singularPoints(i+1));
-			}
-		}
-		else {
-			int nFirst  = psi_singularPoints.length(),
-				nSecond = f_singularPoints_interval.length();
+            for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
+                ret += this->operator()(lambda.j,lambda.k,singularPoints(i),singularPoints(i+1));
+            }
+        }
+        else {
+            int nFirst  = psi_singularPoints.length(),
+                nSecond = f_singularPoints_interval.length();
 
-			DenseVector<Array<T> > singularPoints(nFirst + nSecond);
+            DenseVector<Array<T> > singularPoints(nFirst + nSecond);
 
-			std::merge(psi_singularPoints.engine().data(),
-					   psi_singularPoints.engine().data() + nFirst,
-					   f_singularPoints_interval.engine().data(),
-					   f_singularPoints_interval.engine().data() + nSecond,
-					   singularPoints.engine().data());
+            std::merge(psi_singularPoints.engine().data(),
+                       psi_singularPoints.engine().data() + nFirst,
+                       f_singularPoints_interval.engine().data(),
+                       f_singularPoints_interval.engine().data() + nSecond,
+                       singularPoints.engine().data());
 
-			T left_integral_bound  = std::max(left_bound-1, psi.support(lambda.j,lambda.k).l1);
-			T right_integral_bound = std::min(right_bound+1,psi.support(lambda.j,lambda.k).l2);
+            T left_integral_bound  = std::max(left_bound-1, psi.support(lambda.j,lambda.k).l1);
+            T right_integral_bound = std::min(right_bound+1,psi.support(lambda.j,lambda.k).l2);
 
-			for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
+            for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
 
-				if      (singularPoints(i+1)<=left_integral_bound)  continue;
-				else if (singularPoints(i)  >=right_integral_bound) break;
-				else {
-					T left, right;
-					if (    (singularPoints(i+1) >left_integral_bound)
-					     && (singularPoints(i)<=left_integral_bound)   ) {
-						left=left_integral_bound;
-						right=singularPoints(i+1);
-					}
-					else if (    (singularPoints(i+1)<=right_integral_bound)
-					          && (singularPoints(i)>=left_integral_bound)    )  {
-						left=singularPoints(i);
-						right=singularPoints(i+1);
-					}
-					else if (    (singularPoints(i+1)> right_integral_bound)
-					          && (singularPoints(i)<=right_integral_bound)  ) {
-						left=singularPoints(i);
-						right=right_integral_bound;
-					}
-					else {
-						std::cerr << "Integral_WO_XBSpline<T>::operator()" << std::endl;
-						exit(1);
-					}
-					T stepsize = min(h,right-left);
-					T a = left;
-					while (a<right) {
-						T b = a+stepsize;
-						//std::cout << "[" << a << ", " << b << "]" << std::endl;
-						ret += this->operator()(lambda.j,lambda.k,a,b);
-						a = b;
-						stepsize = min(h,right-b);
-					}
-					if (fabs(a-right)>1e-14) {
-						//std::cout << "rest: [" << a << ", " << right << "]" << std::endl;
-						ret += this->operator()(lambda.j,lambda.k,a,right);
-					}
-				}
-			}
-		}
-	}
-	return ret;
+                if      (singularPoints(i+1)<=left_integral_bound)  continue;
+                else if (singularPoints(i)  >=right_integral_bound) break;
+                else {
+                    T left, right;
+                    if (    (singularPoints(i+1) >left_integral_bound)
+                         && (singularPoints(i)<=left_integral_bound)   ) {
+                        left=left_integral_bound;
+                        right=singularPoints(i+1);
+                    }
+                    else if (    (singularPoints(i+1)<=right_integral_bound)
+                              && (singularPoints(i)>=left_integral_bound)    )  {
+                        left=singularPoints(i);
+                        right=singularPoints(i+1);
+                    }
+                    else if (    (singularPoints(i+1)> right_integral_bound)
+                              && (singularPoints(i)<=right_integral_bound)  ) {
+                        left=singularPoints(i);
+                        right=right_integral_bound;
+                    }
+                    else {
+                        std::cerr << "Integral_WO_XBSpline<T>::operator()" << std::endl;
+                        exit(1);
+                    }
+                    T stepsize = std::min(h,right-left);
+                    T a = left;
+                    while (a<right) {
+                        T b = a+stepsize;
+                        //std::cout << "[" << a << ", " << b << "]" << std::endl;
+                        ret += this->operator()(lambda.j,lambda.k,a,b);
+                        a = b;
+                        stepsize = std::min(h,right-b);
+                    }
+                    if (fabs(a-right)>1e-14) {
+                        //std::cout << "rest: [" << a << ", " << right << "]" << std::endl;
+                        ret += this->operator()(lambda.j,lambda.k,a,right);
+                    }
+                }
+            }
+        }
+    }
+    return ret;
 }
 
 template <typename T>
@@ -232,7 +234,7 @@ RHSWithPeaks1D_WO_XBSpline<T>::operator()(int j, int k, T a, T b) const
 {
     T ret = 0.0;
     for (int i=1; i<=order; ++i) {
-    	T x = 0.5*(b-a)*_knots(order,i)+0.5*(b+a);
+        T x = 0.5*(b-a)*_knots(order,i)+0.5*(b+a);
         ret += _weights(order,i) * psi(x,j,k,0) * truncated_f(x);
     }
     ret *= 0.5*(b-a);
@@ -243,3 +245,4 @@ RHSWithPeaks1D_WO_XBSpline<T>::operator()(int j, int k, T a, T b) const
 
 
 }  //namespace lawa
+

@@ -50,7 +50,7 @@ HelmholtzOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1
 
 template <typename T, typename Basis>
 T
-HelmholtzOperator1D<T, Basis>::operator()(T time, 
+HelmholtzOperator1D<T, Basis>::operator()(T /*time*/, 
            XType xtype1, int j1, int k1, 
            XType xtype2, int j2, int k2) const
 {
@@ -59,10 +59,11 @@ HelmholtzOperator1D<T, Basis>::operator()(T time,
 
 template <typename T, typename Basis>
 T
-HelmholtzOperator1D<T, Basis>::operator()(T time, const Index1D &row_index, const Index1D &col_index) const
+HelmholtzOperator1D<T, Basis>::operator()(T /*time*/, const Index1D &row_index, const Index1D &col_index) const
 {
     return operator()(row_index, col_index);
 }
 
 
 } // namespace lawa
+

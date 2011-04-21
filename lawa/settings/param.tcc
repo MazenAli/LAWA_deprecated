@@ -24,3 +24,4 @@ int
 Param<X>::resolution = 10;
 
 } // namespace lawa
+

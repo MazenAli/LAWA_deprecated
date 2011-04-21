@@ -34,7 +34,7 @@ struct ReferenceSolutionTensor3D<T,Basis3D,HelmholtzOperator3D<T,Basis3D> >
     static T c;
     static DomainType domain1, domain2, domain3;
 
-    static DenseVector<Array<T> > sing_pts_x, sing_pts_y, sing_pts_z;	//aligned singularities
+    static DenseVector<Array<T> > sing_pts_x, sing_pts_y, sing_pts_z;    //aligned singularities
 
     static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas_x, deltas_y, deltas_z;
 
@@ -86,7 +86,7 @@ struct ReferenceSolutionTensor3D<T,Basis3D,HelmholtzOperator3D<T,Basis3D> >
 
 
 
-}	//namespace lawa
+}    //namespace lawa
 
 #include <tutorials/examples/referencesolutions/referencesolutions3d.tcc>
 

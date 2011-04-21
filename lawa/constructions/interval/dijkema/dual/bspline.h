@@ -55,3 +55,4 @@ struct BSpline<_T,Dual,Interval,Dijkema>
 #include <lawa/constructions/interval/dijkema/dual/bspline.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_DIJKEMA_DUAL_BSPLINE_H
+

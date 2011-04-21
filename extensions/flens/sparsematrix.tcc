@@ -372,3 +372,4 @@ SparseSymmetricMatrix<E>::engine()
 }
 
 } // namespace flens
+

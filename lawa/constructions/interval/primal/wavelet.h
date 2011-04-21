@@ -61,3 +61,4 @@ struct Wavelet<_T,Primal,Interval,_Cons>
 #include <lawa/constructions/interval/primal/wavelet.tcc>
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_PRIMAL_WAVELET_H
+
