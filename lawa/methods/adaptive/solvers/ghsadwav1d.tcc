@@ -82,7 +82,6 @@ IndexSet<Index1D>
 GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::GROW(const Coefficients<Lexicographical,T,Index1D> &w,
                                        T nu_bar, T &nu)
 {
-    int d=basis.d, d_=basis.d_;
     T zeta = 2.*(omega*nu_bar)/(1-omega);
     T r_norm = 0.;
     Coefficients<Lexicographical,T,Index1D> r, Aw, rhs;
@@ -135,7 +134,7 @@ GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::GALSOLVE(const IndexSet<Index1D> &Lambda,
                                            const Coefficients<Lexicographical,T,Index1D> &w,
                                            T delta, T tol)
 {
-    int d=basis.d, d_=basis.d_;
+    int d=basis.d;
     Coefficients<Lexicographical,T,Index1D> ret;
 
     if (Lambda.size()==0) return ret;
@@ -149,7 +148,7 @@ GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::GALSOLVE(const IndexSet<Index1D> &Lambda,
     //          << " : " << J << std::endl;
 
     //Assemble sparse matrix B
-    int N = Lambda.size();
+    unsigned long N = Lambda.size();
     //std::cerr << "    Assembling of B started with N=" << N << std::endl;
     flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
     std::map<Index1D,int,lt<Lexicographical,Index1D> > row_indices;
