@@ -30,7 +30,8 @@ namespace lawa {
 
 template <typename T, typename Basis>
 void
-getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff, DenseVector<Array<T> > &sing_pts);
+getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
+                  DenseVector<Array<T> > &sing_pts);
 
 //Plot solution only on singular  points of the solution
 template <typename T, typename Basis, typename Preconditioner>
@@ -42,7 +43,7 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-     const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, T &H1norm, const char* filename);
+     const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, const char* filename);
 
 template <typename T, typename Basis2D, typename Preconditioner>
 void

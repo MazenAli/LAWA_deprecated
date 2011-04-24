@@ -120,41 +120,24 @@ int main (int argc, char *argv[]) {
 	time.stop();
 	cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
 
-	//T H1norm = 0.;
-	//plot(basis, s_adwav.solutions[NumOfIterations-1], P, refsol.rhs, refsol.d_exact, -30.,120., pow2i<T>(-5), H1norm,  "s-adwav-realline-helmholtz1d");
-	//std::cout << "Calculated H1norm = " << H1norm << std::endl;
-	//cout << "Solution plotted." << endl;
-
-	cout << "Starting post-processing..." << endl;
 	RhsIntegral1D rhsintegral1d_postproc(basis,rhs, refsol.deltas,60);
 	Rhs F_postproc(rhsintegral1d_postproc,P);
-	Coefficients<Lexicographical,T,Index1D> u;
+	cout << "Postprocessing started." << endl;
 	stringstream filename;
-	filename << "s-adwav-reaction-diffusion-conv_" << example << "_" << d << "_" << d_ << "_" << jmin << ".dat";
-	ofstream file(filename.str().c_str());
-	IndexSet<Index1D> LambdaRowCheck;
-	//LambdaRowCheck = supp(s_adwav.solutions[NumOfIterations-1]);
-	//LambdaRowCheck = LambdaRowCheck + C(LambdaRowCheck,1.,basis);
-	//LambdaRowCheck = LambdaRowCheck + C(LambdaRowCheck,1.,basis);
-	//LambdaRowCheck = LambdaRowCheck + C(LambdaRowCheck,1.,basis);
-	for (int i=0; i<NumOfIterations; ++i) {
-		u = s_adwav.solutions[i];
-		cout << "   Iteration " << i+1 << ", Lambda.size() = " << supp(u).size() << endl;
-		T Error_Au_M_f   = 0.;//estimateError_Au_M_f(A, F_postproc, u, LambdaRowCheck);
-		cout << "      Error ||Au_h-f|| = " << Error_Au_M_f << endl;
-		T Error_H_energy = estimateError_H_energy(A, F_postproc, u, refsol.H1norm());
-		cout << "      Error ||u_h-u||  = " << Error_H_energy << endl;
-		file << supp(u).size() << " " << s_adwav.cg_iterations[i] << " " << s_adwav.toliters[i] << " "
-			 << s_adwav.times[i] << " " <<  s_adwav.residuals[i] << " "
-			 << Error_Au_M_f << " " << Error_H_energy << endl;
-		if ((u.size() >= 300) && (u.size()<=400)) {
-			Coefficients<AbsoluteValue,T,Index1D > u_abs;
-			u_abs = u;
-			plotCoeff(u_abs, basis, "u_coeff");
-		}
-	}
-	cout << "... finished" << endl;
+    filename << "s-adwav-realline-helmholtz1d-conv_" << example << "_" << d << "_" << d_
+             << "_" << jmin << ".dat";
+    assert(c==1);
+    postprocessing_H1<T,Index1D, S_Adwav, MA, Rhs>(s_adwav, A, F_postproc, refsol.H1norm(),
+                                                   filename.str().c_str());
+    cout << "Postprocessing finished." << endl;
 
+    stringstream plot_filename;
+    plot_filename << "s-adwav-realline-helmholtz1d-plot_" << example << "_" << d << "_" << d_
+                  << "_" << jmin << ".dat";
+    cout << "Plot of solution started." << endl;
+    plot<T, Basis1D, Preconditioner1D>(basis, s_adwav.solutions[NumOfIterations-1], P, refsol.u, refsol.d_u, -10., 10.,
+         pow2i<T>(-5), plot_filename.str().c_str());
+    cout << "Plot of solution finished." << endl;
 	return 0;
 }
 
@@ -187,7 +170,8 @@ estimateMinimalLevel(int example, T c, int d, int d_)
 	typedef Coefficients<AbsoluteValue,T,Index1D>::const_iterator const_it;
 	const_it wavelet_estim = f_LambdaWavelet_abs.begin();
 	const_it bspline_estim = f_LambdaBSpline_abs.begin();
-	cout << "Wavelet estimate: " << (*wavelet_estim).second.j << ", BSpline estimate: " << (*bspline_estim).second.j << endl;
+	cout << "Wavelet estimate: " << (*wavelet_estim).second.j
+         << ", BSpline estimate: " << (*bspline_estim).second.j << endl;
 	if (example==3) {
 		return (*wavelet_estim).second.j;
 	}

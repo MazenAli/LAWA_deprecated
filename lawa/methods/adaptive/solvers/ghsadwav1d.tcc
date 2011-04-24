@@ -2,7 +2,7 @@ namespace lawa {
 
 template <typename T, typename Basis, typename APPLY1D, typename RHS>
 GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::GHS_ADWAV1D(const Basis &_basis, APPLY1D &_Apply, RHS &_F)
-    : basis(_basis), Apply(_Apply), F(_F),
+    : basis(_basis), Apply(_Apply), A(Apply.A), F(_F),
       cA(0.), CA(0.), kappa(0.),
       alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.)
 {
@@ -50,7 +50,7 @@ GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterations, T H
         time.stop();
         total_time += time.elapsed();
 
-        T Error_H_energy = estimateError_H_energy(Apply.A, F, w_k, H1norm);
+        T Error_H_energy = computeErrorInH1Norm(Apply.A, F, w_k, H1norm);
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << std::endl;
 
@@ -185,6 +185,7 @@ GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::GALSOLVE(const IndexSet<Index1D> &Lambda,
     }
     //std::cerr << "    cg-method started with rhs " << rhs << std::endl;
     int iters = lawa::cg(B,x,rhs,tol);
+    linsolve_iterations.push_back(iters);
     Bx = B*x;
     res= Bx-rhs;
     T lin_res = std::sqrt(res*res);
