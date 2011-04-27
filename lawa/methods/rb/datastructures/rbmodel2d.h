@@ -30,27 +30,31 @@ namespace lawa {
 template <typename T>
 class RBModel2D {
 
+    	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
+		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
+        
 	public:
 
 		RBModel2D();
         
-    	typedef T (*theta_fctptr)(std::vector<T> params); // Argumente -> eher auch RBThetaData-Objekt?
-		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
-		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
+        void
+        attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
+        
+        void
+        attach_F_q(theta_fctptr theta_f_q, Rhs2D<T>& F_q);
               
         std::vector<theta_fctptr> theta_a;
         std::vector<theta_fctptr> theta_f;
-        std::vector<theta_fctptr> theta_l;
         
         std::vector<Operator2D<T>*> 	A_operators;
         std::vector<Rhs2D<T>*>			F_operators;
-        std::vector<Operator2D<T>*> 	L_operators;		// mehrere Outputs -> vector < vector< Operators> > 
         
         std::vector<IndexSet<Index2D> > rb_basis_functions;
         
         std::vector<FullColMatrixT> 	RB_A_matrices;
         std::vector<DenseVectorT> 		RB_F_vectors;
-        std::vector<DenseVectorT>		Rb_L_vectors;
+        std::vector<DenseVectorT>		RB_output_vectors;
     	
     private: 
 };
