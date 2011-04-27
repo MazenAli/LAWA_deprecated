@@ -41,10 +41,11 @@ class PDENonConstCoeffOperator1D{
         const Basis& basis;
         Function<T> &reaction_f;
         Function<T> &convection_f;
-        T diffusion;
+        Function<T> &diffusion_f;
 
         PDENonConstCoeffOperator1D(const Basis& _basis, Function<T> &_reaction_f,
-                                   Function<T> &_convection_f, T _diffusion, int order=10);
+                                   Function<T> &_convection_f, Function<T>& _diffusion_f,
+                                   int order=10);
 
         T
         operator()(XType xtype1, int j1, int k1,
@@ -57,7 +58,7 @@ class PDENonConstCoeffOperator1D{
 
         IntegralF<Gauss, Basis, Basis> reaction_integral;
         IntegralF<Gauss, Basis, Basis> convection_integral;
-        Integral<Gauss, Basis, Basis>  diffusion_integral;
+        IntegralF<Gauss, Basis, Basis> diffusion_integral;
 
 
 };
