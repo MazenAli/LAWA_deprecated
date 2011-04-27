@@ -49,6 +49,7 @@ class HelmholtzOperator2D{
                    XType row_xtype_y, int j1_y, int k1_y,
                    XType col_xtype_x, int j2_x, int k2_x,
                    XType col_xtpye_y, int j2_y, int k2_y) const;
+                   XType col_xtype_y, int j2_y, int k2_y) const;
 
         T
         operator()(const Index2D &row_index, const Index2D &col_index) const;
