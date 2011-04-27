@@ -126,7 +126,7 @@ int main (int argc, char *argv[]) {
 
     cout << "Postprocessing started." << endl;
     stringstream filename;
-    filename << "adwav-ghs-realline-helmholtz1d-W-XBSpline-conv_"
+    filename << "ghs-adwav-realline-helmholtz1d-W-XBSpline-conv_"
              << example << "_" << d << "_" << d_ << "_" << j0 << ".dat";
     ofstream file(filename.str().c_str());
     postprocessing_H1<T,Index1D, GHS_Adwav, MA, Rhs_PP>(ghs_adwav, A, F_pp, refsol.H1norm(),

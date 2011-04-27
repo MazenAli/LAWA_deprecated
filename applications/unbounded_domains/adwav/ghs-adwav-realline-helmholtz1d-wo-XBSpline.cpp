@@ -136,7 +136,7 @@ int main (int argc, char *argv[]) {
     Rhs_PP_WO_XBSpline F_pp(rhsintegral1d_pp,P);
     cout << "Postprocessing started." << endl;
     stringstream filename;
-    filename << "adwav-ghs-realline-helmholtz1d-WO-XBSpline-conv_"
+    filename << "ghs-adwav-realline-helmholtz1d-WO-XBSpline-conv_"
              << example << "_" << d << "_" << d_ << "_" << j0 << ".dat";
     ofstream file(filename.str().c_str());
     postprocessing_H1<T,Index1D, GHS_Adwav_WO_XBSpline,
