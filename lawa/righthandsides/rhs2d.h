@@ -27,10 +27,10 @@ namespace lawa {
 template <typename T>
 struct Rhs2D {
 	
-    T
+    virtual T
     operator()(const Index2D &index) const = 0;
     
-    T
+    virtual T
     operator()(XType xtype_x, int j_x, int k_x,
                XType xtype_y, int j_y, int k_y) const = 0;
 };
