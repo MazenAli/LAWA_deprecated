@@ -22,6 +22,7 @@
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/rb/datastructures/rbmodel2d.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>
 
@@ -46,10 +47,10 @@ class AdaptiveRBModel2D : public RBModel2D<T> {
         attach_A_q(theta_fctptr theta_a_q, AdaptiveOperator2D<T, Basis>& A_q);
         
         void
-        attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T>& F_q);
+        attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, Index2D>& F_q);
         
         std::vector<AdaptiveOperator2D<T, Basis>*> 	A_operators;
-        std::vector<AdaptiveRhs<T>*>				F_operators;
+        std::vector<AdaptiveRhs<T, Index2D>*>		F_operators;
         
         std::vector<IndexSet<Index2D> > 			rb_basis_functions;
     	
