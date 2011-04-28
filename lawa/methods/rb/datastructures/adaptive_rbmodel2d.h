@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_METHODS_RB_DATASTRUCTURES_RBMODEL2D_H
-#define LAWA_METHODS_RB_DATASTRUCTURES_RBMODEL2D_H 1
+#ifndef LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBMODEL2D_H
+#define LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBMODEL2D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
@@ -31,29 +31,34 @@ namespace lawa {
  *
  */
  
-template <typename T>
-class RBModel2D {
+template <typename T, typename Basis>
+class AdaptiveRBModel2D : public RBModel2D<T> {
 
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
 		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
 		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         
 	public:
-        std::vector<theta_fctptr> theta_a;
-        std::vector<theta_fctptr> theta_f;
-                
-        std::vector<FullColMatrixT> 	RB_A_matrices;
-        std::vector<DenseVectorT> 		RB_F_vectors;
-        std::vector<DenseVectorT>		RB_output_vectors;
+
+		AdaptiveRBModel2D();
+        
+        void
+        attach_A_q(theta_fctptr theta_a_q, AdaptiveOperator2D<T, Basis>& A_q);
+        
+        void
+        attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T>& F_q);
+        
+        std::vector<AdaptiveOperator2D<T, Basis>*> 	A_operators;
+        std::vector<AdaptiveRhs<T>*>				F_operators;
+        
+        std::vector<IndexSet<Index2D> > 			rb_basis_functions;
     	
-    protected: 
-    
-    	RBModel2D();
+    private: 
 };
     
 } // namespace lawa
 
 
-#include <lawa/methods/rb/datastructures/rbmodel2d.tcc>
+#include <lawa/methods/rb/datastructures/adaptive_rbmodel2d.tcc>
 
-#endif // LAWA_METHODS_RB_DATASTRUCTURES_RBMODEL2D_H
+#endif // LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBMODEL2D_H
