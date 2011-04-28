@@ -80,7 +80,7 @@ b_f(T x)
 T
 rhs_f(T x)
 {
-    return -u_xx_f(x) + b_f(x)*u_x_f(x) + a_f(x)*u_f(x);
+    return -a_f(x)*u_xx_f(x) + b_f(x)*u_x_f(x) + a_f(x)*u_f(x);
 }
 
 /// Auxiliary function to print solution values, generates `.txt`-file with
@@ -136,7 +136,7 @@ int main()
     DenseVectorT b_singPts(1); b_singPts = 0.5;
     Function<T> a(a_f, a_singPts);
     Function<T> b(b_f, b_singPts);
-    PDEOp       op(basis, a, b, 1.);
+    PDEOp       op(basis, a, b, a);
     NormPrec    p(basis);
 
     /// Righthandside initialization
