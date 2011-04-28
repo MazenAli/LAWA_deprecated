@@ -26,7 +26,11 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::operator()(const Index2
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     T prec = 1.;
-    if (!flens::IsSame<NoPreconditioner2D, Preconditioner>::value) {
+
+    if (flens::IsSame<H1NormPreconditioner2D<T,Basis2D>, Preconditioner>::value) {
+        prec *= Prec(row_index)*Prec(col_index);
+    }
+    else {
         const_coeff_it it_P_end       = P_data.end();
         const_coeff_it it_row_index   = P_data.find(row_index);
         if (it_row_index != it_P_end) {
@@ -70,6 +74,7 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::operator()(const Index2
             prec *= tmp;
         }
     }
+
 
     T dd_x = data_laplace_x(row_index.index1,col_index.index1);
     T id_x = data_identity_x(row_index.index1,col_index.index1);

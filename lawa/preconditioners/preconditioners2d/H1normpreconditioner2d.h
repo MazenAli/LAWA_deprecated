@@ -45,6 +45,11 @@ class H1NormPreconditioner2D
 
         Integral<Gauss, Basis_x, Basis_x>   _integral_x;
         Integral<Gauss, Basis_y, Basis_y>   _integral_y;
+
+        T refval_id_bspline;
+        T refval_dd_bspline;
+        T refval_id_wavelet;
+        T refval_dd_wavelet;
 };
 
 }   // namespace lawa
