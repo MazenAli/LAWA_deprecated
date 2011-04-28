@@ -141,7 +141,7 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
                        firstSingularPoints.engine().data() + m,
                        secondSingularPoints.engine().data(),
                        secondSingularPoints.engine().data() + n,
-                       singularPoints.engine().engine().data());
+                       singularPoints.engine().data());
             if (p>0) {
                 singularPoints(_(m+n+1,m+n+p)) = function.singularPoints;
                 std::inplace_merge(singularPoints.engine().data(),

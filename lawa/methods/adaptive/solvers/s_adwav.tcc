@@ -32,7 +32,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
     residuals.resize(NumOfIterations);
     times.resize(NumOfIterations);
     toliters.resize(NumOfIterations);
-    cg_iterations.resize(NumOfIterations);
+    linsolve_iterations.resize(NumOfIterations);
 }
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
@@ -66,7 +66,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
-        cg_iterations[its] = iterations;
+        linsolve_iterations[its] = iterations;
         std::cout << "   ...finished." << std::endl;
 
         //Threshold step
@@ -74,14 +74,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
-        int current_jmin, current_jmax;
         std::stringstream filename_coefficients;
         filename_coefficients << "coefficients_" << its+1;
 
         timer.stop();
         T time1 = timer.elapsed();
         T Error_H_energy = 0.;
-        if (H1norm>0) Error_H_energy = estimateError_H_energy(A, F, u, H1norm);
+        if (H1norm>0) Error_H_energy = computeErrorInH1Norm(A, F, u, H1norm);
 
         timer.start();
         //Computing residual

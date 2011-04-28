@@ -94,11 +94,8 @@ int *abscissa_level_open_nd ( int level_max, int dim_num, int test_num,
 //    nested grids is used.
 //
 {
-  int dim;
   int j;
-  int level;
   int order;
-  int t;
   int *test_level;
 
   test_level = new int[test_num];
@@ -2022,7 +2019,6 @@ int *levels_open_index ( int dim_num, int level_max, int point_num )
 //
 {
   int dim;
-  int factor;
   int *grid_index;
   int *grid_index2;
   int h;
@@ -2690,7 +2686,6 @@ int sparse_grid_gps_size ( int dim_num, int level_max )
 {
   int dim;
   int h;
-  int j;
   int level;
   int *level_1d;
   bool more;
@@ -2835,7 +2830,6 @@ int sparse_grid_ofn_size ( int dim_num, int level_max )
 {
   int dim;
   int h;
-  int j;
   int l;
   int level;
   int *level_1d;
@@ -2961,7 +2955,6 @@ int sparse_grid_onn_size ( int dim_num, int level_max )
 {
   int dim;
   int h;
-  int j;
   int l;
   int level;
   int *level_1d;
@@ -3105,7 +3098,6 @@ int sparse_grid_own_size ( int dim_num, int level_max )
   int dim;
   int dim_num2;
   int h;
-  int j;
   int l;
   int level;
   int level_min;

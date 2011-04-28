@@ -33,6 +33,8 @@ class SYM_APPLY_1D {
     typedef typename IndexSet<Index>::const_iterator const_set_it;
 
     public:
+        typedef MA MAType;
+
         const Parameters &parameters;
         const Basis1D &basis;
         MA &A;

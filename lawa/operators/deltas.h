@@ -27,7 +27,7 @@
 
 
 namespace lawa {
-
+/*
 template <typename T, DomainType Domain, Construction Cons>
 GeMatrix<FullStorage<T,ColMajor> >
 computeDeltas(const BSpline<T,Primal,Domain,Cons> &phi, int j, int k);
@@ -35,7 +35,11 @@ computeDeltas(const BSpline<T,Primal,Domain,Cons> &phi, int j, int k);
 template <typename T, DomainType Domain, Construction Cons>
 GeMatrix<FullStorage<T,ColMajor> >
 computeDeltas(const Wavelet<T,Primal,Domain,Cons> &psi, int j, int k);
+*/
 
+template <typename T, typename Basis>
+GeMatrix<FullStorage<T,ColMajor> >
+computeDeltas(const Basis &basis, int j, int k, XType e);
 
 }    //namespace lawa
 

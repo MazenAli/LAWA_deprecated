@@ -8,18 +8,18 @@ ifeq ($(TARGET),Darwin)
   ifeq ($(COMPILER),gcc)
     CC  = gcc
     CXX = g++
-    ifeq ($(BLASLAPACK),platform)
-      CPPFLAGS += -DWITH_VECLIB
-      LDFLAGS  += -framework Accelerate
-    endif
   endif
   ifeq ($(COMPILER),icc)
     CC  = icc
     CXX = icpc
-    ifeq ($(BLASLAPACK),platform)
-      CPPFLAGS += -DWITH_VECLIB
-      LDFLAGS  += -framework Accelerate
-    endif
+  endif
+  ifeq ($(COMPILER),clang)
+    CC  = clang
+    CXX = clang++
+  endif
+  ifeq ($(BLASLAPACK),platform)
+    CPPFLAGS += -DWITH_VECLIB
+    LDFLAGS  += -framework Accelerate
   endif
   ifeq ($(COMPILER),clang)
     CC  = clang
@@ -66,4 +66,4 @@ CXXFLAGS += $(DEBUGMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 CPPFLAGS += -D_GLIBCXX_PERMIT_BACKWARD_HASH
-CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
+CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME) -I$(BOOST_HOME)
