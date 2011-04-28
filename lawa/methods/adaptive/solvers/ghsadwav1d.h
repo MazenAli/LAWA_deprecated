@@ -34,6 +34,8 @@ class GHS_ADWAV1D {
         typedef typename Coefficients<AbsoluteValue,T,Index1D >::const_iterator  const_coeff_abs_it;
         typedef typename Coefficients<Lexicographical,T,Index1D>::value_type     val_type;
 
+        typedef typename APPLY1D::MAType MA;
+
 
     public:
 
@@ -43,13 +45,15 @@ class GHS_ADWAV1D {
         SOLVE(T nuM1, T _eps, int NumOfIterations=100, T H1norm=0.);
 
         std::vector<Coefficients<Lexicographical,T,Index1D> > solutions;
-        std::vector<T>               residuals;
-        std::vector<T>               times;
+        std::vector<T>                                        residuals;
+        std::vector<T>                                        times;
+        std::vector<int>                                      linsolve_iterations;
 
 
     private:
         const Basis &basis;
         APPLY1D &Apply;
+        MA &A;
         RHS &F;
         T cA, CA, kappa;
         T alpha, omega, gamma, theta;

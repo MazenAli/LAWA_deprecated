@@ -226,14 +226,14 @@ RefSols_PDE_Realline1D<T>::exact(T x, int deriv)
 
 template <typename T>
 T
-RefSols_PDE_Realline1D<T>::exact(T x)
+RefSols_PDE_Realline1D<T>::u(T x)
 {
     return RefSols_PDE_Realline1D<T>::exact(x, 0);
 }
 
 template <typename T>
 T
-RefSols_PDE_Realline1D<T>::d_exact(T x)
+RefSols_PDE_Realline1D<T>::d_u(T x)
 {
     return RefSols_PDE_Realline1D<T>::exact(x, 1);
 }

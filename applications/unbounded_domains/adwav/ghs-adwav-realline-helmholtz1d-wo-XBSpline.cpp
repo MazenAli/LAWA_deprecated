@@ -129,12 +129,31 @@ int main (int argc, char *argv[]) {
     GHS_Adwav_WO_XBSpline ghs_adwav(basis,Apply,F);
     ghs_adwav.SOLVE(f.norm(2.),eps,NumOfIterations,refsol.H1norm());
 
+
     RhsIntegral1D_WO_XBSpline rhsintegral1d_pp(psi, refsol.rhs, refsol.sing_pts,
                                                refsol.deltas, left_bound-100, right_bound+100,
                                                1., 300, true, true);
-
     Rhs_PP_WO_XBSpline F_pp(rhsintegral1d_pp,P);
+    cout << "Postprocessing started." << endl;
+    stringstream filename;
+    filename << "ghs-adwav-realline-helmholtz1d-WO-XBSpline-conv_"
+             << example << "_" << d << "_" << d_ << "_" << j0 << ".dat";
+    ofstream file(filename.str().c_str());
+    postprocessing_H1<T,Index1D, GHS_Adwav_WO_XBSpline,
+                      MA_WO_XBSpline, Rhs_PP_WO_XBSpline>(ghs_adwav, A, F_pp, refsol.H1norm(),
+                                                          filename.str().c_str());
+    cout << "Postprocessing finished." << endl;
 
+    stringstream plot_filename;
+    plot_filename << "ghs-adwav-realline-helmholtz1d-WO-XBSpline-plot_" << example
+                  << "_" << d << "_" << d_  << ".dat";
+    cout << "Plot of solution started." << endl;
+    plot<T, Basis1D, Preconditioner1D>(basis, ghs_adwav.solutions[NumOfIterations-1], P, refsol.u,
+                                       refsol.d_u, -10., 10., pow2i<T>(-5),
+                                       plot_filename.str().c_str());
+    cout << "Plot of solution finished." << endl;
+
+/*
     stringstream filename;
     filename << "adwav-ghs-realline-helmholtz1d-WO-XBSpline-conv_"
              << example << "_" << d << "_" << d_ << ".dat";
@@ -159,6 +178,7 @@ int main (int argc, char *argv[]) {
         }
 
     }
+*/
     return 0;
 }
 

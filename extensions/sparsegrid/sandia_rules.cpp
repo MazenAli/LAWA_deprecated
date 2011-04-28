@@ -11615,7 +11615,6 @@ void nco_compute_weights ( int n, double w[] )
 //    Output, double W[N], the weights.
 //
 {
-  int i;
   double *x;
   double x_max = 1.0;
   double x_min = -1.0;

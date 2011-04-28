@@ -87,17 +87,17 @@ int main (int argc, char *argv[]) {
     RefSols_PDE_Realline1D<T> refsol;
     refsol.setExample(example,1.,0.,1.);
 
-    int j0=0;
+    int jmin=0;
     if (argc==6) {
-        j0=atoi(argv[5]);
+        jmin=atoi(argv[5]);
     }
     else {
-        j0=refsol.getMinimalLevel(d,d_);
+        jmin=refsol.getMinimalLevel(d,d_);
     }
 
     T eps=1e-5;
 
-    Basis1D basis(d,d_,j0);
+    Basis1D basis(d,d_,jmin);
     HelmholtzBilinearForm1D Bil(basis,1.);
     Preconditioner1D P(basis);
     Compression1D Compr(basis);
@@ -116,35 +116,31 @@ int main (int argc, char *argv[]) {
     APPLY1D Apply(parameters,basis,A);
 
     GHS_Adwav ghs_adwav(basis,Apply,F);
+    cout << "ADWAV started." << endl;
     ghs_adwav.SOLVE(f.norm(2.),eps,NumOfIterations,refsol.H1norm());
+    cout << "ADWAV finished." << endl;
+
 
     RhsIntegral1D rhsintegral1d_pp(basis,rhs_func, refsol.deltas,300);
     Rhs_PP F_pp(rhsintegral1d_pp,P);
 
+    cout << "Postprocessing started." << endl;
     stringstream filename;
-    filename << "adwav-ghs-realline-helmholtz1d-W-XBSpline-conv_"
+    filename << "ghs-adwav-realline-helmholtz1d-W-XBSpline-conv_"
              << example << "_" << d << "_" << d_ << "_" << j0 << ".dat";
     ofstream file(filename.str().c_str());
-    Coefficients<Lexicographical,T,Index1D> u;
-    for (int i=0; i<NumOfIterations; ++i) {
-        u = ghs_adwav.solutions[i];
-        cout << "   Iteration " << i+1 << ", Lambda.size() = " << supp(u).size() << endl;
-        T Error_H_energy = estimateError_H_energy(A, F_pp, u, refsol.H1norm());
-        cout << "      Error ||u_h-u||  = " << Error_H_energy << endl;
-        file << supp(u).size() << " " << ghs_adwav.times[i] << " " <<  ghs_adwav.residuals[i] << " "
-             << Error_H_energy << endl;
-        if ((u.size() >= 300) && (u.size()<=400)) {
-            Coefficients<AbsoluteValue,T,Index1D > u_abs;
-            u_abs = u;
-            plotCoeff(u_abs, basis, "u_coeff");
-        }
-        if (i==NumOfIterations-1) {
-            T H1norm=0.;
-            plot(basis, u, P, refsol.exact, refsol.d_exact, -20.,20., pow2i<T>(-5), H1norm,
-                 "adwav-ghs-realline-helmholtz1d-W-XBSpline");
-        }
+    postprocessing_H1<T,Index1D, GHS_Adwav, MA, Rhs_PP>(ghs_adwav, A, F_pp, refsol.H1norm(),
+                                                        filename.str().c_str());
+    cout << "Postprocessing finished." << endl;
 
-    }
+    stringstream plot_filename;
+    plot_filename << "ghs-adwav-realline-helmholtz1d-W-XBSpline-plot_" << example
+                  << "_" << d << "_" << d_ << "_" << jmin << ".dat";
+    cout << "Plot of solution started." << endl;
+    plot<T, Basis1D, Preconditioner1D>(basis, ghs_adwav.solutions[NumOfIterations-1], P, refsol.u,
+                                       refsol.d_u, -10., 10., pow2i<T>(-5),
+                                       plot_filename.str().c_str());
+    cout << "Plot of solution finished." << endl;
 
     return 0;
 }

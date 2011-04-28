@@ -13,7 +13,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
     const Wavelet<T,Primal,R,CDF> psi = basis.psi;
 
     int j = lambda.j, k = lambda.k;
-    int d = psi.d, d_= psi.d_;
+    int d = psi.d;
     IndexSet<Index1D> ret;
     Support<T> support_refbspline = phi.support(0,0);
     Support<T> support_refwavelet = psi.support(0,0);
@@ -496,7 +496,6 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
 {
     const Wavelet<T,Primal,R,CDF> psi = basis.psi;
     int j = lambda.j, k = lambda.k;
-    int d = psi.d, d_= psi.d_;
     IndexSet<Index1D> ret;
     Support<T> support_refwavelet = psi.support(0,0);
     Support<T> supp = psi.support(j,k);
