@@ -20,6 +20,7 @@
 #ifndef LAWA_METHODS_RB_DATASTRUCTURES_RBMODEL2D_H
 #define LAWA_METHODS_RB_DATASTRUCTURES_RBMODEL2D_H 1
 
+#include <vector>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/operators/operator2d.h>
@@ -45,10 +46,18 @@ class RBModel2D {
         std::vector<FullColMatrixT> 	RB_A_matrices;
         std::vector<DenseVectorT> 		RB_F_vectors;
         std::vector<DenseVectorT>		RB_output_vectors;
+        
+        void 
+        set_current_param(const std::vector<T>& _param);
+        
+        std::vector<T>& 
+        get_current_param();
     	
     protected: 
     
     	RBModel2D();
+        
+        std::vector<T> current_param;
 };
     
 } // namespace lawa
