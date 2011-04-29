@@ -22,6 +22,7 @@
 
 #include <boost/math/special_functions/gamma.hpp>
 #include <boost/math/special_functions/binomial.hpp>
+#include <boost/math/special_functions/factorials.hpp>
 #include <applications/finance/kernels/kernel.h>
 #include <applications/finance/processes/processes.h>
 
@@ -89,7 +90,7 @@ struct Kernel<T,CGMY>
 
 }   // namespace lawa
 
-//#include <applications/finance/kernels/cgmykernel.tcc>
+#include <applications/finance/kernels/cgmykernel.tcc>
 
 #endif  // APPLICATIONS_FINANCE_KERNELS_CGMYKERNEL_H
 

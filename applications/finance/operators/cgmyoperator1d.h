@@ -18,21 +18,22 @@
  */
 
 #ifndef APPLICATIONS_FINANCE_OPERATORS_CGMYOPERATOR1D_H
-#define APPLICATIONS_FINANCE_OPERATORS_CFGMYOPERATOR1D_H 1
+#define APPLICATIONS_FINANCE_OPERATORS_CGMYOPERATOR1D_H 1
 
+#include <lawa/constructions/constructions.h>
+#include <lawa/operators/deltas.h>
+#include <lawa/settings/settings.h>
 #include <applications/finance/kernels/cgmykernel.h>
 #include <applications/finance/operators/financeoperator.h>
 #include <applications/finance/processes/processes.h>
 
 namespace lawa {
 
-template <typename T, typename Basis>
-struct FinanceOperator1D<T, CGMY, Basis>
+template <typename T, typename Basis1D>
+struct FinanceOperator1D<T, CGMY, Basis1D>
 {
-    typedef typename Basis::BSplineType PrimalSpline;
-    typedef typename Basis::WaveletType PrimalWavelet;
-
-    FinanceOperator1D(const Parameters<T,CGMY> &_params, const Basis& _basis, T _R1=0., T _R2=1.);
+    FinanceOperator1D(const Basis1D& _basis, const Parameters<T,CGMY> &_params,
+                      T _convection=0., T _reaction=0., T _R1=0., T _R2=1.);
 
     T
     operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
@@ -40,15 +41,14 @@ struct FinanceOperator1D<T, CGMY, Basis>
     T
     operator()(const Index1D &row_index, const Index1D &col_index) const;
 
+    const Basis1D              &basis;
     const Parameters<T,CGMY>   &params;
-    const Basis               &basis;
-    Kernel<T,CGMY>            kernel;
-    PrimalSpline phi, d_phi, delta_phi;
-    PrimalWavelet psi, d_psi, delta_psi;
-    T R1, R2;
-    T OneDivSqrtR2pR1, OneDivR2pR1, R1DivR1pR2;
+    T                          convection, reaction;
+    Kernel<T,CGMY>             kernel;
+    T                          R1, R2;
+    T                          OneDivSqrtR2pR1, OneDivR2pR1, R1DivR1pR2;
 
-    Integral<Gauss, Basis, Basis> integral;
+    Integral<Gauss, Basis1D, Basis1D> integral;
 
     mutable std::map<T,T> values_tailintegral;
 
@@ -58,4 +58,4 @@ struct FinanceOperator1D<T, CGMY, Basis>
 
 #include <applications/finance/operators/cgmyoperator1d.tcc>
 
-#endif  // APPLICATIONS_FINANCE_OPERATORS_FINANCEOPERATOR1D_H
+#endif  // APPLICATIONS_FINANCE_OPERATORS_CGMYOPERATOR1D_H
