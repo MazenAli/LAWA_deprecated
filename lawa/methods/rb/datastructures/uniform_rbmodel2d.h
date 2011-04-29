@@ -24,6 +24,7 @@
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/rb/datastructures/rbmodel2d.h>
 #include <lawa/operators/operator2d.h>
+#include <lawa/preconditioners/nopreconditioner.h>
 #include <lawa/righthandsides/rhs2d.h>
 
 namespace lawa {
@@ -32,16 +33,17 @@ namespace lawa {
  *
  */
  
-template <typename T>
+template <typename T, typename Prec = NoPreconditioner<T, Index2D> >
 class UniformRBModel2D : public RBModel2D<T> {
 
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
 		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
 		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
-        
-	public:
+	
+    public:
 
 		UniformRBModel2D();
+        UniformRBModel2D(Prec& _prec);
         
         void
         attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
@@ -53,9 +55,45 @@ class UniformRBModel2D : public RBModel2D<T> {
         std::vector<Rhs2D<T>*>			F_operators;
         
 		std::vector<T> 					rb_basis_functions;
-
+        
+        void
+        truth_solve();
+    	    
+    	class Operator_LHS {
+        	public:
+            	Operator_LHS(UniformRBModel2D<T, Prec>* _model) : thisModel(_model){}
+                
+				T
+                operator()(XType row_xtype_x, int j1_x, int k1_x,
+                           XType row_xtype_y, int j1_y, int k1_y,
+                           XType col_xtype_x, int j2_x, int k2_x,
+                           XType col_xtpye_y, int j2_y, int k2_y) const;
+            
+            private:
+            	UniformRBModel2D<T, Prec>* thisModel;
+        };
+        
+        class Operator_RHS {
+        	public:
+            	Operator_RHS(UniformRBModel2D<T, Prec>* _model) : thisModel(_model){}
+                
+				T
+                operator()(XType xtype_x, int j_x, int k_x,
+                           XType xtype_y, int j_y, int k_y) const;
+            
+            private:
+            	UniformRBModel2D<T, Prec>* thisModel;        
+        };
+        
+        Operator_LHS 	lhs_op;
+        Operator_RHS 	rhs_op;
+        
+        const NoPreconditioner<T, Index2D> noprec; 
+        Prec& 		 	prec;
+        
+        std::vector<T>
+        truth_solve();
     	
-    private: 
 };
     
 } // namespace lawa
