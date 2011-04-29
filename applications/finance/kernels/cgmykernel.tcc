@@ -46,13 +46,15 @@ Kernel<T,CGMY>::Kernel(const Parameters<T,CGMY> &_params)
     c5 = constants[4]-constants[5];
     c6 = constants[6]-constants[7];
 
-    ExpXmOnemX_k_pos = C*boost::math::tgamma(-Y)*( std::pow(M-1,Y) - std::pow(M,Y) + Y*std::pow(M,Y-1));
-    ExpXmOnemX_k_neg = C*boost::math::tgamma(-Y)*( std::pow(G+1,Y) - std::pow(G,Y) - Y*std::pow(G,Y-1));
+    ExpXmOnemX_k_pos = C*boost::math::tgamma(-Y)*( std::pow(M-1,Y)-std::pow(M,Y)+Y*std::pow(M,Y-1));
+    ExpXmOnemX_k_neg = C*boost::math::tgamma(-Y)*( std::pow(G+1,Y)-std::pow(G,Y)-Y*std::pow(G,Y-1));
     ExpXmOnemX_k     = ExpXmOnemX_k_pos + ExpXmOnemX_k_neg;
     ExpXmOne_k1_pos =  ExpXmOnemX_k_pos;
     ExpXmOne_k1_neg =  ExpXmOnemX_k_neg;
-    ExpXmOne_k2_pos =  (CdivY/(1-Y))*(boost::math::tgamma(2-Y)*( powM_Y-2*powM_Ym1-std::pow(M-1,Y) ) + boost::math::tgamma(3-Y)*powM_Ym1  ) - constants[0];
-    ExpXmOne_k2_neg = -(CdivY/(1-Y))*(boost::math::tgamma(2-Y)*(-powG_Y-2*powG_Ym1+std::pow(G+1,Y) ) + boost::math::tgamma(3-Y)*powG_Ym1  ) + constants[1];
+    ExpXmOne_k2_pos =  (CdivY/(1-Y))*(boost::math::tgamma(2-Y)*( powM_Y-2*powM_Ym1-std::pow(M-1,Y) )
+                                      + boost::math::tgamma(3-Y)*powM_Ym1  ) - constants[0];
+    ExpXmOne_k2_neg = -(CdivY/(1-Y))*(boost::math::tgamma(2-Y)*(-powG_Y-2*powG_Ym1+std::pow(G+1,Y) )
+                                      + boost::math::tgamma(3-Y)*powG_Ym1  ) + constants[1];
 
 
 /*
@@ -67,7 +69,6 @@ Kernel<T,CGMY>::Kernel(const Parameters<T,CGMY> &_params)
 */
 
 }
-
 
 template <typename T>
 T
