@@ -1,8 +1,8 @@
 namespace lawa{
 
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
-MultiGrid_2ndKind<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::
-MultiGrid_2ndKind(PrimalBasis& _b, DualBasis& _b_, BilinearForm& a, RHSIntegral& rhs, T theta,
+MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::
+MultiGrid_2ndKind_LTV(PrimalBasis& _b, DualBasis& _b_, BilinearForm& a, RHSIntegral& rhs, T theta,
                   T deltaT, int timesteps, int minLevel)
     : b(_b), b_(_b_), full_theta(theta, b, a, rhs), full_ts(full_theta, deltaT, timesteps, 0),
       hom_theta(theta, b, a, hom_rhs), hom_ts(hom_theta, deltaT, timesteps, 0),
@@ -12,8 +12,8 @@ MultiGrid_2ndKind(PrimalBasis& _b, DualBasis& _b_, BilinearForm& a, RHSIntegral&
 
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
 flens::DenseVector<flens::Array<T> > 
-MultiGrid_2ndKind<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::
-run_MG_2ndKind(flens::DenseVector<flens::Array<T> >& u0, int maxLevel)
+MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::
+solve(flens::DenseVector<flens::Array<T> >& u0, int maxLevel)
 {
     flens::DenseVector<flens::Array<T> > u(u0), zeros;
     for(int i = mg.getMinLevel() + 1; i <= maxLevel; ++i){
@@ -33,15 +33,15 @@ run_MG_2ndKind(flens::DenseVector<flens::Array<T> >& u0, int maxLevel)
 
 
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
-MultiGrid_2ndKind<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::MG_2ndKind_Smoother::
-MG_2ndKind_Smoother(MultiGrid_2ndKind<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>* ref)
+MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::MG_2ndKind_Smoother::
+MG_2ndKind_Smoother(MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>* ref)
 {
     mg_ptr = ref;
 }
 
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
 flens::DenseVector<flens::Array<T> >  
-MultiGrid_2ndKind<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::MG_2ndKind_Smoother::
+MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::MG_2ndKind_Smoother::
 solve(flens::DenseVector<flens::Array<T> > u, flens::DenseVector<flens::Array<T> > f)
 {
    flens::DenseVector<flens::Array<T> > sol = mg_ptr->hom_ts.solve(u);
@@ -51,15 +51,15 @@ solve(flens::DenseVector<flens::Array<T> > u, flens::DenseVector<flens::Array<T>
 
 
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
-MultiGrid_2ndKind<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::MG_2ndKind_Solver::
-MG_2ndKind_Solver(MultiGrid_2ndKind<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>* ref)
+MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::MG_2ndKind_Solver::
+MG_2ndKind_Solver(MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>* ref)
 {
     mg_ptr = ref;
 }
 
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
 flens::DenseVector<flens::Array<T> > 
-MultiGrid_2ndKind<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::MG_2ndKind_Solver::
+MultiGrid_2ndKind_LTV<T, PrimalBasis, DualBasis, BilinearForm, RHSIntegral>::MG_2ndKind_Solver::
 solve(flens::DenseVector<flens::Array<T> > u0, flens::DenseVector<flens::Array<T> > f)
 {
     int steps = mg_ptr->hom_ts.getSteps();

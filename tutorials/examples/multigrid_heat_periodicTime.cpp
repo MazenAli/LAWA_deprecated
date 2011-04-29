@@ -22,10 +22,10 @@ typedef TimedepSeparableRHS1D<T, PrimalBasis>    TimedepRHS1D;
 typedef SumOfTimedepRHS1D<T, TimedepRHS1D>       SumOfRHS1D;
 
 // TimeStepping Methods
-typedef ThetaScheme1D_TimeConstBilForm<T, PrimalBasis, PDE1DOp, SumOfRHS1D> Theta;
-typedef TimeStepping<T, Theta>                                              TimeStepper;
-typedef FixedPointSolver<T, TimeStepper>                                    ThetaFPSolver;
-typedef MultiGrid_2ndKind<T, PrimalBasis, DualBasis, PDE1DOp, SumOfRHS1D > 	Multigrid;
+typedef ThetaScheme1D_LTI<T, PrimalBasis, PDE1DOp, SumOfRHS1D>                  Theta;
+typedef TimeStepping<T, Theta>                                                  TimeStepper;
+typedef FixedPointSolver<T, TimeStepper>                                        ThetaFPSolver;
+typedef MultiGrid_2ndKind_LTI<T, PrimalBasis, DualBasis, PDE1DOp, SumOfRHS1D > 	Multigrid;
 
 
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]){
     Timer timer;
     
     timer.start();
-    DenseVectorT u = mgsolver.run_MG_2ndKind(u_0, J);
+    DenseVectorT u = mgsolver.solve(u_0, J);
     timer.stop();    
 	
     // Postprocessing
