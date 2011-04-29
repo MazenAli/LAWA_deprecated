@@ -2,7 +2,7 @@ namespace  lawa {
 
 template <typename T, typename Basis>
 AdaptiveRBModel2D<T, Basis>::AdaptiveRBModel2D()
-	: RBModel2D<T>()
+	: RBModel2D<T>(), lhs_op(this), rhs_op(this)
 {}
 
 template <typename T, typename Basis>
@@ -21,6 +21,30 @@ AdaptiveRBModel2D<T, Basis>::attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, I
 	F_operators.push_back(&F_q);
 }
 
+template <typename T, typename Basis>
+T
+AdaptiveRBModel2D<T, Basis>::Operator_LHS::operator()(const Index2D &row_index, const Index2D &col_index)
+{
+	T val = 0;
+	for (unsigned int i = 0; i < thisModel->A_operators.size(); ++i) {
+        val += (*thisModel->theta_a[i])(thisModel->current_param) 
+        	 * (*thisModel->A_operators[i])(row_index, col_index);
+    }
+    
+    return val;
+}
 
+template <typename T, typename Basis>
+T
+AdaptiveRBModel2D<T, Basis>::Operator_RHS::operator()(const Index2D &lambda)
+{
+	T val = 0;
+	for (unsigned int i = 0; i < thisModel->F_operators.size(); ++i) {
+        val += (*thisModel->theta_f[i])(thisModel->current_param) 
+        	 * (*thisModel->F_operators[i])(lambda);
+    }
+    
+    return val;
+}
 
 } // namespace lawa

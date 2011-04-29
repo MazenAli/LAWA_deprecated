@@ -54,7 +54,30 @@ class AdaptiveRBModel2D : public RBModel2D<T> {
         
         std::vector<IndexSet<Index2D> > 			rb_basis_functions;
     	
-    private: 
+    	class Operator_LHS {
+        	public:
+            	Operator_LHS(AdaptiveRBModel2D<T, Basis>* _model) : thisModel(_model){}
+                
+				T
+                operator()(const Index2D &row_index, const Index2D &col_index);
+            
+            private:
+            	AdaptiveRBModel2D<T, Basis>* thisModel;
+        };
+
+        class Operator_RHS {
+        	public:
+            	Operator_RHS(AdaptiveRBModel2D<T, Basis>* _model) : thisModel(_model){}
+                
+				T
+                operator()(const Index2D &lambda);
+            
+            private:
+            	AdaptiveRBModel2D<T, Basis>* thisModel;        
+        };
+    	
+        Operator_LHS lhs_op;
+        Operator_RHS rhs_op;
 };
     
 } // namespace lawa
