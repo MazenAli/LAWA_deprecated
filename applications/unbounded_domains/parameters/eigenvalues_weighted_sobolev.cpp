@@ -25,21 +25,23 @@ typedef double T;
 using namespace lawa;
 using namespace std;
 
-typedef Basis<T,Primal,R,CDF> Basis1D;
-typedef Wavelet<T,Primal,R,CDF> WaveletR;
-typedef flens::DenseVector<flens::Array<T> >                 DenseVectorT;
+typedef Basis<T,Primal,R,CDF>                                     Basis1D;
+typedef Wavelet<T,Primal,R,CDF>                                   WaveletR;
+
+typedef flens::DenseVector<flens::Array<T> >                      DenseVectorT;
+typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullMatT;
 
 //Operator definitions
-typedef PDENonConstCoeffOperator1D<T, Basis1D>               PDEOperator1D;
-typedef NoCompression<T, Index1D, Basis1D>                   Compression;
-typedef WeightedSobolevNormPreconditioner1D<T,Basis1D>       NormPreconditioner1D;
-typedef WeightedSobolevMidPointPreconditioner1D<T,Basis1D>   MidPointPreconditioner1D;
+typedef PDENonConstCoeffOperator1D<T, Basis1D>                    PDEOperator1D;
+typedef NoCompression<T, Index1D, Basis1D>                        Compression;
+typedef WeightedSobolevNormPreconditioner1D<T,Basis1D>            NormPreconditioner1D;
+typedef WeightedSobolevMidPointPreconditioner1D<T,Basis1D>        MidPointPreconditioner1D;
 
 //MapMatrix definition
 typedef MapMatrix<T,Index1D,PDEOperator1D,
-                  Compression,NormPreconditioner1D>          MA_norm_prec;
+                  Compression,NormPreconditioner1D>               MA_norm_prec;
 typedef MapMatrix<T,Index1D,PDEOperator1D,
-                  Compression,MidPointPreconditioner1D>      MA_midpoint_prec;
+                  Compression,MidPointPreconditioner1D>           MA_midpoint_prec;
 
 
 template <typename T>
@@ -52,7 +54,7 @@ computeSV(flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &A, T &cB, 
 
 template<typename T>
 IndexSet<Index1D>
-LambdaForEigenvalues(int jmin, int jmax, const Basis1D &basis, T radius, bool with_BSplines);
+LambdaForEigenvalues(int jmin, int jmax, const Basis1D &basis, T radius);
 
 typedef IndexSet<Index1D>::const_iterator const_set_it;
 
@@ -89,9 +91,9 @@ int main (int argc, char *argv[]) {
     DenseVectorT             b_singPts;
     Function<T>              weight(weight_f, weight_singPts);
     Function<T>              b(b_f, b_singPts);
-    PDEOperator1D            Bil(basis, weight, b, weight, 2*basis.d);
-    NormPreconditioner1D     NormP(basis,weight,1);
-    MidPointPreconditioner1D MidPointP(basis,weight,1);
+    PDEOperator1D            Bil(basis, weight, b, b, 40);
+    NormPreconditioner1D     NormP(basis,weight,0);
+    MidPointPreconditioner1D MidPointP(basis,weight,0);
     Compression              compression(basis);
     MA_norm_prec             A_norm_prec(Bil,NormP,compression);
     MA_midpoint_prec         A_midpoint_prec(Bil,MidPointP,compression);
@@ -102,19 +104,20 @@ int main (int argc, char *argv[]) {
 
 
     T cB_norm, CB_norm, cB_midpoint, CB_midpoint;
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
+    FullMatT A_dense;
     std::stringstream filename;
     filename << "eigenvalues_weighted_sobolev_" << jmin << "_" << d << "_" << d_  << ".dat";
     std::ofstream file(filename.str().c_str());
-    for (int jmax=0; jmax<=max_level; jmax+=1) {
+    for (int jmax=jmin; jmax<=max_level; jmax+=1) {
         for (T r=1.; r<=radius; r+=1.) {
-            IndexSet<Index1D> Lambda = LambdaForEigenvalues(jmin, jmax, basis, r, true);
+            IndexSet<Index1D> Lambda = LambdaForEigenvalues(jmin, jmax, basis, r);
             int N = Lambda.size();
             cout << "Size of Lambda: " << N << endl;
 
             cout << "Norm preconditioning ..." << endl;
             flens::SparseGeMatrix<CRS<T,CRS_General> > A_norm_prec_sparse(N,N);
             toFlensSparseMatrix(A_norm_prec, Lambda, Lambda, A_norm_prec_sparse);
+            spy(A_norm_prec_sparse,"A_norm_prec");
             densify(cxxblas::NoTrans,A_norm_prec_sparse,A_dense);
             cB_norm=0., CB_norm=0.;
             computeEV(A_dense, cB_norm, CB_norm);
@@ -126,6 +129,7 @@ int main (int argc, char *argv[]) {
             flens::SparseGeMatrix<CRS<T,CRS_General> > A_midpoint_prec_sparse(N,N);
             toFlensSparseMatrix(A_midpoint_prec, Lambda, Lambda, A_midpoint_prec_sparse);
             densify(cxxblas::NoTrans,A_midpoint_prec_sparse,A_dense);
+            spy(A_midpoint_prec_sparse,"A_midpoint_prec");
             cB_midpoint=0., CB_midpoint=0.;
             computeEV(A_dense, cB_midpoint, CB_midpoint);
             cout             << " " << jmax << " " << r
@@ -169,44 +173,26 @@ computeSV(flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &A, T &cB, 
 
 template<typename T>
 IndexSet<Index1D>
-LambdaForEigenvalues(int jmin, int jmax, const Basis1D &basis, T radius, bool with_BSplines)
+LambdaForEigenvalues(int jmin, int jmax, const Basis1D &basis, T radius)
 {
     const BSpline<T,Primal,R,CDF> phi = basis.mra.phi;
     const Wavelet<T,Primal,R,CDF> psi = basis.psi;
     IndexSet<Index1D> Lambda;
     int k_left, k_right;
-    if (with_BSplines) {
-        for (int j=jmin; j<=jmax; ++j) {
-            k_left = std::floor(-pow2i<T>(j)*radius-psi.support(0,0).l2);
-            k_right = std::ceil(pow2i<T>(j)*radius-psi.support(0,0).l1);
-            for (int k=k_left; k<=k_right; ++k) {
-                Lambda.insert(Index1D(j,k,XWavelet));
-            }
-        }
 
-        k_left  = int(std::floor(-pow2i<T>(jmin)*radius-phi.support(0,0).l2));
-        k_right = int(std::ceil(  pow2i<T>(jmin)*radius-phi.support(0,0).l1));
+    for (int j=jmin; j<=jmax; ++j) {
+        k_left = std::floor(-pow2i<T>(j)*radius-psi.support(0,0).l2);
+        k_right = std::ceil(pow2i<T>(j)*radius-psi.support(0,0).l1);
         for (int k=k_left; k<=k_right; ++k) {
-            Lambda.insert(Index1D(jmin,k,XBSpline));
+            Lambda.insert(Index1D(j,k,XWavelet));
         }
     }
-    else {
-        for (int j=jmin; j<=jmax; ++j) {
-                int k_left, k_right;
-                if (j>=-6) {
-                    k_left = std::floor(-pow2i<T>(j)*radius-psi.support(0,0).l2);
-                    k_right = std::ceil(pow2i<T>(j)*radius-psi.support(0,0).l1);
-                    if (k_left>=0) cout << "j=" << j << ", k_left=" << k_left << endl;
-                    if (k_right<=0) cout << "j=" << j << ", k_right=" << k_right << endl;
-                }
-                else {
-                    k_left = -psi.d-psi.d_;
-                    k_right = psi.d+psi.d_;
-                }
-                for (int k=k_left; k<=k_right; ++k) {
-                    Lambda.insert(Index1D(j,k,XWavelet));
-                }
-            }
+
+    k_left  = int(std::floor(-pow2i<T>(jmin)*radius-phi.support(0,0).l2));
+    k_right = int(std::ceil(  pow2i<T>(jmin)*radius-phi.support(0,0).l1));
+    for (int k=k_left; k<=k_right; ++k) {
+        Lambda.insert(Index1D(jmin,k,XBSpline));
     }
+
     return Lambda;
 }
