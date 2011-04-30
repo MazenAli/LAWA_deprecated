@@ -41,6 +41,21 @@ struct IsPrimal<Some<T, Primal, Domain, Cons> >
     static const bool value = true;
 };
 
+//--- IsOrthogonal
+
+template <typename X>
+struct IsOrthogonal
+{
+    static const bool value = false;
+};
+
+template <typename T, DomainType Domain, Construction Cons,
+    template <typename, FunctionSide, DomainType, Construction> class Some>
+struct IsOrthogonal<Some<T, Orthogonal, Domain, Cons> >
+{
+    static const bool value = true;
+};
+
 //--- IsDual
 
 template <typename X>
@@ -63,6 +78,13 @@ struct PrimalOrDual
     static const bool value = (IsPrimal<X>::value || IsDual<X>::value);
 };
 
+//--- PrimalOrDualOrOrthogonal
+template <typename X>
+struct PrimalOrDualOrOrthogonal
+{
+    static const bool value = (IsPrimal<X>::value || IsDual<X>::value || IsOrthogonal<X>::value);
+};
+
 //--- BothPrimal
 template <typename X, typename Y>
 struct BothPrimal
@@ -75,6 +97,13 @@ template <typename X, typename Y>
 struct BothDual
 {
     static const bool value = IsDual<X>::value && IsDual<Y>::value;
+};
+
+//--- BothOrthogonal
+template <typename X, typename Y>
+struct BothOrthogonal
+{
+    static const bool value = IsOrthogonal<X>::value && IsOrthogonal<Y>::value;
 };
 
 //--- PrimalOrDual
@@ -129,9 +158,6 @@ struct IsPeriodic<BSpline<T,Side,Periodic,Cons> >
     static const bool value = true;
 };
 
-
 } // namespace lawa
  
 #endif // LAWA_SETTINGS_TYPETRAITS_H
- 
-
