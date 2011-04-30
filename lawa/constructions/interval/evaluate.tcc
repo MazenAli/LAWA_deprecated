@@ -17,13 +17,17 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <lawa/aux/compiletime_assert.h>
+
 namespace lawa {
 
-template <Construction Cons, typename X>
+template <FunctionSide Side, Construction Cons, typename X>
 typename X::ElementType
-evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, int j,
+evaluate(const MRA<typename X::ElementType,Side,Interval,Cons> &mra, int j,
          const DenseVector<X>& coeffs, typename X::ElementType x, int deriv)
 {
+    ct_assert(Side==Primal or Side==Orthogonal);
+
     assert(j>=mra.j0);
     assert(coeffs.length()==mra.cardI(j));
     assert(x>=0.);
@@ -31,7 +35,7 @@ evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, int j,
 
     typedef typename X::ElementType T;
 
-    BSpline<T,Primal,Interval,Cons> phi(mra);
+    BSpline<T,Side,Interval,Cons> phi(mra);
     T ret = 0.0;
     for (int k=mra.rangeI(j).firstIndex(); k<=mra.rangeI(j).lastIndex(); ++k) {
         ret += coeffs(k) * phi(x,j,k,deriv);
@@ -61,12 +65,14 @@ evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, int j,
 */
 }
 
-template <Construction Cons, typename X>
+template <FunctionSide Side, Construction Cons, typename X>
 typename X::ElementType
-evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
+evaluate(const Basis<typename X::ElementType,Side,Interval,Cons> &basis,
          int J, const DenseVector<X> &coeffs, typename X::ElementType x,
          int deriv)
 {
+    ct_assert(Side==Primal or Side==Orthogonal);
+
     assert(J>=basis.j0);
     assert(coeffs.range()==basis.mra.rangeI(J));
     assert(x>=0.);
@@ -79,7 +85,7 @@ evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
     basis.setLevel(j0);
     T ret = 0.;
     ret += evaluate(basis.mra,j0,coeffs(basis.mra.rangeI(j0)),x,deriv);
-    Wavelet<T,Primal,Interval,Cons> psi(basis);
+    Wavelet<T,Side,Interval,Cons> psi(basis);
     for (int j=j0; j<=J-1; ++j) {
         if (x<basis.suppJL(j).l2) {
             for (int k=basis.rangeJL(j).firstIndex(); k<=basis.rangeJL(j).lastIndex(); ++k) {
@@ -113,7 +119,7 @@ evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis,
 
     T ret = 0;
     ret += evaluate(basis.mra,j0,coeffs(basis.mra.rangeI(j0)),x,deriv);
-    Wavelet<T,Primal,Interval,Cons> psi(basis);
+    Wavelet<T,Side,Interval,Cons> psi(basis);
     for (int j=j0; j<=J-1; ++j) {
         for (int k=1; k<=basis.cardJ(j); ++k) {
             ret += coeffs(basis.mra.rangeI(j).lastIndex() + k) * psi(x, j, k, deriv);
