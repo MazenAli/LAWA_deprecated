@@ -3,6 +3,7 @@
 #include <lawa/constructions/bspline.h>
 #include <lawa/constructions/interval/interval.h>
 #include <lawa/constructions/mra.h>
+#include <lawa/constructions/multi/multi.h>
 #include <lawa/constructions/periodic/periodic.h>
 #include <lawa/constructions/realline/realline.h>
 #include <lawa/constructions/refinementmatrix.h>

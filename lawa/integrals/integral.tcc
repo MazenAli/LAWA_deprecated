@@ -31,9 +31,10 @@
 
 namespace lawa {
    
-//--- primal * primal
+//--- primal * primal or orthogonal * orthogonal
 template <typename First, typename Second>
-typename RestrictTo<BothPrimal<First,Second>::value, typename First::T>::Type
+typename RestrictTo<BothPrimal<First,Second>::value
+                    or BothOrthogonal<First,Second>::value, typename First::T>::Type
 _integrate(const Integral<Gauss,First,Second> &integral)
 {
     typedef typename First::T T;
@@ -58,9 +59,9 @@ _integrate(const Integral<Gauss,First,Second> &integral)
     return ret;
 }
 
-//--- (primal * dual) || (dual * primal) || (dual * dual)
+//--- (primal * dual) or (dual * primal) or (dual * dual) or (dual * orthogonal) or (orthogonal * dual)
 template <QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<IsDual<First>::value || IsDual<Second>::value, typename First::T>::Type
+typename RestrictTo<IsDual<First>::value or IsDual<Second>::value, typename First::T>::Type
 _integrate(const Integral<Quad,First,Second> &integral)
 {
     typedef typename First::T T;
@@ -77,7 +78,7 @@ _integrate(const Integral<Quad,First,Second> &integral)
     }
 }
     
-//--- function * primal/dual
+//--- function * primal/dual/orthogonal
 template <QuadratureType Quad, typename First, typename Second>
 typename First::T
 _integrate_f1(const IntegralF<Quad,First,Second> &integral)
@@ -114,7 +115,7 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
     return ret;
 }
 
-//--- function * primal/dual * primal/dual)
+//--- function * primal/dual/orthogonal * primal/dual/orthogonal)
 template <QuadratureType Quad, typename First, typename Second>
 typename First::T
 _integrate_f2(const IntegralF<Quad,First,Second> &integral)
@@ -192,7 +193,7 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
 
 //-----------------------------------------------------------------------------
 
-//--- primal/dual * primal/dual
+//--- primal/dual/orthogonal * primal/dual/orthogonal
 template <QuadratureType Quad, typename First, typename Second>
 typename First::T
 _integrand(const Integral<Quad,First,Second> &integral, typename First::T x)
@@ -202,18 +203,19 @@ _integrand(const Integral<Quad,First,Second> &integral, typename First::T x)
     return first(x,integral.j1,integral.k1,integral.deriv1) * second(x,integral.j2,integral.k2,integral.deriv2);
 }
 
-//--- function * primal/dual
+//--- function * primal/dual/orthogonal
 template <QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<PrimalOrDual<First>::value, typename First::T>::Type
+typename RestrictTo<PrimalOrDualOrOrthogonal<First>::value, typename First::T>::Type
 _integrand_f1(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
     return integral.function(x) * first(x,integral.j1,integral.k1,integral.deriv1);
 }
 
-//--- function * primal/dual * primal/dual
+//--- function * primal/dual/orthogonal * primal/dual/orthogonal
 template <QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<PrimalOrDual<First>::value && PrimalOrDual<Second>::value, typename First::T>::Type
+typename RestrictTo<PrimalOrDualOrOrthogonal<First>::value 
+                    and PrimalOrDualOrOrthogonal<Second>::value, typename First::T>::Type
 _integrand_f2(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);

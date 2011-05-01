@@ -25,7 +25,7 @@ template <typename T>
 Basis<T,Primal,Interval,Primbs>::Basis(int _d, int _d_, int j)
     : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
-      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(j0)
+      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(j0), psi(*this)
 {
     _calcM1();
 }

@@ -26,15 +26,15 @@
 
 namespace lawa {
 
-template <Construction Cons, typename X>
+template <FunctionSide Side, Construction Cons, typename X>
     typename X::ElementType
-    evaluate(const MRA<typename X::ElementType,Primal,Interval,Cons> &mra, 
+    evaluate(const MRA<typename X::ElementType,Side,Interval,Cons> &mra,
              int j, const DenseVector<X> &coeffs, typename X::ElementType x, 
              int deriv);
 
-template <Construction Cons, typename X>
+template <FunctionSide Side, Construction Cons, typename X>
     typename X::ElementType
-    evaluate(const Basis<typename X::ElementType,Primal,Interval,Cons> &basis, 
+    evaluate(const Basis<typename X::ElementType,Side,Interval,Cons> &basis,
              int J, const DenseVector<X> &coeffs, typename X::ElementType x, 
              int deriv);
 
