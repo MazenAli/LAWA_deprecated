@@ -3,8 +3,10 @@ namespace lawa{
 // THETASCHEME
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
-ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs)
-    : theta(_theta), basis(_basis), assembler(basis), integral(_basis, _basis),
+ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs,
+                  const bool _use_pcg, T _assembletol, T _lintol)
+    : theta(_theta), basis(_basis), use_pcg(_use_pcg), assembletol(_assembletol), lintol(_lintol),
+      assembler(basis), integral(_basis, _basis),
       op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs), prec(op_LHSMatrix),
       currentLevel(-1), P(assembler.assemblePreconditioner(prec, 2))
 {   
@@ -19,15 +21,20 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
     if(level != currentLevel){
         op_LHSMatrix.setTimes(time_old, time_new);
         op_RHSMatrix.setTimes(time_old, time_new);
-        lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
-        rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level);
+        lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level, assembletol);
+        rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level, assembletol);
         P = assembler.assemblePreconditioner(prec, level);
+        rhsvector = assembler.assembleRHS(op_RHSVector, level);
         currentLevel = level;
     }
-    flens::DenseVector<flens::Array<T> > rhsvector = assembler.assembleRHS(op_RHSVector, level);
     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
     flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
-    pcg(P,lhsmatrix, u, rhs);
+    if (use_pcg) {
+        pcg(P,lhsmatrix, u, rhs, lintol);
+    }
+    else {
+        pgmres(P,lhsmatrix, u, rhs, lintol, 20);
+    }
     //std::cout << cg(lhsmatrix, u, rhs) << "cg iterations" << std::endl;
     //std::cout << pcg(P, lhsmatrix, u, rhs) << "pcg iterations" << std::endl;
     
@@ -44,14 +51,19 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init,
      if(level != currentLevel){
          op_LHSMatrix.setTimes(time_old, time_new);
          op_RHSMatrix.setTimes(time_old, time_new);
-         lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
-         rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level);
+         lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level, assembletol);
+         rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level, assembletol);
          P = assembler.assemblePreconditioner(prec, level);
          currentLevel = level;
      }
      flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + f;
      flens::DenseVector<flens::Array<T> > u(u_init);
-     pcg(P, lhsmatrix, u, rhs);
+     if (use_pcg) {
+         pcg(P,lhsmatrix, u, rhs, lintol);
+     }
+     else {
+         pgmres(P,lhsmatrix, u, rhs, lintol, 20);
+     }
      //std::cout << cg(lhsmatrix, u, rhs) << "cg iterations" << std::endl;
      //std::cout << pcg(P, lhsmatrix, u, rhs) << "pcg iterations" << std::endl;
      //std::cout << "u(" << time_new << "): " << u << std::endl; 

@@ -17,7 +17,9 @@ class ThetaScheme1D_LTI
     public: 
         typedef RHSIntegral RHSType;       
         
-        ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs);
+        ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a,
+                          RHSIntegral& _rhs, const bool _use_pcg=false, T _assembletol=10e-15,
+                          T _lintol=10e-15);
     
         flens::DenseVector<flens::Array<T> > 
         solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
@@ -104,6 +106,9 @@ class ThetaScheme1D_LTI
         
         T theta;
         const Basis& basis;
+        const bool use_pcg;
+        T assembletol;
+        T lintol;
         Assembler1D<T, Basis> assembler;
 
         Integral<Gauss, Basis, Basis> integral;
@@ -118,6 +123,7 @@ class ThetaScheme1D_LTI
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix;
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix;
         flens::DiagonalMatrix<T>                                 P;
+        flens::DenseVector<flens::Array<T> >                     rhsvector;
 };
       
 } // namespace lawa
