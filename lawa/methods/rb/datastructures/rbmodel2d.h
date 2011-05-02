@@ -23,6 +23,7 @@
 #include <vector>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/rb/solvers/solvers.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>
 
@@ -32,7 +33,7 @@ namespace lawa {
  *
  */
  
-template <typename T>
+template <typename T, typename TruthSolver>
 class RBModel2D {
 
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
@@ -40,6 +41,17 @@ class RBModel2D {
 		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         
 	public:
+    
+    	// public member functions
+        
+        void 
+        set_current_param(const std::vector<T>& _param);
+        
+        std::vector<T>& 
+        get_current_param();
+                
+        // public members
+        
         std::vector<theta_fctptr> theta_a;
         std::vector<theta_fctptr> theta_f;
                 
@@ -47,11 +59,7 @@ class RBModel2D {
         std::vector<DenseVectorT> 		RB_F_vectors;
         std::vector<DenseVectorT>		RB_output_vectors;
         
-        void 
-        set_current_param(const std::vector<T>& _param);
-        
-        std::vector<T>& 
-        get_current_param();
+        TruthSolver* truthsolver;
     	
     protected: 
     

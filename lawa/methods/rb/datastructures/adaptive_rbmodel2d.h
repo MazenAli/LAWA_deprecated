@@ -32,8 +32,8 @@ namespace lawa {
  *
  */
  
-template <typename T, typename Basis>
-class AdaptiveRBModel2D : public RBModel2D<T> {
+template <typename T, typename Basis, typename TruthSolver>
+class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
 
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
 		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
@@ -56,24 +56,24 @@ class AdaptiveRBModel2D : public RBModel2D<T> {
     	
     	class Operator_LHS {
         	public:
-            	Operator_LHS(AdaptiveRBModel2D<T, Basis>* _model) : thisModel(_model){}
+            	Operator_LHS(AdaptiveRBModel2D<T, Basis, TruthSolver>* _model) : thisModel(_model){}
                 
 				T
                 operator()(const Index2D &row_index, const Index2D &col_index);
             
             private:
-            	AdaptiveRBModel2D<T, Basis>* thisModel;
+            	AdaptiveRBModel2D<T, Basis, TruthSolver>* thisModel;
         };
 
         class Operator_RHS {
         	public:
-            	Operator_RHS(AdaptiveRBModel2D<T, Basis>* _model) : thisModel(_model){}
+            	Operator_RHS(AdaptiveRBModel2D<T, Basis, TruthSolver>* _model) : thisModel(_model){}
                 
 				T
                 operator()(const Index2D &lambda);
             
             private:
-            	AdaptiveRBModel2D<T, Basis>* thisModel;        
+            	AdaptiveRBModel2D<T, Basis, TruthSolver>* thisModel;        
         };
     	
         Operator_LHS lhs_op;

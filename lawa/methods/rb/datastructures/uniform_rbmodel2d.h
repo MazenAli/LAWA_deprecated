@@ -33,8 +33,8 @@ namespace lawa {
  *
  */
  
-template <typename T, typename Prec = NoPreconditioner<T, Index2D> >
-class UniformRBModel2D : public RBModel2D<T> {
+template <typename T, typename TruthSolver>
+class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
 
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
 		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
@@ -42,8 +42,9 @@ class UniformRBModel2D : public RBModel2D<T> {
 	
     public:
 
+		// public member functions
+        
 		UniformRBModel2D();
-        UniformRBModel2D(Prec& _prec);
         
         void
         attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
@@ -51,17 +52,19 @@ class UniformRBModel2D : public RBModel2D<T> {
         void
         attach_F_q(theta_fctptr theta_f_q, Rhs2D<T>& F_q);
         
+        void set_truthsolver(TruthSolver& _truthsolver);
+
+        
+        // public members
+        
         std::vector<Operator2D<T>*> 	A_operators;
         std::vector<Rhs2D<T>*>			F_operators;
         
 		std::vector<T> 					rb_basis_functions;
-        
-        void
-        truth_solve();
     	    
     	class Operator_LHS {
         	public:
-            	Operator_LHS(UniformRBModel2D<T, Prec>* _model) : thisModel(_model){}
+            	Operator_LHS(UniformRBModel2D<T, TruthSolver>* _model) : thisModel(_model){}
                 
 				T
                 operator()(XType row_xtype_x, int j1_x, int k1_x,
@@ -70,29 +73,23 @@ class UniformRBModel2D : public RBModel2D<T> {
                            XType col_xtpye_y, int j2_y, int k2_y) const;
             
             private:
-            	UniformRBModel2D<T, Prec>* thisModel;
+            	UniformRBModel2D<T, TruthSolver>* thisModel;
         };
         
         class Operator_RHS {
         	public:
-            	Operator_RHS(UniformRBModel2D<T, Prec>* _model) : thisModel(_model){}
+            	Operator_RHS(UniformRBModel2D<T, TruthSolver>* _model) : thisModel(_model){}
                 
 				T
                 operator()(XType xtype_x, int j_x, int k_x,
                            XType xtype_y, int j_y, int k_y) const;
             
             private:
-            	UniformRBModel2D<T, Prec>* thisModel;        
+            	UniformRBModel2D<T, TruthSolver>* thisModel;        
         };
         
         Operator_LHS 	lhs_op;
         Operator_RHS 	rhs_op;
-        
-        const NoPreconditioner<T, Index2D> noprec; 
-        Prec& 		 	prec;
-        
-        std::vector<T>
-        truth_solve();
     	
 };
     
