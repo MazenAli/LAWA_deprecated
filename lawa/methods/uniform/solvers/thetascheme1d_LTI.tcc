@@ -4,8 +4,9 @@ namespace lawa{
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
 ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs,
-                  const bool _use_pcg, T _assembletol, T _lintol)
-    : theta(_theta), basis(_basis), use_pcg(_use_pcg), assembletol(_assembletol), lintol(_lintol),
+                  const bool _time_constant_rhs, const bool _use_pcg, T _assembletol, T _lintol)
+    : theta(_theta), basis(_basis), time_constant_rhs(_time_constant_rhs),
+      use_pcg(_use_pcg), assembletol(_assembletol), lintol(_lintol),
       assembler(basis), integral(_basis, _basis),
       op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs), prec(op_LHSMatrix),
       currentLevel(-1), P(assembler.assemblePreconditioner(prec, 2))
@@ -27,13 +28,16 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
         rhsvector = assembler.assembleRHS(op_RHSVector, level);
         currentLevel = level;
     }
+    if (!time_constant_rhs) {
+        rhsvector = assembler.assembleRHS(op_RHSVector, level);
+    }
     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
     flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
     if (use_pcg) {
         pcg(P,lhsmatrix, u, rhs, lintol);
     }
     else {
-        pgmres(P,lhsmatrix, u, rhs, lintol, 20);
+        pgmres(P,lhsmatrix, u, rhs, lintol);
     }
     //std::cout << cg(lhsmatrix, u, rhs) << "cg iterations" << std::endl;
     //std::cout << pcg(P, lhsmatrix, u, rhs) << "pcg iterations" << std::endl;
@@ -62,7 +66,7 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init,
          pcg(P,lhsmatrix, u, rhs, lintol);
      }
      else {
-         pgmres(P,lhsmatrix, u, rhs, lintol, 20);
+         pgmres(P,lhsmatrix, u, rhs, lintol);
      }
      //std::cout << cg(lhsmatrix, u, rhs) << "cg iterations" << std::endl;
      //std::cout << pcg(P, lhsmatrix, u, rhs) << "pcg iterations" << std::endl;
@@ -154,8 +158,8 @@ ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSVector::
 operator()(XType xtype, int j, int k) const
 {   
     // deltaT * (theta*f_k+1 - (1-theta)*f_k)
-    return (time_new - time_old)*(scheme->theta * rhs(xtype, j, k)
-                    + (1. - scheme->theta)*rhs(xtype, j, k));
+    return (time_new - time_old)*(scheme->theta * rhs(time_new, xtype, j, k)
+                    + (1. - scheme->theta)*rhs(time_old, xtype, j, k));
 } 
   
 }

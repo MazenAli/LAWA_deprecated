@@ -18,8 +18,8 @@ class ThetaScheme1D_LTI
         typedef RHSIntegral RHSType;       
         
         ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a,
-                          RHSIntegral& _rhs, const bool _use_pcg=false, T _assembletol=10e-15,
-                          T _lintol=10e-15);
+                          RHSIntegral& _rhs, const bool time_constant_rhs=false,
+                          const bool _use_pcg=false, T _assembletol=10e-15, T _lintol=10e-15);
     
         flens::DenseVector<flens::Array<T> > 
         solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
@@ -106,6 +106,7 @@ class ThetaScheme1D_LTI
         
         T theta;
         const Basis& basis;
+        const bool time_constant_rhs;
         const bool use_pcg;
         T assembletol;
         T lintol;
