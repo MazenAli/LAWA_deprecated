@@ -142,8 +142,8 @@ ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::Operator_RHSVector::
 operator()(XType xtype, int j, int k) const
 {   
     // deltaT * (theta*f_k+1 - (1-theta)*f_k)
-    return (time_new - time_old)*(scheme->theta * rhs(time_new, xtype, j, k) 
-                    + (1. - scheme->theta)*rhs(time_old, xtype, j, k));
+    return (time_new - time_old)*(scheme->theta * rhs(xtype, j, k)
+                    + (1. - scheme->theta)*rhs(xtype, j, k));
 } 
   
 }
