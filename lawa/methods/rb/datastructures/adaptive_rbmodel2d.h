@@ -41,7 +41,9 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
         
 	public:
 
-		AdaptiveRBModel2D();
+		/* Public member functions */
+        
+		AdaptiveRBModel2D(Basis& _basis);
         
         void
         attach_A_q(theta_fctptr theta_a_q, AdaptiveOperator2D<T, Basis>& A_q);
@@ -49,20 +51,33 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
         void
         attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, Index2D>& F_q);
         
+		void
+        set_truthsolver(TruthSolver& _truthsolver);
+
+        
+        /* Public members */
+        Basis&										basis;
+        
         std::vector<AdaptiveOperator2D<T, Basis>*> 	A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>		F_operators;
         
         std::vector<IndexSet<Index2D> > 			rb_basis_functions;
     	
     	class Operator_LHS {
+        	
+            typedef CompressionPDE2D<T, Basis> Compression;
+        	
+            private:
+            	AdaptiveRBModel2D<T, Basis, TruthSolver>* thisModel;
+                
         	public:
-            	Operator_LHS(AdaptiveRBModel2D<T, Basis, TruthSolver>* _model) : thisModel(_model){}
+            	Operator_LHS(AdaptiveRBModel2D<T, Basis, TruthSolver>* _model)
+                	: thisModel(_model), compression(thisModel->basis){}
                 
 				T
                 operator()(const Index2D &row_index, const Index2D &col_index);
-            
-            private:
-            	AdaptiveRBModel2D<T, Basis, TruthSolver>* thisModel;
+                
+                Compression compression;
         };
 
         class Operator_RHS {
@@ -71,6 +86,12 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
                 
 				T
                 operator()(const Index2D &lambda);
+
+                Coefficients<Lexicographical,T,Index2D>
+                operator()(const IndexSet<Index2D> &Lambda);
+
+                Coefficients<Lexicographical,T,Index2D>
+                operator()(T tol);
             
             private:
             	AdaptiveRBModel2D<T, Basis, TruthSolver>* thisModel;        

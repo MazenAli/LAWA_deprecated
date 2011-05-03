@@ -34,9 +34,6 @@ S_ADWAV_TruthSolver<T, Basis, Index>::truth_solve()
         case cg:
             s_adwav.solve_cg(InitialLambda);
             break;
-        case cg_WO_XBSpline:
-            //s_adwav.solve_cg_WO_XBSpline(InitialLambda);
-            break;
         case gmres:
             s_adwav.solve_gmres(InitialLambda);
             break;

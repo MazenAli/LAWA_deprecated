@@ -17,7 +17,7 @@ class S_ADWAV_TruthSolver : public TruthSolver<T, Index> {
         
     public:
         enum SolverCall {
-            cg, cg_WO_XBSpline, gmres, cgls
+            cg, gmres, cgls
         };
         
     	/* Public member functions */
