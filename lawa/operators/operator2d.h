@@ -9,7 +9,7 @@ template <typename T>
 struct Operator2D {     
                
     virtual T
-    operator()(const Index2D &row_index, const Index2D &col_index) const = 0;
+    operator()(const Index2D &row_index, const Index2D &col_index) = 0;
     
 };
     

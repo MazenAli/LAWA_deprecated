@@ -49,6 +49,9 @@ class WeightedLaplaceOperator2D : public UniformOperator2D<T> {
     	
         T
         operator()(const Index2D &row_index, const Index2D &col_index) const;
+        
+        T
+        operator()(const Index2D &row_index, const Index2D &col_index);
     
     private:
 
