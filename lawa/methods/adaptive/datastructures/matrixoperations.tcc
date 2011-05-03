@@ -88,7 +88,7 @@ mv(const IndexSet<RowIndex> &LambdaRow, MA &A, const Coefficients<Lexicographica
     typedef typename IndexSet<RowIndex>::const_iterator set_const_it;
     typedef typename Coefficients<Lexicographical,T,ColIndex>::const_iterator coeff_const_it;
 
-    Coefficients<Lexicographical,T,RowIndex> w(v.d,v.d_);
+    Coefficients<Lexicographical,T,RowIndex> w;
     Timer timer;
     timer.start();
     for (set_const_it lambda = LambdaRow.begin(); lambda != LambdaRow.end(); ++lambda) {

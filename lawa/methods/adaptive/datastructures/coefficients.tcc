@@ -140,7 +140,7 @@ template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index>
 operator*(T alpha, const Coefficients<Lexicographical,T,Index> &_coeff) {
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
-    Coefficients<Lexicographical,T,Index> ret(_coeff.d,_coeff.d_);
+    Coefficients<Lexicographical,T,Index> ret;
     for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
         ret.operator[]((*lambda).first) = alpha*(*lambda).second;
     }
