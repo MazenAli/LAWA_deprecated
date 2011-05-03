@@ -24,6 +24,14 @@ UniformRBModel2D<T, TruthSolver>::attach_F_q(theta_fctptr theta_f_q, Rhs2D<T>& F
 	F_operators.push_back(&F_q);
 }
 
+template <typename T, typename TruthSolver>
+void 
+UniformRBModel2D<T, TruthSolver>::set_truthsolver(TruthSolver& _truthsolver)
+{
+	this->truthsolver = &_truthsolver;
+    this->truthsolver->set_model(*this);
+}
+
 
 template <typename T, typename TruthSolver>
 T
@@ -54,14 +62,6 @@ UniformRBModel2D<T, TruthSolver>::Operator_RHS::operator()(XType xtype_x, int j_
     }
     
     return val;
-}
-
-template <typename T, typename TruthSolver>
-void 
-UniformRBModel2D<T, TruthSolver>::set_truthsolver(TruthSolver& _truthsolver)
-{
-	this->truthsolver = &_truthsolver;
-    this->truthsolver->set_model(*this);
 }
 
 } // namespace lawa

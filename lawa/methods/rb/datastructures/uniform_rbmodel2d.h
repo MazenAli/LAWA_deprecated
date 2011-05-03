@@ -42,7 +42,7 @@ class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
 	
     public:
 
-		// public member functions
+		/* Public member functions */
         
 		UniformRBModel2D();
         
@@ -52,10 +52,11 @@ class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
         void
         attach_F_q(theta_fctptr theta_f_q, Rhs2D<T>& F_q);
         
-        void set_truthsolver(TruthSolver& _truthsolver);
+        void
+        set_truthsolver(TruthSolver& _truthsolver);
 
         
-        // public members
+        /* Public members */
         
         std::vector<Operator2D<T>*> 	A_operators;
         std::vector<Rhs2D<T>*>			F_operators;
