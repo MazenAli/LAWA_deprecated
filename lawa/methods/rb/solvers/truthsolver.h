@@ -7,12 +7,12 @@
 
 namespace lawa {
 
-template <typename T>
+template <typename T, typename Index>
 struct TruthSolver {
 	
     TruthSolver(){};
     
-    virtual Coefficients<Lexicographical,T,Index2D>
+    virtual Coefficients<Lexicographical,T,Index>
     truth_solve() = 0;
     
 };

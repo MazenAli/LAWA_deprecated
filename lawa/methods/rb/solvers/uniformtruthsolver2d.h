@@ -11,10 +11,15 @@ namespace lawa {
 
 template <typename, typename> class UniformRBModel2D;
 
+/* Uniform Truth Solver
+ *	This class provides a solver for truth solutions, based on
+ * 	the uniform (or sparse) assembler methods.
+ */
 template <typename T, typename Basis, typename Prec = NoPreconditioner<T, Index2D> >
-class UniformTruthSolver2D : public TruthSolver<T> {
+class UniformTruthSolver2D : public TruthSolver<T, Index2D> {
 		    
     public:
+    	// Public member functions
 		UniformTruthSolver2D(Basis& _basis);
         UniformTruthSolver2D(Basis& _basis, int _J_x, int _J_y);
         UniformTruthSolver2D(Basis& _basis, Prec& prec);
@@ -29,24 +34,32 @@ class UniformTruthSolver2D : public TruthSolver<T> {
         flens::DenseVector<flens::Array<T> > 
         get_Jmax();
         
-		void set_model(UniformRBModel2D<T, UniformTruthSolver2D<T, Basis, Prec> >& _model); 
+		void 
+        set_model(UniformRBModel2D<T, UniformTruthSolver2D<T, Basis, Prec> >& _model); 
         
-                
+        // Public members        
         const NoPreconditioner<T, Index2D> noprec; 
         Prec& 		 					   prec;
                
     private:
-    
- 	 	UniformRBModel2D<T, UniformTruthSolver2D<T, Basis, Prec> >* rb_model;
+    	
+        // Private member functions
+        
+        /* Function that converts a DenseVector of coefficient values (relative to the
+         * current basis) to a Coefficients map. Used in truth_solve().
+         */
+        void
+		denseVectorToCoefficients(flens::DenseVector<flens::Array<T> > arg, 
+                                  Coefficients<Lexicographical,T, Index2D>& dest);
+        
+        // Private members
+        UniformRBModel2D<T, UniformTruthSolver2D<T, Basis, Prec> >* rb_model;
 
     	Basis& basis;
     	int J_x, J_y;
         
         Assembler2D<T, Basis> assembler;
         
-		void
-		denseVectorToCoefficients(flens::DenseVector<flens::Array<T> > arg, 
-                                  Coefficients<Lexicographical,T, Index2D>& dest);
 };
     
 } // namespace lawa

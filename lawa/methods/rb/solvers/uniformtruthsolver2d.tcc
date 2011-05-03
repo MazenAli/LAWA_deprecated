@@ -79,7 +79,8 @@ UniformTruthSolver2D<T, Basis, Prec>::denseVectorToCoefficients(flens::DenseVect
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
 
     UniformIndex2D<Basis> I(basis, J_x, J_y);
-    /* We have to convert each basis function into an index 
+   
+     /* We have to convert each basis function into an index 
      * and insert that and its corresponding value in arg into dest
      */
     
