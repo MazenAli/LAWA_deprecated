@@ -10,6 +10,13 @@ struct AdaptiveRhs {
                
     virtual T
     operator()(const Index &lambda) = 0;
+
+    virtual Coefficients<Lexicographical,T,Index>
+    operator()(const IndexSet<Index> &Lambda) = 0;
+
+    virtual Coefficients<Lexicographical,T,Index>
+    operator()(T tol) = 0;
+
         
 };
     
