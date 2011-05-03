@@ -27,23 +27,23 @@
 #include <lawa/methods/adaptive/compressions/compression_pde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
-#include <lawa/methods/adaptive/operators/adaptiveoperator2d.h>
 #include <lawa/methods/rb/operators/weightedidentityoperator1d.h>
 #include <lawa/methods/rb/operators/weightedlaplaceoperator1d.h>
+#include <lawa/operators/operator2d.h>
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
 #include <lawa/preconditioners/preconditioners.h>
 
 namespace lawa {
 
 template <typename T, typename Basis, typename Preconditioner>
-struct WeightedAdaptiveHelmholtzOperator2D : public AdaptiveOperator2D<T, Basis>
+struct WeightedAdaptiveHelmholtzOperator2D : public Operator2D<T>
 {
     typedef typename Basis::FirstBasisType  Basis_x;
     typedef typename Basis::SecondBasisType Basis_y;
 
     typedef CompressionPDE1D<T, Basis_x>            Compression1D_x;
     typedef CompressionPDE1D<T, Basis_y>            Compression1D_y;
-    typedef CompressionPDE2D<T, Basis>            Compression2D;
+    typedef CompressionPDE2D<T, Basis>         	    Compression2D;
 
     typedef NoPreconditioner<T,Index1D>             NoPreconditioner1D;
     typedef NoPreconditioner<T,Index2D>             NoPreconditioner2D;

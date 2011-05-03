@@ -9,7 +9,7 @@ UniformRBModel2D<T, TruthSolver>::UniformRBModel2D()
 
 template <typename T, typename TruthSolver>
 void
-UniformRBModel2D<T, TruthSolver>::attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q)
+UniformRBModel2D<T, TruthSolver>::attach_A_q(theta_fctptr theta_a_q, UniformOperator2D<T>& A_q)
 {
 	this->theta_a.push_back(theta_a_q);
 	A_operators.push_back(&A_q);

@@ -46,23 +46,21 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
 		AdaptiveRBModel2D(Basis& _basis);
         
         void
-        attach_A_q(theta_fctptr theta_a_q, AdaptiveOperator2D<T, Basis>& A_q);
+        attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
         
         void
         attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, Index2D>& F_q);
         
 		void
         set_truthsolver(TruthSolver& _truthsolver);
-
         
         /* Public members */
+        
         Basis&										basis;
         
-        std::vector<AdaptiveOperator2D<T, Basis>*> 	A_operators;
+        std::vector<Operator2D<T>*> 	A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>		F_operators;
-        
-        std::vector<IndexSet<Index2D> > 			rb_basis_functions;
-    	
+            	
     	class Operator_LHS {
         	
             typedef CompressionPDE2D<T, Basis> Compression;
@@ -99,6 +97,7 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
     	
         Operator_LHS lhs_op;
         Operator_RHS rhs_op;
+
 };
     
 } // namespace lawa

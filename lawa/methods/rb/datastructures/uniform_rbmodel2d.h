@@ -23,7 +23,7 @@
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/rb/datastructures/rbmodel2d.h>
-#include <lawa/operators/operator2d.h>
+#include <lawa/operators/uniformoperator2d.h>
 #include <lawa/preconditioners/nopreconditioner.h>
 #include <lawa/righthandsides/rhs2d.h>
 
@@ -47,7 +47,7 @@ class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
 		UniformRBModel2D();
         
         void
-        attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
+        attach_A_q(theta_fctptr theta_a_q, UniformOperator2D<T>& A_q);
         
         void
         attach_F_q(theta_fctptr theta_f_q, Rhs2D<T>& F_q);
@@ -58,11 +58,9 @@ class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
         
         /* Public members */
         
-        std::vector<Operator2D<T>*> 	A_operators;
+        std::vector<UniformOperator2D<T>*> 	A_operators;
         std::vector<Rhs2D<T>*>			F_operators;
-        
-		std::vector<T> 					rb_basis_functions;
-    	    
+            	    
     	class Operator_LHS {
         	public:
             	Operator_LHS(UniformRBModel2D<T, TruthSolver>* _model) : thisModel(_model){}

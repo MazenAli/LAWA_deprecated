@@ -24,6 +24,7 @@
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/operators/operator2d.h>
+#include <lawa/operators/uniformoperator2d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/integrals/integral.h>
@@ -36,7 +37,7 @@ namespace lawa {
  *
  */
 template <typename T, typename Basis>
-class HelmholtzOperator2D : public Operator2D<T> {
+class HelmholtzOperator2D : public UniformOperator2D<T> {
                                                                                                                        
     public:
 

@@ -23,7 +23,7 @@
 #include <lawa/functiontypes/function.h>
 #include <lawa/integrals/integral.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/operators/operator2d.h>
+#include <lawa/operators/uniformoperator2d.h>
 
 namespace lawa {
 
@@ -34,7 +34,7 @@ namespace lawa {
  *
  */
 template <typename T, typename Basis>
-class WeightedLaplaceOperator2D : public Operator2D<T> {
+class WeightedLaplaceOperator2D : public UniformOperator2D<T> {
 	
 	public:
   		const Basis& basis;

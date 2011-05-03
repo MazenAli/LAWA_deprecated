@@ -7,7 +7,7 @@ AdaptiveRBModel2D<T, Basis, TruthSolver>::AdaptiveRBModel2D(Basis& _basis)
 
 template <typename T, typename Basis, typename TruthSolver>
 void
-AdaptiveRBModel2D<T, Basis, TruthSolver>::attach_A_q(theta_fctptr theta_a_q, AdaptiveOperator2D<T, Basis>& A_q)
+AdaptiveRBModel2D<T, Basis, TruthSolver>::attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q)
 {
 	this->theta_a.push_back(theta_a_q);
 	A_operators.push_back(&A_q);
@@ -30,6 +30,8 @@ AdaptiveRBModel2D<T, Basis, TruthSolver>::set_truthsolver(TruthSolver& _truthsol
 }
 
 
+/*  Operator LHS */
+
 template <typename T, typename Basis, typename TruthSolver>
 T
 AdaptiveRBModel2D<T, Basis, TruthSolver>::Operator_LHS::operator()(const Index2D &row_index, const Index2D &col_index)
@@ -42,6 +44,8 @@ AdaptiveRBModel2D<T, Basis, TruthSolver>::Operator_LHS::operator()(const Index2D
     
     return val;
 }
+
+/*  Operator RHS */
 
 template <typename T, typename Basis, typename TruthSolver>
 T

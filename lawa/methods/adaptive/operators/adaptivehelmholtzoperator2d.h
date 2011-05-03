@@ -33,7 +33,7 @@
 namespace lawa {
 
 template <typename T, typename Basis2D, typename Preconditioner>
-struct AdaptiveHelmholtzOperator2D
+struct AdaptiveHelmholtzOperator2D : public Operator2D<T>
 {
     typedef typename Basis2D::FirstBasisType  Basis_x;
     typedef typename Basis2D::SecondBasisType Basis_y;
