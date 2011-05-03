@@ -39,18 +39,22 @@ class RBModel2D {
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
 		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
 		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
+        typedef Coefficients<Lexicographical,T,Index2D>						CoeffVector;
         
 	public:
     
-    	// public member functions
+    	/* Public member functions */
         
         void 
         set_current_param(const std::vector<T>& _param);
         
         std::vector<T>& 
         get_current_param();
+        
+        void 
+        attach_inner_product_op(Operator2D<T>& _inner_product_op);
                 
-        // public members
+    	/* Public members */
         
         std::vector<theta_fctptr> theta_a;
         std::vector<theta_fctptr> theta_f;
@@ -59,13 +63,25 @@ class RBModel2D {
         std::vector<DenseVectorT> 		RB_F_vectors;
         std::vector<DenseVectorT>		RB_output_vectors;
         
-        TruthSolver* truthsolver;
+        TruthSolver* 					truthsolver;
+        	
+		std::vector<CoeffVector> 		rb_basis_functions;
     	
     protected: 
+        
+        /* Protected member functions */
     
     	RBModel2D();
         
+        void
+        add_to_basis(CoeffVector& sol);
+                
+        /* Protected members */
+
         std::vector<T> current_param;
+        
+        Operator2D<T>* inner_product_op;
+        
 };
     
 } // namespace lawa
