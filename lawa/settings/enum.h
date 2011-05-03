@@ -24,7 +24,8 @@ namespace lawa {
 
 enum FunctionSide {
     Primal,
-    Dual
+    Dual,
+    Orthogonal
 };
 
 enum DomainType {
@@ -48,7 +49,8 @@ enum Construction {
     AnyInterval,
     DKU,
     Primbs,
-    Dijkema
+    Dijkema,
+    Multi
 };
 
 enum BoundaryCondition {

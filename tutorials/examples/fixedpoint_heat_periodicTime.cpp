@@ -65,11 +65,11 @@ int main(int argc, char* argv[]){
     // Right Hand Side Initialization
     //      Use Reference Solutions
     SpaceTimeTensorRefSols1D<T,TensorBasis2D<Uniform, PeriodicBasis, PrimalBasis> > refsol;
-	refsol.setExample(ex, c, k, r);
-	SeparableFunction2D<T> rhs_fct_1(refsol.rhs_contrib_t, refsol.sing_pts_t,
+    refsol.setExample(ex, c, k, r);
+    SeparableFunction2D<T> rhs_fct_1(refsol.rhs_contrib_t, refsol.sing_pts_t,
                                      refsol.u_x, refsol.sing_pts_x);
-	SeparableFunction2D<T> rhs_fct_2(refsol.u_t, refsol.sing_pts_t,
-							         refsol.rhs_contrib_x, refsol.sing_pts_x);
+    SeparableFunction2D<T> rhs_fct_2(refsol.u_t, refsol.sing_pts_t,
+                                     refsol.rhs_contrib_x, refsol.sing_pts_x);
     TimedepRHS1D rhs_1(basis1d, rhs_fct_1, 10);
     TimedepRHS1D rhs_2(basis1d, rhs_fct_2, 10);
     SumOfRHS1D   F(rhs_1, rhs_2);
@@ -85,10 +85,10 @@ int main(int argc, char* argv[]){
     timer.start();
     DenseVectorT u = fixedpointsolver.solve(u_0, true);
     timer.stop();    
-	
+    
     // Postprocessing
     cout << steps << " " << J << " " << basis1d.mra.cardI(J) << " " << timer.elapsed() << " seconds " << endl;
-	print_U(u, basis1d, J, "FP_u_T.txt");
+    print_U(u, basis1d, J, "FP_u_T.txt");
 
     cout << "L2_error at t = T = " << calculateL2Error(1., u, refsol.sol, basis1d, J, 1./pow2i<T>(J+2)) << endl;
     cout << "H1_error at t = T = " << calculateH1Error(1., u, refsol.sol, refsol.dx_sol, basis1d, J, 1./pow2i<T>(J+2)) << endl;
@@ -101,4 +101,3 @@ int main(int argc, char* argv[]){
     
     return 0;
 }
-            
