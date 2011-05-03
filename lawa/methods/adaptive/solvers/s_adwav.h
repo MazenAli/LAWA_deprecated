@@ -49,9 +49,10 @@ class S_ADWAV {
         std::vector<T>               times;
         std::vector<T>               linsolve_iterations;
         std::vector<T>               toliters;
+
+        const Basis &basis;
     
     private:
-        const Basis &basis;
         MA &A;
         RHS &F;
         T contraction, threshTol, linTol, resTol;
