@@ -65,7 +65,7 @@ _linear_bspline_inner_evaluator1(T x, unsigned short deriv)
             value = 3.464101615137754587055 * x ;
         } else {
             value = 0.0;
-        }	
+        }
     } else if (deriv == 1){
         if(0.5 <= x && x < 1.0){
             value =  - 3.464101615137754587055;
@@ -73,7 +73,7 @@ _linear_bspline_inner_evaluator1(T x, unsigned short deriv)
             value = 3.464101615137754587055;
         } else {
             value = 0.0;
-        }	
+        }
     } else {
         value = 0.0;
     }

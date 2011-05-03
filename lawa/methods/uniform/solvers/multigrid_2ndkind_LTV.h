@@ -8,9 +8,9 @@
 namespace lawa{
     
 /* MultiGrid of the 2nd kind
- * 		This class solves periodic problems using the MultiGrid Algorithm of the second kind
- * 		(see W. Hackbusch "Fast Numerical Solution Of Time-Periodic Parabolic Problems by a 
- *		 Multigrid Method", SIAM J. Sci. Stat. Comp. 2 (2), pp. 198-206 (1981))
+ *      This class solves periodic problems using the MultiGrid Algorithm of the second kind
+ *      (see W. Hackbusch "Fast Numerical Solution Of Time-Periodic Parabolic Problems by a 
+ *       Multigrid Method", SIAM J. Sci. Stat. Comp. 2 (2), pp. 198-206 (1981))
  */    
 template<typename T, typename PrimalBasis, typename DualBasis, typename BilinearForm, typename RHSIntegral>
 class MultiGrid_2ndKind_LTV{

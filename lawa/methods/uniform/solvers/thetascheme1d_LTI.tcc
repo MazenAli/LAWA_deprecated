@@ -72,7 +72,7 @@ flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
 ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
 getLHSMatrix(int level)
 {   
-	if (level != currentLevel) {
+    if (level != currentLevel) {
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > matrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
         return matrix;
     }

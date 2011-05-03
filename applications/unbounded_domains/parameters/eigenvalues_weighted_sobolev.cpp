@@ -65,7 +65,7 @@ weight_f(T x)
 
 /// Zero convection term
 T
-b_f(T x)
+b_f(T /*x*/)
 {
     return 0.;
 }

@@ -15,7 +15,7 @@ _linear_wavelet_left_evaluator0(T x, unsigned short deriv)
         } else if(0.75 <= x && x < 1.0){
             value = -0.2348216675060776721838 + 0.2348216675060776721838*x;
         } else if(0.0 <= x && x < 0.125){
-            value = 26.67806695454637047700 * x;	
+            value = 26.67806695454637047700 * x;
         } else if(0.375 <= x && x <0.5){
             value = -2.92872776231550774859 + 6.56192052714924851372*x;
         } else if(0.25 <= x && x < 0.375){
@@ -31,7 +31,7 @@ _linear_wavelet_left_evaluator0(T x, unsigned short deriv)
         } else if(0.75 <= x && x < 1.0){
             value =  0.2348216675060776721838;
         } else if(0.0 <= x && x < 0.125){
-            value = 26.67806695454637047700;	
+            value = 26.67806695454637047700;
         } else if(0.375 <= x && x <0.5){
             value =  6.56192052714924851372;
         } else if(0.25 <= x && x < 0.375){
@@ -347,4 +347,3 @@ _linear_wavelet_right_evaluator1(T x, unsigned short deriv)
 }
 
 } // namespace lawa
- 

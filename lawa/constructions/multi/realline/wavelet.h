@@ -52,7 +52,7 @@ class Wavelet<_T,Orthogonal,R,Multi>
         DenseVector<Array<T> >
         singularSupport(int j, int k) const;
         
-//TODO        int	polynomialOrder;
+//TODO        int polynomialOrder;
         const int d;
         const int vanishingMoments;
 
