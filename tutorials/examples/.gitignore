@@ -1,3 +1,6 @@
 poisson1d
 helmholtz2d
-
+pde1d
+spacetime_heat_periodicTime
+fixedpoint_heat_periodicTime
+multigrid_heat_periodicTime

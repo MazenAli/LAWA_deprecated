@@ -50,17 +50,6 @@ struct Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal
     void
     getGHSADWAVParameters(T &_alpha, T &_omega, T &_gamma, T &_theta) const;
 
-    void
-    getRHS_W_XBSplineParameters(T &_left_bound, T &_right_bound, int &_J_plus_smooth,
-                                int &_J_plus_singular, bool &_singular_integral,
-                                int example) const;
-
-    void
-    getRHS_WO_XBSplineParameters(T &_left_bound, T &_right_bound, int &_J_plus_smooth, int &_J_minus_smooth,
-                                 int &_J_plus_singular, int &_J_minus_singular, bool &_singular_integral,
-                                 int example) const;
-
-
 };
 
 }    //namespace lawa

@@ -1,4 +1,4 @@
-SUBDIRS := unbounded_domains
+SUBDIRS := unbounded_domains finance
 
 all:
 	$(SILENT) for i in $(SUBDIRS); \

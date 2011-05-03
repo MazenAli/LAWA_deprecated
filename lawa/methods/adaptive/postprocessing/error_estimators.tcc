@@ -36,8 +36,8 @@ estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> 
 
 template <typename T, typename Index, typename MA, typename RHS>
 T
-estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
-                       T HNormOfExactSolution)
+computeErrorInH1Norm(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
+                     T HNormOfExactSolution)
 {
     Coefficients<Lexicographical,T,Index> Au, f_H;
     Au = mv_sparse(supp(u),A_H,u);
@@ -47,6 +47,27 @@ estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,I
 
     return std::sqrt(fabs(std::pow(HNormOfExactSolution,2)- 2*fu + uAu));
 
+}
+
+template <typename T, typename Index, typename SOLVER, typename MA_H, typename RHS_H>
+void
+postprocessing_H1(SOLVER& Solver, MA_H &A_H1, RHS_H &F_H1, T H1norm, const char* filename)
+{
+
+    Coefficients<Lexicographical,T,Index> u;
+    std::ofstream file(filename);
+
+    for (int i=0; i<int(Solver.solutions.size()); ++i) {
+        u = Solver.solutions[i];
+        T ErrorH1Norm = computeErrorInH1Norm(A_H1, F_H1, u, H1norm);
+        file      << supp(u).size() << " " << Solver.linsolve_iterations[i] << " "
+                  << Solver.times[i] << " " << Solver.residuals[i] << " "
+                  << ErrorH1Norm << std::endl;
+        std::cerr << supp(u).size() << " " << Solver.linsolve_iterations[i] << " "
+                  << Solver.times[i] << " " << Solver.residuals[i] << " "
+                  << ErrorH1Norm << std::endl;
+    }
+    file.close();
 }
 
 template<typename T, typename Preconditioner>
