@@ -1,6 +1,6 @@
 include $(LAWA_HOME)/Makefile.common
 
-SUBDIRS := math aux 
+SUBDIRS := math aux methods
 SOURCES  := $(wildcard *.cpp)
 OBJECTS  := $(SOURCES:.cpp=.o)
 DEPS     := $(SOURCES:.cpp=.d)
@@ -14,7 +14,7 @@ $(DYLIB): $(OBJECTS)
 		do echo ""; echo "processing dir $$i"; \
 		$(MAKE) -C $$i all; \
 	done;
-	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o aux/*.o math/*.o $(LDLIBS)
+	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o aux/*.o math/*.o methods/adaptive/datastructures/*.o $(LDLIBS)
 	$(CP) $(DYLIB) $(LAWA_HOME)
 
 clean:
