@@ -92,12 +92,11 @@ class RBModel2D {
         inner_product(const CoeffVector& v1, const CoeffVector& v2);
         
         // Update the (dense) RB matrices / vectors with the last basis function
-        /*void
+        void
         update_RB_A_matrices();
         
         void
         update_RB_F_vectors();
-        */
                 
     /* Protected members */
 
