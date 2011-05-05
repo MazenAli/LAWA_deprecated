@@ -32,8 +32,10 @@ namespace lawa {
  *
  */
  
+template <typename, typename> class RBModel2D;
+ 
 template <typename T, typename Basis, typename TruthSolver>
-class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
+class AdaptiveRBTruth2D{
 
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
 		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
@@ -41,9 +43,9 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
         
 	public:
 
-		/* Public member functions */
+    /* Public member functions */
         
-		AdaptiveRBModel2D(Basis& _basis);
+		AdaptiveRBTruth2D(Basis& _basis);
         
         void
         attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
@@ -54,22 +56,27 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
 		void
         set_truthsolver(TruthSolver& _truthsolver);
         
-        /* Public members */
+        void
+        set_rb_model(RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >& _rb);
+        
+    /* Public members */
         
         Basis&										basis;
         
-        std::vector<Operator2D<T>*> 	A_operators;
+        std::vector<Operator2D<T>*> 				A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>		F_operators;
+        
+        TruthSolver*											solver;
             	
     	class Operator_LHS {
         	
             typedef CompressionPDE2D<T, Basis> Compression;
         	
             private:
-            	AdaptiveRBModel2D<T, Basis, TruthSolver>* thisModel;
+            	AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisModel;
                 
         	public:
-            	Operator_LHS(AdaptiveRBModel2D<T, Basis, TruthSolver>* _model)
+            	Operator_LHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _model)
                 	: thisModel(_model), compression(thisModel->basis){}
                 
 				T
@@ -80,7 +87,7 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
 
         class Operator_RHS {
         	public:
-            	Operator_RHS(AdaptiveRBModel2D<T, Basis, TruthSolver>* _model) : thisModel(_model){}
+            	Operator_RHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _model) : thisModel(_model){}
                 
 				T
                 operator()(const Index2D &lambda);
@@ -92,11 +99,15 @@ class AdaptiveRBModel2D : public RBModel2D<T, TruthSolver> {
                 operator()(T tol);
             
             private:
-            	AdaptiveRBModel2D<T, Basis, TruthSolver>* thisModel;        
+            	AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisModel;        
         };
     	
         Operator_LHS lhs_op;
         Operator_RHS rhs_op;
+        
+    private:
+        RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >* 	rb;
+
 
 };
     
