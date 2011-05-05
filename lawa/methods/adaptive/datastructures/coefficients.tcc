@@ -107,6 +107,29 @@ Coefficients<Lexicographical,T,Index>::operator*(const Coefficients<Lexicographi
 }
 
 template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index>
+Coefficients<Lexicographical,T,Index>::operator*(const T factor) const
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    Coefficients<Lexicographical,T,Index> ret = *this;
+	for (const_it lambda = (*this).begin(); lambda != (*this).end(); ++lambda) {
+        ret.operator[]((*lambda).first) *= factor;
+    }
+    
+    return ret;
+}
+
+template <typename T, typename Index>
+void
+Coefficients<Lexicographical,T,Index>::scale(const T factor)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    for (const_it lambda = (*this).begin(); lambda != (*this).end(); ++lambda) {
+        (*this).operator[]((*lambda).first) *= factor;
+    }
+}
+
+template <typename T, typename Index>
 T
 Coefficients<Lexicographical,T,Index>::norm(T tau) const
 {

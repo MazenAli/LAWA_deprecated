@@ -53,6 +53,12 @@ struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographic
 
     T
     operator*(const Coefficients<Lexicographical,T,Index> &_coeff) const;
+    
+    Coefficients<Lexicographical,T,Index>
+    operator*(const T factor) const;
+    
+    void
+    scale(const T factor);
 
     T
     norm(T tau=2.0) const;
