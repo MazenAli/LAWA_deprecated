@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_METHODS_RB_DATASTRUCTURES_UNIFORM_RBMODEL2D_H
-#define LAWA_METHODS_RB_DATASTRUCTURES_UNIFORM_RBMODEL2D_H 1
+#ifndef LAWA_METHODS_RB_DATASTRUCTURES_UNIFORM_RBTRUTH2D_H
+#define LAWA_METHODS_RB_DATASTRUCTURES_UNIFORM_RBTRUTH2D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
@@ -29,12 +29,10 @@
 
 namespace lawa {
 
-/* RBModel 2D
- *
- */
+template <typename, typename> class RBModel2D;
  
 template <typename T, typename TruthSolver>
-class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
+class UniformRBTruth2D {
 
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
 		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
@@ -44,7 +42,7 @@ class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
 
 		/* Public member functions */
         
-		UniformRBModel2D();
+		UniformRBTruth2D();
         
         void
         attach_A_q(theta_fctptr theta_a_q, UniformOperator2D<T>& A_q);
@@ -54,16 +52,21 @@ class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
         
         void
         set_truthsolver(TruthSolver& _truthsolver);
-
+        
+        void
+        set_rb_model(RBModel2D<T, UniformRBTruth2D<T, TruthSolver> >& _rb);
         
         /* Public members */
         
         std::vector<UniformOperator2D<T>*> 	A_operators;
-        std::vector<Rhs2D<T>*>			F_operators;
+        std::vector<Rhs2D<T>*>	    		F_operators;
+
+        TruthSolver*						solver;
+
             	    
     	class Operator_LHS {
         	public:
-            	Operator_LHS(UniformRBModel2D<T, TruthSolver>* _model) : thisModel(_model){}
+            	Operator_LHS(UniformRBTruth2D<T, TruthSolver>* _truth) : thisTruth(_truth){}
                 
 				T
                 operator()(XType row_xtype_x, int j1_x, int k1_x,
@@ -72,29 +75,33 @@ class UniformRBModel2D : public RBModel2D<T, TruthSolver> {
                            XType col_xtpye_y, int j2_y, int k2_y) const;
             
             private:
-            	UniformRBModel2D<T, TruthSolver>* thisModel;
+            	UniformRBTruth2D<T, TruthSolver>* thisTruth;
         };
         
         class Operator_RHS {
         	public:
-            	Operator_RHS(UniformRBModel2D<T, TruthSolver>* _model) : thisModel(_model){}
+            	Operator_RHS(UniformRBTruth2D<T, TruthSolver>* _truth) : thisTruth(_truth){}
                 
 				T
                 operator()(XType xtype_x, int j_x, int k_x,
                            XType xtype_y, int j_y, int k_y) const;
             
             private:
-            	UniformRBModel2D<T, TruthSolver>* thisModel;        
+            	UniformRBTruth2D<T, TruthSolver>* thisTruth;        
         };
         
         Operator_LHS 	lhs_op;
         Operator_RHS 	rhs_op;
+        
+    private:
+    
+        RBModel2D<T, UniformRBTruth2D<T, TruthSolver> >* rb;
     	
 };
     
 } // namespace lawa
 
 
-#include <lawa/methods/rb/datastructures/uniform_rbmodel2d.tcc>
+#include <lawa/methods/rb/datastructures/uniform_rbtruth2d.tcc>
 
-#endif // LAWA_METHODS_RB_DATASTRUCTURES_UNIFORM_RBMODEL2D_H
+#endif // LAWA_METHODS_RB_DATASTRUCTURES_UNIFORM_RBTRUTH2D_H
