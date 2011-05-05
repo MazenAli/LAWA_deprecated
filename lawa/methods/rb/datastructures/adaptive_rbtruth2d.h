@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBMODEL2D_H
-#define LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBMODEL2D_H 1
+#ifndef LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBTRUTH2D_H
+#define LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBTRUTH2D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
@@ -37,7 +37,7 @@ template <typename, typename> class RBModel2D;
 template <typename T, typename Basis, typename TruthSolver>
 class AdaptiveRBTruth2D{
 
-    	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
+        typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
 		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
 		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         
@@ -66,20 +66,21 @@ class AdaptiveRBTruth2D{
         std::vector<Operator2D<T>*> 				A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>		F_operators;
         
-        TruthSolver*											solver;
+        TruthSolver*		solver;
             	
     	class Operator_LHS {
         	
             typedef CompressionPDE2D<T, Basis> Compression;
         	
             private:
-            	AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisModel;
+            	
+		AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;
                 
         	public:
-            	Operator_LHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _model)
-                	: thisModel(_model), compression(thisModel->basis){}
+            	Operator_LHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth)
+                	: thisTruth(_truth), compression(thisTruth->basis){}
                 
-				T
+		T
                 operator()(const Index2D &row_index, const Index2D &col_index);
                 
                 Compression compression;
@@ -87,9 +88,9 @@ class AdaptiveRBTruth2D{
 
         class Operator_RHS {
         	public:
-            	Operator_RHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _model) : thisModel(_model){}
+            	Operator_RHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth) : thisTruth(_truth){}
                 
-				T
+		T
                 operator()(const Index2D &lambda);
 
                 Coefficients<Lexicographical,T,Index2D>
@@ -99,21 +100,21 @@ class AdaptiveRBTruth2D{
                 operator()(T tol);
             
             private:
-            	AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisModel;        
+            	AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;        
         };
     	
         Operator_LHS lhs_op;
         Operator_RHS rhs_op;
         
     private:
+        
         RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >* 	rb;
-
 
 };
     
 } // namespace lawa
 
 
-#include <lawa/methods/rb/datastructures/adaptive_rbmodel2d.tcc>
+#include <lawa/methods/rb/datastructures/adaptive_rbtruth2d.tcc>
 
-#endif // LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBMODEL2D_H
+#endif // LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBTRUTH2D_H

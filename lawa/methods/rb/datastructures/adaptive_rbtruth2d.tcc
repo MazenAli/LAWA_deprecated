@@ -10,7 +10,7 @@ void
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q)
 {
 	rb->theta_a.push_back(theta_a_q);
-	this->A_operators.push_back(&A_q);
+	A_operators.push_back(&A_q);
 }
 
 template <typename T, typename Basis, typename TruthSolver>
@@ -44,8 +44,9 @@ T
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_LHS::operator()(const Index2D &row_index, const Index2D &col_index)
 {
 	T val = 0;
-	for (unsigned int i = 0; i < thisModel->A_operators.size(); ++i) {
-        val += (*thisModel->rb->theta_a[i])(thisModel->rb->get_current_param())  * (*thisModel->A_operators[i])(row_index, col_index);
+	for (unsigned int i = 0; i < thisTruth->A_operators.size(); ++i) {
+        val += (*thisTruth->rb->theta_a[i])(thisTruth->rb->get_current_param()) 
+             * (*thisTruth->A_operators[i])(row_index, col_index);
     }
     
     return val;
@@ -58,8 +59,9 @@ T
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_RHS::operator()(const Index2D &lambda)
 {
 	T val = 0;
-	for (unsigned int i = 0; i < thisModel->F_operators.size(); ++i) {
-        val += (*thisModel->rb->theta_f[i])(thisModel->rb->get_current_param()) * (*thisModel->F_operators[i])(lambda);
+	for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
+        val += (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param()) 
+             * (*thisTruth->F_operators[i])(lambda);
     }
     
     return val;
@@ -70,8 +72,9 @@ Coefficients<Lexicographical,T,Index2D>
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_RHS::operator()(const IndexSet<Index2D> &Lambda)
 {
 	Coefficients<Lexicographical,T,Index2D> c;
-	for (unsigned int i = 0; i < thisModel->F_operators.size(); ++i) {
-        c = c + (*thisModel->F_operators[i])(Lambda) * (*thisModel->rb->theta_f[i])(thisModel->rb->get_current_param());
+	for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
+        c = c + (*thisTruth->F_operators[i])(Lambda) 
+              * (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param());
     }
     
     return c;
@@ -82,8 +85,9 @@ Coefficients<Lexicographical,T,Index2D>
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_RHS::operator()(T tol)
 {
 	Coefficients<Lexicographical,T,Index2D> c;
-	for (unsigned int i = 0; i < thisModel->F_operators.size(); ++i) {
-        c += (*thisModel->F_operators[i])(tol) * (*thisModel->rb->theta_f[i])(thisModel->rb->get_current_param());
+	for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
+        c += (*thisTruth->F_operators[i])(tol) 
+           * (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param());
     }
     
     return c;

@@ -27,7 +27,7 @@ class S_ADWAV_TruthSolver : public TruthSolver<T, Index> {
         truth_solve();        
         
 		void 
-        set_model(AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> >& _truth_model); 
+        set_model(Truth& _truth_model); 
             
     private:
         /* Private members */
