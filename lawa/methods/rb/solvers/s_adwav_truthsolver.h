@@ -6,14 +6,14 @@
 
 namespace lawa {
 
-template <typename, typename, typename> class AdaptiveRBModel2D;
+template <typename, typename, typename> class AdaptiveRBTruth2D;
 
 template <typename T, typename Basis, typename Index>
 class S_ADWAV_TruthSolver : public TruthSolver<T, Index> {
 
-        typedef  AdaptiveRBModel2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> > Model;
-        typedef typename Model::Operator_LHS										 LHS;
-        typedef typename Model::Operator_RHS										 RHS;
+        typedef  AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> > Truth;
+        typedef typename Truth::Operator_LHS										 LHS;
+        typedef typename Truth::Operator_RHS										 RHS;
         
     public:
         enum SolverCall {
@@ -27,12 +27,12 @@ class S_ADWAV_TruthSolver : public TruthSolver<T, Index> {
         truth_solve();        
         
 		void 
-        set_model(AdaptiveRBModel2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> >& _model); 
+        set_model(AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> >& _truth_model); 
             
     private:
         /* Private members */
         
-      	AdaptiveRBModel2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> >* rb_model; // evtl später: template auf Modell, dann kann hier auch ausgetauscht werden
+      	Truth* truth_model; // evtl später: template auf Modell, dann kann hier auch ausgetauscht werden
         
         S_ADWAV<T, Index, Basis, LHS, RHS>& s_adwav;
  		SolverCall solution_method;

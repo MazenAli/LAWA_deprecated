@@ -8,8 +8,8 @@ S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, SolverCall sol
 
 template <typename T, typename Basis, typename Index>
 void 
-S_ADWAV_TruthSolver<T, Basis, Index>::set_model(AdaptiveRBModel2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> >& _model){
-	rb_model = &_model;
+S_ADWAV_TruthSolver<T, Basis, Index>::set_model(AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> >& _truth_model){
+	truth_model = &_truth_model;
 }
 
 template <typename T, typename Basis, typename Index>
