@@ -71,9 +71,7 @@ class RBModel2D {
         
         std::vector<theta_fctptr> theta_a;
         std::vector<theta_fctptr> theta_f;
-        
-        //std::vector<Operator2D<T>*> 	A_operators;
-                
+                        
         std::vector<FullColMatrixT> 	RB_A_matrices;
         std::vector<DenseVectorT> 		RB_F_vectors;
         std::vector<DenseVectorT>		RB_output_vectors;
