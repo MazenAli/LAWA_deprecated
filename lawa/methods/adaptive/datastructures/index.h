@@ -78,9 +78,33 @@ struct lt
 {
 };
 
+//Bitmask implementation
+template<> 
+struct lt<Lexicographical, Index1D>
+{
+    bool operator()(const Index1D &left, const Index1D &right) const;
+
+    bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const;
+};
+
+template <>
+struct lt<Lexicographical, Index2D>
+{
+    bool operator()(const Index2D &left, const Index2D &right) const;
+
+    bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const;
+};
+
+template <>
+struct lt<Lexicographical, Index3D>
+{
+    bool operator()(const Index3D &left, const Index3D &right) const;
+
+    bool operator()(const Entry<Index3D> &left, const Entry<Index3D> &right) const;
+};
+
 } //namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/index.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEX_H
-
