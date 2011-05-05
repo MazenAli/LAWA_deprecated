@@ -33,7 +33,7 @@ namespace lawa {
  *
  */
  
-template <typename T, typename TruthSolver>
+template <typename T, typename TruthModel>
 class RBModel2D {
 
     	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
@@ -43,7 +43,8 @@ class RBModel2D {
         
 	public:
     
-    	/* Public member functions */
+    /* Public member functions */
+        RBModel2D();
         
         void 
         set_current_param(const std::vector<T>& _param);
@@ -51,32 +52,56 @@ class RBModel2D {
         std::vector<T>& 
         get_current_param();
         
+        unsigned int
+        Q_a();
+        
+        unsigned int
+        Q_f();
+        
+        unsigned int
+        n_bf();
+        
         void 
         attach_inner_product_op(Operator2D<T>& _inner_product_op);
+        
+        void
+        set_truthmodel(TruthModel& _truthmodel);
                 
-    	/* Public members */
+    /* Public members */
         
         std::vector<theta_fctptr> theta_a;
         std::vector<theta_fctptr> theta_f;
+        
+        //std::vector<Operator2D<T>*> 	A_operators;
                 
         std::vector<FullColMatrixT> 	RB_A_matrices;
         std::vector<DenseVectorT> 		RB_F_vectors;
         std::vector<DenseVectorT>		RB_output_vectors;
         
-        TruthSolver* 					truthsolver;
+        TruthModel* 					truth;
         	
 		std::vector<CoeffVector> 		rb_basis_functions;
     	
+        void
+        add_to_basis(const CoeffVector& sol);
+        
     protected: 
         
-        /* Protected member functions */
-    
-    	RBModel2D();
+    /* Protected member functions */
+        
+        // Computes the inner product a(v,u) w.r.t. the operator a = inner_product_op
+        T
+        inner_product(const CoeffVector& v1, const CoeffVector& v2);
+        
+        // Update the (dense) RB matrices / vectors with the last basis function
+        /*void
+        update_RB_A_matrices();
         
         void
-        add_to_basis(CoeffVector& sol);
+        update_RB_F_vectors();
+        */
                 
-        /* Protected members */
+    /* Protected members */
 
         std::vector<T> current_param;
         
