@@ -9,7 +9,7 @@
 
 namespace lawa {
 
-template <typename, typename> class UniformRBModel2D;
+template <typename, typename> class UniformRBTruth2D;
 
 /* Uniform Truth Solver
  *	This class provides a solver for truth solutions, based on
@@ -17,6 +17,8 @@ template <typename, typename> class UniformRBModel2D;
  */
 template <typename T, typename Basis, typename Prec = NoPreconditioner<T, Index2D> >
 class UniformTruthSolver2D : public TruthSolver<T, Index2D> {
+    
+    typedef  UniformRBTruth2D<T, UniformTruthSolver2D<T, Basis, Prec> > Truth;
 		    
     public:
     	// Public member functions
@@ -35,7 +37,7 @@ class UniformTruthSolver2D : public TruthSolver<T, Index2D> {
         get_Jmax();
         
 		void 
-        set_model(UniformRBModel2D<T, UniformTruthSolver2D<T, Basis, Prec> >& _model); 
+        set_model(Truth& _truthmodel); 
         
         // Public members        
         const NoPreconditioner<T, Index2D> noprec; 
@@ -53,7 +55,7 @@ class UniformTruthSolver2D : public TruthSolver<T, Index2D> {
                                   Coefficients<Lexicographical,T, Index2D>& dest);
         
         // Private members
-        UniformRBModel2D<T, UniformTruthSolver2D<T, Basis, Prec> >* rb_model;
+        Truth* truth_model;
 
     	Basis& basis;
     	int J_x, J_y;

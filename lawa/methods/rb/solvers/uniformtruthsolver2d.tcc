@@ -31,9 +31,9 @@ UniformTruthSolver2D<T, Basis, Prec>::truth_solve()
     typedef flens::DiagonalMatrix<T>  									DiagMatrixT;
     
     std::cout << "Assemble System .... Dim = " << basis.dim(J_x, J_y) << std::endl;
-    SparseMatrixT A = assembler.assembleStiffnessMatrix(rb_model->lhs_op, J_x, J_y);
+    SparseMatrixT A = assembler.assembleStiffnessMatrix(truth_model->lhs_op, J_x, J_y);
     std::cout << ".... A done " << std::endl;
-    DenseVectorT  F = assembler.assembleRHS(rb_model->rhs_op, J_x, J_y);
+    DenseVectorT  F = assembler.assembleRHS(truth_model->rhs_op, J_x, J_y);
     std::cout << ".... F done " << std::endl;
     DiagMatrixT	  P = assembler.assemblePreconditioner(prec, J_x, J_y);
     std::cout << ".... P done " << std::endl;
@@ -62,8 +62,8 @@ UniformTruthSolver2D<T, Basis, Prec>::set_Jmax(int _J_x, int _J_y)
 
 template <typename T, typename Basis, typename Prec>
 void 
-UniformTruthSolver2D<T, Basis, Prec>::set_model(UniformRBModel2D<T, UniformTruthSolver2D<T, Basis, Prec> >& _model){
-	rb_model = &_model;
+UniformTruthSolver2D<T, Basis, Prec>::set_model(Truth& _truth_model){
+	truth_model = &_truth_model;
 }
 
 
