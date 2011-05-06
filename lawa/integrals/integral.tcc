@@ -56,6 +56,7 @@ _integrate(const Integral<Gauss,First,Second> &integral)
             a = b;
         }
     }
+
     return ret;
 }
 
@@ -85,10 +86,9 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
 {
     typedef typename First::T T;
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
-
     int p = integral.function.singularPoints.length();
     DenseVector<Array<T> > singularPoints;
-    if (IsPrimal<First>::value) {
+    if (IsPrimal<First>::value or IsOrthogonal<First>::value) {
         if (p>0) {
             const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
             int m = firstSingularPoints.length();
@@ -131,7 +131,7 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
     if (!BothDual<First,Second>::value) { // we do have (additional) singular points
         // merge singular points of bsplines/wavelets and function to one list.
         // -> implicit assumption: singular points are sorted!
-        if (BothPrimal<First,Second>::value) {
+        if (BothPrimal<First,Second>::value or BothOrthogonal<First,Second>::value) {
             const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
             const DenseVector<Array<T> > & secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
             int m = firstSingularPoints.length();
@@ -150,7 +150,7 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
                                    singularPoints.engine().data() + m + n + p);
             }
         } else {
-            if (IsPrimal<First>::value) {
+            if (IsPrimal<First>::value or IsOrthogonal<First>::value) {
                 if (p>0) {
                     const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
                     int m = firstSingularPoints.length();
