@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDLAPLACEOPERATOR2D_H
-#define LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDLAPLACEOPERATOR2D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDHELMHOLTZOPERATOR2D_H
+#define LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDHELMHOLTZOPERATOR2D_H 1
 
 #include <lawa/functiontypes/function.h>
 #include <lawa/integrals/integral.h>
@@ -29,17 +29,19 @@ namespace lawa {
 
 /* Weighted Laplace OPERATOR 2D 
  *
- *    a(v,u) =  Integral(w1 * v1_x * u1_x) * Integral(w2 * v2 * u2) 
- *			  + Integral(w1 * v1 * u1) 	   * Integral(w2 * v2_y * u2_y) 
+ *    a(v,u) =  	Integral(w1 * v1_x * u1_x) * Integral(w2 * v2 * u2) 
+ *			  + 	Integral(w1 * v1 * u1) 	   * Integral(w2 * v2_y * u2_y) 
+ *			  + c * Integral(w1 * v1 * u1) 	   * Integral(w2 * v2 * u2);
  *
  */
 template <typename T, typename Basis>
-class WeightedLaplaceOperator2D : public UniformOperator2D<T> {
+class WeightedHelmholtzOperator2D : public UniformOperator2D<T> {
 	
 	public:
   		const Basis& basis;
+        const T c;
         
-        WeightedLaplaceOperator2D(const Basis& _basis, Function<T> weightFct_x, Function<T> weightFct_y);
+        WeightedHelmholtzOperator2D(const Basis& _basis, const T _c, Function<T> weightFct_x, Function<T> weightFct_y);
         
         T
     	operator()(XType row_xtype_x, int j1_x, int k1_x,
@@ -67,6 +69,6 @@ class WeightedLaplaceOperator2D : public UniformOperator2D<T> {
 
 } // namespace lawa
 
-#include <lawa/operators/pdeoperators2d/weightedlaplaceoperator2d.tcc>
+#include <lawa/operators/pdeoperators2d/weightedhelmholtzoperator2d.tcc>
 
-#endif // LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDLAPLACEOPERATOR2D_H
+#endif // LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDHELMHOLTZOPERATOR2D_H
