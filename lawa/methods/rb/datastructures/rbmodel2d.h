@@ -26,15 +26,18 @@
 #include <lawa/methods/rb/solvers/solvers.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
 /* RBModel 2D: 
  *	This class contains all N-dependent data and functions needed for a reduced basis
  *	approximation.
- *  
  *  It contains a pointer to an associated Truth Model (which does not have to be initialized
  *  for online calculations).
+ *
+ *	The basis functions (\calN-dependent) are also stored here, so that we can reconstruct full 
+ *	solutions without a complete truth model. 
  */
  
 template <typename T, typename TruthModel>
@@ -86,6 +89,12 @@ class RBModel2D {
     	
         void
         add_to_basis(const CoeffVector& sol);
+        
+        DenseVectorT
+        RB_solve(unsigned int N, SolverCall call = call_cg);
+        
+        CoeffVector
+        reconstruct_u_N(DenseVectorT u, unsigned int N);
         
     protected: 
         
