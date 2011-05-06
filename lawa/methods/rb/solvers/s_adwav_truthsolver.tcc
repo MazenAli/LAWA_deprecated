@@ -4,7 +4,9 @@ template <typename T, typename Basis, typename Index>
 S_ADWAV_TruthSolver<T, Basis, Index>::
 S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, SolverCall solmethod)
 	: s_adwav(_s_adwav), solution_method(solmethod)
-{}
+{	
+	s_adwav.get_parameters(contraction, threshTol, linTol, resTol, NumOfIts, MaxItsPerThreshTol, eps);
+}
 
 template <typename T, typename Basis, typename Index>
 void 
@@ -16,6 +18,8 @@ template <typename T, typename Basis, typename Index>
 Coefficients<Lexicographical,T,Index>
 S_ADWAV_TruthSolver<T, Basis, Index>::truth_solve()
 {	
+	reset_s_adwav();
+    
 	// Construct initial index set, based on splines on minimal level(s)
 	IndexSet<Index> InitialLambda;
     if (flens::IsSame<Index2D, Index>::value) {
@@ -43,8 +47,26 @@ S_ADWAV_TruthSolver<T, Basis, Index>::truth_solve()
         default:
             break;
     }
-    
+        
     return s_adwav.solutions[s_adwav.solutions.size() - 1];
+}
+
+template <typename T, typename Basis, typename Index>
+void 
+S_ADWAV_TruthSolver<T, Basis, Index>::clear_solver()
+{
+	s_adwav.solutions.clear();
+	s_adwav.residuals.clear();
+	s_adwav.times.clear();
+	s_adwav.linsolve_iterations.clear();
+	s_adwav.toliters.clear();
+}
+
+template <typename T, typename Basis, typename Index>
+void 
+S_ADWAV_TruthSolver<T, Basis, Index>::reset_s_adwav()
+{
+	s_adwav.set_parameters(contraction, threshTol, linTol, resTol, NumOfIts, MaxItsPerThreshTol);
 }
      
 } // namespace lawa
