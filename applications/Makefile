@@ -1,4 +1,7 @@
-SUBDIRS := unbounded_domains finance
+SUBDIRS := unbounded_domains
+ifdef BOOST_HOME
+    SUBDIRS += finance
+endif
 
 all:
 	$(SILENT) for i in $(SUBDIRS); \

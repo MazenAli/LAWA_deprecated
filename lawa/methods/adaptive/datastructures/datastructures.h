@@ -1,3 +1,4 @@
+#include <lawa/methods/adaptive/datastructures/adaptiverhs.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 //#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 #include <lawa/methods/adaptive/datastructures/index.h>

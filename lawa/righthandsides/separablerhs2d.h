@@ -22,6 +22,7 @@
 
 #include <lawa/functiontypes/separablefunction2d.h>
 #include <lawa/integrals/integrals.h>
+#include <lawa/righthandsides/rhs2d.h>
 
 /*
  * Computes ( <fx, psix_{jx,kx}> + sum_{i=1}^n deltasx(i,2) * psix_{j,k}(deltasx(i,1)) )
@@ -33,7 +34,7 @@
 namespace lawa {
 
 template<typename T, typename Basis2D>
-class SeparableRHS2D
+class SeparableRHS2D : public Rhs2D<T>
 {
     public:
         SeparableRHS2D(const Basis2D& _basis, const SeparableFunction2D<T>& _F,

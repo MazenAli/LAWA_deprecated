@@ -9,7 +9,7 @@ namespace lawa{
 
 /* ThetaScheme:
  *      This class solves an implicit linear system that arises in each time step of
- * 		a time-stepping scheme for a linear and time-constant operator.
+ *      a time-stepping scheme for a linear and time-constant operator.
  *      It assumes a time-constant bilinear form, so that the system matrices
  *      are only assembled once. 
  *

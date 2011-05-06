@@ -20,12 +20,14 @@
 #ifndef LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS2D_H
 #define LAWA_METHODS_UNIFORM_DATASTRUCTURES_TENSORBASIS2D_H 1
 
+#include <lawa/methods/adaptive/datastructures/index.h>
+
 namespace lawa{
     
 template<typename FirstBasis, typename SecondBasis>
 struct TensorBasis2D<Uniform, FirstBasis, SecondBasis>
 {
-    typedef typename FirstBasis::T T;
+	typedef typename FirstBasis::T T;
     typedef FirstBasis FirstBasisType;
     typedef SecondBasis SecondBasisType;
     

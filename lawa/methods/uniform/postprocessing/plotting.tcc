@@ -6,7 +6,7 @@ namespace lawa {
 template<typename T, typename Basis1D>
 void 
 print_U(const flens::DenseVector<flens::Array<T> >& u, const Basis1D& basis, const int J, 
-		const char* filename, const double deltaX=1./128.)
+        const char* filename, const double deltaX)
 {
     std::ofstream file(filename);
     for(double x = 0; x <= 1.; x += deltaX){
@@ -18,7 +18,7 @@ print_U(const flens::DenseVector<flens::Array<T> >& u, const Basis1D& basis, con
 template<typename T, typename Basis2D>
 void
 print_U(const flens::DenseVector<flens::Array<T> >& u, const Basis2D& basis, const int J_x, const int J_y, 
-                   const char* filename, const double deltaX=0.01, const double deltaY=0.01)
+                   const char* filename, const double deltaX, const double deltaY)
 {
     std::ofstream file(filename);
     for(double x = 0.; x <= 1.; x += deltaX){
@@ -32,7 +32,7 @@ print_U(const flens::DenseVector<flens::Array<T> >& u, const Basis2D& basis, con
 template<typename T, typename Basis1D>
 void 
 print_U(const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >& U, const Basis1D& basis, 
-		const int J, const char* filename, const T timestep, const int K, const double deltaX=1./128.)
+        const int J, const char* filename, const T timestep, const int K, const double deltaX)
 {
     std::ofstream file(filename);
     for (int k = 0; k <= K; k++) {

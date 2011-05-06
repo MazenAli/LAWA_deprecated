@@ -21,6 +21,7 @@
 #define LAWA_METHODS_ADAPTIVE_ALGORITHMS_RHS_H 1
 
 #include <lawa/methods/adaptive/algorithms/thresh.h>
+#include <lawa/methods/adaptive/datastructures/adaptiverhs.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/settings/enum.h>
@@ -28,7 +29,7 @@
 namespace lawa {
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
-class RHS
+class RHS : public AdaptiveRhs<T, Index>
 {
     public:
         const RHSINTEGRAL &rhsintegral;

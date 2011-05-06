@@ -141,9 +141,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
 {
     Timer timer;
 
-    int d=InitialLambda.d, d_=InitialLambda.d_;
-    IndexSet<Index> LambdaActive(d,d_), LambdaThresh(d,d_), LambdaActivable(d,d_), DeltaLambda(d,d_);
-    Coefficients<Lexicographical,T, Index> u(d,d_), f(d,d_), Au(d,d_), r(d,d_);
+    IndexSet<Index> LambdaActive, LambdaThresh, LambdaActivable, DeltaLambda;
+    Coefficients<Lexicographical,T, Index> u, f, Au, r;
 
     LambdaActive = InitialLambda;
     T old_res = 0.;
@@ -173,15 +172,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
         u = THRESH(u,threshTol);
         solutions[its] = u;
         LambdaThresh = supp(u);
-        int jmin, jmax;
-        getMinAndMaxLevel(supp(u),jmin,jmax);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
-        std::cout << "    Minimal level in u = " << jmin << ", maximal level in u = " << jmax << std::endl;
 
         timer.stop();
         T time1 = timer.elapsed();
         T Error_H_energy = 0.;
-        if (H1norm>0) Error_H_energy = estimateError_H_energy(A, F, u, H1norm);
+        if (H1norm>0) Error_H_energy = computeErrorInH1Norm(A, F, u, H1norm);
 
         timer.start();
         //Computing residual

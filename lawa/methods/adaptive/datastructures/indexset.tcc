@@ -66,39 +66,5 @@ std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i)
     return s << std::endl;
 }
 
-void
-getMinAndMaxLevel(const IndexSet<Index1D> &Lambda, int &jmin, int &jmax)
-{
-    typedef IndexSet<Index1D>::const_iterator set1d_const_it;
-    set1d_const_it it = Lambda.begin();
-    jmin = (*it).j;
-    jmax = (*it).j;
-    for (set1d_const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-        jmin = std::min(int((*lambda).j),jmin);
-        jmax = std::max(int((*lambda).j),jmax);
-    }
-}
-
-void
-split(const IndexSet<Index2D> &Lambda, IndexSet<Index1D> &Lambda_x, IndexSet<Index1D> &Lambda_y)
-{
-    typedef IndexSet<Index2D>::const_iterator set2d_const_it;
-    for (set2d_const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-        Lambda_x.insert((*lambda).index1);
-        Lambda_y.insert((*lambda).index2);
-    }
-}
-
-IndexSet<Index1D>
-extractSpaceIndices(const IndexSet<Index2D> &Lambda)
-{
-    typedef IndexSet<Index2D>::const_iterator set2d_const_it;
-    IndexSet<Index1D> ret;
-    for (set2d_const_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
-        ret.insert((*lambda).index2);
-    }
-    return ret;
-}
-
 } // namespace lawa
 

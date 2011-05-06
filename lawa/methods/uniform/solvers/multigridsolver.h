@@ -4,9 +4,9 @@
 namespace lawa{
 
 /* Multigrid Solver
- *		This class provides the framework for multigrid methods by
- *		implementing a general V- and W-Cycle for Wavelets 
- * 		(using decompose/reconstruct for projections and restrictions) 
+ *      This class provides the framework for multigrid methods by
+ *      implementing a general V- and W-Cycle for Wavelets 
+ *      (using decompose/reconstruct for projections and restrictions) 
  */
 template<typename T, typename PrimalBasis, typename DualBasis, typename Smoother, typename Solver>
 class MultigridSolver{
