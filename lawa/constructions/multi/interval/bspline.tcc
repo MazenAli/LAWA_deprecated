@@ -91,7 +91,7 @@ template <typename T>
 T
 BSpline<T,Orthogonal,Interval,Multi>::tic(int j) const
 {
-    return pow2i<T>(-j-3);
+    return pow2i<T>(-(j+3));
 }
         
 } // namespace lawa
