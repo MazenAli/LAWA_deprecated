@@ -77,6 +77,10 @@ enum MethodType {
     Uniform
 };
 
+enum SolverCall {
+    call_cg, call_gmres, call_cgls
+};
+
 } // namespace lawa
 
 #endif // LAWA_SETTINGS_ENUM_H

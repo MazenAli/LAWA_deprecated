@@ -31,13 +31,13 @@ S_ADWAV_TruthSolver<T, Basis, Index>::truth_solve()
     }
     
     switch (solution_method) {
-        case cg:
+        case call_cg:
             s_adwav.solve_cg(InitialLambda);
             break;
-        case gmres:
+        case call_gmres:
             s_adwav.solve_gmres(InitialLambda);
             break;
-        case cgls:
+        case call_cgls:
             s_adwav.solve_cgls(InitialLambda);
             break;
         default:

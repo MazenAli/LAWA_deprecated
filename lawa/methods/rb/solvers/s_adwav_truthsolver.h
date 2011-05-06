@@ -3,6 +3,7 @@
 
 #include <lawa/methods/adaptive/solvers/s_adwav.h>
 #include <lawa/methods/rb/solvers/truthsolver.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -16,9 +17,6 @@ class S_ADWAV_TruthSolver : public TruthSolver<T, Index> {
         typedef typename Truth::Operator_RHS										 RHS;
         
     public:
-        enum SolverCall {
-            cg, gmres, cgls
-        };
         
     	/* Public member functions */
         S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, SolverCall solmethod);
