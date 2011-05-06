@@ -32,6 +32,9 @@ struct NoPreconditioner
     }
 
     T
+    operator()(XType xtype, int j, int k) const;
+
+    T
     operator()(const Index &index) const;
 
 };
