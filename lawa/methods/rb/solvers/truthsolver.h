@@ -5,6 +5,12 @@
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 
+/* !!!!!!!! 
+ * It is not necessary to derive a truth solver from this class,
+ * it is only kept for documentary purposes (interface definition)
+ * !!!!!!!!	
+ */
+
 namespace lawa {
 
 template <typename T, typename Index>

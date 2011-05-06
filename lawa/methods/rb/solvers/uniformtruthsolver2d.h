@@ -18,7 +18,7 @@ template <typename, typename> class UniformRBTruth2D;
  *  It is linked to a uniform truth model in 2d
  */
 template <typename T, typename Basis, typename Prec = NoPreconditioner<T, Index2D> >
-class UniformTruthSolver2D : public TruthSolver<T, Index2D> {
+class UniformTruthSolver2D {
     
     typedef  UniformRBTruth2D<T, UniformTruthSolver2D<T, Basis, Prec> > Truth;
 		    

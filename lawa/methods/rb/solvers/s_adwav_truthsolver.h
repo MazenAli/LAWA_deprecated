@@ -17,7 +17,7 @@ namespace lawa {
 template <typename, typename, typename> class AdaptiveRBTruth2D;
 
 template <typename T, typename Basis, typename Index>
-class S_ADWAV_TruthSolver : public TruthSolver<T, Index> {
+class S_ADWAV_TruthSolver {
 
         typedef  AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> >  Truth;
         typedef typename Truth::Operator_LHS										 LHS;
