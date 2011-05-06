@@ -18,28 +18,29 @@
  */
 
 
-#ifndef LAWA_METHODS_RB_OPERATORS_WEIGHTEDIDENTITYOPERATOR1D_H
-#define LAWA_METHODS_RB_OPERATORS_WEIGHTEDIDENTITYOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDLAPLACEOPERATOR1D_H
+#define LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDLAPLACEOPERATOR1D_H 1
 
+#include <lawa/settings/enum.h>
+#include <lawa/functiontypes/function.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/integrals/integral.h>
-#include <lawa/settings/enum.h>
 
 namespace lawa {
 
-/* Riesz OPERATOR
+/* Weighted Laplace OPERATOR 1D
  *
- *    a(v,u) =  Integral(w * v * u)
+ *    a(v,u) =  Integral(w(x) * v_x * u_x)
  *
  */
 template <typename T, typename Basis>
-class WeightedIdentityOperator1D{
+class WeightedLaplaceOperator1D{
     
     public:
-
+        
         const Basis& basis;
 
-        WeightedIdentityOperator1D(const Basis& _basis, Function<T> weightFct);
+        WeightedLaplaceOperator1D(const Basis& _basis, Function<T> weightFct);
 
         T
         operator()(XType xtype1, int j1, int k1,
@@ -49,17 +50,16 @@ class WeightedIdentityOperator1D{
         operator()(const Index1D &row_index, const Index1D &col_index) const;
         
     private:
-        
+    
         Function<T> W;
 
-        IntegralF<Gauss, Basis, Basis>   integral;
+        IntegralF<Gauss, Basis, Basis> integral;
 
 };
 
-
 } // namespace lawa
 
-#include <lawa/methods/rb/operators/weightedidentityoperator1d.tcc>
+#include <lawa/operators/pdeoperators1d/weightedlaplaceoperator1d.tcc>
 
-#endif // LAWA_METHODS_RB_OPERATORS_WEIGHTEDIDENTITYOPERATOR1D_H
+#endif  // LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDLAPLACEOPERATOR1D_H
 

@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_METHODS_RB_OPERATORS_WEIGHTEDADAPTIVEHELMHOLTZOPERATOR2D_H
-#define LAWA_METHODS_RB_OPERATORS_WEIGHTEDADAPTIVEHELMHOLTZOPERATOR2D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_WEIGHTEDADAPTIVEHELMHOLTZOPERATOR2D_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_WEIGHTEDADAPTIVEHELMHOLTZOPERATOR2D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>
@@ -27,9 +27,9 @@
 #include <lawa/methods/adaptive/compressions/compression_pde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
-#include <lawa/methods/rb/operators/weightedidentityoperator1d.h>
-#include <lawa/methods/rb/operators/weightedlaplaceoperator1d.h>
 #include <lawa/operators/operator2d.h>
+#include <lawa/operators/pdeoperators1d/weightedidentityoperator1d.h>
+#include <lawa/operators/pdeoperators1d/weightedlaplaceoperator1d.h>
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
 #include <lawa/preconditioners/preconditioners.h>
 
@@ -62,10 +62,6 @@ struct WeightedAdaptiveHelmholtzOperator2D : public Operator2D<T>
     typedef MapMatrixWithZeros<T, Index1D, WeightedLaplaceOperator_y,
                                Compression1D_y, NoPreconditioner1D>  DataWeightedLaplace_y;
 
-    //typedef WeightedLaplaceOperator2D<T, Basis2D>           		 WeightedLaplaceOperator2D;
-    //typedef DiagonalMatrixPreconditioner2D<T, Basis2D,
-    //                            WeightedLaplaceOperator2D>  		 DiagonalHelmholtzPreconditioner2D;
-
     WeightedAdaptiveHelmholtzOperator2D(const Basis &_basis, const T _c, 
                                       Function<T> weightFct_x, Function<T> weightFct_y,
                                       const Preconditioner &_Prec,
@@ -81,9 +77,9 @@ struct WeightedAdaptiveHelmholtzOperator2D : public Operator2D<T>
     clear();
 
 
-    const Basis&              basis;
-    const T						c;
-    const Preconditioner&       Prec;
+    const Basis&            basis;
+    const T                 c;
+    const Preconditioner&   Prec;
 
     Compression1D_x            compression_1d_x;
     Compression1D_y            compression_1d_y;
@@ -106,7 +102,7 @@ struct WeightedAdaptiveHelmholtzOperator2D : public Operator2D<T>
 
 }   //namespace lawa
 
-#include <lawa/methods/rb/operators/weightedadaptivehelmholtzoperator2d.tcc>
+#include <lawa/methods/adaptive/operators/weightedadaptivehelmholtzoperator2d.tcc>
 
-#endif // LAWA_METHODS_RB_OPERATORS_WEIGHTEDADAPTIVELHELMHOLTZOPERATOR2D_H
+#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_WEIGHTEDADAPTIVELHELMHOLTZOPERATOR2D_H
 

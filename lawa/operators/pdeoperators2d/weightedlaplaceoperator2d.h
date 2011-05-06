@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_METHODS_RB_OPERATORS_WEIGHTEDLAPLACEOPERATOR2D_H
-#define LAWA_METHODS_RB_OPERATORS_WEIGHTEDLAPLACEOPERATOR2D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDLAPLACEOPERATOR2D_H
+#define LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDLAPLACEOPERATOR2D_H 1
 
 #include <lawa/functiontypes/function.h>
 #include <lawa/integrals/integral.h>
@@ -67,6 +67,6 @@ class WeightedLaplaceOperator2D : public UniformOperator2D<T> {
 
 } // namespace lawa
 
-#include <lawa/methods/rb/operators/weightedlaplaceoperator2d.tcc>
+#include <lawa/operators/pdeoperators2d/weightedlaplaceoperator2d.tcc>
 
-#endif // LAWA_METHODS_RB_OPERATORS_WEIGHTEDLAPLACEOPERATOR2D_H
+#endif // LAWA_OPERATORS_PDEOPERATORS2D_WEIGHTEDLAPLACEOPERATOR2D_H
