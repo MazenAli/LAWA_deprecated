@@ -77,19 +77,11 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-     const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, T &H1norm, const char* filename)
+     const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, const char* filename)
 {
     typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
 
-    std::stringstream PlotFileName;
-    PlotFileName << filename << ".dat";
-    std::ofstream plotfile(PlotFileName.str().c_str());
-
-    DenseVector<Array<T> > sing_pts;
-    getSingularPoints(basis, coeff, sing_pts);
-    T L2norm=0.;
-    T H1seminorm=0.;
-
+    std::ofstream plotfile(filename);
     for (T x=a; x<=b; x+=h) {
         T appr=0., d_appr = 0.0;
         T exact= u(x);
@@ -102,13 +94,8 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
             d_appr += prec * coeff * basis.generator((*it).first.xtype)(x,j,k,1);
 
         }
-        L2norm += (exact-appr)*(exact-appr);
-        H1seminorm += (d_exact-d_appr)*(d_exact-d_appr);
         plotfile << x << " " << exact << " " << d_exact << " " << appr << " " << d_appr << std::endl;
     }
-    L2norm *= h;
-    H1seminorm *= h;
-    H1norm = std::sqrt(L2norm+H1seminorm);
     plotfile.close();
 }
 

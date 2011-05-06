@@ -112,6 +112,7 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
             _innerSingularSupport[4] = linspace(0.0,1.0,5);
             _innerSingularSupport[5] = linspace(0.0,1.0,5);
             */
+        case 4:
             break;
             
         default: std::cerr << "BSpline<T,Orthogonal,Interval,Multi> not yet realized"
@@ -182,7 +183,7 @@ template <typename T>
 Range<int>
 MRA<T,Orthogonal,Interval,Multi>::rangeIL(int /*j*/) const
 {
-    return Range<int>(1,cardIL() - 1);
+    return Range<int>(0,cardIL() - 1);
 }
 
 template <typename T>
@@ -276,6 +277,75 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             
             break;
             
+        case 4:
+            // left B-splines 
+            _numLeftParts = 5;
+            _leftEvaluator = new Evaluator[5];
+            _leftEvaluator[0] = _cubic_bspline_left_evaluator1;
+            _leftEvaluator[1] = _cubic_bspline_inner_evaluator2;
+            _leftEvaluator[2] = _cubic_bspline_inner_evaluator3;
+            _leftEvaluator[3] = _cubic_bspline_inner_evaluator4;
+            _leftEvaluator[4] = _cubic_bspline_inner_evaluator5;
+            
+            _leftSupport = new Support<T>[5];
+            _leftSupport[0] = Support<T>(0,1);
+            _leftSupport[1] = Support<T>(0,1);
+            _leftSupport[2] = Support<T>(0,1);
+            _leftSupport[3] = Support<T>(0,1);
+            _leftSupport[4] = Support<T>(0,1);
+            
+            _leftSingularSupport = new DenseVector<Array<T> >[5];
+            _leftSingularSupport[0] = linspace( 0.0,1.0,5);
+            _leftSingularSupport[1] = linspace( 0.0,1.0,3);
+            _leftSingularSupport[2] = linspace( 0.0,1.0,3);
+            _leftSingularSupport[3] = linspace( 0.0,1.0,5);
+            _leftSingularSupport[4] = linspace( 0.0,1.0,5);
+            
+            _leftScalingFactors.engine().resize(5,0);
+            _leftScalingFactors = 1.0,1.0,1.0,1.0,1.0;
+            
+            // inner B-splines 
+            _numInnerParts = 6;
+            _innerEvaluator = new Evaluator[6];
+            _innerEvaluator[0] = _cubic_bspline_inner_evaluator0;
+            _innerEvaluator[1] = _cubic_bspline_inner_evaluator1;
+            _innerEvaluator[2] = _cubic_bspline_inner_evaluator2;            
+            _innerEvaluator[3] = _cubic_bspline_inner_evaluator3;
+            _innerEvaluator[4] = _cubic_bspline_inner_evaluator4;
+            _innerEvaluator[5] = _cubic_bspline_inner_evaluator5;            
+            
+            _innerSupport = new Support<T>[6];
+            _innerSupport[0] = Support<T>(-1,1);
+            _innerSupport[1] = Support<T>(-1,1);
+            _innerSupport[2] = Support<T>( 0,1);
+            _innerSupport[3] = Support<T>( 0,1);
+            _innerSupport[4] = Support<T>( 0,1);
+            _innerSupport[5] = Support<T>( 0,1);
+            
+            _innerSingularSupport = new DenseVector<Array<T> >[6];
+            _innerSingularSupport[0] = linspace(-1.0,1.0,9);
+            _innerSingularSupport[1] = linspace( 0.0,1.0,9);
+            _innerSingularSupport[2] = linspace( 0.0,1.0,3);
+            _innerSingularSupport[3] = linspace(-1.0,1.0,3);
+            _innerSingularSupport[4] = linspace( 0.0,1.0,5);
+            _innerSingularSupport[5] = linspace( 0.0,1.0,5);
+            
+            // right B-splines
+            _numRightParts = 1;
+            _rightEvaluator = new Evaluator[1];
+            _rightEvaluator[0] = _cubic_bspline_right_evaluator1;
+            
+            _rightSupport = new Support<T>[1];
+            _rightSupport[0] = Support<T>(-1,0);
+            
+            _rightSingularSupport = new DenseVector<Array<T> >[1];
+            _rightSingularSupport[0] = linspace(-1.0,0.0,5);
+            
+            _rightScalingFactors.engine().resize(1,0);
+            _rightScalingFactors(0) = 1.0;
+            
+            break;
+
         default: std::cerr << "Boundary conditions not yet realized"
             " for d = " << d << ". Stopping." << std::endl;
             exit(-1);

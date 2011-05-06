@@ -88,6 +88,7 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
             _rightScalingFactors.engine().resize(2,0);
             _rightScalingFactors = 1.0,1.0;
             
+        case 4:
             break;
             
         default: std::cerr << "Wavelet<T,Orthogonal,Interval,Multi> not yet realized"
@@ -141,7 +142,7 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _numLeftParts = 2;
             delete[] _leftEvaluator;
             _leftEvaluator = new Evaluator[2];
-            _leftEvaluator[0] = _linear_wavelet_left_evaluator1;
+            _leftEvaluator[0] = _linear_wavelet_inner_evaluator1;
             _leftEvaluator[1] = _linear_wavelet_inner_evaluator2;
             
             delete[] _leftSupport;
@@ -162,7 +163,7 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _numRightParts = 1;
             delete[] _rightEvaluator;
             _rightEvaluator = new Evaluator[1];
-            _rightEvaluator[0] = _linear_wavelet_right_evaluator1;
+            _rightEvaluator[0] = _linear_wavelet_inner_evaluator1;
             
             delete[] _rightSupport;
             _rightSupport = new Support<T>[1];
@@ -175,6 +176,82 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             
             _rightScalingFactors.engine().resize(1,0);
             _rightScalingFactors = 1.714277953522051005391;
+            
+            break;
+        
+        case 4:            
+            // left wavelets
+            _numLeftParts = 4;
+            _leftEvaluator = new Evaluator[4];
+            _leftEvaluator[0] = _cubic_wavelet_left_evaluator1;
+            _leftEvaluator[1] = _cubic_wavelet_left_evaluator2;
+            _leftEvaluator[2] = _cubic_wavelet_inner_evaluator4;
+            _leftEvaluator[3] = _cubic_wavelet_inner_evaluator5;
+
+            _leftSupport = new Support<T>[4];
+            _leftSupport[0] = Support<T>(0,1);
+            _leftSupport[1] = Support<T>(0,1);
+            _leftSupport[2] = Support<T>(0,1);
+            _leftSupport[3] = Support<T>(0,1);
+
+            _leftSingularSupport = new DenseVector<Array<T> >[4];
+            _leftSingularSupport[0].engine().resize(9,0);
+            _leftSingularSupport[0] = 0.0,0.125,0.25,0.375,0.5,0.625,0.75,0.875,1.0;
+            _leftSingularSupport[1].engine().resize(9,0);
+            _leftSingularSupport[1] = 0.0,0.125,0.25,0.375,0.5,0.625,0.75,0.875,1.0;
+            _leftSingularSupport[2].engine().resize(9,0);
+            _leftSingularSupport[2] = 0.0,0.125,0.25,0.375,0.5,0.625,0.75,0.875,1.0;
+            _leftSingularSupport[3] = linspace(0.0,1.0,9);
+
+            _leftScalingFactors.engine().resize(4,0);
+            _leftScalingFactors = 1.0,1.0,1.0,1.0;
+
+            // inner wavelets
+            _numInnerParts = 6; 
+            _innerEvaluator = new Evaluator[6];
+            _innerEvaluator[0] = _cubic_wavelet_inner_evaluator0;
+            _innerEvaluator[1] = _cubic_wavelet_inner_evaluator1;
+            _innerEvaluator[2] = _cubic_wavelet_inner_evaluator2;
+            _innerEvaluator[3] = _cubic_wavelet_inner_evaluator3;
+            _innerEvaluator[4] = _cubic_wavelet_inner_evaluator4;
+            _innerEvaluator[5] = _cubic_wavelet_inner_evaluator5;
+
+            _innerSupport = new Support<T>[6];
+            _innerSupport[0] = Support<T>(-1,1);
+            _innerSupport[1] = Support<T>(-1,1);
+            _innerSupport[2] = Support<T>(-1,1);
+            _innerSupport[3] = Support<T>(-1,1);
+            _innerSupport[4] = Support<T>(-1,1);
+            _innerSupport[5] = Support<T>( 0,1);
+
+            _innerSingularSupport = new DenseVector<Array<T> >[6];
+            _innerSingularSupport[0].engine().resize(13,0);
+            _innerSingularSupport[0] = -1.0,-0.75,-0.5,-0.375,-0.25,-0.125,0.0,0.125,0.25,0.375,0.5,0.75,1.0;
+            _innerSingularSupport[1].engine().resize(13,0);
+            _innerSingularSupport[1] = -1.0,-0.75,-0.5,-0.375,-0.25,-0.125,0.0,0.125,0.25,0.375,0.5,0.75,1.0;
+            _innerSingularSupport[2].engine().resize(13,0);
+            _innerSingularSupport[2] = -1.0,-0.75,-0.5,-0.375,-0.25,-0.125,0.0,0.125,0.25,0.375,0.5,0.75,1.0;
+            _innerSingularSupport[3].engine().resize(13,0);
+            _innerSingularSupport[3] = -1.0,-0.75,-0.5,-0.375,-0.25,-0.125,0.0,0.125,0.25,0.375,0.5,0.75,1.0;
+            _innerSingularSupport[4] = linspace(0.0,1.0,9);
+            _innerSingularSupport[5] = linspace(0.0,1.0,9);
+
+            // right wavelets
+            _numRightParts = 2;
+            _rightEvaluator = new Evaluator[2];
+            _rightEvaluator[0] = _cubic_wavelet_right_evaluator1;
+            _rightEvaluator[1] = _cubic_wavelet_right_evaluator2;
+
+            _rightSupport = new Support<T>[2];
+            _rightSupport[0] = Support<T>(-1.0,0.0);
+            _rightSupport[1] = Support<T>(-1.0,0.0);
+
+            _rightSingularSupport = new DenseVector<Array<T> >[2];
+            _rightSingularSupport[0] = linspace(-1.0,0.0,9);
+            _rightSingularSupport[1] = linspace(-1.0,0.0,9);
+
+            _rightScalingFactors.engine().resize(2,0);
+            _rightScalingFactors = 1.0,1.0;
             
             break;
             
@@ -203,7 +280,7 @@ long
 Basis<T,Orthogonal,Interval,Multi>::cardJ(int j) const
 {
     assert(j>=j0);
-    return _numLeftParts + (pow2i<long>(j-1)-1)*_numInnerParts + _numRightParts;
+    return _numLeftParts + (pow2i<long>(j)-1)*_numInnerParts + _numRightParts;
 }
 
 template <typename T>
@@ -219,7 +296,7 @@ long
 Basis<T,Orthogonal,Interval,Multi>::cardJI(int j) const
 {
     assert(j>=j0);
-    return (pow2i<long>(j-1)-1)*_numInnerParts;
+    return (pow2i<long>(j)-1)*_numInnerParts;
 }
 
 template <typename T>
@@ -252,7 +329,7 @@ const Range<int>
 Basis<T,Orthogonal,Interval,Multi>::rangeJI(int j) const
 {
     assert(j>=j0);
-    return Range<int>(cardJL()+1,cardJL()+cardJI());
+    return Range<int>(cardJL()+1,cardJL()+cardJI(j));
 }
 
 template <typename T>

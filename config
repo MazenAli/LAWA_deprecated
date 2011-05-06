@@ -21,6 +21,14 @@ ifeq ($(TARGET),Darwin)
     CPPFLAGS += -DWITH_VECLIB
     LDFLAGS  += -framework Accelerate
   endif
+  ifeq ($(COMPILER),clang)
+    CC  = clang
+    CXX = clang++
+    ifeq ($(BLASLAPACK),platform)
+      CPPFLAGS += -DWITH_VECLIB
+      LDFLAGS  += -framework Accelerate
+    endif
+  endif
 endif
 
 ifeq ($(TARGET),Linux)
@@ -59,3 +67,7 @@ CXXFLAGS += $(DEBUGMODE)
 
 CPPFLAGS += -D_GLIBCXX_PERMIT_BACKWARD_HASH
 CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
+
+ifdef BOOST_HOME
+  CPPFLAGS += -I$(BOOST_HOME)
+endif

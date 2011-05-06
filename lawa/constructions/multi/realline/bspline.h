@@ -33,25 +33,25 @@ class BSpline<_T,Orthogonal,R,Multi>
         
         DenseVector<Array<T> >
         singularSupport(int j, long k) const;
-    
+
         const unsigned int d;
-    
+
     private:
         typedef T (*Evaluator)(T x, unsigned short deriv);
-    
+
         long
         _shift(long k) const;
-    
+
         int
         _type(long k) const;
-        
+
         unsigned int _numSplines;
         Evaluator *_evaluator;
         Support<T> *_support;
         DenseVector<Array<T> > *_singularSupport;
     //        T
-    //TODO    tic(int j) const;      
-    //    int	polynomialOrder;
+    //TODO    tic(int j) const;
+    //    int polynomialOrder;
 };
 
 } // namespace lawa

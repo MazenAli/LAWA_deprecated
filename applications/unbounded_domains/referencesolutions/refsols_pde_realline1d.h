@@ -49,10 +49,10 @@ struct RefSols_PDE_Realline1D
     exact(T x, int deriv);
 
     static T
-    exact(T x);
+    u(T x);
 
     static T
-    d_exact(T x);
+    d_u(T x);
 
     static T
     rhs(T x);

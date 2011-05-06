@@ -37,9 +37,13 @@ estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> 
 // Calculates ||u - u_{\Lambda}-f||_H via energy norm ansatz
 template <typename T, typename Index, typename MA, typename RHS>
 T
-estimateError_H_energy(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
-                       T HNormOfExactSolution);
-                       
+computeErrorInH1Norm(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
+                     T H1NormOfExactSolution);
+
+template <typename T, typename Index, typename SOLVER, typename MA_H, typename RHS_H>
+void
+postprocessing_H1(SOLVER& Solver, MA_H &A_H1, RHS_H &F_H1, T H1norm, const char* filename);
+
 template<typename T, typename Preconditioner>
 T
 estimate_SpaceTimeError_L0T_L2(Coefficients<Lexicographical,T,Index2D> & u, 
