@@ -29,6 +29,15 @@
 
 namespace lawa {
 
+/* Uniform RBTruth 2D:
+ *
+ *	This class provides data and functions for an uniform truth system, i.e. \calN-dependent
+ * 	members and methods, using uniform operators and righthandsides.
+ *
+ *	It contains a pointer to the associated RB Model, as well as
+ *	a pointer to an actual solver that is used for snapshot calculations.
+ */
+
 template <typename, typename> class RBModel2D;
  
 template <typename T, typename TruthSolver>
@@ -63,7 +72,7 @@ class UniformRBTruth2D {
 
         TruthSolver*						solver;
 
-            	    
+         // Wrapper class for affine structure on left hand side       
     	class Operator_LHS {
         	public:
             	Operator_LHS(UniformRBTruth2D<T, TruthSolver>* _truth) : thisTruth(_truth){}
@@ -78,6 +87,7 @@ class UniformRBTruth2D {
             	UniformRBTruth2D<T, TruthSolver>* thisTruth;
         };
         
+         // Wrapper class for affine structure on right hand side               
         class Operator_RHS {
         	public:
             	Operator_RHS(UniformRBTruth2D<T, TruthSolver>* _truth) : thisTruth(_truth){}

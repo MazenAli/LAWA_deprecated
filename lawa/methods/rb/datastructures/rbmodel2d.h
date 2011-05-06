@@ -29,8 +29,12 @@
 
 namespace lawa {
 
-/* RBModel 2D
- *
+/* RBModel 2D: 
+ *	This class contains all N-dependent data and functions needed for a reduced basis
+ *	approximation.
+ *  
+ *  It contains a pointer to an associated Truth Model (which does not have to be initialized
+ *  for online calculations).
  */
  
 template <typename T, typename TruthModel>

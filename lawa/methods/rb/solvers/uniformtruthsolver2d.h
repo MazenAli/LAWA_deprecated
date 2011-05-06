@@ -11,9 +11,11 @@ namespace lawa {
 
 template <typename, typename> class UniformRBTruth2D;
 
-/* Uniform Truth Solver
+/* Uniform Truth Solver:
+ *
  *	This class provides a solver for truth solutions, based on
  * 	the uniform (or sparse) assembler methods.
+ *  It is linked to a uniform truth model in 2d
  */
 template <typename T, typename Basis, typename Prec = NoPreconditioner<T, Index2D> >
 class UniformTruthSolver2D : public TruthSolver<T, Index2D> {

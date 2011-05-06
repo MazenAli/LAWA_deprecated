@@ -28,8 +28,13 @@
 
 namespace lawa {
 
-/* RBModel 2D
+/* Adaptive RBTruth 2D:
  *
+ *	This class provides data and functions for an adaptive truth system, i.e. \calN-dependent
+ * 	members and methods, using adaptive operators and righthandsides.
+ *
+ *	It contains a pointer to the associated RB Model, as well as
+ *	a pointer to an actual solver that is used for snapshot calculations.
  */
  
 template <typename, typename> class RBModel2D;
@@ -68,6 +73,7 @@ class AdaptiveRBTruth2D{
         
         TruthSolver*		solver;
             	
+         // Wrapper class for affine structure on left hand side       
     	class Operator_LHS {
         	
             typedef CompressionPDE2D<T, Basis> Compression;
@@ -86,6 +92,7 @@ class AdaptiveRBTruth2D{
                 Compression compression;
         };
 
+         // Wrapper class for affine structure on right hand side       
         class Operator_RHS {
         	public:
             	Operator_RHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth) : thisTruth(_truth){}
