@@ -2,6 +2,7 @@
 #include <fstream>
 #include <lawa/lawa.h>
 #include <applications/finance/operators/cgmyoperator1d.h>
+#include <applications/finance/righthandsides/righthandsides.h>
 
 using namespace std;
 using namespace lawa;
@@ -35,7 +36,7 @@ int main()
     int j0 = 2;         // minimal level
     int J = 3;          // maximal level
 
-    Parameters<T,CGMY> parameters(0., 1., 2.4, 4.5, 1.8);
+    ProcessParameters1D<T,CGMY> processparameters(0., 1., 2.4, 4.5, 1.8);
 
     PrimalBasis basis(d, d_, j0);
     basis.enforceBoundaryCondition<DirichletBC>();
@@ -48,10 +49,10 @@ int main()
     cout << deltas << endl;
 
     //Implement Kernel
-    Kernel<T,CGMY> kernel(parameters);
+    Kernel<T,CGMY> kernel(processparameters);
 
     //Implement CGMY-operator
-    CGMYOp          a(basis, parameters, 0, 0, 4., 4.);
+    CGMYOp          a(basis, processparameters, 8., 8.);
     SparseMatrixT   A = assembler.assembleStiffnessMatrix(a, J);
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
     densify(cxxblas::NoTrans,A,A_dense);

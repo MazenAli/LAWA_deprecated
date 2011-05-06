@@ -2,7 +2,7 @@ namespace lawa {
 
 
 template <typename T>
-Kernel<T,CGMY>::Kernel(const Parameters<T,CGMY> &_params)
+Kernel<T,CGMY>::Kernel(const ProcessParameters1D<T,CGMY> &_params)
 : params(_params), C(_params.k_C), G(_params.k_G), M(_params.k_M), Y(_params.k_Y)
 {
     if ((Y == 0) || (Y == 1)) {

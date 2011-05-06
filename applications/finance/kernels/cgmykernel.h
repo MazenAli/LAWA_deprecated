@@ -33,9 +33,9 @@ struct Kernel<T,CGMY>
 {
     typedef boost::math::policies::policy<boost::math::policies::digits2<64> > my_prec_policy;
 
-    Kernel(const Parameters<T,CGMY> &_params);
+    Kernel(const ProcessParameters1D<T,CGMY> &_params);
 
-    Parameters<T,CGMY> params;
+    ProcessParameters1D<T,CGMY> params;
     const T C, G, M, Y;
     T c3,c4,c5,c6;
     T ExpXmOnemX_k_pos, ExpXmOnemX_k_neg, ExpXmOnemX_k;

@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef APPLICATIONS_FINANCE_OPERATORS_CGMYOPERATOR1D_H
-#define APPLICATIONS_FINANCE_OPERATORS_CGMYOPERATOR1D_H 1
+#ifndef APPLICATIONS_FINANCE_OPERATORS_BLACKSCHOLESOPERATOR1D_H
+#define APPLICATIONS_FINANCE_OPERATORS_BLACKSCHOLESOPERATOR1D_H 1
 
 #include <lawa/constructions/constructions.h>
 #include <lawa/operators/deltas.h>
@@ -30,13 +30,12 @@
 namespace lawa {
 
 template <typename T, typename Basis1D>
-struct FinanceOperator1D<T, CGMY, Basis1D>
+struct FinanceOperator1D<T, BlackScholes, Basis1D>
 {
-    FinanceOperator1D(const Basis1D& _basis, const ProcessParameters1D<T,CGMY> &_processparameters,
+    FinanceOperator1D(const Basis1D &_basis,
+                      const ProcessParameters1D<T,BlackScholes> &_processparameters,
                       const T _eta=0., T _R1=0., T _R2=1., int order=10,
-                      const int internal_compression_level=-1,
-                      T _convection=0., T _reaction=0.,
-                      const bool _use_predef_convection=true, const bool _use_predef_reaction=true);
+                      const int internal_compression_level=-1);
 
     T
     operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
@@ -44,23 +43,22 @@ struct FinanceOperator1D<T, CGMY, Basis1D>
     T
     operator()(const Index1D &row_index, const Index1D &col_index) const;
 
-    const Basis1D                       &basis;
-    const ProcessParameters1D<T,CGMY>   &processparameters;
-    Kernel<T,CGMY>                      kernel;
-    T                                   R1, R2;
-    const int                           internal_compression_level;
-    T                                   convection, reaction;
-    const bool                          use_predef_convection, use_predef_reaction;
-    T                                   OneDivSqrtR2pR1, OneDivR2pR1, R1DivR1pR2;
+    const Basis1D                               &basis;
+    const ProcessParameters1D<T,BlackScholes>   &processparameters;
+    const T                                     eta;
+    ExponentialWeightFunction1D<T>              exponentialweightfunction;
+    Function<T>                                 weight;
+    Function<T>                                 dweight;
+    T                                           R1, R2;
+    T                                           OneDivR2pR1, OneDivR2pR1squared;
 
-    Integral<Gauss, Basis1D, Basis1D> integral;
-
-    mutable std::map<T,T> values_tailintegral;
-
+    Integral<Gauss, Basis1D, Basis1D>  integral;
+    IntegralF<Gauss, Basis1D, Basis1D> integral_weight;
+    IntegralF<Gauss, Basis1D, Basis1D> integral_dweight;
 };
 
 }   // namespace lawa
 
-#include <applications/finance/operators/cgmyoperator1d.tcc>
+#include <applications/finance/operators/blackscholesoperator1d.tcc>
 
-#endif  // APPLICATIONS_FINANCE_OPERATORS_CGMYOPERATOR1D_H
+#endif  // APPLICATIONS_FINANCE_OPERATORS_BLACKSCHOLESOPERATOR1D_H

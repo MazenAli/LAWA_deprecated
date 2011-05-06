@@ -17,24 +17,20 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef APPLICATIONS_FINANCE_KERNELS_KERNEL_H
-#define APPLICATIONS_FINANCE_KERNELS_KERNEL_H 1
+#ifndef APPLICATIONS_FINANCE_RIGHTHANDSIDES_OPTIONRHS1D_H
+#define APPLICATIONS_FINANCE_RIGHTHANDSIDES_OPTIONRHS1D_H 1
 
-#include <applications/finance/processes/processtypes1d.h>
+#include <applications/finance/options/optiontypes1d.h>
+#include <applications/finance/processes/processes.h>
 
 namespace lawa {
 
-enum AntiDerivativeType {
-    ZeroAtInfinity,
-    ZeroAtZero
-};
-
-template <typename T,ProcessType1D Type>
-struct Kernel
+template <typename T, OptionType1D OType, ProcessType1D PType, typename Basis>
+struct OptionRHS1D
 {
 
 };
 
-}
+}   // namespace lawa
 
-#endif  // APPLICATIONS_FINANCE_KERNELS_KERNEL_H
+#endif  // APPLICATIONS_FINANCE_RIGHTHANDSIDES_OPTIONRHS1D_H
