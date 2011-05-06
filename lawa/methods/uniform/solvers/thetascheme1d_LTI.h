@@ -2,6 +2,8 @@
 #define LAWA_METHODS_UNIFORM_SOLVERS_THETASCHEME1D_LTI_H 1
 
 #include <lawa/settings/enum.h>
+#include <lawa/integrals/integrals.h>
+#include <lawa/operators/pdeoperators1d/pdeoperators1d.h>
 
 namespace lawa{
 
@@ -10,7 +12,15 @@ namespace lawa{
  * 		a time-stepping scheme for a linear and time-constant operator.
  *      It assumes a time-constant bilinear form, so that the system matrices
  *      are only assembled once. 
- */    
+ *
+ *      time_constant_rhs: rhsvector is only assembled once if true.
+ *      use_pcg          : standard linear solver is gmres (false), otherwise cg (true)
+ *      assemble_tol     : only save matrix entries with values > assemble_tol (absolute values)
+ *      lintol           : solve linear system with accuracy lintol
+ *      eta              : use weighted L2-scalar product \int w(x) v(x) e^{-2eta|x|} dx
+ *      R1, R2           : use wavelets defined on [-R1, R2].
+ *      order            : quadrature order for weighted L2-scalar product.
+ */
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 class ThetaScheme1D_LTI
 {
@@ -19,7 +29,8 @@ class ThetaScheme1D_LTI
         
         ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a,
                           RHSIntegral& _rhs, const bool time_constant_rhs=false,
-                          const bool _use_pcg=false, T _assembletol=10e-15, T _lintol=10e-15);
+                          const bool _use_pcg=false, T _assembletol=10e-15, T _lintol=10e-15,
+                          T eta=0., T R1=0., T R2=1., int order=10);
     
         flens::DenseVector<flens::Array<T> > 
         solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
@@ -112,7 +123,8 @@ class ThetaScheme1D_LTI
         T lintol;
         Assembler1D<T, Basis> assembler;
 
-        Integral<Gauss, Basis, Basis> integral;
+        WeightedL2ScalarProduct1D<T, Basis>      w_L2_scalarproduct;
+        //Integral<Gauss, Basis, Basis> integral;
         
         Operator_LHSMatrix op_LHSMatrix;
         Operator_RHSMatrix op_RHSMatrix;

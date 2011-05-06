@@ -4,3 +4,4 @@
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/pdeconstcoeffoperator1d.h>
 #include <lawa/operators/pdeoperators1d/pdenonconstcoeffoperator1d.h>
+#include <lawa/operators/pdeoperators1d/weightedL2scalarproduct1d.h>

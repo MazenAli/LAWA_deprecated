@@ -4,12 +4,15 @@ namespace lawa{
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
 ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>::
 ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs,
-                  const bool _time_constant_rhs, const bool _use_pcg, T _assembletol, T _lintol)
+                  const bool _time_constant_rhs, const bool _use_pcg, T _assembletol, T _lintol,
+                  T eta, T R1, T R2, int order)
     : theta(_theta), basis(_basis), time_constant_rhs(_time_constant_rhs),
       use_pcg(_use_pcg), assembletol(_assembletol), lintol(_lintol),
-      assembler(basis), integral(_basis, _basis),
+      assembler(basis),
+      w_L2_scalarproduct(basis, eta, R1, R2, order),
+      //integral(_basis, _basis),
       op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs), prec(op_LHSMatrix),
-      currentLevel(-1), P(assembler.assemblePreconditioner(prec, 2))
+      currentLevel(-1), P(assembler.assemblePreconditioner(prec, basis.j0))
 {   
 }
  
@@ -113,8 +116,10 @@ operator()(XType xtype1, int j1, int k1,
            XType xtype2, int j2, int k2) const
 {
     // (M + deltaT * theta * A_k+1)
-    return scheme->integral(j1, k1, xtype1, 0, j2, k2, xtype2, 0) 
-            + (time_new - time_old) * scheme->theta * a(xtype1, j1, k1, xtype2, j2, k2);
+    //return scheme->integral(j1, k1, xtype1, 0, j2, k2, xtype2, 0)
+    //        + (time_new - time_old) * scheme->theta * a(xtype1, j1, k1, xtype2, j2, k2);
+    return scheme->w_L2_scalarproduct(xtype1, j1, k1, xtype2, j2, k2)
+              + (time_new - time_old) * scheme->theta * a(xtype1, j1, k1, xtype2, j2, k2);
 }
 
 
@@ -137,8 +142,10 @@ operator()(XType xtype1, int j1, int k1,
            XType xtype2, int j2, int k2) const
 {
    // (M - deltaT * (1-theta) * A_k)
-   return scheme->integral(j1, k1, xtype1, 0, j2, k2, xtype2, 0)
-        - (time_new - time_old) * (1. - scheme->theta) * a(xtype1,j1,k1, xtype2, j2,k2);
+   //return scheme->integral(j1, k1, xtype1, 0, j2, k2, xtype2, 0)
+   //     - (time_new - time_old) * (1. - scheme->theta) * a(xtype1,j1,k1, xtype2, j2,k2);
+    return scheme->w_L2_scalarproduct(xtype1, j1, k1, xtype2, j2, k2)
+          - (time_new - time_old) * (1. - scheme->theta) * a(xtype1,j1,k1, xtype2, j2,k2);
 }
 
 /*======================================================================================*/    
