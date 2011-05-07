@@ -1,9 +1,10 @@
+#include <cassert>
+
 namespace  lawa {
 
 template <typename T, typename TruthModel>
 RBModel2D<T, TruthModel>::RBModel2D()
 {}
-
 
 template <typename T, typename TruthModel>
 void
@@ -72,6 +73,56 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
     update_RB_A_matrices();
     update_RB_F_vectors();
 }
+
+template <typename T, typename TruthModel>
+flens::DenseVector<flens::Array<T> >
+RBModel2D<T, TruthModel>::RB_solve(unsigned int N, SolverCall call)
+{
+	assert(RB_A_matrices.size() > 0);
+    
+	FullColMatrixT A(N, N);
+    for (unsigned int i = 0; i < Q_a(); ++i) {
+        A += RB_A_matrices[i](_(1,N), _(1,N));
+    }
+    
+    DenseVectorT F(N);
+    for (unsigned int i = 0; i < Q_f(); ++i) {
+        F += RB_F_vectors[i](_(1,N));
+    }
+    
+    DenseVectorT u(N);
+    switch (call) {
+        case call_cg:
+            std::cout << "RB solve: " << cg(A, u, F) << " cg iterations" << std::endl;
+            break;
+        case call_gmres:
+            std::cout << "RB solve: " << gmres(A, u, F) << " gmres iterations" << std::endl;
+            break;
+        default:
+        	std::cerr << "RB solve: Method not implemented! " << std::endl;
+            break;
+    }
+    
+    return u;
+}
+
+template <typename T, typename TruthModel>
+Coefficients<Lexicographical,T,Index2D>
+RBModel2D<T, TruthModel>::reconstruct_u_N(DenseVectorT u, unsigned int N)
+{
+	assert(N <= n_bf());
+	assert(u.length() > 0);
+	assert(u.length() >= (int)N);
+    
+	CoeffVector u_full;
+    for (unsigned int i = 1; i <= N; ++i) {
+        u_full = u_full + u(i) * rb_basis_functions[i-1];
+    }
+    
+    return u_full;
+}
+
+/* Protected methods */
 
 template <typename T, typename TruthSolver>
 void

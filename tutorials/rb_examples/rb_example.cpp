@@ -128,8 +128,8 @@ int main(int argc, char* argv[]) {
     Function<T> w_x_1(weight_Omega_x_1, singpts_x);
     Function<T> w_x_2(weight_Omega_x_2, singpts_x);
     Function<T> w_y(weight_Omega_y, singpts_y);
-    WeightedLaplaceOperator2D<T, Basis2D> hh_1(basis2d, w_x_1, w_y);
-    WeightedLaplaceOperator2D<T, Basis2D> hh_2(basis2d, w_x_2, w_y);
+    WeightedHelmholtzOperator2D<T, Basis2D> hh_1(basis2d, 1., w_x_1, w_y);
+    WeightedHelmholtzOperator2D<T, Basis2D> hh_2(basis2d, 1., w_x_2, w_y);
     
     rb_truth.attach_A_q(theta_a_1, hh_1);
     rb_truth.attach_A_q(theta_a_2, hh_2);

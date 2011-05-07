@@ -25,7 +25,8 @@ class S_ADWAV_TruthSolver {
         
     public:
         
-    	/* Public member functions */
+    /* Public member functions */
+    
         S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, SolverCall solmethod);
         
         Coefficients<Lexicographical,T,Index>
@@ -33,9 +34,18 @@ class S_ADWAV_TruthSolver {
         
 		void 
         set_model(Truth& _truth_model); 
+        
+        void
+        clear_solver();
             
     private:
-        /* Private members */
+    
+    /* Private methods */
+    
+        void
+        reset_s_adwav();
+            
+    /* Private members */
         
       	Truth* truth_model; // evtl später: template auf Modell, dann kann hier auch ausgetauscht werden
         
@@ -43,6 +53,11 @@ class S_ADWAV_TruthSolver {
         
         // internal solution method used in s_adwav (cg/gmres/...)
  		SolverCall solution_method;
+        
+        // S_adwav (initial) parameters: have to be reset in s_adwav before each call
+        T contraction, threshTol, linTol, resTol;
+        int NumOfIts, MaxItsPerThreshTol;
+        T eps;
 };    
     
 } // namespace lawa

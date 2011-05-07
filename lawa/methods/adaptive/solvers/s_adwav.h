@@ -43,6 +43,13 @@ class S_ADWAV {
         void solve_gmres(const IndexSet<Index> &Initial_Lambda);
         //solver for indefinite problems
         void solve_cgls(const IndexSet<Index> &Initial_Lambda);
+        
+        void
+        set_parameters(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
+                      int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2);
+        void
+        get_parameters(T& _contraction, T& _threshTol, T& _linTol, T& _resTol, 
+                      int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps);
 
         std::vector<Coefficients<Lexicographical,T,Index> > solutions;
         std::vector<T>               residuals;
@@ -56,7 +63,7 @@ class S_ADWAV {
         MA &A;
         RHS &F;
         T contraction, threshTol, linTol, resTol;
-        int NumOfIterations;
+        int NumOfIterations; 
         int MaxItsPerThreshTol;
         T eps;
 

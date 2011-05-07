@@ -402,5 +402,34 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
     }
 }
 
+template <typename T, typename Index, typename Basis, typename MA, typename RHS>
+void
+S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol, T _linTol, 
+											  T _resTol, int _NumOfIterations, 
+                                              int _MaxItsPerThreshTol, T _eps)
+{
+	contraction = _contraction;
+    threshTol = start_threshTol;
+    linTol = _linTol;
+    resTol = _resTol;
+    NumOfIterations = _NumOfIterations;
+    MaxItsPerThreshTol = _MaxItsPerThreshTol;
+    eps = _eps;
+}
+
+template <typename T, typename Index, typename Basis, typename MA, typename RHS>
+void
+S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T& _linTol, T& _resTol, 
+                      						int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps)
+{
+	_contraction = contraction;
+    _threshTol = threshTol;
+    _linTol = linTol;
+    _resTol = resTol;
+    _NumOfIterations = NumOfIterations;
+    _MaxItsPerThreshTol = MaxItsPerThreshTol;
+    _eps = eps;
+}
+
 }    //namespace lawa
 
