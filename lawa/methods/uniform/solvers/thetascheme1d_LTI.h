@@ -21,16 +21,22 @@ namespace lawa{
  *      R1, R2           : use wavelets defined on [-R1, R2].
  *      order            : quadrature order for weighted L2-scalar product.
  */
-template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
+template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral,
+         typename L2ScalarProduct=IdentityOperator1D<T,Basis> >
 class ThetaScheme1D_LTI
 {
     public: 
         typedef RHSIntegral RHSType;       
         
         ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a,
-                          RHSIntegral& _rhs, const bool time_constant_rhs=false,
-                          const bool _use_pcg=false, T _assembletol=10e-15, T _lintol=10e-15,
-                          T eta=0., T R1=0., T R2=1., int order=10);
+                          RHSIntegral& _rhs,
+                          const bool time_constant_rhs=false, const bool _use_pcg=false,
+                          T _assembletol=10e-15, T _lintol=10e-15);
+
+        ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a,
+                          RHSIntegral& _rhs, const L2ScalarProduct& _L2scalarproduct,
+                          const bool time_constant_rhs=false, const bool _use_pcg=false,
+                          T _assembletol=10e-15, T _lintol=10e-15);
     
         flens::DenseVector<flens::Array<T> > 
         solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int level);
@@ -53,13 +59,14 @@ class ThetaScheme1D_LTI
     private:
         class Operator_LHSMatrix{
             private:
-                ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* scheme;
+                ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral, L2ScalarProduct>* scheme;
                 const BilinearForm& a;
                 T time_old;
                 T time_new;
             
             public:                
-                Operator_LHSMatrix(ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_LHSMatrix(ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral,
+                                                     L2ScalarProduct>* _scheme,
                                    const BilinearForm& _a);
                 
                 T 
@@ -73,13 +80,15 @@ class ThetaScheme1D_LTI
         
         class Operator_RHSMatrix{
             private:
-                const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* scheme; 
+                const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral,
+                                        L2ScalarProduct>* scheme;
                 const BilinearForm& a;
                 T time_old;
                 T time_new;
             
             public:                
-                Operator_RHSMatrix(const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_RHSMatrix(const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral,
+                                   L2ScalarProduct>* _scheme,
                                    const BilinearForm& _a);
                 
                 T 
@@ -92,13 +101,15 @@ class ThetaScheme1D_LTI
         
         class Operator_RHSVector{
             private:
-                const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* scheme; 
+                const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral,
+                                        L2ScalarProduct>* scheme;
                 RHSIntegral& rhs;
                 T time_old;
                 T time_new;
                 
             public:                
-                Operator_RHSVector(const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral>* _scheme, 
+                Operator_RHSVector(const ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral,
+                                                           L2ScalarProduct>* _scheme,
                                    RHSIntegral& _rhs);
                 
                 T operator()(XType xtype, int j, int k) const;
@@ -117,13 +128,13 @@ class ThetaScheme1D_LTI
         
         T theta;
         const Basis& basis;
+        const L2ScalarProduct& L2scalarproduct;
         const bool time_constant_rhs;
         const bool use_pcg;
         T assembletol;
         T lintol;
         Assembler1D<T, Basis> assembler;
 
-        WeightedL2ScalarProduct1D<T, Basis>      w_L2_scalarproduct;
         //Integral<Gauss, Basis, Basis> integral;
         
         Operator_LHSMatrix op_LHSMatrix;

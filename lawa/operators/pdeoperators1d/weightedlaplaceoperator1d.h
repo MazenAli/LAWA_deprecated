@@ -33,7 +33,7 @@ namespace lawa {
  *    a(v,u) =  Integral(w(x) * v_x * u_x)
  *
  */
-template <typename T, typename Basis>
+template <typename T, typename Basis, QuadratureType Quad>
 class WeightedLaplaceOperator1D{
     
     public:
@@ -53,7 +53,7 @@ class WeightedLaplaceOperator1D{
     
         Function<T> W;
 
-        IntegralF<Gauss, Basis, Basis> integral;
+        IntegralF<Quad, Basis, Basis> integral;
 
 };
 

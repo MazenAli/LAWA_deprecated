@@ -29,22 +29,32 @@ ProcessParameters1D<T,BlackScholes>   processparameters(0.04, 0.2);
 
 typedef Basis<T,Primal,Interval,Dijkema>        Basis1D;
 
-typedef WeightedL2ScalarProduct1D<T, Basis1D>               ScalarProduct1D;
+//typedef WeightedL2ScalarProduct1D<T, Basis1D>                 ScalarProduct1D;
+typedef WeightedIdentityOperator1D<T, Basis1D>                  ScalarProduct1D;
 typedef DiagonalMatrixPreconditioner1D<T, Basis1D,
-                                       ScalarProduct1D>     WeightedL2Preconditioner1D;
-typedef FinanceOperator1D<T, processtype, Basis1D>          FinanceOp;
+                                       ScalarProduct1D>         WeightedL2Preconditioner1D;
+typedef FinanceOperator1D<T, processtype, Basis1D>              FinanceOp;
 
-typedef OptionRHS1D<T, optiontype, processtype, Basis1D>    OptionRhs;
+typedef OptionRHS1D<T, optiontype, processtype, Basis1D>        OptionRhs;
 
-typedef PayoffInitialCondition1D<optiontype, Basis1D>       PayoffInitCond;
+typedef PayoffInitialCondition1D<optiontype, Basis1D>           PayoffInitCond;
 
 // TimeStepping Methods
-typedef ThetaScheme1D_LTI<T, Basis1D, FinanceOp, OptionRhs> Theta_Use_Excess_To_Payoff;
-typedef TimeStepping<T, Theta_Use_Excess_To_Payoff>         TimeStepper_Use_Excess_To_Payoff;
+typedef ThetaScheme1D_LTI<T, Basis1D, FinanceOp, OptionRhs,
+                          ScalarProduct1D>                      Theta_Use_Excess_To_Payoff;
+typedef TimeStepping<T, Theta_Use_Excess_To_Payoff>             TimeStepper_Use_Excess_To_Payoff;
 
 typedef ThetaScheme1D_LTI<T, Basis1D, FinanceOp,
-                          HomogeneousRHS<T> >               Theta_Use_Init_Cond;
-typedef TimeStepping<T, Theta_Use_Init_Cond>                TimeStepper_Use_Init_Cond;
+                          HomogeneousRHS<T>, ScalarProduct1D>   Theta_Use_Init_Cond;
+typedef TimeStepping<T, Theta_Use_Init_Cond>                    TimeStepper_Use_Init_Cond;
+
+
+const T                               eta=2.;
+
+T
+weight(T x) {
+    return exp(-2*eta*fabs(x));
+}
 
 
 template<typename T, OptionType1D OType, ProcessType1D PType, typename Basis>
@@ -76,16 +86,18 @@ main(int argc, char *argv[])
         exit(1);
     }
 
-    T                       eta=2.;
-    int                     order=20;
-
     T                       timestep = optionparameters.maturity/T(timesteps);
     T                       R1=4.;
     T                       R2=4.;
     Basis1D                 basis(d,d_,j0);
     basis.enforceBoundaryCondition<DirichletBC>();
 
-    WeightedL2ScalarProduct1D<T, Basis1D> wL2scalarproduct(basis, 2., 0., 1., 8);
+
+    int                             order=20;
+    DenseVectorT           weight_singPts(1);
+    weight_singPts = 0.;
+    Function<T>            weightFct(weight,weight_singPts);
+    ScalarProduct1D        wL2scalarproduct(basis, weightFct, -R1, R2, order);
 
     Option1D<T,optiontype>  option(optionparameters);
 
@@ -97,17 +109,16 @@ main(int argc, char *argv[])
             FinanceOp                         finance_op(basis, processparameters, eta, R1, R2, order, J);
             OptionRhs                         rhs(optionparameters, processparameters, basis,
                                                   R1, R2);
-            Theta_Use_Excess_To_Payoff        scheme(theta, basis, finance_op, rhs, true,
-                                                     false, 0., 1e-12, eta, R1, R2, order);
+            Theta_Use_Excess_To_Payoff        scheme(theta, basis, finance_op, rhs,
+                                                     wL2scalarproduct, true, false, 0., 1e-12);
             TimeStepper_Use_Excess_To_Payoff  timestepmethod(scheme, timestep, timesteps, J);
             u = timestepmethod.solve(u0, false);
         }
         else {
-            ScalarProduct1D            scalarproduct(basis, eta, R1, R2, order);
-            WeightedL2Preconditioner1D preconditioner(scalarproduct);
+            WeightedL2Preconditioner1D preconditioner(wL2scalarproduct);
             PayoffInitCond             payoff_initcond(option,basis,eta,R1,R2);
             Assembler1D<T, Basis1D>    assembler(basis);
-            SparseMatrixT   M      =   assembler.assembleStiffnessMatrix(scalarproduct, J);
+            SparseMatrixT   M      =   assembler.assembleStiffnessMatrix(wL2scalarproduct, J);
             DiagonalMatrixT P      =   assembler.assemblePreconditioner(preconditioner, J);
             DenseVectorT    rhs_u0 =   assembler.assembleRHS(payoff_initcond, J);
 
@@ -115,8 +126,8 @@ main(int argc, char *argv[])
 
             FinanceOp                 finance_op(basis, processparameters, eta, R1, R2, order, J);
             HomogeneousRHS<T>         homogeneousrhs;
-            Theta_Use_Init_Cond       scheme(theta, basis, finance_op, homogeneousrhs, true, false,
-                                             0., 1e-12, eta, R1, R2, order);
+            Theta_Use_Init_Cond       scheme(theta, basis, finance_op, homogeneousrhs,
+                                             wL2scalarproduct, true, false, 0., 1e-12);
 
             TimeStepper_Use_Init_Cond timestepmethod(scheme, timestep, timesteps, J);
             u = timestepmethod.solve(u0, false);

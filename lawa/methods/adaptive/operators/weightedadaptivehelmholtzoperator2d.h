@@ -48,10 +48,10 @@ struct WeightedAdaptiveHelmholtzOperator2D : public Operator2D<T>
     typedef NoPreconditioner<T,Index1D>             NoPreconditioner1D;
     typedef NoPreconditioner<T,Index2D>             NoPreconditioner2D;
 
-    typedef WeightedIdentityOperator1D<T, Basis_x>   WeightedIdentityOperator_x;
-    typedef WeightedIdentityOperator1D<T, Basis_y>   WeightedIdentityOperator_y;
-    typedef WeightedLaplaceOperator1D<T, Basis_x>    WeightedLaplaceOperator_x;
-    typedef WeightedLaplaceOperator1D<T, Basis_y>    WeightedLaplaceOperator_y;
+    typedef WeightedIdentityOperator1D<T, Basis_x, Gauss>   WeightedIdentityOperator_x;
+    typedef WeightedIdentityOperator1D<T, Basis_y, Gauss>   WeightedIdentityOperator_y;
+    typedef WeightedLaplaceOperator1D<T, Basis_x, Gauss>    WeightedLaplaceOperator_x;
+    typedef WeightedLaplaceOperator1D<T, Basis_y, Gauss>    WeightedLaplaceOperator_y;
 
     typedef MapMatrixWithZeros<T, Index1D, WeightedIdentityOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataWeightedIdentity_x;

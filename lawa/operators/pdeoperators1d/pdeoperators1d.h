@@ -6,3 +6,4 @@
 #include <lawa/operators/pdeoperators1d/pdenonconstcoeffoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedidentityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedlaplaceoperator1d.h>
+#include <lawa/operators/pdeoperators1d/weightedL2scalarproduct1d.h>

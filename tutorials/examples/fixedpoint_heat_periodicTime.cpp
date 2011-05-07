@@ -13,6 +13,7 @@ typedef double T;
 typedef Basis<T, Primal, Interval, Dijkema>     PrimalBasis;
 typedef Basis<T, Primal, Periodic, CDF>         PeriodicBasis;
 typedef PDEConstCoeffOperator1D<T, PrimalBasis> PDE1DOp;
+typedef IdentityOperator1D<T, PrimalBasis>      L2ScalarProduct;
 
 // Righthandsides definitions
 //      Timedependent Rhs, as we have to be able to evaluate
@@ -61,7 +62,9 @@ int main(int argc, char* argv[]){
     //  Operator Initialization
     Assembler1D<T, PrimalBasis> assembler(basis1d);
     PDE1DOp A(basis1d, r, k, c);
+    L2ScalarProduct L2scalarproduct(basis1d);
     
+
     // Right Hand Side Initialization
     //      Use Reference Solutions
     SpaceTimeTensorRefSols1D<T,TensorBasis2D<Uniform, PeriodicBasis, PrimalBasis> > refsol;
@@ -77,7 +80,7 @@ int main(int argc, char* argv[]){
     // Initialize Solvers
     DenseVectorT u_0(basis1d.mra.rangeI(J));
 
-    Theta scheme(theta, basis1d, A, F);
+    Theta scheme(theta, basis1d, A, F, L2scalarproduct);
     TimeStepper timestepmethod(scheme, timestep, steps, J);
     ThetaFPSolver fixedpointsolver(timestepmethod);
     Timer timer;
