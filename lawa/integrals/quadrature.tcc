@@ -145,7 +145,6 @@ Quadrature<Trapezoidal,Integral>::n() const
     return _n;
 }
 
-
 template <typename Integral>
 void
 Quadrature<Trapezoidal,Integral>::setN(const int n)
@@ -155,5 +154,98 @@ Quadrature<Trapezoidal,Integral>::setN(const int n)
     _n = n;
 }
 
+//---  ExpWeighted Rule -------------------------------------------------------
+template <typename Integral>
+Quadrature<ExpWeighted,Integral>::Quadrature(const Integral &_integral)
+    : integral(_integral), _eta(-0.5*std::log(integral.function(1.))),
+      _max_polynomialorder(2)
+{
+    if (integral._f2) {
+        _max_polynomialorder = integral.first.d-1 + integral.second.d-1;
+    }
+    else {
+        _max_polynomialorder = integral.first.d;
+    }
+    std::cout << "_eta = " << _eta << std::endl;
+}
+
+template <typename Integral>
+const typename Integral::T
+Quadrature<ExpWeighted,Integral>::operator()(T a, T b) const
+{
+    if (a>=b) return 0.;
+    if (_max_polynomialorder<=2) {
+        T x1 = a+0.25*(b-a);
+        T x2 = a+0.75*(b-a);
+
+        T f1_x1 = integral.first.generator(integral.e1)
+                 ((x1-integral.left)/(integral.RightmLeft),integral.j1,integral.k1,integral.deriv1)
+                 /(integral.SqrtRightmLeft);
+        T f1_x2 = integral.first.generator(integral.e1)
+                 ((x2-integral.left)/(integral.RightmLeft),integral.j1,integral.k1,integral.deriv1)
+                 /(integral.SqrtRightmLeft);
+        T f2_x1 = integral.second.generator(integral.e2)
+                 ((x1-integral.left)/(integral.RightmLeft),integral.j2,integral.k2,integral.deriv2)
+                 /(integral.SqrtRightmLeft);
+        T f2_x2 = integral.second.generator(integral.e2)
+                 ((x2-integral.left)/(integral.RightmLeft),integral.j2,integral.k2,integral.deriv2)
+                 /(integral.SqrtRightmLeft);
+
+        T alpha1 = 0.;//(f1_x2-f1_x1)/(x2-x1);
+        T beta1 = f1_x1;//(x2*f1_x1-x1*f1_x2)/(x2-x1);
+        T alpha2 = 0.;(f2_x2-f2_x1)/(x2-x1);
+        T beta2 = f2_x1;//(x2*f2_x1-x1*f2_x2)/(x2-x1);
+
+        //std::cout << f1_x1 << std::endl;
+        //std::cout << "alpha1=" << alpha1 << ", beta1=" << beta1 << std::endl;
+        //std::cout << "alpha2=" << alpha2 << ", beta2=" << beta2 << std::endl;
+
+
+        T c2 = alpha1*alpha2;
+        T c1 = alpha1*beta2+alpha2*beta1;
+        T c0 = beta1*beta2;
+
+        T c2_div_eta = c2/_eta;
+        T One_div_2eta = 0.5*_eta;
+
+        T ret = 0.;
+        if (b<=0) {
+            T Exp_2eta_a = std::exp(2*_eta*a);
+            T Exp_2eta_b = std::exp(2*_eta*b);
+            ret = 1./(2*_eta)*c0*(Exp_2eta_b-Exp_2eta_a);
+            /*
+            ret +=   c2/(2*_eta)*(b*b*Exp_2eta_b-a*a*Exp_2eta_a)
+                   + 1./(2*_eta)*(c1-c2_div_eta)*(b*Exp_2eta_b-a*Exp_2eta_a)
+                   + 1./(2*_eta)*(c0-(c1-c2_div_eta)/(2*_eta))*(Exp_2eta_b-Exp_2eta_a);
+             */
+        }
+        else if (a<0 && b>0) {
+            return -100.;
+            T Exp_2eta_a = std::exp(2*_eta*a);
+            T Exp_m_2eta_b = std::exp(-2*_eta*b);
+            ret += - c2/(2*_eta)*(b*b*Exp_m_2eta_b+a*a*Exp_2eta_a)
+                   - 1./(2*_eta)*(c1-c2_div_eta)*a*Exp_2eta_a
+                   - 1./(2*_eta)*(c1+c2_div_eta)*b*Exp_m_2eta_b
+                   + 1./(2*_eta)*(c0-(c1-c2_div_eta)/(2*_eta))*(1-Exp_2eta_a)
+                   + 1./(2*_eta)*(c0+(c1+c2_div_eta)/(2*_eta))*(1-Exp_m_2eta_b);
+
+        }
+        else if (a>=0) {
+            T Exp_m_2eta_a = std::exp(-2*_eta*a);
+            T Exp_m_2eta_b = std::exp(-2*_eta*b);
+            ret = 1./(2*_eta)*c0*(Exp_m_2eta_a-Exp_m_2eta_b);
+            /*
+            ret +=   c2/(2*_eta)*(a*a*Exp_m_2eta_a-b*b*Exp_m_2eta_b)
+                   + 1./(2*_eta)*(c1+c2_div_eta)*(a*Exp_m_2eta_a-b*Exp_m_2eta_b)
+                   + 1./(2*_eta)*(c0+(c1+c2_div_eta)/(2*_eta))*(Exp_m_2eta_a-Exp_m_2eta_b);
+            */
+        }
+        return ret;
+    }
+    else {
+        assert(0);
+        return 0.;
+    }
+}
 } // namespace lawa
 

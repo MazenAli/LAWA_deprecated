@@ -82,6 +82,26 @@ class Quadrature<Trapezoidal,Integral>
         int _n;
 };
 
+//-----------------------------------------------------------------------------
+
+template <typename Integral>
+class Quadrature<ExpWeighted,Integral>
+{
+    public:
+        typedef typename Integral::T T;
+
+        Quadrature(const Integral &_integral);
+
+        const T
+        operator()(T a, T b) const;
+
+        const Integral &integral;
+
+    private:
+        const T _eta;
+        T _max_polynomialorder;
+};
+
 } // namespace lawa
 
 #include <lawa/integrals/quadrature.tcc>
