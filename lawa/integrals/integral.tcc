@@ -218,7 +218,7 @@ _integrand_f1(const IntegralF<Quad,First,Second> &integral, typename First::T x)
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
     return integral.function(x) * first((x-integral.left)/(integral.RightmLeft),
                                         integral.j1,integral.k1,integral.deriv1)
-                                 /(integral.SqrtRightmLeft);
+                                 /(integral.SqrtRightmLeft*std::pow(integral.RightmLeft,integral.deriv1));
 }
 
 //--- function * primal/dual/orthogonal * primal/dual/orthogonal
@@ -233,7 +233,7 @@ _integrand_f2(const IntegralF<Quad,First,Second> &integral, typename First::T x)
                                         integral.j1,integral.k1,integral.deriv1)
                                 * second((x-integral.left)/(integral.RightmLeft)
                                         ,integral.j2,integral.k2,integral.deriv2)
-                                /(integral.RightmLeft);
+                                /(integral.RightmLeft*std::pow(integral.RightmLeft,integral.deriv1+integral.deriv2));
 }
 
 //------------------------------------------------------------------------------

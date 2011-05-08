@@ -41,12 +41,27 @@ exponentialweight(T x)
 }
 
 int main() {
+
+
     cout.precision(16);
 	int d  = 2;
     int d_ = 2;
     int j0 = 2;
 	IntervalBasis basis1(d, d_, j0);
 	IntervalBasis basis2(d, d_, j0);
+
+	/*
+	std::cout << std::numeric_limits<double>::epsilon() << std::endl;
+	long double test1 = 2461436.336194111;
+	long double test2 = 2461436.336194112;
+	cout << sizeof(long double) << " " << sizeof(double) << endl;
+	if (test1==test2) {
+	    cout << "machine precision not high enough." << endl;
+	}
+	else {
+	    cout << "machine precision high enough." << endl;
+	}
+    */
     /*
     DenseVectorT singpts(3);
     singpts = 0., 0.5, 1.;
@@ -58,7 +73,6 @@ int main() {
 
     cout << integral1(j0, 1, XBSpline, 0) << endl;
 
-    
     // 2D: compiler error
     IntegralF<Gauss, IntervalBasis> integral2(weightFct, basis1, basis2);
     
@@ -83,10 +97,10 @@ int main() {
     DenseVectorT exponentialweight_singpts(1);
     exponentialweight_singpts = 0.;
     Function<T> exponentialweightFct(exponentialweight, exponentialweight_singpts);
-    IntegralF<Gauss, IntervalBasis> integral_exp_num(exponentialweightFct, basis1, basis1,-1.,1.);
-    integral_exp_num.quadrature.setOrder(4);
-    IntegralF<ExpWeighted, IntervalBasis> integral_exp_exct(exponentialweightFct, basis1, basis1,-1.,1.);
-    /*
+    IntegralF<Gauss, IntervalBasis> integral_exp_num(exponentialweightFct, basis1, basis1,-2.,1.);
+    integral_exp_num.quadrature.setOrder(8);
+    IntegralF<ExpWeighted, IntervalBasis> integral_exp_exct(exponentialweightFct, basis1, basis1,-2.,1.);
+
     Timer time;
     int count=0;
     T tmp1 = 0.;
@@ -108,13 +122,6 @@ int main() {
     time.stop();
     cout << "Result: " << tmp2 << ", time elapsed exact formula: " << time.elapsed() << endl;
     cout << "count = " << count << endl;
-    */
-    cout << integral_exp_num(j0+5, 2, XWavelet, 1, j0+5, 3, XWavelet, 1) << endl;
-    cout << integral_exp_exct(j0+5, 2, XWavelet, 1, j0+5, 3, XWavelet, 1) << endl;
-/*
-    cout << integral_exp_num(j0+10, 1, XWavelet, 1, j0+10, 1, XWavelet, 1) << endl;
-    cout << integral_exp_exct(j0+10, 1, XWavelet, 1, j0+10, 1, XWavelet, 1) << endl;
-*/
 
 
 	return 0;
