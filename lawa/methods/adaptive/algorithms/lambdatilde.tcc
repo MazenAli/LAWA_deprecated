@@ -537,5 +537,143 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
     return ret;
 }
 
+template <typename T, Construction Cons>
+IndexSet<Index1D>
+lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &basis,
+                          int s_tilde, int jmin, int jmax, bool update)
+{
+    using std::min;
+    using std::max;
+
+    BSpline<T,Primal,Interval,Cons> phi_col(basis.mra), phi_row(basis.mra);
+    Wavelet<T,Primal,Interval,Cons> psi_col(basis), psi_row(basis);
+    int j = lambda.j, k = lambda.k;
+    IndexSet<Index1D> ret;
+
+    if (lambda.xtype==XBSpline) {
+
+        Support<T> supp_col = phi_col.support(j,k);
+
+        //Adding B-Splines
+        int kMin = basis.mra.rangeI(jmin).firstIndex(), kMax = basis.mra.rangeI(jmin).lastIndex();
+        int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(jmin)),kMin), kMax);
+        //assert((overlap(supp_col, phi_row.support(jmin,kStart))>0));
+        while ((kStart-1 >= kMin) && (overlap(supp_col, phi_row.support(jmin,max(kStart-1, kMin)))>0)) {
+            --kStart;
+        }
+        int kEnd = max(min(ifloor(supp_col.l2 * pow2i<T>(jmin)),kMax), kMin);
+        assert((overlap(supp_col, phi_col.support(jmin,kEnd))>0));
+        while ((kEnd+1 <= kMax) && (overlap(supp_col, phi_row.support(jmin,min(kEnd+1,kMax)))>0)) {
+            ++kEnd;
+        }
+
+        for (int k_row=kStart; k_row<=kEnd; ++k_row) {
+            ret.insert(Index1D(jmin,k_row,XBSpline));
+        }
+
+        //Adding Wavelets
+        for (int j_row=jmin; j_row<=min(jmin+s_tilde, jmax); ++j_row) {
+
+            int kMin = basis.rangeJ(j_row).firstIndex(), kMax = basis.rangeJ(j_row).lastIndex();
+            int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(j_row)), kMin), kMax);
+            //assert((overlap(supp_col, psi_row.support(j_row,kStart))>0));
+            while (kStart-1>=kMin && overlap(supp_col,psi_row.support(j_row,max(kStart-1,kMin)))>0) {
+                --kStart;
+            }
+            int kEnd = max(min(ifloor(supp_col.l2 * pow2i<T>(j_row)), kMax), kMin);
+            //assert((overlap(supp_col, psi_row.support(j_row,kEnd))>0));
+            while (kEnd+1<=kMax && overlap(supp_col,psi_row.support(j_row,min(kEnd+1,kMax)))>0) {
+                ++kEnd;
+            }
+            for (int k_row=kStart; k_row<=kEnd; k_row++) {
+                Range<int> rangeL = basis.rangeJL(j_row);
+                Range<int> rangeR = basis.rangeJR(j_row);
+                if ( (k_row <= rangeL.lastIndex()) || (k_row >= rangeR.firstIndex()) ) {
+                    ret.insert(Index1D(j_row,k_row,XWavelet));
+                    continue;
+                }
+                // Cannot use vanishing moments -> test only for disjunct supports
+                if  (overlap(phi_col.support(j,k),psi_row.support(j_row,k_row)) > 0) {
+                    ret.insert(Index1D(j_row,k_row,XWavelet));
+                }
+            }
+        }
+    }
+    else {
+        Support<T> supp_col = psi_col.support(j,k);
+
+        //Adding B-Splines
+        if (fabs(j - jmin) <= s_tilde) {
+            int kMin = basis.mra.rangeI(jmin).firstIndex(), kMax = basis.mra.rangeI(jmin).lastIndex();
+            int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(jmin)), kMin), kMax);
+            //assert((overlap(supp_col, phi_row.support(jmin,kStart))>0));
+            while (kStart-1>=kMin && overlap(supp_col,phi_row.support(jmin,max(kStart-1,kMin)))>0) {
+                --kStart;
+            }
+            int kEnd = max(min(ifloor(supp_col.l2 * pow2i<T>(jmin)), kMax), kMin);
+            //assert((overlap(supp_col, phi_row.support(jmin,kEnd))>0));
+            while (kEnd+1<=kMax && overlap(supp_col,phi_row.support(jmin,min(kEnd+1,kMax)))>0) {
+                ++kEnd;
+            }
+
+            for (int k_row=kStart; k_row<=kEnd; ++k_row) {
+                // Cannot use vanishing moments -> test only for disjunct supports
+                if  (overlap(psi_col.support(j,k),phi_row.support(jmin,k_row)) > 0 ) {
+                    ret.insert(Index1D(jmin,k_row,XBSpline));
+                }
+                else {
+                    if ( (k <= basis.rangeJL(j).lastIndex() )  ||
+                         (k >= basis.rangeJR(j).firstIndex() )     ) {
+                            ret.insert(Index1D(jmin,k_row,XBSpline));
+                    }
+                }
+            }
+        }
+
+        //Adding Wavelets
+        for (int j_row=max(j-s_tilde,jmin); j_row<=min(j+s_tilde,jmax); ++j_row) {
+
+            int kMin = basis.rangeJ(j_row).firstIndex(), kMax = basis.rangeJ(j_row).lastIndex();
+            int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(j_row)), kMin), kMax);
+            //assert((overlap(supp_col, psi_row.support(j_row,kStart))>0));
+            while (kStart-1>=kMin && overlap(supp_col,psi_row.support(j_row,max(kStart-1,kMin)))>0) {
+                --kStart;
+            }
+            int kEnd = max(min(ifloor(supp_col.l2 * pow2i<T>(j_row)), kMax), kMin);
+            //assert((overlap(supp_col, psi_row.support(j_row,kEnd))>0));
+            while (kEnd+1<=kMax && overlap(supp_col,psi_row.support(j_row,min(kEnd+1,kMax)))>0) {
+                ++kEnd;
+            }
+            for (int k_row=kStart; k_row<=kEnd; ++k_row) {
+                // Cannot use vanishing moments -> test only for disjunct supports
+                if (overlap(psi_col.support(j,k),psi_row.support(j_row,k_row)) > 0 ) {
+                    ret.insert(Index1D(j_row,k_row,XWavelet));
+                    continue;
+                }
+                else {
+                    if ( (k_row <= basis.rangeJL(j_row).lastIndex() )  ||
+                         (k_row >= basis.rangeJR(j_row).firstIndex() )     ) {
+                            ret.insert(Index1D(j_row,k_row,XWavelet));
+                    }
+                    continue;
+                }
+
+                // Cannot use vanishing moments -> test only for disjunct supports
+                if (overlap(psi_row.support(j_row,k_row),supp_col) > 0 ) {
+                    ret.insert(Index1D(j_row,k_row,XWavelet));
+                }
+                else {
+                    if ( (k <= basis.rangeJL(j).lastIndex() )  ||
+                         (k >= basis.rangeJR(j).firstIndex() )     ) {
+                            ret.insert(Index1D(j_row,k_row,XWavelet));
+                    }
+                }
+            }
+        }
+    }
+    return ret;
+      
+}
+
 } // namespace lawa
 

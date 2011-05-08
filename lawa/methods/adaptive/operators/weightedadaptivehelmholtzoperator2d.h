@@ -23,8 +23,8 @@
 
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>
-#include <lawa/methods/adaptive/compressions/compression_pde1d.h>
-#include <lawa/methods/adaptive/compressions/compression_pde2d.h>
+#include <lawa/methods/adaptive/compressions/compression_weightedpde1d.h>
+#include <lawa/methods/adaptive/compressions/compression_weightedpde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 #include <lawa/operators/operator2d.h>
@@ -41,9 +41,9 @@ struct WeightedAdaptiveHelmholtzOperator2D : public Operator2D<T>
     typedef typename Basis::FirstBasisType  Basis_x;
     typedef typename Basis::SecondBasisType Basis_y;
 
-    typedef CompressionPDE1D<T, Basis_x>            Compression1D_x;
-    typedef CompressionPDE1D<T, Basis_y>            Compression1D_y;
-    typedef CompressionPDE2D<T, Basis>         	    Compression2D;
+    typedef CompressionWeightedPDE1D<T, Basis_x>            Compression1D_x;
+    typedef CompressionWeightedPDE1D<T, Basis_y>            Compression1D_y;
+    typedef CompressionWeightedPDE2D<T, Basis>         	    Compression2D;
 
     typedef NoPreconditioner<T,Index1D>             NoPreconditioner1D;
     typedef NoPreconditioner<T,Index2D>             NoPreconditioner2D;
