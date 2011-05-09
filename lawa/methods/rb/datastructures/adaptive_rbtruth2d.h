@@ -30,11 +30,11 @@ namespace lawa {
 
 /* Adaptive RBTruth 2D:
  *
- *	This class provides data and functions for an adaptive truth system, i.e. \calN-dependent
- * 	members and methods, using adaptive operators and righthandsides.
+ *    This class provides data and functions for an adaptive truth system, i.e. \calN-dependent
+ *     members and methods, using adaptive operators and righthandsides.
  *
- *	It contains a pointer to the associated RB Model, as well as
- *	a pointer to an actual solver that is used for snapshot calculations.
+ *    It contains a pointer to the associated RB Model, as well as
+ *    a pointer to an actual solver that is used for snapshot calculations.
  */
  
 template <typename, typename> class RBModel2D;
@@ -43,14 +43,14 @@ template <typename T, typename Basis, typename TruthSolver>
 class AdaptiveRBTruth2D{
 
         typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
-		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
-		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
-        
-	public:
+        typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+        typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
+
+    public:
 
     /* Public member functions */
         
-		AdaptiveRBTruth2D(Basis& _basis);
+        AdaptiveRBTruth2D(Basis& _basis);
         
         void
         attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
@@ -58,7 +58,7 @@ class AdaptiveRBTruth2D{
         void
         attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, Index2D>& F_q);
         
-		void
+        void
         set_truthsolver(TruthSolver& _truthsolver);
         
         void
@@ -66,27 +66,27 @@ class AdaptiveRBTruth2D{
         
     /* Public members */
         
-        Basis&										basis;
+        Basis&                                  basis;
         
-        std::vector<Operator2D<T>*> 				A_operators;
-        std::vector<AdaptiveRhs<T, Index2D>*>		F_operators;
+        std::vector<Operator2D<T>*>             A_operators;
+        std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
         
-        TruthSolver*		solver;
-            	
+        TruthSolver*                            solver;
+                
          // Wrapper class for affine structure on left hand side       
-    	class Operator_LHS {
-        	
+        class Operator_LHS {
+            
             typedef CompressionPDE2D<T, Basis> Compression;
-        	
+            
             private:
-            	
-		AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;
                 
-        	public:
-            	Operator_LHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth)
-                	: thisTruth(_truth), compression(thisTruth->basis){}
+        AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;
                 
-		T
+            public:
+                Operator_LHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth)
+                    : thisTruth(_truth), compression(thisTruth->basis){}
+                
+                T
                 operator()(const Index2D &row_index, const Index2D &col_index);
                 
                 Compression compression;
@@ -94,10 +94,10 @@ class AdaptiveRBTruth2D{
 
          // Wrapper class for affine structure on right hand side       
         class Operator_RHS {
-        	public:
-            	Operator_RHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth) : thisTruth(_truth){}
+            public:
+                Operator_RHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth) : thisTruth(_truth){}
                 
-		T
+                T
                 operator()(const Index2D &lambda);
 
                 Coefficients<Lexicographical,T,Index2D>
@@ -107,15 +107,15 @@ class AdaptiveRBTruth2D{
                 operator()(T tol);
             
             private:
-            	AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;        
+                AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;        
         };
-    	
+        
         Operator_LHS lhs_op;
         Operator_RHS rhs_op;
         
     private:
         
-        RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >* 	rb;
+        RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >*     rb;
 
 };
     

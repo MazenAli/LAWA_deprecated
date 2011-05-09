@@ -204,6 +204,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
             //else               u[*row] = 0.;
             u[*row] = x(row_count);
         }
+        
         return number_of_iterations;
     }
     else return -1;

@@ -50,7 +50,7 @@ class S_ADWAV {
         void
         get_parameters(T& _contraction, T& _threshTol, T& _linTol, T& _resTol, 
                       int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps);
-
+    
         std::vector<Coefficients<Lexicographical,T,Index> > solutions;
         std::vector<T>               residuals;
         std::vector<T>               times;

@@ -9,9 +9,9 @@ namespace lawa {
 
 /* S_Adwav Truth Solver: 
  *
- *	This class provides a wrapper for an S_adwav call to compute a snapshot.
- *	It is linked to an adaptive truth model (as yet: only 2d)
- *	
+ *    This class provides a wrapper for an S_adwav call to compute a snapshot.
+ *    It is linked to an adaptive truth model (as yet: only 2d)
+ *    
  */
 
 template <typename, typename, typename> class AdaptiveRBTruth2D;
@@ -20,8 +20,8 @@ template <typename T, typename Basis, typename Index>
 class S_ADWAV_TruthSolver {
 
         typedef  AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> >  Truth;
-        typedef typename Truth::Operator_LHS										 LHS;
-        typedef typename Truth::Operator_RHS										 RHS;
+        typedef typename Truth::Operator_LHS                                         LHS;
+        typedef typename Truth::Operator_RHS                                         RHS;
         
     public:
         
@@ -32,7 +32,7 @@ class S_ADWAV_TruthSolver {
         Coefficients<Lexicographical,T,Index>
         truth_solve();        
         
-		void 
+        void 
         set_model(Truth& _truth_model); 
         
         void
@@ -47,12 +47,12 @@ class S_ADWAV_TruthSolver {
             
     /* Private members */
         
-      	Truth* truth_model; // evtl später: template auf Modell, dann kann hier auch ausgetauscht werden
+        Truth* truth_model; // evtl später: template auf Modell, dann kann hier auch ausgetauscht werden
         
         S_ADWAV<T, Index, Basis, LHS, RHS>& s_adwav;
         
         // internal solution method used in s_adwav (cg/gmres/...)
- 		SolverCall solution_method;
+        SolverCall solution_method;
         
         // S_adwav (initial) parameters: have to be reset in s_adwav before each call
         T contraction, threshTol, linTol, resTol;

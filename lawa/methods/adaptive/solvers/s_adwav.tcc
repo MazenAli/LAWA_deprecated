@@ -405,10 +405,10 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol, T _linTol, 
-											  T _resTol, int _NumOfIterations, 
+                                              T _resTol, int _NumOfIterations, 
                                               int _MaxItsPerThreshTol, T _eps)
 {
-	contraction = _contraction;
+    contraction = _contraction;
     threshTol = start_threshTol;
     linTol = _linTol;
     resTol = _resTol;
@@ -420,9 +420,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol,
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T& _linTol, T& _resTol, 
-                      						int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps)
+                                              int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps)
 {
-	_contraction = contraction;
+    _contraction = contraction;
     _threshTol = threshTol;
     _linTol = linTol;
     _resTol = resTol;
