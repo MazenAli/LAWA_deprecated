@@ -72,6 +72,7 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
     
     update_RB_A_matrices();
     update_RB_F_vectors();
+    update_RB_inner_product();
 }
 
 template <typename T, typename TruthModel>
@@ -191,6 +192,39 @@ RBModel2D<T, TruthSolver>::update_RB_F_vectors()
         for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it) {
             RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first);
         }
+    }
+}
+
+template <typename T, typename TruthSolver>
+void
+RBModel2D<T, TruthSolver>::update_RB_inner_product()
+{
+	typename CoeffVector::const_iterator it, it1, it2;
+
+    if (n_bf() == 1) {
+        RB_inner_product.engine().resize(1, 1);
+    }
+    else {
+        FullColMatrixT tmp(RB_inner_product);
+        RB_inner_product.engine().resize((int)n_bf(), (int)n_bf());
+        RB_inner_product(tmp.rows(), tmp.cols()) = tmp;
+        for(unsigned int i = 1; i <= n_bf(); ++i) {
+            RB_inner_product(i, n_bf()) = 0.;
+            RB_inner_product(n_bf(), i) = 0.;
+        }
+    }
+    
+    for (unsigned int i = 1; i <= n_bf(); ++i) {
+        for (it1 = rb_basis_functions[n_bf()-1].begin(); it1 != rb_basis_functions[n_bf()-1].end(); ++it1) {
+            for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
+                RB_inner_product(n_bf(), i) += (*it1).second * (*it2).second 
+                                               * (*inner_product_op)((*it1).first, (*it2).first);
+                if (i != n_bf()) {
+                   RB_inner_product(i, n_bf()) += (*it1).second * (*it2).second 
+                               * (*inner_product_op)((*it2).first, (*it1).first);
+                }
+            }
+        }        
     }
 }
 

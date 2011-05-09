@@ -111,11 +111,14 @@ class RBModel2D {
         void
         update_RB_F_vectors();
                 
+        void
+        update_RB_inner_product();
     /* Protected members */
 
         std::vector<T> current_param;
+        Operator2D<T>*  inner_product_op;
         
-        Operator2D<T>* inner_product_op;
+        FullColMatrixT  RB_inner_product;
         
 };
     
