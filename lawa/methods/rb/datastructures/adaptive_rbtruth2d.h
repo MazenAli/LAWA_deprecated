@@ -113,6 +113,34 @@ class AdaptiveRBTruth2D{
         Operator_LHS lhs_op;
         Operator_RHS rhs_op;
         
+        class Operator_RHS_BilFormRepresentor {
+            public:
+                Operator_RHS_BilFormRepresentor(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth) : thisTruth(_truth){}
+                
+                T
+                operator()(const Index2D &lambda);
+
+                Coefficients<Lexicographical,T,Index2D>
+                operator()(const IndexSet<Index2D> &Lambda);
+
+                Coefficients<Lexicographical,T,Index2D>
+                operator()(T tol);
+                
+                void
+                set_current_op(Operator2D<T>& op);
+                
+                void
+                set_current_bf(Coefficients<Lexicographical,T,Index2D>& bf);
+                
+            private:
+                AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;
+                
+                Operator2D<T>*                              current_op;
+                Coefficients<Lexicographical,T,Index2D>*    current_bf;
+        };
+        
+        Operator_RHS_BilFormRepresentor bilform_representor_rhs_op;
+        
     private:
         
         RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >*     rb;

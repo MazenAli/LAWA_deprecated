@@ -93,4 +93,46 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_RHS::operator()(T tol)
     return c;
 }
 
+/* Operator RHS_BilFormRepresentor */
+
+template <typename T, typename Basis, typename TruthSolver>
+T
+AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_RHS_BilFormRepresentor::operator()(const Index2D &lambda)
+{
+    T val = 0;
+    typename Coefficients<Lexicographical,T,Index2D>::const_iterator it;
+    for (it = current_bf.begin(); it != current_bf.end(); ++it) {
+        val += (*it).second * (*current_op)((*it).first, lambda);
+    }
+    
+    return - val;
+}
+
+template <typename T, typename Basis, typename TruthSolver>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_RHS_BilFormRepresentor::operator()(const IndexSet<Index2D> &Lambda)
+{
+    Coefficients<Lexicographical, T, Index2D> coeffs;
+    
+    typename IndexSet<Index2D>::const_iterator it_Lambda;
+    typedef typename Coefficients<Lexicographical,T,Index>::value_type val_type;
+    for (it_Lambda = Lambda.begin(); it_Lambda != Lambda.end(); ++it_Lambda) {
+        coeffs.insert(val_type((*it_Lambda), this->operator()(*it_Lambda)));
+    }
+    
+    return coeffs;
+}
+
+template <typename T, typename Basis, typename TruthSolver>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_RHS_BilFormRepresentor::operator()(T tol)
+{
+    Coefficients<Lexicographical, T, Index2D> coeffs;
+    
+    std::cerr << "Operator()(T tol) : Not implemented yet" << std::endl;
+    exit(1);
+    
+    return coeffs;
+}
+
 } // namespace lawa
