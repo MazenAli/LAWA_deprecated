@@ -39,8 +39,8 @@ class WeightedIdentityOperator1D{
 
         const Basis& basis;
 
-        WeightedIdentityOperator1D(const Basis& _basis, Function<T> weightFct,
-                                   const T left=0., const T right=1., int order=10);
+        WeightedIdentityOperator1D(const Basis& _basis, Function<T> weightFct, int order=10,
+                                   const T left=0., const T right=1.);
 
         T
         operator()(XType xtype1, int j1, int k1,

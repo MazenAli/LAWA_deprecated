@@ -3,8 +3,8 @@ namespace lawa{
 template <typename T, typename Basis, QuadratureType Quad>
 WeightedIdentityOperator1D<T, Basis, Quad>::WeightedIdentityOperator1D(const Basis& _basis,
                                                                        Function<T> weightFct,
-                                                                       const T left, const T right,
-                                                                       int order)
+                                                                       int order,
+                                                                       const T left, const T right)
     : basis(_basis), W(weightFct), integral(W, _basis, _basis, left, right)
 {
     integral.quadrature.setOrder(order);

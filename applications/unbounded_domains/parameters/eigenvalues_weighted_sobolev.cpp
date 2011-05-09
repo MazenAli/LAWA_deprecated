@@ -32,15 +32,15 @@ typedef flens::DenseVector<flens::Array<T> >                      DenseVectorT;
 typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullMatT;
 
 //Operator definitions
-typedef PDENonConstCoeffOperator1D<T, Basis1D>                    PDEOperator1D;
+typedef WeightedIdentityOperator1D<T, Basis1D>                    WeightedOp1D;
 typedef NoCompression<T, Index1D, Basis1D>                        Compression;
 typedef WeightedSobolevNormPreconditioner1D<T,Basis1D>            NormPreconditioner1D;
 typedef WeightedSobolevMidPointPreconditioner1D<T,Basis1D>        MidPointPreconditioner1D;
 
 //MapMatrix definition
-typedef MapMatrix<T,Index1D,PDEOperator1D,
+typedef MapMatrix<T,Index1D,WeightedOp1D,
                   Compression,NormPreconditioner1D>               MA_norm_prec;
-typedef MapMatrix<T,Index1D,PDEOperator1D,
+typedef MapMatrix<T,Index1D,WeightedOp1D,
                   Compression,MidPointPreconditioner1D>           MA_midpoint_prec;
 
 
@@ -62,16 +62,8 @@ typedef IndexSet<Index1D>::const_iterator const_set_it;
 T
 weight_f(T x)
 {
-    return std::exp(-2.*std::fabs(x));
+    return exp(-x*x);
 }
-
-/// Zero convection term
-T
-b_f(T /*x*/)
-{
-    return 0.;
-}
-
 
 
 int main (int argc, char *argv[]) {
@@ -87,15 +79,13 @@ int main (int argc, char *argv[]) {
     cout.precision(8);
 
     Basis1D                  basis(d,d_,jmin);
-    DenseVectorT             weight_singPts(1); weight_singPts = 0.;
-    DenseVectorT             b_singPts;
-    Function<T>              weight(weight_f, weight_singPts);
-    Function<T>              b(b_f, b_singPts);
-    PDEOperator1D            Bil(basis, weight, b, b, 40);
-    NormPreconditioner1D     NormP(basis,weight,0);
-    MidPointPreconditioner1D MidPointP(basis,weight,0);
+    DenseVectorT             weight_singPts;
+    Function<T>              weightFct(weight_f, weight_singPts);
+    WeightedOp1D             Bil(basis, weightFct, 8, 0., 1.);
+    //NormPreconditioner1D     NormP(basis,weight,0);
+    MidPointPreconditioner1D MidPointP(basis,weightFct,0);
     Compression              compression(basis);
-    MA_norm_prec             A_norm_prec(Bil,NormP,compression);
+    //MA_norm_prec             A_norm_prec(Bil,NormP,compression);
     MA_midpoint_prec         A_midpoint_prec(Bil,MidPointP,compression);
 
     cout << "Chosen parameters: d=" << d << ", d_=" << d_  << ", radius="<< radius
@@ -113,7 +103,7 @@ int main (int argc, char *argv[]) {
             IndexSet<Index1D> Lambda = LambdaForEigenvalues(jmin, jmax, basis, r);
             int N = Lambda.size();
             cout << "Size of Lambda: " << N << endl;
-
+            /*
             cout << "Norm preconditioning ..." << endl;
             flens::SparseGeMatrix<CRS<T,CRS_General> > A_norm_prec_sparse(N,N);
             toFlensSparseMatrix(A_norm_prec, Lambda, Lambda, A_norm_prec_sparse);
@@ -123,7 +113,7 @@ int main (int argc, char *argv[]) {
             computeEV(A_dense, cB_norm, CB_norm);
             cout             << " " << jmax << " " << r
                              << " " << cB_norm << " " << " " << CB_norm << endl;
-
+            */
 
             cout << "Midpoint preconditioning..." << endl;
             flens::SparseGeMatrix<CRS<T,CRS_General> > A_midpoint_prec_sparse(N,N);

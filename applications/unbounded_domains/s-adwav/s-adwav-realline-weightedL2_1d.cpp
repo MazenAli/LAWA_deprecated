@@ -31,7 +31,7 @@ typedef flens::DenseVector<flens::Array<T> >                      DenseVectorT;
 typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullMatT;
 
 //Operator definitions
-typedef PDENonConstCoeffOperator1D<T,Basis1D>                     PDEOperator1D;
+typedef WeightedPDEOperator1D<T,Basis1D>                          WeightedPDEOp1D;
 typedef NoCompression<T,Index1D,Basis1D>                          Compression1D;
 typedef WeightedSobolevNormPreconditioner1D<T,Basis1D>            Preconditioner1D;
 
@@ -41,7 +41,7 @@ typedef RHS<T,Index1D, RhsIntegral1D, Preconditioner1D>           Rhs;
 
 //MapMatrix definition
 //typedef MapMatrixWithZeros<T,Index1D,HelmholtzBilinearForm1D,Compression1D,Preconditioner1D> MA;
-typedef MapMatrix<T,Index1D,PDEOperator1D,
+typedef MapMatrix<T,Index1D,WeightedPDEOp1D,
                   Compression1D,Preconditioner1D>                 MA;
 
 //Algorithm definition
@@ -118,7 +118,7 @@ int main (int argc, char *argv[]) {
     DenseVectorT             zero_singPts;
     Function<T>              weight(weight_f,weight_singPts);
     Function<T>              zero(zero_f, zero_singPts);
-    PDEOperator1D            Bil(basis, weight, zero, zero, 8);
+    WeightedPDEOp1D          Bil(basis, weight, zero, zero, 8);
 
     Preconditioner1D         P(basis,weight,0);
 

@@ -1,7 +1,7 @@
 namespace lawa {
 
 template <typename T, typename Basis>
-PDENonConstCoeffOperator1D<T, Basis>::PDENonConstCoeffOperator1D(const Basis& _basis,
+WeightedPDEOperator1D<T, Basis>::WeightedPDEOperator1D(const Basis& _basis,
                                                                  Function<T>& _reaction_f,
                                                                  Function<T>& _convection_f,
                                                                  Function<T>& _diffusion_f,
@@ -19,7 +19,7 @@ PDENonConstCoeffOperator1D<T, Basis>::PDENonConstCoeffOperator1D(const Basis& _b
 
 template <typename T, typename Basis>
 T
-PDENonConstCoeffOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
+WeightedPDEOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
                                               XType xtype2, int j2, int k2) const
 {
     // diffusion * v_x *  u_x + convection * v * u_x + reaction * v * u
@@ -30,7 +30,7 @@ PDENonConstCoeffOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
 
 template <typename T, typename Basis>
 T
-PDENonConstCoeffOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1D &col_index)
+WeightedPDEOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1D &col_index)
 const
 {
     return this->operator()(row_index.xtype, row_index.j, row_index.k,

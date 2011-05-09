@@ -18,26 +18,30 @@
  */
 
 
-#ifndef LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDL2SCALARPRODCUT1D_H
-#define LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDL2SCALARPRODCUT1D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS1D_PDEOPERATOR1D_H
+#define LAWA_OPERATORS_PDEOPERATORS1D_PDEOPERATOR1D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/functiontypes/exponentialweightfunction1d.h>
 #include <lawa/integrals/integral.h>
 #include <lawa/settings/enum.h>
 
 namespace lawa {
 
+/* PDE ConstCoefficient OPERATOR 
+ *
+ *    a(v,u) =  diffusion * Integral(v_x * u_x) +  convection * Integral(v * u_x)
+ *              + reaction * Integral(v * u)
+ *
+ */
 template <typename T, typename Basis>
-class WeightedL2ScalarProduct1D {
-
+class PDEOperator1D{
+    
     public:
 
-        const Basis                     &basis;
-        ExponentialWeightFunction1D<T>  exponentialweightfunction;
+        const Basis& basis;
+        T reaction, convection, diffusion;
 
-        WeightedL2ScalarProduct1D(const Basis& _basis, const T _eta=0.,
-                                  T R1=0., T R2=1., int order=10);
+        PDEOperator1D(const Basis& _basis, T _reaction, T _convection, T _diffusion);
 
         T
         operator()(XType xtype1, int j1, int k1,
@@ -45,19 +49,17 @@ class WeightedL2ScalarProduct1D {
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index) const;
-
+        
     private:
 
-        const T                        eta;
-        Function<T>                    weight;
-        IntegralF<Gauss, Basis, Basis> integral_w;
-        Integral<Gauss, Basis, Basis>  integral;
-
+        Integral<Gauss, Basis, Basis> integral;
+    
 
 };
 
 }   //namespace lawa
 
-#include <lawa/operators/pdeoperators1d/weightedL2scalarproduct1d.tcc>
+#include <lawa/operators/pdeoperators1d/pdeoperator1d.tcc>
 
-#endif  // LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDL2SCALARPRODCUT1D_H
+#endif  // LAWA_OPERATORS_PDEOPERATORS1D_PDEOPERATOR1D_H
+

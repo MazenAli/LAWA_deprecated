@@ -12,7 +12,7 @@ typedef double T;
 // Basis definitions
 typedef Basis<T, Primal, Interval, Dijkema>     PrimalBasis;
 typedef Basis<T, Primal, Periodic, CDF>         PeriodicBasis;
-typedef PDEConstCoeffOperator1D<T, PrimalBasis> PDE1DOp;
+typedef PDEOperator1D<T, PrimalBasis>           PDE1DOp;
 typedef IdentityOperator1D<T, PrimalBasis>      L2ScalarProduct;
 
 // Righthandsides definitions

@@ -1,7 +1,7 @@
 namespace lawa {
 
 template <typename T, typename Basis>
-PDEConstCoeffOperator1D<T, Basis>::PDEConstCoeffOperator1D(const Basis& _basis, T _reaction,
+PDEOperator1D<T, Basis>::PDEOperator1D(const Basis& _basis, T _reaction,
                                                            T _convection, T _diffusion)
     : basis(_basis), reaction(_reaction), convection(_convection), diffusion(_diffusion),
       integral(_basis, _basis)
@@ -10,7 +10,7 @@ PDEConstCoeffOperator1D<T, Basis>::PDEConstCoeffOperator1D(const Basis& _basis, 
 
 template <typename T, typename Basis>
 T
-PDEConstCoeffOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
+PDEOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
                                               XType xtype2, int j2, int k2) const
 {   
     // diffusion * v_x *  u_x + convection * v * u_x + reaction * v * u
@@ -21,11 +21,11 @@ PDEConstCoeffOperator1D<T, Basis>::operator()(XType xtype1, int j1, int k1,
 
 template <typename T, typename Basis>
 T
-PDEConstCoeffOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1D &col_index)
+PDEOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1D &col_index)
 const
 {
-    return PDEConstCoeffOperator1D<T, Basis>::operator()(row_index.xtype, row_index.j, row_index.k,
-                                                         col_index.xtype, col_index.j, col_index.k);
+    return this->operator()(row_index.xtype, row_index.j, row_index.k,
+                            col_index.xtype, col_index.j, col_index.k);
 }
 
 }   //lawa

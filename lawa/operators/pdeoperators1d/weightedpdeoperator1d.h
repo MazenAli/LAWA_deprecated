@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_OPERATORS_PDEOPERATORS1D_PDECONSTCOEFFOPERATOR1D_H
-#define LAWA_OPERATORS_PDEOPERATORS1D_PDECONSTCOEFFOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDPDEOPERATOR1D_H
+#define LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDPDEOPERATOR1D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/integrals/integral.h>
@@ -27,21 +27,25 @@
 
 namespace lawa {
 
-/* PDE ConstCoefficient OPERATOR 
+/* PDE ConstCoefficient OPERATOR
  *
- *    a(v,u) =  diffusion * Integral(v_x * u_x) +  convection * Integral(v * u_x)
- *              + reaction * Integral(v * u)
+ *    a(v,u) =  diffusion * Integral(v_x * u_x) +  convection_f(x) * Integral(v * u_x)
+ *              + reaction_f(x) * Integral(v * u)
  *
  */
 template <typename T, typename Basis>
-class PDEConstCoeffOperator1D{
-    
+class WeightedPDEOperator1D{
+
     public:
 
         const Basis& basis;
-        T reaction, convection, diffusion;
+        Function<T> &reaction_f;
+        Function<T> &convection_f;
+        Function<T> &diffusion_f;
 
-        PDEConstCoeffOperator1D(const Basis& _basis, T _reaction, T _convection, T _diffusion);
+        WeightedPDEOperator1D(const Basis& _basis, Function<T> &_reaction_f,
+                              Function<T> &_convection_f, Function<T>& _diffusion_f,
+                              int order=10);
 
         T
         operator()(XType xtype1, int j1, int k1,
@@ -49,17 +53,18 @@ class PDEConstCoeffOperator1D{
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index) const;
-        
+
     private:
 
-        Integral<Gauss, Basis, Basis> integral;
-    
+        IntegralF<Gauss, Basis, Basis> reaction_integral;
+        IntegralF<Gauss, Basis, Basis> convection_integral;
+        IntegralF<Gauss, Basis, Basis> diffusion_integral;
+
 
 };
 
 }   //namespace lawa
 
-#include <lawa/operators/pdeoperators1d/pdeconstcoeffoperator1d.tcc>
+#include <lawa/operators/pdeoperators1d/weightedpdeoperator1d.tcc>
 
-#endif  // LAWA_OPERATORS_PDEOPERATORS1D_PDECONSTCOEFFOPERATOR1D_H
-
+#endif  // LAWA_OPERATORS_PDEOPERATORS1D_WEIGHTEDPDEOPERATOR1D_H

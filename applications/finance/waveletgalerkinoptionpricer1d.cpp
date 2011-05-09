@@ -97,7 +97,7 @@ main(int argc, char *argv[])
     DenseVectorT           weight_singPts(1);
     weight_singPts = 0.;
     Function<T>            weightFct(weight,weight_singPts);
-    ScalarProduct1D        wL2scalarproduct(basis, weightFct, -R1, R2, order);
+    ScalarProduct1D        wL2scalarproduct(basis, weightFct, order, -R1, R2);
 
     Option1D<T,optiontype>  option(optionparameters);
 

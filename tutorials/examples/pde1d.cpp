@@ -29,10 +29,13 @@ typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT
 ///  Typedefs for problem components:
 ///     Primal Basis over an interval, using Dijkema construction
 typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+
 ///     PDE-Operator in 1D, i.e. for $a(v,u) = \int(v_x \cdot u_x) \int(b(x) v \cdot u') + \int(a(x) v \cdot u)$
-typedef PDENonConstCoeffOperator1D<T, PrimalBasis>                  PDEOp;
+typedef WeightedPDEOperator1D<T, PrimalBasis>                       PDEOp;
+
 ///     Preconditioner: diagonal scaling with norm of operator
 typedef H1NormPreconditioner1D<T, PrimalBasis>                      NormPrec;
+
 ///     Right Hand Side (RHS): basic 1D class for rhs integrals of the form $\int(f \cdot v)$,
 ///     possibly with additional peak contributions (not needed here)
 typedef RHSWithPeaks1D<T, PrimalBasis>                              Rhs;
