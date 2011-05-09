@@ -82,13 +82,16 @@ RBModel2D<T, TruthModel>::RB_solve(unsigned int N, SolverCall call)
     
 	FullColMatrixT A(N, N);
     for (unsigned int i = 0; i < Q_a(); ++i) {
-        A += RB_A_matrices[i](_(1,N), _(1,N));
+        //A += (*theta_a[i])(get_current_param()) * RB_A_matrices[i](_(1,N), _(1,N));
+        flens::axpy(cxxblas::NoTrans, (*theta_a[i])(get_current_param()), RB_A_matrices[i](_(1,N), _(1,N)), A);
     }
-    
+
     DenseVectorT F(N);
     for (unsigned int i = 0; i < Q_f(); ++i) {
-        F += RB_F_vectors[i](_(1,N));
+        //F += (*theta_f[i])(get_current_param()) * RB_F_vectors[i](_(1,N));
+        flens::axpy((*theta_f[i])(get_current_param()), RB_F_vectors[i](_(1,N)), F);
     }
+
     
     DenseVectorT u(N);
     switch (call) {
@@ -148,23 +151,21 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
                 RB_A_matrices[q_a](i, n_bf()) = 0.;
                 RB_A_matrices[q_a](n_bf(), i) = 0.;
             }
+
         }
         
-        for (unsigned int i = 1; i < n_bf(); ++i) {
+        for (unsigned int i = 1; i <= n_bf(); ++i) {
             for (it1 = rb_basis_functions[n_bf()-1].begin(); it1 != rb_basis_functions[n_bf()-1].end(); ++it1) {
                 for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
                     RB_A_matrices[q_a](n_bf(), i) += (*it1).second * (*it2).second 
                                                    * (*truth->A_operators[q_a])((*it1).first, (*it2).first);
-                    RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
-                                                   * (*truth->A_operators[q_a])((*it2).first, (*it1).first);
+                	if (i != n_bf()) {
+                         RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
+                                   * (*truth->A_operators[q_a])((*it2).first, (*it1).first);
+                    }
                 }
             }        
         }
-        for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it) {
-            RB_A_matrices[q_a](n_bf(), n_bf()) += (*it).second * (*it).second 
-                                                * (*truth->A_operators[q_a])((*it).first, (*it).first);            
-        }
-
     }
 }
 
