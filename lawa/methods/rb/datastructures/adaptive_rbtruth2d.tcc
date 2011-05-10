@@ -2,7 +2,7 @@ namespace  lawa {
 
 template <typename T, typename Basis, typename TruthSolver>
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::AdaptiveRBTruth2D(Basis& _basis)
-    : basis(_basis), lhs_op(this), rhs_op(this)
+    : basis(_basis), lhs_op(this), rhs_op(this), repr_rhs_op(this)
 {}
 
 template <typename T, typename Basis, typename TruthSolver>
@@ -34,6 +34,13 @@ void
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::set_rb_model(RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >& _rb)
 {
     rb = &_rb;
+}
+
+template <typename T, typename Basis, typename TruthSolver>
+RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >&
+AdaptiveRBTruth2D<T, Basis, TruthSolver>::get_rb_model()
+{
+    return *rb;
 }
 
 

@@ -64,6 +64,10 @@ class AdaptiveRBTruth2D{
         void
         set_rb_model(RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >& _rb);
         
+        
+        RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >&
+        get_rb_model();
+        
     /* Public members */
         
         Basis&                                  basis;
@@ -139,7 +143,7 @@ class AdaptiveRBTruth2D{
                 Coefficients<Lexicographical,T,Index2D>*    current_bf;
         };
         
-        Operator_RHS_BilFormRepresentor bilform_representor_rhs_op;
+        Operator_RHS_BilFormRepresentor repr_rhs_op;
         
     private:
         

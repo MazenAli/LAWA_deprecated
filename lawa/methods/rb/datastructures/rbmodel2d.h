@@ -95,6 +95,9 @@ class RBModel2D {
 
         CoeffVector
         reconstruct_u_N(DenseVectorT u, unsigned int N);
+        
+        Operator2D<T>*  inner_product_op;
+        
 
     protected:
 
@@ -120,8 +123,6 @@ class RBModel2D {
     /* Protected members */
 
         std::vector<T>  current_param;
-
-        Operator2D<T>*  inner_product_op;
         
         FullColMatrixT  RB_inner_product;
         
