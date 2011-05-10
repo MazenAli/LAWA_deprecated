@@ -46,18 +46,18 @@ _integrate(const Integral<Gauss,First,Second> &integral)
     T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
     integral.quadrature.setOrder((integral.first.d-integral.deriv1+integral.second.d-integral.deriv2)/2+1);
 
-    T ret = 0.;
+    long double ret = 0.;
     Support<T> common;
     if (overlap(first.support(integral.j1,integral.k1),
                second.support(integral.j2,integral.k2),common)) {
         T a = common.l1;
         for (T b=a+unit; b<=common.l2; b+=unit) {
-            ret += integral.quadrature(a,b);
+            ret += (long double)integral.quadrature(a,b);
             a = b;
         }
     }
 
-    return ret;
+    return (T)ret;
 }
 
 //--- (primal * dual) or (dual * primal) or (dual * dual) or (dual * orthogonal) or (orthogonal * dual)
