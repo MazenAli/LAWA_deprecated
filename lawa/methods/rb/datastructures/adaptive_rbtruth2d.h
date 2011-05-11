@@ -45,6 +45,7 @@ class AdaptiveRBTruth2D{
         typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
         typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
+        typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
 
     public:
 
@@ -67,6 +68,9 @@ class AdaptiveRBTruth2D{
         
         RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >&
         get_rb_model();
+        
+        void
+        calculate_representors();
         
     /* Public members */
         

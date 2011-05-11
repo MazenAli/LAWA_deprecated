@@ -116,9 +116,6 @@ class RBModel2D {
         
         void
         update_RB_inner_product();
-        
-        void
-        calculate_representors();
 
     /* Protected members */
 
@@ -126,9 +123,6 @@ class RBModel2D {
         
         FullColMatrixT  RB_inner_product;
         
-        std::vector<FullColMatrixT> A_representors;
-        std::vector<DenseVectorT>   F_representors;
-
 
 };
 

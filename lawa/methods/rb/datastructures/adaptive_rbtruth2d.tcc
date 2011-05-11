@@ -44,6 +44,34 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver>::get_rb_model()
 }
 
 
+template <typename T, typename Basis, typename TruthSolver>
+void
+AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representors()
+{
+    F_representors.resize(rb->Q_f());
+    for (unsigned int i = 0; i < rb->Q_f(); ++i) {
+        repr_rhs_F_op.set_current_op(*F_operators[i]);
+        std::cout<< std::endl << " ==== Solving for Riesz Representor of F_" << i+1 << " =====" << std::endl<< std::endl;
+        CoeffVector c = solver->repr_solve_F();
+        F_representors[i] = c;
+    }
+    
+    A_representors.resize(rb->n_bf());
+    for (unsigned int n = 0; n < rb->n_bf(); ++n){
+        repr_rhs_A_op.set_current_bf(rb->rb_basis_functions[n]);
+        A_representors[n].resize(rb->Q_a());
+        for (unsigned int i = 0; i < rb->Q_a(); ++i) {
+            repr_rhs_A_op.set_current_op(*A_operators[i]);
+            std::cout << std::endl<< " ==== Solving for Riesz Representor of A_" << i+1 
+                      << "(" << n << ")" << " =====" << std::endl<< std::endl;
+            A_representors[n][i] = solver->repr_solve_A();
+        }
+    }
+}
+
+// ================================================================================================================ //
+// ================================================================================================================ //
+
 /*  Operator LHS */
 
 template <typename T, typename Basis, typename TruthSolver>

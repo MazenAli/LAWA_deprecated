@@ -4,8 +4,8 @@ template <typename T, typename Basis, typename Index>
 S_ADWAV_TruthSolver<T, Basis, Index>::
 S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, Truth& _truth, SolverCall solmethod)
     : s_adwav(_s_adwav),
-      repr_s_adwav_F(_truth.basis, *_truth.get_rb_model().inner_product_op, _truth.repr_rhs_F_op, 0.125, 0.1),
-      repr_s_adwav_A(_truth.basis, *_truth.get_rb_model().inner_product_op, _truth.repr_rhs_A_op, 0.125, 0.1),
+      repr_s_adwav_F(_truth.basis, _truth.repr_lhs_op, _truth.repr_rhs_F_op, 0.125, 0.1),
+      repr_s_adwav_A(_truth.basis, _truth.repr_lhs_op, _truth.repr_rhs_A_op, 0.125, 0.1),
       solution_method(solmethod)
 {    
     s_adwav.get_parameters(params.contraction, params.threshTol, params.linTol, 
@@ -16,8 +16,8 @@ S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, Truth& _truth,
 template <typename T, typename Basis, typename Index>
 S_ADWAV_TruthSolver<T, Basis, Index>::S_ADWAV_TruthSolver(Truth& _truth, SolverCall solmethod)
     : s_adwav(_truth.basis, _truth.lhs_op, _truth.rhs_op, 0.125, 0.1), 
-      repr_s_adwav_F(_truth.basis, *_truth.get_rb_model().inner_product_op, _truth.repr_rhs_F_op, 0.125, 0.1),
-      repr_s_adwav_A(_truth.basis, *_truth.get_rb_model().inner_product_op, _truth.repr_rhs_A_op, 0.125, 0.1),
+      repr_s_adwav_F(_truth.basis, _truth.repr_lhs_op, _truth.repr_rhs_F_op, 0.125, 0.1),
+      repr_s_adwav_A(_truth.basis, _truth.repr_lhs_op, _truth.repr_rhs_A_op, 0.125, 0.1),
       solution_method(solmethod)
 {
 }
@@ -64,6 +64,54 @@ S_ADWAV_TruthSolver<T, Basis, Index>::truth_solve()
     }
         
     return s_adwav.solutions[s_adwav.solutions.size() - 1];
+}
+
+template <typename T, typename Basis, typename Index>
+Coefficients<Lexicographical,T,Index>
+S_ADWAV_TruthSolver<T, Basis, Index>::repr_solve_F()
+{    
+    reset_repr_s_adwav_F();
+    
+    // Construct initial index set, based on splines on minimal level(s)
+    IndexSet<Index> InitialLambda;
+    if (flens::IsSame<Index2D, Index>::value) {
+        Range<int> R_x = s_adwav.basis.first.mra.rangeI(s_adwav.basis.first.j0);
+        Range<int> R_y = s_adwav.basis.second.mra.rangeI(s_adwav.basis.second.j0);
+        for (int k_x = R_x.firstIndex(); k_x <= R_x.lastIndex(); ++k_x) {
+            for (int k_y = R_y.firstIndex(); k_y <= R_y.lastIndex(); ++k_y) {
+                Index1D index_x(s_adwav.basis.first.j0, k_x, XBSpline);
+                Index1D index_y(s_adwav.basis.second.j0, k_y, XBSpline);
+                InitialLambda.insert(Index2D(index_x, index_y));
+             }       
+        }
+    }
+    repr_s_adwav_F.solve_cg(InitialLambda);
+        
+    return repr_s_adwav_F.solutions[repr_s_adwav_F.solutions.size() - 1];
+}
+
+template <typename T, typename Basis, typename Index>
+Coefficients<Lexicographical,T,Index>
+S_ADWAV_TruthSolver<T, Basis, Index>::repr_solve_A()
+{    
+    reset_repr_s_adwav_A();
+    
+    // Construct initial index set, based on splines on minimal level(s)
+    IndexSet<Index> InitialLambda;
+    if (flens::IsSame<Index2D, Index>::value) {
+        Range<int> R_x = s_adwav.basis.first.mra.rangeI(s_adwav.basis.first.j0);
+        Range<int> R_y = s_adwav.basis.second.mra.rangeI(s_adwav.basis.second.j0);
+        for (int k_x = R_x.firstIndex(); k_x <= R_x.lastIndex(); ++k_x) {
+            for (int k_y = R_y.firstIndex(); k_y <= R_y.lastIndex(); ++k_y) {
+                Index1D index_x(s_adwav.basis.first.j0, k_x, XBSpline);
+                Index1D index_y(s_adwav.basis.second.j0, k_y, XBSpline);
+                InitialLambda.insert(Index2D(index_x, index_y));
+             }       
+        }
+    }
+    repr_s_adwav_A.solve_cg(InitialLambda);
+        
+    return repr_s_adwav_A.solutions[repr_s_adwav_A.solutions.size() - 1];
 }
 
 template <typename T, typename Basis, typename Index>

@@ -23,7 +23,7 @@ class S_ADWAV_TruthSolver {
         typedef  AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> > Truth;
         typedef typename Truth::Operator_LHS                                        LHS;
         typedef typename Truth::Operator_RHS                                        RHS;
-        typedef Operator2D<T>                                                       MatrixOp;
+        typedef typename Truth::Operator_LHS_Representor                            MatrixOp;
         typedef typename Truth::Operator_RHS_BilFormRepresentor                     RHS_BilFormRepr;
         typedef typename Truth::Operator_RHS_FunctionalRepresentor                  RHS_FctRepr;
         
@@ -35,7 +35,13 @@ class S_ADWAV_TruthSolver {
         S_ADWAV_TruthSolver(Truth& _truth, SolverCall solmethod);
         
         Coefficients<Lexicographical,T,Index>
-        truth_solve();        
+        truth_solve();
+        
+        Coefficients<Lexicographical,T,Index>
+        repr_solve_F(); 
+        
+        Coefficients<Lexicographical,T,Index>
+        repr_solve_A();       
         
         void 
         set_model(Truth& _truth_model); 

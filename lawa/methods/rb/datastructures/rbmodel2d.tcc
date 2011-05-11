@@ -73,6 +73,8 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
     update_RB_A_matrices();
     update_RB_F_vectors();
     update_RB_inner_product();
+    
+    truth->calculate_representors();
 }
 
 template <typename T, typename TruthModel>
