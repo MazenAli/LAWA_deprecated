@@ -1,4 +1,4 @@
-SUBDIRS := examples
+SUBDIRS := examples rb_examples
 
 all:
 	$(SILENT) for i in $(SUBDIRS); \
