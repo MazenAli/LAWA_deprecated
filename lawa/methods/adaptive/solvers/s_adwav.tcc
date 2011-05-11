@@ -415,6 +415,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol,
     NumOfIterations = _NumOfIterations;
     MaxItsPerThreshTol = _MaxItsPerThreshTol;
     eps = _eps;
+    
+    solutions.resize(NumOfIterations);
+    residuals.resize(NumOfIterations);
+    times.resize(NumOfIterations);
+    toliters.resize(NumOfIterations);
+    linsolve_iterations.resize(NumOfIterations);
 }
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
