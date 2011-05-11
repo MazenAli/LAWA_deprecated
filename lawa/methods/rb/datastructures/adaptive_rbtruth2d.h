@@ -80,11 +80,11 @@ class AdaptiveRBTruth2D{
          // Wrapper class for affine structure on left hand side       
         class Operator_LHS {
             
-            typedef CompressionPDE2D<T, Basis> Compression;
+            typedef NoCompression<T, Index2D, Basis> Compression;
             
             private:
                 
-        AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;
+                AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;
                 
             public:
                 Operator_LHS(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth)
@@ -116,7 +116,30 @@ class AdaptiveRBTruth2D{
         
         Operator_LHS lhs_op;
         Operator_RHS rhs_op;
-        
+         
+          // Wrapper class for affine structure on left hand side
+          // in the calculation of the Riesz representors       
+         class Operator_LHS_Representor {
+
+             typedef NoCompression<T, Index2D, Basis> Compression;
+
+             private:
+
+                 AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;
+
+             public:
+                 Operator_LHS_Representor(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth)
+                     : thisTruth(_truth), compression(thisTruth->basis){}
+
+                 T
+                 operator()(const Index2D &row_index, const Index2D &col_index);
+
+                 Compression compression;
+         };
+         
+         // Wrapper class for affine structure on right hand side
+         // in the calculation of Riesz representors for the bilinear
+         // forms a^(q)               
         class Operator_RHS_BilFormRepresentor {
             public:
                 Operator_RHS_BilFormRepresentor(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth) : thisTruth(_truth){}
@@ -143,11 +166,41 @@ class AdaptiveRBTruth2D{
                 Coefficients<Lexicographical,T,Index2D>*    current_bf;
         };
         
-        Operator_RHS_BilFormRepresentor repr_rhs_op;
+         // Wrapper class for affine structure on right hand side
+         // in the calculation of Riesz representors for the functional
+         // forms f^(q)
+        class Operator_RHS_FunctionalRepresentor {
+            public:
+                Operator_RHS_FunctionalRepresentor(AdaptiveRBTruth2D<T, Basis, TruthSolver>* _truth) : thisTruth(_truth){}
+                
+                T
+                operator()(const Index2D &lambda);
+
+                Coefficients<Lexicographical,T,Index2D>
+                operator()(const IndexSet<Index2D> &Lambda);
+
+                Coefficients<Lexicographical,T,Index2D>
+                operator()(T tol);
+                
+                void
+                set_current_op(AdaptiveRhs<T, Index2D>& op);
+                
+            private:
+                AdaptiveRBTruth2D<T, Basis, TruthSolver>* thisTruth;
+                
+                AdaptiveRhs<T, Index2D>*                  current_op;
+        };
+        
+        Operator_LHS_Representor            repr_lhs_op;
+        Operator_RHS_BilFormRepresentor     repr_rhs_A_op;
+        Operator_RHS_FunctionalRepresentor  repr_rhs_F_op;
         
     private:
         
         RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver> >*     rb;
+        
+        std::vector<CoeffVector>                F_representors; // Dim: 1 x Q_f
+        std::vector<std::vector<CoeffVector> >  A_representors; // Dim: n x Q_a
 
 };
     
