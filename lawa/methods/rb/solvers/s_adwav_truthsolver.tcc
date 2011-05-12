@@ -1,3 +1,4 @@
+#include <lawa/aux/timer.h>
 namespace lawa {
 
 template <typename T, typename Basis, typename Index>
@@ -35,6 +36,7 @@ S_ADWAV_TruthSolver<T, Basis, Index>::truth_solve()
 {    
     reset_s_adwav();
     
+
     // Construct initial index set, based on splines on minimal level(s)
     IndexSet<Index> InitialLambda;
     if (flens::IsSame<Index2D, Index>::value) {
@@ -49,6 +51,8 @@ S_ADWAV_TruthSolver<T, Basis, Index>::truth_solve()
         }
     }
     
+    Timer timer;
+    timer.start();
     switch (solution_method) {
         case call_cg:
             s_adwav.solve_cg(InitialLambda);
@@ -62,7 +66,9 @@ S_ADWAV_TruthSolver<T, Basis, Index>::truth_solve()
         default:
             break;
     }
-        
+    timer.stop();
+    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;
+    
     return s_adwav.solutions[s_adwav.solutions.size() - 1];
 }
 
@@ -85,8 +91,12 @@ S_ADWAV_TruthSolver<T, Basis, Index>::repr_solve_F()
              }       
         }
     }
+    
+    Timer timer;
+    timer.start();
     repr_s_adwav_F.solve_cg(InitialLambda);
-            
+    timer.stop();
+    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;        
     return repr_s_adwav_F.solutions[repr_s_adwav_F.solutions.size() - 1];
 }
 
@@ -109,8 +119,11 @@ S_ADWAV_TruthSolver<T, Basis, Index>::repr_solve_A()
              }       
         }
     }
+    Timer timer;
+    timer.start();
     repr_s_adwav_A.solve_cg(InitialLambda);
-        
+    timer.stop();
+    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;    
     return repr_s_adwav_A.solutions[repr_s_adwav_A.solutions.size() - 1];
 }
 
@@ -138,18 +151,18 @@ template <typename T, typename Basis, typename Index>
 void 
 S_ADWAV_TruthSolver<T, Basis, Index>::reset_repr_s_adwav_F()
 {
-    repr_s_adwav_F.set_parameters(params.contraction, params.threshTol, params.linTol, 
-                           params.resTol, params.NumOfIts, params.MaxItsPerThreshTol, 
-                           params.eps);
+    repr_s_adwav_F.set_parameters(params_repr_F.contraction, params_repr_F.threshTol, params_repr_F.linTol, 
+                           params_repr_F.resTol, params_repr_F.NumOfIts, params_repr_F.MaxItsPerThreshTol, 
+                           params_repr_F.eps);
 }
 
 template <typename T, typename Basis, typename Index>
 void 
 S_ADWAV_TruthSolver<T, Basis, Index>::reset_repr_s_adwav_A()
 {
-    repr_s_adwav_A.set_parameters(params.contraction, params.threshTol, params.linTol, 
-                           params.resTol, params.NumOfIts, params.MaxItsPerThreshTol, 
-                           params.eps);
+    repr_s_adwav_A.set_parameters(params_repr_A.contraction, params_repr_A.threshTol, params_repr_A.linTol, 
+                           params_repr_A.resTol, params_repr_A.NumOfIts, params_repr_A.MaxItsPerThreshTol, 
+                           params_repr_A.eps);
 }
 
 
