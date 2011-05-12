@@ -51,15 +51,15 @@ class S_ADWAV_TruthSolver {
 
         void
         set_parameters(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
-                      int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2);
+                      int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, int _MaxSizeLambda = 400);
         
         void
         set_parameters_repr_F(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
-                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2);
+                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, int _MaxSizeLambda = 400);
 
         void
         set_parameters_repr_A(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
-                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2);
+                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, int _MaxSizeLambda = 400);
                             
     private:
     
@@ -92,7 +92,7 @@ class S_ADWAV_TruthSolver {
             Sadwav_parameters(T _c, T _tT, T _lT, T _rT, int N, int mI, T e);
             
             T contraction, threshTol, linTol, resTol;
-            int NumOfIts, MaxItsPerThreshTol;
+            int NumOfIts, MaxItsPerThreshTol, MaxSizeLambda;
             T eps;
         };
         
