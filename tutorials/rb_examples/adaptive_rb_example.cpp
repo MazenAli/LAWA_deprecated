@@ -134,8 +134,8 @@ int main(int argc, char* argv[]) {
     /* Model Initialization */
     RBModel rb_model;
     
-        // Attach an inner product (here: scalar product in H1)
-    AdaptHHOp2D h1norm(basis2d, 1., prec);
+        // Attach an inner product (here: scalar product in L2)
+    AdaptHHOp2D h1norm(basis2d, 0., prec);
     rb_model.attach_inner_product_op(h1norm);
     
         // We need a truth model, as we want to do truth solves
@@ -146,6 +146,9 @@ int main(int argc, char* argv[]) {
     std::vector<T> mu(1);
     mu[0] = mu1;
     rb_model.set_current_param(mu);
+    std::vector<T> refmu(1);
+    refmu[0] = 1.;
+    rb_model.set_ref_param(refmu);
   
     /* Affine Decomposition Left Hand Side */
     DenseVectorT singpts_x(3), singpts_y(2);
@@ -184,26 +187,34 @@ int main(int argc, char* argv[]) {
     T cgTol         = 1e-6;
     T resTol        = 1e-4;
     
-    S_Adwav     s_adwav(basis2d, rb_truth.lhs_op, rb_truth.rhs_op, 
-                        contraction, threshTol, cgTol, resTol, numIts);
     SolverCall call = call_cg;
-    S_AdwavSolver s_adwav_solver(s_adwav, call);
+    S_AdwavSolver s_adwav_solver(rb_truth, call);
+    s_adwav_solver.set_parameters(contraction, threshTol, cgTol, resTol, numIts);
     rb_truth.set_truthsolver(s_adwav_solver);
     
     /* Training (as yet: "manually") */
     
+    // First Basis Function
+    cout << "Solving for parameter mu = " << mu[0] << endl;
     Coeffs u = rb_model.truth->solver->truth_solve();
     rb_model.add_to_basis(u);
     
     cout << "N = " << rb_model.n_bf() << endl;
     cout << "F = " << rb_model.RB_F_vectors[0] << endl;
     cout << "A_1 = " << rb_model.RB_A_matrices[0] << endl;
+    cout << "A_2 = " << rb_model.RB_A_matrices[1] << endl;
     cout << "    Snapshot 1: " << u.size() << " Basis Functions" << std::endl;
+    ofstream snapshot1("Coeffs_Snapshot1.txt");
+    snapshot1 << u << endl;
+    snapshot1.close();
     plot2D(basis2d, u, prec, plot_dummy_fct, 0., 1., 0., 1., 0.02, "adaptive_snapshot_1");
     
-    cout << "-----------------------" << endl;
+    cout << "-----------------------" << endl << endl;
     
+    // Second  Basis Function
     mu[0] = 0.5 * mu1;
+    rb_model.set_current_param(mu);
+    cout << "Solving for parameter mu = [" << mu[0] << ", " << mu[1] << "] "<< endl;
     u.clear();
     u = rb_model.truth->solver->truth_solve();
     rb_model.add_to_basis(u);
@@ -211,17 +222,29 @@ int main(int argc, char* argv[]) {
     cout << "N = " << rb_model.n_bf() << endl;
     cout << "F = " << rb_model.RB_F_vectors[0] << endl;
     cout << "A_1 = " << rb_model.RB_A_matrices[0] << endl;
+    cout << "A_2 = " << rb_model.RB_A_matrices[1] << endl;
     cout << "    Snapshot 2: " << u.size() << " Basis Functions" << std::endl;
+    ofstream snapshot2("Coeffs_Snapshot2.txt");
+    snapshot2 << u << endl;
+    snapshot2.close();
     plot2D(basis2d, u, prec, plot_dummy_fct, 0., 1., 0., 1., 0.02, "adaptive_snapshot_2");
+    
+    cout << "=======================" << endl << endl;
 
-    cout << "=======================" << endl;
-
+    // RB solve 
     mu[0] = 0.75 * mu1;
+    rb_model.set_current_param(mu);
+    cout << "Solving for parameter mu = " << mu[0] << endl;
+    
     DenseVectorT rb_u = rb_model.RB_solve(rb_model.n_bf());
+    cout << "    u_RB = " << rb_u << ", ResDualNorm = " << rb_model.residual_dual_norm(rb_u, mu)
+                          <<  ", alpha_lb = " << rb_model.alpha_LB(mu) << endl;
     Coeffs u_N = rb_model.reconstruct_u_N(rb_u, rb_model.n_bf());
     
     cout << "    u_N          : " << u_N.size() << " Basis Functions" << std::endl;
-        
+    ofstream uN("Coeffs_u_N.txt");
+    uN << u_N << endl;
+    uN.close();
     plot2D(basis2d, u_N, prec, plot_dummy_fct, 0., 1., 0., 1., 0.02, "adaptive_u_N");
 
 
