@@ -1,2 +1,4 @@
 adaptive_rb_example
 rb_example
+*.dat
+adaptive_rb_example_training
