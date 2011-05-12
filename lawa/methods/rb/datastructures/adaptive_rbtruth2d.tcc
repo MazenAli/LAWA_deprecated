@@ -43,7 +43,6 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver>::get_rb_model()
     return *rb;
 }
 
-
 template <typename T, typename Basis, typename TruthSolver>
 void
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representors()
@@ -67,6 +66,59 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representors()
             A_representors[n][i] = solver->repr_solve_A();
         }
     }
+}
+
+template <typename T, typename Basis, typename TruthSolver>
+void
+AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representor_norms()
+{
+    // F_F representor norms 
+    int Qf = rb->Q_f();
+    rb->F_F_representor_norms.engine().resize(Qf, Qf);
+    for(int qf1 = 1; qf1 <= Qf; ++qf1) {
+        for (int qf2 = qf1; qf2 <= Qf; ++qf2) {
+            rb->F_F_representor_norms(qf1,qf2) = rb->inner_product(F_representors[qf1-1], F_representors[qf2-1]);
+            std::cout << " (F,F) = " << rb->F_F_representor_norms(qf1,qf2) << std::endl;
+            if(qf1 != qf2) {
+                rb->F_F_representor_norms(qf2,qf1) = rb->F_F_representor_norms(qf1,qf2);
+            }
+        }
+    }
+    
+    // A_A representor norms 
+    int Qa = rb->Q_a();
+    int N = rb->n_bf();
+    rb->A_A_representor_norms.resize(N);
+    for(int n1 = 0; n1 < N; ++n1) {
+        for(int n2 = 0; n2 < N; ++n2) {
+            flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_n1_n2(Qa, Qa);
+            rb->A_A_representor_norms[n1].push_back(A_n1_n2);
+            for(int qa1 = 1; qa1 <= Qa; ++qa1) {
+                for(int qa2 = qa1; qa2 <= Qa; ++qa2) {
+                    rb->A_A_representor_norms[n1][n2](qa1,qa2) 
+                        = rb->inner_product(A_representors[n1][qa1-1], A_representors[n2][qa2-1]);
+                    std::cout << " (A,A) = " << rb->A_A_representor_norms[n1][n2](qa1,qa2) << std::endl;
+                    
+                    if(qa1 != qa2) {
+                        rb->A_A_representor_norms[n1][n2](qa2, qa1) = rb->A_A_representor_norms[n1][n2](qa1,qa2);
+                    }
+                }
+            }
+        }
+    }
+    
+    // A_F representor norms 
+    for(int n = 0; n < N; ++n) {
+        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_F(Qa, Qf);
+        rb->A_F_representor_norms.push_back(A_F);
+        for(int qa = 1; qa <= Qa; ++qa) {
+            for(int qf = 1; qf <= Qf; ++qf) {
+                rb->A_F_representor_norms[n](qa, qf) = rb->inner_product(A_representors[n][qa-1], F_representors[qf-1]);
+                std::cout << " (A,F) = " << rb->A_F_representor_norms[n](qa, qf) << std::endl;
+            }
+        }
+    }
+    
 }
 
 // ================================================================================================================ //

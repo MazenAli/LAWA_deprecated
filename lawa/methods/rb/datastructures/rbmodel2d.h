@@ -73,6 +73,22 @@ class RBModel2D {
 
         void
         set_truthmodel(TruthModel& _truthmodel);
+        
+        void
+        add_to_basis(const CoeffVector& sol);
+
+        DenseVectorT
+        RB_solve(unsigned int N, SolverCall call = call_cg);
+
+        CoeffVector
+        reconstruct_u_N(DenseVectorT u, unsigned int N);
+        
+        // Computes the inner product a(v,u) w.r.t. the operator a = inner_product_op
+        T
+        inner_product(const CoeffVector& v1, const CoeffVector& v2);
+        
+        T
+        residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu);
                 
     /* Public members */
 
@@ -86,26 +102,16 @@ class RBModel2D {
         TruthModel*                     truth;
 
         std::vector<CoeffVector>        rb_basis_functions;
-
-        void
-        add_to_basis(const CoeffVector& sol);
-
-        DenseVectorT
-        RB_solve(unsigned int N, SolverCall call = call_cg);
-
-        CoeffVector
-        reconstruct_u_N(DenseVectorT u, unsigned int N);
         
         Operator2D<T>*  inner_product_op;
         
-
+        FullColMatrixT                               F_F_representor_norms; // Speicherbedarf kann verringert werden..
+        std::vector<FullColMatrixT>                  A_F_representor_norms;
+        std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
+        
     protected:
 
     /* Protected member functions */
-
-        // Computes the inner product a(v,u) w.r.t. the operator a = inner_product_op
-        T
-        inner_product(const CoeffVector& v1, const CoeffVector& v2);
 
         // Update the (dense) RB matrices / vectors with the last basis function
         void

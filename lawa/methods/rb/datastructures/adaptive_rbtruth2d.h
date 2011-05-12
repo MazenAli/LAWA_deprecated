@@ -72,6 +72,9 @@ class AdaptiveRBTruth2D{
         void
         calculate_representors();
         
+        void
+        calculate_representor_norms();
+        
     /* Public members */
         
         Basis&                                  basis;

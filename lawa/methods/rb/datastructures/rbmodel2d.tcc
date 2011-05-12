@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iomanip>
 
 namespace  lawa {
 
@@ -75,6 +76,7 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
     update_RB_inner_product();
     
     truth->calculate_representors();
+    truth->calculate_representor_norms(); // Funktion kann eigetnlich hierher verschoben werden
 }
 
 template <typename T, typename TruthModel>
@@ -242,6 +244,47 @@ RBModel2D<T, TruthModel>::inner_product(const CoeffVector& v1, const CoeffVector
         }
     }
     return val;
+}
+
+template <typename T, typename TruthModel>
+T
+RBModel2D<T, TruthModel>::residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu)
+{
+    T res_dual_norm = 0;
+        
+    int Qf = Q_f();
+    int Qa = Q_a();
+    DenseVectorT ThetaF(Qf);
+    DenseVectorT ThetaA(Qa);
+    for (int i = 1; i <= Qf; ++i) {
+        ThetaF(i) = (*theta_f[i-1])(get_current_param()); 
+    }
+    for (int i = 1; i <= Qa; ++i) {
+        ThetaA(i) =(*theta_a[i-1])(get_current_param()); 
+    }
+
+    DenseVectorT FF_T = F_F_representor_norms * ThetaF;
+    
+    res_dual_norm = ThetaF * FF_T;
+        
+    int N = n_bf();
+    DenseVectorT T_AF_T(N);
+    FullColMatrixT T_AA_T(N,N);
+    for (int n1 = 1; n1 <= N; ++n1) {
+        DenseVectorT AF_T = A_F_representor_norms[n1-1] * ThetaF;
+        T_AF_T(n1) = ThetaA * AF_T;
+        for(int n2 = 1; n2 <= N; ++n2) {
+            DenseVectorT AA_T = A_A_representor_norms[n1-1][n2-1] * ThetaA;
+            T_AA_T(n1, n2) = ThetaA * AA_T;
+        }
+    }
+    
+    res_dual_norm += 2 * u_RB * T_AF_T;    
+    
+    DenseVectorT T_AA_T_u = T_AA_T * u_RB;
+    res_dual_norm += u_RB * T_AA_T_u;    
+    
+    return std::sqrt(res_dual_norm);
 }
 
 } // namespace lawa
