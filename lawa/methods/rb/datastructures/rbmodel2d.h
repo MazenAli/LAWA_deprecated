@@ -78,6 +78,9 @@ class RBModel2D {
         add_to_basis(const CoeffVector& sol);
 
         DenseVectorT
+        RB_solve(unsigned int N, std::vector<T> param, SolverCall call = call_cg);
+        
+        DenseVectorT
         RB_solve(unsigned int N, SolverCall call = call_cg);
 
         CoeffVector
@@ -102,6 +105,12 @@ class RBModel2D {
             
         void
         set_ref_param(const std::vector<T>& _param);
+        
+        void
+        train_Greedy(const std::vector<T>& init_param, T tol, int Nmax);
+        
+        void
+        generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
                 
     /* Public members */
 
@@ -122,6 +131,8 @@ class RBModel2D {
         std::vector<FullColMatrixT>                  A_F_representor_norms;
         std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
         
+        std::vector<std::vector<T> >  Xi_train;
+
     protected:
 
     /* Protected member functions */
@@ -142,6 +153,7 @@ class RBModel2D {
         
         std::vector<T>  min_param;
         std::vector<T>  max_param;
+        
         
         FullColMatrixT  RB_inner_product;
         

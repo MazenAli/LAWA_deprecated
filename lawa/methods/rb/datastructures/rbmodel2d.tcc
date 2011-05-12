@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cfloat>
+#include <fstream>
 
 namespace  lawa {
 
@@ -75,8 +76,43 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
     update_RB_F_vectors();
     update_RB_inner_product();
     
-    truth->calculate_representors();
+    truth->update_representors();
     truth->calculate_representor_norms(); // Funktion kann eigetnlich hierher verschoben werden
+}
+
+template <typename T, typename TruthModel>
+flens::DenseVector<flens::Array<T> >
+RBModel2D<T, TruthModel>::RB_solve(unsigned int N, std::vector<T> param, SolverCall call)
+{
+	assert(RB_A_matrices.size() > 0);
+    
+	FullColMatrixT A(N, N);
+    for (unsigned int i = 0; i < Q_a(); ++i) {
+        //A += (*theta_a[i])(get_current_param()) * RB_A_matrices[i](_(1,N), _(1,N));
+        flens::axpy(cxxblas::NoTrans, (*theta_a[i])(param), RB_A_matrices[i](_(1,N), _(1,N)), A);
+    }
+
+    DenseVectorT F(N);
+    for (unsigned int i = 0; i < Q_f(); ++i) {
+        //F += (*theta_f[i])(get_current_param()) * RB_F_vectors[i](_(1,N));
+        flens::axpy((*theta_f[i])(param), RB_F_vectors[i](_(1,N)), F);
+    }
+
+    
+    DenseVectorT u(N);
+    switch (call) {
+        case call_cg:
+            std::cout << "RB solve: " << cg(A, u, F) << " cg iterations" << std::endl;
+            break;
+        case call_gmres:
+            std::cout << "RB solve: " << gmres(A, u, F) << " gmres iterations" << std::endl;
+            break;
+        default:
+        	std::cerr << "RB solve: Method not implemented! " << std::endl;
+            break;
+    }
+    
+    return u;
 }
 
 template <typename T, typename TruthModel>
@@ -130,6 +166,95 @@ RBModel2D<T, TruthModel>::reconstruct_u_N(DenseVectorT u, unsigned int N)
     return u_full;
 }
 
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::set_min_param(const std::vector<T>& _param)
+{
+    min_param = _param;
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::set_max_param(const std::vector<T>& _param)
+{
+    max_param = _param;
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::set_ref_param(const std::vector<T>& _param)
+{
+    ref_param = _param;
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::generate_uniform_trainingset(std::vector<int>& n_train)
+{
+    std::vector<T> h(current_param.size());
+    for(unsigned int d = 0; d < current_param.size(); ++d) {
+        h[d] = (max_param[d] - min_param[d]) / (n_train[d]-1);
+    }
+    
+    if(n_train.size() == 1) {
+        for (int i = 0; i < n_train[0]; ++i){
+            std::vector<T> new_mu;
+            new_mu.push_back(std::min(min_param[0] + i*h[0], max_param[0]));
+            Xi_train.push_back(new_mu);   
+        }
+    }
+    else {
+        std::cerr << "Generate Trainingsset for dim = " << n_train.size() << " : Not implemented yet " << std::endl;
+    }
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax)
+{
+    // Initial Snapshot
+    set_current_param(init_param);
+    
+    std::ofstream error_file("Training.txt"); 
+    error_file << "# N   mu   Error " << std::endl;
+    T maxerr;
+    int N = 0;
+    do {
+        std::cout << " ================================================= " << std::endl << std::endl;
+        std::cout << "Adding Snapshot at mu = " << get_current_param()[0] << std::endl;
+        
+        CoeffVector u = truth->solver->truth_solve();
+        add_to_basis(u);
+        N++;
+        
+        maxerr = 0;
+        int next_Mu = 0;
+        for (unsigned int n = 0; n < Xi_train.size(); ++n) {
+            
+            set_current_param(Xi_train[n]);
+            DenseVectorT u_N = RB_solve(N, Xi_train[n]);
+            
+            T error_est = residual_dual_norm(u_N, Xi_train[n]) / alpha_LB(Xi_train[n]);
+            
+            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << error_est << std::endl;
+            if ( error_est > maxerr) {
+                maxerr = error_est;
+                next_Mu = n;
+            }
+        }
+        
+        std::cout << std::endl << "Greedy Error = " << maxerr << std::endl << std::endl;
+        error_file << N << " " << Xi_train[next_Mu][0] << " " << maxerr << std::endl;
+        
+        set_current_param(Xi_train[next_Mu]);
+        Xi_train.erase(Xi_train.begin() + next_Mu);
+        
+    } while ((N < Nmax) && (maxerr > tol));
+    
+}
+
+// -----------------------------------------------------------------------------------//
+
 /* Protected methods */
 
 template <typename T, typename TruthSolver>
@@ -171,7 +296,10 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
                 }
             }        
         }
+        
+        std::cout << "RB_A(" << q_a << ") = " << RB_A_matrices[q_a] << std::endl;
     }
+    
 }
 
 template <typename T, typename TruthSolver>
@@ -196,6 +324,9 @@ RBModel2D<T, TruthSolver>::update_RB_F_vectors()
         for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it) {
             RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first);
         }
+        
+        std::cout << "RB_F(" << q_f << ") = " << RB_F_vectors[q_f] << std::endl;
+        
     }
 }
 
@@ -301,27 +432,5 @@ RBModel2D<T, TruthModel>::alpha_LB(std::vector<T>& _param)
     
     return alpha_lb;
 }
-
-template <typename T, typename TruthModel>
-void
-RBModel2D<T, TruthModel>::set_min_param(const std::vector<T>& _param)
-{
-    min_param = _param;
-}
-
-template <typename T, typename TruthModel>
-void
-RBModel2D<T, TruthModel>::set_max_param(const std::vector<T>& _param)
-{
-    max_param = _param;
-}
-
-template <typename T, typename TruthModel>
-void
-RBModel2D<T, TruthModel>::set_ref_param(const std::vector<T>& _param)
-{
-    ref_param = _param;
-}
-
 } // namespace lawa
 
