@@ -89,6 +89,19 @@ class RBModel2D {
         
         T
         residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu);
+        
+        // Lower bound for coercivity constant, min-Theta approach
+        virtual T
+        alpha_LB(std::vector<T>& _param);
+
+        void
+        set_min_param(const std::vector<T>& _param);
+    
+        void
+        set_max_param(const std::vector<T>& _param);
+            
+        void
+        set_ref_param(const std::vector<T>& _param);
                 
     /* Public members */
 
@@ -127,9 +140,14 @@ class RBModel2D {
 
         std::vector<T>  current_param;
         
+        std::vector<T>  min_param;
+        std::vector<T>  max_param;
+        
         FullColMatrixT  RB_inner_product;
         
-
+        // Reference Parameter defining the inner product norm
+        // Needed for min-Theta approach
+        std::vector<T>  ref_param;
 };
 
 } // namespace lawa

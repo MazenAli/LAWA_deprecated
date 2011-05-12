@@ -1,5 +1,5 @@
 #include <cassert>
-#include <iomanip>
+#include <cfloat>
 
 namespace  lawa {
 
@@ -285,6 +285,42 @@ RBModel2D<T, TruthModel>::residual_dual_norm(const DenseVectorT& u_RB, const std
     res_dual_norm += u_RB * T_AA_T_u;    
     
     return std::sqrt(res_dual_norm);
+}
+
+template <typename T, typename TruthModel>
+T
+RBModel2D<T, TruthModel>::alpha_LB(std::vector<T>& _param)
+{
+    T alpha_lb = DBL_MAX;
+    for(unsigned int qa = 0; qa < Q_a(); ++qa){
+        T reftheta = (*theta_a[qa])(ref_param);
+        if (((*theta_a[qa])(_param) / reftheta) < alpha_lb) {
+            alpha_lb = (*theta_a[qa])(_param) / reftheta;
+        }
+    }
+    
+    return alpha_lb;
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::set_min_param(const std::vector<T>& _param)
+{
+    min_param = _param;
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::set_max_param(const std::vector<T>& _param)
+{
+    max_param = _param;
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::set_ref_param(const std::vector<T>& _param)
+{
+    ref_param = _param;
 }
 
 } // namespace lawa
