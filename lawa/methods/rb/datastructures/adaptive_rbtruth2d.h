@@ -70,7 +70,7 @@ class AdaptiveRBTruth2D{
         get_rb_model();
         
         void
-        calculate_representors();
+        update_representors();
         
         void
         calculate_representor_norms();

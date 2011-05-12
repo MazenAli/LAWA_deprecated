@@ -45,26 +45,27 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver>::get_rb_model()
 
 template <typename T, typename Basis, typename TruthSolver>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representors()
+AdaptiveRBTruth2D<T, Basis, TruthSolver>::update_representors()
 {
-    F_representors.resize(rb->Q_f());
-    for (unsigned int i = 0; i < rb->Q_f(); ++i) {
-        repr_rhs_F_op.set_current_op(*F_operators[i]);
-        std::cout<< std::endl << " ==== Solving for Riesz Representor of F_" << i+1 << " =====" << std::endl<< std::endl;
-        CoeffVector c = solver->repr_solve_F();
-        F_representors[i] = c;
+    int N = rb->n_bf();
+    if(N == 1) {
+        F_representors.resize(rb->Q_f());
+        for (unsigned int i = 0; i < rb->Q_f(); ++i) {
+            repr_rhs_F_op.set_current_op(*F_operators[i]);
+            std::cout<< std::endl << " ==== Solving for Riesz Representor of F_" << i+1 << " =====" << std::endl<< std::endl;
+            CoeffVector c = solver->repr_solve_F();
+            F_representors[i] = c;
+        } 
     }
     
-    A_representors.resize(rb->n_bf());
-    for (unsigned int n = 0; n < rb->n_bf(); ++n){
-        repr_rhs_A_op.set_current_bf(rb->rb_basis_functions[n]);
-        A_representors[n].resize(rb->Q_a());
-        for (unsigned int i = 0; i < rb->Q_a(); ++i) {
-            repr_rhs_A_op.set_current_op(*A_operators[i]);
-            std::cout << std::endl<< " ==== Solving for Riesz Representor of A_" << i+1 
-                      << "(" << n << ")" << " =====" << std::endl<< std::endl;
-            A_representors[n][i] = solver->repr_solve_A();
-        }
+    A_representors.resize(N);
+    repr_rhs_A_op.set_current_bf(rb->rb_basis_functions[N-1]);
+    A_representors[N-1].resize(rb->Q_a());
+    for (unsigned int i = 0; i < rb->Q_a(); ++i) {
+        repr_rhs_A_op.set_current_op(*A_operators[i]);
+        std::cout << std::endl<< " ==== Solving for Riesz Representor of A_" << i+1 
+                  << "(" << N << ")" << " =====" << std::endl<< std::endl;
+        A_representors[N-1][i] = solver->repr_solve_A();
     }
 }
 
@@ -72,22 +73,22 @@ template <typename T, typename Basis, typename TruthSolver>
 void
 AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representor_norms()
 {
-    // F_F representor norms 
-    int Qf = rb->Q_f();
-    rb->F_F_representor_norms.engine().resize(Qf, Qf);
-    for(int qf1 = 1; qf1 <= Qf; ++qf1) {
-        for (int qf2 = qf1; qf2 <= Qf; ++qf2) {
-            rb->F_F_representor_norms(qf1,qf2) = rb->inner_product(F_representors[qf1-1], F_representors[qf2-1]);
-            std::cout << " (F,F) = " << rb->F_F_representor_norms(qf1,qf2) << std::endl;
-            if(qf1 != qf2) {
-                rb->F_F_representor_norms(qf2,qf1) = rb->F_F_representor_norms(qf1,qf2);
-            }
-        }
-    }
+    int N = rb->n_bf();
     
+     // F_F representor norms 
+     int Qf = rb->Q_f();
+     rb->F_F_representor_norms.engine().resize(Qf, Qf);
+     for(int qf1 = 1; qf1 <= Qf; ++qf1) {
+         for (int qf2 = qf1; qf2 <= Qf; ++qf2) {
+             rb->F_F_representor_norms(qf1,qf2) = rb->inner_product(F_representors[qf1-1], F_representors[qf2-1]);
+             if(qf1 != qf2) {
+                 rb->F_F_representor_norms(qf2,qf1) = rb->F_F_representor_norms(qf1,qf2);
+             }
+         }
+     }   
+     
     // A_A representor norms 
     int Qa = rb->Q_a();
-    int N = rb->n_bf();
     rb->A_A_representor_norms.resize(N);
     for(int n1 = 0; n1 < N; ++n1) {
         for(int n2 = 0; n2 < N; ++n2) {
@@ -97,8 +98,7 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representor_norms()
                 for(int qa2 = qa1; qa2 <= Qa; ++qa2) {
                     rb->A_A_representor_norms[n1][n2](qa1,qa2) 
                         = rb->inner_product(A_representors[n1][qa1-1], A_representors[n2][qa2-1]);
-                    std::cout << " (A,A) = " << rb->A_A_representor_norms[n1][n2](qa1,qa2) << std::endl;
-                    
+            
                     if(qa1 != qa2) {
                         rb->A_A_representor_norms[n1][n2](qa2, qa1) = rb->A_A_representor_norms[n1][n2](qa1,qa2);
                     }
@@ -106,7 +106,7 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representor_norms()
             }
         }
     }
-    
+
     // A_F representor norms 
     for(int n = 0; n < N; ++n) {
         flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_F(Qa, Qf);
@@ -114,11 +114,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver>::calculate_representor_norms()
         for(int qa = 1; qa <= Qa; ++qa) {
             for(int qf = 1; qf <= Qf; ++qf) {
                 rb->A_F_representor_norms[n](qa, qf) = rb->inner_product(A_representors[n][qa-1], F_representors[qf-1]);
-                std::cout << " (A,F) = " << rb->A_F_representor_norms[n](qa, qf) << std::endl;
             }
         }
     }
-    
 }
 
 // ================================================================================================================ //
