@@ -679,7 +679,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
       
 }
 
-template <typename T, Construction Cons>
+template <typename T>
 IndexSet<Index1D>
 lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
                               int s_tilde_level, int s_tilde_singsupp,
@@ -712,7 +712,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
         // a) local compactness  b) matrix compression  c) vanishing moments for level diff>=s_tilde_singsupp
         for (int j_row=j; j_row<=std::min(j+s_tilde_level, jmax); ++j_row) {        // realization of matrix compression via level threshold
             T Pow2i_Mjrow = pow2i<T>(-j_row);
-            if (j_row>=j+s_tilde_singsupp) {
+            if (j_row>j+s_tilde_singsupp) {
                 DenseVector<Array<T> > singsupp = phi.singularSupport(j,k);
                 //cout << "LambdaTilde: Singular support phi_col = " << singpts;
                 for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
@@ -721,7 +721,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
 
                     for (int k_row=kMin; k_row<=kMax; ++k_row) {
                         Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
-                        if (((overlap(supp_row, supp) > 0)) && (!(distance(singsupp,supp_row) > 0 ))) {
+                        if (((overlap(supp_row, supp) > 0)) && (!(distance(singsupp,supp_row) >= 0 ))) {
                             //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp  << std::endl;
                             ret.insert(Index1D(j_row,k_row,XWavelet));
                         }
@@ -752,7 +752,8 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
             int kMin = floor( pow2i<T>(jmin)*supp.l1 - phi.support(0,0).l2)-1;
             int kMax =  ceil( pow2i<T>(jmin)*supp.l2 - phi.support(0,0).l1)+1;
             for (int k_row=kMin; k_row<=kMax; ++k_row) {
-                if (overlap(supp, phi.support(jmin,k_row)) > 0) {
+                if (    (overlap(supp, phi.support(jmin,k_row)) > 0)
+                     &&  (!(distance(supp,phi.singularSupport(jmin,k_row)) >= 0 )) )  {
                     //std::cout << "lambdaTilde: BSpline (" << jmin << ", " << k_row << "): " << phi.support(jmin,k_row) << " " << supp  << std::endl;
                     ret.insert(Index1D(jmin,k_row,XBSpline));
                 }
@@ -763,7 +764,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
         // a) local compactness  b) matrix compression  c) vanishing moments for level diff >= s_tilde_singsupp
         for (int j_row=std::max(j-s_tilde_level,jmin); j_row<=std::min(j+s_tilde_level,jmax); ++j_row) {
             T Pow2i_Mjrow = pow2i<T>(-j_row);
-            if (j_row>=j+s_tilde_singsupp) {
+            if (j_row>j+s_tilde_singsupp) {
                 DenseVector<Array<T> > singsupp = psi.optim_singularSupport(j,k);
                 //cout << "LambdaTilde: Singular support psi_col_" << j << "," << k << " = " << singpts;
                 for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
@@ -772,7 +773,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
 
                     for (int k_row=kMin; k_row<=kMax; ++k_row) {
                         Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
-                        if ((overlap(supp, supp_row) > 0) && (!(distance(singsupp,supp_row) > 0 ))){
+                        if ((overlap(supp, supp_row) > 0) && (!(distance(singsupp,supp_row) >= 0 ))){
                             //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
                             ret.insert(Index1D(j_row,k_row,XWavelet));
                         }
@@ -785,7 +786,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
 
                 for (int k_row=kMin; k_row<=kMax; ++k_row) {
                     Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
-                    if ((overlap(supp, supp_row) > 0) && (!(distance(psi.optim_singularSupport(j_row,k_row),supp) > 0 ))) {
+                    if ((overlap(supp, supp_row) > 0) && (!(distance(psi.optim_singularSupport(j_row,k_row),supp) >= 0 ))) {
                         //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
                         ret.insert(Index1D(j_row,k_row,XWavelet));
                     }

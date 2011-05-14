@@ -35,7 +35,7 @@ template <typename T, Construction Cons>
     lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &basis,
                               int s_tilde, int jmin, int jmax, bool update);
 
-template <typename T, Construction Cons>
+template <typename T>
     IndexSet<Index1D>
     lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
                               int s_tilde_level, int s_tilde_singsupp,
