@@ -32,15 +32,15 @@ typedef flens::DenseVector<flens::Array<T> >                      DenseVectorT;
 typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullMatT;
 
 //Operator definitions
-typedef WeightedIdentityOperator1D<T, Basis1D>                    WeightedOp1D;
+typedef WeightedIdentityOperator1D<T, Basis1D>                    WeightedPDEOp1D;
 typedef NoCompression<T, Index1D, Basis1D>                        Compression;
 typedef WeightedSobolevNormPreconditioner1D<T,Basis1D>            NormPreconditioner1D;
 typedef WeightedSobolevMidPointPreconditioner1D<T,Basis1D>        MidPointPreconditioner1D;
 
 //MapMatrix definition
-typedef MapMatrix<T,Index1D,WeightedOp1D,
+typedef MapMatrix<T,Index1D,WeightedPDEOp1D,
                   Compression,NormPreconditioner1D>               MA_norm_prec;
-typedef MapMatrix<T,Index1D,WeightedOp1D,
+typedef MapMatrix<T,Index1D,WeightedPDEOp1D,
                   Compression,MidPointPreconditioner1D>           MA_midpoint_prec;
 
 
@@ -58,12 +58,30 @@ LambdaForEigenvalues(int jmin, int jmax, const Basis1D &basis, T radius);
 
 typedef IndexSet<Index1D>::const_iterator const_set_it;
 
-/// Non-constant weight function
+
+
+/// weight function
+const T eta=2.;
 T
 weight_f(T x)
 {
-    return exp(-x*x);
+    return exp(-2*eta*fabs(x));
 }
+
+/// Non-constant weight function
+T
+smoothweight_f(T x)
+{
+    if (fabs(x)>=1.) {
+        return exp(-2*eta*fabs(x));
+    }
+    else {
+        return exp(2*eta*(1./16.)*(-5-15*x*x+5*x*x*x*x-x*x*x*x*x*x));
+    }
+}
+
+
+
 
 
 int main (int argc, char *argv[]) {
@@ -78,10 +96,17 @@ int main (int argc, char *argv[]) {
     int max_level =atoi(argv[5]);
     cout.precision(8);
 
+    ofstream plotfile("test.txt");
+    for (T x=-5.; x<=5.; x+=0.1) {
+        plotfile << x << " " << weight_f(x) << " " << smoothweight_f(x) << endl;
+    }
+    plotfile.close();
+
     Basis1D                  basis(d,d_,jmin);
-    DenseVectorT             weight_singPts;
-    Function<T>              weightFct(weight_f, weight_singPts);
-    WeightedOp1D             Bil(basis, weightFct, 8, 0., 1.);
+    DenseVectorT             weight_singPts(3);
+    weight_singPts = -1.,0.,1.;
+    Function<T>              weightFct(smoothweight_f, weight_singPts);
+    WeightedPDEOp1D          Bil(basis, weightFct, 8, 0., 1.);
     //NormPreconditioner1D     NormP(basis,weight,0);
     MidPointPreconditioner1D MidPointP(basis,weightFct,0);
     Compression              compression(basis);

@@ -85,4 +85,53 @@ Parameters<T, Basis<T,Primal,R,CDF>, HelmholtzOperator1D<T,Basis<T,Primal,R,CDF>
     _alpha = alpha; _omega = omega; _gamma = gamma; _theta = theta;
 }
 
+
+template <typename T>
+Parameters<T, Basis<T,Primal,R,CDF>, WeightedHelmholtzOperator1D<T,Basis<T,Primal,R,CDF> >,
+           WeightedSobolevMidPointPreconditioner1D<T, Basis<T,Primal,R,CDF> > >::Parameters
+           (const Basis<T,Primal,R,CDF> &_basis,
+            const WeightedHelmholtzOperator1D<T,Basis<T,Primal,R,CDF> > &_Bil,
+            bool _w_XBSpline, int _j0)
+           : basis(_basis), Bil(_Bil), w_XBSpline(_w_XBSpline), j0(_j0),
+             cA(0.), CA(0.), kappa(0.),
+             alpha(0.), omega(0.), gamma(0.), theta(0.)
+{
+    if (!_w_XBSpline) {    //only wavelet discretization
+        assert(0);
+    }
+    else {                //wavelet with b-splines on coarse level discretization
+         std::cout << "Parameters: j0 = " << j0 << std::endl;
+        if (basis.d==2 && basis.d_==2 && Bil.c == 1.) {
+            if (j0==0)  {    cA = 0.18; CA = 2.8;    }
+            if (j0==2)  {    cA = 0.45; CA = 2.8;    }
+            else assert(0);
+        }
+        else if (basis.d==3 && basis.d_==3 && Bil.c == 1.) {
+            assert(0);
+        }
+        else if (basis.d==3 && basis.d_==5 && Bil.c == 1.) {
+            assert(0);
+        }
+        else assert(0);
+    }
+    kappa = CA/cA;
+    omega = 0.01;
+    alpha = 1./std::sqrt(kappa)-(1.+1./std::sqrt(kappa))*omega-0.00001;
+    gamma = 0.5 * (1./6.) * 1./sqrt(kappa) * (alpha-omega)/(1+omega);
+    theta = 2./7.;
+
+    assert(cA>0); assert(CA>0); assert(omega>0.);
+    assert(alpha>0.); assert(gamma>0.); assert(theta>0.);
+    assert((alpha+omega)/(1-omega)<1./std::sqrt(kappa));
+}
+
+template <typename T>
+void
+Parameters<T, Basis<T,Primal,R,CDF>, WeightedHelmholtzOperator1D<T,Basis<T,Primal,R,CDF> >,
+           WeightedSobolevMidPointPreconditioner1D<T, Basis<T,Primal,R,CDF> > >::
+           getGHSADWAVParameters(T &_alpha, T &_omega, T &_gamma, T &_theta) const
+{
+    _alpha = alpha; _omega = omega; _gamma = gamma; _theta = theta;
+}
+
 }
