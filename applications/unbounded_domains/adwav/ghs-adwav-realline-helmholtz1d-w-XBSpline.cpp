@@ -120,14 +120,13 @@ int main (int argc, char *argv[]) {
     ghs_adwav.SOLVE(f.norm(2.),eps,NumOfIterations,refsol.H1norm());
     cout << "ADWAV finished." << endl;
 
-
     RhsIntegral1D rhsintegral1d_pp(basis,rhs_func, refsol.deltas,300);
     Rhs_PP F_pp(rhsintegral1d_pp,P);
 
     cout << "Postprocessing started." << endl;
     stringstream filename;
     filename << "ghs-adwav-realline-helmholtz1d-W-XBSpline-conv_"
-             << example << "_" << d << "_" << d_ << "_" << j0 << ".dat";
+             << example << "_" << d << "_" << d_ << "_" << jmin << ".dat";
     ofstream file(filename.str().c_str());
     postprocessing_H1<T,Index1D, GHS_Adwav, MA, Rhs_PP>(ghs_adwav, A, F_pp, refsol.H1norm(),
                                                         filename.str().c_str());
