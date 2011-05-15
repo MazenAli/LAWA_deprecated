@@ -47,17 +47,20 @@ _integrate(const Integral<Gauss,First,Second> &integral)
     integral.quadrature.setOrder((integral.first.d-integral.deriv1+integral.second.d-integral.deriv2)/2+1);
 
     long double ret = 0.;
+    //T ret = 0.;
     Support<T> common;
     if (overlap(first.support(integral.j1,integral.k1),
                second.support(integral.j2,integral.k2),common)) {
         T a = common.l1;
         for (T b=a+unit; b<=common.l2; b+=unit) {
             ret += (long double)integral.quadrature(a,b);
+            //ret += integral.quadrature(a,b);
             a = b;
         }
     }
 
     return (T)ret;
+    //return (T)ret;
 }
 
 //--- (primal * dual) or (dual * primal) or (dual * dual) or (dual * orthogonal) or (orthogonal * dual)
@@ -190,7 +193,8 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
 
     }
 
-    T ret = 0.0;
+    //T ret = 0.0;
+    long double ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
         ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
     }
