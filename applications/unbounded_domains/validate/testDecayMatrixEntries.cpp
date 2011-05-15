@@ -119,6 +119,12 @@ int main (int argc, char *argv[]) {
     }
     file.close();
 
+    ofstream file2("matrixentries_translation.txt");
+    for (int m=-50; m<=50; ++m) {
+        file2 << m << " " << weighted_A(Index1D(j0,m,XBSpline),Index1D(j0,m,XBSpline)) << endl;
+    }
+    file2.close();
+
     return 0;
 }
 

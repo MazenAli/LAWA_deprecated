@@ -59,36 +59,53 @@ weight(T x) {
 
 }
 
+long double
+test_weight(long double x) {
+    //return 2.+sin(x);
+
+    if (fabs(x)>=1.) {
+        return exp(-2*eta*fabs(x));
+    }
+    else {
+        return exp(2*eta*(1./16.)*(-5-15*x*x+5*x*x*x*x-x*x*x*x*x*x));
+    }
+
+}
+
 T
 prec_weight(T x) {
     return weight(x);
 }
 
 int main (int argc, char *argv[]) {
-    if (argc != 6) {
-        cout << "usage " << argv[0] << " d d_ j0 J weighted" << endl; exit(1);
+    if (argc != 9) {
+        cout << "usage " << argv[0] << " d d_ j0 J set_J set_K_left set_K_right weighted" << endl;
+        exit(1);
     }
-    int d =atoi(argv[1]);
-    int d_=atoi(argv[2]);
-    int j0=atoi(argv[3]);
-    int J =atoi(argv[4]);
-    int weighted=atoi(argv[5]);
+    int d          =atoi(argv[1]);
+    int d_         =atoi(argv[2]);
+    int j0         =atoi(argv[3]);   //minimal level for basis
+    int J          =atoi(argv[4]);   //For each column index, add J row levels by lamdabTilde routine
+    int set_J      =atoi(argv[5]);   //maximum level difference for column index set
+    int set_K_left =atoi(argv[6]);   //indcates left translation range for column index set
+    int set_K_right=atoi(argv[7]);   //indcates right translation range for column index set
+    int weighted   =atoi(argv[8]);   //use a weighted PDE-operator (=1) or not (else).
 
     Basis1D basis(d,d,j0);
-    Coefficients<Lexicographical,T,Index1D> u, Au, Au2;
-    Coefficients<AbsoluteValue,T,Index1D> u_abs, Au_abs;
+    Coefficients<Lexicographical,T,Index1D> u, Au;
+    Coefficients<AbsoluteValue,T,Index1D> u_abs;
 
     IndexSet<Index1D> Lambda;
-    for (int k=-100; k<=100; ++k) {
+    for (int k=set_K_left; k<=set_K_right; ++k) {
         Lambda.insert(Index1D(j0,k,XBSpline));
     }
-/*
-    for (int j=0; j<=4; ++j) {
-        for (int k=-pow2i<T>(j)*40; k<=pow2i<T>(j)*40; ++k) {
+    for (int j=0; j<=set_J; ++j) {
+        for (int k=pow2i<T>(j)*set_K_left; k<=pow2i<T>(j)*set_K_right; ++k) {
             Lambda.insert(Index1D(j0+j,k,XWavelet));
         }
     }
-*/
+
+
     cout << "Size of Lambda: " << Lambda.size() << endl;
 
     int count=1;
@@ -99,7 +116,7 @@ int main (int argc, char *argv[]) {
     u_abs = u;
     ofstream file("nterm.txt");
     for (int n=1; n<=int(Lambda.size()/2); ++n) {
-        file << n << " " << u_abs.l2bestnterm(n) << " " << Au_abs.l2bestnterm(n) << endl;
+        file << n << " " << u_abs.l2bestnterm(n) << endl;
     }
     file.close();
 
@@ -114,14 +131,12 @@ int main (int argc, char *argv[]) {
 
         count=1;
         for (const_set_it col=Lambda.begin(); col!=Lambda.end(); ++col,++count) {
-            if (count%500==0) cout << "  Calculated columns: (" << count << " / " << Lambda.size() << ")" << endl;
+            cout << *col << endl;
             IndexSet<Index1D> LambdaTilde = lambdaTilde1d_WeightedPDE(*col, basis, J+1, J+1, j0, j0+J, false);
             for (const_set_it row=LambdaTilde.begin(); row!=LambdaTilde.end(); ++row) {
                 Au[(*row)] += P(*row)*op(*row,*col)*P(*col) * u[*col];
             }
         }
-        Au_abs = Au;
-        cout << "Finished calculation of A*u." << endl;
 
         ofstream apply_conv_file("apply_conv.txt");
         for (int s_tilde_level=0; s_tilde_level<=J; ++s_tilde_level) {
@@ -134,7 +149,6 @@ int main (int argc, char *argv[]) {
         }
         apply_conv_file.close();
     }
-
     else {
         DenseVectorT singPts(2);
         singPts = -1., 1.;
@@ -150,14 +164,12 @@ int main (int argc, char *argv[]) {
 
         count=1;
         for (const_set_it col=Lambda.begin(); col!=Lambda.end(); ++col,++count) {
-            if (count%500==0) cout << "  Calculated columns: (" << count << " / " << Lambda.size() << ")" << endl;
+            cout << *col << " " << basis.generator((*col).xtype).support((*col).j,(*col).k) << endl;
             IndexSet<Index1D> LambdaTilde = lambdaTilde1d_WeightedPDE(*col, basis, J+1, J+1, j0, j0+J, false);
             for (const_set_it row=LambdaTilde.begin(); row!=LambdaTilde.end(); ++row) {
-                //Au[(*row)] +=A(*row,*col) * u[*col];
                 Au[(*row)] += P(*row)*op(*row,*col)*P(*col) * u[*col];
             }
         }
-        Au_abs = Au;
 
         ofstream apply_conv_file("apply_conv.txt");
         for (int s_tilde_level=0; s_tilde_level<J-j0; ++s_tilde_level) {

@@ -28,18 +28,6 @@ weight(T x)
 	return (x < 0.5) ? 1 : 0;
 }
 
-T
-weight2(T x)
-{
-    return 1.;
-}
-
-T
-exponentialweight(T x)
-{
-    return exp(-4*fabs(x));
-}
-
 int main() {
 
 
@@ -50,19 +38,7 @@ int main() {
 	IntervalBasis basis1(d, d_, j0);
 	IntervalBasis basis2(d, d_, j0);
 
-	/*
-	std::cout << std::numeric_limits<double>::epsilon() << std::endl;
-	long double test1 = 2461436.336194111;
-	long double test2 = 2461436.336194112;
-	cout << sizeof(long double) << " " << sizeof(double) << endl;
-	if (test1==test2) {
-	    cout << "machine precision not high enough." << endl;
-	}
-	else {
-	    cout << "machine precision high enough." << endl;
-	}
-    */
-    /*
+
     DenseVectorT singpts(3);
     singpts = 0., 0.5, 1.;
 	Function<T> weightFct(weight, singpts);    
@@ -78,51 +54,6 @@ int main() {
     
     cout << integral2(j0, 1, XBSpline, 0, j0, 1, XBSpline, 0) << endl;
 	
-    std::cout << "Check for correct scaling in IntegralF" << std::endl;
-    DenseVectorT weight2_singpts;
-    Function<T> weightFct2(weight2, weight2_singpts);
-    IntegralF<Gauss, IntervalBasis> integral_ref(weightFct2, basis1, basis1);
-    IntegralF<Gauss, IntervalBasis> integral_test(weightFct2, basis1, basis1, -1., 1.);
-
-    cout << integral_ref(j0, 1, XBSpline, 0, j0, 1, XBSpline, 0) << endl;
-    cout << integral_test(j0, 1, XBSpline, 0, j0, 1, XBSpline, 0) << endl;
-
-    cout << integral_ref(j0+3, 1, XWavelet, 0, j0, 1, XBSpline, 0) << endl;
-    cout << integral_test(j0+3, 1, XWavelet, 0, j0, 1, XBSpline, 0) << endl;
-
-    cout << integral_ref(j0+3, 1, XWavelet, 0, j0+2, 1, XWavelet, 0) << endl;
-    cout << integral_test(j0+3, 1, XWavelet, 0, j0+2, 1, XWavelet, 0) << endl;
-    */
-    std::cout << "Check for weighted integrals in IntegralF" << std::endl;
-    DenseVectorT exponentialweight_singpts(1);
-    exponentialweight_singpts = 0.;
-    Function<T> exponentialweightFct(exponentialweight, exponentialweight_singpts);
-    IntegralF<Gauss, IntervalBasis> integral_exp_num(exponentialweightFct, basis1, basis1,-2.,1.);
-    integral_exp_num.quadrature.setOrder(8);
-    IntegralF<ExpWeighted, IntervalBasis> integral_exp_exct(exponentialweightFct, basis1, basis1,-2.,1.);
-
-    Timer time;
-    int count=0;
-    T tmp1 = 0.;
-    time.start();
-    for (int k=basis1.rangeJ(8).firstIndex(); k<=basis1.rangeJ(8).lastIndex();++k) {
-        tmp1 += integral_exp_num(8, k, XWavelet, 1, 8, k, XWavelet, 1);
-        ++count;
-    }
-    time.stop();
-    cout << "Result: " << tmp1 << ", time elapsed Legendre: " << time.elapsed() << endl;
-    cout << "count = " << count << endl;
-    count = 0;
-    T tmp2 = 0.;
-    time.start();
-    for (int k=basis1.rangeJ(8).firstIndex(); k<=basis1.rangeJ(8).lastIndex();++k) {
-        tmp2 += integral_exp_exct(8, k, XWavelet, 1, 8, k, XWavelet, 1);
-        ++count;
-    }
-    time.stop();
-    cout << "Result: " << tmp2 << ", time elapsed exact formula: " << time.elapsed() << endl;
-    cout << "count = " << count << endl;
-
 
 	return 0;
 }
