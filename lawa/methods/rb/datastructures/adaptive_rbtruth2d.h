@@ -87,7 +87,7 @@ class AdaptiveRBTruth2D{
          // Wrapper class for affine structure on left hand side       
         class Operator_LHS {
             
-            typedef NoCompression<T, Index2D, Basis> Compression;
+            typedef CompressionWeightedPDE2D<T, Basis> Compression;
             
             private:
                 
@@ -128,7 +128,7 @@ class AdaptiveRBTruth2D{
           // in the calculation of the Riesz representors       
          class Operator_LHS_Representor {
 
-             typedef NoCompression<T, Index2D, Basis> Compression;
+             typedef CompressionWeightedPDE2D<T, Basis> Compression;
 
              private:
 
