@@ -91,7 +91,7 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
     int p = integral.function.singularPoints.length();
 
-    Support<T> common = first.support(integral.j,integral.k);
+    Support<T> common = first.support(integral.j1,integral.k1);
 
     DenseVector<Array<T> > singularPoints;
     if (IsPrimal<First>::value or IsOrthogonal<First>::value) {
