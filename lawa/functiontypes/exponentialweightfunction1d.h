@@ -22,7 +22,6 @@
 #define LAWA_FUNCTIONTYPES_EXPONENTIALWEIGHTFUNCTION1D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/integrals/integral.h>
 #include <lawa/settings/enum.h>
 
 namespace lawa {
@@ -31,12 +30,25 @@ template<typename T>
 struct ExponentialWeightFunction1D
 {
     static T eta;
-    static T R1, R2;
+    static T x1, x2;
 
-    static DenseVector<Array<T> > sing_pts;
+    static DenseVector<Array<T> > singularPoints;
 
     static void
-    setParameters(T _eta, T _R1, T _R2);
+    setEta(T _eta);
+
+    static void
+    setSingularPoints();
+
+    static void
+    setPrecPoints(T _x1, T _x2);
+
+    static T
+    alpha(T x);
+
+    static T
+    dalpha(T x);
+
 
     static T
     weight(T x);

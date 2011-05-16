@@ -2,7 +2,7 @@ SUBDIRS := unbounded_domains
 ifdef BOOST_HOME 
 ifdef GSL_INC_HOME 
 ifdef GSL_LIB_HOME
-    SUBDIRS += finance
+#    SUBDIRS += finance
 endif
 endif
 endif
