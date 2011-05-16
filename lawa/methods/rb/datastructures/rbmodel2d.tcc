@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cfloat>
 #include <fstream>
+#include <sstream>
 
 namespace  lawa {
 
@@ -216,12 +217,31 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
     set_current_param(init_param);
     
     std::ofstream error_file("Training.txt"); 
-    error_file << "# N   mu   Error " << std::endl;
+    error_file << "# N   mu   Error " << std::endl;    
+    
+    // Delete init parameter from training sample
+    for(unsigned int i = 0; i < Xi_train.size(); ++i) {
+        bool is_param = false;
+        for(unsigned int l = 0; l < init_param.size(); ++l) {
+            if(Xi_train[i][l] == init_param[l]){
+                is_param = true;
+            }
+            else {
+                is_param = false;
+                break;
+            }
+        }
+        if( is_param == true) {
+            Xi_train.erase(Xi_train.begin() + i);
+        }
+    }
+    
     T maxerr;
     int N = 0;
     do {
         std::cout << " ================================================= " << std::endl << std::endl;
         std::cout << "Adding Snapshot at mu = " << get_current_param()[0] << std::endl;
+        error_file << N+1 << " " << get_current_param()[0];
         
         CoeffVector u = truth->solver->truth_solve();
         add_to_basis(u);
@@ -243,8 +263,9 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
             }
         }
         
+        error_file << " " << maxerr << std::endl;
+        
         std::cout << std::endl << "Greedy Error = " << maxerr << std::endl << std::endl;
-        error_file << N << " " << Xi_train[next_Mu][0] << " " << maxerr << std::endl;
         
         set_current_param(Xi_train[next_Mu]);
         Xi_train.erase(Xi_train.begin() + next_Mu);
