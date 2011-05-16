@@ -90,12 +90,17 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
     typedef typename First::T T;
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
     int p = integral.function.singularPoints.length();
+
+    Support<T> common = first.support(integral.j,integral.k);
+
     DenseVector<Array<T> > singularPoints;
     if (IsPrimal<First>::value or IsOrthogonal<First>::value) {
         if (p>0) {
             DenseVector<Array<T> > firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+
             firstSingularPoints *= integral.RightmLeft;
             firstSingularPoints += integral.left;
+
             int m = firstSingularPoints.length();
             singularPoints.engine().resize(m+p);
 
@@ -115,7 +120,12 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
 
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
-        ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+        T a = singularPoints(i);
+        T b = singularPoints(i+1);
+        if (a==b)              continue;
+        if (b<=common.l1)      continue;
+        else if (a>=common.l2) break;
+        else                   ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
     }
     return ret;
 }
@@ -130,6 +140,12 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
     const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
     const Function<T> & function = integral.function;
 
+    Support<T> common;
+    if (!overlap(first.support(integral.j1,integral.k1),
+                 second.support(integral.j2,integral.k2),common)) {
+        return 0;
+    }
+
     DenseVector<Array<T> > singularPoints;
     int p = function.singularPoints.length();
 
@@ -139,6 +155,7 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
         if (BothPrimal<First,Second>::value or BothOrthogonal<First,Second>::value) {
             DenseVector<Array<T> > firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
             DenseVector<Array<T> > secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
+
             firstSingularPoints *= integral.RightmLeft;
             firstSingularPoints += integral.left;
             secondSingularPoints *= integral.RightmLeft;
@@ -196,7 +213,12 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
     //T ret = 0.0;
     long double ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
-        ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+        T a = singularPoints(i);
+        T b = singularPoints(i+1);
+        if (a==b)             continue;
+        if (b<=common.l1)      continue;
+        else if (a>=common.l2) break;
+        else                  ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
     }
 
     return ret;
@@ -312,6 +334,8 @@ IntegralF<Quad,First,Second>::integrand(typename First::T x) const
 {
     return _f2 ? _integrand_f2(*this,x) : _integrand_f1(*this,x);
 }
+
+
 
 } // namespace lawa
 
