@@ -23,18 +23,6 @@ typedef Basis<T,Primal,Interval,Dijkema>        IntervalBasis;
 typedef flens::DenseVector<flens::Array<T> >    DenseVectorT;
 
 T
-weight(T x)
-{
-    return (x < 0.5) ? 1 : 0;
-}
-
-T
-weight2(T x)
-{
-    return 1.;
-}
-
-T
 exponentialweight(T x)
 {
     return exp(-4*fabs(x));
@@ -42,20 +30,19 @@ exponentialweight(T x)
 
 int main() {
 
-
     cout.precision(16);
     int d  = 2;
     int d_ = 2;
     int j0 = 2;
     IntervalBasis basis(d, d_, j0);
 
-
     DenseVectorT exponentialweight_singpts(1);
     exponentialweight_singpts = 0.;
     Function<T> exponentialweightFct(exponentialweight, exponentialweight_singpts);
     IntegralF<Gauss, IntervalBasis> integral_exp_num(exponentialweightFct, basis, basis,-2.,1.);
-    integral_exp_num.quadrature.setOrder(8);
+    integral_exp_num.quadrature.setOrder(5);
     IntegralF<ExpWeighted, IntervalBasis> integral_exp_exct(exponentialweightFct, basis, basis,-2.,1.);
+
 
     Timer time;
     int count=0;

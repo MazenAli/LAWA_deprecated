@@ -10,6 +10,10 @@ _integrate_f1(const IntegralExpWeight<Quad,First,Second> &integral)
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
 
     Support<T> common = first.support(integral.j,integral.k);
+    common.l1 *= integral.RightmLeft;
+    common.l1 += integral.left;
+    common.l2 *= integral.RightmLeft;
+    common.l2 += integral.left;
 
     int p = integral.expweight.singularPoints.length();
     DenseVector<Array<T> > singularPoints;
@@ -62,10 +66,14 @@ _integrate_f2(const IntegralExpWeight<Quad,First,Second> &integral)
     const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
 
     Support<T> common;
-    if (!overlap(first.support(integral.j1,integral.k1),
-                 second.support(integral.j2,integral.k2),common)) {
+    if (overlap(first.support(integral.j1,integral.k1),
+                 second.support(integral.j2,integral.k2),common)<=0) {
         return 0.;
     }
+    common.l1 *= integral.RightmLeft;
+    common.l1 += integral.left;
+    common.l2 *= integral.RightmLeft;
+    common.l2 += integral.left;
 
     DenseVector<Array<T> > singularPoints;
     int p = integral.expweight.singularPoints.length();
@@ -116,7 +124,7 @@ _integrate_f2(const IntegralExpWeight<Quad,First,Second> &integral)
         if (a==b)             continue;
         if (b<=common.l1)      continue;
         else if (a>=common.l2) break;
-        else                   ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+        else                   ret += integral.quadrature(a,b);
     }
 
     return ret;

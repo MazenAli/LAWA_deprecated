@@ -60,7 +60,6 @@ _integrate(const Integral<Gauss,First,Second> &integral)
     }
 
     return (T)ret;
-    //return (T)ret;
 }
 
 //--- (primal * dual) or (dual * primal) or (dual * dual) or (dual * orthogonal) or (orthogonal * dual)
@@ -92,6 +91,10 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
     int p = integral.function.singularPoints.length();
 
     Support<T> common = first.support(integral.j1,integral.k1);
+    common.l1 *= integral.RightmLeft;
+    common.l1 += integral.left;
+    common.l2 *= integral.RightmLeft;
+    common.l2 += integral.left;
 
     DenseVector<Array<T> > singularPoints;
     if (IsPrimal<First>::value or IsOrthogonal<First>::value) {
@@ -125,7 +128,7 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
         if (a==b)              continue;
         if (b<=common.l1)      continue;
         else if (a>=common.l2) break;
-        else                   ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+        else                   ret += integral.quadrature(a,b);
     }
     return ret;
 }
@@ -141,10 +144,14 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
     const Function<T> & function = integral.function;
 
     Support<T> common;
-    if (!overlap(first.support(integral.j1,integral.k1),
-                 second.support(integral.j2,integral.k2),common)) {
+    if (overlap(first.support(integral.j1,integral.k1),
+                 second.support(integral.j2,integral.k2),common)<=0) {
         return 0;
     }
+    common.l1 *= integral.RightmLeft;
+    common.l1 += integral.left;
+    common.l2 *= integral.RightmLeft;
+    common.l2 += integral.left;
 
     DenseVector<Array<T> > singularPoints;
     int p = function.singularPoints.length();
@@ -215,10 +222,10 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
         T a = singularPoints(i);
         T b = singularPoints(i+1);
-        if (a==b)             continue;
+        if (a==b)              continue;
         if (b<=common.l1)      continue;
         else if (a>=common.l2) break;
-        else                  ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+        else                   ret += integral.quadrature(a,b);
     }
 
     return ret;

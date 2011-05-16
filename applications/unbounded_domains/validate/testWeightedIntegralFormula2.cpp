@@ -56,14 +56,14 @@ int main(int argc, char *argv[]) {
 
     expweight.setPrecPoints(0.,0.);
     cout << "Test2: " << endl;
-    cout << weighted_P(row2) * weighted_op(row2,col1) * weighted_P(col1) << ": "
-         << weighted_P(row2) << " " <<  weighted_op(row2,col1) << " " << weighted_P(col1) << endl;
+    cout << weighted_P(row2) * weighted_op(row2,col2) * weighted_P(col2) << ": "
+         << weighted_P(row2) << " " <<  weighted_op(row2,col2) << " " << weighted_P(col2) << endl;
 
     T tmp2=0.;
-    tmp2 += integral_expweight(row2.j,row2.k,row2.xtype,0,col1.j,col1.k,col1.xtype,0);
-    tmp2 += integral_expweight(row2.j,row2.k,row2.xtype,1,col1.j,col1.k,col1.xtype,1);
-    cout << P(row2) * tmp2 * P(col1) << ": "
-         << P(row2) << " " <<  tmp2 << " " << P(col1)  << endl;
+    tmp2 += integral_expweight(row2.j,row2.k,row2.xtype,0,col2.j,col2.k,col2.xtype,0);
+    tmp2 += integral_expweight(row2.j,row2.k,row2.xtype,1,col2.j,col2.k,col2.xtype,1);
+    cout << P(row2) * tmp2 * P(col2) << ": "
+         << P(row2) << " " <<  tmp2 << " " << P(col2)  << endl;
 
     return 0;
 }

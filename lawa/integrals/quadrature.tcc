@@ -218,8 +218,6 @@ Quadrature<ExpWeighted,Integral>::operator()(T a, T b) const
         if (b<=0) {
             long double Exp_p_2eta_a = exp((long double)2*_eta*a);
             long double Exp_p_2eta_b = exp((long double)2*_eta*b);
-            long double diff = Exp_p_2eta_b - Exp_p_2eta_a;
-            return p1_a*p2_a*diff/((long double)2.*_eta);
 
             long double help1 = (p1_b*p2_b*Exp_p_2eta_b-p1_a*p2_a*Exp_p_2eta_a)/((long double)2.*_eta);
             long double help2 = d_p1*(p2_b*Exp_p_2eta_b-p2_a*Exp_p_2eta_a)/((long double)4.*_eta*_eta);
@@ -246,5 +244,6 @@ Quadrature<ExpWeighted,Integral>::operator()(T a, T b) const
         return 0.;
     }
 }
+
 } // namespace lawa
 
