@@ -7,9 +7,10 @@ namespace lawa {
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
     AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                   T _diffusion, T _convection, T _reaction, 
+                                   T _diffusion, T _convection, T _reaction, T _timederivfactor,
                                    T _entrybound, int _NumOfRows, int _NumOfCols)
     : basis(_basis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
+      timederivfactor(_timederivfactor),
       compression_1d_t(_basis.first), compression_1d_x(_basis.second), compression(_basis),
       P_left_data(), P_right_data(), p_left(_p_left), p_right(_p_right), noprec(),
       op_identity_t(_basis.first), op_identity_x(_basis.second), op_convection_t(_basis.first),
@@ -28,9 +29,10 @@ template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2
 AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
     AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
                                    InitialCondition& _init_cond,
-                                   T _diffusion, T _convection, T _reaction, 
+                                   T _diffusion, T _convection, T _reaction, T _timederivfactor,
                                    T _entrybound, int _NumOfRows, int _NumOfCols)
     : basis(_basis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
+      timederivfactor(_timederivfactor),
       compression_1d_t(_basis.first), compression_1d_x(_basis.second), compression(_basis),
       P_left_data(), P_right_data(), p_left(_p_left), p_right(_p_right), noprec(),
       op_identity_t(_basis.first), op_identity_x(_basis.second), op_convection_t(_basis.first),
@@ -92,7 +94,7 @@ operator()(const Index2D &row_index, const Index2D &col_index)
         reaction_term = data_identity_t(row_index.index1,col_index.index1) * data_identity_x(row_index.index2,col_index.index2);
     }
     
-    return prec * ( data_convection_t(row_index.index1,col_index.index1) * data_identity_x(row_index.index2,col_index.index2) 
+    return prec * ( timederivfactor * data_convection_t(row_index.index1,col_index.index1) * data_identity_x(row_index.index2,col_index.index2) 
                     + diffusion * data_identity_t(row_index.index1,col_index.index1) * data_laplace_x(row_index.index2,col_index.index2)
                     + convection * convection_term 
                     + reaction * reaction_term);

@@ -28,10 +28,10 @@ namespace lawa {
 
 /* Space-Time PDE Operator
  *
- *  a(v,u) =               Integral(v1 * u1_t) * Integral(v2 * u2) 
- *          + diffusion  * Integral(v1 * u1)   * Integral(v2_x * u2_x)
- *          + convection * Integral(v1 * u1)   * Integral(v2 * u2_x)
- *          + reaction   * Integral(v1 * u1)   * Integral(v2 * u2)
+ *  a(v,u) =  timederivfactor *  Integral(v1 * u1_t) * Integral(v2 * u2) 
+ *          +      diffusion  * Integral(v1 * u1)    * Integral(v2_x * u2_x)
+ *          +      convection * Integral(v1 * u1)    * Integral(v2 * u2_x)
+ *          +      reaction   * Integral(v1 * u1)    * Integral(v2 * u2)
  *
  */    
 template <typename T, typename Basis>
@@ -43,9 +43,11 @@ class SpaceTimePDEOperator1D{
         const T diffusion;
         const T convection;
         const T reaction;
+        const T timederivfactor;
         
         SpaceTimePDEOperator1D(const Basis& _basis, const T _diffusion = 1.,
-                               const T _convection = 0, const T _reaction=0.);
+                               const T _convection = 0, const T _reaction=0., 
+                               const T _timederivfactor = 1.);
     
         T                                                           // returns a(v,u)
         operator()(XType row_xtype_t, int j1_t, int k1_t, 
