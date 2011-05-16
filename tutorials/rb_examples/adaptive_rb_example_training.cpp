@@ -186,67 +186,34 @@ int main(int argc, char* argv[]) {
     T threshTol     = 0.1;
     T cgTol         = 1e-6;
     T resTol        = 1e-4;
+    int MaxItsPerTol = 3;
     
     SolverCall call = call_cg;
     S_AdwavSolver s_adwav_solver(rb_truth, call);
-    s_adwav_solver.set_parameters(contraction, threshTol, cgTol, resTol, numIts);
+    s_adwav_solver.set_parameters(contraction, threshTol, cgTol, resTol, numIts, MaxItsPerTol);
+    s_adwav_solver.set_parameters_repr_F(contraction, threshTol, cgTol, resTol, 22, MaxItsPerTol);
+    s_adwav_solver.set_parameters_repr_A(contraction, threshTol, cgTol, resTol, 18, MaxItsPerTol);
     rb_truth.set_truthsolver(s_adwav_solver);
     
-    /* Training (as yet: "manually") */
+    /* Training */
+    std::vector<T> min_param, max_param;
+    min_param.push_back(0.1);
+    max_param.push_back(2);
+    std::vector<int> n_train;
+    n_train.push_back(30);
+    rb_model.set_min_param(min_param);
+    rb_model.set_max_param(max_param);
+    rb_model.generate_uniform_trainingset(n_train);
     
-    // First Basis Function
-    cout << "Solving for parameter mu = " << mu[0] << endl;
-    Coeffs u = rb_model.truth->solver->truth_solve();
-    rb_model.add_to_basis(u);
+    for(unsigned int i = 0; i < rb_model.Xi_train.size(); ++i) {
+        for(unsigned int d = 0; d < rb_model.Xi_train[i].size(); ++d) {
+            cout << rb_model.Xi_train[i][d] << endl;
+        }
+    }
     
-    cout << "N = " << rb_model.n_bf() << endl;
-    cout << "F = " << rb_model.RB_F_vectors[0] << endl;
-    cout << "A_1 = " << rb_model.RB_A_matrices[0] << endl;
-    cout << "A_2 = " << rb_model.RB_A_matrices[1] << endl;
-    cout << "    Snapshot 1: " << u.size() << " Basis Functions" << std::endl;
-    ofstream snapshot1("Coeffs_Snapshot1.txt");
-    snapshot1 << u << endl;
-    snapshot1.close();
-    plot2D(basis2d, u, prec, plot_dummy_fct, 0., 1., 0., 1., 0.02, "adaptive_snapshot_1");
-    
-    cout << "-----------------------" << endl << endl;
-    
-    // Second  Basis Function
-    mu[0] = 0.5 * mu1;
-    rb_model.set_current_param(mu);
-    cout << "Solving for parameter mu = [" << mu[0] << ", " << mu[1] << "] "<< endl;
-    u.clear();
-    u = rb_model.truth->solver->truth_solve();
-    rb_model.add_to_basis(u);
-    
-    cout << "N = " << rb_model.n_bf() << endl;
-    cout << "F = " << rb_model.RB_F_vectors[0] << endl;
-    cout << "A_1 = " << rb_model.RB_A_matrices[0] << endl;
-    cout << "A_2 = " << rb_model.RB_A_matrices[1] << endl;
-    cout << "    Snapshot 2: " << u.size() << " Basis Functions" << std::endl;
-    ofstream snapshot2("Coeffs_Snapshot2.txt");
-    snapshot2 << u << endl;
-    snapshot2.close();
-    plot2D(basis2d, u, prec, plot_dummy_fct, 0., 1., 0., 1., 0.02, "adaptive_snapshot_2");
-    
-    cout << "=======================" << endl << endl;
-
-    // RB solve 
-    mu[0] = 0.75 * mu1;
-    rb_model.set_current_param(mu);
-    cout << "Solving for parameter mu = " << mu[0] << endl;
-    
-    DenseVectorT rb_u = rb_model.RB_solve(rb_model.n_bf());
-    cout << "    u_RB = " << rb_u << ", ResDualNorm = " << rb_model.residual_dual_norm(rb_u, mu)
-                          <<  ", alpha_lb = " << rb_model.alpha_LB(mu) << endl;
-    Coeffs u_N = rb_model.reconstruct_u_N(rb_u, rb_model.n_bf());
-    
-    cout << "    u_N          : " << u_N.size() << " Basis Functions" << std::endl;
-    ofstream uN("Coeffs_u_N.txt");
-    uN << u_N << endl;
-    uN.close();
-    plot2D(basis2d, u_N, prec, plot_dummy_fct, 0., 1., 0., 1., 0.02, "adaptive_u_N");
-
+    T tol = 1e-6;
+    int Nmax = 7;
+    rb_model.train_Greedy(min_param, tol, Nmax);
 
     return 0;
 }

@@ -31,94 +31,137 @@
 namespace lawa {
 
 /* RBModel 2D: 
- *	This class contains all N-dependent data and functions needed for a reduced basis
- *	approximation.
- *  It contains a pointer to an associated Truth Model (which does not have to be initialized
- *  for online calculations).
+ *    This class contains all N-dependent data and functions needed for a reduced basis
+ *    approximation.
+ *    It contains a pointer to an associated Truth Model (which does not have to be initialized
+ *    for online calculations).
  *
- *	The basis functions (\calN-dependent) are also stored here, so that we can reconstruct full 
- *	solutions without a complete truth model. 
+ *    The basis functions (\calN-dependent) are also stored here, so that we can reconstruct full 
+ *    solutions without a complete truth model. 
  */
- 
+
 template <typename T, typename TruthModel>
 class RBModel2D {
 
-    	typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
-		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
-		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
-        typedef Coefficients<Lexicographical,T,Index2D>						CoeffVector;
-        
-	public:
-    
+        typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
+        typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+        typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
+        typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
+
+    public:
+
     /* Public member functions */
         RBModel2D();
-        
+
         void 
         set_current_param(const std::vector<T>& _param);
-        
-        std::vector<T>& 
+
+        std::vector<T>&
         get_current_param();
-        
+
         unsigned int
         Q_a();
-        
+
         unsigned int
         Q_f();
-        
+
         unsigned int
         n_bf();
-        
+
         void 
         attach_inner_product_op(Operator2D<T>& _inner_product_op);
-        
+
         void
         set_truthmodel(TruthModel& _truthmodel);
-                
-    /* Public members */
         
-        std::vector<theta_fctptr> theta_a;
-        std::vector<theta_fctptr> theta_f;
-                        
-        std::vector<FullColMatrixT> 	RB_A_matrices;
-        std::vector<DenseVectorT> 		RB_F_vectors;
-        std::vector<DenseVectorT>		RB_output_vectors;
-        
-        TruthModel* 					truth;
-        	
-		std::vector<CoeffVector> 		rb_basis_functions;
-    	
         void
         add_to_basis(const CoeffVector& sol);
+
+        DenseVectorT
+        RB_solve(unsigned int N, std::vector<T> param, SolverCall call = call_cg);
         
         DenseVectorT
         RB_solve(unsigned int N, SolverCall call = call_cg);
-        
+
         CoeffVector
         reconstruct_u_N(DenseVectorT u, unsigned int N);
-        
-    protected: 
-        
-    /* Protected member functions */
         
         // Computes the inner product a(v,u) w.r.t. the operator a = inner_product_op
         T
         inner_product(const CoeffVector& v1, const CoeffVector& v2);
         
+        T
+        residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu);
+        
+        // Lower bound for coercivity constant, min-Theta approach
+        virtual T
+        alpha_LB(std::vector<T>& _param);
+
+        void
+        set_min_param(const std::vector<T>& _param);
+    
+        void
+        set_max_param(const std::vector<T>& _param);
+            
+        void
+        set_ref_param(const std::vector<T>& _param);
+        
+        void
+        train_Greedy(const std::vector<T>& init_param, T tol, int Nmax);
+        
+        void
+        generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
+                
+    /* Public members */
+
+        std::vector<theta_fctptr> theta_a;
+        std::vector<theta_fctptr> theta_f;
+
+        std::vector<FullColMatrixT>     RB_A_matrices;
+        std::vector<DenseVectorT>       RB_F_vectors;
+        std::vector<DenseVectorT>       RB_output_vectors;
+
+        TruthModel*                     truth;
+
+        std::vector<CoeffVector>        rb_basis_functions;
+        
+        Operator2D<T>*  inner_product_op;
+        
+        FullColMatrixT                               F_F_representor_norms; // Speicherbedarf kann verringert werden..
+        std::vector<FullColMatrixT>                  A_F_representor_norms;
+        std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
+        
+        std::vector<std::vector<T> >  Xi_train;
+
+    protected:
+
+    /* Protected member functions */
+
         // Update the (dense) RB matrices / vectors with the last basis function
         void
         update_RB_A_matrices();
-        
+
         void
         update_RB_F_vectors();
-                
+        
+        void
+        update_RB_inner_product();
+
     /* Protected members */
 
-        std::vector<T> current_param;
+        std::vector<T>  current_param;
         
-        Operator2D<T>* inner_product_op;
+        std::vector<T>  min_param;
+        std::vector<T>  max_param;
         
+        
+        FullColMatrixT  RB_inner_product;
+        
+        // Reference Parameter defining the inner product norm
+        // Needed for min-Theta approach
+        std::vector<T>  ref_param;
 };
-    
+
 } // namespace lawa
 
 

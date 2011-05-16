@@ -99,7 +99,7 @@ mv(const IndexSet<RowIndex> &LambdaRow, MA &A, const Coefficients<Lexicographica
         w[*lambda] = val;
     }
     timer.stop();
-    std::cout << "   Elapsed time for standard mv: " << timer.elapsed() << std::endl;
+    //std::cout << "   Elapsed time for standard mv: " << timer.elapsed() << std::endl;
 
     return w;
 }
@@ -122,7 +122,7 @@ mv_sparse(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicograp
         }
     }
     timer.stop();
-    std::cout << "   Elapsed time for improved mv: " << timer.elapsed() << std::endl;
+    //std::cout << "   Elapsed time for improved mv: " << timer.elapsed() << std::endl;
 
     return w_;
 }
@@ -204,6 +204,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
             //else               u[*row] = 0.;
             u[*row] = x(row_count);
         }
+        
         return number_of_iterations;
     }
     else return -1;
