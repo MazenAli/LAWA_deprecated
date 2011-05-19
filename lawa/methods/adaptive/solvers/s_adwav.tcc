@@ -228,6 +228,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
         
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations
                   << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
+                  
+        if(supp(u).size() > (unsigned int) MaxSizeLambda){
+            NumOfIterations = its+1;
+            solutions.resize(NumOfIterations);
+            residuals.resize(NumOfIterations);
+            times.resize(NumOfIterations);
+            toliters.resize(NumOfIterations);
+            linsolve_iterations.resize(NumOfIterations);
+            break;
+        }
 
     }
 }
@@ -326,6 +336,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", gmres-its = " << iterations;
         std::cout << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl;
+        
+        if(supp(u).size() > (unsigned int) MaxSizeLambda){
+            NumOfIterations = its+1;
+            solutions.resize(NumOfIterations);
+            residuals.resize(NumOfIterations);
+            times.resize(NumOfIterations);
+            toliters.resize(NumOfIterations);
+            linsolve_iterations.resize(NumOfIterations);
+            break;
+        }
     }
 }
 
@@ -408,6 +428,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
 
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cgls-its = " << iterations
                   << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
+                  
+        if(supp(u).size() > (unsigned int) MaxSizeLambda){
+            NumOfIterations = its+1;
+            solutions.resize(NumOfIterations);
+            residuals.resize(NumOfIterations);
+            times.resize(NumOfIterations);
+            toliters.resize(NumOfIterations);
+            linsolve_iterations.resize(NumOfIterations);
+            break;
+        }
 
     }
 }
