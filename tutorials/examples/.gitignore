@@ -1,6 +1,7 @@
 decay_matrix_entries
 poisson1d
 helmholtz2d
+tensorhelmholtz2d
 pde1d
 spacetime_heat_periodicTime
 fixedpoint_heat_periodicTime

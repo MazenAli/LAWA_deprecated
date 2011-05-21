@@ -34,6 +34,34 @@ int
 UniformIndex2D<Basis>::operator()(XType xtype_x, int jx, int kx,
                                   XType xtype_y, int jy, int ky) const
 {
+
+    if(xtype_x == XBSpline){
+         if(xtype_y == XBSpline){
+             return (kx-offsetIx-1)*basis.second.mra.cardI(J_y)
+                   + ky-offsetIy;
+         }
+         else{
+             return  (kx-offsetIx-1)*basis.second.mra.cardI(J_y)
+                     +  basis.second.mra.cardI(jy)
+                     +  ky-offsetJy;
+         }
+     }
+     else{
+         if(xtype_y == XBSpline){
+             return  basis.dim(jx, J_y)
+                     + (kx-offsetJx-1)*basis.second.mra.cardI(J_y)
+                     + ky-offsetIy;
+
+         }
+         else{
+             return  basis.dim(jx, J_y)
+                     + (kx-offsetJx-1)*basis.second.mra.cardI(J_y)
+                     +  basis.second.mra.cardI(jy)
+                     +  ky-offsetJy;
+         }
+     }
+
+    /*
     if(xtype_x == XBSpline){
         if(xtype_y == XBSpline){
             return (kx-offsetIx-1)*basis.second.mra.cardI(basis.second.j0)
@@ -59,7 +87,8 @@ UniformIndex2D<Basis>::operator()(XType xtype_x, int jx, int kx,
                     +  ky-offsetJy;
         }
     }
-    
+    */
+
 }
     
 } // namespace lawa
