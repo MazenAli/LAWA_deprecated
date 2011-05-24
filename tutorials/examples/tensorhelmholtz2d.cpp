@@ -42,8 +42,10 @@ typedef HelmholtzOperator2D<T, Basis2D>                             HelmholtzOp2
 typedef DiagonalMatrixPreconditioner2D<T, Basis2D, HelmholtzOp2D>   DiagonalPrec;
 ///      Right Hand Side (RHS): basic 2D class for rhs integrals of the form $\int f \cdot v$,
 ///      with $f(x,y) = f_1(x) \cdot f_2(y)$, i.e. the RHS is separable.
-typedef SeparableRHS2D<T, Basis2D>                                  RHS2D;
-typedef SumOfTwoRHSIntegrals<T, Index2D, RHS2D, RHS2D>              SumOf2RHS;
+//typedef SeparableRHS2D<T, Basis2D>                                  RHS2D;
+//typedef SumOfTwoRHSIntegrals<T, Index2D, RHS2D, RHS2D>              SumOf2RHS;
+
+typedef RHSWithPeaks1D<T, Basis1D>                                   RHS1D;
 
 /// The constant 'c' in the Helmholtz equation.
 const double c =  2.;
@@ -78,11 +80,11 @@ T ddu2(T y)
 }
 
 T f1(T x) {
-    return -0.5*c*ddu1(x) + u1(x);
+    return -ddu1(x) + 0.5*c* u1(x);
 }
 
 T f2(T y) {
-    return -0.5*c*ddu2(y) + u2(y);
+    return -ddu2(y) + 0.5*c* u2(y);
 }
 
 T sol(T x, T y)
@@ -160,7 +162,11 @@ int main (int argc, char*argv[])
     basis_x.enforceBoundaryCondition<DirichletBC>();
     basis_y.enforceBoundaryCondition<DirichletBC>();
     Basis2D basis2d(basis_x, basis_y);
+
     cout << "Cardinality of basis: " << basis2d.dim(J_x, J_y) << endl;
+
+    Timer time;
+    time.start();
 
     /// Operator initialization
     cout << "Assembly of tensor matrix started." << endl;
@@ -170,47 +176,123 @@ int main (int argc, char*argv[])
     HelmholtzOp1D  helmholtz_op_y(basis_y,0.5*c);
     TensorMatrix2D TensorA(basis2d,helmholtz_op_x,identity_op_y,
                                    identity_op_x,helmholtz_op_y,J_x,J_y);
+
+    /// Assemble A of linear system Au=f.
     cout << "Assembly of tensor matrix finished." << endl;
 
-    /// Preconditioner initialization
-    HelmholtzOp2D   helmholtz2d_op(basis2d, c);
-    DiagonalPrec    p(helmholtz2d_op);
+    /// Integral initialization for Preconditioner
+    HelmholtzOp2D   a(basis2d, c);
+    DiagonalPrec    p(a);
+    Integral<Gauss,Basis1D,Basis1D> integral_x(basis_x,basis_x);
+    Integral<Gauss,Basis1D,Basis1D> integral_y(basis_y,basis_y);
 
     /// Right Hand Side:
     ///     Singular Supports in both dimensions
     DenseVectorT sing_support_x;
     DenseVectorT sing_support_y;
-    SeparableFunction2D<T> F1(f1, sing_support_x, u2, sing_support_y);
-    SeparableFunction2D<T> F2(u1, sing_support_x, f2, sing_support_y);
-
-    ///     Peaks: points and corresponding coefficients
+    Function<T> f1Fct(f1, sing_support_x);
+    Function<T> f2Fct(f2, sing_support_y);
+    Function<T> u1Fct(u2, sing_support_x);
+    Function<T> u2Fct(u2, sing_support_y);
     ///             (heights of jumps in derivatives)
     FullColMatrixT nodeltas;
-    RHS2D rhs1(basis2d, F1, nodeltas, nodeltas, 10);
-    RHS2D rhs2(basis2d, F2, nodeltas, nodeltas, 10);
-    SumOf2RHS F(rhs1, rhs2);
+    RHS1D rhs_f1(basis_x, f1Fct, nodeltas, 10);
+    RHS1D rhs_f2(basis_y, f2Fct, nodeltas, 10);
+    RHS1D rhs_u1(basis_x, u1Fct, nodeltas, 10);
+    RHS1D rhs_u2(basis_x, u1Fct, nodeltas, 10);
 
-    /// Assemble equations system
-    Assembler2D<T, Basis2D> assembler(basis2d);
-    cout << "Assembly of rhs vector started." << endl;
-    DenseVectorT    f = assembler.assembleRHS(F, J_x, J_y);
-    cout << "Assembly of rhs vector finished." << endl;
-    cout << "Assembly of preconditioner started." << endl;
-    DiagonalMatrixT P = assembler.assemblePreconditioner(p, J_x, J_y);
-    cout << "Assembly of preconditioner finished." << endl;
+    DenseVectorT f(basis2d.dim(J_x,J_y));
+    DenseVectorT P_vec(basis2d.dim(J_x,J_y));
+
+
+    /// Assemble f of linear system Au=f and preconditioner P.
+
+    cout << "Assembly of f and P started." << endl;
+    int count=1;
+    for (int k_x=basis_x.mra.rangeI(basis_x.j0).firstIndex(); k_x<=basis_x.mra.rangeI(basis_x.j0).lastIndex(); ++k_x) {
+        T val_rhs_f1 = rhs_f1(XBSpline,basis_x.j0,k_x);
+        T val_rhs_u1 = rhs_u1(XBSpline,basis_x.j0,k_x);
+
+        T dd_x = integral_x(basis_x.j0,k_x,XBSpline,1,basis_x.j0,k_x,XBSpline,1);
+        T id_x = integral_x(basis_x.j0,k_x,XBSpline,0,basis_x.j0,k_x,XBSpline,0);
+        for (int k_y=basis_y.mra.rangeI(basis_y.j0).firstIndex(); k_y<=basis_y.mra.rangeI(basis_y.j0).lastIndex(); ++k_y) {
+            T val_rhs_f2 = rhs_f2(XBSpline,basis_y.j0,k_y);
+            T val_rhs_u2 = rhs_u2(XBSpline,basis_y.j0,k_y);
+
+            T dd_y = integral_y(basis_y.j0,k_y,XBSpline,1,basis_y.j0,k_y,XBSpline,1);
+            T id_y = integral_y(basis_y.j0,k_y,XBSpline,0,basis_y.j0,k_y,XBSpline,0);
+
+            f(count) = val_rhs_f1*val_rhs_u2 + val_rhs_u1*val_rhs_f2;
+            P_vec(count) = 1./(std::sqrt(dd_x*id_y + id_x*dd_y + id_x*id_y));
+            ++count;
+        }
+        for (int j_y=basis_y.j0; j_y<J_y; ++j_y) {
+            for (int k_y=basis_y.rangeJ(j_y).firstIndex(); k_y<=basis_y.rangeJ(j_y).lastIndex(); ++k_y) {
+                T val_rhs_f2 = rhs_f2(XWavelet,j_y,k_y);
+                T val_rhs_u2 = rhs_u2(XWavelet,j_y,k_y);
+
+                T dd_y = integral_y(j_y,k_y,XWavelet,1,j_y,k_y,XWavelet,1);
+                T id_y = integral_y(j_y,k_y,XWavelet,0,j_y,k_y,XWavelet,0);
+
+                f(count) = val_rhs_f1*val_rhs_u2 + val_rhs_u1*val_rhs_f2;
+                P_vec(count) = 1./(std::sqrt(dd_x*id_y + id_x*dd_y + id_x*id_y));
+                ++count;
+            }
+        }
+    }
+    for (int j_x=basis_x.j0; j_x<J_x; ++j_x) {
+        for (int k_x=basis_x.rangeJ(j_x).firstIndex(); k_x<=basis_x.rangeJ(j_x).lastIndex(); ++k_x) {
+            T val_rhs_f1 = rhs_f1(XWavelet,j_x,k_x);
+            T val_rhs_u1 = rhs_u1(XWavelet,j_x,k_x);
+
+            T dd_x = integral_x(j_x,k_x,XWavelet,1,j_x,k_x,XWavelet,1);
+            T id_x = integral_x(j_x,k_x,XWavelet,0,j_x,k_x,XWavelet,0);
+            for (int k_y=basis_y.mra.rangeI(basis_y.j0).firstIndex(); k_y<=basis_y.mra.rangeI(basis_y.j0).lastIndex(); ++k_y) {
+                T val_rhs_f2 = rhs_f2(XBSpline,basis_y.j0,k_y);
+                T val_rhs_u2 = rhs_u2(XBSpline,basis_y.j0,k_y);
+
+                T dd_y = integral_y(basis_y.j0,k_y,XBSpline,1,basis_y.j0,k_y,XBSpline,1);
+                T id_y = integral_y(basis_y.j0,k_y,XBSpline,0,basis_y.j0,k_y,XBSpline,0);
+
+                f(count) = val_rhs_f1*val_rhs_u2 + val_rhs_u1*val_rhs_f2;
+                P_vec(count) = 1./(std::sqrt(dd_x*id_y + id_x*dd_y + id_x*id_y));
+                ++count;
+            }
+            for (int j_y=basis_y.j0; j_y<J_y; ++j_y) {
+                for (int k_y=basis_y.rangeJ(j_y).firstIndex(); k_y<=basis_y.rangeJ(j_y).lastIndex(); ++k_y) {
+                    T val_rhs_f2 = rhs_f2(XWavelet,j_y,k_y);
+                    T val_rhs_u2 = rhs_u2(XWavelet,j_y,k_y);
+
+                    T dd_y = integral_y(j_y,k_y,XWavelet,1,j_y,k_y,XWavelet,1);
+                    T id_y = integral_y(j_y,k_y,XWavelet,0,j_y,k_y,XWavelet,0);
+
+                    f(count) = val_rhs_f1*val_rhs_u2 + val_rhs_u1*val_rhs_f2;
+                    P_vec(count) = 1./(std::sqrt(dd_x*id_y + id_x*dd_y + id_x*id_y));
+                    ++count;
+                }
+            }
+        }
+    }
+    DiagonalMatrixT P(P_vec);
+    cout << "Assembly of f and P finished." << endl;
+
 
     /// Solve system
     DenseVectorT u(basis2d.dim(J_x, J_y));
     cout << "Preconditioned cg solver started." << endl;
     int iterations = pcg(P, TensorA, u, f);
 
+    time.stop();
+
     cout << "Preconditioned cg solver finished after " << iterations << " pcg iterations." << endl;
 
     /// Generate output for gnuplot visualization
     cout << "Post processing started." << endl;
-    DenseVectorT error = printUandCalcError(u, basis2d, J_x, J_y, "u_helmholtz_pi.txt");
-    cout << "Post processing finished, L2-error: " << error(1)
-         << ", H1-error: " << error(2) << endl;
+    DenseVectorT error(2);
+    //= printUandCalcError(u, basis2d, J_x, J_y, "u_helmholtz_pi.txt");
+    cout << "Post processing finished (N,L2-error,H1-error,time): " << std::min(J_x-j0_x,J_y-j0_y)
+         << " " << basis2d.dim(J_x,J_y) << " " << error(1) << " " << error(2)
+         << " "<< time.elapsed() << endl;
 
     return 0;
 }
