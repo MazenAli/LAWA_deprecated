@@ -363,7 +363,9 @@ plotScatterCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis
         double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
         double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
-        data << x << " " << y << " " << (*it).second << std::endl;
+        if(fabs((*it).first) > 0){
+          data << x << " " << y << " " << (*it).second << std::endl;
+        }
     }
     data.close();
 
@@ -389,7 +391,9 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
         double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
         double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
-        data << x << " " << y << " " << (*it).second << std::endl;
+        if(fabs((*it).second) > 0){
+          data << x << " " << y << " " << (*it).second << std::endl;
+        }
     }
     data.close();
 
