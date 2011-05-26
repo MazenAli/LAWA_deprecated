@@ -63,22 +63,44 @@ template <typename T, typename TruthModel>
 void
 RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
 {
-	CoeffVector new_bf = sol;
+	  std::cout << "Adding basis function .... " << std::endl;
     
+    CoeffVector new_bf = sol;
+    Timer timer;
+    
+    std::cout << " Gram-Schmidt...  " << std::endl;
     typename std::vector<CoeffVector>::iterator it;
+    timer.start();
     for (it = rb_basis_functions.begin(); it != rb_basis_functions.end(); ++it) {
         new_bf = new_bf - (*it) * inner_product((*it), sol); 
     }
     new_bf.scale(1./std::sqrt(inner_product(new_bf, new_bf)));
-    
     rb_basis_functions.push_back(new_bf);
+    timer.stop();
+    std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
     
+
+    timer.start();
+    std::cout << "Updating RB Matrices ..." << std::endl;
     update_RB_A_matrices();
     update_RB_F_vectors();
     update_RB_inner_product();
+    timer.stop();
+    std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
     
+    std::cout << "Updating Representors ..." << std::endl;
+    timer.start();
     truth->update_representors();
+    timer.stop();
+    std::cout << "... done updating representors: " << timer.elapsed() << " seconds" << std::endl;
+    
+    std::cout << "Calculating Representor norms ..." << std::endl;
+    timer.start();
     truth->calculate_representor_norms(); // Funktion kann eigetnlich hierher verschoben werden
+    timer.stop();
+    std::cout << "... done calculating representor norms: " << timer.elapsed() << " seconds" << std::endl;
+    
+    std::cout << ".... done adding basis function" << std::endl;
 }
 
 template <typename T, typename TruthModel>
@@ -240,15 +262,31 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
     int N = 0;
     do {
         std::cout << " ================================================= " << std::endl << std::endl;
-        std::cout << "Adding Snapshot at mu = " << get_current_param()[0] << std::endl;
+        std::cout << "Adding Snapshot at mu = " << get_current_param()[0] << std::endl << std::endl;
         error_file << N+1 << " " << get_current_param()[0];
         
         CoeffVector u = truth->solver->truth_solve();
         add_to_basis(u);
         N++;
         
+        // Scatterplot
+        std::cout << "Plotting Scatterplot Truth .... " << std::endl;
+        std::stringstream s;
+        s << "truth_" << N;
+        saveCoeffVector2D(u, truth->basis, s.str().c_str());
+        std::cout << ".... finished " << std::endl;
+        
+        // Scatterplot
+        std::cout << "Plotting Scatterplot BasisFunction .... " << std::endl;
+        std::stringstream s_bf;
+        s_bf << "bf_" << N;
+        saveCoeffVector2D(rb_basis_functions[N-1], truth->basis, s_bf.str().c_str());
+        std::cout << ".... finished " << std::endl;
+
+        
         maxerr = 0;
         int next_Mu = 0;
+        std::cout << "Start Greedy search for new parameter " << std::endl;
         for (unsigned int n = 0; n < Xi_train.size(); ++n) {
             
             set_current_param(Xi_train[n]);
@@ -396,6 +434,12 @@ RBModel2D<T, TruthModel>::inner_product(const CoeffVector& v1, const CoeffVector
         }
     }
     return val;
+  
+
+/*    CoeffVector Xv = mv_sparse(supp(v2), *inner_product_op, v2);
+    T vXv = v1 * Xv;
+    return vXv;
+*/
 }
 
 template <typename T, typename TruthModel>

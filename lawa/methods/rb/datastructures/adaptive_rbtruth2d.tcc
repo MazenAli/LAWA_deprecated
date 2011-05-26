@@ -1,3 +1,5 @@
+#include <lawa/methods/rb/postprocessing/plotting.h>
+
 namespace  lawa {
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
@@ -47,6 +49,7 @@ template <typename T, typename Basis, typename TruthSolver, typename Compression
 void
 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
 {
+    Timer timer;
     int N = rb->n_bf();
     if(N == 1) {
         F_representors.resize(rb->Q_f());
@@ -54,6 +57,16 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
             repr_rhs_F_op.set_current_op(*F_operators[i]);
             std::cout<< std::endl << " ==== Solving for Riesz Representor of F_" << i+1 << " =====" << std::endl<< std::endl;
             CoeffVector c = solver->repr_solve_F();
+            
+            // Scatterplot
+            std::cout << "Plotting Representor F_"<< i+1 << " .... " << std::endl;
+            std::stringstream s;
+            s << "F_Representor_" << i+1;
+            timer.start();
+            saveCoeffVector2D(c, basis, s.str().c_str());
+            timer.stop();
+            std::cout << ".... finished: " << timer.elapsed() << " seconds" << std::endl;
+            
             F_representors[i] = c;
         } 
     }
@@ -68,28 +81,52 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
          
         CoeffVector c = solver->repr_solve_A();        
         
+        // Scatterplot
+        std::cout << "Plotting Representor A_"<< i+1 << " .... " << std::endl;
+        std::stringstream s;
+        s << "A_Representor_" << i+1 << "_" << N;
+        timer.start();
+        saveCoeffVector2D(c, basis, s.str().c_str());
+        timer.stop();
+        std::cout << ".... finished: " << timer.elapsed() << " seconds" << std::endl;
+            
         A_representors[N-1][i] = c;
     }
+    
+    std::cout << "Representors updated" << std::endl;
 }
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
 void
 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::calculate_representor_norms()
 {
+  std::cout << "Calculating Representor Norms .... " << std::endl;
+  Timer timer;
+   // Coefficients<Lexicographical,T,Index> X_F_or_A;
     int N = rb->n_bf();
-    
+    std::cout << "... F x F .... " << std::endl;
      // F_F representor norms 
      int Qf = rb->Q_f();
      rb->F_F_representor_norms.engine().resize(Qf, Qf);
+     
      for(int qf1 = 1; qf1 <= Qf; ++qf1) {
          for (int qf2 = qf1; qf2 <= Qf; ++qf2) {
+             std::cout << ".... F_" << qf1 << " ,  F_" << qf2 << std::endl;
+             //X_F_or_A = mv_sparse(supp(F_representors[qf2-1]),rb->inner_product,F_representors[qf2-1]);
+             //F_F_representor_norms(qf1,qf2) = F_representors[qf1-1]*X_F_or_A;
+             
+             timer.start();
              rb->F_F_representor_norms(qf1,qf2) = rb->inner_product(F_representors[qf1-1], F_representors[qf2-1]);
+             timer.stop();
+             std::cout << " .... " << timer.elapsed() << " seconds" << std::endl;
+             
              if(qf1 != qf2) {
                  rb->F_F_representor_norms(qf2,qf1) = rb->F_F_representor_norms(qf1,qf2);
              }
          }
      }   
-     
+ 
+     std::cout << "...  A x A .... " << std::endl;    
     // A_A representor norms 
     int Qa = rb->Q_a();
     rb->A_A_representor_norms.resize(N);
@@ -99,9 +136,14 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::calculate_representor_nor
             rb->A_A_representor_norms[n1].push_back(A_n1_n2);
             for(int qa1 = 1; qa1 <= Qa; ++qa1) {
                 for(int qa2 = qa1; qa2 <= Qa; ++qa2) {
+                  std::cout << ".... A_" << qa1 <<"(" << n1 << "), A_" << qa2 <<"(" << n2 <<  std::endl;
+                  
+                    timer.start();
                     rb->A_A_representor_norms[n1][n2](qa1,qa2) 
                         = rb->inner_product(A_representors[n1][qa1-1], A_representors[n2][qa2-1]);
-            
+                    timer.stop();
+                    std::cout << " .... " << timer.elapsed() << " seconds" << std::endl;
+                      
                     if(qa1 != qa2) {
                         rb->A_A_representor_norms[n1][n2](qa2, qa1) = rb->A_A_representor_norms[n1][n2](qa1,qa2);
                     }
@@ -110,16 +152,24 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::calculate_representor_nor
         }
     }
 
+    std::cout << "... A x F .... " << std::endl;
     // A_F representor norms 
     for(int n = 0; n < N; ++n) {
         flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_F(Qa, Qf);
         rb->A_F_representor_norms.push_back(A_F);
         for(int qa = 1; qa <= Qa; ++qa) {
             for(int qf = 1; qf <= Qf; ++qf) {
+                std::cout << "....A_" << qa <<"(" << n << "), F_" << qf << std::endl;
+                timer.start();
                 rb->A_F_representor_norms[n](qa, qf) = rb->inner_product(A_representors[n][qa-1], F_representors[qf-1]);
+                timer.stop();
+                std::cout << " .... " << timer.elapsed() << " seconds" << std::endl;
+                
             }
         }
     }
+    std::cout << ".... done " << std::endl;
+    
 }
 
 // ================================================================================================================ //

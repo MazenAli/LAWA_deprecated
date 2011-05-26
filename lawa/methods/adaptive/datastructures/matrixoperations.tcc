@@ -175,11 +175,18 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
     typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
+    Timer timer;
     int N = Lambda.size();
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
+    std::cout << "Build Flens Sparse Matrix ... " << std::endl;
+    timer.start();
     toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
+    timer.stop();
+    std::cout << ".... done: " << timer.elapsed() << " seconds"<< std::endl;
 
     if (Lambda.size() > 0) {
+      std::cout << "Build Dense Vectors ..." << std::endl;
+      timer.start();
         DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
         int row_count=1;
         const_coeff_it f_end = f.end();
@@ -193,7 +200,13 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
             else               x(row_count) = 0.;
 
         }
+      timer.stop();
+      std::cout << "... done : " << timer.elapsed() << " seconds " << std::endl;  
+        std::cout << " Start cg ... " << std::endl;
+      timer.start();
         int number_of_iterations = lawa::cg(A_flens,x,rhs, tol, maxIterations);
+      timer.stop();
+      std::cout << "... done : " << timer.elapsed() << " seconds " << std::endl;
         Ax = A_flens*x;
         res= Ax-rhs;
         residual = std::sqrt(res*res);
