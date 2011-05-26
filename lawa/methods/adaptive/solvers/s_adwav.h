@@ -33,7 +33,7 @@ class S_ADWAV {
     public:
         S_ADWAV(const Basis &basis, MA &A, RHS &F, T contraction, T start_threshTol,
                 T _linTol=1e-6, T _resTol=1e-4, int _NumOfIterations=10, int _MaxItsPerThreshTol=5,
-                T eps=1e-2, int MaxSizeLambda = 400);
+                T _eps=1e-2, int _MaxSizeLambda = 400, T _resStopTol=0.1);
 
         //solver for symmetric elliptic problems
         void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
@@ -46,10 +46,12 @@ class S_ADWAV {
         
         void
         set_parameters(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
-                      int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, int MaxSizeLambda = 400);
+                      int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
+                      int _MaxSizeLambda = 400, T _resStopTol=0.1);
         void
         get_parameters(T& _contraction, T& _threshTol, T& _linTol, T& _resTol, 
-                       int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps, int& _MaxSizeLambda);
+                       int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps, 
+                       int& _MaxSizeLambda, T& _resStopTol=0.1);
     
         std::vector<Coefficients<Lexicographical,T,Index> > solutions;
         std::vector<T>               residuals;
@@ -67,6 +69,7 @@ class S_ADWAV {
         int MaxItsPerThreshTol;
         T eps;
         int MaxSizeLambda;
+        T resStopTol;
         
 
 };

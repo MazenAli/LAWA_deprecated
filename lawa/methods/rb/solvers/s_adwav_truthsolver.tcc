@@ -11,7 +11,7 @@ S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, Truth& _truth,
 {    
     s_adwav.get_parameters(params.contraction, params.threshTol, params.linTol, 
                            params.resTol, params.NumOfIts, params.MaxItsPerThreshTol, 
-                           params.eps, params.MaxSizeLambda);
+                           params.eps, params.MaxSizeLambda, params.resStopTol);
 }
 
 template <typename T, typename Basis, typename Index, typename Compression>
@@ -145,7 +145,7 @@ S_ADWAV_TruthSolver<T, Basis, Index, Compression>::reset_s_adwav()
 {   
     s_adwav.set_parameters(params.contraction, params.threshTol, params.linTol, 
                            params.resTol, params.NumOfIts, params.MaxItsPerThreshTol, 
-                           params.eps, params.MaxSizeLambda);
+                           params.eps, params.MaxSizeLambda, params.resStopTol);
 }
 
 template <typename T, typename Basis, typename Index, typename Compression>
@@ -154,7 +154,7 @@ S_ADWAV_TruthSolver<T, Basis, Index, Compression>::reset_repr_s_adwav_F()
 {
     repr_s_adwav_F.set_parameters(params_repr_F.contraction, params_repr_F.threshTol, params_repr_F.linTol, 
                            params_repr_F.resTol, params_repr_F.NumOfIts, params_repr_F.MaxItsPerThreshTol, 
-                           params_repr_F.eps, params_repr_F.MaxSizeLambda);
+                           params_repr_F.eps, params_repr_F.MaxSizeLambda, params_repr_F.resStopTol);
 }
 
 template <typename T, typename Basis, typename Index, typename Compression>
@@ -163,14 +163,14 @@ S_ADWAV_TruthSolver<T, Basis, Index, Compression>::reset_repr_s_adwav_A()
 {
     repr_s_adwav_A.set_parameters(params_repr_A.contraction, params_repr_A.threshTol, params_repr_A.linTol, 
                            params_repr_A.resTol, params_repr_A.NumOfIts, params_repr_A.MaxItsPerThreshTol, 
-                           params_repr_A.eps, params_repr_A.MaxSizeLambda);
+                           params_repr_A.eps, params_repr_A.MaxSizeLambda, params_repr_A.resStopTol);
 }
 
 
 template <typename T, typename Basis, typename Index, typename Compression>
 void
 S_ADWAV_TruthSolver<T, Basis, Index, Compression>::set_parameters(T _contraction, T _threshTol, T _linTol, T _resTol, 
-              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda)
+              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
 {
     params.contraction = _contraction;
     params.threshTol = _threshTol;
@@ -180,16 +180,17 @@ S_ADWAV_TruthSolver<T, Basis, Index, Compression>::set_parameters(T _contraction
     params.MaxItsPerThreshTol = _MaxItsPerThreshTol;
     params.eps = _eps;
     params.MaxSizeLambda = _MaxSizeLambda;
+    params.resStopTol = _resStopTol;
     s_adwav.set_parameters(params.contraction, params.threshTol, params.linTol, 
                            params.resTol, params.NumOfIts, params.MaxItsPerThreshTol, 
-                           params.eps, params.MaxSizeLambda);
+                           params.eps, params.MaxSizeLambda, params.resStopTol);
     
 }
 
 template <typename T, typename Basis, typename Index, typename Compression>
 void
 S_ADWAV_TruthSolver<T, Basis, Index, Compression>::set_parameters_repr_F(T _contraction, T _threshTol, T _linTol, T _resTol, 
-              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda)
+              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
 {
     params_repr_F.contraction = _contraction;
     params_repr_F.threshTol = _threshTol;
@@ -199,16 +200,18 @@ S_ADWAV_TruthSolver<T, Basis, Index, Compression>::set_parameters_repr_F(T _cont
     params_repr_F.MaxItsPerThreshTol = _MaxItsPerThreshTol;
     params_repr_F.eps = _eps;
     params_repr_F.MaxSizeLambda = _MaxSizeLambda;
+    params_repr_F.resStopTol = _resStopTol;
+    
     repr_s_adwav_F.set_parameters(params_repr_F.contraction, params_repr_F.threshTol, params_repr_F.linTol, 
                            params_repr_F.resTol, params_repr_F.NumOfIts, params_repr_F.MaxItsPerThreshTol, 
-                           params_repr_F.eps, params_repr_F.MaxSizeLambda);
+                           params_repr_F.eps, params_repr_F.MaxSizeLambda, params_repr_F.resStopTol);
     
 }
 
 template <typename T, typename Basis, typename Index, typename Compression>
 void
 S_ADWAV_TruthSolver<T, Basis, Index, Compression>::set_parameters_repr_A(T _contraction, T _threshTol, T _linTol, T _resTol, 
-              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda)
+              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
 {
     params_repr_A.contraction = _contraction;
     params_repr_A.threshTol = _threshTol;
@@ -218,9 +221,11 @@ S_ADWAV_TruthSolver<T, Basis, Index, Compression>::set_parameters_repr_A(T _cont
     params_repr_A.MaxItsPerThreshTol = _MaxItsPerThreshTol;
     params_repr_A.eps = _eps;
     params_repr_A.MaxSizeLambda = _MaxSizeLambda;
+    params_repr_A.resStopTol = _resStopTol;
+    
     repr_s_adwav_A.set_parameters(params_repr_A.contraction, params_repr_A.threshTol, params_repr_A.linTol, 
                            params_repr_A.resTol, params_repr_A.NumOfIts, params_repr_A.MaxItsPerThreshTol, 
-                           params_repr_A.eps, params_repr_F.MaxSizeLambda);
+                           params_repr_A.eps, params_repr_A.MaxSizeLambda, params_repr_A.resStopTol);
     
 }
      
