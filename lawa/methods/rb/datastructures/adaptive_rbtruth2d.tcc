@@ -29,6 +29,13 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_A_q(theta_fctptr t
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
 void
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_A_q(Operator2D<T>& A_q)
+{
+    A_operators.push_back(&A_q);
+}
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+void
 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, Index2D>& F_q)
 {
     rb->theta_f.push_back(theta_f_q);
@@ -51,6 +58,13 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_F_q(theta_fctptr t
       F_operator_vectors.push_back(F_q_vector);
       std::cout << ".... done: " << timer.elapsed() << " seconds" << std::endl;
     }*/
+}
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_F_q(AdaptiveRhs<T, Index2D>& F_q)
+{
+    F_operators.push_back(&F_q);
 }
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>

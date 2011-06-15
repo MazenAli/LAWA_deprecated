@@ -57,7 +57,13 @@ class AdaptiveRBTruth2D{
         attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
         
         void
+        attach_A_q(Operator2D<T>& A_q);
+        
+        void
         attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, Index2D>& F_q);
+        
+        void
+        attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
         
         void
         set_truthsolver(TruthSolver& _truthsolver);

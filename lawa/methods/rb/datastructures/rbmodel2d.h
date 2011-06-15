@@ -67,6 +67,12 @@ class RBModel2D {
 
         unsigned int
         n_bf();
+        
+        void
+        attach_theta_a_q(theta_fctptr theta_a_q);
+        
+        void
+        attach_theta_f_q(theta_fctptr theta_f_q);
 
         void 
         attach_inner_product_op(Operator2D<T>& _inner_product_op);

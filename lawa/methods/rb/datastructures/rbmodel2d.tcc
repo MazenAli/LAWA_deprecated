@@ -46,6 +46,19 @@ RBModel2D<T, TruthModel>::n_bf()
 {
   return rb_basis_functions.size();  
 }
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::attach_theta_a_q(theta_fctptr theta_a_q)
+{
+  theta_a.push_back(theta_a_q);
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::attach_theta_f_q(theta_fctptr theta_f_q)
+{
+  theta_f.push_back(theta_f_q);
 }
 
 template <typename T, typename TruthModel>
