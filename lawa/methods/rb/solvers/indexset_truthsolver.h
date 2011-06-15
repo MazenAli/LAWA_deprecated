@@ -26,7 +26,7 @@ class IndexsetTruthSolver {
   typedef typename Truth::Operator_RHS_FunctionalRepresentor           RHS_FctRepr;
   
 public:
-  IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod, T _tol = 1e-6, int maxIts = 1000);
+  IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod, T _tol = std::numeric_limits<T>::epsilon(), int maxIts = 1000);
   
   void 
   set_model(Truth& _truth_model);
@@ -39,10 +39,10 @@ public:
   
   Coefficients<Lexicographical,T,Index>
   repr_solve_A();
+    
+  IndexSet<Index>& basis_set;
   
 private:
-  
-  IndexSet<Index>& basis_set;
   
   // Pointer to adaptive truth model
   Truth* truth_model;
