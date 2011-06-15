@@ -752,27 +752,31 @@ RBModel2D<T, TruthModel>::residual_dual_norm(const DenseVectorT& u_RB, const std
     DenseVectorT ThetaF(Qf);
     DenseVectorT ThetaA(Qa);
     for (int i = 1; i <= Qf; ++i) {
-        ThetaF(i) = (*theta_f[i-1])(get_current_param()); 
+        ThetaF(i) = (*theta_f[i-1])(mu); 
     }
     for (int i = 1; i <= Qa; ++i) {
-        ThetaA(i) =(*theta_a[i-1])(get_current_param()); 
+        ThetaA(i) =(*theta_a[i-1])(mu); 
     }
 
     DenseVectorT FF_T = F_F_representor_norms * ThetaF;
     
     res_dual_norm = ThetaF * FF_T;
         
-    int N = n_bf();
+    int N = u_RB.length();
     DenseVectorT T_AF_T(N);
     FullColMatrixT T_AA_T(N,N);
     for (int n1 = 1; n1 <= N; ++n1) {
         DenseVectorT AF_T = A_F_representor_norms[n1-1] * ThetaF;
         T_AF_T(n1) = ThetaA * AF_T;
-        for(int n2 = 1; n2 <= N; ++n2) {
-            DenseVectorT AA_T = A_A_representor_norms[n1-1][n2-1] * ThetaA;
+        for(int n2 = n1; n2 <= N; ++n2) {
+            DenseVectorT AA_T = A_A_representor_norms[n1-1][n2-n1] * ThetaA;
+            DenseVectorT T_AA = transpose(A_A_representor_norms[n1-1][n2-n1]) * ThetaA;
             T_AA_T(n1, n2) = ThetaA * AA_T;
+            T_AA_T(n2, n1) = ThetaA * T_AA;
         }
     }
+    std::cout << "T_AF_T = " << T_AF_T << std::endl;
+    std::cout << "T_AA_T = " << T_AA_T << std::endl;
     
     //std::cout << " Residual Dual Norm: size(u) = " << u_RB.length() << ", size(T_AF_T) = " << T_AF_T.length() << std::endl;
     res_dual_norm += 2 * u_RB * T_AF_T;    
