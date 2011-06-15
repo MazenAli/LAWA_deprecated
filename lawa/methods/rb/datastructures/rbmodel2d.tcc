@@ -775,8 +775,6 @@ RBModel2D<T, TruthModel>::residual_dual_norm(const DenseVectorT& u_RB, const std
             T_AA_T(n2, n1) = ThetaA * T_AA;
         }
     }
-    std::cout << "T_AF_T = " << T_AF_T << std::endl;
-    std::cout << "T_AA_T = " << T_AA_T << std::endl;
     
     //std::cout << " Residual Dual Norm: size(u) = " << u_RB.length() << ", size(T_AF_T) = " << T_AF_T.length() << std::endl;
     res_dual_norm += 2 * u_RB * T_AF_T;    
