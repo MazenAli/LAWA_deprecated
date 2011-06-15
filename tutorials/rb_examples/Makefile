@@ -1,20 +1,15 @@
-include $(LAWA_HOME)/Makefile.common
+SUBDIRS := adaptive indexset-based uniform
 
-SOURCEFILES  = $(wildcard *.cpp)
-TARGETS      = $(patsubst %.cpp,%,$(SOURCEFILES))
-
-LDFLAGS += -L$(LAWA_HOME) -llawa -lextensionsflens -lextensionssparsegrid
-EX_LDFLAGS += -bind_at_load
-
-ifdef GMP_HOME
-  CXXFLAGS += -DMPFR -I$(MPFR_HOME)/include
-  LDFLAGS += -L$(MPFR_HOME)/lib -lgmpxx -lgmp
-endif
-
-all: $(TARGETS) 
+all:
+	$(SILENT) for i in $(SUBDIRS); \
+		do echo ""; echo "processing dir $$i"; \
+		$(MAKE) -C $$i all; \
+	done;
 
 clean:
-	$(RM) *.o
-	$(RMDIR) *.dSYM
-	$(RM) $(TARGETS)
-    
+	$(SILENT) for i in $(SUBDIRS) ; \
+		do echo ""; echo "processing dir $$i"; \
+		$(MAKE) -C $$i clean; \
+	done;
+	
+# DO NOT DELETE

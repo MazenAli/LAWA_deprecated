@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <lawa/lawa.h>
+#include <lawa/methods/rb/postprocessing/plotting.h>
 
 using namespace std;
 using namespace lawa;
@@ -25,21 +26,20 @@ typedef WeightedHelmholtzOperator2D<T, Basis2D>                            Weigh
 typedef H1NormPreconditioner2D<T, Basis2D>                                DiagPrec2D;
 typedef WeightedAdaptiveHelmholtzOperator2D<T, Basis2D, DiagPrec2D>        WeightedAdaptHHOp2D;
 typedef AdaptiveHelmholtzOperator2D<T, Basis2D, DiagPrec2D>                AdaptHHOp2D;
-typedef RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, DiagPrec2D>          AdaptRHS;
+typedef RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, DiagPrec2D>             AdaptRHS;
 
 // Algorithm Definition
     // Class for calling the truth solver for snapshot calculations
-typedef S_ADWAV_TruthSolver<T, Basis2D, Index2D>                                    S_AdwavSolver;
+typedef CompressionWeightedPDE2D<T, Basis2D>                              Compression;
+typedef IndexsetTruthSolver<T, Basis2D, Index2D, Compression>             IndexsetSolver;
     // Class containing all \calN-dependent data and functions
-typedef AdaptiveRBTruth2D<T, Basis2D, S_AdwavSolver>                                RBTruth;
+typedef AdaptiveRBTruth2D<T, Basis2D, IndexsetSolver, Compression>        RBTruth;
     // Class containing only N-dependent data and functions
-typedef RBModel2D<T, RBTruth>                                                        RBModel;
-    // The actual S_adwav solver, used as truth solver
-typedef S_ADWAV<T, Index2D, Basis2D, RBTruth::Operator_LHS, RBTruth::Operator_RHS>    S_Adwav;
+typedef RBModel2D<T, RBTruth>                                             RBModel;
 
 // Data type definitions
-typedef Coefficients<Lexicographical,T,Index2D>                        Coeffs;
-typedef flens::DenseVector<flens::Array<T> >                         DenseVectorT;
+typedef Coefficients<Lexicographical,T,Index2D>                       Coeffs;
+typedef flens::DenseVector<flens::Array<T> >                          DenseVectorT;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    FullColMatrixT;
 
 
@@ -72,13 +72,13 @@ weight_Omega_y(T y)
 }
 
 T
-theta_a_1(std::vector<T>& mu)
+theta_a_1(const std::vector<T>& mu)
 {
     return mu[0];
 }
 
 T
-theta_a_2(std::vector<T>&)
+theta_a_2(const std::vector<T>&)
 {
     return 1;
 }
@@ -96,7 +96,7 @@ weight_Forcing_y(T y)
 }
 
 T
-theta_f_1(std::vector<T>&)
+theta_f_1(const std::vector<T>&)
 {
     return 1.;
 }
@@ -111,8 +111,8 @@ int main(int argc, char* argv[]) {
 
     /* PARAMETERS: */
 
-    if (argc != 7) {
-        cerr << "Usage " << argv[0] << " d d_ j0_x j0_y max_its mu1" << endl; 
+    if (argc != 6) {
+        cerr << "Usage " << argv[0] << " d d_ j0_x j0_y max_its" << endl; 
         exit(1);
     }
 
@@ -121,7 +121,6 @@ int main(int argc, char* argv[]) {
     int j0_x    = atoi(argv[3]);
     int j0_y    = atoi(argv[4]);
     int numIts  = atoi(argv[5]);
-    T     mu1        = atof(argv[6]);
     
     /* Basis Initialization */
     IntervalBasis   basis_x(d, d_, j0_x);
@@ -134,8 +133,8 @@ int main(int argc, char* argv[]) {
     /* Model Initialization */
     RBModel rb_model;
     
-        // Attach an inner product (here: scalar product in L2)
-    AdaptHHOp2D h1norm(basis2d, 0., prec);
+        // Attach an inner product (here: H1 semi norm)
+    AdaptHHOp2D h1norm(basis2d, 1., prec, 1e-10);
     rb_model.attach_inner_product_op(h1norm);
     
         // We need a truth model, as we want to do truth solves
@@ -143,12 +142,10 @@ int main(int argc, char* argv[]) {
     rb_model.set_truthmodel(rb_truth);
     
         // Parameter vector
-    std::vector<T> mu(1);
-    mu[0] = mu1;
-    rb_model.set_current_param(mu);
     std::vector<T> refmu(1);
     refmu[0] = 1.;
     rb_model.set_ref_param(refmu);
+    rb_model.set_current_param(refmu);
   
     /* Affine Decomposition Left Hand Side */
     DenseVectorT singpts_x(3), singpts_y(2);
@@ -158,14 +155,13 @@ int main(int argc, char* argv[]) {
     Function<T>         w_x_2(weight_Omega_x_2, singpts_x);
     Function<T>         w_y(weight_Omega_y, singpts_y);
         
-    WeightedAdaptHHOp2D hh_1(basis2d, 0, w_x_1, w_y, prec);
-    WeightedAdaptHHOp2D hh_2(basis2d, 0, w_x_2, w_y, prec);
+    WeightedAdaptHHOp2D hh_1(basis2d, 0, w_x_1, w_y, prec, 1e-10);
+    WeightedAdaptHHOp2D hh_2(basis2d, 0, w_x_2, w_y, prec, 1e-10);
     
     rb_model.truth->attach_A_q(theta_a_1, hh_1);
     rb_model.truth->attach_A_q(theta_a_2, hh_2);
 
     cout << "Q_a = " << rb_model.Q_a() << endl;
-    cout << "Theta_a_1(mu) = " << (*rb_model.theta_a[0])(mu) << std::endl;
 
     /* Affine Decomposition Right Hand Side */
     DenseVectorT singpts_f_x(4), singpts_f_y(4);
@@ -180,20 +176,18 @@ int main(int argc, char* argv[]) {
     
     cout << "Q_f = " << rb_model.Q_f() << endl;
     
-    /* Truth Solver: S_Adwav */
+    /* Truth Solver: on fixed indexset */
+    IndexSet<Index2D> basisset;
     
-    T contraction   = 0.125;
-    T threshTol     = 0.1;
-    T cgTol         = 1e-6;
-    T resTol        = 1e-4;
-    int MaxItsPerTol = 3;
-    
+    stringstream filename;
+    filename << "IndexSet.dat";
+    readIndexSet2D<T>(basisset, filename.str().c_str(), true);      
+    std::cout << "Read file " << filename.str() << std::endl;
+    std::cout << "Basis Set: " << basisset.size() << " functions" << std::endl;
+
     SolverCall call = call_cg;
-    S_AdwavSolver s_adwav_solver(rb_truth, call);
-    s_adwav_solver.set_parameters(contraction, threshTol, cgTol, resTol, numIts, MaxItsPerTol);
-    s_adwav_solver.set_parameters_repr_F(contraction, threshTol, cgTol, resTol, 22, MaxItsPerTol);
-    s_adwav_solver.set_parameters_repr_A(contraction, threshTol, cgTol, resTol, 18, MaxItsPerTol);
-    rb_truth.set_truthsolver(s_adwav_solver);
+    IndexsetSolver indexset_solver(basisset, rb_truth, call);
+    rb_truth.set_truthsolver(indexset_solver);
     
     /* Training */
     std::vector<T> min_param, max_param;
@@ -206,14 +200,17 @@ int main(int argc, char* argv[]) {
     rb_model.generate_uniform_trainingset(n_train);
     
     for(unsigned int i = 0; i < rb_model.Xi_train.size(); ++i) {
-        for(unsigned int d = 0; d < rb_model.Xi_train[i].size(); ++d) {
-            cout << rb_model.Xi_train[i][d] << endl;
-        }
+      for(unsigned int d = 0; d < rb_model.Xi_train[i].size(); ++d) {
+          cout << rb_model.Xi_train[i][d] << endl;
+      }
     }
     
-    T tol = 1e-6;
+    T tol = 1e-10;
     int Nmax = 7;
     rb_model.train_Greedy(min_param, tol, Nmax);
-
+    rb_model.write_RB_data();
+    rb_model.write_basis_functions();
+    rb_model.truth->write_riesz_representors();
+    
     return 0;
 }

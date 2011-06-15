@@ -29,11 +29,12 @@ typedef RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, DiagPrec2D>          AdaptRHS
 
 // Algorithm Definition
     // Class for calling the truth solver for snapshot calculations
-typedef S_ADWAV_TruthSolver<T, Basis2D, Index2D>                                    S_AdwavSolver;
-    // Class containing all \calN-dependent data and functions
-typedef AdaptiveRBTruth2D<T, Basis2D, S_AdwavSolver>                                RBTruth;
+typedef CompressionWeightedPDE2D<T, Basis2D>                              Compression;
+typedef S_ADWAV_TruthSolver<T, Basis2D, Index2D, Compression>             S_AdwavSolver;
+// Class containing all \calN-dependent data and functions
+typedef AdaptiveRBTruth2D<T, Basis2D, S_AdwavSolver, Compression>         RBTruth;
     // Class containing only N-dependent data and functions
-typedef RBModel2D<T, RBTruth>                                                        RBModel;
+typedef RBModel2D<T, RBTruth>                                             RBModel;
     // The actual S_adwav solver, used as truth solver
 typedef S_ADWAV<T, Index2D, Basis2D, RBTruth::Operator_LHS, RBTruth::Operator_RHS>    S_Adwav;
 
@@ -72,13 +73,13 @@ weight_Omega_y(T y)
 }
 
 T
-theta_a_1(std::vector<T>& mu)
+theta_a_1(const std::vector<T>& mu)
 {
     return mu[0];
 }
 
 T
-theta_a_2(std::vector<T>&)
+theta_a_2(const std::vector<T>&)
 {
     return 1;
 }
@@ -96,7 +97,7 @@ weight_Forcing_y(T y)
 }
 
 T
-theta_f_1(std::vector<T>&)
+theta_f_1(const std::vector<T>&)
 {
     return 1.;
 }
@@ -158,8 +159,8 @@ int main(int argc, char* argv[]) {
     Function<T>         w_x_2(weight_Omega_x_2, singpts_x);
     Function<T>         w_y(weight_Omega_y, singpts_y);
         
-    WeightedAdaptHHOp2D hh_1(basis2d, 0, w_x_1, w_y, prec);
-    WeightedAdaptHHOp2D hh_2(basis2d, 0, w_x_2, w_y, prec);
+    WeightedAdaptHHOp2D hh_1(basis2d, 0, w_x_1, w_y, prec, 1e-10);
+    WeightedAdaptHHOp2D hh_2(basis2d, 0, w_x_2, w_y, prec, 1e-10);
     
     rb_model.truth->attach_A_q(theta_a_1, hh_1);
     rb_model.truth->attach_A_q(theta_a_2, hh_2);
