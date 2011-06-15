@@ -24,7 +24,7 @@ saveCoeffVector2D(const Coefficients<Lexicographical,T,Index2D> &coeff, const Ba
       double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
       double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
-      data << x << " " << y << " " << (*it).second << " " 
+      data << x << " " << y << " " << std::setprecision (10) <<  (*it).second << " " 
            << type1 << " " << j1 << " " << k1 << " "
            << type2 << " " << j2 << " " << k2 << std::endl;
   }

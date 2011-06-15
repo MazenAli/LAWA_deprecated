@@ -226,6 +226,33 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representor_norms(
     
 }
 
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::write_riesz_representors(const std::string& directory_name){
+  // Make a directory to store all the data files
+  if( mkdir(directory_name.c_str(), 0777) == -1)
+  {
+    std::cerr << "In RBModel::write_RB_data, directory "
+                 << directory_name << " already exists, overwriting contents." << std::endl;
+  }
+  
+  for(unsigned int i = 0; i < rb->Q_f(); ++i){
+    std::stringstream filename;
+    filename << directory_name << "/F_representor_" << i+1 << ".dat";
+    saveCoeffVector2D(F_representors[i], basis, filename.str().c_str());
+  }
+  
+  for(unsigned int n = 0; n < rb->n_bf(); ++n){
+    for(unsigned int i = 0; i < rb->Q_a(); ++i){
+      std::stringstream filename;
+      filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".dat";
+      saveCoeffVector2D(A_representors[n][i], basis, filename.str().c_str()); 
+    }
+  }
+  
+}
+
+
 // ================================================================================================================ //
 // ================================================================================================================ //
 

@@ -75,6 +75,9 @@ class AdaptiveRBTruth2D{
         void
         update_representor_norms();
         
+        void
+        write_riesz_representors(const std::string& directory_name = "offline_data/representors");
+        
     /* Public members */
         
         Basis&                                  basis;

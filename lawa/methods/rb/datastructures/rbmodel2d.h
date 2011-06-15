@@ -111,6 +111,19 @@ class RBModel2D {
         
         void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
+        
+        
+        void
+        write_basis_functions(const std::string& directory_name = "offline_data/bf");
+        
+        void
+        read_basis_functions(const std::string& directory_name = "offline_data/bf");
+        
+        void
+        write_RB_data(const std::string& directory_name = "offline_data");
+        
+        void
+        read_RB_data(const std::string& directory_name = "offline_data");
                 
     /* Public members */
 
