@@ -13,6 +13,18 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_A_q(theta_fctptr t
 {
     rb->theta_a.push_back(theta_a_q);
     A_operators.push_back(&A_q);
+    
+    // If we have a fixed index set, compute the corresponding matrix
+   /* if(flens::IsSame<IndexsetSolver, TruthSolver>::value){
+      Timer timer;
+      SparseMatrixT A_q_matrix;
+      std::cout << "Compute Operator matrix .... " << std::endl;
+      timer.start();
+      toFlensSparseMatrix(A_q, solver->basis_set, solver->basis_set, A_q_matrix);
+      timer.stop();
+      A_operator_matrices.push_back(A_q_matrix);
+      std::cout << ".... done: " << timer.elapsed() << " seconds" << std::endl;
+    }*/
 }
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
@@ -21,6 +33,24 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_F_q(theta_fctptr t
 {
     rb->theta_f.push_back(theta_f_q);
     F_operators.push_back(&F_q);
+    
+    // If we have a fixed index set, compute the corresponding vector
+   /* if(flens::IsSame<IndexsetSolver, TruthSolver>::value){
+      Timer timer;
+      DenseVectorT F_q_vector(solver->basis_set.size());
+      
+      typedef typename IndexSet<Index >::const_iterator const_set_it;
+      
+      std::cout << "Compute RHS vector .... " << std::endl;
+      timer.start();
+      int count=1;
+      for (const_set_it it = solver->basis_set.begin(); it != solver->basis_set.end(); ++it, ++count) {
+        F_q_vector(count) = F_q((*it));
+      }
+      timer.stop();
+      F_operator_vectors.push_back(F_q_vector);
+      std::cout << ".... done: " << timer.elapsed() << " seconds" << std::endl;
+    }*/
 }
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
@@ -29,6 +59,16 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::set_truthsolver(TruthSolv
 {
     solver = &_truthsolver;
     solver->set_model(*this);
+    
+    // If we have a fixed index set, compute the inner product matrix
+    /*if(flens::IsSame<IndexsetSolver, TruthSolver>::value){
+      Timer timer;
+      std::cout << "Compute Inner product matrix .... " << std::endl;
+      timer.start();
+      toFlensSparseMatrix(*rb->inner_product_op, solver->basis_set, solver->basis_set, rb->inner_product_matrix);
+      timer.stop();
+      std::cout << ".... done: " << timer.elapsed() << " seconds" << std::endl;
+    }*/
 }
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
@@ -49,15 +89,16 @@ template <typename T, typename Basis, typename TruthSolver, typename Compression
 void
 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
 {
-    Timer timer;
+    //Timer timer;
     int N = rb->n_bf();
     if(N == 1) {
         F_representors.resize(rb->Q_f());
         for (unsigned int i = 0; i < rb->Q_f(); ++i) {
             repr_rhs_F_op.set_current_op(*F_operators[i]);
-            std::cout<< std::endl << " ==== Solving for Riesz Representor of F_" << i+1 << " =====" << std::endl<< std::endl;
+            std::cout<< std::endl << "  --- Solving for Riesz Representor of F_" << i+1 << "---" << std::endl<< std::endl;
             CoeffVector c = solver->repr_solve_F();
             
+            /*
             // Scatterplot
             std::cout << "Plotting Representor F_"<< i+1 << " .... " << std::endl;
             std::stringstream s;
@@ -65,7 +106,8 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
             timer.start();
             saveCoeffVector2D(c, basis, s.str().c_str());
             timer.stop();
-            std::cout << ".... finished: " << timer.elapsed() << " seconds" << std::endl;
+            std::cout << ".... finished: " << timer.elapsed() << " seconds" << std::endl << std::endl;
+            */
             
             F_representors[i] = c;
         } 
@@ -76,24 +118,24 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
     A_representors[N-1].resize(rb->Q_a());
     for (unsigned int i = 0; i < rb->Q_a(); ++i) {
         repr_rhs_A_op.set_current_op(*A_operators[i]);
-        std::cout << std::endl<< " ==== Solving for Riesz Representor of A_" << i+1 
-                  << "(" << N << ")" << " =====" << std::endl<< std::endl;
+        std::cout << std::endl<< "  --- Solving for Riesz Representor of A_" << i+1 
+                  << "(" << N << ")" << " --- " << std::endl<< std::endl;
          
         CoeffVector c = solver->repr_solve_A();        
         
+       /*
         // Scatterplot
-        std::cout << "Plotting Representor A_"<< i+1 << " .... " << std::endl;
+        std::cout << "  Plotting Representor A_"<< i+1 << " .... " << std::endl;
         std::stringstream s;
         s << "A_Representor_" << i+1 << "_" << N;
         timer.start();
         saveCoeffVector2D(c, basis, s.str().c_str());
         timer.stop();
-        std::cout << ".... finished: " << timer.elapsed() << " seconds" << std::endl;
+        std::cout << "  .... finished: " << timer.elapsed() << " seconds" << std::endl << std::endl;
+       */
             
         A_representors[N-1][i] = c;
     }
-    
-    std::cout << "Representors updated" << std::endl;
 }
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
