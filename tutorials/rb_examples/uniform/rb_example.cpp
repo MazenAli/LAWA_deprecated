@@ -49,13 +49,13 @@ weight_Omega_y(T y)
 }
 
 T
-theta_a_1(std::vector<T>& mu)
+theta_a_1(const std::vector<T>& mu)
 {
 	return mu[0];
 }
 
 T
-theta_a_2(std::vector<T>&)
+theta_a_2(const std::vector<T>&)
 {
 	return 1;
 }
@@ -73,7 +73,7 @@ weight_Forcing_y(T y)
 }
 
 T
-theta_f_1(std::vector<T>&)
+theta_f_1(const std::vector<T>&)
 {
 	return 1.;
 }
