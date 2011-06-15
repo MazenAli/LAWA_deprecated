@@ -314,7 +314,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
             T alpha =  alpha_LB(Xi_train[n]);
             T error_est = resnorm / alpha;
             
-            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::setprecision (10) << error_est 
+            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::setprecision (12) << error_est 
                       << " = " << resnorm << " / " << alpha << std::endl;
             if ( error_est > maxerr) {
                 maxerr = error_est;
@@ -324,7 +324,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
         
         error_file << " " << maxerr << std::endl;
         
-        std::cout << std::endl << "Greedy Error = " << std::setprecision (10) << maxerr << std::endl << std::endl;
+        std::cout << std::endl << "Greedy Error = " << std::setprecision (12) << maxerr << std::endl << std::endl;
         
         set_current_param(Xi_train[next_Mu]);
         Xi_train.erase(Xi_train.begin() + next_Mu);
@@ -407,7 +407,7 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
     std::stringstream filename;
     filename << directory_name << "/RB_A_" << i+1 << ".dat";
     std::ofstream file(filename.str().c_str());
-    file << std::setprecision (10) << RB_A_matrices[i] << std::endl;
+    file << std::setprecision (12) << RB_A_matrices[i] << std::endl;
     file.close();
   }
   
@@ -416,7 +416,7 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
     std::stringstream filename;
     filename << directory_name << "/RB_F_" << i+1 << ".dat";
     std::ofstream file(filename.str().c_str());
-    file << std::setprecision (10) << RB_F_vectors[i] << std::endl;
+    file << std::setprecision (12) << RB_F_vectors[i] << std::endl;
     file.close();
   }
   
@@ -424,14 +424,14 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   std::stringstream filename;
   filename << directory_name << "/RB_inner_product.dat";
   std::ofstream file(filename.str().c_str());
-  file << std::setprecision (10) << RB_inner_product << std::endl;
+  file << std::setprecision (12) << RB_inner_product << std::endl;
   file.close();
   
   // Write F_F_representor_norms
   std::stringstream repr_F_filename;
   repr_F_filename << directory_name << "/F_F_representor_norms.dat";
   std::ofstream repr_F_file(repr_F_filename.str().c_str());
-  repr_F_file << std::setprecision (10) << F_F_representor_norms << std::endl;
+  repr_F_file << std::setprecision (12) << F_F_representor_norms << std::endl;
   repr_F_file.close();
   
   // Write A_F_representor_norms
@@ -439,7 +439,7 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   repr_A_F_filename << directory_name << "/A_F_representor_norms.dat";
   std::ofstream repr_A_F_file(repr_A_F_filename.str().c_str());
   for(unsigned int i = 0; i < n_bf(); ++i){    
-    repr_A_F_file << std::setprecision (10) << A_F_representor_norms[i] << std::endl;
+    repr_A_F_file << std::setprecision (12) << A_F_representor_norms[i] << std::endl;
   }
   repr_A_F_file.close();
   
@@ -449,7 +449,7 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   std::ofstream repr_A_A_file(repr_A_A_filename.str().c_str());
   for(unsigned int i = 0; i < n_bf(); ++i){    
     for(unsigned int j = i; j < n_bf(); ++j){    
-        repr_A_A_file << std::setprecision (10) << A_A_representor_norms[i][j-i] << std::endl;
+        repr_A_A_file << std::setprecision (12) << A_A_representor_norms[i][j-i] << std::endl;
     }
   }
   repr_A_A_file.close();
@@ -663,7 +663,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
 template <typename T, typename TruthSolver>
 void
 RBModel2D<T, TruthSolver>::update_RB_F_vectors()
-{  
+{
     typename CoeffVector::const_iterator it;
     if ((n_bf() == 1) && (RB_F_vectors.size() < Q_f())) {
         RB_F_vectors.resize(Q_f());
@@ -671,19 +671,19 @@ RBModel2D<T, TruthSolver>::update_RB_F_vectors()
     for (unsigned int q_f = 0; q_f < Q_f(); ++q_f) {
       if (n_bf() == 1) {
         RB_F_vectors[q_f].engine().resize(1);
-        }
-        else {
-            DenseVectorT tmp(RB_F_vectors[q_f]);
-            RB_F_vectors[q_f].engine().resize((int)n_bf());
-            RB_F_vectors[q_f](tmp.range()) = tmp;
-            RB_F_vectors[q_f](n_bf()) = 0.;            
-        }
+      }
+      else {
+        DenseVectorT tmp(RB_F_vectors[q_f]);
+        RB_F_vectors[q_f].engine().resize((int)n_bf());
+        RB_F_vectors[q_f](tmp.range()) = tmp;
+        RB_F_vectors[q_f](n_bf()) = 0.;            
+      }
 
-        for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it) {
-            RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first);
-        }
-        
-        std::cout << "RB_F(" << q_f << ") = " << RB_F_vectors[q_f] << std::endl;
+      for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it) {
+          RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first);
+      }
+      
+      std::cout << "RB_F(" << q_f << ") = " << RB_F_vectors[q_f] << std::endl;
         
     }
 }
