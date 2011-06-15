@@ -25,8 +25,13 @@ class IndexsetTruthSolver {
   typedef typename Truth::Operator_RHS_BilFormRepresentor              RHS_BilFormRepr;
   typedef typename Truth::Operator_RHS_FunctionalRepresentor           RHS_FctRepr;
   
+  typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+  
+  
 public:
-  IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod, T _tol = std::numeric_limits<T>::epsilon(), int maxIts = 1000);
+  IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod,
+                      bool _use_inner_product = false,
+                      T _tol = std::numeric_limits<T>::epsilon(), int maxIts = 1000);
   
   void 
   set_model(Truth& _truth_model);
@@ -42,7 +47,12 @@ public:
     
   IndexSet<Index>& basis_set;
   
+  SparseMatrixT   inner_product_matrix;
+  
 private:
+  
+  void
+  assemble_inner_product_matrix();
   
   // Pointer to adaptive truth model
   Truth* truth_model;
@@ -50,6 +60,7 @@ private:
   // internal solution method (cg/gmres/...)
   SolverCall solution_method;
   
+  bool use_inner_product_matrix;
   T tol;
   int maxIterations;
   

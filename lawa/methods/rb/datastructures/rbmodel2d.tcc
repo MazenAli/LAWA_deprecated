@@ -9,6 +9,7 @@ namespace  lawa {
 
 template <typename T, typename TruthModel>
 RBModel2D<T, TruthModel>::RBModel2D()
+ : assembled_inner_product_matrix(false)
 {
 }
 
@@ -611,6 +612,7 @@ RBModel2D<T, TruthModel>::read_RB_data(const std::string& directory_name){
   }
 }
 
+
 // -----------------------------------------------------------------------------------//
 
 /* Protected methods */
@@ -726,14 +728,20 @@ T
 RBModel2D<T, TruthModel>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
 {
   T val = 0;
+  if(assembled_inner_product_matrix){
+    DenseVectorT v1_dense, v2_dense;
+    
+    
+  }
+  else{
     typename CoeffVector::const_iterator it1, it2;
     for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
         for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
             val += (*it1).second * (*inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
         }
     }
-    return val;
-  
+  }
+  return val;   
 
 /*    CoeffVector Xv = mv_sparse(supp(v2), *inner_product_op, v2);
     T vXv = v1 * Xv;

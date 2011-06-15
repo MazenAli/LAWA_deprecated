@@ -44,8 +44,12 @@ class AdaptiveRBTruth2D{
 
         typedef T (*theta_fctptr)(const std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
         typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+        typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
+        
+        typedef CompressionWeightedPDE2D<T, Basis>                              WeightedCompression;
+        typedef IndexsetTruthSolver<T, Basis, Index2D, WeightedCompression>     IndexsetSolver;
 
     public:
 
@@ -90,6 +94,9 @@ class AdaptiveRBTruth2D{
         
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
+        
+        std::vector<SparseMatrixT>              A_operator_matrices;
+        std::vector<DenseVectorT>               F_operator_vectors;
         
         TruthSolver*                            solver;
                 

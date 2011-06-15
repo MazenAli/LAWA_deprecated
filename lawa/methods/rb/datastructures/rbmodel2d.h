@@ -151,10 +151,8 @@ class RBModel2D {
         std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
         
         std::vector<std::vector<T> >  Xi_train;
-
-    protected:
-
-    /* Protected member functions */
+        
+        bool assembled_inner_product_matrix;
 
         // Update the (dense) RB matrices / vectors with the last basis function
         void
@@ -165,6 +163,21 @@ class RBModel2D {
         
         void
         update_RB_inner_product();
+        
+    protected:
+
+    /* Protected member functions */
+      /*
+        // Update the (dense) RB matrices / vectors with the last basis function
+        void
+        update_RB_A_matrices();
+
+        void
+        update_RB_F_vectors();
+        
+        void
+        update_RB_inner_product();
+        */
 
     /* Protected members */
 
@@ -179,6 +192,7 @@ class RBModel2D {
         // Reference Parameter defining the inner product norm
         // Needed for min-Theta approach
         std::vector<T>  ref_param;
+
 };
 
 } // namespace lawa
