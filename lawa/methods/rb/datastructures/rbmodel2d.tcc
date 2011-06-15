@@ -729,8 +729,20 @@ RBModel2D<T, TruthModel>::inner_product(const CoeffVector& v1, const CoeffVector
 {
   T val = 0;
   if(assembled_inner_product_matrix){
-    DenseVectorT v1_dense, v2_dense;
+  	// Assumption here: both vectors and the matrix have the same indexset
+	assert(v1.size() == v2.size());
+	typename CoeffVector::const_iterator it1, it2;
+	
+    // Build dense vectors
+	DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
+	int index_count = 1;
+	for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
+	  v1_dense(index_count) = (*it1).second;
+	  v2_dense(index_count) = (*it2).second;
+	}
     
+	DenseVectorT I_v2 = truth->solver->inner_product_matrix * v2_dense;
+	val = v1_dense * I_v2;
     
   }
   else{
