@@ -8,7 +8,7 @@ IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmet
 {
   if(use_inner_product_matrix){
     assemble_inner_product_matrix();
-    truth_model->rb->assembled_inner_product_matrix = true;
+    truth_model->get_rb_model().assembled_inner_product_matrix = true;
   }
 }
 
