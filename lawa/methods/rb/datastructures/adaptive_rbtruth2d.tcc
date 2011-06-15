@@ -140,77 +140,89 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::calculate_representor_norms()
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representor_norms()
 {
-  std::cout << "Calculating Representor Norms .... " << std::endl;
   Timer timer;
    // Coefficients<Lexicographical,T,Index> X_F_or_A;
     int N = rb->n_bf();
-    std::cout << "... F x F .... " << std::endl;
-     // F_F representor norms 
-     int Qf = rb->Q_f();
-     rb->F_F_representor_norms.engine().resize(Qf, Qf);
+    int Qf = rb->Q_f();
+
+    if(N == 1){
+      std::cout << "  ... F x F .... " << std::endl;
+       // F_F representor norms 
+       rb->F_F_representor_norms.engine().resize(Qf, Qf);
+
+       timer.start();
+       for(int qf1 = 1; qf1 <= Qf; ++qf1) {
+           for (int qf2 = qf1; qf2 <= Qf; ++qf2) {
+               //std::cout << ".... F_" << qf1 << " ,  F_" << qf2 << std::endl;
+               //X_F_or_A = mv_sparse(supp(F_representors[qf2-1]),rb->inner_product,F_representors[qf2-1]);
+               //F_F_representor_norms(qf1,qf2) = F_representors[qf1-1]*X_F_or_A;
+
+               rb->F_F_representor_norms(qf1,qf2) = rb->inner_product(F_representors[qf1-1], F_representors[qf2-1]);
+
+               if(qf1 != qf2) {
+                   rb->F_F_representor_norms(qf2,qf1) = rb->F_F_representor_norms(qf1,qf2);
+               }
+           }
+       }   
+       timer.stop();
+       std::cout << "  " << timer.elapsed() << " seconds" << std::endl << std::endl;
+       std::cout << rb->F_F_representor_norms << std::endl;
+    }
      
-     for(int qf1 = 1; qf1 <= Qf; ++qf1) {
-         for (int qf2 = qf1; qf2 <= Qf; ++qf2) {
-             std::cout << ".... F_" << qf1 << " ,  F_" << qf2 << std::endl;
-             //X_F_or_A = mv_sparse(supp(F_representors[qf2-1]),rb->inner_product,F_representors[qf2-1]);
-             //F_F_representor_norms(qf1,qf2) = F_representors[qf1-1]*X_F_or_A;
-             
-             timer.start();
-             rb->F_F_representor_norms(qf1,qf2) = rb->inner_product(F_representors[qf1-1], F_representors[qf2-1]);
-             timer.stop();
-             std::cout << " .... " << timer.elapsed() << " seconds" << std::endl;
-             
-             if(qf1 != qf2) {
-                 rb->F_F_representor_norms(qf2,qf1) = rb->F_F_representor_norms(qf1,qf2);
-             }
-         }
-     }   
- 
-     std::cout << "...  A x A .... " << std::endl;    
+     
+    std::cout << "  ...  A x A .... " << std::endl;    
+     
+     
     // A_A representor norms 
     int Qa = rb->Q_a();
-    rb->A_A_representor_norms.resize(N);
+    timer.start();
     for(int n1 = 0; n1 < N; ++n1) {
-        for(int n2 = 0; n2 < N; ++n2) {
-            flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_n1_n2(Qa, Qa);
-            rb->A_A_representor_norms[n1].push_back(A_n1_n2);
-            for(int qa1 = 1; qa1 <= Qa; ++qa1) {
-                for(int qa2 = qa1; qa2 <= Qa; ++qa2) {
-                  std::cout << ".... A_" << qa1 <<"(" << n1 << "), A_" << qa2 <<"(" << n2 <<  std::endl;
-                  
-                    timer.start();
-                    rb->A_A_representor_norms[n1][n2](qa1,qa2) 
-                        = rb->inner_product(A_representors[n1][qa1-1], A_representors[n2][qa2-1]);
-                    timer.stop();
-                    std::cout << " .... " << timer.elapsed() << " seconds" << std::endl;
-                      
-                    if(qa1 != qa2) {
-                        rb->A_A_representor_norms[n1][n2](qa2, qa1) = rb->A_A_representor_norms[n1][n2](qa1,qa2);
-                    }
-                }
+        //  n2 = N
+        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_n1_N(Qa, Qa);
+        for(int qa1 = 1; qa1 <= Qa; ++qa1) {
+          for(int qa2 = qa1; qa2 <= Qa; ++qa2) {                  
+            A_n1_N(qa1, qa2) = rb->inner_product(A_representors[n1][qa1-1], A_representors[N-1][qa2-1]);
+            if(qa1 != qa2){
+              if(n1 == N-1){
+                A_n1_N(qa2, qa1) = A_n1_N(qa1, qa2);
+              }
+              else{
+                A_n1_N(qa2, qa1) = rb->inner_product(A_representors[n1][qa2-1], A_representors[N-1][qa1-1]);                              
+              }
             }
+          }
         }
+        if(n1 == N-1){
+          std::vector<flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > > newvec;
+          newvec.push_back(A_n1_N);
+          rb->A_A_representor_norms.push_back(newvec);
+        }
+        else{
+          rb->A_A_representor_norms[n1].push_back(A_n1_N);          
+        }
+        std::cout << "n1 = " << n1 << ", n2 = " << N-1 << " " <<  rb->A_A_representor_norms[n1][N-1-n1] << std::endl;
     }
+    timer.stop();
+    std::cout << "  " << timer.elapsed() << " seconds" << std::endl << std::endl;
 
-    std::cout << "... A x F .... " << std::endl;
+    std::cout << "  ... A x F .... " << std::endl;
     // A_F representor norms 
-    for(int n = 0; n < N; ++n) {
-        flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_F(Qa, Qf);
-        rb->A_F_representor_norms.push_back(A_F);
-        for(int qa = 1; qa <= Qa; ++qa) {
-            for(int qf = 1; qf <= Qf; ++qf) {
-                std::cout << "....A_" << qa <<"(" << n << "), F_" << qf << std::endl;
-                timer.start();
-                rb->A_F_representor_norms[n](qa, qf) = rb->inner_product(A_representors[n][qa-1], F_representors[qf-1]);
-                timer.stop();
-                std::cout << " .... " << timer.elapsed() << " seconds" << std::endl;
-                
-            }
+    timer.start();
+    // n = N
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_F(Qa, Qf);
+    for(int qa = 1; qa <= Qa; ++qa) {
+        for(int qf = 1; qf <= Qf; ++qf) {
+           // std::cout << "....A_" << qa <<"(" << n << "), F_" << qf << std::endl;
+            A_F(qa, qf) = rb->inner_product(A_representors[N-1][qa-1], F_representors[qf-1]);    
         }
     }
-    std::cout << ".... done " << std::endl;
+    rb->A_F_representor_norms.push_back(A_F);
+    std::cout << "n = " << N-1 << " "<< rb->A_F_representor_norms[N-1] << std::endl ;
+
+    timer.stop();
+    std::cout << "  " << timer.elapsed() << " seconds" << std::endl << std::endl;
     
 }
 
