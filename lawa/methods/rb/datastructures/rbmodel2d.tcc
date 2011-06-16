@@ -719,16 +719,10 @@ RBModel2D<T, TruthSolver>::update_RB_inner_product()
     }
     
     for (unsigned int i = 1; i <= n_bf(); ++i) {
-        for (it1 = rb_basis_functions[n_bf()-1].begin(); it1 != rb_basis_functions[n_bf()-1].end(); ++it1) {
-            for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
-                RB_inner_product(n_bf(), i) += (*it1).second * (*it2).second 
-                                               * (*inner_product_op)((*it1).first, (*it2).first);
-                if (i != n_bf()) {
-                   RB_inner_product(i, n_bf()) += (*it1).second * (*it2).second 
-                               * (*inner_product_op)((*it2).first, (*it1).first);
-                }
-            }
-        }        
+      RB_inner_product(n_bf(), i) = inner_product(rb_basis_functions[n_bf()-1], rb_basis_functions[i-1]);
+      if (i != n_bf()) {
+        RB_inner_product(i, n_bf()) = RB_inner_product(n_bf(),i);
+      }      
     }
 }
 
