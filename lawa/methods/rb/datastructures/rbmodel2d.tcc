@@ -315,7 +315,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
             T alpha =  alpha_LB(Xi_train[n]);
             T error_est = resnorm / alpha;
             
-            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::setprecision (12) << error_est 
+            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::scientific << error_est 
                       << " = " << resnorm << " / " << alpha << std::endl;
             if ( error_est > maxerr) {
                 maxerr = error_est;
@@ -325,7 +325,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
         
         error_file << " " << maxerr << std::endl;
         
-        std::cout << std::endl << "Greedy Error = " << std::setprecision (12) << maxerr << std::endl << std::endl;
+        std::cout << std::endl << "Greedy Error = " << std::scientific << maxerr << std::endl << std::endl;
         
         set_current_param(Xi_train[next_Mu]);
         Xi_train.erase(Xi_train.begin() + next_Mu);
@@ -390,6 +390,9 @@ RBModel2D<T, TruthModel>::read_basis_functions(const std::string& directory_name
 template <typename T, typename TruthModel>
 void
 RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
+  
+  const unsigned int precision = 16;
+  
   // Make a directory to store all the data files
   if( mkdir(directory_name.c_str(), 0777) == -1)
   {
@@ -408,7 +411,8 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
     std::stringstream filename;
     filename << directory_name << "/RB_A_" << i+1 << ".dat";
     std::ofstream file(filename.str().c_str());
-    file << std::setprecision (12) << RB_A_matrices[i] << std::endl;
+    file.precision(precision);
+    file << std::scientific << RB_A_matrices[i] << std::endl;
     file.close();
   }
   
@@ -417,7 +421,8 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
     std::stringstream filename;
     filename << directory_name << "/RB_F_" << i+1 << ".dat";
     std::ofstream file(filename.str().c_str());
-    file << std::setprecision (12) << RB_F_vectors[i] << std::endl;
+    file.precision(precision);
+    file << std::scientific << RB_F_vectors[i] << std::endl;
     file.close();
   }
   
@@ -425,22 +430,25 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   std::stringstream filename;
   filename << directory_name << "/RB_inner_product.dat";
   std::ofstream file(filename.str().c_str());
-  file << std::setprecision (12) << RB_inner_product << std::endl;
+  file.precision(precision);
+  file << std::scientific << RB_inner_product << std::endl;
   file.close();
   
   // Write F_F_representor_norms
   std::stringstream repr_F_filename;
   repr_F_filename << directory_name << "/F_F_representor_norms.dat";
   std::ofstream repr_F_file(repr_F_filename.str().c_str());
-  repr_F_file << std::setprecision (12) << F_F_representor_norms << std::endl;
+  repr_F_file.precision(precision);
+  repr_F_file << std::scientific << F_F_representor_norms << std::endl;
   repr_F_file.close();
   
   // Write A_F_representor_norms
   std::stringstream repr_A_F_filename;
   repr_A_F_filename << directory_name << "/A_F_representor_norms.dat";
   std::ofstream repr_A_F_file(repr_A_F_filename.str().c_str());
+  repr_A_F_file.precision(precision);
   for(unsigned int i = 0; i < n_bf(); ++i){    
-    repr_A_F_file << std::setprecision (12) << A_F_representor_norms[i] << std::endl;
+    repr_A_F_file << std::scientific << A_F_representor_norms[i] << std::endl;
   }
   repr_A_F_file.close();
   
@@ -448,9 +456,10 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   std::stringstream repr_A_A_filename;
   repr_A_A_filename << directory_name << "/A_A_representor_norms.dat";
   std::ofstream repr_A_A_file(repr_A_A_filename.str().c_str());
+  repr_A_A_file.precision(precision);
   for(unsigned int i = 0; i < n_bf(); ++i){    
     for(unsigned int j = i; j < n_bf(); ++j){    
-        repr_A_A_file << std::setprecision (12) << A_A_representor_norms[i][j-i] << std::endl;
+        repr_A_A_file << std::scientific << A_A_representor_norms[i][j-i] << std::endl;
     }
   }
   repr_A_A_file.close();
