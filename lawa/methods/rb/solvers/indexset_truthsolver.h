@@ -30,7 +30,8 @@ class IndexsetTruthSolver {
   
 public:
   IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod,
-                      bool _use_inner_product = false,
+                      bool _use_inner_product = false, bool _use_A_matrix = false,
+                      bool _use_F_vector = false,
                       T _tol = std::numeric_limits<T>::epsilon(), int maxIts = 1000);
   
   void 
@@ -47,10 +48,16 @@ public:
     
   void
   assemble_inner_product_matrix();
+  
+  void
+  assemble_A_operator_matrices();
 
   IndexSet<Index>& basis_set;
   
   SparseMatrixT   inner_product_matrix;
+  std::vector<SparseMatrixT> A_operator_matrices;
+  //std::vector<DenseVectorT> F_operator_vectors;
+  
   
 private:
   
@@ -61,6 +68,8 @@ private:
   SolverCall solution_method;
   
   bool use_inner_product_matrix;
+  bool use_A_operator_matrices;
+  bool use_F_operator_vectors;
   T tol;
   int maxIterations;
   

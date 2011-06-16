@@ -2,11 +2,12 @@ namespace lawa {
 
 template <typename T, typename Basis, typename Index, typename Compression>
 IndexsetTruthSolver<T, Basis, Index, Compression>::
-IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod, bool _use_inner_product, T _tol, int maxIts)
-  : basis_set(_indexset), inner_product_matrix(basis_set.size(), basis_set.size()), truth_model(&_truth), solution_method(solmethod), 
-    use_inner_product_matrix(_use_inner_product), tol(_tol), maxIterations(maxIts)
-{
-}
+IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod, bool _use_inner_product, 
+                    bool _use_A_matrix, bool _use_F_vector, T _tol, int maxIts)
+  : basis_set(_indexset), truth_model(&_truth), solution_method(solmethod), 
+    use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
+    use_F_operator_vectors(_use_F_vector), tol(_tol), maxIterations(maxIts)
+{}
 
 template <typename T, typename Basis, typename Index, typename Compression>
 void 
@@ -144,7 +145,7 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
           break;
       }
       timer.stop();
-      std::cout << "Done A Representor Solve: "<< timer.elapsed() << " seconds" << std::endl << std::endl;
+      std::cout << "Done F Representor Solve: "<< timer.elapsed() << " seconds" << std::endl << std::endl;
       
     }
   }
@@ -254,10 +255,51 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::assemble_inner_product_matrix
 {
   Timer timer;
   std::cout << "Assemble Inner Product Matrix ...." << std::endl;
+  inner_product_matrix.resize(basis_set.size(), basis_set.size());
   timer.start();
   toFlensSparseMatrix(truth_model->repr_lhs_op, basis_set, basis_set, inner_product_matrix);
   timer.stop();
   std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
 }
+
+template <typename T, typename Basis, typename Index, typename Compression>
+void
+IndexsetTruthSolver<T, Basis, Index, Compression>::assemble_A_operator_matrices()
+{
+  Timer timer;
+  std::cout << "Assemble A Matrices ...." << std::endl;
+  unsigned int Q_a = truth_model->get_rb_model().Q_a();
+  int N = basis_set.size();
+  
+  timer.start();
+  for(unsigned int qa = 1; qa <= Q_a; ++qa){
+    SparseMatrixT A_matrix(N, N);
+    truth_model->lhs_op.qa = qa-1;
+    toFlensSparseMatrix(truth_model->lhs_op, basis_set, basis_set, A_matrix);
+    A_operator_matrices.push_back(A_matrix);
+  }
+  truth_model->lhs_op.qa = -1;
+  timer.stop();
+  std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
+}
+
+/*template <typename T, typename Basis, typename Index, typename Compression>
+void
+IndexsetTruthSolver<T, Basis, Index, Compression>::assemble_F_operator_vectors()
+{
+  Timer timer;
+  std::cout << "Assemble F vectors ...." << std::endl;
+  unsigned int Q_a = truth_model->get_rb_model.Q_a();
+  int N = basis_set.size();
+  
+  timer.start();
+  for(unsigned int qa = 1; qa <= Q_a; ++qa){
+    DenseVectorT A_matrix(N, N);
+    toFlensSparseMatrix(truth_model->A_operators[i], basis_set, basis_set, A_matrix);
+    A_operator_matrices.push_back(A_matrix);
+  }
+  timer.stop();
+  std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
+}*/
 
 } // namespace lawa
