@@ -45,14 +45,14 @@ public:
   Coefficients<Lexicographical,T,Index>
   repr_solve_A();
     
+  void
+  assemble_inner_product_matrix();
+
   IndexSet<Index>& basis_set;
   
   SparseMatrixT   inner_product_matrix;
   
 private:
-  
-  void
-  assemble_inner_product_matrix();
   
   // Pointer to adaptive truth model
   Truth* truth_model;

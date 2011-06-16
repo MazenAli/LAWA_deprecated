@@ -3,13 +3,9 @@ namespace lawa {
 template <typename T, typename Basis, typename Index, typename Compression>
 IndexsetTruthSolver<T, Basis, Index, Compression>::
 IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod, bool _use_inner_product, T _tol, int maxIts)
-  : basis_set(_indexset), truth_model(&_truth), solution_method(solmethod), 
+  : basis_set(_indexset), inner_product_matrix(basis_set.size(), basis_set.size()), truth_model(&_truth), solution_method(solmethod), 
     use_inner_product_matrix(_use_inner_product), tol(_tol), maxIterations(maxIts)
 {
-  if(use_inner_product_matrix){
-    assemble_inner_product_matrix();
-    truth_model->get_rb_model().assembled_inner_product_matrix = true;
-  }
 }
 
 template <typename T, typename Basis, typename Index, typename Compression>
@@ -118,7 +114,7 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
       int row_count=1;
       
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = truth_model->repr_rhs_F_op(row);
+        rhs(row_count) = truth_model->repr_rhs_F_op((*row));
         x(row_count) = 0.;  
       }
       timer.stop();
@@ -213,7 +209,7 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
       int row_count=1;
       
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = truth_model->repr_rhs_A_op(row);
+        rhs(row_count) = truth_model->repr_rhs_A_op((*row));
         x(row_count) = 0.;  
       }
       timer.stop();
@@ -256,7 +252,12 @@ template <typename T, typename Basis, typename Index, typename Compression>
 void
 IndexsetTruthSolver<T, Basis, Index, Compression>::assemble_inner_product_matrix()
 {
+  Timer timer;
+  std::cout << "Assemble Inner Product Matrix ...." << std::endl;
+  timer.start();
   toFlensSparseMatrix(truth_model->repr_lhs_op, basis_set, basis_set, inner_product_matrix);
+  timer.stop();
+  std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
 }
 
 } // namespace lawa
