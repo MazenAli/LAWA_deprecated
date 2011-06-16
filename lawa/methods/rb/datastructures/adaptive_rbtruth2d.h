@@ -95,9 +95,6 @@ class AdaptiveRBTruth2D{
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
         
-        std::vector<SparseMatrixT>              A_operator_matrices;
-        std::vector<DenseVectorT>               F_operator_vectors;
-        
         TruthSolver*                            solver;
                 
          // Wrapper class for affine structure on left hand side       
@@ -109,12 +106,14 @@ class AdaptiveRBTruth2D{
                 
             public:
                 Operator_LHS(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth)
-                    : thisTruth(_truth), compression(thisTruth->basis){}
+                    : thisTruth(_truth), compression(thisTruth->basis), qa(-1){}
                 
                 T
-                operator()(const Index2D &row_index, const Index2D &col_index);
+                operator()(const Index2D &row_index, const Index2D &col_index);         
                 
                 Compression compression;
+                
+                int qa;
         };
 
          // Wrapper class for affine structure on right hand side       

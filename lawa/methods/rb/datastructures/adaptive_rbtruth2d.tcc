@@ -274,15 +274,20 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::write_riesz_representors(
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_LHS::operator()(const Index2D &row_index, const Index2D &col_index)
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_LHS::
+operator()(const Index2D &row_index, const Index2D &col_index)
 {
-    T val = 0;
-    for (unsigned int i = 0; i < thisTruth->A_operators.size(); ++i) {
-        val += (*thisTruth->rb->theta_a[i])(thisTruth->rb->get_current_param()) 
-             * (*thisTruth->A_operators[i])(row_index, col_index);
+    if(qa < 0){
+      T val = 0;
+      for (unsigned int i = 0; i < thisTruth->A_operators.size(); ++i) {
+          val += (*thisTruth->rb->theta_a[i])(thisTruth->rb->get_current_param()) 
+               * (*thisTruth->A_operators[i])(row_index, col_index);
+      }
+      return val;
     }
-    
-    return val;
+    else{
+      return (*thisTruth->A_operators[qa])(row_index, col_index);
+    }
 }
 
 /*  Operator RHS */
