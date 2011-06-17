@@ -250,12 +250,12 @@ RBModel2D<T, TruthModel>::generate_uniform_trainingset(std::vector<int>& n_train
 
 template <typename T, typename TruthModel>
 void
-RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax)
+RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename)
 {
     // Initial Snapshot
     set_current_param(init_param);
     
-    std::ofstream error_file("Training.txt"); 
+    std::ofstream error_file(filename); 
     error_file << "# N   mu   Error " << std::endl;    
     
     // Delete init parameter from training sample
