@@ -81,7 +81,6 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
   
     T res;
     int its;
-    timer.start();
     switch(solution_method){
       case call_cg:
       std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
