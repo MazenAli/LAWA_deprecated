@@ -55,7 +55,8 @@ class AdaptiveRBTruth2D{
 
     /* Public member functions */
         
-        AdaptiveRBTruth2D(Basis& _basis);
+        AdaptiveRBTruth2D(Basis& _basis, bool _use_inner_product = false, bool _use_A_matrix = false,
+                          bool _use_F_vector = false);
         
         void
         attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
@@ -87,6 +88,12 @@ class AdaptiveRBTruth2D{
         
         void
         write_riesz_representors(const std::string& directory_name = "offline_data/representors");
+        
+        void
+        assemble_inner_product_matrix(IndexSet<Index2D>& indexset);
+
+        void
+        assemble_A_operator_matrices(IndexSet<Index2D>& indexset);
         
     /* Public members */
         
@@ -212,6 +219,13 @@ class AdaptiveRBTruth2D{
         Operator_LHS_Representor            repr_lhs_op;
         Operator_RHS_BilFormRepresentor     repr_rhs_A_op;
         Operator_RHS_FunctionalRepresentor  repr_rhs_F_op;
+        
+        bool use_inner_product_matrix;
+        bool use_A_operator_matrices;
+        bool use_F_operator_vectors;
+        
+        SparseMatrixT   inner_product_matrix;
+        std::vector<SparseMatrixT> A_operator_matrices;
         
     private:
         

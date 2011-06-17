@@ -153,6 +153,7 @@ class RBModel2D {
         std::vector<std::vector<T> >  Xi_train;
         
         bool assembled_inner_product_matrix;
+        bool assembled_A_operator_matrices;
 
         // Update the (dense) RB matrices / vectors with the last basis function
         void

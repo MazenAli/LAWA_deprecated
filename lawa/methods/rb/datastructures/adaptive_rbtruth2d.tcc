@@ -3,8 +3,11 @@
 namespace  lawa {
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::AdaptiveRBTruth2D(Basis& _basis)
-    : basis(_basis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this)
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::AdaptiveRBTruth2D(Basis& _basis, bool _use_inner_product, 
+                      bool _use_A_matrix, bool _use_F_vector)
+    : basis(_basis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
+      use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
+      use_F_operator_vectors(_use_F_vector)
 {}
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
@@ -242,7 +245,8 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representor_norms(
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::write_riesz_representors(const std::string& directory_name){
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::write_riesz_representors(const std::string& directory_name)
+{
   // Make a directory to store all the data files
   if( mkdir(directory_name.c_str(), 0777) == -1)
   {
@@ -266,7 +270,43 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::write_riesz_representors(
   
 }
 
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::assemble_inner_product_matrix(IndexSet<Index2D>& indexset)
+{
+  Timer timer;
+  std::cout << "Assemble Inner Product Matrix ...." << std::endl;
+  inner_product_matrix.resize(indexset.size(), indexset.size());
+  timer.start();
+  toFlensSparseMatrix(repr_lhs_op, indexset, indexset, inner_product_matrix);
+  timer.stop();
+  std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
 
+  rb->assembled_inner_product_matrix = true;
+}
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::assemble_A_operator_matrices(IndexSet<Index2D>& indexset)
+{
+  Timer timer;
+  std::cout << "Assemble A Matrices ...." << std::endl;
+  unsigned int Q_a = get_rb_model().Q_a();
+  int N = indexset.size();
+  
+  timer.start();
+  for(unsigned int qa = 1; qa <= Q_a; ++qa){
+    SparseMatrixT A_matrix(N, N);
+    lhs_op.qa = qa-1;
+    toFlensSparseMatrix(lhs_op, indexset, indexset, A_matrix);
+    A_operator_matrices.push_back(A_matrix);
+  }
+  lhs_op.qa = -1;
+  timer.stop();
+  std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
+  
+  rb->assembled_A_operator_matrices = true;
+}
 // ================================================================================================================ //
 // ================================================================================================================ //
 

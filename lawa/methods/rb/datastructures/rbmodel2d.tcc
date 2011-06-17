@@ -638,6 +638,20 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
             RB_A_matrices.push_back(A);
         }
     }
+    
+    // Assemble new basis function vector
+    DenseVectorT new_bf_dense;
+    if(assembled_A_operator_matrices){
+        // Build dense vector
+        new_bf_dense.engine().resize((int)rb_basis_functions[n_bf()-1].size());
+        int index_count = 1;
+        for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it, ++index_count) {
+          new_bf_dense(index_count) = (*it).second;
+        }
+        
+        //std::cout << "new_bf_dense: " << new_bf_dense << std::endl;
+    }
+    
     for (unsigned int q_a = 0; q_a < Q_a(); ++q_a) {
         if (n_bf() == 1) {
             RB_A_matrices[q_a].engine().resize(1, 1);
@@ -653,17 +667,39 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
 
         }
         
+        DenseVectorT A_new_bf, A_new_bf_T;
+        if(assembled_A_operator_matrices){
+            A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense;
+            A_new_bf_T = transpose(truth->A_operator_matrices[q_a]) * new_bf_dense;
+            //std::cout << A_new_bf << std::endl;
+            
+            //std::cout << A_new_bf_T << std::endl;
+            }
+        
         for (unsigned int i = 1; i <= n_bf(); ++i) {
-            for (it1 = rb_basis_functions[n_bf()-1].begin(); it1 != rb_basis_functions[n_bf()-1].end(); ++it1) {
-                for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
-                    RB_A_matrices[q_a](n_bf(), i) += (*it1).second * (*it2).second 
+            if(assembled_A_operator_matrices){
+                DenseVectorT bf_dense(rb_basis_functions[i-1].size());
+                int index_count = 1;
+                for (it = rb_basis_functions[i-1].begin(); it != rb_basis_functions[i-1].end(); ++it, ++index_count) {
+                  bf_dense(index_count) = (*it).second;
+                }
+                RB_A_matrices[q_a](i, n_bf()) = bf_dense * A_new_bf;
+                if(i != n_bf()){
+                    RB_A_matrices[q_a](n_bf(), i) = A_new_bf_T * bf_dense;                    
+                }
+            }
+            else{
+                for (it1 = rb_basis_functions[n_bf()-1].begin(); it1 != rb_basis_functions[n_bf()-1].end(); ++it1) {
+                    for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
+                        RB_A_matrices[q_a](n_bf(), i) += (*it1).second * (*it2).second 
                                                    * (*truth->A_operators[q_a])((*it1).first, (*it2).first);
-                  if (i != n_bf()) {
+                        if (i != n_bf()) {
                          RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
                                    * (*truth->A_operators[q_a])((*it2).first, (*it1).first);
+                        }
                     }
-                }
-            }        
+                }                
+            }
         }
         
         std::cout << "RB_A(" << q_a << ") = " << RB_A_matrices[q_a] << std::endl;
@@ -731,22 +767,24 @@ T
 RBModel2D<T, TruthModel>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
 {
   T val = 0;
+  
   if(assembled_inner_product_matrix){
-  	// Assumption here: both vectors and the matrix have the same indexset
-	assert(v1.size() == v2.size());
-	typename CoeffVector::const_iterator it1, it2;
-	
+      // Assumption here: both vectors and the matrix have the same indexset
+      
+    assert(v1.size() == v2.size());
+    typename CoeffVector::const_iterator it1, it2;
+    
     // Build dense vectors
-	DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
-	int index_count = 1;
-	for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
-	  v1_dense(index_count) = (*it1).second;
-	  v2_dense(index_count) = (*it2).second;
-	}
+    DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
+    int index_count = 1;
+    for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
+      v1_dense(index_count) = (*it1).second;
+      v2_dense(index_count) = (*it2).second;
+      
+    }
     
-	DenseVectorT I_v2 = truth->solver->inner_product_matrix * v2_dense;
-	val = v1_dense * I_v2;
-    
+    DenseVectorT I_v2 = truth->inner_product_matrix * v2_dense;
+    val = v1_dense * I_v2;
   }
   else{
     typename CoeffVector::const_iterator it1, it2;
@@ -755,13 +793,13 @@ RBModel2D<T, TruthModel>::inner_product(const CoeffVector& v1, const CoeffVector
             val += (*it1).second * (*inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
         }
     }
+    
+    /*    CoeffVector Xv = mv_sparse(supp(v2), *inner_product_op, v2);
+        T vXv = v1 * Xv;
+        return vXv;
+    */
   }
   return val;   
-
-/*    CoeffVector Xv = mv_sparse(supp(v2), *inner_product_op, v2);
-    T vXv = v1 * Xv;
-    return vXv;
-*/
 }
 
 template <typename T, typename TruthModel>
