@@ -20,21 +20,23 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::truth_solve()
   Coefficients<Lexicographical,T,Index> u, f;
   std::cout << "Start Truth Solve: Call Method " << solution_method << std::endl; 
   
-  Timer timer;
+  Timer timer1, timer2;
+  
+  timer1.start();
+  
   // Construct rhs coefficients vector
   typename IndexSet<Index>::const_iterator it;
   typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
   std::cout << "  Build Rhs... " <<  std::endl;
-  timer.start(); 
+  timer2.start(); 
   for(it = basis_set.begin(); it != basis_set.end(); ++it){
     f.insert(val_type((*it), truth_model->rhs_op(*it)));
   }
-  timer.stop();
-  std::cout << "  ..... done : " << timer.elapsed() << " seconds" << std::endl;
+  timer2.stop();
+  std::cout << "  ..... done : " << timer2.elapsed() << " seconds" << std::endl;
   
   T res;
   int its;
-  timer.start();
   switch(solution_method){
     case call_cg:
     std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
@@ -49,9 +51,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::truth_solve()
       std::cerr << "Method not implemented yet " << std::endl;
       break;
   }
-  timer.stop();
-  std::cout << "Done Truth Solve: "<< timer.elapsed() << " seconds" << std::endl << std::endl;
-  
+  timer1.stop();
+  std::cout << "Done Truth Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
   
   return u;
 }
@@ -61,7 +62,7 @@ Coefficients<Lexicographical,T,Index>
 IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
 {
   Coefficients<Lexicographical,T,Index> u, f;
-  Timer timer;
+  Timer timer1, timer2;
   
   timer1.start();
   
@@ -71,12 +72,12 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
     typename IndexSet<Index>::const_iterator it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
     std::cout << "  Build Rhs... " <<  std::endl;
-    timer.start();
+    timer2.start();
     for(it = basis_set.begin(); it != basis_set.end(); ++it){
       f.insert(val_type((*it), truth_model->repr_rhs_F_op(*it)));
     }
-    timer.stop();
-    std::cout << "  .... done : " << timer.elapsed() << " seconds" << std::endl;
+    timer2.stop();
+    std::cout << "  .... done : " << timer2.elapsed() << " seconds" << std::endl;
   
     T res;
     int its;
@@ -95,8 +96,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
         std::cerr << "Method not implemented yet " << std::endl;
         break;
     }
-    timer.stop();
-    std::cout << "Done F Representor Solve: "<< timer.elapsed() << " seconds" << std::endl << std::endl;
+    timer1.stop();
+    std::cout << "Done F Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
     
@@ -108,7 +109,7 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
           
       std::cout << "    Build Dense Vectors ..." << std::endl;
       
-      timer.start();
+      timer2.start();
       int N = basis_set.size();
       DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
@@ -117,12 +118,11 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
         rhs(row_count) = truth_model->repr_rhs_F_op((*row));
         x(row_count) = 0.;  
       }
-      timer.stop();
-      std::cout << "    .... done : " << timer.elapsed() << " seconds " << std::endl;  
+      timer2.stop();
+      std::cout << "    .... done : " << timer2.elapsed() << " seconds " << std::endl;  
       
       T residual;
       int its;
-      timer.start();
       switch(solution_method){
         case call_cg:
           std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
@@ -143,8 +143,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
           std::cerr << "Method not implemented yet " << std::endl;
           break;
       }
-      timer.stop();
-      std::cout << "Done F Representor Solve: "<< timer.elapsed() << " seconds" << std::endl << std::endl;
+      timer1.stop();
+      std::cout << std::endl << "  Done F Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
       
     }
   }
@@ -156,7 +156,7 @@ template <typename T, typename Basis, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
 IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
 {
-  Timer timer;
+  Timer timer1, timer2;
   Coefficients<Lexicographical,T,Index> u;
   
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
@@ -168,16 +168,15 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
     typename IndexSet<Index>::const_iterator it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
     std::cout << "  Build Rhs... " <<  std::endl;
-    timer.start();
+    timer2.start();
     for(it = basis_set.begin(); it != basis_set.end(); ++it){
       f.insert(val_type((*it), truth_model->repr_rhs_A_op(*it)));
     }
-    timer.stop();
-    std::cout << "  .... done : " << timer.elapsed() << " seconds" << std::endl;
+    timer2.stop();
+    std::cout << "  .... done : " << timer2.elapsed() << " seconds" << std::endl;
 
     T res;
     int its;
-    timer.start();
     switch(solution_method){
       case call_cg:
         std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
@@ -192,20 +191,22 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
         std::cerr << "Method not implemented yet " << std::endl;
         break;
     }
-    timer.stop();
-    std::cout << "Done A Representor Solve: "<< timer.elapsed() << " seconds" << std::endl << std::endl;    
+    timer1.stop();
+    std::cout << "Done A Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;    
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
     
-    std::cout << "    Using inner product matrix!" << std::endl;
+    std::cout << "  Using inner product matrix!" << std::endl;
     if (basis_set.size() > 0) {
+      
+      timer1.start();
       
       typedef typename IndexSet<Index>::const_iterator const_set_it;
       typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
           
       std::cout << "    Build Dense Vectors ..." << std::endl;
       
-      timer.start();
+      timer2.start();
       int N = basis_set.size();
       DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
@@ -214,12 +215,11 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
         rhs(row_count) = truth_model->repr_rhs_A_op((*row));
         x(row_count) = 0.;  
       }
-      timer.stop();
-      std::cout << "    .... done : " << timer.elapsed() << " seconds " << std::endl;  
+      timer2.stop();
+      std::cout << "    .... done : " << timer2.elapsed() << " seconds " << std::endl; 
       
       T residual;
       int its;
-      timer.start();
       switch(solution_method){
         case call_cg:
           std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
@@ -240,8 +240,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
           std::cerr << "Method not implemented yet " << std::endl;
           break;
       }
-      timer.stop();
-      std::cout << "Done A Representor Solve: "<< timer.elapsed() << " seconds" << std::endl << std::endl;
+      timer1.stop();
+      std::cout << std::endl << "  Done A Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
       
     }
   }
