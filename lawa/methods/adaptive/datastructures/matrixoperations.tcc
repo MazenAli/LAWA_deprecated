@@ -206,6 +206,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
       timer.start();
         int number_of_iterations = lawa::cg(A_flens,x,rhs, tol, maxIterations);
       timer.stop();
+            
       std::cout << "    .... done : " << timer.elapsed() << " seconds " << std::endl;
         Ax = A_flens*x;
         res= Ax-rhs;

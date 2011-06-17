@@ -47,6 +47,7 @@ readCoeffVector2D(Coefficients<Lexicographical,T,Index2D>&coeff, const char* fil
   std::ifstream data(filename);
   if(data.is_open() == false){
     std::cerr << "File " << filename << " could not be opened for reading" << std::endl;
+    exit(1);
   }
   
   char comment[256];
@@ -104,6 +105,7 @@ readIndexSet2D(IndexSet<Index2D>& indexset, const char* filename, bool append)
   std::ifstream data(filename);
   if(data.is_open() == false){
     std::cerr << "File " << filename << " could not be opened for reading" << std::endl;
+    exit(1);
   }
   
   char comment[256];
