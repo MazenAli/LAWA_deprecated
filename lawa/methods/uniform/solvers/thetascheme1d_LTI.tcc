@@ -7,14 +7,15 @@ ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral, L2ScalarProduct>::
 ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs,
                   const bool _time_constant_rhs,
                   const bool _use_pcg, T _assembletol, T _lintol)
-    : theta(_theta), basis(_basis), L2scalarproduct(basis),
+    : theta(_theta), basis(_basis),
+      standardL2scalarproduct(basis), L2scalarproduct(standardL2scalarproduct),
       time_constant_rhs(_time_constant_rhs), use_pcg(_use_pcg),
       assembletol(_assembletol), lintol(_lintol),
       assembler(basis),
       //integral(_basis, _basis),
       op_LHSMatrix(this, _a), op_RHSMatrix(this, _a), op_RHSVector(this, _rhs), prec(op_LHSMatrix),
       currentLevel(-1), P(assembler.assemblePreconditioner(prec, basis.j0))
-{   
+{
 }
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral,
@@ -23,7 +24,8 @@ ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral, L2ScalarProduct>::
 ThetaScheme1D_LTI(const T _theta, const Basis& _basis, const BilinearForm& _a, RHSIntegral& _rhs,
                   const L2ScalarProduct& _L2scalarproduct, const bool _time_constant_rhs,
                   const bool _use_pcg, T _assembletol, T _lintol)
-    : theta(_theta), basis(_basis), L2scalarproduct(_L2scalarproduct),
+    : theta(_theta), basis(_basis),
+      standardL2scalarproduct(basis), L2scalarproduct(_L2scalarproduct),
       time_constant_rhs(_time_constant_rhs), use_pcg(_use_pcg),
       assembletol(_assembletol), lintol(_lintol),
       assembler(basis),

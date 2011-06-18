@@ -40,20 +40,22 @@ _integrand(const PayoffInitialCondition1D<OType,Basis1D> &initcond,
                             typename Basis1D::T x)
 {
     const typename Basis1D::BasisFunctionType &basisfunction=initcond.basis.generator(initcond.e1);
-    typename Basis1D::T y = initcond.R1pR2*x-initcond.R1;
+    typename Basis1D::T y = initcond.RightmLeft*x+initcond.left;
     return    basisfunction(x,initcond.j1,initcond.k1,initcond.deriv1)
             * initcond.option.payoff_log(y)
-            * exp(-2*initcond.eta*fabs(y))
-            * initcond.sqrtR1pR2;
+            * initcond.weight(y)
+            * initcond.SqrtRightmLeft;
 }
 
 template <OptionType1D OType, typename Basis1D>
 PayoffInitialCondition1D<OType,Basis1D>::PayoffInitialCondition1D(const Option1D<T,OType> &_option,
                                                                   const Basis1D &_basis,
+                                                                  const Function<T> &_weight,
                                                                   const T _eta,
-                                                                  const T _R1, const T _R2)
-    : option(_option), basis(_basis), eta(_eta), R1(_R1), R2(_R2), quadrature(*this),
-      R1pR2(R1+R2), sqrtR1pR2(std::sqrt(R1+R2))
+                                                                  const T _left, const T _right)
+    : option(_option), basis(_basis), weight(_weight),
+      eta(_eta), left(_left), right(_right), quadrature(*this),
+      RightmLeft(right-left), SqrtRightmLeft(std::sqrt(right-left))
 {
 
 }

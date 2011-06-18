@@ -4,3 +4,8 @@
 *.d
 /applications/unbounded_domains/adwav/adwav-realline-helmholtz1d-wo-XBSpline
 /applications/unbounded_domains/adwav/adwav-realline-helmholtz1d-w-XBSpline
+validate/testWeightedIntegrals2
+validate/test_sparsegridmult
+validate/test_sparsevector
+applications/finance/test_sparsevector
+applications/unbounded_domains/validate/testDecayMatrixEntriesNonConstCoeffDiffOp

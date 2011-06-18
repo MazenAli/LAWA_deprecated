@@ -128,6 +128,7 @@ class ThetaScheme1D_LTI
         
         T theta;
         const Basis& basis;
+        const IdentityOperator1D<T,Basis> standardL2scalarproduct;
         const L2ScalarProduct& L2scalarproduct;
         const bool time_constant_rhs;
         const bool use_pcg;

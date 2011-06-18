@@ -34,7 +34,8 @@ struct PayoffInitialCondition1D
     typedef typename Basis1D::T T;
 
     PayoffInitialCondition1D(const Option1D<T,OType> &_option, const Basis1D &_basis,
-                             const T _eta=0, const T _R1=0., const T _R2=1.);
+                             const Function<T> &weight, const T _eta=0,
+                             const T _left=0., const T _right=1.);
 
     T
     operator()(XType _e1, int _j1, long _k1, int _deriv=0) const;
@@ -44,10 +45,11 @@ struct PayoffInitialCondition1D
 
     const Option1D<T,OType> &option;
     const Basis1D           &basis;
+    const Function<T>       &weight;
     const T                 eta;
-    const T                 R1, R2;
+    const T                 left, right;
     mutable Quadrature<Gauss,PayoffInitialCondition1D<OType,Basis1D> > quadrature;
-    const T                 R1pR2, sqrtR1pR2;
+    const T                 RightmLeft, SqrtRightmLeft;
 
     mutable int j1, deriv1,
                 j2, deriv2;

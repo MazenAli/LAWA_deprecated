@@ -31,7 +31,7 @@ struct ExponentialWeightFunction1D
 {
     static T eta;
     static T x1, x2;
-
+    static bool with_precPoints;
     static DenseVector<Array<T> > singularPoints;
 
     static void
@@ -52,6 +52,9 @@ struct ExponentialWeightFunction1D
 
     static T
     weight(T x);
+
+    static T
+    sqrtweight(T x);
 
     static T
     dweight(T x);

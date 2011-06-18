@@ -13,6 +13,10 @@ T
 ExponentialWeightFunction1D<T>::x2 = 0.;
 
 template <typename T>
+bool
+ExponentialWeightFunction1D<T>::with_precPoints = false;
+
+template <typename T>
 flens::DenseVector<Array<T> >
 ExponentialWeightFunction1D<T>::singularPoints(2);
 
@@ -20,6 +24,7 @@ template <typename T>
 void
 ExponentialWeightFunction1D<T>::setEta(T _eta)
 {
+    setSingularPoints();
     eta=_eta;
 }
 
@@ -35,6 +40,7 @@ template <typename T>
 void
 ExponentialWeightFunction1D<T>::setPrecPoints(T _x1, T _x2)
 {
+    with_precPoints=true;
     x1=_x1;
     x2=_x2;
 }
@@ -70,14 +76,21 @@ template <typename T>
 T
 ExponentialWeightFunction1D<T>::weight(T x)
 {
-    return exp(alpha(x)-0.5*(alpha(x1)+alpha(x2)));
+    return with_precPoints ? exp(alpha(x)-0.5*(alpha(x1)+alpha(x2))) : exp(alpha(x));
+}
+
+template <typename T>
+T
+ExponentialWeightFunction1D<T>::sqrtweight(T x)
+{
+    return with_precPoints ? exp(0.5*(alpha(x)-0.5*(alpha(x1)+alpha(x2)))) : exp(0.5*alpha(x));
 }
 
 template <typename T>
 T
 ExponentialWeightFunction1D<T>::dweight(T x)
 {
-    return dalpha(x)*exp(alpha(x)-0.5*(alpha(x1)+alpha(x2)));
+    return with_precPoints ? dalpha(x)*exp(alpha(x)-0.5*(alpha(x1)+alpha(x2))) : dalpha(x)*exp(alpha(x));
 }
 
 
