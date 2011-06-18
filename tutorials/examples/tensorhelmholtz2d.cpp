@@ -48,7 +48,7 @@ typedef DiagonalMatrixPreconditioner2D<T, Basis2D, HelmholtzOp2D>   DiagonalPrec
 typedef RHSWithPeaks1D<T, Basis1D>                                   RHS1D;
 
 /// The constant 'c' in the Helmholtz equation.
-const double c =  2.;
+const double c =  1.;
 
 
 T u1(T x)

@@ -56,7 +56,7 @@ int main (int argc, char *argv[]) {
     Compression Compr(basis2d,false,20);
 
     IdentityOp  identity_op(basis);
-    PDEOp       pde_op(basis,2.,3.,1.);
+    PDEOp       pde_op(basis,0.5,0.,1.);
 
     IndexSet<Index2D> Lambda = getFullTensorIndexSet(basis, Jx, Jy);
 
@@ -67,11 +67,12 @@ int main (int argc, char *argv[]) {
 
     Compr.setParameters(Lambda);
 
+
     cout << "Started assembling of 2d-stiffness matrix." << endl;
     int row_count=1, col_count=1;
     for (set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
         col_count=1;
-        v(row_count) = 1.;
+        v(row_count) = row_count;
         for (set_it col=Lambda.begin(); col!=Lambda.end(); ++col) {
             T val1_x = pde_op((*row).index1,(*col).index1);
             T val1_y = identity_op((*row).index2,(*col).index2);

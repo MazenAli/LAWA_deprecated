@@ -21,6 +21,7 @@
 #define LAWA_METHODS_UNIFORM_DATASTRUCTURES_UNIFORMTENSORMATRIX2D_H 1
 
 #include <lawa/settings/enum.h>
+#include <lawa/methods/uniform/algorithms/assembler1d.h>
 
 namespace lawa {
 

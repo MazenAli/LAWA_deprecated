@@ -95,11 +95,13 @@ UniformTensorMatrix2D<T,UniformBasis2D,S1_x,S1_y,S2_x,S2_y>::operator*(const Den
         ret(i,_) = tmp;
     }
 
+
     DenseMatrixT intermed(_basis.second.mra.cardI(_Jy), _basis.first.mra.cardI(_Jx));
     for (int j=1; j<=V.numCols(); ++j) {
         DenseVectorT tmp = _M_s2_y*V(_,j);
         intermed(_,j) = tmp;
     }
+
     for (int i=1; i<=intermed.numRows(); ++i) {
         DenseVectorT v=intermed(i,_);
         DenseVectorT tmp = _M_s2_x*v;
