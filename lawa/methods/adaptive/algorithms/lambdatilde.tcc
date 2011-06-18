@@ -544,10 +544,14 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
 template <typename T, Construction Cons>
 IndexSet<Index1D>
 lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &basis,
-                          int s_tilde, int jmin, int jmax, bool update)
+                          int s_tilde_level, int jmin, int jmax, int s_tilde_singsupp)
 {
     using std::min;
     using std::max;
+
+    if (s_tilde_singsupp==-1) {
+        s_tilde_singsupp = (int)((basis.d-1.5)*s_tilde_level/(1.+basis.d_))+1;
+    }
 
     BSpline<T,Primal,Interval,Cons> phi_col(basis.mra), phi_row(basis.mra);
     Wavelet<T,Primal,Interval,Cons> psi_col(basis), psi_row(basis);
@@ -576,7 +580,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
         }
 
         //Adding Wavelets
-        for (int j_row=jmin; j_row<=min(jmin+s_tilde, jmax); ++j_row) {
+        for (int j_row=jmin; j_row<=min(jmin+s_tilde_level, jmax); ++j_row) {
 
             int kMin = basis.rangeJ(j_row).firstIndex(), kMax = basis.rangeJ(j_row).lastIndex();
             int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(j_row)), kMin), kMax);
@@ -607,7 +611,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
         Support<T> supp_col = psi_col.support(j,k);
 
         //Adding B-Splines
-        if (fabs(j - jmin) <= s_tilde) {
+        if (fabs(j - jmin) <= s_tilde_level) {
             int kMin = basis.mra.rangeI(jmin).firstIndex(), kMax = basis.mra.rangeI(jmin).lastIndex();
             int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(jmin)), kMin), kMax);
             //assert((overlap(supp_col, phi_row.support(jmin,kStart))>0));
@@ -635,7 +639,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
         }
 
         //Adding Wavelets
-        for (int j_row=max(j-s_tilde,jmin); j_row<=min(j+s_tilde,jmax); ++j_row) {
+        for (int j_row=max(j-s_tilde_level,jmin); j_row<=min(j+s_tilde_level,jmax); ++j_row) {
 
             int kMin = basis.rangeJ(j_row).firstIndex(), kMax = basis.rangeJ(j_row).lastIndex();
             int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(j_row)), kMin), kMax);
@@ -682,11 +686,14 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
 template <typename T>
 IndexSet<Index1D>
 lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
-                              int s_tilde_level, int s_tilde_singsupp,
-                              int jmin, int jmax, bool /*update*/)
+                          int s_tilde_level, int jmin, int jmax, int s_tilde_singsupp)
 {
     const BSpline<T,Primal,R,CDF> phi = basis.mra.phi;
     const Wavelet<T,Primal,R,CDF> psi = basis.psi;
+
+    if (s_tilde_singsupp==-1) {
+        s_tilde_singsupp = (int)((basis.d-1.5)*s_tilde_level/(1.+basis.d_))+4;
+    }
 
     int j = lambda.j, k = lambda.k;
     int d = psi.d;

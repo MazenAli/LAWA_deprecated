@@ -106,7 +106,7 @@ int main (int argc, char *argv[]) {
     DenseVectorT             weight_singPts(3);
     weight_singPts = -1.,0.,1.;
     Function<T>              weightFct(smoothweight_f, weight_singPts);
-    WeightedPDEOp1D          Bil(basis, weightFct, 8, 0., 1.);
+    WeightedPDEOp1D          Bil(basis, weightFct, 4, 0., 1.);
     //NormPreconditioner1D     NormP(basis,weight,0);
     MidPointPreconditioner1D MidPointP(basis,weightFct,0);
     Compression              compression(basis);

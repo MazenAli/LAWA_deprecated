@@ -33,13 +33,12 @@ template <typename T>
 template <typename T, Construction Cons>
     IndexSet<Index1D>
     lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &basis,
-                              int s_tilde, int jmin, int jmax, bool update);
+                              int s_tilde_level, int jmin, int jmax, int s_tilde_singsupp=-1);
 
 template <typename T>
     IndexSet<Index1D>
     lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
-                              int s_tilde_level, int s_tilde_singsupp,
-                              int jmin, int jmax, bool update);
+                              int s_tilde_level, int jmin, int jmax, int s_tilde_singsupp=-1);
 
 } // namespace lawa
 

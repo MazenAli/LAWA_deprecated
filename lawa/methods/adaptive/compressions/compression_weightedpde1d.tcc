@@ -28,7 +28,6 @@ CompressionWeightedPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col,
                                            const IndexSet<Index1D> &LambdaRow, int J)
 {
     typedef typename IndexSet<Index1D>::const_iterator set1d_const_it;
-
     IndexSet<Index1D> LambdaRowSparse;
     int s = std::max(abs(lambda_col.j-jmin),abs(lambda_col.j-jmax));
     s = std::max(s,int(s_tilde));
@@ -36,7 +35,7 @@ CompressionWeightedPDE1D<T,Basis>::SparsityPattern(const Index1D &lambda_col,
     //Compression level J>s_tilde as indices corresponding to level differences
     //larger than s_tilde cannot appear in LambdaRow
 
-    IndexSet<Index1D> Lambda_x = lambdaTilde1d_WeightedPDE(lambda_col, basis, s, jmin, jmax, false);
+    IndexSet<Index1D> Lambda_x = lambdaTilde1d_WeightedPDE(lambda_col, basis, s, jmin, jmax);
     for (set1d_const_it lambda_x = Lambda_x.begin(); lambda_x != Lambda_x.end(); ++lambda_x) {
         if (LambdaRow.count(*lambda_x)>0) {
             LambdaRowSparse.insert(*lambda_x);

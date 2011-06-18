@@ -40,12 +40,14 @@ computeErrorInH1Norm(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Ind
                      T HNormOfExactSolution)
 {
     Coefficients<Lexicographical,T,Index> Au, f_H;
-    Au = mv_sparse(supp(u),A_H,u);
+    //Au = mv_sparse(supp(u),A_H,u);
+    Au = mv(supp(u),A_H,u);
+    std::cerr << "Attention: Slow matrix vector product..." << std::endl;
     T uAu = u*Au;
     f_H   = F_H(supp(u));
     T fu  = f_H*u;
 
-    return std::sqrt(fabs(std::pow(HNormOfExactSolution,2)- 2*fu + uAu));
+    return std::sqrt(fabs(std::pow(HNormOfExactSolution,2.)- 2*fu + uAu));
 
 }
 

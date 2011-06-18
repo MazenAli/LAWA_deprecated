@@ -33,9 +33,9 @@ CompressionWeightedPDE2D<T,Basis2D>::SparsityPattern(const Index2D &lambda_col,
 
     IndexSet<Index2D> LambdaRowSparse;
     IndexSet<Index1D> Lambda_x =
-               lambdaTilde1d_WeightedPDE(lambda_col.index1, basis.first,  s_tilde_x, jmin_x, jmax_x, false);
+               lambdaTilde1d_WeightedPDE(lambda_col.index1, basis.first,  s_tilde_x, jmin_x, jmax_x);
     IndexSet<Index1D> Lambda_y =
-               lambdaTilde1d_WeightedPDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y, jmax_y, false);
+               lambdaTilde1d_WeightedPDE(lambda_col.index2, basis.second, s_tilde_y, jmin_y, jmax_y);
 
     //int level_thresh_bound = std::min(J,std::max(s_tilde_x,s_tilde_y));
 

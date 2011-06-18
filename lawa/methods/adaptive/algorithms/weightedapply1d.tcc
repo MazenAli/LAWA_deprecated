@@ -24,9 +24,9 @@ SYM_WEIGHTED_APPLY_1D<T,Basis1D,Parameters,MA>::operator()
     for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
         IndexSet<Index1D> Lambda_v;
         int s_tilde_level    = k-s;
-        int s_tilde_singsupp = (int)((d-1.5)*s_tilde_level/(1.+d_))+1;
-        Lambda_v=lambdaTilde1d_WeightedPDE((*it).second, basis, s_tilde_level, s_tilde_singsupp,
-                                           basis.j0, (*it).second.j+(k-s)+1,false);
+        //int s_tilde_singsupp = (int)((d-1.5)*s_tilde_level/(1.+d_))+1;
+        Lambda_v=lambdaTilde1d_WeightedPDE((*it).second, basis, s_tilde_level,
+                                           basis.j0, (*it).second.j+(k-s)+1);
         for (const_set_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
             ret[*mu] += A(*mu, (*it).second) * (*it).first;
         }

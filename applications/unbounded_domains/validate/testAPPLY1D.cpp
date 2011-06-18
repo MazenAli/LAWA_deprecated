@@ -10,7 +10,6 @@ typedef double T;
 /// Thresh bound
 const T thresh = 1e-15;
 
-
 // Basis definitions
 const DomainType   domain = R;
 const Construction construction = CDF;
@@ -131,8 +130,11 @@ int main (int argc, char *argv[]) {
 
         count=1;
         for (const_set_it col=Lambda.begin(); col!=Lambda.end(); ++col,++count) {
+            int s_tilde_level = J+1;
+            int s_tilde_singsupp = J+1;
             cout << *col << endl;
-            IndexSet<Index1D> LambdaTilde = lambdaTilde1d_WeightedPDE(*col, basis, J+1, J+1, j0, j0+J, false);
+            IndexSet<Index1D> LambdaTilde = lambdaTilde1d_WeightedPDE(*col, basis, s_tilde_level,
+                                                                      j0, j0+J, s_tilde_singsupp);
             for (const_set_it row=LambdaTilde.begin(); row!=LambdaTilde.end(); ++row) {
                 Au[(*row)] += P(*row)*op(*row,*col)*P(*col) * u[*col];
             }
@@ -164,8 +166,10 @@ int main (int argc, char *argv[]) {
 
         count=1;
         for (const_set_it col=Lambda.begin(); col!=Lambda.end(); ++col,++count) {
-            cout << *col << " " << basis.generator((*col).xtype).support((*col).j,(*col).k) << endl;
-            IndexSet<Index1D> LambdaTilde = lambdaTilde1d_WeightedPDE(*col, basis, J+1, J+1, j0, j0+J, false);
+            int s_tilde_level = J+1;
+            int s_tilde_singsupp = J+1;
+            IndexSet<Index1D> LambdaTilde = lambdaTilde1d_WeightedPDE(*col, basis, s_tilde_level,
+                                                                      j0, j0+J, s_tilde_singsupp);
             for (const_set_it row=LambdaTilde.begin(); row!=LambdaTilde.end(); ++row) {
                 Au[(*row)] += P(*row)*op(*row,*col)*P(*col) * u[*col];
             }

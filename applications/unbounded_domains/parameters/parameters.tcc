@@ -102,8 +102,9 @@ Parameters<T, Basis<T,Primal,R,CDF>, WeightedHelmholtzOperator1D<T,Basis<T,Prima
     else {                //wavelet with b-splines on coarse level discretization
          std::cout << "Parameters: j0 = " << j0 << std::endl;
         if (basis.d==2 && basis.d_==2 && Bil.c == 1.) {
-            if (j0==0)  {    cA = 0.18; CA = 2.8;    }
-            if (j0==2)  {    cA = 0.45; CA = 2.8;    }
+            if      (j0==0)  {    cA = 0.064; CA = 8.9;    }
+            else if (j0==1)  {    cA = 0.18; CA = 3.18;    }
+            else if (j0==2)  {    cA = 0.24; CA = 2.28;    }
             else assert(0);
         }
         else if (basis.d==3 && basis.d_==3 && Bil.c == 1.) {
