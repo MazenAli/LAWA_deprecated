@@ -43,6 +43,9 @@ class UniformTensorMatrix2D
         int
         numCols() const;
 
+        IndexSet<Index2D>
+        getIndexSet() const;
+
         DenseVectorT
         operator*(const DenseVectorT &v) const;
 

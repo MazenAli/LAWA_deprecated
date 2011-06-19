@@ -34,12 +34,18 @@ class BlockAssembler1D
     public:
         BlockAssembler1D(const Basis& _basis);
 
-        /* Assemble Stiffness Matrix in transposed form, i.e.
-         * corresponding to a(v,u)
-         */
         template <typename BilinearForm>
         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-        assembleBlock(BilinearForm& a, int j1, int j2, T tol = 10e-15);
+        assembleStiffnessMatrixBlock(BilinearForm& a, int i1, int i2, T tol = 10e-15);
+
+        template <typename BilinearForm>
+        flens::DenseVector<flens::Array<T> >
+        assembleStiffnessMatrixBlockDiagonal(BilinearForm& a, int i, T tol = 10e-15);
+
+        template <typename RHSIntegral>
+        flens::DenseVector<flens::Array<T> >
+        assembleRHSBlock(RHSIntegral& rhs, int i);
+
 
 };
 

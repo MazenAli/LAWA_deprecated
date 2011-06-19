@@ -9,3 +9,7 @@ validate/test_sparsegridmult
 validate/test_sparsevector
 applications/finance/test_sparsevector
 applications/unbounded_domains/validate/testDecayMatrixEntriesNonConstCoeffDiffOp
+tutorials/examples/tensorfullgridhelmholtz2d
+validate/test_tensorfullgridmult2d
+validate/test_tensorsparsegridmult2d
+tutorials/examples/tensorsparsegridhelmholtz2d

@@ -26,6 +26,23 @@
 #include <lawa/operators/operators.h>
 
 
+/*
+  std::vector<int*> sg_blocks:
+     stores an array of "blocks" (see below). Each block consists of a level combination w.r.t
+     to the sparse grid structure.
+
+
+
+  int* pair:
+     (pair[0], pair[1]) combination of levels in x and y direction w.r.t. to sparse grid
+     structure,
+     (pair[2], pair[3]) give the first and last index for the the current block
+     when all sparse grid blocks are stored in one vector
+     (pair[4], pair[5]) give the dimension of the block, i.e. pair[4] = |# nof x-indices|,
+     pair[5] = |# nof y-indices|.
+ */
+
+
 namespace lawa {
 
 template <typename T, typename Basis2D, typename S1_x, typename S1_y, typename S2_x, typename S2_y>
@@ -34,15 +51,22 @@ class TensorSparseGrid2D {
     public:
         typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
         typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+        typedef flens::DiagonalMatrix<T>                                    DiagonalMatrixT;
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
         typedef std::map<std::pair<int,int>, int ,lt_int_vs_int >           LevelPairMap;
 
-        TensorSparseGrid2D(const Basis2D &_basis, const S1_x &_s1_x, const S1_y &_s1_y,
-                           const S2_x &_s2_x, const S2_y &_s2_y,int _J, T _gamma);
+        TensorSparseGrid2D(const Basis2D &basis, const S1_x &s1_x, const S1_y &s1_y,
+                           const S2_x &s2_x, const S2_y &s2_y, int I, T gamma);
 
         int
         getDimension() const;
+
+        int
+        numCols() const;
+
+        int
+        numRows() const;
 
         IndexSet<Index2D>
         getIndexSet() const;
@@ -51,31 +75,41 @@ class TensorSparseGrid2D {
         toCoefficients(const DenseVectorT &vec,
                        Coefficients<Lexicographical,T,Index2D> &sparsegridcoefficients);
 
+        T
+        evaluate(const DenseVectorT &u, T x, T y, int deriv_x, int deriv_y) const;
+
+        DiagonalMatrixT
+        assembleDiagonalMatrixPreconditioner();
+
+        template <typename RHSIntegral_x, typename RHSIntegral_y>
+        DenseVectorT
+        assembleRHS(const RHSIntegral_x &rhs_x, const RHSIntegral_y &rhs_y);
+
         DenseVectorT
         operator*(const DenseVectorT &v) const;
 
     private:
         DenseMatrixT
-        block_multiplication(int i, int j, const DenseMatrixT &Xj) const;
+        block_multiplication(int row_block, int col_block, const DenseMatrixT &Xj) const;
 
         void
         assembleMatrices();
 
-        const Basis2D       &basis;
-        const S1_x          &s1_x;
-        const S1_y          &s1_y;
-        const S2_x          &s2_x;
-        const S2_y          &s2_y;
-        int                 j0_x, j0_y;
-        int                 J;
-        T                   gamma;
-        BlockAssembler1D<T,typename Basis2D::FirstBasisType> blockassembler1d;
+        const Basis2D       &_basis;
+        const S1_x          &_s1_x;
+        const S1_y          &_s1_y;
+        const S2_x          &_s2_x;
+        const S2_y          &_s2_y;
+        int                 _j0_x, _j0_y;
+        int                 _I;
+        T                   _gamma;
 
-        int dim;
-        std::vector<int*>                                 sg_blocks;
-        LevelPairMap                                      levelpair_map;
-        std::vector<SparseMatrixT>                        matrixblocks_s1_x, matrixblocks_s1_y,
-                                                          matrixblocks_s2_x, matrixblocks_s2_y;
+        BlockAssembler1D<T,typename Basis2D::FirstBasisType> _blockassembler1d;
+        int                                                  _dim;
+        std::vector<int*>                                    _sg_blocks;
+        LevelPairMap                                         _levelpair_map;
+        std::vector<SparseMatrixT>                           _matrixblocks_s1_x, _matrixblocks_s1_y,
+                                                             _matrixblocks_s2_x, _matrixblocks_s2_y;
 };
 
 }   //namespace lawa

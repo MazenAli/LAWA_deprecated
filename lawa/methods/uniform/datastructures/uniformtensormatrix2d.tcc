@@ -32,6 +32,38 @@ UniformTensorMatrix2D<T,UniformBasis2D,S1_x,S1_y,S2_x,S2_y>::numCols() const
 }
 
 template<typename T, typename UniformBasis2D, typename S1_x, typename S1_y,
+       typename S2_x, typename S2_y>
+IndexSet<Index2D>
+UniformTensorMatrix2D<T,UniformBasis2D,S1_x,S1_y,S2_x,S2_y>::getIndexSet() const
+{
+    IndexSet<Index2D> Lambda;
+
+    for (int k_x=_basis.first.mra.rangeI(_basis.first.j0).firstIndex(); k_x<=_basis.first.mra.rangeI(_basis.first.j0).lastIndex(); ++k_x) {
+        for (int k_y=_basis.second.mra.rangeI(_basis.second.j0).firstIndex(); k_y<=_basis.second.mra.rangeI(_basis.second.j0).lastIndex(); ++k_y) {
+            Lambda.insert(Index2D(Index1D(_basis.first.j0,k_x,XBSpline),Index1D(_basis.second.j0,k_y,XBSpline)));
+        }
+        for (int j_y=_basis.second.j0; j_y<=_Jy-1; ++j_y) {
+            for (int k_y=_basis.second.rangeJ(j_y).firstIndex(); k_y<=_basis.second.rangeJ(j_y).lastIndex(); ++k_y) {
+                Lambda.insert(Index2D(Index1D(_basis.first.j0,k_x,XBSpline),Index1D(j_y,k_y,XWavelet)));
+            }
+        }
+    }
+    for (int j_x=_basis.first.j0; j_x<=_Jx-1; ++j_x) {
+        for (int k_x=_basis.first.rangeJ(j_x).firstIndex(); k_x<=_basis.first.rangeJ(j_x).lastIndex(); ++k_x) {
+            for (int k_y=_basis.second.mra.rangeI(_basis.second.j0).firstIndex(); k_y<=_basis.second.mra.rangeI(_basis.second.j0).lastIndex(); ++k_y) {
+                Lambda.insert(Index2D(Index1D(j_x,k_x,XWavelet),Index1D(_basis.second.j0,k_y,XBSpline)));
+            }
+            for (int j_y=_basis.second.j0; j_y<=_Jy-1; ++j_y) {
+                for (int k_y=_basis.second.rangeJ(j_y).firstIndex(); k_y<=_basis.second.rangeJ(j_y).lastIndex(); ++k_y) {
+                    Lambda.insert(Index2D(Index1D(j_x,k_x,XWavelet),Index1D(j_y,k_y,XWavelet)));
+                }
+            }
+        }
+    }
+    return Lambda;
+}
+
+template<typename T, typename UniformBasis2D, typename S1_x, typename S1_y,
         typename S2_x, typename S2_y>
 flens::DenseVector<flens::Array<T> >
 UniformTensorMatrix2D<T,UniformBasis2D,S1_x,S1_y,S2_x,S2_y>::operator*(const DenseVectorT &v) const

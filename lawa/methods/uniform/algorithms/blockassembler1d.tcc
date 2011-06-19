@@ -9,7 +9,7 @@ BlockAssembler1D<T, Basis>::BlockAssembler1D(const Basis& _basis)
 template<typename T, typename Basis>
 template <typename BilinearForm>
 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
-BlockAssembler1D<T, Basis>::assembleBlock(BilinearForm& a, int i1, int i2, T tol)
+BlockAssembler1D<T, Basis>::assembleStiffnessMatrixBlock(BilinearForm& a, int i1, int i2, T tol)
 {
     assert(i1>=-1);
     assert(i2>=-1);
@@ -76,6 +76,73 @@ BlockAssembler1D<T, Basis>::assembleBlock(BilinearForm& a, int i1, int i2, T tol
 
     return A;
 }
+
+template<typename T, typename Basis>
+template <typename BilinearForm>
+flens::DenseVector<flens::Array<T> >
+BlockAssembler1D<T, Basis>::assembleStiffnessMatrixBlockDiagonal(BilinearForm& a, int i, T tol)
+{
+    assert(i>=-1);
+
+    int j0 = basis.j0;
+    int offsetJ = basis.rangeJ(j0).firstIndex()-1;
+    int offsetI = basis.mra.rangeI(j0).firstIndex()-1;
+
+    int N=0;
+    if (i<0) { N = basis.mra.cardI(j0); }
+    else     { N = basis.cardJ(j0+i); }
+
+
+    flens::DenseVector<flens::Array<T> > diag_A(N);
+
+    if (i<0) {
+        for(int k = basis.mra.rangeI(j0).firstIndex(); k <= basis.mra.rangeI(j0).lastIndex(); ++k){
+            T val = a(XBSpline, j0, k, XBSpline, j0, k);
+            if(fabs(val) > tol){
+                diag_A(k-offsetI) = val;
+            }
+        }
+    }
+
+    else {
+        for(int k = basis.rangeJ(j0+i).firstIndex(); k <= basis.rangeJ(j0+i).lastIndex(); ++k){
+            T val = a(XWavelet, j0+i, k, XWavelet, j0+i, k);
+            if(fabs(val) > tol){
+                diag_A(k-offsetJ) = val;
+            }
+        }
+    }
+
+    return diag_A;
+}
+
+template<typename T, typename Basis>
+template <typename RHSIntegral>
+flens::DenseVector<flens::Array<T> >
+BlockAssembler1D<T, Basis>::assembleRHSBlock(RHSIntegral &rhs, int i)
+{
+    int j0 = basis.j0;
+    int offsetJ = basis.rangeJ(j0).firstIndex()-1;
+    int offsetI = basis.mra.rangeI(j0).firstIndex()-1;
+
+    int N=0;
+    if (i<0) { N = basis.mra.cardI(j0); }
+    else     { N = basis.cardJ(j0+i); }
+
+    flens::DenseVector<flens::Array<T> > f(N);
+    if (i<0) {
+        for(int k = basis.mra.rangeI(j0).firstIndex(); k <= basis.mra.rangeI(j0).lastIndex(); ++k){
+            f(k - offsetI) = rhs(XBSpline, j0, k);
+        }
+    }
+    else {
+        for(int k = basis.rangeJ(j0+i).firstIndex(); k <= basis.rangeJ(j0+i).lastIndex(); ++k){
+            f(k - offsetJ) = rhs(XWavelet, j0+i, k);
+        }
+    }
+    return f;
+}
+
 
 
 }
