@@ -31,11 +31,11 @@ namespace lawa {
 
 /* Uniform RBTruth 2D:
  *
- *	This class provides data and functions for an uniform truth system, i.e. \calN-dependent
- * 	members and methods, using uniform operators and righthandsides.
+ *    This class provides data and functions for an uniform truth system, i.e. \calN-dependent
+ *     members and methods, using uniform operators and righthandsides.
  *
- *	It contains a pointer to the associated RB Model, as well as
- *	a pointer to an actual solver that is used for snapshot calculations.
+ *    It contains a pointer to the associated RB Model, as well as
+ *    a pointer to an actual solver that is used for snapshot calculations.
  */
 
 template <typename, typename> class RBModel2D;
@@ -43,15 +43,15 @@ template <typename, typename> class RBModel2D;
 template <typename T, typename TruthSolver>
 class UniformRBTruth2D {
 
-    	typedef T (*theta_fctptr)(const std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
-		typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
-		typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
-	
+        typedef T (*theta_fctptr)(const std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
+        typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+        typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
+    
     public:
 
-		/* Public member functions */
+        /* Public member functions */
         
-		UniformRBTruth2D();
+        UniformRBTruth2D();
         
         void
         attach_A_q(theta_fctptr theta_a_q, UniformOperator2D<T>& A_q);
@@ -67,46 +67,46 @@ class UniformRBTruth2D {
         
         /* Public members */
         
-        std::vector<UniformOperator2D<T>*> 	A_operators;
-        std::vector<Rhs2D<T>*>	    		F_operators;
+        std::vector<UniformOperator2D<T>*>     A_operators;
+        std::vector<Rhs2D<T>*>                F_operators;
 
-        TruthSolver*						solver;
+        TruthSolver*                        solver;
 
          // Wrapper class for affine structure on left hand side       
-    	class Operator_LHS {
-        	public:
-            	Operator_LHS(UniformRBTruth2D<T, TruthSolver>* _truth) : thisTruth(_truth){}
+        class Operator_LHS {
+            public:
+                Operator_LHS(UniformRBTruth2D<T, TruthSolver>* _truth) : thisTruth(_truth){}
                 
-				T
+                T
                 operator()(XType row_xtype_x, int j1_x, int k1_x,
                            XType row_xtype_y, int j1_y, int k1_y,
                            XType col_xtype_x, int j2_x, int k2_x,
                            XType col_xtpye_y, int j2_y, int k2_y) const;
             
             private:
-            	UniformRBTruth2D<T, TruthSolver>* thisTruth;
+                UniformRBTruth2D<T, TruthSolver>* thisTruth;
         };
         
          // Wrapper class for affine structure on right hand side               
         class Operator_RHS {
-        	public:
-            	Operator_RHS(UniformRBTruth2D<T, TruthSolver>* _truth) : thisTruth(_truth){}
+            public:
+                Operator_RHS(UniformRBTruth2D<T, TruthSolver>* _truth) : thisTruth(_truth){}
                 
-				T
+                T
                 operator()(XType xtype_x, int j_x, int k_x,
                            XType xtype_y, int j_y, int k_y) const;
             
             private:
-            	UniformRBTruth2D<T, TruthSolver>* thisTruth;        
+                UniformRBTruth2D<T, TruthSolver>* thisTruth;        
         };
         
-        Operator_LHS 	lhs_op;
-        Operator_RHS 	rhs_op;
+        Operator_LHS     lhs_op;
+        Operator_RHS     rhs_op;
         
     private:
     
         RBModel2D<T, UniformRBTruth2D<T, TruthSolver> >* rb;
-    	
+        
 };
     
 } // namespace lawa

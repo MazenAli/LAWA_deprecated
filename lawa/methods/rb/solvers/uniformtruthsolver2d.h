@@ -13,18 +13,18 @@ template <typename, typename> class UniformRBTruth2D;
 
 /* Uniform Truth Solver:
  *
- *	This class provides a solver for truth solutions, based on
- * 	the uniform (or sparse) assembler methods.
+ *    This class provides a solver for truth solutions, based on
+ *     the uniform (or sparse) assembler methods.
  *  It is linked to a uniform truth model in 2d
  */
 template <typename T, typename Basis, typename Prec = NoPreconditioner<T, Index2D> >
 class UniformTruthSolver2D {
     
     typedef  UniformRBTruth2D<T, UniformTruthSolver2D<T, Basis, Prec> > Truth;
-		    
+            
     public:
-    	// Public member functions
-		UniformTruthSolver2D(Basis& _basis);
+        // Public member functions
+        UniformTruthSolver2D(Basis& _basis);
         UniformTruthSolver2D(Basis& _basis, int _J_x, int _J_y);
         UniformTruthSolver2D(Basis& _basis, Prec& prec);
         UniformTruthSolver2D(Basis& _basis, int _J_x, int _J_y, Prec& prec);
@@ -38,29 +38,29 @@ class UniformTruthSolver2D {
         flens::DenseVector<flens::Array<T> > 
         get_Jmax();
         
-		void 
+        void 
         set_model(Truth& _truthmodel); 
         
         // Public members        
         const NoPreconditioner<T, Index2D> noprec; 
-        Prec& 		 					   prec;
+        Prec&                                 prec;
                
     private:
-    	
+        
         // Private member functions
         
         /* Function that converts a DenseVector of coefficient values (relative to the
          * current basis) to a Coefficients map. Used in truth_solve().
          */
         void
-		denseVectorToCoefficients(flens::DenseVector<flens::Array<T> > arg, 
+        denseVectorToCoefficients(flens::DenseVector<flens::Array<T> > arg, 
                                   Coefficients<Lexicographical,T, Index2D>& dest);
         
         // Private members
         Truth* truth_model;
 
-    	Basis& basis;
-    	int J_x, J_y;
+        Basis& basis;
+        int J_x, J_y;
         
         Assembler2D<T, Basis> assembler;
         
