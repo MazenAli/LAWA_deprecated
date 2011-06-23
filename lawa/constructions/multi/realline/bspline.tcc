@@ -40,6 +40,8 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
                 _singularSupport[0] = linspace(-1.0,1.0,9);
                 _singularSupport[1] = linspace(0.0,1.0,3);
                 _singularSupport[2] = linspace(0.0,1.0,5);
+
+                _max_support = Support<T>(-1,1);
                 break;
             
         default: std::cerr << "BSpline<T,Orthogonal,R,Multi> not yet realized"
@@ -80,6 +82,13 @@ BSpline<T,Orthogonal,R,Multi>::support(int j, long k) const
 }
 
 template <typename T>
+Support<T>
+BSpline<T,Orthogonal,R,Multi>::max_support() const
+{
+    return _max_support;
+}
+
+template <typename T>
 DenseVector<Array<T> >
 BSpline<T,Orthogonal,R,Multi>::singularSupport(int j, long k) const
 {
@@ -92,6 +101,13 @@ BSpline<T,Orthogonal,R,Multi>::singularSupport(int j, long k) const
     return pow2i<T>(-j) * result;    
 }
     
+template <typename T>
+T
+BSpline<T,Orthogonal,R,Multi>::tic(int j) const
+{
+    return pow2i<T>(-(j+3));
+}
+
 template <typename T>
 long
 BSpline<T,Orthogonal,R,Multi>::_shift(long k) const

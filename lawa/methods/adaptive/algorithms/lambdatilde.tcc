@@ -114,8 +114,8 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
 
                     for (int k_row=kMin; k_row<=kMax; ++k_row) {
                         Support<T> supp_row(Pow2i_Mjrow*(support_refwavelet.l1+k_row),Pow2i_Mjrow*(support_refwavelet.l2+k_row));// = psi.support(j_row,k_row);
-                        if ((overlap(supp, supp_row) > 0) && (!(distance(psi.optim_singularSupport(j_row,k_row),supp) >= 0 ))) {
-                            //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
+                        if ((overlap(supp, supp_row) > 0) && (!(distance(psi.singularSupport(j_row,k_row),supp) >= 0 ))) {
+                            //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << std::endl;
                             ret.insert(Index1D(j_row,k_row,XWavelet));
                         }
                     }
@@ -197,6 +197,145 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
 
     }
     */
+    return ret;
+}
+
+template <typename T>
+IndexSet<Index1D>
+lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basis,
+                  int s_tilde, int jmin, int jmax, bool update)
+{
+    IndexSet<Index1D> ret;
+
+    const BSpline<T,Orthogonal,R,Multi> &phi = basis.mra.phi;
+    const Wavelet<T,Orthogonal,R,Multi> &psi = basis.psi;
+    int numSplines = (int)phi._numSplines;
+    int numWavelets = (int)psi._numSplines;
+
+    int j = lambda.j, k = lambda.k;
+    int d = psi.d;
+
+    Support<T> max_support_refbspline = phi.max_support();
+    Support<T> max_support_refwavelet = psi.max_support();
+
+
+    if (lambda.xtype == XBSpline) {
+
+        Support<T> supp = phi.support(j,k);
+
+        //std::cout << "lambdaTilde_R: Calculating IndexSet_R for BSpline with " << lambda << " " << " " << supp << std::endl;
+
+        // Inserting all indices corresponding to Bsplines with intersecting support using local compactness
+        for (int k_row=k-numSplines; k_row<=k+numSplines; ++k_row) {
+            if (overlap(supp, phi.support(j,k_row)) > 0) {
+                //std::cout << "lambdaTilde: BSpline (" << j << ", " << k_row << "): " << phi.support(j,k_row) << std::endl;
+                ret.insert(Index1D(j,k_row,XBSpline));
+            }
+        }
+        // Inserting all indices corresponding to Wavelets with intersecting support using
+        // a) local compactness  b) matrix compression  c) vanishing moments
+        for (int j_row=j; j_row<=std::min(j+s_tilde, jmax); ++j_row) {
+            T Pow2i_Mjrow = pow2i<T>(-j_row);
+
+            if (j_row>=j+2) {
+                DenseVector<Array<T> > singsupp = phi.singularSupport(j,k);
+                for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
+                    int kMin = floor(pow2i<T>(j_row)*singsupp(i) - max_support_refwavelet.l2)-1;
+                    int kMax =  ceil(pow2i<T>(j_row)*singsupp(i) - max_support_refwavelet.l1)+1;
+
+                    for (int k_help=kMin; k_help<=kMax; ++k_help) {
+                        for (int k_row=(k_help-1)*numWavelets+1; k_row<=k_help*numWavelets; ++k_row) {
+                            Support<T> supp_row = psi.support(j_row,k_row);
+                            //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << supp_row << std::endl;
+                            if (((overlap(supp_row, supp) > 0)) && (!(distance(singsupp,supp_row) >= 0 ))) {
+                                ret.insert(Index1D(j_row,k_row,XWavelet));
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+
+                int kMin = floor(pow2i<T>(j_row)*supp.l1 - max_support_refwavelet.l2)-1;
+                int kMax =  ceil(pow2i<T>(j_row)*supp.l2 - max_support_refwavelet.l1)+1;
+
+                for (int k_help=kMin; k_help<=kMax; ++k_help) {
+                    for (int k_row=(k_help-1)*numWavelets+1; k_row<=k_help*numWavelets; ++k_row) {
+                        Support<T> supp_row = psi.support(j_row,k_row);
+                        //std::cout << "LambdaTilde: Wavelet (" << j_row << ", " << k_row << "): " << supp_row << " " << supp << ", overlap=" << overlap(supp, psi.support(j_row,k_row)) << std::endl;
+                        if (overlap(supp, supp_row) > 0)  {
+                            ret.insert(Index1D(j_row,k_row,XWavelet));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else {
+        Support<T> supp = psi.support(j,k);
+        //std::cout << "lambdaTilde_R: Calculating IndexSet_R for BSpline with " << lambda << " " << " " << supp << std::endl;
+        //cout << "lambdaTilde_R: Calculating IndexSet_R for Wavelet with " << lambda << " " <<  psi_col.support(j,k) << " " << psi_col.singularSupport(j,k) << endl;
+
+        // Inserting all indices corresponding to Bsplines with intersecting support using
+        // a) local compactness  b) matrix compression  c) vanishing moments
+        if (fabs(j - jmin) <= s_tilde) {
+            int kMin = floor( pow2i<T>(jmin)*supp.l1 - max_support_refbspline.l2);
+            int kMax =  ceil( pow2i<T>(jmin)*supp.l2 - max_support_refbspline.l1);
+            for (int k_help=kMin; k_help<=kMax; ++k_help) {
+                for (int k_row=(k_help-1)*numSplines+1; k_row<=k_help*numSplines; ++k_row) {
+                    if (    (overlap(supp, phi.support(jmin,k_row)) > 0)
+                         && (!(distance(supp,phi.singularSupport(jmin,k_row)) >= 0 )) )
+                    {
+                        //std::cout << "lambdaTilde: BSpline (" << jmin << ", " << k_row << "): " << phi.support(jmin,k_row) << " " << distance(supp,phi.singularSupport(jmin,k_row))  << std::endl;
+                        ret.insert(Index1D(jmin,k_row,XBSpline));
+                    }
+                }
+            }
+        }
+        // Inserting all indices corresponding to Wavelets with intersecting support using
+        // a) local compactness  b) matrix compression  c) vanishing moments
+        for (int j_row=std::max(j-s_tilde,jmin); j_row<=std::min(j+s_tilde,jmax); ++j_row) {
+            T Pow2i_Mjrow = pow2i<T>(-j_row);
+            if (j_row>=j+4) {
+                DenseVector<Array<T> > singsupp = psi.singularSupport(j,k);
+                //cout << "LambdaTilde: Singular support psi_col_" << j << "," << k << " = " << singpts;
+                for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
+                    int kMin = floor(pow2i<T>(j_row)*singsupp(i) - max_support_refwavelet.l2);
+                    int kMax =  ceil(pow2i<T>(j_row)*singsupp(i) - max_support_refwavelet.l1);
+
+                    for (int k_help=kMin; k_help<=kMax; ++k_help) {
+                        for (int k_row=(k_help-1)*numWavelets+1; k_row<=k_help*numWavelets; ++k_row) {
+                            Support<T> supp_row = psi.support(j_row,k_row);
+                            if (   (overlap(supp, supp_row) > 0)
+                                && (!(distance(singsupp,supp_row) >= 0 ))){
+                                //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << " " << singsupp << std::endl;
+                                ret.insert(Index1D(j_row,k_row,XWavelet));
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                int kMin = floor(pow2i<T>(j_row)*supp.l1 - max_support_refwavelet.l2)-1;
+                int kMax =  ceil(pow2i<T>(j_row)*supp.l2 - max_support_refwavelet.l1)+1;
+
+                for (int k_help=kMin; k_help<=kMax; ++k_help) {
+                    for (int k_row=(k_help-1)*numWavelets+1; k_row<=k_help*numWavelets; ++k_row) {
+                        Support<T> supp_row = psi.support(j_row,k_row);
+                        //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << psi.support(j_row,k_row) << std::endl;
+                        if ((overlap(supp, supp_row) > 0)
+                            && (!(distance(psi.singularSupport(j_row,k_row),supp) >= 0 ))) {
+
+                            ret.insert(Index1D(j_row,k_row,XWavelet));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
     return ret;
 }
 
@@ -537,6 +676,19 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
             }
         }
     }
+    return ret;
+}
+
+template <typename T>
+IndexSet<Index1D>
+lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basis,
+                              int s_tilde, int jmin, int jmax)
+{
+    assert(0);
+    std::cerr << "lambdaTilde1d_PDE_WO_XBSpline not implemented for "
+              << "Basis<T,Orthogonal,R,Multi>." << std::endl;
+    exit(1);
+    IndexSet<Index1D> ret;
     return ret;
 }
 

@@ -30,7 +30,7 @@ namespace lawa {
 template <typename T, typename Basis>
 class H1NormPreconditioner1D
 {
-    ct_assert(IsPrimal<Basis>::value);
+    ct_assert(IsPrimal<Basis>::value || IsOrthogonal<Basis>::value);
 
     public:
         H1NormPreconditioner1D(const Basis &_basis);
