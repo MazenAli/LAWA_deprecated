@@ -17,6 +17,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+
 #include <iostream>
 #include <lawa/lawa.h>
 #include <applications/unbounded_domains/referencesolutions/referencesolutions.h>
@@ -25,10 +26,11 @@ typedef double T;
 using namespace lawa;
 using namespace std;
 
+const FunctionSide side = Orthogonal;
 const DomainType domain = R;
-const Construction cons = CDF;
+const Construction cons = Multi;
 
-typedef Basis<T,Primal,domain,cons> Basis1D;
+typedef Basis<T,side,domain,cons> Basis1D;
 
 //Operator definitions
 typedef HelmholtzOperator1D<T,Basis1D>     HelmholtzBilinearForm1D;
@@ -47,21 +49,21 @@ typedef MapMatrix<T,Index1D,HelmholtzBilinearForm1D,Compression1D,Preconditioner
 typedef S_ADWAV<T,Index1D, Basis1D, MA, Rhs> S_Adwav;
 
 int
-estimateMinimalLevel(int example, T c, int d, int d_);
+estimateMinimalLevel(int example, T c, int d, int d_, const Basis1D &basis);
 
 int main (int argc, char *argv[]) {
     if (argc != 5 && argc != 6) {
         cout << "usage " << argv[0] << " d d_ max_its example [jmin]" << endl; exit(1);
     }
     T c = 1.;
-    T contraction = 0.125;
+    T contraction = 1.;
     T threshTol = 0.1, cgTol = 0.1*threshTol, resTol=1e-4;
 
     int d=atoi(argv[1]), d_=atoi(argv[2]);
     int NumOfIterations=atoi(argv[3]);
     int example=atoi(argv[4]);
     int jmin=0;
-    int rhs_order=10;
+    int rhs_order=20;
     if (argc==5) {
         if (d==2 && d_==2) {
             if (example==1)      jmin=-2;
@@ -96,7 +98,8 @@ int main (int argc, char *argv[]) {
 
     cout << "Initializing S-ADWAV, jmin = " << jmin << endl;
 
-    Basis1D basis(d,d_,jmin);
+    //Basis1D basis(d,d_,jmin);
+    Basis1D basis(d,jmin);
     HelmholtzBilinearForm1D Bil(basis,c);
     Preconditioner1D P(basis);
     Compression1D Compr(basis);
@@ -111,7 +114,7 @@ int main (int argc, char *argv[]) {
     IndexSet<Index1D> InitialLambda;
     InitialLambda.insert(Index1D(jmin,1,XBSpline));
 
-    S_Adwav s_adwav(basis, A, F, contraction, threshTol, cgTol, resTol, NumOfIterations, 2, 1e-2);
+    S_Adwav s_adwav(basis, A, F, contraction, threshTol, cgTol, resTol, NumOfIterations, 2, 1e-2, 10000);
     cout << "... finished." << endl;
 
     Timer time;
@@ -136,19 +139,18 @@ int main (int argc, char *argv[]) {
                   << "_" << jmin << ".dat";
     cout << "Plot of solution started." << endl;
     plot<T, Basis1D, Preconditioner1D>(basis, s_adwav.solutions[NumOfIterations-1], P, refsol.u, refsol.d_u, -10., 10.,
-         pow2i<T>(-5), plot_filename.str().c_str());
+         0.01, plot_filename.str().c_str());
     cout << "Plot of solution finished." << endl;
     return 0;
 }
 
 
 int
-estimateMinimalLevel(int example, T c, int d, int d_)
+estimateMinimalLevel(int example, T c, int d, int d_, const Basis1D &basis)
 {
     //if (example==6) {
     //  return -3;  //works also with estimated j0, but H1-errors are more stable on a lower level
     //}
-    Basis1D basis(d,d_,0);
     HelmholtzBilinearForm1D Bil(basis,c);
     Preconditioner1D P(basis);
     RefSols_PDE_Realline1D<T> refsol;

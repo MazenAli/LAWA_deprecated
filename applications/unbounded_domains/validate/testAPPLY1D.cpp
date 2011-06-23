@@ -90,7 +90,7 @@ int main (int argc, char *argv[]) {
     int set_K_right=atoi(argv[7]);   //indcates right translation range for column index set
     int weighted   =atoi(argv[8]);   //use a weighted PDE-operator (=1) or not (else).
 
-    Basis1D basis(d,d,j0);
+    Basis1D basis(d,d_,j0);
     Coefficients<Lexicographical,T,Index1D> u, Au;
     Coefficients<AbsoluteValue,T,Index1D> u_abs;
 

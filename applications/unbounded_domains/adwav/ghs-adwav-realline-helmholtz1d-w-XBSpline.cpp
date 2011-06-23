@@ -27,8 +27,9 @@ typedef double T;
 using namespace lawa;
 using namespace std;
 
-typedef Basis<T,Primal,R,CDF>   Basis1D;
-typedef Wavelet<T,Primal,R,CDF> WaveletR;
+typedef Basis<T,Primal,R,CDF>       Basis1D;
+//typedef Basis<T,Orthogonal,R,Multi>   Basis1D;
+
 
 typedef IndexSet<Index1D>::const_iterator const_set_it;
 
@@ -98,6 +99,7 @@ int main (int argc, char *argv[]) {
     T eps=1e-5;
 
     Basis1D basis(d,d_,jmin);
+    //Basis1D basis(d,jmin);
     HelmholtzBilinearForm1D Bil(basis,1.);
     Preconditioner1D P(basis);
     Compression1D Compr(basis);
@@ -150,9 +152,8 @@ computeRHSLambda_SingularPart(const Basis1D &basis, const DenseVector<Array<T> >
                               int J_plus)
 {
     IndexSet<Index1D> ret;
-    BSpline<T,Primal,R,CDF> phi(basis.mra);
     T l1, l2;
-    l1 = phi.support(0,0).l1, l2 = phi.support(0,0).l2;
+    l1 = basis.mra.phi.support(0,0).l1, l2 = basis.mra.phi.support(0,0).l2;
     for (int i=1; i<=_f_singularPoints.length(); ++i) {
         T x=_f_singularPoints(i);
         int k_left =  std::floor(float(pow2i<T>(basis.j0)*x-l2));
@@ -162,8 +163,7 @@ computeRHSLambda_SingularPart(const Basis1D &basis, const DenseVector<Array<T> >
         }
     }
 
-    Wavelet<T,Primal,R,CDF> psi(basis);
-    l1 = psi.support(0,0).l1, l2 = psi.support(0,0).l2;
+    l1 = basis.psi.support(0,0).l1, l2 = basis.psi.support(0,0).l2;
     for (int i=1; i<=_f_singularPoints.length(); ++i) {
         T x=_f_singularPoints(i);
         for (int j=basis.j0; j<=J_plus; ++j) {
@@ -182,16 +182,15 @@ IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const Basis1D &basis, T a, T b, int J_plus)
 {
     IndexSet<Index1D> ret;
-    BSpline<T,Primal,R,CDF> phi(basis.mra);
     T l1, l2;
-    l1 = phi.support(0,0).l1, l2 = phi.support(0,0).l2;
+    l1 = basis.mra.phi.support(0,0).l1, l2 = basis.mra.phi.support(0,0).l2;
     int k_left =  std::floor(float(pow2i<T>(basis.j0)*a-l2));
     int k_right = std::ceil(float(pow2i<T>(basis.j0)*b-l1));
     for (int k=k_left; k<=k_right; ++k) {
         ret.insert(Index1D(basis.j0,k,XBSpline));
     }
-    Wavelet<T,Primal,R,CDF> psi(basis);
-    l1 = psi.support(0,0).l1, l2 = psi.support(0,0).l2;
+
+    l1 = basis.psi.support(0,0).l1, l2 = basis.psi.support(0,0).l2;
     for (int j=basis.j0; j<=J_plus; ++j) {
         int k_left =  std::floor(float(pow2i<T>(j)*a-l2));
         int k_right = std::ceil(float(pow2i<T>(j)*b-l1));
@@ -208,6 +207,7 @@ initializeRHSVector(const Basis1D &basis, const RhsIntegral1D &rhsintegral1d_sin
                     const RhsIntegral1D &rhsintegral1d_smooth, const Preconditioner1D &P,
                     RefSols_PDE_Realline1D<T> &refsol)
 {
+
     T left_bound = 0., right_bound = 0.;
     int J_plus_smooth = 0, J_plus_singular = 0;
     bool singular_integral=false;

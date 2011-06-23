@@ -13,3 +13,9 @@ tutorials/examples/tensorfullgridhelmholtz2d
 validate/test_tensorfullgridmult2d
 validate/test_tensorsparsegridmult2d
 tutorials/examples/tensorsparsegridhelmholtz2d
+validate/test_lambdaTilde
+validate/test_multiwavelets_interval
+validate/test_multiwavelets_realline
+applications/unbounded_domains/validate/test_MW_APPLY1D
+applications/unbounded_domains/parameters/eigenvalues_mw
+applications/unbounded_domains/adwav/ghs-adwav-realline-mw-helmholtz1d
