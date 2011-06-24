@@ -84,6 +84,9 @@ class CRS
         Initializer *
         initializer();
 
+        Initializer *
+        initializer(Initializer *rhs);
+
         void
         allocate(int numNonZeros);
 
@@ -146,6 +149,9 @@ class CRS_Initializer
     public:
         CRS_Initializer(CRS<T, Storage> &crs, int k);
 
+        CRS_Initializer(CRS<T, Storage> &crs, int k, std::vector<CRS_Coordinate<T> > &coordinates,
+                        size_t lastSortedCoord);
+
         ~CRS_Initializer();
 
         void
@@ -154,9 +160,10 @@ class CRS_Initializer
         T &
         operator()(int row, int col);
 
-    private:
+//    private:
         typedef std::vector<CRS_Coordinate<T> > Coordinates;
-        Coordinates _coordinates;
+        Coordinates _tmp_coordinates;
+        Coordinates &_coordinates;
 
         CRS_CoordinateCmp _less;
         size_t _lastSortedCoord;

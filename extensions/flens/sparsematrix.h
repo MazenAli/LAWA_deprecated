@@ -57,6 +57,8 @@ class SparseGeMatrix
 
         SparseGeMatrix(int numRows, int numCols, int k=1);
 
+        SparseGeMatrix(int numRows, int numCols, Initializer *initializer, int k=1);
+
         // -- operators --------------------------------------------------------
         template <typename RHS>
             SparseGeMatrix<Engine> &
@@ -110,6 +112,9 @@ class SparseGeMatrix
 
         Engine &
         engine();
+
+        Initializer *
+        initializer() const;
 
     private:
         Engine       _engine;
