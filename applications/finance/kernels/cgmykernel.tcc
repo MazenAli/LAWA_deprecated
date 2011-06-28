@@ -2,7 +2,7 @@ namespace lawa {
 
 
 template <typename T>
-Kernel<T,CGMY>::Kernel(const Parameters<T,CGMY> &_params)
+Kernel<T,CGMY>::Kernel(const ProcessParameters1D<T,CGMY> &_params)
 : params(_params), C(_params.k_C), G(_params.k_G), M(_params.k_M), Y(_params.k_Y)
 {
     if ((Y == 0) || (Y == 1)) {
@@ -46,13 +46,15 @@ Kernel<T,CGMY>::Kernel(const Parameters<T,CGMY> &_params)
     c5 = constants[4]-constants[5];
     c6 = constants[6]-constants[7];
 
-    ExpXmOnemX_k_pos = C*boost::math::tgamma(-Y)*( std::pow(M-1,Y) - std::pow(M,Y) + Y*std::pow(M,Y-1));
-    ExpXmOnemX_k_neg = C*boost::math::tgamma(-Y)*( std::pow(G+1,Y) - std::pow(G,Y) - Y*std::pow(G,Y-1));
+    ExpXmOnemX_k_pos = C*boost::math::tgamma(-Y)*( std::pow(M-1,Y)-std::pow(M,Y)+Y*std::pow(M,Y-1));
+    ExpXmOnemX_k_neg = C*boost::math::tgamma(-Y)*( std::pow(G+1,Y)-std::pow(G,Y)-Y*std::pow(G,Y-1));
     ExpXmOnemX_k     = ExpXmOnemX_k_pos + ExpXmOnemX_k_neg;
     ExpXmOne_k1_pos =  ExpXmOnemX_k_pos;
     ExpXmOne_k1_neg =  ExpXmOnemX_k_neg;
-    ExpXmOne_k2_pos =  (CdivY/(1-Y))*(boost::math::tgamma(2-Y)*( powM_Y-2*powM_Ym1-std::pow(M-1,Y) ) + boost::math::tgamma(3-Y)*powM_Ym1  ) - constants[0];
-    ExpXmOne_k2_neg = -(CdivY/(1-Y))*(boost::math::tgamma(2-Y)*(-powG_Y-2*powG_Ym1+std::pow(G+1,Y) ) + boost::math::tgamma(3-Y)*powG_Ym1  ) + constants[1];
+    ExpXmOne_k2_pos =  (CdivY/(1-Y))*(boost::math::tgamma(2-Y)*( powM_Y-2*powM_Ym1-std::pow(M-1,Y) )
+                                      + boost::math::tgamma(3-Y)*powM_Ym1  ) - constants[0];
+    ExpXmOne_k2_neg = -(CdivY/(1-Y))*(boost::math::tgamma(2-Y)*(-powG_Y-2*powG_Ym1+std::pow(G+1,Y) )
+                                      + boost::math::tgamma(3-Y)*powG_Ym1  ) + constants[1];
 
 
 /*
@@ -68,18 +70,21 @@ Kernel<T,CGMY>::Kernel(const Parameters<T,CGMY> &_params)
 
 }
 
-
 template <typename T>
 T
 Kernel<T,CGMY>::TailIntegralMoments(T x, int l) const {
     if (l == 0) {
         assert(fabs(x)>0);
-        if (x>0) return  (C/Y)*( (std::pow(x,-Y)*exp(-M*x)) * (1+(M/(1-Y))*x) - std::pow(M,Y)/(1-Y)*boost::math::tgamma(2-Y,M*x));
-        else     return  (C/Y)*( (std::pow(-x,-Y)*exp(G*x)) * (1+(G/(1-Y))*(-x)) - std::pow(G,Y)/(1-Y)*boost::math::tgamma(2-Y,-G*x));
+        if (x>0) return  (C/Y)*( (std::pow(x,-Y)*exp(-M*x)) * (1+(M/(1-Y))*x)
+                                   - std::pow(M,Y)/(1-Y)*boost::math::tgamma(2-Y,M*x));
+        else     return  (C/Y)*( (std::pow(-x,-Y)*exp(G*x)) * (1+(G/(1-Y))*(-x))
+                                   - std::pow(G,Y)/(1-Y)*boost::math::tgamma(2-Y,-G*x));
     }
     else if (l == 1) {
-        if (x>0) return C/(1-Y)*( -std::pow(x,1-Y)*exp(-M*x) + std::pow(M,Y-1)*boost::math::tgamma(2-Y,M*x) );
-        else     return C/(1-Y)*(-std::pow(-x,1-Y)*exp(G*x) + std::pow(G,Y-1)*boost::math::tgamma(2-Y,-G*x) );
+        if (x>0) return C/(1-Y)*( -std::pow(x,1-Y)*exp(-M*x)
+                                  +std::pow(M,Y-1)*boost::math::tgamma(2-Y,M*x) );
+        else     return C/(1-Y)*( -std::pow(-x,1-Y)*exp(G*x)
+                                  +std::pow(G,Y-1)*boost::math::tgamma(2-Y,-G*x) );
     }
     else if (l >= 2) {
         if (x>0) return  C*std::pow(M,Y-l)*boost::math::tgamma(l-Y,M*x);
@@ -109,28 +114,29 @@ Kernel<T,CGMY>::nthTailIntegral(T x, int n, AntiDerivativeType type) const {
     //if (type == ZeroAtInfinity && n == 2 && fabs(x)<1e-13) return 0.;
     if (x > 0) {
         for (int k=0; k<=n-1; ++k) {
-            if ((n-k-1) % 2 == 0) sum += boost::math::binomial_coefficient<T>(n-1,k)*std::pow(x,n-1-k)
-                                         *TailIntegralMoments(x,k);
-            else                  sum -= gsl_sf_choose(n-1,k)*std::pow(x,n-1-k)
-                                         *TailIntegralMoments(x,k);
+            if ((n-k-1) % 2 == 0) sum += boost::math::binomial_coefficient<T>(n-1,k)
+                                         *std::pow(x,n-1-k)*TailIntegralMoments(x,k);
+            else                  sum -= boost::math::binomial_coefficient<T>(n-1,k)
+                                         *std::pow(x,n-1-k)*TailIntegralMoments(x,k);
         }
-        if (type==ZeroAtInfinity) return (1.0/gsl_sf_fact(n-1))*sum;
-        else                      return (1.0/gsl_sf_fact(n-1))*sum - constants[2*(n-3)];
+        if (type==ZeroAtInfinity) return (1.0/boost::math::factorial<T>(n-1))*sum;
+        else                      return (1.0/boost::math::factorial<T>(n-1))*sum
+                                         - constants[2*(n-3)];
     }
     else {
         for (int k=0; k<=n-1; ++k) {
-            if ((n-k-1) % 2 == 0)   sum += gsl_sf_choose(n-1,k)*std::pow(-x,n-1-k)
-                                           *TailIntegralMoments(x,k);
-            else                    sum -= gsl_sf_choose(n-1,k)*std::pow(-x,n-1-k)
-                                           *TailIntegralMoments(x,k);
+            if ((n-k-1) % 2 == 0)   sum += boost::math::binomial_coefficient<T>(n-1,k)
+                                           *std::pow(-x,n-1-k)*TailIntegralMoments(x,k);
+            else                    sum -= boost::math::binomial_coefficient<T>(n-1,k)
+                                           *std::pow(-x,n-1-k)*TailIntegralMoments(x,k);
         }
         if (type==ZeroAtInfinity) {
-            if (n % 2 == 0) return  (1.0/gsl_sf_fact(n-1))*sum;
-            else            return -(1.0/gsl_sf_fact(n-1))*sum;
+            if (n % 2 == 0) return  (1.0/boost::math::factorial<T>(n-1))*sum;
+            else            return -(1.0/boost::math::factorial<T>(n-1))*sum;
         }
         else {
-            if (n % 2 == 0) return  (1.0/gsl_sf_fact(n-1))*sum - constants[2*(n-3)+1];
-            else            return -(1.0/gsl_sf_fact(n-1))*sum - constants[2*(n-3)+1];
+            if (n % 2 == 0) return  (1.0/boost::math::factorial<T>(n-1))*sum - constants[2*(n-3)+1];
+            else            return -(1.0/boost::math::factorial<T>(n-1))*sum - constants[2*(n-3)+1];
         }
     }
 }
@@ -139,9 +145,9 @@ template <typename T>
 T
 Kernel<T,CGMY>::FirstTailIntegral(T x) const {
     if (x>0)    return (C/Y)*( (std::pow(x,-Y)*exp(-M*x)) * (1+(M/(1-Y))*x)
-                       - std::pow(M,Y)/(1-Y)*boost::math::tgamma(2-Y,M*x));
+                               - std::pow(M,Y)/(1-Y)*boost::math::tgamma(2-Y,M*x));
     else        return -(C/Y)*( (std::pow(-x,-Y)*exp(G*x)) * (1+(G/(1-Y))*(-x))
-                       - std::pow(G,Y)/(1-Y)*boost::math::tgamma(2-Y,-G*x));
+                               - std::pow(G,Y)/(1-Y)*boost::math::tgamma(2-Y,-G*x));
 }
 
 template <typename T>

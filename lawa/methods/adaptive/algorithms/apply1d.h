@@ -45,6 +45,9 @@ class SYM_APPLY_1D {
         operator()(const Coefficients<Lexicographical,T,Index> &v, int k);
 
         Coefficients<Lexicographical,T,Index>
+        operator()(const Coefficients<Lexicographical,T,Index> &v, int k, int J);
+
+        Coefficients<Lexicographical,T,Index>
         operator()(const Coefficients<Lexicographical,T,Index> &v, T eps);
 
     private:

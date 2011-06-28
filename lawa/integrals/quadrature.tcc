@@ -145,7 +145,6 @@ Quadrature<Trapezoidal,Integral>::n() const
     return _n;
 }
 
-
 template <typename Integral>
 void
 Quadrature<Trapezoidal,Integral>::setN(const int n)
@@ -153,6 +152,97 @@ Quadrature<Trapezoidal,Integral>::setN(const int n)
     assert(n>0);
 
     _n = n;
+}
+
+//---  ExpWeighted Rule -------------------------------------------------------
+template <typename Integral>
+Quadrature<ExpWeighted,Integral>::Quadrature(const Integral &_integral)
+    : integral(_integral), _eta(-0.5*std::log(integral.function(1.))),
+      _max_polynomialorder(2)
+{
+    if (integral._f2) {
+        _max_polynomialorder = integral.first.d-1 + integral.second.d-1;
+    }
+    else {
+        _max_polynomialorder = integral.first.d;
+    }
+    std::cout << "_eta = " << _eta << std::endl;
+}
+
+template <typename Integral>
+const typename Integral::T
+Quadrature<ExpWeighted,Integral>::operator()(T a, T b) const
+{
+    if (a>=b) return 0.;
+    if (_max_polynomialorder<=2) {
+        long double p1_a=0., p1_b=0., p2_a=0., p2_b=0., d_p1=0., d_p2=0.;
+        long double x = a+0.1*(b-a);
+        if (integral.deriv1==0) {
+            p1_a = integral.first.generator(integral.e1)
+                     ((a-integral.left)/(integral.RightmLeft),integral.j1,integral.k1,0)
+                     /(integral.SqrtRightmLeft);
+            p1_b = integral.first.generator(integral.e1)
+                     ((b-integral.left)/(integral.RightmLeft),integral.j1,integral.k1,0)
+                     /(integral.SqrtRightmLeft);
+            d_p1 = integral.first.generator(integral.e1)
+                    ((x-integral.left)/(integral.RightmLeft),integral.j1,integral.k1,1)
+                    / (integral.SqrtRightmLeft * integral.RightmLeft);
+        }
+        else {
+            p1_a= integral.first.generator(integral.e1)
+                                ((x-integral.left)/(integral.RightmLeft),integral.j1,integral.k1,1)
+                                / (integral.SqrtRightmLeft * integral.RightmLeft);
+            p1_b = p1_a;
+        }
+        if (integral.deriv2==0) {
+            p2_a = integral.second.generator(integral.e2)
+                     ((a-integral.left)/(integral.RightmLeft),integral.j2,integral.k2,0)
+                     /(integral.SqrtRightmLeft);
+            p2_b = integral.second.generator(integral.e2)
+                     ((b-integral.left)/(integral.RightmLeft),integral.j2,integral.k2,0)
+                     /(integral.SqrtRightmLeft);
+            d_p2 = integral.second.generator(integral.e2)
+                    ((x-integral.left)/(integral.RightmLeft),integral.j2,integral.k2,1)
+                    / (integral.SqrtRightmLeft * integral.RightmLeft);
+        }
+        else {
+            p2_a = integral.second.generator(integral.e2)
+                    ((x-integral.left)/(integral.RightmLeft),integral.j2,integral.k2,1)
+                    / (integral.SqrtRightmLeft * integral.RightmLeft);
+            p2_b = p2_a;
+        }
+
+
+
+
+        if (b<=0) {
+            long double Exp_p_2eta_a = exp((long double)2*_eta*a);
+            long double Exp_p_2eta_b = exp((long double)2*_eta*b);
+
+            long double help1 = (p1_b*p2_b*Exp_p_2eta_b-p1_a*p2_a*Exp_p_2eta_a)/((long double)2.*_eta);
+            long double help2 = d_p1*(p2_b*Exp_p_2eta_b-p2_a*Exp_p_2eta_a)/((long double)4.*_eta*_eta);
+            long double help3 = d_p2*(p1_b*Exp_p_2eta_b-p1_a*Exp_p_2eta_a)/((long double)4.*_eta*_eta);
+            long double help4 = 2*d_p1*d_p2*(Exp_p_2eta_b-Exp_p_2eta_a)/((long double)8.*_eta*_eta*_eta);
+
+            return help1-help2-help3+help4;
+
+        }
+        else {  // a >= 0
+            long double Exp_m_2eta_a = exp((long double)-2*_eta*a);
+            long double Exp_m_2eta_b = exp((long double)-2*_eta*b);
+
+            long double help1 = (p1_b*p2_b*Exp_m_2eta_b-p1_a*p2_a*Exp_m_2eta_a)/((long double)-2.*_eta);
+            long double help2 = d_p1*(p2_b*Exp_m_2eta_b-p2_a*Exp_m_2eta_a)/((long double)4.*_eta*_eta);
+            long double help3 = d_p2*(p1_b*Exp_m_2eta_b-p1_a*Exp_m_2eta_a)/((long double)4.*_eta*_eta);
+            long double help4 = 2*d_p1*d_p2*(Exp_m_2eta_b-Exp_m_2eta_a)/((long double)-8.*_eta*_eta*_eta);
+            //std::cout << "(" << a << "," << b << "): " << help1 << " " << help2 << " " << help3 << " " << help4 << std::endl;
+            return help1-help2-help3+help4;
+        }
+    }
+    else {
+        assert(0);
+        return 0.;
+    }
 }
 
 } // namespace lawa

@@ -26,49 +26,48 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::operator()(const Index2
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     T prec = 1.;
-    if (!flens::IsSame<NoPreconditioner2D, Preconditioner>::value) {
-        const_coeff_it it_P_end       = P_data.end();
-        const_coeff_it it_row_index   = P_data.find(row_index);
-        if (it_row_index != it_P_end) {
-            prec *= (*it_row_index).second;
+
+    const_coeff_it it_P_end       = P_data.end();
+    const_coeff_it it_row_index   = P_data.find(row_index);
+    if (it_row_index != it_P_end) {
+        prec *= (*it_row_index).second;
+    }
+    else {
+        T tmp;
+        if (flens::IsSame<DiagonalHelmholtzPreconditioner2D, Preconditioner>::value) {
+            T prec_dd_x = data_laplace_x(row_index.index1,row_index.index1);
+            T prec_id_x = data_identity_x(row_index.index1,row_index.index1);
+            T prec_id_y = data_identity_y(row_index.index2,row_index.index2);
+            T prec_dd_y = data_laplace_y(row_index.index2,row_index.index2);
+            tmp = 1./std::sqrt(fabs(prec_dd_x*prec_id_y + prec_id_x*prec_dd_y
+                                    + c*prec_id_x*prec_id_y ));
         }
         else {
-            T tmp;
-            if (flens::IsSame<DiagonalHelmholtzPreconditioner2D, Preconditioner>::value) {
-                T prec_dd_x = data_laplace_x(row_index.index1,row_index.index1);
-                T prec_id_x = data_identity_x(row_index.index1,row_index.index1);
-                T prec_id_y = data_identity_y(row_index.index2,row_index.index2);
-                T prec_dd_y = data_laplace_y(row_index.index2,row_index.index2);
-                tmp = 1./std::sqrt(fabs(prec_dd_x*prec_id_y + prec_id_x*prec_dd_y
-                                        + c*prec_id_x*prec_id_y ));
-            }
-            else {
-                tmp = Prec(row_index);
-            }
-            P_data[row_index] = tmp;
-            prec *= tmp;
+            tmp = Prec(row_index);
         }
-        it_P_end       = P_data.end();
-        const_coeff_it it_col_index   = P_data.find(col_index);
-        if (it_col_index != it_P_end) {
-            prec *= (*it_col_index).second;
+        P_data[row_index] = tmp;
+        prec *= tmp;
+    }
+    it_P_end       = P_data.end();
+    const_coeff_it it_col_index   = P_data.find(col_index);
+    if (it_col_index != it_P_end) {
+        prec *= (*it_col_index).second;
+    }
+    else {
+        T tmp;
+        if (flens::IsSame<DiagonalHelmholtzPreconditioner2D, Preconditioner>::value) {
+            T prec_dd_x = data_laplace_x(col_index.index1,col_index.index1);
+            T prec_id_x = data_identity_x(col_index.index1,col_index.index1);
+            T prec_id_y = data_identity_y(col_index.index2,col_index.index2);
+            T prec_dd_y = data_laplace_y(col_index.index2,col_index.index2);
+            tmp = 1./std::sqrt(fabs(prec_dd_x*prec_id_y + prec_id_x*prec_dd_y
+                                    + c*prec_id_x*prec_id_y ));
         }
         else {
-            T tmp;
-            if (flens::IsSame<DiagonalHelmholtzPreconditioner2D, Preconditioner>::value) {
-                T prec_dd_x = data_laplace_x(col_index.index1,col_index.index1);
-                T prec_id_x = data_identity_x(col_index.index1,col_index.index1);
-                T prec_id_y = data_identity_y(col_index.index2,col_index.index2);
-                T prec_dd_y = data_laplace_y(col_index.index2,col_index.index2);
-                tmp = 1./std::sqrt(fabs(prec_dd_x*prec_id_y + prec_id_x*prec_dd_y
-                                        + c*prec_id_x*prec_id_y ));
-            }
-            else {
-                tmp = Prec(col_index);
-            }
-            P_data[col_index] = tmp;
-            prec *= tmp;
+            tmp = Prec(col_index);
         }
+        P_data[col_index] = tmp;
+        prec *= tmp;
     }
 
     T dd_x = data_laplace_x(row_index.index1,col_index.index1);

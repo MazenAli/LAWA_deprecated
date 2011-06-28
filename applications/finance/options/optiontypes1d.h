@@ -1,6 +1,6 @@
 /*
   This file is part of LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
+  Copyright (C) 2008-2011  Sebastian Kestler, Kristina Steih, Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,35 +17,19 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-#ifndef APPLICATIONS_FINANCE_PROCESSES_PARAMETERS_H
-#define APPLICATIONS_FINANCE_PROCESSES_PARAMETERS_H 1
-
-
-#include <applications/finance/processes/parameters.h>
+#ifndef APPLICATIONS_FINANCE_OPTIONS_OPTIONTYPES1D_H
+#define APPLICATIONS_FINANCE_OPTIONS_OPTIONTYPES1D_H 1
 
 namespace lawa {
 
-template < typename T, ProcessType Type>
-struct Parameters
-{
 
-};
-
-template <typename T>
-struct Parameters<T,CGMY>
-{
-  Parameters(T _r, T _k_C, T _k_G, T _k_M, T _k_Y);
-
-  T r;
-  T k_C;
-  T k_G;
-  T k_M;
-  T k_Y;
+enum OptionType1D {
+    Butterfly,
+    Call,
+    DigitalCall,
+    Put
 };
 
 }   // namespace lawa
 
-#include <applications/finance/processes/parameters.tcc>
-
-#endif  // APPLICATIONS_FINANCE_PROCESSES_PARAMETERS_H
+#endif  // APPLICATIONS_FINANCE_OPTIONS_OPTIONTYPES1D_H

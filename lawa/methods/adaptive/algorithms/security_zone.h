@@ -7,27 +7,30 @@
 namespace lawa {
 
 //Security zone for an 1d-index following Urban:2009, p.235 and KU:2010.
-template <typename T, DomainType Domain, Construction Cons>
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
     IndexSet<Index1D>
-    C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
+    C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Side,Domain,Cons> &basis);
 
-template <typename T, DomainType Domain, Construction Cons>
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
     IndexSet<Index1D>
-    C(const Index1D &lambda, T c, const Basis<T,Primal,Domain,Cons> &basis);
+    C(const Index1D &lambda, T c, const Basis<T,Side,Domain,Cons> &basis);
 
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+    void
+    index_cone(const Index1D &lambda, T c, const Basis<T,Side,Domain,Cons> &basis,
+               IndexSet<Index1D> &ret);
+
+
+// Special case: no bound for lower levels.
 template <typename T>
     IndexSet<Index1D>
-    C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Primal,R,CDF> &basis, bool only_pos=false);
+    C_WO_XBSpline(const IndexSet<Index1D> &Lambda, T c,
+                  const Basis<T,Primal,R,CDF> &basis, bool only_pos=false);
 
 template <typename T>
     IndexSet<Index1D>
     C_WO_XBSpline(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis);
 
-
-template <typename T, DomainType Domain, Construction Cons>
-    void
-    C(const Index1D &lambda, T c, const MRA<T,Primal,Domain,Cons> &mra,
-      const Basis<T,Primal,Domain,Cons> &basis, IndexSet<Index1D> &ret);
 
 // Computation of a security zone for 2d-tensor basis
 template <typename T, typename Basis2D>

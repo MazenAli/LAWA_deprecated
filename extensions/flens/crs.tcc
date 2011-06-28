@@ -80,6 +80,13 @@ CRS<T, Storage>::initializer()
 }
 
 template <typename T, CRS_Storage Storage>
+typename CRS<T, Storage>::Initializer *
+CRS<T, Storage>::initializer(Initializer *rhs)
+{
+    return new Initializer(*this, _k, (*rhs)._coordinates,(*rhs)._lastSortedCoord);
+}
+
+template <typename T, CRS_Storage Storage>
 void
 CRS<T, Storage>::allocate(int numNonZeros)
 {
@@ -167,9 +174,19 @@ CRS_CoordinateCmp::operator()(const CRS_Coordinate<T> &a,
 
 template <typename T, CRS_Storage Storage>
 CRS_Initializer<T, Storage>::CRS_Initializer(CRS<T, Storage> &crs, int k)
-    : _lastSortedCoord(0), _isSorted(true), _crs(crs)
+    : _coordinates(_tmp_coordinates), _lastSortedCoord(0), _isSorted(true), _crs(crs)
 {
     _coordinates.reserve(k*crs.numRows());
+}
+
+template <typename T, CRS_Storage Storage>
+CRS_Initializer<T, Storage>::CRS_Initializer(CRS<T, Storage> &crs, int k,
+                                             std::vector<CRS_Coordinate<T> > &coordinates,
+                                             size_t lastSortedCoord)
+    : _coordinates(coordinates), _lastSortedCoord(lastSortedCoord), _isSorted(true), _crs(crs)
+{
+    std::cout << "CRS_Initializer: coord-length="<< _coordinates.size() << ", lastSorted: " << _lastSortedCoord << std::endl;
+   // _coordinates.reserve(k*crs.numRows());
 }
 
 template <typename T, CRS_Storage Storage>
@@ -271,6 +288,7 @@ CRS_Initializer<T, Storage>::sort()
     _isSorted = true;
 
     // eliminate duplicates
+
     size_t i, I;
     for (i=0, I=1; I<_coordinates.size(); ++i, ++I) {
         while ((I<_coordinates.size())
@@ -287,6 +305,7 @@ CRS_Initializer<T, Storage>::sort()
     if ((i<_coordinates.size()) && (I-i-1>0)) {
         _coordinates.erase(_coordinates.end()-(I-i-1), _coordinates.end());
     }
+
     _lastSortedCoord = _coordinates.size();
 }
 

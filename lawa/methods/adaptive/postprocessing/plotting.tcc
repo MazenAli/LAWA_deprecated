@@ -99,6 +99,28 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
     plotfile.close();
 }
 
+template <typename T, typename Basis, typename Preconditioner>
+void
+w_plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
+       const Preconditioner &P, T (*u)(T), T (*w)(T), T a, T b, T h, const char* filename)
+{
+    typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
+
+    std::ofstream plotfile(filename);
+    for (T x=a; x<=b; x+=h) {
+        T appr=0.;
+        T exact= u(x);
+        for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+            int j = (*it).first.j, k = (*it).first.k;
+            T coeff = (*it).second, prec = P((*it).first);
+            appr   += prec * coeff * basis.generator((*it).first.xtype)(x,j,k,0);
+        }
+        plotfile << x << " " << exact << " " << exact*w(x)
+                      << " " << appr << " " << appr*w(x) << std::endl;
+    }
+    plotfile.close();
+}
+
 template <typename T, typename Basis2D, typename Preconditioner>
 void
 plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,

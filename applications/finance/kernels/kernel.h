@@ -20,7 +20,7 @@
 #ifndef APPLICATIONS_FINANCE_KERNELS_KERNEL_H
 #define APPLICATIONS_FINANCE_KERNELS_KERNEL_H 1
 
-#include <applications/finance/processes/processtypes.h>
+#include <applications/finance/processes/processtypes1d.h>
 
 namespace lawa {
 
@@ -29,7 +29,7 @@ enum AntiDerivativeType {
     ZeroAtZero
 };
 
-template <typename T,ProcessType Type>
+template <typename T,ProcessType1D Type>
 struct Kernel
 {
 

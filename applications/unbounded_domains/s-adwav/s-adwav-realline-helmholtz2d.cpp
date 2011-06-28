@@ -37,10 +37,10 @@ typedef TensorBasis2D<Adaptive, ReallineBasis,ReallineBasis> Basis2D;
 
 //Operator definitions
 typedef HelmholtzOperator2D<T, Basis2D>                             HelmholtzBilinearForm2D;
-//typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
-//                                       HelmholtzBilinearForm2D >    Preconditioner2D;
+typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
+                                       HelmholtzBilinearForm2D >    Preconditioner2D;
 
-typedef H1NormPreconditioner2D<T,Basis2D>                           Preconditioner2D;
+//typedef H1NormPreconditioner2D<T,Basis2D>                           Preconditioner2D;
 
 typedef AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner2D>   MA;
 
@@ -99,8 +99,8 @@ int main (int argc, char *argv[]) {
 
     Basis2D basis2d(basis_x,basis_y);
     HelmholtzBilinearForm2D Bil(basis2d, 1.);
-    //Preconditioner2D P(Bil);
-    Preconditioner2D P(basis2d);
+    Preconditioner2D P(Bil);
+    //Preconditioner2D P(basis2d);
     MA A(basis2d, 1., P, 1e-12, 8092, 8092);
 
     IndexSet<Index2D> InitialLambda;
@@ -266,8 +266,8 @@ estimateMinimalLevel(int example, int d, int d_, int &jmin_x, int &jmin_y)
     ReallineBasis basis_y(d,d_,0);
     Basis2D basis2d(basis_x,basis_y);
     HelmholtzBilinearForm2D Bil(basis2d,1.);
-    //Preconditioner2D P(Bil);
-    Preconditioner2D P(basis2d);
+    Preconditioner2D P(Bil);
+    //Preconditioner2D P(basis2d);
 
     Coefficients<Lexicographical,T,Index2D> f_LambdaWavelet, f_LambdaBSpline;
     Coefficients<AbsoluteValue,T,Index2D>   f_LambdaWavelet_abs, f_LambdaBSpline_abs;

@@ -1,2 +1,2 @@
-#include <applications/finance/processes/parameters.h>
-#include <applications/finance/processes/processtypes.h>
+#include <applications/finance/processes/processparameters1d.h>
+#include <applications/finance/processes/processtypes1d.h>

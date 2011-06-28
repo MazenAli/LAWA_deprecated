@@ -30,23 +30,25 @@ weight(T x)
 
 int main() {
 
+
+    cout.precision(16);
 	int d  = 2;
     int d_ = 2;
     int j0 = 2;
 	IntervalBasis basis1(d, d_, j0);
 	IntervalBasis basis2(d, d_, j0);
-    
+
+
     DenseVectorT singpts(3);
     singpts = 0., 0.5, 1.;
 	Function<T> weightFct(weight, singpts);    
 
 	// 1D: works fine
-    
+
     IntegralF<Gauss, IntervalBasis> integral1(weightFct, basis1);
-    
+
     cout << integral1(j0, 1, XBSpline, 0) << endl;
-    
-    
+
     // 2D: compiler error
     IntegralF<Gauss, IntervalBasis> integral2(weightFct, basis1, basis2);
     

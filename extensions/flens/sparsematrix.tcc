@@ -48,6 +48,14 @@ SparseGeMatrix<E>::SparseGeMatrix(int numRows, int numCols, int k)
     _initializer = engine().initializer();
 }
 
+template <typename E>
+SparseGeMatrix<E>::SparseGeMatrix(int numRows, int numCols, Initializer *initializer, int k)
+    : _engine(numRows, numCols, k)
+{
+    _initializer = engine().initializer(initializer);   //only copies coordinates and last coord!
+    this->finalize();
+}
+
 // -- operators ----------------------------------------------------------------
 template <typename E>
 template <typename RHS>
@@ -173,6 +181,15 @@ SparseGeMatrix<E>::engine()
 {
     return _engine;
 }
+
+template <typename E>
+typename SparseGeMatrix<E>::Initializer *
+SparseGeMatrix<E>::initializer() const
+{
+    (*_initializer).sort();
+    return _initializer;
+}
+
 
 //== SparseSyMatrix ============================================================
 

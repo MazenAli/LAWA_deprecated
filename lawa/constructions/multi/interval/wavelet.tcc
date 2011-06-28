@@ -96,7 +96,7 @@ template <typename T>
 T
 Wavelet<T,Orthogonal,Interval,Multi>::tic(int j) const
 {
-    return pow2i<T>(-(j+4));
+    return pow2i<T>(-(j+3));
 }
     
 } // namespace lawa

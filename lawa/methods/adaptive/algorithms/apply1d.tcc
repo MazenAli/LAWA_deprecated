@@ -80,6 +80,36 @@ SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexic
 
 template <typename T, typename Index, typename Basis1D, typename Parameters, typename MA>
 Coefficients<Lexicographical,T,Index>
+SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexicographical,T,Index> &v, int k, int J)
+{
+    int d=basis.d;
+    Coefficients<Lexicographical,T,Index> ret;
+    if (v.size() == 0) return ret;
+
+    Coefficients<AbsoluteValue,T,Index> temp;
+    temp = v;
+
+    if (parameters.w_XBSpline) {
+        int s = 0, count = 0;
+        for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
+            IndexSet<Index> Lambda_v;
+            Lambda_v=lambdaTilde1d_PDE((*it).second, basis,(k-s), basis.j0, J, false);
+            for (const_set_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+                ret[*mu] += A(*mu, (*it).second) * (*it).first;
+            }
+            ++count;
+            s = int(log(T(count))/log(T(2))) + 1;
+        }
+    }
+    else {
+        assert(0);
+
+    }
+    return ret;
+}
+
+template <typename T, typename Index, typename Basis1D, typename Parameters, typename MA>
+Coefficients<Lexicographical,T,Index>
 SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexicographical,T,Index> &v, T eps) {
     Coefficients<AbsoluteValue,T,Index> v_abs;
     v_abs = v;

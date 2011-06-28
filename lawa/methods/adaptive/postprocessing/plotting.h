@@ -45,6 +45,12 @@ void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
      const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, const char* filename);
 
+//Plot solution u times a weight function w (required for computations in weighted spaces)
+template <typename T, typename Basis, typename Preconditioner>
+void
+w_plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
+       const Preconditioner &P, T (*u)(T), T (*w)(T), T a, T b, T h, const char* filename);
+
 template <typename T, typename Basis2D, typename Preconditioner>
 void
 plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff,

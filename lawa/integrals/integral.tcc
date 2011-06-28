@@ -46,18 +46,20 @@ _integrate(const Integral<Gauss,First,Second> &integral)
     T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
     integral.quadrature.setOrder((integral.first.d-integral.deriv1+integral.second.d-integral.deriv2)/2+1);
 
-    T ret = 0.;
+    long double ret = 0.;
+    //T ret = 0.;
     Support<T> common;
     if (overlap(first.support(integral.j1,integral.k1),
                second.support(integral.j2,integral.k2),common)) {
         T a = common.l1;
         for (T b=a+unit; b<=common.l2; b+=unit) {
-            ret += integral.quadrature(a,b);
+            ret += (long double)integral.quadrature(a,b);
+            //ret += integral.quadrature(a,b);
             a = b;
         }
     }
 
-    return ret;
+    return (T)ret;
 }
 
 //--- (primal * dual) or (dual * primal) or (dual * dual) or (dual * orthogonal) or (orthogonal * dual)
@@ -87,10 +89,21 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
     typedef typename First::T T;
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
     int p = integral.function.singularPoints.length();
+
+    Support<T> common = first.support(integral.j1,integral.k1);
+    common.l1 *= integral.RightmLeft;
+    common.l1 += integral.left;
+    common.l2 *= integral.RightmLeft;
+    common.l2 += integral.left;
+
     DenseVector<Array<T> > singularPoints;
     if (IsPrimal<First>::value or IsOrthogonal<First>::value) {
         if (p>0) {
-            const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+            DenseVector<Array<T> > firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+
+            firstSingularPoints *= integral.RightmLeft;
+            firstSingularPoints += integral.left;
+
             int m = firstSingularPoints.length();
             singularPoints.engine().resize(m+p);
 
@@ -110,7 +123,12 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
 
     T ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
-        ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+        T a = singularPoints(i);
+        T b = singularPoints(i+1);
+        if (a==b)              continue;
+        if (b<=common.l1)      continue;
+        else if (a>=common.l2) break;
+        else                   ret += integral.quadrature(a,b);
     }
     return ret;
 }
@@ -125,6 +143,16 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
     const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
     const Function<T> & function = integral.function;
 
+    Support<T> common;
+    if (overlap(first.support(integral.j1,integral.k1),
+                 second.support(integral.j2,integral.k2),common)<=0) {
+        return 0;
+    }
+    common.l1 *= integral.RightmLeft;
+    common.l1 += integral.left;
+    common.l2 *= integral.RightmLeft;
+    common.l2 += integral.left;
+
     DenseVector<Array<T> > singularPoints;
     int p = function.singularPoints.length();
 
@@ -132,8 +160,14 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
         // merge singular points of bsplines/wavelets and function to one list.
         // -> implicit assumption: singular points are sorted!
         if (BothPrimal<First,Second>::value or BothOrthogonal<First,Second>::value) {
-            const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
-            const DenseVector<Array<T> > & secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
+            DenseVector<Array<T> > firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+            DenseVector<Array<T> > secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
+
+            firstSingularPoints *= integral.RightmLeft;
+            firstSingularPoints += integral.left;
+            secondSingularPoints *= integral.RightmLeft;
+            secondSingularPoints += integral.left;
+
             int m = firstSingularPoints.length();
             int n = secondSingularPoints.length();
             singularPoints.engine().resize(m+n+p);
@@ -183,9 +217,15 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
 
     }
 
-    T ret = 0.0;
+    //T ret = 0.0;
+    long double ret = 0.0;
     for (int i=singularPoints.firstIndex(); i<singularPoints.lastIndex(); ++i) {
-        ret += integral.quadrature(singularPoints(i),singularPoints(i+1));
+        T a = singularPoints(i);
+        T b = singularPoints(i+1);
+        if (a==b)              continue;
+        if (b<=common.l1)      continue;
+        else if (a>=common.l2) break;
+        else                   ret += integral.quadrature(a,b);
     }
 
     return ret;
@@ -209,7 +249,9 @@ typename RestrictTo<PrimalOrDualOrOrthogonal<First>::value, typename First::T>::
 _integrand_f1(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
-    return integral.function(x) * first(x,integral.j1,integral.k1,integral.deriv1);
+    return integral.function(x) * first((x-integral.left)/(integral.RightmLeft),
+                                        integral.j1,integral.k1,integral.deriv1)
+                                 /(integral.SqrtRightmLeft*std::pow(integral.RightmLeft,integral.deriv1));
 }
 
 //--- function * primal/dual/orthogonal * primal/dual/orthogonal
@@ -220,8 +262,11 @@ _integrand_f2(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
     const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
-    return integral.function(x) * first(x,integral.j1,integral.k1,integral.deriv1)
-                                * second(x,integral.j2,integral.k2,integral.deriv2);
+    return integral.function(x) * first((x-integral.left)/(integral.RightmLeft),
+                                        integral.j1,integral.k1,integral.deriv1)
+                                * second((x-integral.left)/(integral.RightmLeft)
+                                        ,integral.j2,integral.k2,integral.deriv2)
+                                /(integral.RightmLeft*std::pow(integral.RightmLeft,integral.deriv1+integral.deriv2));
 }
 
 //------------------------------------------------------------------------------
@@ -254,18 +299,20 @@ Integral<Quad,First,Second>::integrand(typename First::T x) const
 
 template <QuadratureType Quad, typename First, typename Second>
 IntegralF<Quad,First,Second>::IntegralF(const Function<T> &_function,
-                                        const First &_first)
-    : function(_function), first(_first), second(_first), quadrature(*this),
-      _f2(false)
+                                        const First &_first, const T _left, const T _right)
+    : function(_function), first(_first), second(_first), left(_left), right(_right),
+      RightmLeft(right-left), SqrtRightmLeft(std::sqrt(right-left)),
+      OneDivSqrtRightmLeft(1./SqrtRightmLeft),quadrature(*this), _f2(false)
 {
 }
 
 template <QuadratureType Quad, typename First, typename Second>
 IntegralF<Quad,First,Second>::IntegralF(const Function<T> &_function,
                                         const First &_first, 
-                                        const Second &_second)
-    : function(_function), first(_first), second(_second), quadrature(*this),
-      _f2(true)
+                                        const Second &_second, const T _left, const T _right)
+    : function(_function), first(_first), second(_second), left(_left), right(_right),
+      RightmLeft(right-left), SqrtRightmLeft(std::sqrt(right-left)),
+      OneDivSqrtRightmLeft(1./SqrtRightmLeft), quadrature(*this), _f2(true)
 
 {
 }
@@ -294,6 +341,8 @@ IntegralF<Quad,First,Second>::integrand(typename First::T x) const
 {
     return _f2 ? _integrand_f2(*this,x) : _integrand_f1(*this,x);
 }
+
+
 
 } // namespace lawa
 

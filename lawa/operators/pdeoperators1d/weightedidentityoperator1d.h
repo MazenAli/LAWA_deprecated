@@ -32,14 +32,15 @@ namespace lawa {
  *    a(v,u) =  Integral(w * v * u)
  *
  */
-template <typename T, typename Basis>
+template <typename T, typename Basis, QuadratureType Quad=Gauss>
 class WeightedIdentityOperator1D{
     
     public:
 
         const Basis& basis;
 
-        WeightedIdentityOperator1D(const Basis& _basis, Function<T> weightFct);
+        WeightedIdentityOperator1D(const Basis& _basis, Function<T> weightFct, int order=10,
+                                   const T left=0., const T right=1.);
 
         T
         operator()(XType xtype1, int j1, int k1,
@@ -52,7 +53,7 @@ class WeightedIdentityOperator1D{
         
         Function<T> W;
 
-        IntegralF<Gauss, Basis, Basis>   integral;
+        IntegralF<Quad, Basis, Basis>   integral;
 
 };
 

@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_OPERATORS_PDEOPERATORS1D_PDENONCONSTCOEFFOPERATOR1D_H
-#define LAWA_OPERATORS_PDEOPERATORS1D_PDENONCONSTCOEFFOPERATOR1D_H 1
+#ifndef LAWA_OPERATORS_PDEOPERATORS1D_PDEOPERATOR1D_H
+#define LAWA_OPERATORS_PDEOPERATORS1D_PDEOPERATOR1D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/integrals/integral.h>
@@ -27,25 +27,21 @@
 
 namespace lawa {
 
-/* PDE ConstCoefficient OPERATOR
+/* PDE ConstCoefficient OPERATOR 
  *
- *    a(v,u) =  diffusion * Integral(v_x * u_x) +  convection_f(x) * Integral(v * u_x)
- *              + reaction_f(x) * Integral(v * u)
+ *    a(v,u) =  diffusion * Integral(v_x * u_x) +  convection * Integral(v * u_x)
+ *              + reaction * Integral(v * u)
  *
  */
 template <typename T, typename Basis>
-class PDENonConstCoeffOperator1D{
-
+class PDEOperator1D{
+    
     public:
 
         const Basis& basis;
-        Function<T> &reaction_f;
-        Function<T> &convection_f;
-        Function<T> &diffusion_f;
+        T reaction, convection, diffusion;
 
-        PDENonConstCoeffOperator1D(const Basis& _basis, Function<T> &_reaction_f,
-                                   Function<T> &_convection_f, Function<T>& _diffusion_f,
-                                   int order=10);
+        PDEOperator1D(const Basis& _basis, T _reaction, T _convection, T _diffusion);
 
         T
         operator()(XType xtype1, int j1, int k1,
@@ -53,18 +49,17 @@ class PDENonConstCoeffOperator1D{
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index) const;
-
+        
     private:
 
-        IntegralF<Gauss, Basis, Basis> reaction_integral;
-        IntegralF<Gauss, Basis, Basis> convection_integral;
-        IntegralF<Gauss, Basis, Basis> diffusion_integral;
-
+        Integral<Gauss, Basis, Basis> integral;
+    
 
 };
 
 }   //namespace lawa
 
-#include <lawa/operators/pdeoperators1d/pdenonconstcoeffoperator1d.tcc>
+#include <lawa/operators/pdeoperators1d/pdeoperator1d.tcc>
 
-#endif  // LAWA_OPERATORS_PDEOPERATORS1D_PDENONCONSTCOEFFOPERATOR1D_H
+#endif  // LAWA_OPERATORS_PDEOPERATORS1D_PDEOPERATOR1D_H
+

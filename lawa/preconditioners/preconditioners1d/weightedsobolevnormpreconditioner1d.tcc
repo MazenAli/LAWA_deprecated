@@ -9,7 +9,7 @@ WeightedSobolevNormPreconditioner1D<T,Basis>::WeightedSobolevNormPreconditioner1
     : _sobolev_order(sobolev_order), _integral(weight,basis,basis)
 {
     assert(sobolev_order<=1);
-    _integral.quadrature.setOrder(2*basis.d);
+    _integral.quadrature.setOrder(8*basis.d);
 }
 
 template <typename T, typename Basis>

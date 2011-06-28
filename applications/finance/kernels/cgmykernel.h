@@ -22,6 +22,7 @@
 
 #include <boost/math/special_functions/gamma.hpp>
 #include <boost/math/special_functions/binomial.hpp>
+#include <boost/math/special_functions/factorials.hpp>
 #include <applications/finance/kernels/kernel.h>
 #include <applications/finance/processes/processes.h>
 
@@ -32,9 +33,9 @@ struct Kernel<T,CGMY>
 {
     typedef boost::math::policies::policy<boost::math::policies::digits2<64> > my_prec_policy;
 
-    Kernel(const Parameters<T,CGMY> &_params);
+    Kernel(const ProcessParameters1D<T,CGMY> &_params);
 
-    Parameters<T,CGMY> params;
+    ProcessParameters1D<T,CGMY> params;
     const T C, G, M, Y;
     T c3,c4,c5,c6;
     T ExpXmOnemX_k_pos, ExpXmOnemX_k_neg, ExpXmOnemX_k;
@@ -89,7 +90,7 @@ struct Kernel<T,CGMY>
 
 }   // namespace lawa
 
-//#include <applications/finance/kernels/cgmykernel.tcc>
+#include <applications/finance/kernels/cgmykernel.tcc>
 
 #endif  // APPLICATIONS_FINANCE_KERNELS_CGMYKERNEL_H
 

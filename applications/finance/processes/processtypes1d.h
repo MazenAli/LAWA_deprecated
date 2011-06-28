@@ -17,23 +17,21 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES_H
-#define APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES_H 1
+#ifndef APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES1D_H
+#define APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES1D_H 1
 
 namespace lawa {
 
-enum ProcessType { BlackScholes,
-                   CGMY,
-                   CGMYe,
-                   GH,
-                   KouJD,
-                   Meixner,
-                   MertonJD,
-                   NIG,
-                   BlackScholes2D,
-                   CGMYe2D
+enum ProcessType1D { BlackScholes,
+                     CGMY,
+                     CGMYe,
+                     GH,
+                     KouJD,
+                     Meixner,
+                     MertonJD,
+                     NIG
 };
 
 } // namespace lawa
 
-#endif // APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES_H
+#endif // APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES1D_H

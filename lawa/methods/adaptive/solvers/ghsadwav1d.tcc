@@ -19,7 +19,6 @@ Coefficients<Lexicographical,T,Index1D>
 GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterations, T H1norm)
 {
     T eps = _eps;
-    int d=basis.d, d_=basis.d_;
     Coefficients<Lexicographical,T,Index1D> w_k, w_kP1, g_kP1;
     IndexSet<Index1D> Lambda_kP1;
     T nu_kM1 = nuM1;
@@ -32,7 +31,7 @@ GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterations, T H
     std::cerr << "  cA=" << cA << ", CA=" << CA << ", kappa=" << kappa << std::endl;
 
     std::stringstream filename;
-    filename << "adwav-ghs-otf_"  << d << "_" << d_ << ".dat";
+    filename << "ghs-adwav-otf.dat";
     std::ofstream file(filename.str().c_str());
 
     for (int i=1; i<=NumOfIterations; ++i) {
@@ -50,6 +49,9 @@ GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterations, T H
         time.stop();
         total_time += time.elapsed();
 
+        int current_jmin, current_jmax;
+        getMinAndMaxLevel(supp(w_k), current_jmin, current_jmax);
+        std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
         T Error_H_energy = computeErrorInH1Norm(Apply.A, F, w_k, H1norm);
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << std::endl;

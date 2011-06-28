@@ -38,7 +38,7 @@ class Wavelet<_T,Orthogonal,R,Multi>
     
         Wavelet(int _d);
         
-//TODO        Wavelet(const Basis<T,Orthogonal,R,Multi> &basis);
+        Wavelet(const Basis<T,Orthogonal,R,Multi> &basis);
         
         virtual
         ~Wavelet();
@@ -47,16 +47,24 @@ class Wavelet<_T,Orthogonal,R,Multi>
         operator()(T x, int j, long k, unsigned short deriv) const;
         
         Support<T>
-        support(int j, int k) const;
+        support(int j, long k) const;
         
+        Support<T>
+        max_support() const;
+
         DenseVector<Array<T> >
-        singularSupport(int j, int k) const;
+        singularSupport(int j, long k) const;
         
+        T
+        tic(int j) const;
+
 //TODO        int polynomialOrder;
         const int d;
         const int vanishingMoments;
+        unsigned int _numSplines;
 
     private:
+
         typedef T (*Evaluator)(T x, unsigned short deriv);
         
         long
@@ -65,10 +73,11 @@ class Wavelet<_T,Orthogonal,R,Multi>
         int
         _type(long k) const;
     
-        unsigned int _numSplines;
         Evaluator *_evaluator;
         Support<T> *_support;
         DenseVector<Array<T> > *_singularSupport;
+
+        Support<T> _max_support;
 
     
 };

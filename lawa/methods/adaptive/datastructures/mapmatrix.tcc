@@ -62,12 +62,13 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
             if (it_col_index != it_P_end) {
                 prec *= (*it_col_index).second;
             }
+            else {
+                T tmp = p(col_index);
+                P_data[col_index] = tmp;
+                prec *= tmp;
+            }
         }
-        else {
-            T tmp = p(col_index);
-            P_data[col_index] = tmp;
-            prec *= tmp;
-        }
+
         T val = prec * a(row_index,col_index);
         if (fabs(val) > 0) data.insert(val_type(entry,val));
         return val;

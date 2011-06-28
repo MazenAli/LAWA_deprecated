@@ -42,6 +42,7 @@ struct Integral
 
     const First &first;
     const Second &second;
+    T left, right;
     mutable Quadrature<Quad,Integral<Quad,First,Second> > quadrature;
     mutable int j1, deriv1,
                 j2, deriv2;
@@ -54,9 +55,11 @@ struct IntegralF
 {
     typedef typename First::T T;
 
-    IntegralF(const Function<T> &_function, const First &_first);
+    IntegralF(const Function<T> &_function, const First &_first,
+              const T _left=0., const T _right=1.);
 
-    IntegralF(const Function<T> &_function, const First &_first, const Second &_second);
+    IntegralF(const Function<T> &_function, const First &_first, const Second &_second,
+              const T _left=0., const T _right=1.);
 
     T
     operator()(int _j1, long _k1, XType _e1, int _deriv) const;
@@ -71,6 +74,11 @@ struct IntegralF
     const Function<T> &function;
     const First &first;
     const Second &second;
+    const T left;
+    const T right;
+    const T RightmLeft;
+    const T SqrtRightmLeft;
+    const T OneDivSqrtRightmLeft;
     Quadrature<Quad,IntegralF<Quad,First,Second> > quadrature;
     const bool _f2;
     mutable int j1, deriv1,

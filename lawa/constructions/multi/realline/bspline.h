@@ -31,10 +31,17 @@ class BSpline<_T,Orthogonal,R,Multi>
         Support<T>
         support(int j, long k) const;
         
+        Support<T>
+        max_support() const;
+
         DenseVector<Array<T> >
         singularSupport(int j, long k) const;
 
+        T
+        tic(int j) const;
+
         const unsigned int d;
+        unsigned int _numSplines;
 
     private:
         typedef T (*Evaluator)(T x, unsigned short deriv);
@@ -45,10 +52,11 @@ class BSpline<_T,Orthogonal,R,Multi>
         int
         _type(long k) const;
 
-        unsigned int _numSplines;
         Evaluator *_evaluator;
         Support<T> *_support;
         DenseVector<Array<T> > *_singularSupport;
+
+        Support<T> _max_support;
     //        T
     //TODO    tic(int j) const;
     //    int polynomialOrder;

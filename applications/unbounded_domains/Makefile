@@ -1,4 +1,4 @@
-SUBDIRS := s-adwav parameters adwav
+SUBDIRS := validate s-adwav parameters adwav
 
 all:
 	$(SILENT) for i in $(SUBDIRS); \

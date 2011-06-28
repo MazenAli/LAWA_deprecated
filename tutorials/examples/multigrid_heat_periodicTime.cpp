@@ -13,7 +13,7 @@ typedef double T;
 typedef Basis<T, Primal, Interval, Dijkema>     PrimalBasis;
 typedef Basis<T, Dual, Interval, Dijkema>       DualBasis;
 typedef Basis<T, Primal, Periodic, CDF>         PeriodicBasis;
-typedef PDEConstCoeffOperator1D<T, PrimalBasis> PDE1DOp;
+typedef PDEOperator1D<T, PrimalBasis>           PDE1DOp;
 
 // Righthandsides definitions
 //      Timedependent Rhs, as we have to be able to evaluate
