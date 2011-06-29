@@ -21,16 +21,16 @@
 
 namespace lawa {
 
-template <typename Integral2D>
-Quadrature2D<SparseGridGP,Integral2D>::Quadrature2D(const Integral2D &integral)
+template <typename _Integral2D>
+Quadrature2D<SparseGridGP,_Integral2D>::Quadrature2D(const _Integral2D &integral)
    : _integral(integral), _level(1), numGridPoints(0)
 {
     _initSparseGrid();
 }
 
-template <typename Integral2D>
-const typename Integral2D::T
-Quadrature2D<SparseGridGP,Integral2D>::operator()(T ax, T bx, T ay, T by) const
+template <typename _Integral2D>
+const typename _Integral2D::T
+Quadrature2D<SparseGridGP,_Integral2D>::operator()(T ax, T bx, T ay, T by) const
 {
     if ((ax == bx) || (ay == by)) {
         return 0.;
@@ -46,17 +46,17 @@ Quadrature2D<SparseGridGP,Integral2D>::operator()(T ax, T bx, T ay, T by) const
     return result;
 }
 
-template <typename Integral2D>
+template <typename _Integral2D>
 void
-Quadrature2D<SparseGridGP,Integral2D>::setOrder(int order)
+Quadrature2D<SparseGridGP,_Integral2D>::setOrder(int order)
 {
     _level = ceil(log2(order+1));
     _initSparseGrid();
 }
 
-template <typename Integral2D>
+template <typename _Integral2D>
 void
-Quadrature2D<SparseGridGP,Integral2D>::setLevel(int level)
+Quadrature2D<SparseGridGP,_Integral2D>::setLevel(int level)
 {
     _level = level;
     _initSparseGrid();
@@ -71,9 +71,9 @@ Quadrature2D<SparseGridGP,Integral2D>::setLevel(int level)
  * published under GNU LGPL and available online
  * location: "http://people.sc.fsu.edu/~jburkardt/cpp_src/cpp_src.html"
  */
-template <typename Integral2D>
+template <typename _Integral2D>
 void
-Quadrature2D<SparseGridGP,Integral2D>::_initSparseGrid()
+Quadrature2D<SparseGridGP,_Integral2D>::_initSparseGrid()
 {
     int dim_num = 2;
     int rule[2] = {3,3};     //3 = identifier for GP in libsparsegrid
@@ -137,16 +137,16 @@ Quadrature2D<SparseGridGP,Integral2D>::_initSparseGrid()
 
 
 
-template <typename Integral2D>
-Quadrature2D<FullGridGL,Integral2D>::Quadrature2D(const Integral2D &integral)
+template <typename _Integral2D>
+Quadrature2D<FullGridGL,_Integral2D>::Quadrature2D(const _Integral2D &integral)
    : _integral(integral), _order(1)
 {
     _initFullGrid();
 }
 
-template <typename Integral2D>
-const typename Integral2D::T
-Quadrature2D<FullGridGL,Integral2D>::operator()(T ax, T bx, T ay, T by) const
+template <typename _Integral2D>
+const typename _Integral2D::T
+Quadrature2D<FullGridGL,_Integral2D>::operator()(T ax, T bx, T ay, T by) const
 {
     if ((ax == bx) || (ay == by))   return 0.;
     T result = 0.;
@@ -159,17 +159,17 @@ Quadrature2D<FullGridGL,Integral2D>::operator()(T ax, T bx, T ay, T by) const
     return result;
 }
 
-template <typename Integral2D>
+template <typename _Integral2D>
 void
-Quadrature2D<FullGridGL,Integral2D>::setOrder(int order)
+Quadrature2D<FullGridGL,_Integral2D>::setOrder(int order)
 {
     _order = order;
     _initFullGrid();
 }
 
-template <typename Integral2D>
+template <typename _Integral2D>
 void
-Quadrature2D<FullGridGL,Integral2D>::_initFullGrid()
+Quadrature2D<FullGridGL,_Integral2D>::_initFullGrid()
 {
     flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots1d(_order,_order);
     flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights1d(_order,_order);
@@ -213,6 +213,80 @@ Quadrature2D<FullGridGL,Integral2D>::_initFullGrid()
             ++count;
         }
     }
+}
+
+//------------------------------------------------------------------------------------------------
+
+template <typename _Integral2D>
+Quadrature2D<FullGridGL_localOrder,_Integral2D>::Quadrature2D(const _Integral2D &integral)
+  : integral_nonLocal(integral.F, integral.basisx, integral.basisy), quadrature_lowOrder(integral_nonLocal),
+    quadrature_highOrder(integral_nonLocal), refindtol(0.), lowOrder(4), highOrder(100)
+{}
+
+template <typename _Integral2D>
+const typename _Integral2D::T
+Quadrature2D<FullGridGL_localOrder,_Integral2D>::operator()(T ax, T bx, T ay, T by) const
+{
+  if(ref_indicator(ax, bx, ay, by)){
+    return quadrature_highOrder(ax, bx, ay, by);
+  }
+  else{
+    return quadrature_lowOrder(ax, bx, ay, by);
+  }
+}
+
+template <typename _Integral2D>
+void
+Quadrature2D<FullGridGL_localOrder,_Integral2D>::setOrder(int order)
+{
+    lowOrder = order;
+    quadrature_lowOrder._initFullGrid();
+    highOrder = order;
+    quadrature_highOrder._initFullGrid();
+    
+}
+
+template <typename _Integral2D>
+void
+Quadrature2D<FullGridGL_localOrder,_Integral2D>::set_refindfct(T (*_fct)(T))
+{
+  refindfct = _fct;
+}
+
+template <typename _Integral2D>
+void
+Quadrature2D<FullGridGL_localOrder,_Integral2D>::set_refindtol(T _tol)
+{
+  refindtol = _tol;
+}
+
+template <typename _Integral2D>
+void
+Quadrature2D<FullGridGL_localOrder,_Integral2D>::set_lowOrder(int _lowOrder)
+{
+  lowOrder = _lowOrder;
+  quadrature_lowOrder._initFullGrid();
+  
+}
+
+template <typename _Integral2D>
+void
+Quadrature2D<FullGridGL_localOrder,_Integral2D>::set_highOrder(int _highOrder)
+{
+  highOrder = _highOrder;
+  quadrature_highOrder._initFullGrid();
+}
+
+template <typename _Integral2D>
+bool
+Quadrature2D<FullGridGL_localOrder,_Integral2D>::ref_indicator(T at, T bt, T ax, T bx) const{
+  T h = (bt - at)/10.;
+  for(int i = 0; i <= 10; ++i){
+    if((refindfct(at + i*h) + refindtol > ax) || (refindfct(at + i*h) - refindtol < bx)){
+      return true;
+    }
+  }
+  return false;
 }
 
 }    //namespace lawa
