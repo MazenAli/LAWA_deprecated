@@ -34,9 +34,9 @@ public:
     T
     operator()(T x, T y) const;
 
+    T (*f)(T,T);
     const DenseVector<Array<T> > singularPts_x; //x-aligned singularities
     const DenseVector<Array<T> > singularPts_y; //y-aligned singularities
-    T (*f)(T,T);
 };
 
 } // namespace lawa

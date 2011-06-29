@@ -40,9 +40,9 @@ struct SmoothRHSWithAlignedSing2D
     operator()(const Index2D &index) const;
 
     const Basis2D &basis;
-    const unsigned short derivx, derivy;
     Integral2D<Quad, typename Basis2D::FirstBasisType,
                      typename Basis2D::SecondBasisType> integral2d;
+    const unsigned short derivx, derivy;
 
 
 };
