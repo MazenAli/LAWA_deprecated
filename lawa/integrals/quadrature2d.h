@@ -75,9 +75,9 @@ class Quadrature2D<FullGridGL,_Integral2D>
         void setOrder(int order);
 
         void _initFullGrid();
+        const _Integral2D &_integral;
         
     private:
-        const _Integral2D &_integral;
         int _order;
 
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
@@ -109,6 +109,7 @@ class Quadrature2D<FullGridGL_localOrder, _Integral2D>
       
     private:
       
+        const _Integral2D &_integral;
         Integral_nonLocal integral_nonLocal;
       
         Quadrature2D<FullGridGL, Integral_nonLocal> quadrature_lowOrder;

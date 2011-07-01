@@ -148,13 +148,17 @@ template <typename _Integral2D>
 const typename _Integral2D::T
 Quadrature2D<FullGridGL,_Integral2D>::operator()(T ax, T bx, T ay, T by) const
 {
+  //std::cout << "quadrature: (jx, kx, ex, derivx) = " << _integral.jx << ", "<< _integral.kx <<", "<< _integral.ex <<", "<< _integral.derivx << std::endl;
+  //std::cout << "            (jy, ky, ey, derivy) = " << _integral.jy << ", "<< _integral.ky <<", "<< _integral.ey <<", "<< _integral.derivy << std::endl;
     if ((ax == bx) || (ay == by))   return 0.;
     T result = 0.;
     for (int i=1; i<=_weights.numRows(); ++i) {
         T x1 = 0.5*( (bx-ax)*_knots(i,1) + (bx+ax));
         T x2 = 0.5*( (by-ay)*_knots(i,2) + (by+ay));
         result += _weights(i,1) * _integral.integrand(x1,x2);
+        //std::cout << "Quadrature: add Integrand(" << x1 << ", " << x2 << "), result = " << result << std::endl;
     }
+    //std::cout << "result = " << result << std::endl;
     result *= 0.25*(bx-ax)*(by-ay);
     return result;
 }
@@ -219,18 +223,48 @@ Quadrature2D<FullGridGL,_Integral2D>::_initFullGrid()
 
 template <typename _Integral2D>
 Quadrature2D<FullGridGL_localOrder,_Integral2D>::Quadrature2D(const _Integral2D &integral)
-  : integral_nonLocal(integral.F, integral.basisx, integral.basisy), quadrature_lowOrder(integral_nonLocal),
+  : _integral(integral), integral_nonLocal(integral.F, integral.basisx, integral.basisy), quadrature_lowOrder(integral_nonLocal),
     quadrature_highOrder(integral_nonLocal), refindtol(0.), lowOrder(4), highOrder(100)
-{}
+{
+  integral_nonLocal.jx = integral.jx;
+  integral_nonLocal.kx = integral.kx;
+  integral_nonLocal.ex = integral.ex;
+  integral_nonLocal.derivx = integral.derivx;
+  integral_nonLocal.jy = integral.jy;
+  integral_nonLocal.ky = integral.ky;
+  integral_nonLocal.ey = integral.ey;
+  integral_nonLocal.derivy = integral.derivy;
+}
 
 template <typename _Integral2D>
 const typename _Integral2D::T
 Quadrature2D<FullGridGL_localOrder,_Integral2D>::operator()(T ax, T bx, T ay, T by) const
 {
   if(ref_indicator(ax, bx, ay, by)){
+    //std::cout << "High Order: (" << ax << ", " << bx <<",) x (" << ay << ", " << by << ")" << std::endl;
+    quadrature_highOrder._integral.jx = _integral.jx;
+    quadrature_highOrder._integral.kx = _integral.kx;
+    quadrature_highOrder._integral.ex = _integral.ex;
+    quadrature_highOrder._integral.derivx = _integral.derivx;
+    
+    quadrature_highOrder._integral.jy = _integral.jy;
+    quadrature_highOrder._integral.ky = _integral.ky;
+    quadrature_highOrder._integral.ey = _integral.ey;
+    quadrature_highOrder._integral.derivy = _integral.derivy;
+
     return quadrature_highOrder(ax, bx, ay, by);
   }
   else{
+    //std::cout << "Low Order: (" << ax << ", " << bx <<",) x (" << ay << ", " << by << ")" << std::endl;
+    quadrature_lowOrder._integral.jx = _integral.jx;
+    quadrature_lowOrder._integral.kx = _integral.kx;
+    quadrature_lowOrder._integral.ex = _integral.ex;
+    quadrature_lowOrder._integral.derivx = _integral.derivx;
+    
+    quadrature_lowOrder._integral.jy = _integral.jy;
+    quadrature_lowOrder._integral.ky = _integral.ky;
+    quadrature_lowOrder._integral.ey = _integral.ey;
+    quadrature_lowOrder._integral.derivy = _integral.derivy;
     return quadrature_lowOrder(ax, bx, ay, by);
   }
 }
@@ -240,8 +274,10 @@ void
 Quadrature2D<FullGridGL_localOrder,_Integral2D>::setOrder(int order)
 {
     lowOrder = order;
+    quadrature_lowOrder.setOrder(lowOrder);
     quadrature_lowOrder._initFullGrid();
     highOrder = order;
+    quadrature_highOrder.setOrder(highOrder);
     quadrature_highOrder._initFullGrid();
     
 }
@@ -265,6 +301,7 @@ void
 Quadrature2D<FullGridGL_localOrder,_Integral2D>::set_lowOrder(int _lowOrder)
 {
   lowOrder = _lowOrder;
+  quadrature_lowOrder.setOrder(lowOrder);
   quadrature_lowOrder._initFullGrid();
   
 }
@@ -274,6 +311,7 @@ void
 Quadrature2D<FullGridGL_localOrder,_Integral2D>::set_highOrder(int _highOrder)
 {
   highOrder = _highOrder;
+  quadrature_highOrder.setOrder(highOrder);
   quadrature_highOrder._initFullGrid();
 }
 
@@ -282,7 +320,10 @@ bool
 Quadrature2D<FullGridGL_localOrder,_Integral2D>::ref_indicator(T at, T bt, T ax, T bx) const{
   T h = (bt - at)/10.;
   for(int i = 0; i <= 10; ++i){
-    if((refindfct(at + i*h) + refindtol > ax) || (refindfct(at + i*h) - refindtol < bx)){
+    //std::cout << "Refinement Indicator: X-Interval = [" << ax << ", " << bx << "], t = " 
+    //      << at + i*h << ", c(t) = " << refindfct(at + i*h) << std::endl;
+    if( (refindfct(at + i*h) + refindtol > ax) && (refindfct(at + i*h) - refindtol < bx) ){
+      //std::cout << "     " << at + i*h << ", c(t) = " << refindfct(at + i*h) << std::endl;
       return true;
     }
   }
