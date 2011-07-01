@@ -44,6 +44,7 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::truth_solve()
       std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
       break;
     case call_gmres:
+    std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
       its = GMRES_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, maxIterations);
       std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
       break;
