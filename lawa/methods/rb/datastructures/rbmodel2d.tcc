@@ -137,7 +137,6 @@ RBModel2D<T, TruthModel>::RB_solve(unsigned int N, std::vector<T> param, SolverC
         //F += (*theta_f[i])(get_current_param()) * RB_F_vectors[i](_(1,N));
         flens::axpy((*theta_f[i])(param), RB_F_vectors[i](_(1,N)), F);
     }
-
     
     DenseVectorT u(N);
     switch (call) {
@@ -172,7 +171,6 @@ RBModel2D<T, TruthModel>::RB_solve(unsigned int N, SolverCall call)
         //F += (*theta_f[i])(get_current_param()) * RB_F_vectors[i](_(1,N));
         flens::axpy((*theta_f[i])(get_current_param()), RB_F_vectors[i](_(1,N)), F);
     }
-
     
     DenseVectorT u(N);
     switch (call) {
@@ -250,7 +248,7 @@ RBModel2D<T, TruthModel>::generate_uniform_trainingset(std::vector<int>& n_train
 
 template <typename T, typename TruthModel>
 void
-RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename)
+RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename, SolverCall call)
 {
     // Initial Snapshot
     set_current_param(init_param);
@@ -309,7 +307,8 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
         for (unsigned int n = 0; n < Xi_train.size(); ++n) {
             
             set_current_param(Xi_train[n]);
-            DenseVectorT u_N = RB_solve(N, Xi_train[n]);
+            std::cout << "    Parameter set to " << Xi_train[n][0] << std::endl;
+            DenseVectorT u_N = RB_solve(N, Xi_train[n], call);
             
             T resnorm = residual_dual_norm(u_N, Xi_train[n]);
             T alpha =  alpha_LB(Xi_train[n]);
@@ -382,6 +381,7 @@ RBModel2D<T, TruthModel>::read_basis_functions(const std::string& directory_name
     CoeffVector bf_coeffs;
     readCoeffVector2D(bf_coeffs, filename.str().c_str(),false); 
     rb_basis_functions.push_back(bf_coeffs);
+    std::cout << " Read " << filename.str() << std::endl;
   }
 }
 

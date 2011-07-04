@@ -113,7 +113,8 @@ class RBModel2D {
         set_ref_param(const std::vector<T>& _param);
         
         void
-        train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename = "Training.txt");
+        train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename = "Training.txt",
+                     SolverCall call = call_cg);
         
         void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
