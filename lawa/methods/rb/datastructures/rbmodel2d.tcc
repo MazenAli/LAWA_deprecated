@@ -9,7 +9,7 @@ namespace  lawa {
 
 template <typename T, typename TruthModel>
 RBModel2D<T, TruthModel>::RBModel2D()
- : assembled_inner_product_matrix(false)
+ : assembled_inner_product_matrix(false), assembled_A_operator_matrices(false)
 {
 }
 
