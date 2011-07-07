@@ -146,6 +146,9 @@ RBModel2D<T, TruthModel>::RB_solve(unsigned int N, std::vector<T> param, SolverC
         case call_gmres:
             std::cout << "RB solve: " << gmres(A, u, F) << " gmres iterations" << std::endl;
             break;
+        case call_cgls:
+            std::cout << "RB solve: " << cgls(A, u, F) << " cgls iterations" << std::endl;
+            break;
         default:
           std::cerr << "RB solve: Method not implemented! " << std::endl;
             break;
@@ -674,7 +677,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
             //std::cout << A_new_bf << std::endl;
             
             //std::cout << A_new_bf_T << std::endl;
-            }
+        }
         
         for (unsigned int i = 1; i <= n_bf(); ++i) {
             if(assembled_A_operator_matrices){

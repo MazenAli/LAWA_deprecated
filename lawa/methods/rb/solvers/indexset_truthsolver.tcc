@@ -137,7 +137,16 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
           std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
           break;
         case call_gmres:
-          std::cerr << "Method not implemented yet " << std::endl;
+          std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::gmres(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
+          res= Ax-rhs;
+          residual = std::sqrt(res*res);
+          row_count = 1;
+          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+              u[*row] = x(row_count);
+          }
+          std::cout << "  GMRES iterations: " << its << ", residual = " << residual << std::endl;
           break;
         default: 
           std::cerr << "Method not implemented yet " << std::endl;
@@ -234,7 +243,16 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
           std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
           break;
         case call_gmres:
-          std::cerr << "Method not implemented yet " << std::endl;
+          std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::gmres(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
+          res= Ax-rhs;
+          residual = std::sqrt(res*res);
+          row_count = 1;
+          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+              u[*row] = x(row_count);
+          }
+          std::cout << "  GMRES iterations: " << its << ", residual = " << residual << std::endl;          
           break;
         default: 
           std::cerr << "Method not implemented yet " << std::endl;
