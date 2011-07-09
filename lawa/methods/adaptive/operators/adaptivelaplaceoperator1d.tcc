@@ -1,0 +1,27 @@
+namespace lawa {
+
+template <typename T, typename Basis1D>
+AdaptiveLaplaceOperator1D<T, Basis1D>::AdaptiveLaplaceOperator1D(const Basis1D &_basis1d, T _c,
+                                                                 T thresh, int NumOfCols,
+                                                                 int NumOfRows)
+: basis1d(_basis1d),
+  compression1d(basis1d), laplace_op1d(basis1d), prec1d(),
+  laplace_data1d(laplace_op1d, prec1d, compression1d)// thresh, NumOfRows, NumOfCols)
+{
+
+}
+
+template <typename T, typename Basis1D>
+T
+AdaptiveLaplaceOperator1D<T, Basis1D>::operator()(const Index1D &row_index,
+                                                  const Index1D &col_index)
+{
+    int min_j = std::min((int)row_index.j, (int)col_index.j);
+    T scaling_factor = pow2i<T>(2*min_j);
+    Index1D tmp_row_index(row_index.j-min_j,row_index.k,row_index.xtype);
+    Index1D tmp_col_index(col_index.j-min_j,col_index.k,col_index.xtype);
+
+    return scaling_factor * laplace_data1d(tmp_row_index, tmp_col_index);
+}
+
+}   // namespace lawa
