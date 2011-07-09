@@ -20,13 +20,13 @@
 namespace lawa {
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
-RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, const Preconditioner &_P)
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, Preconditioner &_P)
     :    rhsintegral(_rhsintegral), P(_P), rhs_data(), rhs_abs_data()
 {
 }
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
-RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, const Preconditioner &_P,
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, Preconditioner &_P,
                                              const Coefficients<Lexicographical,T,Index> &_rhs_data)
     :    rhsintegral(_rhsintegral), P(_P), rhs_data(), rhs_abs_data()
 {
