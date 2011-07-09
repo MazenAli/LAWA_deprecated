@@ -33,9 +33,9 @@ typedef flens::DiagonalMatrix<T>                                    DiagonalMatr
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 //Operator definitions
-typedef HelmholtzOperator1D<T, Basis1D>                         HelmholtzOp1D;
-typedef CompressionPDE1D<T, Basis1D>                            Compression1D;
-typedef H1NormPreconditioner1D<T,Basis1D>                       Preconditioner1D;
+typedef HelmholtzOperator1D<T, Basis1D>                             HelmholtzOp1D;
+typedef CompressionPDE1D<T, Basis1D>                                Compression1D;
+typedef DiagonalMatrixPreconditioner1D<T,Basis1D,HelmholtzOp1D>     Preconditioner1D;
 
 //MapMatrix definition
 typedef MapMatrix<T,Index1D,HelmholtzOp1D,
@@ -71,7 +71,7 @@ int main (int argc, char *argv[]) {
 
     Basis1D             basis(d,jmin);
     HelmholtzOp1D       helmholtz_op(basis,c);
-    Preconditioner1D    prec(basis);
+    Preconditioner1D    prec(helmholtz_op);
     Compression1D       compression(basis);
     MA                  A(helmholtz_op,prec,compression);
 
