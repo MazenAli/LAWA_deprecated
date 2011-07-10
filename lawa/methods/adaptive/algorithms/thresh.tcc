@@ -23,6 +23,22 @@ THRESH(const Coefficients<Lexicographical,T,Index > &v, T eta)
 
 template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index >
+ABSOLUTE_THRESH(const Coefficients<Lexicographical,T,Index > &v, T eta)
+{
+    typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
+    Coefficients<Lexicographical,T,Index > ret;
+    if (v.size() > 0) {
+        for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
+            if (fabs((*it).second) > eta) {
+                ret[(*it).first] = (*it).second;
+            }
+        }
+    }
+    return ret;
+}
+
+template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index >
 THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta) 
 {
     typedef typename Coefficients<AbsoluteValue,T,Index >::iterator it;

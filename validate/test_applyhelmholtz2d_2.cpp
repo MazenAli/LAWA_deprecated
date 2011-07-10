@@ -17,10 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #include <iostream>
 #include <lawa/lawa.h>
 #include <applications/unbounded_domains/referencesolutions/referencesolutions.h>
+#include <applications/unbounded_domains/parameters/parameters.h>
 
 #define ROW_SIZE 4*8192
 #define COL_SIZE 4*2048
@@ -48,72 +48,131 @@ typedef TensorBasis2D<Adaptive, MWBasis1D, MWBasis1D>                   MWBasis2
 typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>                     MW_MA;
 typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D, MW_MA>        MW_Prec;
 
-//Righthandsides definitions (tensor)
 typedef RHSWithPeaks1D<T, MWBasis1D>                                    RHS1D;
-typedef SeparableRHS2D<T,MWBasis2D>                                     SeparableRhsIntegral2D;
-typedef SumOfTwoRHSIntegrals<T,Index2D,SeparableRhsIntegral2D,
-                             SeparableRhsIntegral2D>                    SumOfSeparableRhsIntegral2D;
-typedef RHS<T,Index2D, SumOfSeparableRhsIntegral2D,
-            MW_Prec>                                                    Rhs;
-
-typedef GHS_ADWAV<T, Index2D, MW_MA, Rhs>                               MW_GHS_ADWAV_SOLVER;
 
 
-template<typename T, typename Basis2D>
-Coefficients<Lexicographical,T,Index2D>
-precoomputeRHS(int example, const Basis2D &mwbasis2d, MW_Prec &mw_prec, int j0_x, int j0_y,
-               int J, T r_x, T r_y);
+IndexSet<Index1D>
+computeRHSLambda_SingularPart(const MWBasis1D &basis, const DenseVectorT &_f_singularPoints,
+                              int J_plus);
 
-int main (int argc, char *argv[]) {
-    if (argc!=4) {
-        cout << "usage " << argv[0] << " d max_its example [jmin_x jmin_y]" << endl; exit(1);
-    }
-    cout.precision(16);
+IndexSet<Index1D>
+computeRHSLambda_SmoothPart(const MWBasis1D &basis, T a, T b, int J_plus);
 
-    int d=atoi(argv[1]);
-    int NumOfIterations=atoi(argv[2]);
-    int example=atoi(argv[3]);
+Coefficients<Lexicographical,T,Index1D>
+initializeRHSVector(const RHS1D &rhsintegral,
+                    const IndexSet<Index1D> LambdaRHS_singular,
+                    const IndexSet<Index1D> LambdaRHS_smooth);
+
+int main(int argc, char *argv[]) {
+    int d=2;
     int j0_x=-2;
     int j0_y=-2;
-    int order=20;
+    int J=atoi(argv[1]);
+    T   r_x = 10.;
+    T   r_y = 10.;
+    T   c = 1.;
 
+    MWBasis1D           mwbasis1d_x(d,j0_x);
+    MWBasis1D           mwbasis1d_y(d,j0_y);
+    MWBasis2D           mwbasis2d(mwbasis1d_x,mwbasis1d_y);
 
-    MWBasis1D mw_basis_x(d,j0_x);
-    MWBasis1D mw_basis_y(d,j0_y);
-
-    MWBasis2D           mw_basis2d(mw_basis_x,mw_basis_y);
-    MW_MA               mw_A(mw_basis2d,1.);
+    MW_MA               mw_A(mwbasis2d,1.);
     MW_Prec             mw_prec(mw_A);
 
+    // Assemble f vector and u vector
+    DenseMatrixT nodeltas;
     TensorRefSols_PDE_Realline2D<T> refsol;
-    refsol.setExample(example, 1.);
-    SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
-                                    refsol.exact_y, refsol.sing_pts_y);
+    refsol.setExample(2, c);
+    Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
+    Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
+    RHS1D       u1_integral(mwbasis2d.first, u1Fct, nodeltas, 35);
+    RHS1D       u2_integral(mwbasis2d.second, u2Fct, nodeltas, 35);
 
-    SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
-                                    refsol.rhs_y, refsol.sing_pts_y);
-    GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
-    SeparableRhsIntegral2D rhsintegral_x(mw_basis2d, SepFunc1, refsol.deltas_x, no_deltas, order);
-    SeparableRhsIntegral2D rhsintegral_y(mw_basis2d, SepFunc2, no_deltas, refsol.deltas_y, order);
-    SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
+    Function<T> f1Fct(refsol.rhs_x, refsol.sing_pts_x);
+    Function<T> f2Fct(refsol.rhs_y, refsol.sing_pts_y);
+    RHS1D       f1_integral(mwbasis2d.first, f1Fct, refsol.deltas_x, 35);
+    RHS1D       f2_integral(mwbasis2d.second, f2Fct, refsol.deltas_y, 35);
 
-    Coefficients<Lexicographical,T,Index2D> f;
-    f = precoomputeRHS(example, mw_basis2d, mw_prec, j0_x, j0_y, 7, 15., 15.);
+    IndexSet<Index1D> Lambda_smooth, Lambda_singular;
+    Coefficients<Lexicographical,T,Index1D> u1_coeff, u2_coeff, f1_coeff, f2_coeff;
 
-    Rhs mw_F_test(rhsintegral2d,mw_prec);
-    Rhs mw_F(rhsintegral2d,mw_prec,f);
+    Lambda_smooth = computeRHSLambda_SmoothPart(mwbasis1d_x, -r_x, r_x, J);
+    Lambda_singular = computeRHSLambda_SingularPart(mwbasis1d_x,refsol.sing_pts_x ,30);
+    u1_coeff = initializeRHSVector(u1_integral, Lambda_singular, Lambda_smooth );
+
+    Lambda_smooth = computeRHSLambda_SmoothPart(mwbasis1d_y, -r_y, r_y, J);
+    Lambda_singular = computeRHSLambda_SingularPart(mwbasis1d_y,refsol.sing_pts_y ,30);
+    u2_coeff = initializeRHSVector(u2_integral, Lambda_singular, Lambda_smooth );
+
+    Lambda_smooth = computeRHSLambda_SmoothPart(mwbasis1d_x, -r_x, r_x, J);
+    Lambda_singular = computeRHSLambda_SingularPart(mwbasis1d_x,refsol.sing_pts_x ,30);
+    f1_coeff = initializeRHSVector(f1_integral, Lambda_singular, Lambda_smooth );
+
+    Lambda_smooth = computeRHSLambda_SmoothPart(mwbasis1d_y, -r_y, r_y, J);
+    Lambda_singular = computeRHSLambda_SingularPart(mwbasis1d_y,refsol.sing_pts_y ,30);
+    f2_coeff = initializeRHSVector(f2_integral, Lambda_singular, Lambda_smooth );
 
 
-    Index2D index(Index1D(0,0,XWavelet),Index1D(0,1,XWavelet));
-    cout << mw_F_test(index) << " " << mw_F(index) << endl;
 
-    MW_GHS_ADWAV_SOLVER mw_ghs_adwav_solver(mw_A,mw_F);
+    cout << "Computation of 1d vectors for u and f finished." << endl;
 
-    mw_ghs_adwav_solver.SOLVE(f.norm(2.), 1e-5, NumOfIterations, refsol.H1norm());
+    //Coefficients<AbsoluteValue,T,Index1D> u1_coeff_abs, u2_coeff_abs, f1_coeff_abs, f2_coeff_abs;
+    //u1_coeff_abs = u1_coeff;
+    //u2_coeff_abs = u2_coeff;
+    u1_coeff = ABSOLUTE_THRESH(u1_coeff,1e-10);
+    u2_coeff = ABSOLUTE_THRESH(u2_coeff,1e-10);
+    //f1_coeff_abs = f1_coeff;
+    //f2_coeff_abs = f2_coeff;
+    f1_coeff = ABSOLUTE_THRESH(f1_coeff,1e-10);
+    f2_coeff = ABSOLUTE_THRESH(f2_coeff,1e-10);
 
-    return 0;
+    cout << "Sizes of 1d u vectors after thresholding: " << u1_coeff.size() << ", " << u2_coeff.size() << endl;
+    cout << "Sizes of 1d f vectors after thresholding: " << f1_coeff.size() << ", " << f2_coeff.size() << endl;
+
+    cout << "Computation of 2d vector u and f started." << endl;
+
+    Coefficients<Lexicographical,T,Index2D> u_coeff, f_coeff;
+
+    for (const_coeff1d_it it_x=u1_coeff.begin(); it_x!=u1_coeff.end(); ++it_x) {
+        for (const_coeff1d_it it_y=u2_coeff.begin(); it_y!=u2_coeff.end(); ++it_y) {
+            Index2D index((*it_x).first,(*it_y).first);
+            T u_val = (*it_x).second * (*it_y).second * (1./mw_prec(index));
+            if (fabs(u_val)>1e-6) {
+                u_coeff[index] = u_val;
+                T f_val = (  f1_coeff[(*it_x).first] * (*it_y).second
+                           + f2_coeff[(*it_y).first] * (*it_x).second ) * mw_prec(index);
+                f_coeff[index] = f_val;
+            }
+        }
+    }
+    cout << "Computation of 2d vectors u and f finished." << endl;
+    cout << "Size of 2d u vector: " << u_coeff.size() << endl;
+    cout << "Size of 2d f vector: " << f_coeff.size() << endl;
+    //u_coeff=THRESH(u_coeff,1e-10);
+
+
+
+    Coefficients<AbsoluteValue,T,Index2D> u_coeff_abs;
+    u_coeff_abs = u_coeff;
+
+
+    for(int n=1; n<=21000; n+=1000) {
+        int count=1;
+        Coefficients<Lexicographical,T,Index2D> u, Au;
+        for (const_coeff2d_abs_it it=u_coeff_abs.begin(); it!=u_coeff_abs.end(); ++it,++count) {
+            u[(*it).second] = (*it).first;
+            if (count>n) break;
+        }
+        T fu = u*f_coeff;
+        Au = mw_A.mv(supp(u), u);
+        T uAu = u*Au;
+        cout << n << " " << sqrt(fabs(std::pow(refsol.H1norm(),2.)- 2*fu + uAu)) << endl;
+    }
+
+
+
+    return 0.;
 }
-
 
 IndexSet<Index1D>
 computeRHSLambda_SingularPart(const MWBasis1D &basis, const DenseVectorT &_f_singularPoints,
@@ -207,83 +266,5 @@ initializeRHSVector(const RHS1D &rhsintegral,
     }
 
     return f;
-}
 
-template<typename T, typename Basis2D>
-Coefficients<Lexicographical,T,Index2D>
-precoomputeRHS(int example, const Basis2D &mw_basis2d, MW_Prec &mw_prec, int j0_x, int j0_y,
-               int J, T r_x, T r_y)
-{
-    // Assemble f vector and u vector
-    DenseMatrixT nodeltas;
-    TensorRefSols_PDE_Realline2D<T> refsol;
-    refsol.setExample(example, 1.);
-    Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
-    Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
-    RHS1D       u1_integral(mw_basis2d.first, u1Fct, nodeltas, 35);
-    RHS1D       u2_integral(mw_basis2d.second, u2Fct, nodeltas, 35);
-
-    Function<T> f1Fct(refsol.rhs_x, refsol.sing_pts_x);
-    Function<T> f2Fct(refsol.rhs_y, refsol.sing_pts_y);
-    RHS1D       f1_integral(mw_basis2d.first, f1Fct, refsol.deltas_x, 35);
-    RHS1D       f2_integral(mw_basis2d.second, f2Fct, refsol.deltas_y, 35);
-
-    IndexSet<Index1D> Lambda_smooth, Lambda_singular;
-    Coefficients<Lexicographical,T,Index1D> u1_coeff, u2_coeff, f1_coeff, f2_coeff;
-
-    Lambda_smooth = computeRHSLambda_SmoothPart(mw_basis2d.first, -r_x, r_x, J);
-    Lambda_singular = computeRHSLambda_SingularPart(mw_basis2d.first,refsol.sing_pts_x ,30);
-    u1_coeff = initializeRHSVector(u1_integral, Lambda_singular, Lambda_smooth );
-
-    Lambda_smooth = computeRHSLambda_SmoothPart(mw_basis2d.second, -r_y, r_y, J);
-    Lambda_singular = computeRHSLambda_SingularPart(mw_basis2d.second,refsol.sing_pts_y ,30);
-    u2_coeff = initializeRHSVector(u2_integral, Lambda_singular, Lambda_smooth );
-
-    Lambda_smooth = computeRHSLambda_SmoothPart(mw_basis2d.first, -r_x, r_x, J);
-    Lambda_singular = computeRHSLambda_SingularPart(mw_basis2d.first,refsol.sing_pts_x ,30);
-    f1_coeff = initializeRHSVector(f1_integral, Lambda_singular, Lambda_smooth );
-
-    Lambda_smooth = computeRHSLambda_SmoothPart(mw_basis2d.second, -r_y, r_y, J);
-    Lambda_singular = computeRHSLambda_SingularPart(mw_basis2d.second,refsol.sing_pts_y ,30);
-    f2_coeff = initializeRHSVector(f2_integral, Lambda_singular, Lambda_smooth );
-
-
-
-    cout << "Computation of 1d vectors for u and f finished." << endl;
-
-    u1_coeff = ABSOLUTE_THRESH(u1_coeff,1e-10);
-    u2_coeff = ABSOLUTE_THRESH(u2_coeff,1e-10);
-    f1_coeff = ABSOLUTE_THRESH(f1_coeff,1e-10);
-    f2_coeff = ABSOLUTE_THRESH(f2_coeff,1e-10);
-
-    cout << "Sizes of 1d u vectors after thresholding: " << u1_coeff.size() << ", " << u2_coeff.size() << endl;
-    cout << "Sizes of 1d f vectors after thresholding: " << f1_coeff.size() << ", " << f2_coeff.size() << endl;
-
-    cout << "Computation of 2d vector u and f started." << endl;
-
-    Coefficients<Lexicographical,T,Index2D> f_coeff;
-
-
-    for (const_coeff1d_it it_x=u1_coeff.begin(); it_x!=u1_coeff.end(); ++it_x) {
-       for (const_coeff1d_it it_y=f2_coeff.begin(); it_y!=f2_coeff.end(); ++it_y) {
-           Index2D index((*it_x).first,(*it_y).first);
-           T f_val = (*it_x).second * (*it_y).second * mw_prec(index);
-           if (fabs(f_val)>1e-10) {
-               f_coeff[index] += f_val;
-           }
-       }
-    }
-    for (const_coeff1d_it it_x=f1_coeff.begin(); it_x!=f1_coeff.end(); ++it_x) {
-       for (const_coeff1d_it it_y=u2_coeff.begin(); it_y!=u2_coeff.end(); ++it_y) {
-           Index2D index((*it_x).first,(*it_y).first);
-           T f_val = (*it_x).second * (*it_y).second * mw_prec(index);
-           if (fabs(f_val)>1e-10) {
-               f_coeff[index] += f_val;
-           }
-       }
-    }
-
-    cout << "Size of 2d vector f: " << f_coeff.size() << endl;
-
-    return f_coeff;
 }

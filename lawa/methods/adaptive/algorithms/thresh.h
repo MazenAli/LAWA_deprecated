@@ -9,6 +9,10 @@ namespace lawa {
 
 template <typename T, typename Index>
     Coefficients<Lexicographical,T,Index >
+    ABSOLUTE_THRESH(const Coefficients<Lexicographical,T,Index > &v, T eta);
+
+template <typename T, typename Index>
+    Coefficients<Lexicographical,T,Index >
     THRESH(const Coefficients<Lexicographical,T,Index > &v, T eta);
 
 template <typename T, typename Index>

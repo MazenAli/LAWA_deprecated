@@ -54,6 +54,7 @@ template<typename T>
 IndexSet<Index1D>
 ReferenceLambda(int jmin, int jmax, const MWBasis1D &basis, T radius);
 
+
 int main(int argc, char *argv[]) {
     int d=2;
     int j0=-2;
@@ -211,6 +212,7 @@ ReferenceLambda(int jmin, int jmax, const MWBasis1D &basis, T radius)
 
     return Lambda;
 }
+
 
 /*
     Coefficients<AbsoluteValue,T,Index2D> u_coeff_abs;

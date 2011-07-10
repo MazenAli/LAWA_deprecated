@@ -25,3 +25,4 @@ applications/unbounded_domains/parameters/run_eigenvalues_Bsplines
 applications/unbounded_domains/adwav/ghs-adwav-realline-mw-helmholtz2d
 validate/test_adaptivehelmholtzoperatormw2d
 validate/test_applyhelmholtzmw2d
+validate/test_applyhelmholtz2d_2
