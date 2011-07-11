@@ -21,7 +21,13 @@ AdaptiveLaplaceOperator1D<T, Basis1D>::operator()(const Index1D &row_index,
     Index1D tmp_row_index(row_index.j-min_j,row_index.k,row_index.xtype);
     Index1D tmp_col_index(col_index.j-min_j,col_index.k,col_index.xtype);
 
-    return scaling_factor * laplace_data1d(tmp_row_index, tmp_col_index);
+    T tmp = scaling_factor * laplace_data1d(tmp_row_index, tmp_col_index);
+    //T tmp2 =laplace_op1d(row_index,col_index);
+    //if (fabs(tmp-tmp2)>1e-3) {
+    //std::cout << "(" << row_index << ", " << col_index << "): " << tmp2
+    //          << " " << tmp << std::endl;
+    //}
+    return tmp;
 }
 
 }   // namespace lawa

@@ -35,6 +35,7 @@ typedef flens::DenseVector<flens::Array<T> >                            DenseVec
 
 //Iterator definitions
 typedef IndexSet<Index1D>::const_iterator                               const_set1d_it;
+typedef IndexSet<Index2D>::const_iterator                               const_set2d_it;
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator         const_coeff1d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator         const_coeff2d_it;
 typedef Coefficients<AbsoluteValue,T,Index1D>::const_iterator           const_coeff1d_abs_it;
@@ -59,9 +60,12 @@ typedef RHS<T,Index2D, SumOfSeparableRhsIntegral2D,
 typedef GHS_ADWAV<T, Index2D, MW_MA, Rhs>                               MW_GHS_ADWAV_SOLVER;
 
 
+IndexSet<Index1D>
+computeRHSLambda_SmoothPart(const MWBasis1D &basis, T a, T b, int J_plus);
+
 template<typename T, typename Basis2D>
 Coefficients<Lexicographical,T,Index2D>
-precoomputeRHS(int example, const Basis2D &mwbasis2d, MW_Prec &mw_prec, int j0_x, int j0_y,
+precomputeRHS(int example, const Basis2D &mwbasis2d, MW_Prec &mw_prec, int j0_x, int j0_y,
                int J, T r_x, T r_y);
 
 int main (int argc, char *argv[]) {
@@ -73,10 +77,10 @@ int main (int argc, char *argv[]) {
     int d=atoi(argv[1]);
     int NumOfIterations=atoi(argv[2]);
     int example=atoi(argv[3]);
-    int j0_x=-2;
+    int j0_x=-1;
     int j0_y=-2;
-    int order=20;
-
+    int order=35;
+    T r=5.;
 
     MWBasis1D mw_basis_x(d,j0_x);
     MWBasis1D mw_basis_y(d,j0_y);
@@ -97,20 +101,87 @@ int main (int argc, char *argv[]) {
     SeparableRhsIntegral2D rhsintegral_y(mw_basis2d, SepFunc2, no_deltas, refsol.deltas_y, order);
     SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
 
-    Coefficients<Lexicographical,T,Index2D> f;
-    f = precoomputeRHS(example, mw_basis2d, mw_prec, j0_x, j0_y, 7, 15., 15.);
+    Coefficients<Lexicographical,T,Index2D> f, u;
+    f = precomputeRHS(example, mw_basis2d, mw_prec, j0_x, j0_y, 7, 15., 15.);
+
+    for (const_coeff2d_it it=f.begin(); it!=f.end(); ++it) {
+        if (((*it).first.index2.xtype==XBSpline) && ((*it).first.index2.j!=j0_y)) {
+            cout << "Error in RHS: " << (*it).first << endl;
+        }
+    }
 
     Rhs mw_F_test(rhsintegral2d,mw_prec);
     Rhs mw_F(rhsintegral2d,mw_prec,f);
 
-
-    Index2D index(Index1D(0,0,XWavelet),Index1D(0,1,XWavelet));
-    cout << mw_F_test(index) << " " << mw_F(index) << endl;
-
     MW_GHS_ADWAV_SOLVER mw_ghs_adwav_solver(mw_A,mw_F);
+    u = mw_ghs_adwav_solver.SOLVE(f.norm(2.), 1e-5, NumOfIterations, refsol.H1norm());
 
-    mw_ghs_adwav_solver.SOLVE(f.norm(2.), 1e-5, NumOfIterations, refsol.H1norm());
+/*
+    IndexSet<Index1D> Lambda_x, Lambda_y;
+    Lambda_x = computeRHSLambda_SmoothPart(mw_basis_x, -r, r, 1);
+    Lambda_y = computeRHSLambda_SmoothPart(mw_basis_y, -r, r, 1);
 
+    IndexSet<Index2D> Lambda;
+    /*
+    for (const_set1d_it it_x=Lambda_x.begin(); it_x!=Lambda_x.end(); ++it_x) {
+        for (const_set1d_it it_y=Lambda_y.begin(); it_y!=Lambda_y.end(); ++it_y) {
+            Lambda.insert(Index2D(*it_x,*it_y));
+        }
+    }
+
+    cout << Lambda << endl;
+    cout << "Size of Lambda: " << Lambda.size() << endl;
+
+    DenseVectorT rhs(Lambda.size()), x(Lambda.size());
+    int count=1;
+    for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
+        rhs(count) = mw_F_test(*it);
+        ++count;
+    }
+
+    SparseMatrixT A(Lambda.size(),Lambda.size());
+    mw_A.toFlensSparseMatrix(Lambda,Lambda,A);
+
+    int iters = lawa::cg(A,x,rhs,1e-8);
+    cout << "cg-iters: " << iters << endl;
+
+
+    count=1;
+    for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
+        u[*it] = x(count);
+        ++count;
+    }
+*/
+
+
+
+
+    stringstream plot_filename;
+    plot_filename << "ghs-adwav-helmholtz2d-realline-mw-plot.dat";
+    ofstream plotfile(plot_filename.str().c_str());
+    cout << "Plot of solution started." << endl;
+    T a1=-5., b1=5, a2=-5., b2=5.;
+    T h1=0.125, h2=0.125;
+    for (T x=a1; x<=b1; x+=h1) {
+        for (T y=a2; y<=b2; y+=h2) {
+            T appr = 0.0;
+            T exact= refsol.exact(x,y);
+            for (const_coeff2d_it it = u.begin(); it != u.end(); ++it) {
+                XType xtype_x = (*it).first.index1.xtype;
+                XType xtype_y = (*it).first.index2.xtype;
+                int j_x = (*it).first.index1.j, k_x = (*it).first.index1.k;
+                int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
+
+                T coeff = (*it).second, prec = mw_A.prec((*it).first);
+
+                appr    += prec * coeff * mw_basis2d.first.generator(xtype_x)(x,j_x,k_x,0)
+                                        * mw_basis2d.second.generator(xtype_y)(y,j_y,k_y,0);
+            }
+            plotfile << x << " " << y << " " << exact << " " << appr  << " " << endl;
+        }
+        plotfile << std::endl;
+    }
+    cout << "Plot of solution finished." << endl;
     return 0;
 }
 
@@ -160,6 +231,7 @@ computeRHSLambda_SmoothPart(const MWBasis1D &basis, T a, T b, int J_plus)
 {
     IndexSet<Index1D> ret;
 
+    cout << "computeRHSLambda_SmoothPart: j0 = " << basis.j0 << endl;
     T l1, l2;
     l1 = basis.mra.phi.max_support().l1, l2 = basis.mra.phi.max_support().l2;
     int numScaling =basis.mra.phi._numSplines;
@@ -211,7 +283,7 @@ initializeRHSVector(const RHS1D &rhsintegral,
 
 template<typename T, typename Basis2D>
 Coefficients<Lexicographical,T,Index2D>
-precoomputeRHS(int example, const Basis2D &mw_basis2d, MW_Prec &mw_prec, int j0_x, int j0_y,
+precomputeRHS(int example, const Basis2D &mw_basis2d, MW_Prec &mw_prec, int j0_x, int j0_y,
                int J, T r_x, T r_y)
 {
     // Assemble f vector and u vector

@@ -48,6 +48,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, int NumOfIteratio
         time.stop();
         total_time += time.elapsed();
 
+        //if (w_k.size()>100) return w_k;
         Coefficients<Lexicographical,T,Index2D> Au;
         T fu = w_k*F.rhs_data;
         Au = A.mv(supp(w_k), w_k);
@@ -56,7 +57,6 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, int NumOfIteratio
         //T Error_H_energy = computeErrorInH1Norm(Apply.A, F, w_k, H1norm);
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << std::endl;
-
         time.start();
 
 
@@ -169,7 +169,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
         const_coeff_it it = r0.find(*row);
         if (it != r0_end) rhs(row_count) = (*it).second;
-        else                      rhs(row_count) = 0.;
+        else              rhs(row_count) = 0.;
     }
     //std::cerr << "    cg-method started with rhs " << rhs << std::endl;
     int iters = lawa::cg(B,x,rhs,tol);

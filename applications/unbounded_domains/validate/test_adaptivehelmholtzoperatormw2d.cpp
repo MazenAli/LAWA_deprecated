@@ -43,47 +43,50 @@ typedef TensorBasis2D<Adaptive, MWBasis1D, MWBasis1D>                   MWBasis2
 typedef HelmholtzOperator2D<T, MWBasis2D>                               HelmholtzOp2D;
 typedef DiagonalMatrixPreconditioner2D<T,MWBasis2D, HelmholtzOp2D >     Preconditioner2D;
 
-typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D, Preconditioner2D>   MA_MW;
+typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>                     MA_MW;
 typedef AdaptiveHelmholtzOperator2D<T, MWBasis2D, Preconditioner2D>     MA;
 
-typedef Parameters2D<T, MWBasis2D, HelmholtzOp2D>                       ParametersMW2D;
-
-typedef APPLY_Helmholtz_MW_2D<T, MWBasis2D, ParametersMW2D, MA_MW>      APPLY2D;
 
 int main(int argc, char *argv[]) {
     int d=2;
-    int j0=-2;
+    int j0_x=-2;
+    int j0_y=-1;
     int J=atoi(argv[1]);
-    MWBasis1D           mwbasis1d(d,j0);
-    MWBasis2D           mwbasis2d(mwbasis1d,mwbasis1d);
+    MWBasis1D           mwbasis1d_x(d,j0_x);
+    MWBasis1D           mwbasis1d_y(d,j0_y);
+    MWBasis2D           mwbasis2d(mwbasis1d_x,mwbasis1d_y);
     HelmholtzOp2D       helmholtz_op(mwbasis2d,1.);
     Preconditioner2D    prec(helmholtz_op);
 
-    ParametersMW2D params(mwbasis2d, helmholtz_op);
-
-    MA_MW               A_MW(mwbasis2d,1.,prec);
+    MA_MW               A_MW(mwbasis2d,1.);
     MA                  A(mwbasis2d,1.,prec);
 
-    APPLY2D Apply2d(mwbasis2d, params, A_MW);
-
-    IndexSet<Index1D> Lambda1D;
+    IndexSet<Index1D> Lambda_x, Lambda_y;
     for (int k=-5; k<=5; ++k) {
-        Lambda1D.insert(Index1D(j0,k,XBSpline));
+        Lambda_x.insert(Index1D(j0_x,k,XBSpline));
     }
-
-    for (int j=j0; j<=J; ++j) {
+    for (int j=j0_x; j<=J; ++j) {
         for (int k=-5; k<=5; ++k) {
-            Lambda1D.insert(Index1D(j,k,XWavelet));
+            Lambda_x.insert(Index1D(j,k,XWavelet));
         }
     }
 
-    int N = Lambda1D.size() * Lambda1D.size();
+    for (int k=-5; k<=5; ++k) {
+        Lambda_y.insert(Index1D(j0_y,k,XBSpline));
+    }
+    for (int j=j0_y; j<=J; ++j) {
+        for (int k=-5; k<=5; ++k) {
+            Lambda_y.insert(Index1D(j,k,XWavelet));
+        }
+    }
+
+    int N = Lambda_x.size() * Lambda_y.size();
     DenseVectorT x(N), y1(N), y2(N), diff(N);
     int count = 1;
     IndexSet<Index2D> Lambda;
     Coefficients<Lexicographical,T,Index2D> x_coeff, y1_coeff, y2_coeff, diff_coeff;
-    for (const_set1d_it row_x=Lambda1D.begin(); row_x!=Lambda1D.end(); ++row_x) {
-        for (const_set1d_it row_y=Lambda1D.begin(); row_y!=Lambda1D.end(); ++row_y) {
+    for (const_set1d_it row_x=Lambda_x.begin(); row_x!=Lambda_x.end(); ++row_x) {
+        for (const_set1d_it row_y=Lambda_y.begin(); row_y!=Lambda_y.end(); ++row_y) {
             T val = 1.;
             Lambda.insert(Index2D(*row_x,*row_y));
             x_coeff[Index2D(*row_x,*row_y)] = val;

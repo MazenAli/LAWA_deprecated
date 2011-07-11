@@ -12,6 +12,7 @@ AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>::AdaptiveHelmholtzOperatorMW2D(const
   P_data()
 {
     T cA_x=0., CA_x=0., cA_y=0., CA_y = 0.;
+    std::cout << "AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>: j0_x=" << basis.first.j0 << ", j0_y=" << basis.second.j0 << std::endl;
     if (basis.first.d==2 && basis.second.d==2 && c==1.) {
 
         if      (basis.first.j0==0)  {    cA_x = 0.14;  CA_x = 2.9;    }
@@ -217,7 +218,7 @@ AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>::toFlensSparseMatrix(const IndexSet<
         for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
             Index2D tmp_row_index((*col).index1, *row_y);
             if (LambdaRow.count(tmp_row_index)>0) {
-                T val_y = laplace_data1d((*col).index2,*row_y);
+                T val_y = laplace_data1d(*row_y,(*col).index2);
                 if (fabs(val_y)>0.) {
                     A_flens(row_indices[tmp_row_index],col_count) += this->prec(tmp_row_index)*val_y*prec_col_index;
                 }
@@ -258,7 +259,7 @@ AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>::apply(const Coefficients<Lexicograp
                                    maxlevel_x,false);
 
         J==-1000 ? maxlevel_y=col_index_y.j+(k-s)+1 : maxlevel_y=J;
-        Lambda_y=lambdaTilde1d_PDE(col_index_y, basis.second, (k-s), basis.first.j0,
+        Lambda_y=lambdaTilde1d_PDE(col_index_y, basis.second, (k-s), basis.second.j0,
                                    maxlevel_y,false);
 
         for (const_set1d_it row_x = Lambda_x.begin(); row_x != Lambda_x.end(); ++row_x) {
@@ -279,7 +280,6 @@ AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>::apply(const Coefficients<Lexicograp
 
     return ret;
 }
-
 
 template <typename T, typename MWBasis2D>
 Coefficients<Lexicographical,T,Index2D>

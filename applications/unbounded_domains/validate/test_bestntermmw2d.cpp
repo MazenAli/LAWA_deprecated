@@ -66,8 +66,9 @@ initializeRHSVector(const RHS1D &rhsintegral,
 int main(int argc, char *argv[]) {
     int d=2;
     int j0_x=-2;
-    int j0_y=-2;
+    int j0_y=0;
     int J=atoi(argv[1]);
+    int example = 1;
     T   r_x = 10.;
     T   r_y = 10.;
     T   c = 1.;
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
     // Assemble f vector and u vector
     DenseMatrixT nodeltas;
     TensorRefSols_PDE_Realline2D<T> refsol;
-    refsol.setExample(2, c);
+    refsol.setExample(example, c);
     Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
     Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
     RHS1D       u1_integral(mwbasis2d.first, u1Fct, nodeltas, 35);
@@ -116,13 +117,8 @@ int main(int argc, char *argv[]) {
 
     cout << "Computation of 1d vectors for u and f finished." << endl;
 
-    //Coefficients<AbsoluteValue,T,Index1D> u1_coeff_abs, u2_coeff_abs, f1_coeff_abs, f2_coeff_abs;
-    //u1_coeff_abs = u1_coeff;
-    //u2_coeff_abs = u2_coeff;
     u1_coeff = ABSOLUTE_THRESH(u1_coeff,1e-10);
     u2_coeff = ABSOLUTE_THRESH(u2_coeff,1e-10);
-    //f1_coeff_abs = f1_coeff;
-    //f2_coeff_abs = f2_coeff;
     f1_coeff = ABSOLUTE_THRESH(f1_coeff,1e-10);
     f2_coeff = ABSOLUTE_THRESH(f2_coeff,1e-10);
 
