@@ -29,3 +29,5 @@ validate/test_applyhelmholtz2d_2
 applications/unbounded_domains/validate/test_bestntermmw2d
 applications/unbounded_domains/validate/test_applyhelmholtzmw2d
 applications/unbounded_domains/validate/test_adaptivehelmholtzoperatormw2d
+validate/test_sparsemulti
+validate/test_coefficients

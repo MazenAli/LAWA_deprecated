@@ -50,7 +50,8 @@ enum Construction {
     DKU,
     Primbs,
     Dijkema,
-    Multi
+    Multi,
+    SparseMulti
 };
 
 enum BoundaryCondition {
@@ -68,7 +69,8 @@ enum QuadratureType {
 
 enum SortingCriterion {
     AbsoluteValue,
-    Lexicographical
+    Lexicographical,
+    Bucket
     //Uniform
 };
 
