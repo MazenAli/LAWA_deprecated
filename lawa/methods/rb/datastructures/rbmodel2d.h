@@ -66,6 +66,9 @@ class RBModel2D {
         Q_f();
 
         unsigned int
+        Q_output();
+
+        unsigned int
         n_bf();
         
         void
@@ -73,6 +76,9 @@ class RBModel2D {
         
         void
         attach_theta_f_q(theta_fctptr theta_f_q);
+
+        void
+        attach_theta_output_q(theta_fctptr theta_output_q);
 
         void 
         attach_inner_product_op(Operator2D<T>& _inner_product_op);
@@ -136,6 +142,7 @@ class RBModel2D {
 
         std::vector<theta_fctptr> theta_a;
         std::vector<theta_fctptr> theta_f;
+        std::vector<theta_fctptr> theta_output;
 
         std::vector<FullColMatrixT>     RB_A_matrices;
         std::vector<DenseVectorT>       RB_F_vectors;
@@ -150,6 +157,7 @@ class RBModel2D {
         FullColMatrixT                               F_F_representor_norms; // Speicherbedarf kann verringert werden..
         std::vector<FullColMatrixT>                  A_F_representor_norms;
         std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
+        FullColMatrixT                               output_output_representor_norms; // Speicherbedarf kann verringert werden..
         
         std::vector<std::vector<T> >  Xi_train;
         

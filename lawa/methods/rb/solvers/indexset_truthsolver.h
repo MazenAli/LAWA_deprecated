@@ -44,6 +44,9 @@ public:
   Coefficients<Lexicographical,T,Index>
   repr_solve_A();
 
+  Coefficients<Lexicographical,T,Index>
+  repr_solve_output();
+
   IndexSet<Index>& basis_set;
   
   //std::vector<DenseVectorT> F_operator_vectors;

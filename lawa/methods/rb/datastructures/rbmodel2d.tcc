@@ -43,6 +43,13 @@ RBModel2D<T, TruthModel>::Q_f()
 
 template <typename T, typename TruthModel>
 unsigned int
+RBModel2D<T, TruthModel>::Q_output()
+{
+  return theta_output.size();
+}
+
+template <typename T, typename TruthModel>
+unsigned int
 RBModel2D<T, TruthModel>::n_bf()
 {
   return rb_basis_functions.size();  
@@ -60,6 +67,13 @@ void
 RBModel2D<T, TruthModel>::attach_theta_f_q(theta_fctptr theta_f_q)
 {
   theta_f.push_back(theta_f_q);
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::attach_theta_output_q(theta_fctptr theta_output_q)
+{
+  theta_output.push_back(theta_output_q);
 }
 
 template <typename T, typename TruthModel>
@@ -94,11 +108,13 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
     }
     new_bf.scale(1./std::sqrt(inner_product(new_bf, new_bf)));
     rb_basis_functions.push_back(new_bf);
+
     timer.stop();
     std::cout << "  ... done: " << timer.elapsed() << " seconds" << std::endl << std::endl;
     
     timer.start();
     std::cout << "  Updating RB Matrices ..." << std::endl;
+
     update_RB_A_matrices();
     update_RB_F_vectors();
     update_RB_inner_product();
@@ -669,7 +685,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
             }
 
         }
-        
+
         DenseVectorT A_new_bf, A_new_bf_T;
         if(assembled_A_operator_matrices){
             A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense;
@@ -678,6 +694,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
             
             //std::cout << A_new_bf_T << std::endl;
         }
+        
         
         for (unsigned int i = 1; i <= n_bf(); ++i) {
             if(assembled_A_operator_matrices){

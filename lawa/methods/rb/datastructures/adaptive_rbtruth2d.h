@@ -101,6 +101,7 @@ class AdaptiveRBTruth2D{
         
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
+        std::vector<AdaptiveRhs<T, Index2D>*>   output_operators;
         
         TruthSolver*                            solver;
                 
@@ -141,8 +142,27 @@ class AdaptiveRBTruth2D{
                 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;        
         };
         
+        // Wrapper class for affine structure on output
+       class Operator_output {
+           public:
+               Operator_output(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
+
+               T
+               operator()(const Index2D &lambda);
+
+               Coefficients<Lexicographical,T,Index2D>
+               operator()(const IndexSet<Index2D> &Lambda);
+
+               Coefficients<Lexicographical,T,Index2D>
+               operator()(T tol);
+
+           private:
+               AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;
+       };
+
         Operator_LHS lhs_op;
         Operator_RHS rhs_op;
+        Operator_output output_op;
          
           // Wrapper class for affine structure on left hand side
           // in the calculation of the Riesz representors       
@@ -219,13 +239,16 @@ class AdaptiveRBTruth2D{
         Operator_LHS_Representor            repr_lhs_op;
         Operator_RHS_BilFormRepresentor     repr_rhs_A_op;
         Operator_RHS_FunctionalRepresentor  repr_rhs_F_op;
+        Operator_RHS_FunctionalRepresentor  repr_rhs_output_op;
         
         bool use_inner_product_matrix;
         bool use_A_operator_matrices;
         bool use_F_operator_vectors;
+     //   bool use_output_operator_vectors;
         
         SparseMatrixT   inner_product_matrix;
         std::vector<SparseMatrixT> A_operator_matrices;
+        
         
     private:
         
@@ -233,6 +256,7 @@ class AdaptiveRBTruth2D{
         
         std::vector<CoeffVector>                F_representors; // Dim: 1 x Q_f
         std::vector<std::vector<CoeffVector> >  A_representors; // Dim: n x Q_a
+        std::vector<CoeffVector>                output_representors; // Dim: 1 x Q_m ??
 
 };
     

@@ -6,6 +6,7 @@ template <typename T, typename Basis, typename TruthSolver, typename Compression
 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::AdaptiveRBTruth2D(Basis& _basis, bool _use_inner_product, 
                       bool _use_A_matrix, bool _use_F_vector)
     : basis(_basis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
+      repr_rhs_output_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
       use_F_operator_vectors(_use_F_vector)
 {}
@@ -107,6 +108,8 @@ void
 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
 {
     //Timer timer;
+
+    //hier schauen, ob erstmal Entscheidung ob Output überhaupt oder generell reinnehmen
     int N = rb->n_bf();
     if(N == 1) {
         F_representors.resize(rb->Q_f());
@@ -128,6 +131,14 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
             
             F_representors[i] = c;
         } 
+        output_representors.resize(rb->Q_output());
+        for (unsigned int i = 0; i < rb->Q_output(); ++i) {
+            repr_rhs_output_op.set_current_op(*output_operators[i]);
+            std::cout<< std::endl << "  --- Solving for Riesz Representor of Output_" << i+1 << "---" << std::endl<< std::endl;
+            CoeffVector c = solver->repr_solve_output();
+            output_representors[i] = c;
+        }
+
     }
     
     A_representors.resize(N);
@@ -135,34 +146,23 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
     A_representors[N-1].resize(rb->Q_a());
     for (unsigned int i = 0; i < rb->Q_a(); ++i) {
         repr_rhs_A_op.set_current_op(*A_operators[i]);
-        std::cout << std::endl<< "  --- Solving for Riesz Representor of A_" << i+1 
-                  << "(" << N << ")" << " --- " << std::endl<< std::endl;
-         
-        CoeffVector c = solver->repr_solve_A();        
-        
-       /*
-        // Scatterplot
-        std::cout << "  Plotting Representor A_"<< i+1 << " .... " << std::endl;
-        std::stringstream s;
-        s << "A_Representor_" << i+1 << "_" << N;
-        timer.start();
-        saveCoeffVector2D(c, basis, s.str().c_str());
-        timer.stop();
-        std::cout << "  .... finished: " << timer.elapsed() << " seconds" << std::endl << std::endl;
-       */
-            
-        A_representors[N-1][i] = c;
+        std::cout << std::endl<< " ==== Solving for Riesz Representor of A_" << i+1 
+                  << "(" << N << ")" << " =====" << std::endl<< std::endl;
+        A_representors[N-1][i] = solver->repr_solve_A();
     }
+
+
 }
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
 void
 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representor_norms()
 {
-  Timer timer;
-   // Coefficients<Lexicographical,T,Index> X_F_or_A;
     int N = rb->n_bf();
     int Qf = rb->Q_f();
+    int Qoutput = rb->Q_output();
+
+    Timer timer;
 
     if(N == 1){
       std::cout << "  ... F x F .... " << std::endl;
@@ -186,6 +186,25 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representor_norms(
        timer.stop();
        std::cout << "  " << timer.elapsed() << " seconds" << std::endl << std::endl;
        std::cout << rb->F_F_representor_norms << std::endl;
+
+       //hier schauen, ob erstmal Entscheidung ob Output überhaupt oder generell reinnehmen
+       std::cout << "  ... Output x Output .... " << std::endl;
+        // Output_Output representor norms
+        rb->output_output_representor_norms.engine().resize(Qf, Qf);
+
+        timer.start();
+        for(int qoutput1 = 1; qoutput1 <= Qoutput; ++qoutput1) {
+            for (int qoutput2 = qoutput1; qoutput2 <= Qoutput; ++qoutput2) {
+                rb->output_output_representor_norms(qoutput1,qoutput2) = rb->inner_product(output_representors[qoutput1-1], output_representors[qoutput2-1]);
+
+                if(qoutput1 != qoutput2) {
+                    rb->output_output_representor_norms(qoutput2,qoutput1) = rb->output_output_representor_norms(qoutput1,qoutput2);
+                }
+            }
+        }
+        timer.stop();
+        std::cout << "  " << timer.elapsed() << " seconds" << std::endl << std::endl;
+        std::cout << rb->output_output_representor_norms << std::endl;
     }
      
      
@@ -260,6 +279,13 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::write_riesz_representors(
     saveCoeffVector2D(F_representors[i], basis, filename.str().c_str());
   }
   
+  //hier schauen, ob erstmal Entscheidung ob Output überhaupt oder generell reinnehmen
+  for(unsigned int i = 0; i < rb->Q_output(); ++i){
+    std::stringstream filename;
+    filename << directory_name << "/output_representor_" << i+1 << ".dat";
+    saveCoeffVector2D(output_representors[i], basis, filename.str().c_str());
+  }
+
   for(unsigned int n = 0; n < rb->n_bf(); ++n){
     for(unsigned int i = 0; i < rb->Q_a(); ++i){
       std::stringstream filename;
@@ -371,6 +397,45 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS::operator()(
     return c;
 }
 
+/* Operator Output*/
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+T
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_output::operator()(const Index2D &lambda)
+{
+    T val = 0;
+    for (unsigned int i = 0; i < thisTruth->output_operators.size(); ++i) {
+        val += (*thisTruth->rb->theta_output[i])(thisTruth->rb->get_current_param())
+             * (*thisTruth->output_operators[i])(lambda);
+    }
+
+    return val;
+}
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_output::operator()(const IndexSet<Index2D> &Lambda)
+{
+    Coefficients<Lexicographical,T,Index2D> c;
+    for (unsigned int i = 0; i < thisTruth->output_operators.size(); ++i) {
+        c = c + (*thisTruth->output_operators[i])(Lambda)
+              * (*thisTruth->rb->theta_output[i])(thisTruth->rb->get_current_param());
+    }
+
+    return c;
+}
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_output::operator()(T tol)
+{
+    Coefficients<Lexicographical,T,Index2D> c;
+    for (unsigned int i = 0; i < thisTruth->output_operators.size(); ++i) {
+        c += (*thisTruth->output_operators[i])(tol)
+           * (*thisTruth->rb->theta_output[i])(thisTruth->rb->get_current_param());
+    }
+
+    return c;
+}
 /*  Operator LHS_Representor */
 
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
