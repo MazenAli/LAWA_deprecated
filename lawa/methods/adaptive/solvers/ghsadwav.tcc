@@ -4,7 +4,8 @@ template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
 GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F)
     : A(_A), F(_F),
       cA(A.cA), CA(A.CA), kappa(A.kappa),
-      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.)
+      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.),
+      sparseMat_A(200000,200000)
 {
     omega = 0.01;
     alpha = 1./std::sqrt(kappa)-(1.+1./std::sqrt(kappa))*omega-0.00001;
@@ -38,7 +39,10 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, int NumOfIteratio
         std::cerr << "*** " << i << ".iteration ***" << std::endl;
         time.start();
         std::cerr << "  GROW started." << std::endl;
-        Lambda_kP1 = this->GROW(w_k, theta*nu_kM1, nu_k);
+
+        IndexSet<Index> Extension;
+        Extension = this->GROW(w_k, theta*nu_kM1, nu_k);
+        Lambda_kP1 = Lambda_kP1 + Extension;
         std::cerr << "  GROW finished." << std::endl;
         //solutions.push_back(w_kP1);
         residuals.push_back(nu_k);
@@ -48,23 +52,22 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, int NumOfIteratio
         time.stop();
         total_time += time.elapsed();
 
-        //if (w_k.size()>100) return w_k;
-        Coefficients<Lexicographical,T,Index2D> Au;
-        T fu = w_k*F.rhs_data;
+        Coefficients<Lexicographical,T,Index> Au, f;
+        f = F(supp(w_k));
+        T fu = w_k*f;
         Au = A.mv(supp(w_k), w_k);
         T uAu = w_k*Au;
         T Error_H_energy = sqrt(fabs(std::pow(H1norm,2.)- 2*fu + uAu));
         //T Error_H_energy = computeErrorInH1Norm(Apply.A, F, w_k, H1norm);
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << std::endl;
+
+
         time.start();
-
-
-
         std::cerr << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
-        //g_kP1 = P(F(gamma*nu_k),Lambda_kP1);
-        g_kP1 = F(Lambda_kP1);
-        w_kP1 = this->GALSOLVE(Lambda_kP1, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
+        //g_kP1 = F(Lambda_kP1);                // update rhs vector
+        g_kP1 = P(F(gamma*nu_k),Lambda_kP1);  // compute with restriction, otherwise GROW does not work
+        w_kP1 = this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
         //T r_norm_LambdaActive;
         //int iterations = CG_Solve(Lambda_kP1, Apply.A, w_kP1, g_kP1, r_norm_LambdaActive, 1e-16);
         //std::cerr << "   iterations = " << iterations << ", residual = "
@@ -101,51 +104,70 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
         if (zeta<=omega*r_norm) break;
     }
 
-
-    Coefficients<AbsoluteValue,T,Index> r_abs;
-    r_abs = r;
     IndexSet<Index> Lambda;
     T P_Lambda_r_norm_square = 0.;
     if (w.size() > 0) {
-        Lambda = supp(w);
         for (const_coeff_it it=w.begin(); it!=w.end(); ++it) {
+            //Lambda.insert((*it).first);
             P_Lambda_r_norm_square += std::pow(r[(*it).first],2.);
+            r.erase((*it).first);
         }
     }
 
-    //std::cerr << "   Before extension: ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
-    //          << ", alpha*r_norm = " << alpha*r_norm << std::endl;
+    T threshbound = std::sqrt(1-alpha*alpha) * r.norm(2.)/std::sqrt(T(r.size()));
+    Coefficients<Bucket,T,Index> r_bucket;
+    r_bucket.bucketsort(r, threshbound);
+    std::cerr << "   Threshbound = " << threshbound << std::endl;
+    std::cerr << "   Before extension: ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
+              << ", alpha*r_norm = " << alpha*r_norm << std::endl;
     if (nu > eps) {
-        for (const_coeff_abs_it it=r_abs.begin(); it!=r_abs.end(); ++it) {
-            if (Lambda.count((*it).second) == 0) {
-                Lambda.insert((*it).second);
-                P_Lambda_r_norm_square += std::pow((*it).first,2);
-                //std::cerr << "    Added " << (*it).second << ", now: ||P_{Lambda}r ||_2 = "
-                //          << std::sqrt(P_Lambda_r_norm_square) << ", alpha*r_norm = "
-                //          << alpha*r_norm << std::endl;
-                if (P_Lambda_r_norm_square >= alpha*r_norm*alpha*r_norm) break;
-            }
+        int currentDoF = w.size();
+        for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
+            P_Lambda_r_norm_square += std::pow(r_bucket.bucket_ell2norms[i],2.);
+            std::cerr << "   ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
+            int addDoF = r_bucket.addBucketToIndexSet(Lambda,i,currentDoF);
+            currentDoF += addDoF;
+            if (P_Lambda_r_norm_square >= alpha*r_norm*alpha*r_norm) break;
         }
+        /*
+        int count=0;
+        int sizeExtensionOfLambda=1;
+        for (const_coeff_abs_it it=r_abs.begin(); it!=r_abs.end(); ++it) {
+
+            Lambda.insert((*it).second);
+            ++count;
+
+            P_Lambda_r_norm_square += std::pow((*it).first,2);
+            std::cerr << "    Added " << (*it).second << ", " << (*it).first << ", now: ||P_{Lambda}r ||_2 = "
+                      << std::sqrt(P_Lambda_r_norm_square) << ", alpha*r_norm = "
+                      << alpha*r_norm << std::endl;
+
+            if (count>=5*sizeExtensionOfLambda)                     break;
+        }
+        */
     }
+    //getchar();
     return Lambda;
 }
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
 Coefficients<Lexicographical,T,Index>
 GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
+                                                  const IndexSet<Index> &Extension,
                                                   const Coefficients<Lexicographical,T,Index> &g,
                                                   const Coefficients<Lexicographical,T,Index> &w,
                                                   T delta, T tol)
 {
-    int d=A.basis.first.d;
+    int d=A.basis.d;
     Coefficients<Lexicographical,T,Index> ret;
 
     if (Lambda.size()==0) return ret;
 
     //Determine compression level
     int J=0;        //compression
-    if         (d==2) {   J = -std::ceil(2*std::log(tol/((3*tol+3*delta)*kappa))); }
+    if      (d==2) {   J = -std::ceil(2*std::log(tol/((3*tol+3*delta)*kappa))); }
     else if (d==3) {   J = -std::ceil((1./1.5)*std::log(tol/((3*tol+3*delta)*kappa))); }
+    else if (d==4) {   J = -std::ceil((1./2.5)*std::log(tol/((3*tol+3*delta)*kappa))); }
     else              { assert(0); }
     std::cerr << "   Estimated compression level for delta=" << delta << " and target tol=" << tol
               << " : " << J << std::endl;
@@ -153,8 +175,16 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     //Assemble sparse matrix B
     unsigned long N = Lambda.size();
     //std::cerr << "    Assembling of B started with N=" << N << std::endl;
+
     flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
     A.toFlensSparseMatrix(Lambda,Lambda,B,J);
+
+/*
+    A.extendFlensSparseMatrix(supp(w),Extension,sparseMat_A);
+    SparseMatrixT B(N,N,sparseMat_A.initializer());
+    B.finalize();
+*/
+
     //std::cerr << "    Assembling of B finished." << std::endl;
 
     //Compute approximate initial residual
@@ -166,28 +196,32 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
     int row_count=1;
     const_coeff_it r0_end = r0.end();
-    for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
+    for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
         const_coeff_it it = r0.find(*row);
-        if (it != r0_end) rhs(row_count) = (*it).second;
-        else              rhs(row_count) = 0.;
+
+        if (it != r0_end) rhs((*row).linearindex) = (*it).second;
+        else              rhs((*row).linearindex) = 0.;
     }
-    //std::cerr << "    cg-method started with rhs " << rhs << std::endl;
-    int iters = lawa::cg(B,x,rhs,tol);
+
+    int iters = lawa::cg(B,x,rhs,tol/3.);
     linsolve_iterations.push_back(iters);
     Bx = B*x;
     res= Bx-rhs;
     T lin_res = std::sqrt(res*res);
     std::cerr << "    cg-method needed " << iters << " iterations, res=" << lin_res << std::endl;
     assert(lin_res<tol);
-    row_count = 1;
+
+
     const_coeff_it w_end = w.end();
-    for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
-        T tmp = 0.;
-        const_coeff_it it = w.find(*row);
-        if (it != w_end) tmp = (*it).second;
-        ret[*row] = tmp+x(row_count);
+
+    for (const_coeff_it it=w.begin(); it!=w.end(); ++it) {
+        ret[(*it).first] = (*it).second + x((*it).first.linearindex);
     }
-    //std::cerr << "    Calculated Bx=r0, w+x=" << ret << std::endl;
+    for (const_set_it row=Extension.begin(); row!=Extension.end(); ++row) {
+        ret[*row] = x((*row).linearindex);
+    }
+
+
     return ret;
 }
 

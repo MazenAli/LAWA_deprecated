@@ -77,7 +77,7 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-     const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, const char* filename)
+     Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, const char* filename)
 {
     typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
 

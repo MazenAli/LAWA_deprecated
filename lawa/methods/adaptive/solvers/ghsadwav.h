@@ -33,6 +33,8 @@ struct GHS_ADWAV {
         typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator   const_coeff_abs_it;
         typedef typename Coefficients<Lexicographical,T,Index>::value_type     val_type;
 
+        typedef typename flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+
         GHS_ADWAV(AdaptiveOperator &_A, RHS &_F);
 
         Coefficients<Lexicographical,T,Index>
@@ -42,7 +44,8 @@ struct GHS_ADWAV {
         GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu);
 
         Coefficients<Lexicographical,T,Index>
-        GALSOLVE(const IndexSet<Index> &Lambda, const Coefficients<Lexicographical,T,Index> &g,
+        GALSOLVE(const IndexSet<Index> &Lambda, const IndexSet<Index> &Extension,
+                const Coefficients<Lexicographical,T,Index> &g,
                 const Coefficients<Lexicographical,T,Index> &w, T delta, T tol);
 
         AdaptiveOperator &A;
@@ -55,6 +58,9 @@ struct GHS_ADWAV {
         std::vector<T>                                      residuals;
         std::vector<T>                                      times;
         std::vector<int>                                    linsolve_iterations;
+
+        std::map<Index,int,lt<Lexicographical,Index> >      row_indices;
+        SparseMatrixT                                       sparseMat_A;
 
 };
 
