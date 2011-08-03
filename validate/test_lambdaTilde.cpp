@@ -10,12 +10,12 @@ typedef double T;
 const T thresh = 1e-30;
 
 // Basis definitions
-const FunctionSide functionside = Orthogonal;
+const FunctionSide functionside = Primal;
 const DomainType   domain = R;
-const Construction construction = Multi;
+const Construction construction = CDF;
 
-const T leftbound=-1.;   //for realline constructions, we only consider wavelets with support intersecting [left,right]
-const T rightbound=1.;
+const T leftbound=-5.;   //for realline constructions, we only consider wavelets with support intersecting [left,right]
+const T rightbound=5.;
 
 typedef Basis<T,functionside,domain,construction>                   Basis1D;
 
@@ -32,7 +32,6 @@ typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT
 typedef IndexSet<Index1D>::const_iterator                           const_set_it;
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff_it;
 
-
 template <typename T>
 Range<int>
 getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j);
@@ -40,6 +39,10 @@ getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j);
 template <typename T>
 Range<int>
 getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j);
+
+template <typename T>
+Range<int>
+getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j);
 
 template <typename T, Construction Cons>
 Range<int>
@@ -59,16 +62,56 @@ int main (int argc, char *argv[]) {
     int j0=atoi(argv[3]);
     int J =atoi(argv[4]);
 
-    //Basis1D basis(d,d_,j0);
-    Basis1D         basis(d,j0);
+
+    Basis1D basis(d,d_,j0);
+    //Basis1D         basis(d,j0);
     HelmholtzOp     op(basis,1.);
     Preconditioner  p(basis);
 
+    ofstream file("wavelet_coarse.txt");
+    T x1=basis.psi.support(0,0).l1;
+    T x2=basis.psi.support(0,0).l2;
+    for (T x=x1; x<=x2; x+=0.125) {
+        file << x << " " << basis.psi(x,0,0,0)*p(Index1D(0,0,XWavelet)) << endl;
+    }
+    file.close();
+
+    ofstream file1("wavelet_fine1.txt");
+    x1=basis.psi.support(3,-3).l1;
+    x2=basis.psi.support(3,-3).l2;
+    for (T x=x1; x<=x2; x+=pow2i<T>(-7)) {
+        file1 << x << " " << basis.psi(x,3,-3,0)*p(Index1D(3,-3,XWavelet)) << endl;
+    }
+    file1.close();
+
+    ofstream file2("wavelet_fine2.txt");
+    x1=basis.psi.support(3,-2).l1;
+    x2=basis.psi.support(3,-2).l2;
+    for (T x=x1; x<=x2; x+=pow2i<T>(-7)) {
+        file2 << x << " " << basis.psi(x,3,-2,0)*p(Index1D(3,-3,XWavelet)) << endl;
+    }
+    file2.close();
+
+    return 0;
 
     T max_abs_error = 0.;
     Index1D max_error_col_index(0,0,XBSpline);
     Index1D max_error_row_index(0,0,XBSpline);
-    //Test B-Spline column indices
+
+
+    /*
+     * For a certain range of B-spline indices, we set up a coefficient vector where we calculate
+     * all entries a(phi_{\lambda},phi_{mu}) and a(phi_{\lambda},psi_{mu}) for indices mu up
+     * to a certain maximal level and a certain translation.
+     * Afterwards, we calculate the sparsity pattern using lambdaTildePDE up to the maximal level.
+     * Then, we perform two tests:
+     * -> First, we check the difference between the calculated coefficient vector and the sparsity
+     *    pattern, i.e., we check if the sparsity pattern is reliable.
+     * -> Second, we check which entries appear in the coefficient vector which do not appear
+     *    in the sparsity patter, i.e., we check if the sparsity pattern is efficient.
+     */
+
+    //Test B-Spline column indices:
     for (int k_col=getRange(basis,XBSpline,j0).firstIndex();
              k_col<=getRange(basis,XBSpline,j0).lastIndex(); ++k_col) {
         Index1D col_index(j0,k_col,XBSpline);
@@ -91,9 +134,12 @@ int main (int argc, char *argv[]) {
                 }
             }
         }
+
         cout << "Current index: " << col_index << endl;
         IndexSet<Index1D> lambdaTilde_nonzeros;
         lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, J, false);
+        //getchar();
+
 
         for (const_coeff_it it=nonzeros.begin(); it!=nonzeros.end();++it) {
             if (lambdaTilde_nonzeros.count((*it).first)==0) {
@@ -110,7 +156,6 @@ int main (int argc, char *argv[]) {
                 printf("%E",fabs((*it).second));
                 cout << endl << endl;
                 */
-                //getchar();
             }
         }
         for (const_set_it it=lambdaTilde_nonzeros.begin(); it!=lambdaTilde_nonzeros.end();++it) {
@@ -130,6 +175,17 @@ int main (int argc, char *argv[]) {
     }
 
     //Test Wavelet column indices
+    /*
+     * For a certain range of wavelets indices, we set up a coefficient vector where we calculate
+     * all entries a(psi_{\lambda},phi_{mu}) and a(phi_{\lambda},psi_{mu}) for indices mu up
+     * to a certain maximal level and a certain translation.
+     * Afterwards, we calculate the sparsity pattern using lambdaTildePDE up to the maximal level.
+     * Then, we perform two tests:
+     * -> First, we check the difference between the calculated coefficient vector and the sparsity
+     *    pattern, i.e., we check if the sparsity pattern is reliable.
+     * -> Second, we check which entries appear in the coefficient vector which do not appear
+     *    in the sparsity patter, i.e., we check if the sparsity pattern is efficient.
+     */
     for (int j_col=j0; j_col<=J; ++j_col) {
         for (int k_col=getRange(basis,XWavelet,j_col).firstIndex();
                  k_col<=getRange(basis,XWavelet,j_col).lastIndex(); ++k_col) {
@@ -157,6 +213,8 @@ int main (int argc, char *argv[]) {
             cout << "Current index: " << col_index << endl;
             IndexSet<Index1D> lambdaTilde_nonzeros;
             lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, J, false);
+            //getchar();
+
 
             for (const_coeff_it it=nonzeros.begin(); it!=nonzeros.end();++it) {
                 if (lambdaTilde_nonzeros.count((*it).first)==0) {
@@ -199,7 +257,6 @@ int main (int argc, char *argv[]) {
     cout << max_error_col_index << ": " << basis.generator(max_error_col_index.xtype).singularSupport(max_error_col_index.j,max_error_col_index.k) << endl;
     cout << max_error_row_index << ": " << basis.generator(max_error_row_index.xtype).singularSupport(max_error_row_index.j,max_error_row_index.k) << endl;
 
-
     return 0;
 }
 
@@ -218,6 +275,31 @@ getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j)
 {
     const BSpline<T,Orthogonal,R,Multi> &phi = basis.mra.phi;
     const Wavelet<T,Orthogonal,R,Multi> &psi = basis.psi;
+
+    T l1=0., l2=1.;
+    int numFunc=1;
+    if (e==XBSpline) {
+        Support<T> supp = phi.max_support();
+        l1 = supp.l1;
+        l2 = supp.l2;
+        numFunc = phi._numSplines;
+    }
+    else {
+        Support<T> supp = psi.max_support();
+        l1 = supp.l1;
+        l2 = supp.l2;
+        numFunc = psi._numSplines;
+    }
+
+    return _(int(pow2i<T>(j)*leftbound-numFunc),int(pow2i<T>(j)*rightbound+numFunc));
+}
+
+template <typename T>
+Range<int>
+getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j)
+{
+    const BSpline<T,Primal,R,SparseMulti> &phi = basis.mra.phi;
+    const Wavelet<T,Primal,R,SparseMulti> &psi = basis.psi;
 
     T l1=0., l2=1.;
     int numFunc=1;

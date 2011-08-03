@@ -183,6 +183,30 @@ struct IsRealline<Basis<T,Side,R,Cons> >
     static const bool value = true;
 };
 
+//--- IsSparseMulti
+template <typename X>
+struct IsSparseMulti
+{
+    static const bool value = false;
+};
+
+template <typename T, FunctionSide Side, DomainType Domain>
+struct IsSparseMulti<Wavelet<T,Side,Domain,SparseMulti> >
+{
+    static const bool value = true;
+};
+
+template <typename T, FunctionSide Side, DomainType Domain>
+struct IsSparseMulti<BSpline<T,Side,Domain,SparseMulti> >
+{
+    static const bool value = true;
+};
+
+template <typename T, FunctionSide Side, DomainType Domain>
+struct IsSparseMulti<Basis<T,Side,Domain,SparseMulti> >
+{
+    static const bool value = true;
+};
 
 } // namespace lawa
  
