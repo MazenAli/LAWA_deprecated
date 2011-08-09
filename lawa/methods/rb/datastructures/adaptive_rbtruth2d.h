@@ -226,14 +226,44 @@ class AdaptiveRBTruth2D{
         
         SparseMatrixT   inner_product_matrix;
         std::vector<SparseMatrixT> A_operator_matrices;
+      
+        class Operator_Residual_Representor {
+          
+          public:
+            Operator_Residual_Representor(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth,
+                                          const std::vector<T>& mu, const DenseVectorT& _u_N) 
+              : thisTruth(_truth), eval_mu(mu), u_N(_u_N){};
+          
+            T 
+            operator()(const Index2D & lambda);
+          
+            Coefficients<Lexicographical,T,Index2D>
+            operator()(const IndexSet<Index2D> &Lambda);
+
+            Coefficients<Lexicographical,T,Index2D>
+            operator()(T tol);
+          
+          private:
+            AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;
+          
+            const std::vector<T>& eval_mu;
+            const DenseVectorT& u_N;
+        };
         
+        T
+        uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu);
+            
+        T
+        uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, 
+                                    Coefficients<Lexicographical,T,Index2D>& res_repr);
+            
     private:
         
         RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression> >*     rb;
         
         std::vector<CoeffVector>                F_representors; // Dim: 1 x Q_f
         std::vector<std::vector<CoeffVector> >  A_representors; // Dim: n x Q_a
-
+      
 };
     
 } // namespace lawa

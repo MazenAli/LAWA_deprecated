@@ -24,6 +24,7 @@ class IndexsetTruthSolver {
   typedef typename Truth::Operator_LHS_Representor                     MatrixOp;
   typedef typename Truth::Operator_RHS_BilFormRepresentor              RHS_BilFormRepr;
   typedef typename Truth::Operator_RHS_FunctionalRepresentor           RHS_FctRepr;
+  typedef typename Truth::Operator_Residual_Representor                RHS_ResRepr;
   
   typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
   
@@ -43,6 +44,9 @@ public:
   
   Coefficients<Lexicographical,T,Index>
   repr_solve_A();
+  
+  Coefficients<Lexicographical,T,Index>
+  repr_solve_totalRes(RHS_ResRepr& res_repr_op);
 
   IndexSet<Index>& basis_set;
   

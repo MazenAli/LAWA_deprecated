@@ -281,7 +281,16 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::assemble_inner_product_ma
   toFlensSparseMatrix(repr_lhs_op, indexset, indexset, inner_product_matrix);
   timer.stop();
   std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
-
+  
+  /*
+  //------------------------------
+  int N = indexset.size();
+  FullColMatrixT I_dense(N, N);
+  densify(NoTrans, inner_product_matrix, I_dense);
+  std::cout << "Inner product matrix" << I_dense << std::endl;
+  //------------------------------
+  */
+  
   rb->assembled_inner_product_matrix = true;
 }
 
@@ -307,6 +316,38 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::assemble_A_operator_matri
   
   rb->assembled_A_operator_matrices = true;
 }
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+T
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu)
+{
+  // Calculate residual
+  Operator_Residual_Representor op_res_repr(this, mu, u_RB);
+
+  // Solve for Riesz representor
+  Coefficients<Lexicographical,T,Index2D> res_repr = solver->repr_solve_totalRes(op_res_repr);
+  
+  // Calculate Norm
+  
+  return std::sqrt(rb->inner_product(res_repr, res_repr));
+}
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+T
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::
+uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, Coefficients<Lexicographical,T,Index2D>& res_repr)
+{
+  // Calculate residual
+  Operator_Residual_Representor op_res_repr(this, mu, u_RB);
+
+  // Solve for Riesz representor
+  res_repr = solver->repr_solve_totalRes(op_res_repr);
+  
+  // Calculate Norm
+  
+  return std::sqrt(rb->inner_product(res_repr, res_repr));
+}
+
 // ================================================================================================================ //
 // ================================================================================================================ //
 
@@ -469,5 +510,66 @@ set_current_op(AdaptiveRhs<T, Index2D>& op)
 {
     current_op = &op;
 }
+
+/* Operator Residual_Representor */
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+T
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_Residual_Representor::operator()(const Index2D &lambda)
+{
+  T val = 0;
+
+  typename Coefficients<Lexicographical,T,Index2D>::const_iterator it;
+
+  for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
+      val += (*thisTruth->rb->theta_f[i])(eval_mu) * (*thisTruth->F_operators[i])(lambda);
+  }
+   
+
+  for (unsigned int i = 0; i < thisTruth->A_operators.size(); ++i) {
+    T val_Au = 0;
+    
+    for (int j = 0; j < u_N.length();++j){
+      T val_A_bf = 0;
+      for (it = thisTruth->rb->rb_basis_functions[j].begin(); it != thisTruth->rb->rb_basis_functions[j].end(); ++it) {
+        val_A_bf += (*it).second *(*thisTruth->A_operators[i])((*it).first,lambda);
+      }
+      val_Au += u_N(j+1) * val_A_bf;
+    }
+    
+    val -= (*thisTruth->rb->theta_a[i])(eval_mu) * val_Au;
+  }
+  
+  return val;
+}
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_Residual_Representor::operator()(const IndexSet<Index2D> &Lambda)
+{
+  Coefficients<Lexicographical, T, Index2D> coeffs;
+  
+  typename IndexSet<Index2D>::const_iterator it_Lambda;
+  typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
+  for (it_Lambda = Lambda.begin(); it_Lambda != Lambda.end(); ++it_Lambda) {
+      coeffs.insert(val_type((*it_Lambda), this->operator()(*it_Lambda)));
+  }
+  
+  return coeffs;
+}
+
+template <typename T, typename Basis, typename TruthSolver, typename Compression>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_Residual_Representor::operator()(T tol)
+{
+  Coefficients<Lexicographical, T, Index2D> coeffs;
+  
+  std::cerr << "Operator()(T tol) : Not implemented yet" << std::endl;
+  exit(1);
+  
+  return coeffs;
+}
+
+
 
 } // namespace lawa
