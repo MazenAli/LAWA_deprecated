@@ -2,17 +2,28 @@
 
 namespace  lawa {
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::AdaptiveRBTruth2D(Basis& _basis, bool _use_inner_product, 
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::
+AdaptiveRBTruth2D(TrialBasis& _trialbasis, bool _use_inner_product, 
                       bool _use_A_matrix, bool _use_F_vector)
-    : basis(_basis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
+    : trialbasis(_trialbasis), testbasis(_trialbasis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
       use_F_operator_vectors(_use_F_vector)
 {}
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::
+AdaptiveRBTruth2D(TrialBasis& _trialbasis, TestBasis& _testbasis, bool _use_inner_product, 
+                      bool _use_A_matrix, bool _use_F_vector)
+    : trialbasis(_trialbasis), testbasis(_testbasis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
+      use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
+      use_F_operator_vectors(_use_F_vector)
+{}
+
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::
+attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q)
 {
     rb->theta_a.push_back(theta_a_q);
     A_operators.push_back(&A_q);
@@ -23,23 +34,24 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_A_q(theta_fctptr t
       SparseMatrixT A_q_matrix;
       std::cout << "Compute Operator matrix .... " << std::endl;
       timer.start();
-      toFlensSparseMatrix(A_q, solver->basis_set, solver->basis_set, A_q_matrix);
+      toFlensSparseMatrix(A_q, solver->trialbasis_set, solver->trialbasis_set, A_q_matrix);
       timer.stop();
       A_operator_matrices.push_back(A_q_matrix);
       std::cout << ".... done: " << timer.elapsed() << " seconds" << std::endl;
     }*/
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_A_q(Operator2D<T>& A_q)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::attach_A_q(Operator2D<T>& A_q)
 {
     A_operators.push_back(&A_q);
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, Index2D>& F_q)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::
+attach_F_q(theta_fctptr theta_f_q, AdaptiveRhs<T, Index2D>& F_q)
 {
     rb->theta_f.push_back(theta_f_q);
     F_operators.push_back(&F_q);
@@ -47,14 +59,14 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_F_q(theta_fctptr t
     // If we have a fixed index set, compute the corresponding vector
    /* if(flens::IsSame<IndexsetSolver, TruthSolver>::value){
       Timer timer;
-      DenseVectorT F_q_vector(solver->basis_set.size());
+      DenseVectorT F_q_vector(solver->trialbasis_set.size());
       
       typedef typename IndexSet<Index >::const_iterator const_set_it;
       
       std::cout << "Compute RHS vector .... " << std::endl;
       timer.start();
       int count=1;
-      for (const_set_it it = solver->basis_set.begin(); it != solver->basis_set.end(); ++it, ++count) {
+      for (const_set_it it = solver->trialbasis_set.begin(); it != solver->trialbasis_set.end(); ++it, ++count) {
         F_q_vector(count) = F_q((*it));
       }
       timer.stop();
@@ -63,16 +75,16 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_F_q(theta_fctptr t
     }*/
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::attach_F_q(AdaptiveRhs<T, Index2D>& F_q)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::attach_F_q(AdaptiveRhs<T, Index2D>& F_q)
 {
     F_operators.push_back(&F_q);
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void 
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::set_truthsolver(TruthSolver& _truthsolver)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::set_truthsolver(TruthSolver& _truthsolver)
 {
     solver = &_truthsolver;
     solver->set_model(*this);
@@ -82,29 +94,30 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::set_truthsolver(TruthSolv
       Timer timer;
       std::cout << "Compute Inner product matrix .... " << std::endl;
       timer.start();
-      toFlensSparseMatrix(*rb->inner_product_op, solver->basis_set, solver->basis_set, rb->inner_product_matrix);
+      toFlensSparseMatrix(*rb->inner_product_op, solver->trialbasis_set, solver->trialbasis_set, rb->inner_product_matrix);
       timer.stop();
       std::cout << ".... done: " << timer.elapsed() << " seconds" << std::endl;
     }*/
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::set_rb_model(RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression> >& _rb)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::
+set_rb_model(RBModel2D<T, AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis> >& _rb)
 {
     rb = &_rb;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
-RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression> >&
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::get_rb_model()
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
+RBModel2D<T, AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis> >&
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::get_rb_model()
 {
     return *rb;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::update_representors()
 {
     //Timer timer;
     int N = rb->n_bf();
@@ -121,7 +134,7 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
             std::stringstream s;
             s << "F_Representor_" << i+1;
             timer.start();
-            saveCoeffVector2D(c, basis, s.str().c_str());
+            saveCoeffVector2D(c, trialbasis, s.str().c_str());
             timer.stop();
             std::cout << ".... finished: " << timer.elapsed() << " seconds" << std::endl << std::endl;
             */
@@ -146,7 +159,7 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
         std::stringstream s;
         s << "A_Representor_" << i+1 << "_" << N;
         timer.start();
-        saveCoeffVector2D(c, basis, s.str().c_str());
+        saveCoeffVector2D(c, trialbasis, s.str().c_str());
         timer.stop();
         std::cout << "  .... finished: " << timer.elapsed() << " seconds" << std::endl << std::endl;
        */
@@ -155,9 +168,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representors()
     }
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representor_norms()
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::update_representor_norms()
 {
   Timer timer;
    // Coefficients<Lexicographical,T,Index> X_F_or_A;
@@ -243,9 +256,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::update_representor_norms(
     
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::write_riesz_representors(const std::string& directory_name)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::write_riesz_representors(const std::string& directory_name)
 {
   // Make a directory to store all the data files
   if( mkdir(directory_name.c_str(), 0777) == -1)
@@ -257,22 +270,22 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::write_riesz_representors(
   for(unsigned int i = 0; i < rb->Q_f(); ++i){
     std::stringstream filename;
     filename << directory_name << "/F_representor_" << i+1 << ".dat";
-    saveCoeffVector2D(F_representors[i], basis, filename.str().c_str());
+    saveCoeffVector2D(F_representors[i], testbasis, filename.str().c_str());
   }
   
   for(unsigned int n = 0; n < rb->n_bf(); ++n){
     for(unsigned int i = 0; i < rb->Q_a(); ++i){
       std::stringstream filename;
       filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".dat";
-      saveCoeffVector2D(A_representors[n][i], basis, filename.str().c_str()); 
+      saveCoeffVector2D(A_representors[n][i], testbasis, filename.str().c_str()); 
     }
   }
   
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::assemble_inner_product_matrix(IndexSet<Index2D>& indexset)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::assemble_inner_product_matrix(IndexSet<Index2D>& indexset)
 {
   Timer timer;
   std::cout << "Assemble Inner Product Matrix ...." << std::endl;
@@ -294,9 +307,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::assemble_inner_product_ma
   rb->assembled_inner_product_matrix = true;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::assemble_A_operator_matrices(IndexSet<Index2D>& indexset)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::assemble_A_operator_matrices(IndexSet<Index2D>& indexset)
 {
   Timer timer;
   std::cout << "Assemble A Matrices ...." << std::endl;
@@ -317,9 +330,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::assemble_A_operator_matri
   rb->assembled_A_operator_matrices = true;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu)
 {
   // Calculate residual
   Operator_Residual_Representor op_res_repr(this, mu, u_RB);
@@ -332,9 +345,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::uncached_residual_dual_no
   return std::sqrt(rb->inner_product(res_repr, res_repr));
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::
 uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, Coefficients<Lexicographical,T,Index2D>& res_repr)
 {
   // Calculate residual
@@ -353,9 +366,9 @@ uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, 
 
 /*  Operator LHS */
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_LHS::
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_LHS::
 operator()(const Index2D &row_index, const Index2D &col_index)
 {
     if(qa < 0){
@@ -373,9 +386,9 @@ operator()(const Index2D &row_index, const Index2D &col_index)
 
 /*  Operator RHS */
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS::operator()(const Index2D &lambda)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS::operator()(const Index2D &lambda)
 {
     T val = 0;
     for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
@@ -386,9 +399,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS::operator()(
     return val;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS::operator()(const IndexSet<Index2D> &Lambda)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS::operator()(const IndexSet<Index2D> &Lambda)
 {
     Coefficients<Lexicographical,T,Index2D> c;
     for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
@@ -399,9 +412,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS::operator()(
     return c;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS::operator()(T tol)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS::operator()(T tol)
 {
     Coefficients<Lexicographical,T,Index2D> c;
     for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
@@ -414,9 +427,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS::operator()(
 
 /*  Operator LHS_Representor */
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_LHS_Representor::
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_LHS_Representor::
 operator()(const Index2D &row_index, const Index2D &col_index)
 {
     return (*thisTruth->rb->inner_product_op)(row_index, col_index);
@@ -424,9 +437,9 @@ operator()(const Index2D &row_index, const Index2D &col_index)
 
 /* Operator RHS_BilFormRepresentor */
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_BilFormRepresentor::operator()(const Index2D &lambda)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_BilFormRepresentor::operator()(const Index2D &lambda)
 {
     T val = 0;
     typename Coefficients<Lexicographical,T,Index2D>::const_iterator it;
@@ -437,9 +450,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_BilFormRepre
     return - val;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_BilFormRepresentor::operator()(const IndexSet<Index2D> &Lambda)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_BilFormRepresentor::operator()(const IndexSet<Index2D> &Lambda)
 {
     Coefficients<Lexicographical, T, Index2D> coeffs;
     
@@ -452,9 +465,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_BilFormRepre
     return coeffs;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_BilFormRepresentor::operator()(T tol)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_BilFormRepresentor::operator()(T tol)
 {
     Coefficients<Lexicographical, T, Index2D> coeffs;
     
@@ -464,17 +477,17 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_BilFormRepre
     return coeffs;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_BilFormRepresentor::
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_BilFormRepresentor::
 set_current_op(Operator2D<T>& op)
 {
     current_op = &op;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_BilFormRepresentor::
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_BilFormRepresentor::
 set_current_bf(Coefficients<Lexicographical,T,Index2D>& bf)
 {
     current_bf = &bf;
@@ -482,30 +495,30 @@ set_current_bf(Coefficients<Lexicographical,T,Index2D>& bf)
 
 /* Operator RHS_FunctionalRepresentor */
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_FunctionalRepresentor::operator()(const Index2D &lambda)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_FunctionalRepresentor::operator()(const Index2D &lambda)
 {
     return (*current_op)(lambda);
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_FunctionalRepresentor::operator()(const IndexSet<Index2D> &Lambda)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_FunctionalRepresentor::operator()(const IndexSet<Index2D> &Lambda)
 {
     return (*current_op)(Lambda);
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_FunctionalRepresentor::operator()(T tol)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_FunctionalRepresentor::operator()(T tol)
 {
     return (*current_op)(tol);
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_RHS_FunctionalRepresentor::
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_RHS_FunctionalRepresentor::
 set_current_op(AdaptiveRhs<T, Index2D>& op)
 {
     current_op = &op;
@@ -513,9 +526,9 @@ set_current_op(AdaptiveRhs<T, Index2D>& op)
 
 /* Operator Residual_Representor */
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_Residual_Representor::operator()(const Index2D &lambda)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_Residual_Representor::operator()(const Index2D &lambda)
 {
   T val = 0;
 
@@ -543,9 +556,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_Residual_Represe
   return val;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_Residual_Representor::operator()(const IndexSet<Index2D> &Lambda)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_Residual_Representor::operator()(const IndexSet<Index2D> &Lambda)
 {
   Coefficients<Lexicographical, T, Index2D> coeffs;
   
@@ -558,9 +571,9 @@ AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_Residual_Represe
   return coeffs;
 }
 
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::Operator_Residual_Representor::operator()(T tol)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_Residual_Representor::operator()(T tol)
 {
   Coefficients<Lexicographical, T, Index2D> coeffs;
   
