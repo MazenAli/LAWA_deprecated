@@ -64,7 +64,8 @@ struct AdaptiveSpaceTimePDEOperator1D_PG : public Operator2D<T> {
     typedef CompressionPDE2D<T, TrialBasis>        Compression2D_Trial;
     typedef CompressionPDE2D<T, TestBasis>         Compression2D_Test;
     */
-    typedef NoCompression<T, Index1D, TrialBasis_t>   Compression1D_t, Compression1D_x;
+    typedef NoCompression<T, Index1D, TrialBasis_t>   Compression1D_t;
+    typedef NoCompression<T, Index1D, TrialBasis_x>   Compression1D_x;
     typedef NoCompression<T, Index2D, TrialBasis>     Compression2D;
     
     typedef NoPreconditioner<T,Index1D>         NoPreconditioner1D;
