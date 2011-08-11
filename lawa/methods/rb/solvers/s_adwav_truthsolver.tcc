@@ -27,7 +27,7 @@ S_ADWAV_TruthSolver<T, Basis, Index, Compression>::S_ADWAV_TruthSolver(Truth& _t
 template <typename T, typename Basis, typename Index, typename Compression>
 void 
 S_ADWAV_TruthSolver<T, Basis, Index, Compression>
-::set_model(AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index, Compression>, Compression >& _truth_model){
+::set_model(AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index, Compression>, Compression,Basis >& _truth_model){
     truth_model = &_truth_model;
 }
 

@@ -355,7 +355,7 @@ RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_nam
   for(unsigned int i = 0; i < n_bf(); ++i){
     std::stringstream filename;
     filename << directory_name << "/bf_" << i+1 << ".dat";
-    saveCoeffVector2D(rb_basis_functions[i], truth->basis, filename.str().c_str());
+    saveCoeffVector2D(rb_basis_functions[i], truth->trialbasis, filename.str().c_str());
   }
 }
 
