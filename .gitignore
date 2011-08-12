@@ -42,3 +42,6 @@ applications/unbounded_domains/s-adwav/s-adwav-realline-helmholtz2d_old
 applications/unbounded_domains/s-adwav/s-adwav-realline-helmholtz1d_old
 applications/unbounded_domains/adwav/ghs-adwav-realline-helmholtz1d
 applications/unbounded_domains/adwav/estimate-rhs1d
+tutorials/rb_examples/adaptive_rb_example
+tutorials/rb_examples/adaptive_rb_example_training
+tutorials/rb_examples/rb_example
