@@ -59,6 +59,12 @@ int main (int argc, char *argv[]) {
     IntegralF1D integralp2(p2Fct,basis);
     IntegralF1D integralp3(p3Fct,basis);
 
+    for (int k=-10; k<=10; ++k) {
+        cout << "Wavelet, (0," << k << "):" << integral(0,0,XBSpline,0, 0,k,XWavelet,0) << endl;
+        cout << "Wavelet, (1," << k << "):" << integral(0,0,XBSpline,0, 1,k,XWavelet,0) << endl;
+    }
+
+
     Range<int> waveletrange = getRange(basis, j, XWavelet);
     for(int k=waveletrange.firstIndex(); k<=waveletrange.lastIndex(); ++k) {
         ofstream file("sparsemulti_wavelet.dat");

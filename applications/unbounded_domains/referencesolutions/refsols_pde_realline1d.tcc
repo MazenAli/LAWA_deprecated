@@ -325,12 +325,17 @@ RefSols_PDE_Realline1D<T>::getRHS_W_XBSplineParameters(int d, int d_,
         _singular_integral=false;
         if (d==2 && d_==2) {
             _left_bound = -20.; _right_bound = 20.;
-            _J_plus_smooth = 6;
+            _J_plus_smooth = 7;
             _J_plus_singular = 40;
         }
         else if (d==3) {
             _left_bound = -80.; _right_bound = 80.;
-            _J_plus_smooth = 4;
+            _J_plus_smooth = 7;
+            _J_plus_singular = 50;
+        }
+        else if (d==4) {
+            _left_bound = -40.; _right_bound = 40.;
+            _J_plus_smooth = 7;
             _J_plus_singular = 50;
         }
     }
@@ -346,6 +351,11 @@ RefSols_PDE_Realline1D<T>::getRHS_W_XBSplineParameters(int d, int d_,
             _J_plus_smooth = 5;
             _J_plus_singular = 40;
         }
+        else if (d==4) {
+            _left_bound = -220.; _right_bound = 220.;
+            _J_plus_smooth = 6;
+            _J_plus_singular = 40;
+        }
     }
     else if (nr == 3) {
         _singular_integral=true;
@@ -359,6 +369,11 @@ RefSols_PDE_Realline1D<T>::getRHS_W_XBSplineParameters(int d, int d_,
             _J_plus_smooth = 4;
             _J_plus_singular = 60;
         }
+        else if (d==4) {
+            _left_bound = -120.; _right_bound = 120.;
+            _J_plus_smooth = 5;
+            _J_plus_singular = 60;
+        }
     }
     else if (nr == 4) {
         _singular_integral=true;
@@ -368,6 +383,10 @@ RefSols_PDE_Realline1D<T>::getRHS_W_XBSplineParameters(int d, int d_,
             _J_plus_singular = 40;
         }
         else if (d==3) {
+            _J_plus_smooth = 5;
+            _J_plus_singular = 50;
+        }
+        else if (d==4) {
             _J_plus_smooth = 5;
             _J_plus_singular = 50;
         }
@@ -383,6 +402,10 @@ RefSols_PDE_Realline1D<T>::getRHS_W_XBSplineParameters(int d, int d_,
             _J_plus_smooth = 6;
             _J_plus_singular = 40;
         }
+        else if (d==4) {
+            _J_plus_smooth = 6;
+            _J_plus_singular = 40;
+        }
     }
     else if (nr == 6) {
         _singular_integral=true;
@@ -394,6 +417,11 @@ RefSols_PDE_Realline1D<T>::getRHS_W_XBSplineParameters(int d, int d_,
         else if (d==3) {
             _left_bound = -200.; _right_bound = 200.;
             _J_plus_smooth = 3;
+            _J_plus_singular = 40;
+        }
+        else if (d==4) {
+            _left_bound = -300.; _right_bound = 300.;
+            _J_plus_smooth = 5;
             _J_plus_singular = 40;
         }
     }

@@ -182,12 +182,12 @@ int main(int argc, char*argv[])
         densify(cxxblas::NoTrans,A,A_dense);
         int N = A_dense.numRows();
 
+
         for (int i=1; i<=N; ++i) {
             for (int j=1; j<=N; ++j) {
                 A_dense(i,j) *= P._diag(i)*P._diag(j);
             }
         }
-        //cout << A_dense << endl;
         DenseMatrixT U(A.numRows(),A.numRows()), V(A.numCols(),A.numCols());
 
         DenseVector<Array<T> > wr(N), wi(N);
@@ -200,6 +200,9 @@ int main(int argc, char*argv[])
         }
         cout << "Eigenvalues for A_" << j <<", kappa = " << CB/cB
              << ", cA = " << cB << ", CA = " << CB << endl;
+
+        spy(A,"A");
+
         getchar();
 
         /// Initialize empty solution vector

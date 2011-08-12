@@ -49,6 +49,8 @@ namespace lawa {
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 struct AdaptiveSpaceTimePDEOperator1D{
     
+    typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
+
     typedef typename Basis2D::FirstBasisType    Basis_t;
     typedef typename Basis2D::SecondBasisType   Basis_x;
     
@@ -91,6 +93,14 @@ struct AdaptiveSpaceTimePDEOperator1D{
     //call of op_initcond * p_right
     T
     operator()(const Index1D &row_index, const Index2D &col_index);
+
+    Coefficients<Lexicographical,T,Index2D>
+    mv(const IndexSet<Index2D> &LambdaRow,
+       const Coefficients<Lexicographical,T,Index2D> &x);
+
+    void
+    toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
+                        const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
 
     void
     clear();

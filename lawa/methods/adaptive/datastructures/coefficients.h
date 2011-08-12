@@ -21,6 +21,7 @@
 #define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_COEFFICIENTS_H 1
 
 #include <map>
+#include <ext/hash_map>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 
@@ -31,11 +32,18 @@ struct Coefficients
 {
 };
 
+/* **********************************************************************************************
+ * Lexicographically sorted coefficient vector
+ * ********************************************************************************************** */
+
 template <typename T, typename Index>
 struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
+//struct Coefficients<Lexicographical,T,Index> : __gnu_cxx::hash_map<Index, T,
+//                                                                   index_hashfunction<Index>,
+//                                                                   index_eqfunction<Index> >
 {
-    using std::map<Index,T,lt<Lexicographical,Index> >::insert;
-    using std::map<Index,T,lt<Lexicographical,Index> >::erase;
+    //using std::map<Index,T,lt<Lexicographical,Index> >::insert;
+    //using std::map<Index,T,lt<Lexicographical,Index> >::erase;
     
     Coefficients();        //required in rhs.h
 
@@ -83,6 +91,42 @@ template <typename T, typename Index>
 void
 FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Index> &_coeff);
 
+/* **********************************************************************************************
+ * Bucket sorted coefficient vector
+ * ********************************************************************************************** */
+
+
+template <typename T, typename Index>
+struct Coefficients<Bucket,T,Index>
+{
+    typedef typename std::vector<std::list<const std::pair<const Index,T>* > > Buckets;
+    typedef typename std::list<const std::pair<const Index,T>* >               BucketEntry;
+    Coefficients();        //required in rhs.h
+
+    void
+    bucketsort(const Coefficients<Lexicographical,T,Index> &_coeff, T eps);
+
+    int
+    addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber, int count=-1);
+
+    void
+    addBucketToCoefficients(Coefficients<Lexicographical,T,Index> &coeff, int bucketnumber);
+
+
+    T supremumnorm;
+
+    //std::vector<Coefficients<Lexicographical,T,Index> > buckets;
+    Buckets                    buckets;
+    std::vector<long double>   bucket_ell2norms;
+};
+
+template <typename T, typename Index>
+std::ostream& operator<< (std::ostream &s, const Coefficients<Bucket,T,Index> &c);
+
+
+/* **********************************************************************************************
+ * Coefficient vector sorted by absolute values
+ * ********************************************************************************************** */
 
 template <typename T, typename Index>
 struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteValue,T> >

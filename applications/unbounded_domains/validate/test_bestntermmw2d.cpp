@@ -45,10 +45,11 @@ typedef Basis<T,Orthogonal,R,Multi>                                     MWBasis1
 typedef TensorBasis2D<Adaptive, MWBasis1D, MWBasis1D>                   MWBasis2D;
 
 //Operator definitions
-typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>                     MW_MA;
+typedef AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,R,Multi,
+                                               Orthogonal,R,Multi>      MW_MA;
 typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D, MW_MA>        MW_Prec;
 
-typedef RHSWithPeaks1D<T, MWBasis1D>                                    RHS1D;
+typedef RHSWithPeaks1D<T, MWBasis1D>                                    RhsIntegral1D;
 
 
 IndexSet<Index1D>
@@ -59,7 +60,7 @@ IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const MWBasis1D &basis, T a, T b, int J_plus);
 
 Coefficients<Lexicographical,T,Index1D>
-initializeRHSVector(const RHS1D &rhsintegral,
+initializeRHSVector(const RhsIntegral1D &rhsintegral,
                     const IndexSet<Index1D> LambdaRHS_singular,
                     const IndexSet<Index1D> LambdaRHS_smooth);
 
@@ -86,13 +87,13 @@ int main(int argc, char *argv[]) {
     refsol.setExample(example, c);
     Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
     Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
-    RHS1D       u1_integral(mwbasis2d.first, u1Fct, nodeltas, 35);
-    RHS1D       u2_integral(mwbasis2d.second, u2Fct, nodeltas, 35);
+    RhsIntegral1D       u1_integral(mwbasis2d.first, u1Fct, nodeltas, 35);
+    RhsIntegral1D       u2_integral(mwbasis2d.second, u2Fct, nodeltas, 35);
 
     Function<T> f1Fct(refsol.rhs_x, refsol.sing_pts_x);
     Function<T> f2Fct(refsol.rhs_y, refsol.sing_pts_y);
-    RHS1D       f1_integral(mwbasis2d.first, f1Fct, refsol.deltas_x, 35);
-    RHS1D       f2_integral(mwbasis2d.second, f2Fct, refsol.deltas_y, 35);
+    RhsIntegral1D       f1_integral(mwbasis2d.first, f1Fct, refsol.deltas_x, 35);
+    RhsIntegral1D       f2_integral(mwbasis2d.second, f2Fct, refsol.deltas_y, 35);
 
     IndexSet<Index1D> Lambda_smooth, Lambda_singular;
     Coefficients<Lexicographical,T,Index1D> u1_coeff, u2_coeff, f1_coeff, f2_coeff;
@@ -244,7 +245,7 @@ computeRHSLambda_SmoothPart(const MWBasis1D &basis, T a, T b, int J_plus)
 }
 
 Coefficients<Lexicographical,T,Index1D>
-initializeRHSVector(const RHS1D &rhsintegral,
+initializeRHSVector(const RhsIntegral1D &rhsintegral,
                     const IndexSet<Index1D> LambdaRHS_singular,
                     const IndexSet<Index1D> LambdaRHS_smooth)
 {

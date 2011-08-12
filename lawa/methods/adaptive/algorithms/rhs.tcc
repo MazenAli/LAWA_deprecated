@@ -53,6 +53,9 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
     }
     else {
         T ret = P(lambda) * rhsintegral(lambda);
+        //if (fabs(ret)<1e-17) {
+        //    std::cerr << "RHS: zero entry for " << lambda << std::endl;
+        //}
         rhs_data[lambda] = ret;
         rhs_abs_data.insert(val_type(ret, lambda));
         return ret;
@@ -77,7 +80,7 @@ Coefficients<Lexicographical,T,Index>
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(T tol)
 {
     Coefficients<Lexicographical,T,Index> ret;
-    ret = THRESH(rhs_abs_data,tol);
+    ret = THRESH(rhs_abs_data,tol,true);
     return ret;
 }
 

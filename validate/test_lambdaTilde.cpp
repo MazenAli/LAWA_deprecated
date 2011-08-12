@@ -12,18 +12,20 @@ const T thresh = 1e-30;
 // Basis definitions
 const FunctionSide functionside = Primal;
 const DomainType   domain = R;
-const Construction construction = CDF;
+const Construction construction = SparseMulti;
 
-const T leftbound=-5.;   //for realline constructions, we only consider wavelets with support intersecting [left,right]
-const T rightbound=5.;
+const T leftbound=-10.;   //for realline constructions, we only consider wavelets with support intersecting [left,right]
+const T rightbound=10.;
 
 typedef Basis<T,functionside,domain,construction>                   Basis1D;
 
 /// Operator definitions
 typedef HelmholtzOperator1D<T, Basis1D>                             HelmholtzOp;
+typedef IdentityOperator1D<T, Basis1D>                              IdentityOp;
 
 /// Preconditioner definitions
 typedef H1NormPreconditioner1D<T, Basis1D>                          Preconditioner;
+typedef NoPreconditioner<T, Index1D>                                NoPreconditioner1D;
 
 // FLENS definitions
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
@@ -63,36 +65,12 @@ int main (int argc, char *argv[]) {
     int J =atoi(argv[4]);
 
 
-    Basis1D basis(d,d_,j0);
-    //Basis1D         basis(d,j0);
+    //Basis1D basis(d,d_,j0);
+    Basis1D         basis(d,j0);
     HelmholtzOp     op(basis,1.);
+    //IdentityOp       op(basis);
     Preconditioner  p(basis);
-
-    ofstream file("wavelet_coarse.txt");
-    T x1=basis.psi.support(0,0).l1;
-    T x2=basis.psi.support(0,0).l2;
-    for (T x=x1; x<=x2; x+=0.125) {
-        file << x << " " << basis.psi(x,0,0,0)*p(Index1D(0,0,XWavelet)) << endl;
-    }
-    file.close();
-
-    ofstream file1("wavelet_fine1.txt");
-    x1=basis.psi.support(3,-3).l1;
-    x2=basis.psi.support(3,-3).l2;
-    for (T x=x1; x<=x2; x+=pow2i<T>(-7)) {
-        file1 << x << " " << basis.psi(x,3,-3,0)*p(Index1D(3,-3,XWavelet)) << endl;
-    }
-    file1.close();
-
-    ofstream file2("wavelet_fine2.txt");
-    x1=basis.psi.support(3,-2).l1;
-    x2=basis.psi.support(3,-2).l2;
-    for (T x=x1; x<=x2; x+=pow2i<T>(-7)) {
-        file2 << x << " " << basis.psi(x,3,-2,0)*p(Index1D(3,-3,XWavelet)) << endl;
-    }
-    file2.close();
-
-    return 0;
+    //NoPreconditioner1D  p;
 
     T max_abs_error = 0.;
     Index1D max_error_col_index(0,0,XBSpline);
@@ -124,7 +102,7 @@ int main (int argc, char *argv[]) {
                 nonzeros[row_index] = tmp;
             }
         }
-        for (int j_row=j0; j_row<=J; ++j_row) {
+        for (int j_row=j0; j_row<=j0+J; ++j_row) {
             for (int k_row=getRange(basis,XWavelet,j_row).firstIndex();
                 k_row<=getRange(basis,XWavelet,j_row).lastIndex(); ++k_row) {
                 Index1D row_index(j_row,k_row,XWavelet);
@@ -137,7 +115,9 @@ int main (int argc, char *argv[]) {
 
         cout << "Current index: " << col_index << endl;
         IndexSet<Index1D> lambdaTilde_nonzeros;
-        lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, J, false);
+        lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, j0+J, false);
+        //cout << "(XBSpline, " << j0 << ", " << k_col << "): [" << lambdaTilde_nonzeros.size() << "] "
+        //     << lambdaTilde_nonzeros << endl;
         //getchar();
 
 
@@ -186,7 +166,7 @@ int main (int argc, char *argv[]) {
      * -> Second, we check which entries appear in the coefficient vector which do not appear
      *    in the sparsity patter, i.e., we check if the sparsity pattern is efficient.
      */
-    for (int j_col=j0; j_col<=J; ++j_col) {
+    for (int j_col=j0; j_col<=j0+J; ++j_col) {
         for (int k_col=getRange(basis,XWavelet,j_col).firstIndex();
                  k_col<=getRange(basis,XWavelet,j_col).lastIndex(); ++k_col) {
             Index1D col_index(j_col,k_col,XWavelet);
@@ -199,7 +179,7 @@ int main (int argc, char *argv[]) {
                     nonzeros[row_index] = tmp;
                 }
             }
-            for (int j_row=j0; j_row<=J; ++j_row) {
+            for (int j_row=j0; j_row<=j0+J; ++j_row) {
                 for (int k_row=getRange(basis,XWavelet,j_row).firstIndex();
                     k_row<=getRange(basis,XWavelet,j_row).lastIndex(); ++k_row) {
                     Index1D row_index(j_row,k_row,XWavelet);
@@ -212,9 +192,15 @@ int main (int argc, char *argv[]) {
 
             cout << "Current index: " << col_index << endl;
             IndexSet<Index1D> lambdaTilde_nonzeros;
-            lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, J, false);
-            //getchar();
-
+            lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, j0+J, false);
+            /*
+            cout << "[" << lambdaTilde_nonzeros.size() << "] " << endl;
+            for (const_set_it it=lambdaTilde_nonzeros.begin(); it!=lambdaTilde_nonzeros.end(); ++it) {
+                cout << basis.psi.support(j_col,k_col) << " -> "
+                     <<  basis.psi.support((*it).j,(*it).k) << endl;
+            }
+            getchar();
+            */
 
             for (const_coeff_it it=nonzeros.begin(); it!=nonzeros.end();++it) {
                 if (lambdaTilde_nonzeros.count((*it).first)==0) {

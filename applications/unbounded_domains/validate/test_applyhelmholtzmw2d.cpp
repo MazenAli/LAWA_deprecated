@@ -45,10 +45,11 @@ typedef Basis<T,Orthogonal,R,Multi>                                     MWBasis1
 typedef TensorBasis2D<Adaptive, MWBasis1D, MWBasis1D>                   MWBasis2D;
 
 //Operator definitions
-typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>                     MW_MA;
+typedef AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,R,Multi,
+                                               Orthogonal,R,Multi>      MW_MA;
 typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D, MW_MA>        MW_Prec;
 
-typedef RHSWithPeaks1D<T, MWBasis1D>                                    RHS1D;
+typedef RHSWithPeaks1D<T, MWBasis1D>                                    RhsIntegral1D;
 
 template<typename T>
 IndexSet<Index1D>
@@ -74,13 +75,13 @@ int main(int argc, char *argv[]) {
     refsol.setExample(1, c);
     Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
     Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
-    RHS1D       u1_integral(mwbasis2d.first, u1Fct, nodeltas, 35);
-    RHS1D       u2_integral(mwbasis2d.second, u2Fct, nodeltas, 35);
+    RhsIntegral1D       u1_integral(mwbasis2d.first, u1Fct, nodeltas, 35);
+    RhsIntegral1D       u2_integral(mwbasis2d.second, u2Fct, nodeltas, 35);
 
     Function<T> f1Fct(refsol.rhs_x, refsol.sing_pts_x);
     Function<T> f2Fct(refsol.rhs_y, refsol.sing_pts_y);
-    RHS1D       f1_integral(mwbasis2d.first, f1Fct, nodeltas, 35);
-    RHS1D       f2_integral(mwbasis2d.second, f2Fct, nodeltas, 35);
+    RhsIntegral1D       f1_integral(mwbasis2d.first, f1Fct, nodeltas, 35);
+    RhsIntegral1D       f2_integral(mwbasis2d.second, f2Fct, nodeltas, 35);
 
     IndexSet<Index1D> Lambda1d = ReferenceLambda(j0,J,mwbasis1d,r);
     cout << "Size of reference index set: " << Lambda1d.size() << endl;

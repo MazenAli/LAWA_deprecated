@@ -43,7 +43,8 @@ typedef TensorBasis2D<Adaptive, MWBasis1D, MWBasis1D>                   MWBasis2
 typedef HelmholtzOperator2D<T, MWBasis2D>                               HelmholtzOp2D;
 typedef DiagonalMatrixPreconditioner2D<T,MWBasis2D, HelmholtzOp2D >     Preconditioner2D;
 
-typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>                     MA_MW;
+typedef AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,R,Multi,
+                                               Orthogonal,R,Multi>      MA_MW;
 typedef AdaptiveHelmholtzOperator2D<T, MWBasis2D, Preconditioner2D>     MA;
 
 

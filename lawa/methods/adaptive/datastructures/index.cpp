@@ -62,9 +62,9 @@ Index1D::~Index1D(void)
 std::ostream& operator<<(std::ostream &s, const Index1D &_i)
 {
     if (_i.xtype==XBSpline) {
-        s << "scaling, (" << _i.j << " , " << _i.k << ")";
+        s << "scaling," << _i.j << "," << _i.k;
     } else {
-        s << "wavelet, (" << _i.j << " , " << _i.k << ")";
+        s << "wavelet," << _i.j << "," << _i.k;
     }
     return s;
 }
@@ -81,7 +81,7 @@ Index2D::~Index2D(void)
 
 std::ostream& operator<<(std::ostream &s, const Index2D &_i)
 {
-    s << "(" << _i.index1 << ", " << _i.index2 << ")";
+    s << _i.index1 << "," << _i.index2;
     return s;
 }
 
@@ -97,7 +97,7 @@ Index3D::~Index3D(void)
 
 std::ostream& operator<<(std::ostream &s, const Index3D &_i)
 {
-    s << "(" << _i.index1 << ", " << _i.index2 << ", " << _i.index3 << ")";
+    s <<  _i.index1 << "," << _i.index2 << "," << _i.index3;
     return s;
 }
 
@@ -172,5 +172,31 @@ lt<Lexicographical, Index3D>::operator()(const Entry<Index3D> &left, const Entry
         return left.col_index.index3.val < right.col_index.index3.val;
     }
 }
-   
+
+bool
+index_eqfunction<Index1D>::operator()(const Index1D& leftindex, const Index1D& rightindex) const
+{
+    return (leftindex.val == rightindex.val);
+}
+
+bool
+index_eqfunction<Index2D>::operator()(const Index2D& leftindex, const Index2D& rightindex) const
+{
+    return (    (leftindex.index1.val == rightindex.index1.val)
+            && (leftindex.index2.val == rightindex.index2.val)  );
+}
+
+size_t
+index_hashfunction<Index1D>::operator()(const Index1D& index) const
+{
+    return index.val % 26681;
+}
+
+size_t
+index_hashfunction<Index2D>::operator()(const Index2D& index) const
+{
+    return (index.index1.val + index.index2.val) % 26681;
+}
+
+
 } //namespace lawa

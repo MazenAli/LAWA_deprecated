@@ -46,11 +46,13 @@ typedef Basis<T,Orthogonal,R,Multi>                                     MWBasis1
 typedef TensorBasis2D<Adaptive, MWBasis1D, MWBasis1D>                   MWBasis2D;
 
 //Operator definitions
-typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>                     MW_MA;
+//typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>                     MW_MA;
+typedef AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,R,Multi,
+                                               Orthogonal,R,Multi>      MW_MA;
 typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D, MW_MA>        MW_Prec;
 
 //Righthandsides definitions (tensor)
-typedef RHSWithPeaks1D<T, MWBasis1D>                                    RHS1D;
+typedef RHSWithPeaks1D<T, MWBasis1D>                                    RhsIntegral1D;
 typedef SeparableRHS2D<T,MWBasis2D>                                     SeparableRhsIntegral2D;
 typedef SumOfTwoRHSIntegrals<T,Index2D,SeparableRhsIntegral2D,
                              SeparableRhsIntegral2D>                    SumOfSeparableRhsIntegral2D;
@@ -82,6 +84,7 @@ int main (int argc, char *argv[]) {
     int order=35;
     T r=5.;
 
+
     MWBasis1D mw_basis_x(d,j0_x);
     MWBasis1D mw_basis_y(d,j0_y);
 
@@ -102,7 +105,8 @@ int main (int argc, char *argv[]) {
     SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
 
     Coefficients<Lexicographical,T,Index2D> f, u;
-    f = precomputeRHS(example, mw_basis2d, mw_prec, j0_x, j0_y, 7, 15., 15.);
+    f = precomputeRHS(example, mw_basis2d, mw_prec, j0_x, j0_y, 5, 15., 15.);
+
 
     for (const_coeff2d_it it=f.begin(); it!=f.end(); ++it) {
         if (((*it).first.index2.xtype==XBSpline) && ((*it).first.index2.j!=j0_y)) {
@@ -261,7 +265,7 @@ computeRHSLambda_SmoothPart(const MWBasis1D &basis, T a, T b, int J_plus)
 }
 
 Coefficients<Lexicographical,T,Index1D>
-initializeRHSVector(const RHS1D &rhsintegral,
+initializeRHSVector(const RhsIntegral1D &rhsintegral,
                     const IndexSet<Index1D> LambdaRHS_singular,
                     const IndexSet<Index1D> LambdaRHS_smooth)
 {
@@ -292,13 +296,13 @@ precomputeRHS(int example, const Basis2D &mw_basis2d, MW_Prec &mw_prec, int j0_x
     refsol.setExample(example, 1.);
     Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
     Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
-    RHS1D       u1_integral(mw_basis2d.first, u1Fct, nodeltas, 35);
-    RHS1D       u2_integral(mw_basis2d.second, u2Fct, nodeltas, 35);
+    RhsIntegral1D       u1_integral(mw_basis2d.first, u1Fct, nodeltas, 35);
+    RhsIntegral1D       u2_integral(mw_basis2d.second, u2Fct, nodeltas, 35);
 
     Function<T> f1Fct(refsol.rhs_x, refsol.sing_pts_x);
     Function<T> f2Fct(refsol.rhs_y, refsol.sing_pts_y);
-    RHS1D       f1_integral(mw_basis2d.first, f1Fct, refsol.deltas_x, 35);
-    RHS1D       f2_integral(mw_basis2d.second, f2Fct, refsol.deltas_y, 35);
+    RhsIntegral1D       f1_integral(mw_basis2d.first, f1Fct, refsol.deltas_x, 35);
+    RhsIntegral1D       f2_integral(mw_basis2d.second, f2Fct, refsol.deltas_y, 35);
 
     IndexSet<Index1D> Lambda_smooth, Lambda_singular;
     Coefficients<Lexicographical,T,Index1D> u1_coeff, u2_coeff, f1_coeff, f2_coeff;

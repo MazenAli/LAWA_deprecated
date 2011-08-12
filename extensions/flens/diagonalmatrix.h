@@ -53,7 +53,7 @@ class DiagonalMatrix :
         int
         numCols() const;
     
-    private:
+//    private:
         DenseVector<Array<T> > _diag;
 };
 

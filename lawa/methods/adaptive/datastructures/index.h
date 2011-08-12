@@ -103,6 +103,44 @@ struct lt<Lexicographical, Index3D>
     bool operator()(const Entry<Index3D> &left, const Entry<Index3D> &right) const;
 };
 
+template <typename Index>
+struct index_eqfunction
+{
+};
+
+template <>
+struct index_eqfunction<Index1D>
+{
+    //inline
+    bool operator()(const Index1D& leftindex, const Index1D& rightindex) const;
+};
+
+template <>
+struct index_eqfunction<Index2D>
+{
+    //inline
+    bool operator()(const Index2D& leftindex, const Index2D& rightindex) const;
+};
+
+template <typename Index>
+struct index_hashfunction
+{
+};
+
+template <>
+struct index_hashfunction<Index1D>
+{
+    //inline
+    size_t operator()(const Index1D& index) const;
+};
+
+template <>
+struct index_hashfunction<Index2D>
+{
+    //inline
+    size_t operator()(const Index2D& index) const;
+};
+
 } //namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/index.tcc>

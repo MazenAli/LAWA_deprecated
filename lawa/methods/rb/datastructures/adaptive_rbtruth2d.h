@@ -44,6 +44,7 @@ class AdaptiveRBTruth2D{
 
         typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
         typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+        typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
 
@@ -100,6 +101,14 @@ class AdaptiveRBTruth2D{
                 T
                 operator()(const Index2D &row_index, const Index2D &col_index);
                 
+                Coefficients<Lexicographical,T,Index2D>
+                mv(const IndexSet<Index2D> &LambdaRow,
+                   const Coefficients<Lexicographical,T,Index2D> &x);
+
+                void
+                toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
+                                    const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
+
                 Compression compression;
         };
 
@@ -140,6 +149,14 @@ class AdaptiveRBTruth2D{
 
                  T
                  operator()(const Index2D &row_index, const Index2D &col_index);
+
+                 Coefficients<Lexicographical,T,Index2D>
+                 mv(const IndexSet<Index2D> &LambdaRow,
+                    const Coefficients<Lexicographical,T,Index2D> &x);
+
+                 void
+                 toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
+                                     const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
 
                  Compression compression;
          };

@@ -25,7 +25,7 @@ typedef double T;
 using namespace lawa;
 using namespace std;
 
-typedef Basis<T,Orthogonal,R,Multi> Basis1D;
+typedef Basis<T,Primal,R,SparseMulti> Basis1D;
 
 typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
@@ -33,14 +33,15 @@ typedef flens::DiagonalMatrix<T>                                    DiagonalMatr
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 //Operator definitions
-typedef HelmholtzOperator1D<T, Basis1D>                             HelmholtzOp1D;
-typedef CompressionPDE1D<T, Basis1D>                                Compression1D;
-typedef DiagonalMatrixPreconditioner1D<T,Basis1D,HelmholtzOp1D>     Preconditioner1D;
+//typedef HelmholtzOperator1D<T, Basis1D>                             PDEOp1D;
+typedef IdentityOperator1D<T, Basis1D>                              PDEOp1D;
+typedef NoCompression<T, Index1D, Basis1D>                          Compression1D;
+//typedef CompressionPDE1D<T, Basis1D>                                Compression1D;
+typedef DiagonalMatrixPreconditioner1D<T,Basis1D,PDEOp1D>     Preconditioner1D;
 
 //MapMatrix definition
-typedef MapMatrix<T,Index1D,HelmholtzOp1D,
+typedef MapMatrix<T,Index1D,PDEOp1D,
                   Compression1D,Preconditioner1D>               MA;
-
 
 template <typename T>
 void
@@ -67,13 +68,14 @@ int main (int argc, char *argv[]) {
     T   radius    =atof(argv[3]);
     int jmin =atoi(argv[4]);
     int max_level =atoi(argv[5]);
-    cout.precision(8);
+    cout.precision(3);
 
     Basis1D             basis(d,jmin);
-    HelmholtzOp1D       helmholtz_op(basis,c);
-    Preconditioner1D    prec(helmholtz_op);
+    //PDEOp1D           pde_op(basis,c);
+    PDEOp1D             pde_op(basis);
+    Preconditioner1D    prec(pde_op);
     Compression1D       compression(basis);
-    MA                  A(helmholtz_op,prec,compression);
+    MA                  A(pde_op,prec,compression);
 
     cout << "Chosen parameters: d=" << d << ", c=" << c << ", radius="<< radius
          << ", jmin=" << jmin << ", max_level=" << max_level << endl;
@@ -90,6 +92,8 @@ int main (int argc, char *argv[]) {
             toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
             DenseMatrixT A_dense;
             densify(cxxblas::NoTrans,A_flens,A_dense);
+
+            cout << A_dense << endl;
 
             T cB, CB;
             computeEV(A_dense, cB, CB);
@@ -141,17 +145,18 @@ LambdaForEigenvalues(int jmin, int jmax, const Basis1D &basis, T radius)
     int numScaling = (int)basis.mra.phi._numSplines;
 
     int wavelet_count = 0;
+
     for (int j=jmin; j<=jmax; ++j) {
-        k_left = std::floor(-pow2i<T>(j)*radius-basis.psi.max_support().l2);
-        k_right = std::ceil(pow2i<T>(j)*radius-basis.psi.max_support().l1);
+        k_left = 1;//std::floor(-pow2i<T>(j)*radius-basis.psi.max_support().l2);
+        k_right = 4;//std::ceil(pow2i<T>(j)*radius-basis.psi.max_support().l1);
         for (int k_help=k_left; k_help<=k_right; ++k_help) {
-            for (int k=(k_help-1)*numWavelets+1; k<=k_help*numWavelets; ++k) {
+            for (int k=(k_help-1)*numWavelets; k<=k_help*numWavelets-1; ++k) {
                 Lambda.insert(Index1D(j,k,XWavelet));
                 ++wavelet_count;
             }
         }
     }
-
+/*
     int scaling_count = 0;
     k_left  = int(std::floor(-pow2i<T>(jmin)*radius-basis.mra.phi.max_support().l2));
     k_right = int(std::ceil(  pow2i<T>(jmin)*radius-basis.mra.phi.max_support().l1));
@@ -163,5 +168,6 @@ LambdaForEigenvalues(int jmin, int jmax, const Basis1D &basis, T radius)
     }
     cout << "   -> Current index set: " << scaling_count << " scaling indices, "
          << wavelet_count << " wavelet indices." << endl;
+*/
     return Lambda;
 }

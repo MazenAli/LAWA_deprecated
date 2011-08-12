@@ -169,7 +169,8 @@ mv_sparse(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexic
 template <typename T, typename Index, typename MA>
 int
 CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
-         const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol, int maxIterations)
+         const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol,
+         bool useOptimizedAssembling, int maxIterations)
 {
     typedef typename IndexSet<Index >::const_iterator const_set_it;
     typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -177,7 +178,12 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 
     int N = Lambda.size();
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
-    toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
+    if (useOptimizedAssembling) {
+        A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
+    }
+    else {
+        toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
+    }
 
     if (Lambda.size() > 0) {
         DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
@@ -214,7 +220,8 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 template <typename T, typename Index, typename MA>
 int
 GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
-            const Coefficients<Lexicographical,T,Index > &f, T &/*res*/, T tol, int maxIterations)
+            const Coefficients<Lexicographical,T,Index > &f, T &/*res*/, T tol,
+            bool useOptimizedAssembling, int maxIterations)
 {
         typedef typename IndexSet<Index >::const_iterator const_set_it;
         typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -222,27 +229,26 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
 
         int N = Lambda.size();
         flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
-        toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
-/*
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
-    densify(cxxblas::NoTrans,A_flens,A_dense);
-    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(A_dense.numRows(),A_dense.numRows()),V(A_dense.numCols(),A_dense.numCols());
-    DenseVector<Array<T> > s(A_dense.numCols());
-    std::cout << "Computing svd..." << std::endl;
-    int iterations = svd(A_dense,s,U,V);
-    std::cout << " ... finished after " << iterations << std::endl;
-    std::cout << "Largest singular value: " << s(s.firstIndex()) << ", smallest singular value: " << s(s.lastIndex()) << std::endl;
-*/
+        if (useOptimizedAssembling) {
+            A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
+        }
+        else {
+            toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
+        }
+
         if (Lambda.size() > 0) {
             DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
             int row_count=1;
+            const_coeff_it f_end = f.end();
+            const_coeff_it u_end = u.end();
             for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
-                if (f.count((*row)) > 0) {
-                    const_coeff_it it = f.find(*row);
-                    rhs(row_count) = (*it).second;
-    //              rhs(row_count) = f[(*row)];
-                }
-                else                     rhs(row_count) = 0.;
+                const_coeff_it f_it = f.find(*row);
+                if (f_it != f_end) rhs(row_count) = (*f_it).second;
+                else               rhs(row_count) = 0.;
+                const_coeff_it u_it = u.find(*row);
+                if (u_it != u_end) x(row_count) = (*u_it).second;
+                else               x(row_count) = 0.;
+
             }
             int number_of_iterations = lawa::gmres(A_flens,x,rhs, tol, maxIterations);
             Ax = A_flens*x;

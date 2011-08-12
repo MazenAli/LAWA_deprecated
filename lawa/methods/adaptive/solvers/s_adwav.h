@@ -36,6 +36,9 @@ class S_ADWAV {
                 T eps=1e-2, int MaxSizeLambda = 400);
 
         //solver for symmetric elliptic problems
+        void solve(const IndexSet<Index> &Initial_Lambda, const char *linsolvertype,
+                   bool optimized=false, T H1norm=0.);
+        //solver for symmetric elliptic problems
         void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
         //solver for symmetric elliptic problems without B-Splines
         void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);

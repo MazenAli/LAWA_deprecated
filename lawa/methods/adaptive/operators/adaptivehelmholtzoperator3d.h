@@ -19,11 +19,11 @@
 
 
 #ifndef  LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR3D_H
-#define  LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR_H 1
+#define  LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEHELMHOLTZOPERATOR3D_H 1
 
-#include <lawa/setting/enum.h>
-#include <lawa/methods/adaptive/compressions/compressions_pde1d.h>
-#include <lawa/methods/adaptive/compressions/compressions_pde3d.h>
+#include <lawa/settings/enum.h>
+#include <lawa/methods/adaptive/compressions/compression_pde1d.h>
+#include <lawa/methods/adaptive/compressions/compression_pde3d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>

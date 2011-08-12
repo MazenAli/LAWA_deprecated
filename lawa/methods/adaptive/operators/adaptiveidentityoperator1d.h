@@ -18,8 +18,8 @@
  */
 
 
-#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVELAPLACEOPERATOR1D_H
-#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVELAPLACEOPERATOR1D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR1D_H
+#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR1D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>
@@ -34,13 +34,13 @@
 namespace lawa {
 
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
-struct AdaptiveLaplaceOperator1D
+struct AdaptiveIdentityOperator1D
 {
 
 };
 
 template <typename T, FunctionSide Side, Construction Cons>
-struct AdaptiveLaplaceOperator1D<T,Side,R,Cons>
+struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
 {
     typedef Basis<T,Side,R,Cons>                                     ReallineBasis1D;
 
@@ -48,13 +48,13 @@ struct AdaptiveLaplaceOperator1D<T,Side,R,Cons>
 
     typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
 
-    typedef LaplaceOperator1D<T, ReallineBasis1D>                    LaplaceOperator1D;
+    typedef IdentityOperator1D<T, ReallineBasis1D>                   IdentityOperator1D;
 
-    typedef MapMatrix<T, Index1D, LaplaceOperator1D,
-                     Compression1D, NoPreconditioner1D>              DataLaplace1D;
+    typedef MapMatrix<T, Index1D, IdentityOperator1D,
+                     Compression1D, NoPreconditioner1D>              DataIdentity1D;
 
 
-    AdaptiveLaplaceOperator1D(const ReallineBasis1D &_basis1d, T _c, T thresh=0.,
+    AdaptiveIdentityOperator1D(const ReallineBasis1D &_basis1d, T _c, T thresh=0.,
                               int NumOfCols=4096, int NumOfRows=4096);
 
     T
@@ -65,21 +65,21 @@ struct AdaptiveLaplaceOperator1D<T,Side,R,Cons>
     clear();
 
 
-    const ReallineBasis1D      &basis1d;
+    const ReallineBasis1D       &basis1d;
 
-    Compression1D              compression1d;
+    Compression1D               compression1d;
 
-    const LaplaceOperator1D    laplace_op1d;
+    const IdentityOperator1D    identity_op1d;
 
-    NoPreconditioner1D         prec1d;
+    NoPreconditioner1D          prec1d;
 
-    DataLaplace1D              laplace_data1d;
+    DataIdentity1D              identity_data1d;
 
 };
 
 }   //namespace lawa
 
-#include <lawa/methods/adaptive/operators/adaptivelaplaceoperator1d.tcc>
+#include <lawa/methods/adaptive/operators/adaptiveidentityoperator1d.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVELAPLACEOPERATOR1D_H
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR1D_H
 

@@ -57,6 +57,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, int NumOfIteratio
         T fu = w_k*f;
         Au = A.mv(supp(w_k), w_k);
         T uAu = w_k*Au;
+        std::cerr.precision(16);
         T Error_H_energy = sqrt(fabs(std::pow(H1norm,2.)- 2*fu + uAu));
         //T Error_H_energy = computeErrorInH1Norm(Apply.A, F, w_k, H1norm);
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
@@ -98,14 +99,14 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
         r = rhs - Aw;
         r_norm = r.norm(2.);
         nu = r_norm + zeta;
-        std::cerr << "    zeta = " << zeta << ", r_norm = " << r_norm
-                  << ", omega*r_norm = " << omega*r_norm << ", nu = " << nu << std::endl;
+        std::cerr << "    zeta = " << zeta << ", r_norm = " << r_norm << ", omega*r_norm = "
+                  << omega*r_norm << ", nu = " << nu << std::endl;
         if (nu <= eps) break;
         if (zeta<=omega*r_norm) break;
     }
 
     IndexSet<Index> Lambda;
-    T P_Lambda_r_norm_square = 0.;
+    long double P_Lambda_r_norm_square = 0.0L;
     if (w.size() > 0) {
         for (const_coeff_it it=w.begin(); it!=w.end(); ++it) {
             //Lambda.insert((*it).first);
@@ -123,7 +124,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
     if (nu > eps) {
         int currentDoF = w.size();
         for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
-            P_Lambda_r_norm_square += std::pow(r_bucket.bucket_ell2norms[i],2.);
+            P_Lambda_r_norm_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
             std::cerr << "   ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
             int addDoF = r_bucket.addBucketToIndexSet(Lambda,i,currentDoF);
             currentDoF += addDoF;
@@ -177,7 +178,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     //std::cerr << "    Assembling of B started with N=" << N << std::endl;
 
     flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
-    A.toFlensSparseMatrix(Lambda,Lambda,B,J);
+    A.toFlensSparseMatrix(Lambda,Lambda,B,J,true);
 
 /*
     A.extendFlensSparseMatrix(supp(w),Extension,sparseMat_A);

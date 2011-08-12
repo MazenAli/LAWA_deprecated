@@ -115,6 +115,45 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::prec(const Index2D &ind
 }
 
 template <typename T, typename Basis2D, typename Preconditioner>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::mv(const IndexSet<Index2D> &LambdaRow,
+                                                const Coefficients<Lexicographical,T,Index2D> &v)
+{
+    return lawa::mv_sparse(LambdaRow, (*this), v);
+}
+
+template <typename T, typename Basis2D, typename Preconditioner>
+void
+AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::toFlensSparseMatrix
+                                                         (const IndexSet<Index2D>& LambdaRow,
+                                                          const IndexSet<Index2D>& LambdaCol,
+                                                          SparseMatrixT &A_flens, int J,
+                                                          bool useLinearIndex)
+{
+    if (!useLinearIndex) {
+        lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
+    }
+    else {
+        std::cerr << "AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::toFlensSparseMatrix "
+                  << "not implemented for useLinearIndex=true." << std::endl;
+        assert(0);
+        exit(1);
+    }
+}
+
+template <typename T, typename Basis2D, typename Preconditioner>
+void
+AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::toFlensSparseMatrix(
+                                                         const IndexSet<Index2D>& LambdaRow,
+                                                         const IndexSet<Index2D>& LambdaCol,
+                                                         SparseMatrixT &A_flens, T eps,
+                                                         bool useLinearIndex)
+{
+    //toFlensSparseMatrix<T,Index2D,AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner> >(*this,LambdaRow,LambdaCol,A_flens);
+    lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
+}
+
+template <typename T, typename Basis2D, typename Preconditioner>
 void
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::clear()
 {

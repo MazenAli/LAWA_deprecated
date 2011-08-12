@@ -45,6 +45,8 @@ typedef SumOfTwoRHSIntegrals<T,Index1D,RhsIntegral1D,RhsIntegral1D> SumOfRHSInte
 typedef RHS<T,Index1D, SumOfRHSIntegral1D, Preconditioner1D>        Rhs;
 typedef RHS<T,Index1D, RhsIntegral1D, Preconditioner1D>             Rhs_PP;
 
+typedef RHS1D<T,RhsIntegral1D,Preconditioner1D>                     Rhs1D;
+
 
 //Matrix definitions
 typedef MapMatrix<T,Index1D,HelmholtzBilinearForm1D,Compression1D,
@@ -56,6 +58,9 @@ typedef SYM_APPLY_1D<T,Index1D,Basis1D,Parameters1D,MA>                   APPLY1
 
 //Algorithm definition
 typedef GHS_ADWAV1D<T,Basis1D,APPLY1D,Rhs>                                GHS_Adwav;
+
+//Algorithm definition
+typedef GHS_ADWAV1D<T,Basis1D,APPLY1D,Rhs1D>                              GHS_Adwav_Test;
 
 template <typename T>
 IndexSet<Index1D>
@@ -113,6 +118,7 @@ int main (int argc, char *argv[]) {
     f = initializeRHSVector(basis, rhsintegral1d_singular, rhsintegral1d_smooth, P, refsol);
     Rhs F(rhsintegral,P,f);
 
+
     MA A(Bil,P,Compr);
 
     APPLY1D Apply(parameters,basis,A);
@@ -142,6 +148,25 @@ int main (int argc, char *argv[]) {
                                        refsol.d_u, -10., 10., pow2i<T>(-5),
                                        plot_filename.str().c_str());
     cout << "Plot of solution finished." << endl;
+
+
+    stringstream rhsfilename;
+    rhsfilename << "rhs_realline_helmholtz_1_ex_" << example
+                << "_CDF_" << d << "_" << d_ << "_" << jmin << ".dat";
+    RhsIntegral1D      rhsintegral1d(basis, rhs_func, refsol.deltas, 20);
+    Rhs1D F2(rhsintegral1d,P);
+
+    if (F2.readIndexSets(rhsfilename.str().c_str()) ) {
+        cout << "Index sets for rhs read... Ready to start."  << endl;
+    }
+    else {
+        cout << "Could not open file." << endl;
+        return 0;
+    }
+
+    GHS_Adwav_Test ghs_adwav_test(basis,Apply,F2);
+    ghs_adwav_test.SOLVE(f.norm(2.),eps,NumOfIterations,refsol.H1norm());
+
 
     return 0;
 }
