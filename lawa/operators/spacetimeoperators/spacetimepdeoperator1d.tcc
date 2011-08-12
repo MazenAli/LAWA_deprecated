@@ -2,8 +2,10 @@ namespace lawa{
     
 template <typename T, typename Basis>    
 SpaceTimePDEOperator1D<T, Basis>::SpaceTimePDEOperator1D(const Basis& _basis, const T _diffusion, 
-                                                         const T _convection, const T _reaction)
+                                                         const T _convection, const T _reaction,
+                                                         const T _timederivfactor)
     : basis(_basis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
+      timederivfactor(_timederivfactor),
       integral_t(_basis.first, _basis.first), integral_x(_basis.second, _basis.second)
 {
 }
@@ -23,7 +25,7 @@ SpaceTimePDEOperator1D<T, Basis>::operator()(XType row_xtype_t, int j1_t, int k1
     
     // (v1 * u1_t)*(v2*u2) + diffusion * (v1 * u1)*(v2_x*u2_x) 
     //  + convection * (v1 * u1)*(v2*u2_x) + reaction * (v1 * u1)*(v2 * u2)
-    return d_val_t * val_x  + diffusion * val_t * dd_val_x 
+    return timederivfactor * d_val_t * val_x  + diffusion * val_t * dd_val_x 
             + convection * val_t * d_val_x + reaction * val_t * val_x;
 
 }

@@ -18,8 +18,17 @@ struct TruthSolver {
 	
     TruthSolver(){};
     
+    //virtual void 
+    //set_model(Truth& _truth_model) = 0;
+    
     virtual Coefficients<Lexicographical,T,Index>
     truth_solve() = 0;
+    
+    virtual Coefficients<Lexicographical,T,Index>
+    repr_solve_F() = 0;
+    
+    virtual Coefficients<Lexicographical,T,Index>
+    repr_solve_A() = 0;
     
 };
     

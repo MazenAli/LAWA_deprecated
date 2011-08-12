@@ -30,6 +30,8 @@ template <QuadratureType Quad, typename BasisX, typename BasisY>
 struct Integral2D
 {
     typedef typename BasisX::T T;
+    typedef BasisX Basis_X;
+    typedef BasisY Basis_Y;
     
     const Function2D<T> &F;
     const BasisX &basisx;

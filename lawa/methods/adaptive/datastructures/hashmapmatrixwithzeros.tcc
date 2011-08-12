@@ -185,6 +185,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()
     Zeros.clear();
     ConsecutiveIndices.clear();
     PrecValues.engine().resize(0);
+
 }
 
 }    //namespace lawa

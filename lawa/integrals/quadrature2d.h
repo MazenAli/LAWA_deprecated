@@ -22,21 +22,25 @@
 
 #include <extensions/sparsegrid/sparse_grid_mixed.h>
 #include <lawa/math/math.h>
+#include <lawa/settings/enum.h>
+#include <lawa/integrals/integral2d.h>
 
 namespace lawa {
+  
+template<QuadratureType, typename, typename> class Integral2D;
 
-template <QuadratureType Quad, typename Integral2D>
+template <QuadratureType Quad, typename _Integral2D>
 class Quadrature2D
 {
 };
 
-template <typename Integral2D>
-class Quadrature2D<SparseGridGP,Integral2D>
+template <typename _Integral2D>
+class Quadrature2D<SparseGridGP,_Integral2D>
 {
     public:
-        typedef typename Integral2D::T T;
+        typedef typename _Integral2D::T T;
 
-        Quadrature2D(const Integral2D &integral);
+        Quadrature2D(const _Integral2D &integral);
 
         const T
         operator()(T ax, T bx, T ay, T by) const;
@@ -47,7 +51,7 @@ class Quadrature2D<SparseGridGP,Integral2D>
         int numGridPoints;
 
     private:
-        const Integral2D &_integral;
+        const _Integral2D &_integral;
         int _level;
 
         void
@@ -57,28 +61,65 @@ class Quadrature2D<SparseGridGP,Integral2D>
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
 };
 
-template <typename Integral2D>
-class Quadrature2D<FullGridGL,Integral2D>
+template <typename _Integral2D>
+class Quadrature2D<FullGridGL,_Integral2D>
 {
     public:
-        typedef typename Integral2D::T T;
+        typedef typename _Integral2D::T T;
         
-        Quadrature2D(const Integral2D &integral);
+        Quadrature2D(const _Integral2D &integral);
 
         const T
         operator()(T ax, T bx, T ay, T by) const;
 
         void setOrder(int order);
 
+        void _initFullGrid();
+        const _Integral2D &_integral;
+        
     private:
-        const Integral2D &_integral;
         int _order;
-
-        void
-        _initFullGrid();
 
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
+};
+
+template <typename _Integral2D>
+class Quadrature2D<FullGridGL_localOrder, _Integral2D>
+{
+    typedef Integral2D<FullGridGL, typename _Integral2D::Basis_X, typename _Integral2D::Basis_Y> Integral_nonLocal;
+    
+    public:
+        typedef typename _Integral2D::T T;
+      
+        Quadrature2D(const _Integral2D &integral);     
+      
+        const T
+        operator()(T ax, T bx, T ay, T by) const;
+        
+        void setOrder(int order);
+        
+        void set_refindfct(T (*_fct)(T));
+        
+        void set_refindtol(T _tol);
+
+        void set_lowOrder(int _lowOrder);
+
+        void set_highOrder(int _highOrder);
+      
+    private:
+      
+        const _Integral2D &_integral;
+        Integral_nonLocal integral_nonLocal;
+      
+        Quadrature2D<FullGridGL, Integral_nonLocal> quadrature_lowOrder;
+        Quadrature2D<FullGridGL, Integral_nonLocal> quadrature_highOrder;
+        T (*refindfct)(T);
+        T refindtol;
+        int lowOrder, highOrder;
+        
+        bool
+        ref_indicator(T at, T bt, T ax, T bx) const;
 };
 
 }   //namespace lawa

@@ -43,7 +43,7 @@ namespace lawa {
 template <typename T, typename TruthModel>
 class RBModel2D {
 
-        typedef T (*theta_fctptr)(std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
+        typedef T (*theta_fctptr)(const std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
         typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
@@ -67,6 +67,12 @@ class RBModel2D {
 
         unsigned int
         n_bf();
+        
+        void
+        attach_theta_a_q(theta_fctptr theta_a_q);
+        
+        void
+        attach_theta_f_q(theta_fctptr theta_f_q);
 
         void 
         attach_inner_product_op(Operator2D<T>& _inner_product_op);
@@ -107,10 +113,24 @@ class RBModel2D {
         set_ref_param(const std::vector<T>& _param);
         
         void
-        train_Greedy(const std::vector<T>& init_param, T tol, int Nmax);
+        train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename = "Training.txt",
+                     SolverCall call = call_cg);
         
         void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
+        
+        
+        void
+        write_basis_functions(const std::string& directory_name = "offline_data/bf");
+        
+        void
+        read_basis_functions(const std::string& directory_name = "offline_data/bf");
+        
+        void
+        write_RB_data(const std::string& directory_name = "offline_data");
+        
+        void
+        read_RB_data(const std::string& directory_name = "offline_data");
                 
     /* Public members */
 
@@ -132,10 +152,9 @@ class RBModel2D {
         std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
         
         std::vector<std::vector<T> >  Xi_train;
-
-    protected:
-
-    /* Protected member functions */
+        
+        bool assembled_inner_product_matrix;
+        bool assembled_A_operator_matrices;
 
         // Update the (dense) RB matrices / vectors with the last basis function
         void
@@ -146,6 +165,21 @@ class RBModel2D {
         
         void
         update_RB_inner_product();
+        
+    protected:
+
+    /* Protected member functions */
+      /*
+        // Update the (dense) RB matrices / vectors with the last basis function
+        void
+        update_RB_A_matrices();
+
+        void
+        update_RB_F_vectors();
+        
+        void
+        update_RB_inner_product();
+        */
 
     /* Protected members */
 
@@ -160,6 +194,7 @@ class RBModel2D {
         // Reference Parameter defining the inner product norm
         // Needed for min-Theta approach
         std::vector<T>  ref_param;
+
 };
 
 } // namespace lawa

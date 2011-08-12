@@ -15,12 +15,13 @@ namespace lawa {
  *    
  */
 
-template <typename, typename, typename> class AdaptiveRBTruth2D;
+template <typename, typename, typename, typename> class AdaptiveRBTruth2D;
 
-template <typename T, typename Basis, typename Index>
+template <typename T, typename Basis, typename Index, typename Compression>
 class S_ADWAV_TruthSolver {
 
-        typedef  AdaptiveRBTruth2D<T, Basis, S_ADWAV_TruthSolver<T, Basis, Index> > Truth;
+        typedef  AdaptiveRBTruth2D<T, Basis, 
+                   S_ADWAV_TruthSolver<T, Basis, Index, Compression>, Compression > Truth;
         typedef typename Truth::Operator_LHS                                        LHS;
         typedef typename Truth::Operator_RHS                                        RHS;
         typedef typename Truth::Operator_LHS_Representor                            MatrixOp;
@@ -51,15 +52,18 @@ class S_ADWAV_TruthSolver {
 
         void
         set_parameters(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
-                      int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, int _MaxSizeLambda = 400);
+                      int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
+                      int _MaxSizeLambda = 400, T _resStopTol = 0.1);
         
         void
         set_parameters_repr_F(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
-                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, int _MaxSizeLambda = 400);
+                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
+                            int _MaxSizeLambda = 400, T _resStopTol = 0.1);
 
         void
         set_parameters_repr_A(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
-                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, int _MaxSizeLambda = 400);
+                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
+                            int _MaxSizeLambda = 400, T _resStopTol = 0.1);
                             
     private:
     
@@ -89,11 +93,11 @@ class S_ADWAV_TruthSolver {
         struct Sadwav_parameters{
             
             Sadwav_parameters(){};
-            Sadwav_parameters(T _c, T _tT, T _lT, T _rT, int N, int mI, T e);
+            Sadwav_parameters(T _c, T _tT, T _lT, T _rT, int N, int mI, T e, int mL, T rST);
             
             T contraction, threshTol, linTol, resTol;
             int NumOfIts, MaxItsPerThreshTol, MaxSizeLambda;
-            T eps;
+            T eps, resStopTol;
         };
         
         Sadwav_parameters params, params_repr_F, params_repr_A;

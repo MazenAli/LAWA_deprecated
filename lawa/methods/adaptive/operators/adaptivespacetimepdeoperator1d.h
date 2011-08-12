@@ -36,10 +36,10 @@ namespace lawa {
 
 /* Space-Time PDE Operator
  *
- *  a(v,u) =               Integral(v1 * u1_t) * Integral(v2 * u2) 
- *          + diffusion  * Integral(v1 * u1)   * Integral(v2_x * u2_x)
- *          + convection * Integral(v1 * u1)   * Integral(v2 * u2_x)
- *          + reaction   * Integral(v1 * u1)   * Integral(v2 * u2)
+ *  a(v,u) =  timederivfactor *  Integral(v1 * u1_t) * Integral(v2 * u2) 
+ *          +      diffusion  * Integral(v1 * u1)    * Integral(v2_x * u2_x)
+ *          +      convection * Integral(v1 * u1)    * Integral(v2 * u2_x)
+ *          +      reaction   * Integral(v1 * u1)    * Integral(v2 * u2)
  *
  *  Template Parameters:
  *      LeftPrec2D :        left preconditioner
@@ -47,7 +47,7 @@ namespace lawa {
  *      InitialCondition:   operator for initial condition, can be NoInitialCondition
  */
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-struct AdaptiveSpaceTimePDEOperator1D{
+struct AdaptiveSpaceTimePDEOperator1D : public Operator2D<T> {
     
     typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
 
@@ -79,11 +79,13 @@ struct AdaptiveSpaceTimePDEOperator1D{
                                
     AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
                                     T _diffusion = 1., T _convection = 0, T _reaction = 0, 
+                                    T _timederivfactor = 1.,
                                     T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
     
     AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
                                     InitialCondition& _init_cond,
-                                    T _diffusion = 1., T _convection = 0, T _reaction = 0, 
+                                    T _diffusion = 1., T _convection = 0, T _reaction = 0,
+                                    T _timederivfactor = 1.,
                                     T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
                                     
     // call of p_left * a_operator * p_right
@@ -107,9 +109,10 @@ struct AdaptiveSpaceTimePDEOperator1D{
     
     
     const Basis2D&      basis;
-    T                   diffusion;
-    T                   convection;
-    T                   reaction;
+    const T             diffusion;
+    const T             convection;
+    const T             reaction;
+    const T             timederivfactor;
     
     Compression1D_t     compression_1d_t;
     Compression1D_x     compression_1d_x;

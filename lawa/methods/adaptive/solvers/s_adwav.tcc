@@ -24,10 +24,11 @@ namespace lawa {
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _contraction,
                                  T start_threshTol, T start_linTol, T start_resTol,
-                                 int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda)
+                                 int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda,
+                                  T _resStopTol)
     : basis(_basis), A(_A), F(_F), contraction(_contraction), threshTol(start_threshTol), linTol(start_linTol),
       resTol(start_resTol), NumOfIterations(_NumOfIterations), MaxItsPerThreshTol(_MaxItsPerThreshTol), eps(_eps),
-      MaxSizeLambda(_MaxSizeLambda)
+      MaxSizeLambda(_MaxSizeLambda), resStopTol(_resStopTol)
 {
     solutions.resize(NumOfIterations);
     residuals.resize(NumOfIterations);
@@ -306,7 +307,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations
                   << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
         
-        if(supp(u).size() > (unsigned int) MaxSizeLambda){
+        if((supp(u).size() > (unsigned int) MaxSizeLambda) || (estim_res < resStopTol)){
             NumOfIterations = its+1;
             solutions.resize(NumOfIterations);
             residuals.resize(NumOfIterations);
@@ -401,6 +402,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
         
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cg-its = " << iterations
                   << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
+                  
+        if((supp(u).size() > (unsigned int) MaxSizeLambda) || (estim_res < resStopTol)){
+            NumOfIterations = its+1;
+            solutions.resize(NumOfIterations);
+            residuals.resize(NumOfIterations);
+            times.resize(NumOfIterations);
+            toliters.resize(NumOfIterations);
+            linsolve_iterations.resize(NumOfIterations);
+            break;
+        }
 
     }
 }
@@ -499,6 +510,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", gmres-its = " << iterations;
         std::cout << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl;
+        
+        if((supp(u).size() > (unsigned int) MaxSizeLambda) || (estim_res < resStopTol)){
+            NumOfIterations = its+1;
+            solutions.resize(NumOfIterations);
+            residuals.resize(NumOfIterations);
+            times.resize(NumOfIterations);
+            toliters.resize(NumOfIterations);
+            linsolve_iterations.resize(NumOfIterations);
+            break;
+        }
     }
 }
 
@@ -581,6 +602,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
 
         std::cout << "S-ADWAV: " << its+1 << ".iteration: Size of Lambda = " << supp(u).size() << ", cgls-its = " << iterations
                   << ", residual = " << estim_res << " , current threshTol = " << threshTol << std::endl << std::endl;
+                  
+        if((supp(u).size() > (unsigned int) MaxSizeLambda) || (estim_res < resStopTol)){
+            NumOfIterations = its+1;
+            solutions.resize(NumOfIterations);
+            residuals.resize(NumOfIterations);
+            times.resize(NumOfIterations);
+            toliters.resize(NumOfIterations);
+            linsolve_iterations.resize(NumOfIterations);
+            break;
+        }
 
     }
 }
@@ -589,7 +620,8 @@ template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol, T _linTol, 
                                               T _resTol, int _NumOfIterations, 
-                                              int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda)
+                                              int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, 
+                                              T _resStopTol)
 {
     contraction = _contraction;
     threshTol = start_threshTol;
@@ -599,6 +631,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol,
     MaxItsPerThreshTol = _MaxItsPerThreshTol;
     eps = _eps;
     MaxSizeLambda = _MaxSizeLambda;
+    resStopTol = _resStopTol;
     
     solutions.resize(NumOfIterations);
     residuals.resize(NumOfIterations);
@@ -610,7 +643,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol,
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T& _linTol, T& _resTol, 
-                                              int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps, int& _MaxSizeLambda)
+                                              int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps, 
+                                              int& _MaxSizeLambda, T& _resStopTol)
 {
     _contraction = contraction;
     _threshTol = threshTol;
@@ -620,6 +654,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T&
     _MaxItsPerThreshTol = MaxItsPerThreshTol;
     _eps = eps;
     _MaxSizeLambda = MaxSizeLambda;
+    _resStopTol = _resStopTol;
 }
 
 }    //namespace lawa
