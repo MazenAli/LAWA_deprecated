@@ -173,7 +173,6 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
                       SparseMatrixT &A_flens, int J, bool useLinearIndex)
 {
     std::cerr << "  -> toFlensSparseMatrix called with J= " << J << std::endl;
-
     IndexSet<Index1D> LambdaRow_x, LambdaRow_y;
     split(LambdaRow, LambdaRow_x, LambdaRow_y);
 
@@ -186,6 +185,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     const_set2d_it LambdaRow_end=LambdaRow.end();
 
     if (!useLinearIndex) {
+        std::cerr << "AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>::toFlensSparseMatrix called." << std::endl;
 
         std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
         int row_count = 1;
@@ -697,7 +697,6 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
     }
     A_flens.finalize();
 }
-
 
 template <typename T, DomainType Domain1, DomainType Domain2>
 void

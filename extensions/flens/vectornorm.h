@@ -15,21 +15,33 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+*/
 
-#include <extensions/flens/cg.h>
-#include <extensions/flens/crs.h>
-#include <extensions/flens/diagonalmatrix.h>
-#include <extensions/flens/densefunctions.h>
-#include <extensions/flens/gmres.h>
-#include <extensions/flens/inv.h>
-#include <extensions/flens/lapack.h>
-#include <extensions/flens/lapack_flens.h>
-#include <extensions/flens/lapack_generic.h>
-#include <extensions/flens/sparsematrix.h>
-#include <extensions/flens/sparse_blas.h>
-#include <extensions/flens/sparse_blas_flens.h>
-#include <extensions/flens/spy.h>
-#include <extensions/flens/powermethod.h>
-#include <extensions/flens/vectornorm.h>
+#ifndef EXTENSIONS_FLENS_VECTORNORM_H
+#define EXTENSIONS_FLENS_VECTORNORM_H 1
 
+#include <lawa/flensforlawa.h>
+
+namespace lawa {
+
+enum NormType { l1, l2, lInfinity};
+
+template <NormType N, typename T>
+struct NormTraits
+{
+    typedef T Type;
+};
+
+template <NormType N, typename X>
+    typename NormTraits<N,typename X::ElementType>::Type
+    norm(const DenseVector<X> &x);
+
+template <NormType N, typename T>
+    typename NormTraits<N,T>::Type
+    norm(const Array<T> &x);
+
+} // namespace flens
+
+#include <extensions/flens/vectornorm.tcc>
+
+#endif // FEXTENSIONS_FLENS_VECTORNORM_H

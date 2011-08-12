@@ -27,7 +27,9 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::AdaptiveHelmholtzOperatorO
     else {                //wavelet with b-splines on coarse level discretization
         std::cerr << basis.j0 << std::endl;
         if (basis.d==2 && basis.d_==2 && c == 1.) {
-            if (basis.j0==0)  {    cA = 0.375; CA = 2.1;    }
+            if      (basis.j0==2)  {    cA = 0.375; CA = 2.1;    }
+            else if (basis.j0==1)  {    cA = 0.375; CA = 2.1;    }
+            else if (basis.j0==0)  {    cA = 0.375; CA = 2.1;    }
             else if (basis.j0==-1) {    cA = 0.58;  CA = 1.86;    }
             else if (basis.j0==-2) {    cA = 0.58;  CA = 1.86;    }
             else if (basis.j0==-3) {    cA = 0.55;  CA = 1.86;    }
