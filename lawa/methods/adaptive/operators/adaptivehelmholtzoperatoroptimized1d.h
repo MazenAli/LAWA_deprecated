@@ -42,7 +42,6 @@ template <typename T>
 struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF> {
 
     typedef Basis<T,Primal,R,CDF>                                             ReallineCDFBasis1D;
-    typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>                       MA;
 
     typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
@@ -55,9 +54,9 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF> {
 
     typedef NoPreconditioner<T,Index1D>                                       NoPreconditioner1D;
 
-    typedef HelmholtzOperator1D<T, ReallineCDFBasis1D>                        HelmholtzOperator1D;
+    typedef HelmholtzOperator1D<T, ReallineCDFBasis1D>                        HelmholtzOp1D;
 
-    typedef MapMatrix<T, Index1D, HelmholtzOperator1D,
+    typedef MapMatrix<T, Index1D, HelmholtzOp1D,
                      Compression1D, NoPreconditioner1D>                       DataHelmholtz1D;
 
     AdaptiveHelmholtzOperatorOptimized1D(const ReallineCDFBasis1D &_basis, bool _w_XBSpline, T _c,
@@ -104,7 +103,7 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF> {
     T cA, CA, kappa;
 
     Compression1D                           compression;
-    const HelmholtzOperator1D               helmholtz_op1d;
+    const HelmholtzOp1D                     helmholtz_op1d;
     NoPreconditioner1D                      prec1d;
     DataHelmholtz1D                         helmholtz_data1d;
 
@@ -202,9 +201,9 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>
 
     typedef NoPreconditioner<T,Index1D>                                       NoPreconditioner1D;
 
-    typedef HelmholtzOperator1D<T, SparseMultiBasis1D>                        HelmholtzOperator1D;
+    typedef HelmholtzOperator1D<T, SparseMultiBasis1D>                        HelmholtzOp1D;
 
-    typedef MapMatrix<T, Index1D, HelmholtzOperator1D,
+    typedef MapMatrix<T, Index1D, HelmholtzOp1D,
                      Compression1D, NoPreconditioner1D>                       DataHelmholtz1D;
 
     AdaptiveHelmholtzOperatorOptimized1D(const SparseMultiBasis1D &_basis1d, T _c, T thresh=0.,
@@ -247,7 +246,7 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>
     T cA, CA, kappa;
 
     Compression1D                compression;
-    const HelmholtzOperator1D    helmholtz_op1d;
+    const HelmholtzOp1D          helmholtz_op1d;
     NoPreconditioner1D           prec1d;
     DataHelmholtz1D              helmholtz_data1d;
 

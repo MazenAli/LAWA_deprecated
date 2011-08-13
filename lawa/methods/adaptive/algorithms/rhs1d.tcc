@@ -1,3 +1,5 @@
+#include <string.h>
+
 namespace lawa {
 
 template <typename T, typename RHSINTEGRAL, typename Preconditioner>

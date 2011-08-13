@@ -48,9 +48,9 @@ struct AdaptiveLaplaceOperator1D<T,Side,R,Cons>
 
     typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
 
-    typedef LaplaceOperator1D<T, ReallineBasis1D>                    LaplaceOperator1D;
+    typedef LaplaceOperator1D<T, ReallineBasis1D>                    LaplaceOp1D;
 
-    typedef MapMatrix<T, Index1D, LaplaceOperator1D,
+    typedef MapMatrix<T, Index1D, LaplaceOp1D,
                      Compression1D, NoPreconditioner1D>              DataLaplace1D;
 
 
@@ -69,7 +69,7 @@ struct AdaptiveLaplaceOperator1D<T,Side,R,Cons>
 
     Compression1D              compression1d;
 
-    const LaplaceOperator1D    laplace_op1d;
+    const LaplaceOp1D          laplace_op1d;
 
     NoPreconditioner1D         prec1d;
 

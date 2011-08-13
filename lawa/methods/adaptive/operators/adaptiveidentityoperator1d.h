@@ -48,9 +48,9 @@ struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
 
     typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
 
-    typedef IdentityOperator1D<T, ReallineBasis1D>                   IdentityOperator1D;
+    typedef IdentityOperator1D<T, ReallineBasis1D>                   IdentityOp1D;
 
-    typedef MapMatrix<T, Index1D, IdentityOperator1D,
+    typedef MapMatrix<T, Index1D, IdentityOp1D,
                      Compression1D, NoPreconditioner1D>              DataIdentity1D;
 
 
@@ -69,7 +69,7 @@ struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
 
     Compression1D               compression1d;
 
-    const IdentityOperator1D    identity_op1d;
+    const IdentityOp1D          identity_op1d;
 
     NoPreconditioner1D          prec1d;
 
