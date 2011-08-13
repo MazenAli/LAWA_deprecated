@@ -60,7 +60,7 @@ inversePowerMethod(const MatA &A, typename MatA::ElementType tol,
     VecX v, q;
     for (int i=1; i<=maxIterations; ++i) {
         v = (1./norm<l2>(y)) * y;
-        gmres(A,y,v,tol);
+        gmresm(A,y,v,tol);
         lambda = v*y;
         if (norm<l2>(q = -lambda*v+y) <= tol*fabs(lambda)) {
             lambda = 1./lambda;
