@@ -70,48 +70,40 @@ typedef RHS1D<T, CDF_RhsIntegral1D_WO_XBSpline, CDF_Prec>               CDF_Rhs1
 typedef RHS1D<T, MW_RhsIntegral1D, MW_Prec>                             MW_Rhs1D;
 typedef RHS1D<T, SparseMW_RhsIntegral1D, SparseMW_Prec>                 SparseMW_Rhs1D;
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SingularPart(const CDF_Basis1D &basis, const DenseVectorT &_f_singularPoints,
                               int J_plus);
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const CDF_Basis1D &basis, T a, T b, int J_plus);
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SingularPart_WO_XBSpline(const CDF_Basis1D &basis,
                                           const DenseVectorT &_f_singularPoints,
                                           int J_plus, int J_minus);
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart_WO_XBSpline(const CDF_Basis1D &basis, T a, T b, int J_plus,
                                         int J_minus);
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SingularPart(const MW_Basis1D &basis,
-                              const DenseVector<Array<T> > &_f_singularPoints, int J_plus);
+                              const DenseVectorT &_f_singularPoints, int J_plus);
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const MW_Basis1D &basis, T a, T b, int J_plus);
 
-template<typename T>
 IndexSet<Index1D>
 computeRHSLambda_SingularPart(const SparseMW_Basis1D &basis, const DenseVectorT &_f_singularPoints,
                               int J_plus);
 
-template<typename T>
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const SparseMW_Basis1D &basis, T a, T b, int J_plus);
 
 int main (int argc, char *argv[]) {
 
     if (argc!=6) {
-        cout << "usage " << argv[0] << "basistype d d_ jmin example" << endl; exit(1);
+        cout << "usage " << argv[0] << " basistype d d_ jmin example" << endl; exit(1);
     }
     cout.precision(20);
 
@@ -163,9 +155,9 @@ int main (int argc, char *argv[]) {
             CDF_Rhs_Ref             CDF_F_Ref(CDF_rhsintegral1d,CDF_prec);
 
             IndexSet<Index1D> Lambda, Lambda_singular, Lambda_smooth;
-            Lambda_singular =  computeRHSLambda_SingularPart<T>
+            Lambda_singular =  computeRHSLambda_SingularPart
                                 (CDF_basis,refsol.sing_pts, J_plus_singular);
-            Lambda_smooth   =  computeRHSLambda_SmoothPart<T>
+            Lambda_smooth   =  computeRHSLambda_SmoothPart
                                 (CDF_basis, left_bound, right_bound, J_plus_smooth);
             Lambda = Lambda_smooth + Lambda_singular;
 
@@ -218,9 +210,9 @@ int main (int argc, char *argv[]) {
                                                                    CDF_prec);
 
             IndexSet<Index1D> Lambda, Lambda_singular, Lambda_smooth;
-            Lambda_singular =  computeRHSLambda_SingularPart_WO_XBSpline<T>
+            Lambda_singular =  computeRHSLambda_SingularPart_WO_XBSpline
                                 (CDF_basis,refsol.sing_pts, J_plus_singular, J_minus_singular);
-            Lambda_smooth   =  computeRHSLambda_SmoothPart_WO_XBSpline<T>
+            Lambda_smooth   =  computeRHSLambda_SmoothPart_WO_XBSpline
                                 (CDF_basis, left_bound, right_bound, J_plus_smooth, J_minus_smooth);
             Lambda = Lambda_smooth + Lambda_singular;
 
@@ -267,16 +259,15 @@ int main (int argc, char *argv[]) {
                                            J_plus_smooth, J_plus_singular, singular_integral);
 
         IndexSet<Index1D> Lambda, Lambda_singular, Lambda_smooth;
-        Lambda_singular =  computeRHSLambda_SingularPart<T>
+        Lambda_singular =  computeRHSLambda_SingularPart
                             (MW_basis,refsol.sing_pts, J_plus_singular);
-        Lambda_smooth   =  computeRHSLambda_SmoothPart<T>
+        Lambda_smooth   =  computeRHSLambda_SmoothPart
                             (MW_basis, left_bound, right_bound, J_plus_smooth);
         Lambda = Lambda_smooth + Lambda_singular;
 
         cout << "MW: #Lambda = " << Lambda.size() << endl;
 
         f = MW_F_Ref(Lambda);
-
 
         ofstream rhsfile(rhsfilename.str().c_str());
         rhsfile << f.norm(2.) << endl;
@@ -335,9 +326,9 @@ int main (int argc, char *argv[]) {
                                            J_plus_smooth, J_plus_singular, singular_integral);
 
         IndexSet<Index1D> Lambda, Lambda_singular, Lambda_smooth;
-        Lambda_singular =  computeRHSLambda_SingularPart<T>
+        Lambda_singular =  computeRHSLambda_SingularPart
                             (SparseMW_basis,refsol.sing_pts, J_plus_singular);
-        Lambda_smooth   =  computeRHSLambda_SmoothPart<T>
+        Lambda_smooth   =  computeRHSLambda_SmoothPart
                             (SparseMW_basis, left_bound, right_bound, J_plus_smooth);
         Lambda = Lambda_smooth + Lambda_singular;
 
@@ -395,7 +386,6 @@ int main (int argc, char *argv[]) {
 }
 
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SingularPart(const CDF_Basis1D &basis, const DenseVectorT &_f_singularPoints,
                               int J_plus)
@@ -426,7 +416,6 @@ computeRHSLambda_SingularPart(const CDF_Basis1D &basis, const DenseVectorT &_f_s
     return ret;
 }
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const CDF_Basis1D &basis, T a, T b, int J_plus)
 {
@@ -451,7 +440,6 @@ computeRHSLambda_SmoothPart(const CDF_Basis1D &basis, T a, T b, int J_plus)
 }
 
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SingularPart_WO_XBSpline(const CDF_Basis1D &basis,
                                           const DenseVectorT &_f_singularPoints,
@@ -479,7 +467,6 @@ computeRHSLambda_SingularPart_WO_XBSpline(const CDF_Basis1D &basis,
     return ret;
 }
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart_WO_XBSpline(const CDF_Basis1D &basis, T a, T b, int J_plus, int J_minus)
 {
@@ -503,7 +490,6 @@ computeRHSLambda_SmoothPart_WO_XBSpline(const CDF_Basis1D &basis, T a, T b, int 
 }
 
 
-template<typename T>
 IndexSet<Index1D>
 computeRHSLambda_SingularPart(const SparseMW_Basis1D &basis, const DenseVectorT &_f_singularPoints,
                               int J_plus)
@@ -546,7 +532,6 @@ computeRHSLambda_SingularPart(const SparseMW_Basis1D &basis, const DenseVectorT 
     return ret;
 }
 
-template<typename T>
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const SparseMW_Basis1D &basis, T a, T b, int J_plus)
 {
@@ -583,7 +568,6 @@ computeRHSLambda_SmoothPart(const SparseMW_Basis1D &basis, T a, T b, int J_plus)
 }
 
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SingularPart(const MW_Basis1D &basis, const DenseVector<Array<T> > &_f_singularPoints,
                               int J_plus)
@@ -624,7 +608,6 @@ computeRHSLambda_SingularPart(const MW_Basis1D &basis, const DenseVector<Array<T
     return ret;
 }
 
-template <typename T>
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const MW_Basis1D &basis, T a, T b, int J_plus)
 {

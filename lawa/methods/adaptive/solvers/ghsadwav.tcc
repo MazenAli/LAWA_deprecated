@@ -177,8 +177,10 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     unsigned long N = Lambda.size();
     //std::cerr << "    Assembling of B started with N=" << N << std::endl;
 
+    bool useLinearIndex=true;
+
     flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
-    A.toFlensSparseMatrix(Lambda,Lambda,B,J,true);
+    A.toFlensSparseMatrix(Lambda,Lambda,B,J,useLinearIndex);
 
 /*
     A.extendFlensSparseMatrix(supp(w),Extension,sparseMat_A);
@@ -195,13 +197,24 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     r0 = g - P(APPLY_Aw, Lambda);
 
     DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
-    int row_count=1;
-    const_coeff_it r0_end = r0.end();
-    for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-        const_coeff_it it = r0.find(*row);
 
-        if (it != r0_end) rhs((*row).linearindex) = (*it).second;
-        else              rhs((*row).linearindex) = 0.;
+    const_coeff_it r0_end = r0.end();
+    //const_coeff_it r0_end = g.end();
+    if (!useLinearIndex) {
+        int row_count=1;
+        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
+            const_coeff_it it = g.find(*row);
+            if (it != r0_end) rhs(row_count) = (*it).second;
+            else              rhs(row_count) = 0.;
+            ++row_count;
+        }
+    }
+    else {
+        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
+            const_coeff_it it = g.find(*row);
+            if (it != r0_end) rhs((*row).linearindex) = (*it).second;
+            else              rhs((*row).linearindex) = 0.;
+        }
     }
 
     int iters = lawa::cg(B,x,rhs,tol/3.);
@@ -215,12 +228,23 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
 
     const_coeff_it w_end = w.end();
 
-    for (const_coeff_it it=w.begin(); it!=w.end(); ++it) {
-        ret[(*it).first] = (*it).second + x((*it).first.linearindex);
+    if (!useLinearIndex) {
+        int row_count=1;
+        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
+            ret[(*row)] = x(row_count);
+            ++row_count;
+        }
     }
-    for (const_set_it row=Extension.begin(); row!=Extension.end(); ++row) {
-        ret[*row] = x((*row).linearindex);
+    else {
+        for (const_coeff_it it=w.begin(); it!=w.end(); ++it) {
+            //ret[(*it).first] = (*it).second + x((*it).first.linearindex);
+            ret[(*it).first] = x((*it).first.linearindex);
+        }
+        for (const_set_it row=Extension.begin(); row!=Extension.end(); ++row) {
+            ret[*row] = x((*row).linearindex);
+        }
     }
+
 
 
     return ret;

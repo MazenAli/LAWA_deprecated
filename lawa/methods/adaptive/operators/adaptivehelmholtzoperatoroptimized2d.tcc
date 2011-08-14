@@ -175,7 +175,6 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     std::cerr << "  -> toFlensSparseMatrix called with J= " << J << std::endl;
     IndexSet<Index1D> LambdaRow_x, LambdaRow_y;
     split(LambdaRow, LambdaRow_x, LambdaRow_y);
-
     std::map<Index1D,IndexSet<Index1D>,lt<Lexicographical,Index1D> > sparsitypatterns_x,
                                                                      sparsitypatterns_y;
 
@@ -334,6 +333,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
         int maxlevel_x, maxlevel_y;
 
         J==-1000 ? maxlevel_x=col_index_x.j+(k-s)+1 : maxlevel_x=J;
+        maxlevel_x =36;
+        maxlevel_y =36;
         Lambda_x=lambdaTilde1d_PDE(col_index_x, basis.first, (k-s), basis.first.j0,
                                    maxlevel_x,false);
 
@@ -414,8 +415,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
         if (R_k<=eps) {
             std::cout << "   findK ==> k = " << k << " for eps =  " << eps << std::endl;
             int maxlevel=22;
-            if (d==2)         {    maxlevel=25; }
-            else if (d==3)    {   maxlevel=19; }    //for non-singular examples, also lower values are possible
+            if (d==2)         {    maxlevel=28; }
+            else if (d==3)    {   maxlevel=28; }    //for non-singular examples, also lower values are possible
             return std::min(std::max(k,1),maxlevel);
         }
     }

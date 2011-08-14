@@ -161,6 +161,39 @@ int main (int argc, char *argv[]) {
                                                          3, 1e-2,1000000);
             MW_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
 
+            stringstream rhsfilename;
+            rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+                        << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
+
+            Coefficients<Lexicographical,T,Index2D> f;
+            IndexSet<Index2D> Lambda;
+            Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
+
+            f = MW_F(Lambda);
+            Coefficients<AbsoluteValue,T,Index2D> f_abs;
+            f_abs = f;
+            cout << f.norm(2.) << " " << f_abs.norm(2.) << endl;
+
+            ofstream rhsfile(rhsfilename.str().c_str());
+            rhsfile << f.norm(2.) << endl;
+            for (int k=0; k<=30; ++k) {
+                T eta=pow(2.,(T)-k);
+                f = MW_F(eta);
+                cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
+
+                IndexSet<Index2D> supp_f;
+                supp_f = supp(f);
+                rhsfile << "#," << eta << endl;
+                for (const_set2d_it it=supp_f.begin(); it!=supp_f.end(); ++it) {
+                    if (Lambda.count(*it)>0) {
+                        Lambda.erase(*it);
+                        rhsfile << *it << endl;
+                    }
+                }
+                rhsfile << endl;
+            }
+            rhsfile.close();
+
             stringstream plot_filename;
             plot_filename << "s-adwav-realline-helmholtz2d-plot_" << example << "_" << d << "_" << d_
                           << "_" << j0_x << "_" << j0_y;

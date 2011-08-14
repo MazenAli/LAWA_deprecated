@@ -270,13 +270,13 @@ Coefficients<Lexicographical,T,Index1D>
 AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<Lexicographical,T,Index1D> &v,
                                                    T eps)
 {
-    Coefficients<Lexicographical,T,Index1D> ret, ret2, diff;
+    Coefficients<Lexicographical,T,Index1D> ret;
     if (v.size()==0) return ret;
 
     Coefficients<AbsoluteValue,T,Index1D> v_abs;
     v_abs = v;
     int k = this->findK(v_abs, eps);
-    ret2 = this->apply(v, k);
+    ret = this->apply(v, k);
     return ret;
 
     //std::cerr << "APPLY called for eps = " << eps << std::endl;
