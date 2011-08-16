@@ -50,7 +50,7 @@ public:
   repr_solve_totalRes(RHS_ResRepr& res_repr_op);
 
   IndexSet<Index>& trialbasis_set;
-  IndexSet<Index>& testbasis_set
+  IndexSet<Index>& testbasis_set;
   
   //std::vector<DenseVectorT> F_operator_vectors;
   

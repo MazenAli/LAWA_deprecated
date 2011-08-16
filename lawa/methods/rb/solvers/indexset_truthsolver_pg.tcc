@@ -3,13 +3,12 @@ namespace lawa {
 template <typename T, typename TrialBasis, typename Index, typename Compression, typename TestBasis>
 IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::
 IndexsetTruthSolver_PG(IndexSet<Index>& _indexset_trial, IndexSet<Index>& _indexset_test, Truth& _truth, SolverCall solmethod, T _tol, int maxIts)
-  : trialbasis_set(_indexset_trial), testbasis_set(_indexset_test) truth_model(&_truth), solution_method(solmethod), tol(_tol), maxIterations(maxIts)
+  : trialbasis_set(_indexset_trial), testbasis_set(_indexset_test), truth_model(&_truth), solution_method(solmethod), tol(_tol), maxIterations(maxIts)
 {}
 
 template <typename T, typename TrialBasis, typename Index, typename Compression, typename TestBasis>
 void 
-IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>
-::set_model(AdaptiveRBTruth2D<T, TrialBasis, IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>, Compression,TrialBasis >& _truth_model){
+IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::set_model(AdaptiveRBTruth2D<T, TrialBasis, IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>, Compression, TestBasis>& _truth_model){
     truth_model = &_truth_model;
 }
 
@@ -58,7 +57,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::truth_solv
       std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
       break;
     case call_cgls: 
-      if(testbasis_set.size() < trialbasis_set.siz()){
+      if(testbasis_set.size() < trialbasis_set.size()){
         std::cerr << "Dimensions of TestBasis smaller than that of TrialBasis -> Cannot apply CGLS! " << std::endl;
         exit(1);
       }
@@ -134,8 +133,8 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
       std::cout << "    Build Dense Vectors ..." << std::endl;
       
       timer2.start();
-      int numRows = testbasis_set.size();
-      int numCols = testbasis_set.size();
+      int numRows = (int)testbasis_set.size();
+      int numCols = (int)testbasis_set.size();
       DenseVector<Array<T> > rhs(numRows), x(numCols), res(numRows), Ax(numRows);
       int row_count=1;
       
@@ -214,7 +213,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
     std::cout << "  Build Rhs... " <<  std::endl;
     timer2.start();
-    for(it = basis_set.begin(); it != basis_set.end(); ++it){
+    for(it = testbasis_set.begin(); it != testbasis_set.end(); ++it){
       f.insert(val_type((*it), truth_model->repr_rhs_A_op(*it)));
     }
     timer2.stop();
@@ -225,11 +224,11 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
     switch(solution_method){
       case call_cg:
         std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = CG_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
         std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
         break;
       case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = GMRES_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
         std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
         break;
       default: 
@@ -242,7 +241,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
     
     std::cout << "  Using inner product matrix!" << std::endl;
-    if (basis_set.size() > 0) {
+    if (testbasis_set.size() > 0) {
       
       timer1.start();
       
@@ -252,11 +251,11 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
       std::cout << "    Build Dense Vectors ..." << std::endl;
       
       timer2.start();
-      int N = basis_set.size();
+      int N = (int)testbasis_set.size();
       DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
       
-      for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
+      for (const_set_it row = testbasis_set.begin(); row != testbasis_set.end(); ++row, ++row_count) {
         rhs(row_count) = truth_model->repr_rhs_A_op((*row));
         x(row_count) = 0.;  
       }
@@ -273,7 +272,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+          for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
               u[*row] = x(row_count);
           }
           std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
@@ -285,7 +284,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+          for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
               u[*row] = x(row_count);
           }
           std::cout << "  GMRES iterations: " << its << ", residual = " << residual << std::endl;          
@@ -322,7 +321,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
     std::cout << "  Build Rhs... " <<  std::endl;
     timer2.start();
-    for(it = basis_set.begin(); it != basis_set.end(); ++it){
+    for(it = testbasis_set.begin(); it != testbasis_set.end(); ++it){
       f.insert(val_type((*it), res_repr_op(*it)));
     }
     timer2.stop();
@@ -333,11 +332,11 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
     switch(solution_method){
       case call_cg:
         std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = CG_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
         std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
         break;
       case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = GMRES_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
         std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
         break;
       default: 
@@ -350,7 +349,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
     
     std::cout << "  Using inner product matrix!" << std::endl;
-    if (basis_set.size() > 0) {
+    if (testbasis_set.size() > 0) {
       
       timer1.start();
       
@@ -360,11 +359,11 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
       std::cout << "    Build Dense Vectors ..." << std::endl;
       
       timer2.start();
-      int N = basis_set.size();
+      int N = testbasis_set.size();
       DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
       
-      for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
+      for (const_set_it row = testbasis_set.begin(); row != testbasis_set.end(); ++row, ++row_count) {
         rhs(row_count) = res_repr_op((*row));
         x(row_count) = 0.;  
       }
@@ -381,7 +380,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+          for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
               u[*row] = x(row_count);
           }
           std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
@@ -393,7 +392,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+          for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
               u[*row] = x(row_count);
           }
           std::cout << "  GMRES iterations: " << its << ", residual = " << residual << std::endl;          
