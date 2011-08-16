@@ -287,8 +287,8 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
         typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
         typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
-        int NumOfRows = LambdaRow.size();
-        int NumOfCols = LambdaCol.size();
+        int NumOfRows = (int)LambdaRow.size();
+        int NumOfCols = (int)LambdaCol.size();
         flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
         toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
 
@@ -386,8 +386,8 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
         typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
         typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
-        int NumOfRows = LambdaRow.size();
-        int NumOfCols = LambdaCol.size();
+        int NumOfRows = (int)LambdaRow.size();
+        int NumOfCols = (int)LambdaCol.size();
         flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
         toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
 
