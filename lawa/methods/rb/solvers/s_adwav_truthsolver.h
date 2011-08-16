@@ -44,6 +44,9 @@ class S_ADWAV_TruthSolver {
         Coefficients<Lexicographical,T,Index>
         repr_solve_A();       
         
+        Coefficients<Lexicographical,T,Index>
+        repr_solve_output();
+
         void 
         set_model(Truth& _truth_model); 
         
@@ -77,6 +80,9 @@ class S_ADWAV_TruthSolver {
         
         void
         reset_repr_s_adwav_A();
+
+        void
+        reset_repr_s_adwav_output();
             
     /* Private members */
         
@@ -85,6 +91,7 @@ class S_ADWAV_TruthSolver {
         S_ADWAV<T, Index, Basis, LHS, RHS>                  s_adwav;
         S_ADWAV<T, Index, Basis, MatrixOp, RHS_FctRepr>     repr_s_adwav_F;
         S_ADWAV<T, Index, Basis, MatrixOp, RHS_BilFormRepr> repr_s_adwav_A;
+        S_ADWAV<T, Index, Basis, MatrixOp, RHS_FctRepr>     repr_s_adwav_output;
         
         // internal solution method used in s_adwav (cg/gmres/...)
         SolverCall solution_method;

@@ -5,7 +5,7 @@ namespace  lawa {
 template <typename T, typename Basis, typename TruthSolver, typename Compression>
 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>::AdaptiveRBTruth2D(Basis& _basis, bool _use_inner_product, 
                       bool _use_A_matrix, bool _use_F_vector)
-    : basis(_basis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
+    : basis(_basis), lhs_op(this), rhs_op(this),output_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       repr_rhs_output_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
       use_F_operator_vectors(_use_F_vector)

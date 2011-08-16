@@ -9,6 +9,7 @@
 #include <iostream>
 #include <lawa/lawa.h>
 #include <lawa/methods/rb/postprocessing/plotting.h>
+#include <lawa/methods/rb/outputs/averageoutput.h>
 
 using namespace std;
 using namespace lawa;
@@ -26,6 +27,7 @@ typedef H1NormPreconditioner2D<T, Basis2D>                                DiagPr
 typedef WeightedAdaptiveHelmholtzOperator2D<T, Basis2D, DiagPrec2D>        WeightedAdaptHHOp2D;
 typedef AdaptiveHelmholtzOperator2D<T, Basis2D, DiagPrec2D>                AdaptHHOp2D;
 typedef RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, DiagPrec2D>             AdaptRHS;
+typedef AverageOutput2D<T, Index2D, Basis2D>								Output;
 
 // Algorithm Definition
     // Class for calling the truth solver for snapshot calculations
@@ -42,7 +44,7 @@ typedef flens::DenseVector<flens::Array<T> >                          DenseVecto
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    FullColMatrixT;
 
 
-/* Example: Thermal block
+/* Example: Thermal block mit Testfeld
  *
  *          - theta * u_xx = f on (0,1)^2
  *         u(x,0) = u(x,1) = 0
@@ -50,6 +52,7 @@ typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    FullColMat
  *        Here: theta = theta_1 on (0, 0.5) x (0,1)
  *              theta = theta_2 on (0,5, 1) x (0,1)
  *                  f = 1       on (0.4, 0.6) x (0.45, 0.55)
+ *                  omega_test = (0.7,0.7) x (0.8,0.8)
  */
 
 T
@@ -171,6 +174,7 @@ int main(int argc, char* argv[]) {
     FullColMatrixT noDeltas;
     SeparableRHS2D<T, Basis2D> forcingIntegral(basis2d, forcingFct, noDeltas, noDeltas, 4);
     AdaptRHS F(forcingIntegral, prec);
+    Output AverageOutput(basis2d, 0.7,0.7,0.8,0.8);
 
     rb_model.truth->attach_F_q(theta_f_1, F);
 

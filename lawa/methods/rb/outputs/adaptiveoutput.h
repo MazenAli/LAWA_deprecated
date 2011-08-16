@@ -11,7 +11,7 @@ struct AdaptiveOutput : public AdaptiveRhs<T, Index> {
     virtual T
     operator()(const Coefficients<Lexicographical, T, Index>& coeffs_u) = 0;
     
-}
+};
     
 } // namespace lawa
 
