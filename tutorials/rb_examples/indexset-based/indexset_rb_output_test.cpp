@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
     FullColMatrixT noDeltas;
     SeparableRHS2D<T, Basis2D> forcingIntegral(basis2d, forcingFct, noDeltas, noDeltas, 4);
     AdaptRHS F(forcingIntegral, prec);
-    Output AverageOutput(basis2d, 0.7,0.7,0.8,0.8);
+    Output AverageOutput(basis2d, 0.7,0.7,0.8,0.8, F);
 
     rb_model.truth->attach_F_q(theta_f_1, F);
 

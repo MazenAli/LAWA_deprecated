@@ -11,10 +11,12 @@ class AverageOutput2D : public AdaptiveOutput<T, Index2D> {
 
 public:
 
-    AverageOutput2D(Basis2D _basis, T xmin, T xmax, T ymin, T ymax);
+    AverageOutput2D(Basis2D _basis, T xmin, T xmax, T ymin, T ymax,
+    		RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, H1NormPreconditioner2D<T, Basis2D> > _rhs);
     
     T
-    operator()(const Coefficients<Lexicographical, T, Index2D>& coeffs_u);
+    operator()(const Coefficients<Lexicographical, T, Index2D>& coeffs_u,
+    		const Coefficients<Lexicographical, T, Index2D>& basis_functions);
     
     T
     operator()(const Index2D &lambda);
@@ -25,13 +27,13 @@ public:
     Coefficients<Lexicographical,T,Index2D>
     operator()(T tol);
 
-    T
+/*    T
     calculate_average_output(const Coefficients<Lexicographical, T, Index2D>& coeffs_u,
-    		const Coefficients<Lexicographical, T, Index2D>& basis_functions);
+    		const Coefficients<Lexicographical, T, Index2D>& basis_functions);*/
 
 private:
 
-	RHS<T, Index2D, SeparableRHS2D<T, Basis2D>, H1NormPreconditioner2D<T, Basis2D>>  rhs;
+	RHS<T, Index2D, SeparableRHS2D<T, Basis2D>, H1NormPreconditioner2D<T, Basis2D> >  rhs;
 	T x_min, x_max, y_min, y_max;
 	Basis2D basis;
 
