@@ -314,7 +314,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::assemble_
   Timer timer;
   std::cout << "Assemble A Matrices ...." << std::endl;
   unsigned int Q_a = get_rb_model().Q_a();
-  int N = indexset.size();
+  int N = (int)indexset.size();
   
   timer.start();
   for(unsigned int qa = 1; qa <= Q_a; ++qa){

@@ -59,6 +59,9 @@ cg(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     return maxIterations;
 }
 
+// Algorithm 8.4, Y. Saad: Iterative Methods for Sparse Linear Systems
+// for solving A^T A x= A^T b
+// (for over-determined systems)
 template <typename MA, typename VX, typename VB>
 int
 cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,

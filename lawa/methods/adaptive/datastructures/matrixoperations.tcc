@@ -380,7 +380,7 @@ template <typename T, typename Index, typename MA>
 int
 CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
            MA &A, Coefficients<Lexicographical,T,Index > &u,
-           const Coefficients<Lexicographical,T,Index > &f, T &/*res*/, T tol, int maxIterations)
+           const Coefficients<Lexicographical,T,Index > &f, T &r, T tol, int maxIterations)
 {
         typedef typename IndexSet<Index >::const_iterator const_set_it;
         typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -406,7 +406,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
             std::cout << "... finished" << std::endl;
             Ax = A_flens*x;
             res= Ax-rhs;
-            res = std::sqrt(res*res);
+            r= std::sqrt(res*res);
             int col_count = 1;
             for (const_set_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
                 u[*col] = x(col_count);

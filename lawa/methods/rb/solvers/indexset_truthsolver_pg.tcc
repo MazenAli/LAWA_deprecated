@@ -107,6 +107,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
         std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
         break;
       case call_gmres:
+        std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
         its = GMRES_Solve_PG(testbasis_set, testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
         std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
         break;
@@ -181,7 +182,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
           for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
              u[*row] = x(row_count);
           }
-          std::cout << "  CGLS iterations: " << its << ", residual = " << res << std::endl;
+          std::cout << "  CGLS iterations: " << its << ", residual = " << residual << std::endl;
           break;
         default: 
           std::cerr << "Method not implemented yet " << std::endl;
@@ -228,8 +229,14 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
         std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
         break;
       case call_gmres:
+        std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
         its = GMRES_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
         std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
+        break;
+      case call_cgls:
+        std::cout << "  Start CGLS Solve: Maximal iterations = " << maxIterations << std::endl; 
+        its = CGLS_Solve(testbasis_set, testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        std::cout << "  CGLS iterations: " << its << ", residual = " << res << std::endl;
         break;
       default: 
         std::cerr << "Method not implemented yet " << std::endl;
@@ -288,6 +295,18 @@ IndexsetTruthSolver_PG<T, TrialBasis, Index, Compression, TestBasis>::repr_solve
               u[*row] = x(row_count);
           }
           std::cout << "  GMRES iterations: " << its << ", residual = " << residual << std::endl;          
+          break;
+        case call_cgls:
+          std::cout << "  Start CGLS Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::cgls(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
+          res= Ax-rhs;
+          residual = std::sqrt(res*res);
+          row_count = 1;
+          for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
+              u[*row] = x(row_count);
+          }
+          std::cout << "  CGLS iterations: " << its << ", residual = " << res << std::endl;
           break;
         default: 
           std::cerr << "Method not implemented yet " << std::endl;
