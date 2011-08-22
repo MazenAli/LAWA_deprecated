@@ -52,14 +52,12 @@ class AdaptiveRBTruth2D{
 
     /* Public member functions */
         
-        AdaptiveRBTruth2D(TrialBasis& _trialbasis, bool _use_inner_product = false, bool _use_A_matrix = false,
-                          bool _use_F_vector = false);
+        AdaptiveRBTruth2D(TrialBasis& _trialbasis, bool _use_inner_product = false, bool _use_A_matrix = false, bool _use_F_vector = false);
                           
-        AdaptiveRBTruth2D(TrialBasis& _trialbasis, TestBasis& _testbasis, bool _use_inner_product = false, bool _use_A_matrix = false,
-                          bool _use_F_vector = false);
+        AdaptiveRBTruth2D(TrialBasis& _trialbasis, TestBasis& _testbasis, bool _use_inner_product = false, bool _use_A_matrix = false, bool _use_F_vector = false);
         
-        void
-        attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
+        void 
+        attach_A_q (theta_fctptr theta_a_q, Operator2D<T>& A_q);
         
         void
         attach_A_q(Operator2D<T>& A_q);
@@ -69,6 +67,9 @@ class AdaptiveRBTruth2D{
         
         void
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
+            
+        void 
+        attach_inner_product_op(Operator2D<T>& _inner_product_op);
         
         void
         set_truthsolver(TruthSolver& _truthsolver);
@@ -76,9 +77,11 @@ class AdaptiveRBTruth2D{
         void
         set_rb_model(RBModel2D<T, AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis> >& _rb);
         
-        
         RBModel2D<T, AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis> >&
         get_rb_model();
+        
+        void
+        add_new_basis_function(const CoeffVector& sol);
         
         void
         update_representors();
@@ -95,15 +98,24 @@ class AdaptiveRBTruth2D{
         void
         assemble_A_operator_matrices(IndexSet<Index2D>& indexset);
         
+        // Computes the inner product a(v,u) w.r.t. the operator a = inner_product_op
+        T
+        inner_product(const CoeffVector& v1, const CoeffVector& v2);
+        
+        
     /* Public members */
         
-        TrialBasis&                                  trialbasis;
-        TestBasis&                                  testbasis;
+        TrialBasis&                             trialbasis;
+        TestBasis&                              testbasis;
         
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
+        Operator2D<T>*                          inner_product_op;
         
         TruthSolver*                            solver;
+        
+        bool assembled_inner_product_matrix;
+
                 
          // Wrapper class for affine structure on left hand side       
         class Operator_LHS {

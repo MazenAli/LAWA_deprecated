@@ -135,13 +135,12 @@ int main(int argc, char* argv[]) {
     /* Model Initialization */
     RBModel rb_model;
     
-        // Attach an inner product (here: scalar product in L2)
-    AdaptHHOp2D h1norm(basis2d, 0., prec);
-    rb_model.attach_inner_product_op(h1norm);
-    
         // We need a truth model, as we want to do truth solves
     RBTruth rb_truth(basis2d);
     rb_model.set_truthmodel(rb_truth);
+    // Attach an inner product (here: scalar product in L2)
+    AdaptHHOp2D h1norm(basis2d, 0., prec);
+    rb_truth.attach_inner_product_op(h1norm);
     
         // Parameter vector
     std::vector<T> mu(1);

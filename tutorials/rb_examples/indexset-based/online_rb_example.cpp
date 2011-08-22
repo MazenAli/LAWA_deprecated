@@ -105,10 +105,6 @@ int main(int argc, char* argv[]) {
     /* Model Initialization */
     RBModel rb_model;
     
-        // Attach an inner product (here: H1 norm)
-    AdaptHHOp2D h1norm(basis2d, 1., prec, 1e-10);
-    rb_model.attach_inner_product_op(h1norm);
-    
         // Parameter vector
     std::vector<T> refmu(1);
     refmu[0] = 1.;

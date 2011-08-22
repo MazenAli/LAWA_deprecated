@@ -132,15 +132,15 @@ int main(int argc, char* argv[]) {
     /* Model Initialization */
     RBModel rb_model;
     
-        // Attach an inner product (here: H1 norm)
-    AdaptHHOp2D h1norm(basis2d, 1., prec, 1e-10);
-    rb_model.attach_inner_product_op(h1norm);
-    
         // We need a truth model, as we want to do truth solves
     bool use_inner_product_matrix = true;
     bool use_A_operator_matrices = true;
     RBTruth rb_truth(basis2d, use_inner_product_matrix, use_A_operator_matrices);
     rb_model.set_truthmodel(rb_truth);
+    
+        // Attach an inner product (here: H1 norm)
+    AdaptHHOp2D h1norm(basis2d, 1., prec, 1e-10);
+    rb_truth.attach_inner_product_op(h1norm);
     
         // Parameter vector
     std::vector<T> refmu(1);
@@ -239,7 +239,7 @@ int main(int argc, char* argv[]) {
         
         Coeffs u_approx = rb_model.reconstruct_u_N(u_N, n);
         Coeffs coeff_diff = u - u_approx;
-        T err_norm = rb_model.inner_product(coeff_diff, coeff_diff);
+        T err_norm = rb_model.truth->inner_product(coeff_diff, coeff_diff);
 
         cout << "   N = " << n << ": " << err_norm << " " << error_bound << endl; 
         

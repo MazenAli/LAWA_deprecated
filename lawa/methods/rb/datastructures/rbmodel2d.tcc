@@ -9,7 +9,7 @@ namespace  lawa {
 
 template <typename T, typename TruthModel>
 RBModel2D<T, TruthModel>::RBModel2D()
- : assembled_inner_product_matrix(false), assembled_A_operator_matrices(false)
+ : assembled_A_operator_matrices(false)
 {
 }
 
@@ -64,13 +64,6 @@ RBModel2D<T, TruthModel>::attach_theta_f_q(theta_fctptr theta_f_q)
 
 template <typename T, typename TruthModel>
 void
-RBModel2D<T, TruthModel>::attach_inner_product_op(Operator2D<T>& _inner_product_op)
-{
-  inner_product_op = &_inner_product_op;
-}
-
-template <typename T, typename TruthModel>
-void
 RBModel2D<T, TruthModel>::set_truthmodel(TruthModel& _truthmodel)
 {
   truth = &_truthmodel;
@@ -83,17 +76,11 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
 {
     std::cout << "Adding basis function .... " << std::endl;
     
-    CoeffVector new_bf = sol;
     Timer timer;
     
     std::cout << "  Gram-Schmidt...  " << std::endl;
-    typename std::vector<CoeffVector>::iterator it;
     timer.start();
-    for (it = rb_basis_functions.begin(); it != rb_basis_functions.end(); ++it) {
-        new_bf = new_bf - (*it) * inner_product((*it), sol); 
-    }
-    new_bf.scale(1./std::sqrt(inner_product(new_bf, new_bf)));
-    rb_basis_functions.push_back(new_bf);
+    truth->add_new_basis_function(sol);
     timer.stop();
     std::cout << "  ... done: " << timer.elapsed() << " seconds" << std::endl << std::endl;
     
@@ -758,51 +745,11 @@ RBModel2D<T, TruthSolver>::update_RB_inner_product()
     }
     
     for (unsigned int i = 1; i <= n_bf(); ++i) {
-      RB_inner_product(n_bf(), i) = inner_product(rb_basis_functions[n_bf()-1], rb_basis_functions[i-1]);
+      RB_inner_product(n_bf(), i) = truth->inner_product(rb_basis_functions[n_bf()-1], rb_basis_functions[i-1]);
       if (i != n_bf()) {
         RB_inner_product(i, n_bf()) = RB_inner_product(n_bf(),i);
       }      
     }
-}
-
-template <typename T, typename TruthModel>
-T
-RBModel2D<T, TruthModel>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
-{
-  T val = 0;
-  
-  if(assembled_inner_product_matrix){
-      // Assumption here: both vectors and the matrix have the same indexset
-      
-    assert(v1.size() == v2.size());
-    typename CoeffVector::const_iterator it1, it2;
-    
-    // Build dense vectors
-    DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
-    int index_count = 1;
-    for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
-      v1_dense(index_count) = (*it1).second;
-      v2_dense(index_count) = (*it2).second;
-      
-    }
-    
-    DenseVectorT I_v2 = truth->inner_product_matrix * v2_dense;
-    val = v1_dense * I_v2;
-  }
-  else{
-    typename CoeffVector::const_iterator it1, it2;
-    for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
-        for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
-            val += (*it1).second * (*inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
-        }
-    }
-    
-    /*    CoeffVector Xv = mv_sparse(supp(v2), *inner_product_op, v2);
-        T vXv = v1 * Xv;
-        return vXv;
-    */
-  }
-  return val;   
 }
 
 template <typename T, typename TruthModel>
