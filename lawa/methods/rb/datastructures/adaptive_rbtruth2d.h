@@ -67,9 +67,12 @@ class AdaptiveRBTruth2D{
         
         void
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
-            
+    
         void 
         attach_inner_product_op(Operator2D<T>& _inner_product_op);
+        
+        void 
+        attach_inner_product_op(Operator2D<T>& _trial_inner_product_op, Operator2D<T>& _test_inner_product_op);
         
         void
         set_truthsolver(TruthSolver& _truthsolver);
@@ -98,9 +101,11 @@ class AdaptiveRBTruth2D{
         void
         assemble_A_operator_matrices(IndexSet<Index2D>& indexset);
         
-        // Computes the inner product a(v,u) w.r.t. the operator a = inner_product_op
         T
-        inner_product(const CoeffVector& v1, const CoeffVector& v2);
+        trial_inner_product(const CoeffVector& v1, const CoeffVector& v2);
+    
+        T
+        test_inner_product(const CoeffVector& v1, const CoeffVector& v2);
         
         
     /* Public members */
@@ -110,8 +115,9 @@ class AdaptiveRBTruth2D{
         
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
-        Operator2D<T>*                          inner_product_op;
-        
+        Operator2D<T>*                          trial_inner_product_op;
+        Operator2D<T>*                          test_inner_product_op;
+            
         TruthSolver*                            solver;
         
         bool assembled_inner_product_matrix;
@@ -271,6 +277,8 @@ class AdaptiveRBTruth2D{
                                     Coefficients<Lexicographical,T,Index2D>& res_repr);
             
     private:
+        
+        bool galerkin;
         
         RBModel2D<T, AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis> >*     rb;
         

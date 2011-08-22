@@ -8,7 +8,7 @@ AdaptiveRBTruth2D(TrialBasis& _trialbasis, bool _use_inner_product,
                       bool _use_A_matrix, bool _use_F_vector)
     : trialbasis(_trialbasis), testbasis(_trialbasis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
-      assembled_inner_product_matrix(false), use_F_operator_vectors(_use_F_vector)
+      assembled_inner_product_matrix(false), use_F_operator_vectors(_use_F_vector), galerkin(true)
 {}
 
 template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
@@ -17,7 +17,7 @@ AdaptiveRBTruth2D(TrialBasis& _trialbasis, TestBasis& _testbasis, bool _use_inne
                       bool _use_A_matrix, bool _use_F_vector)
     : trialbasis(_trialbasis), testbasis(_testbasis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
-      assembled_inner_product_matrix(false), use_F_operator_vectors(_use_F_vector)
+      assembled_inner_product_matrix(false), use_F_operator_vectors(_use_F_vector), galerkin(false)
 {}
 
 template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
@@ -86,7 +86,18 @@ template <typename T, typename TrialBasis, typename TruthSolver, typename Compre
 void
 AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::attach_inner_product_op(Operator2D<T>& _inner_product_op)
 {
-    inner_product_op = &_inner_product_op;
+    assert(galerkin == true);
+    trial_inner_product_op = &_inner_product_op;
+    test_inner_product_op = &_inner_product_op;
+}
+
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
+void
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::
+attach_inner_product_op(Operator2D<T>& _trial_inner_product_op, Operator2D<T>& _test_inner_product_op)
+{
+    trial_inner_product_op = &_trial_inner_product_op;
+    test_inner_product_op = &_test_inner_product_op;
 }
 
 template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
@@ -129,9 +140,9 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::add_new_b
     typename std::vector<CoeffVector>::iterator it;
     CoeffVector new_bf = sol;
     for (it = rb->rb_basis_functions.begin(); it != rb->rb_basis_functions.end(); ++it) {
-        new_bf = new_bf - (*it) * inner_product((*it), sol); 
+        new_bf = new_bf - (*it) * trial_inner_product((*it), sol); 
     }
-    new_bf.scale(1./std::sqrt(inner_product(new_bf, new_bf)));
+    new_bf.scale(1./std::sqrt(trial_inner_product(new_bf, new_bf)));
     rb->rb_basis_functions.push_back(new_bf);    
 }
 
@@ -210,7 +221,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::update_re
                //X_F_or_A = mv_sparse(supp(F_representors[qf2-1]),rb->inner_product,F_representors[qf2-1]);
                //F_F_representor_norms(qf1,qf2) = F_representors[qf1-1]*X_F_or_A;
 
-               rb->F_F_representor_norms(qf1,qf2) = inner_product(F_representors[qf1-1], F_representors[qf2-1]);
+               rb->F_F_representor_norms(qf1,qf2) = test_inner_product(F_representors[qf1-1], F_representors[qf2-1]);
 
                if(qf1 != qf2) {
                    rb->F_F_representor_norms(qf2,qf1) = rb->F_F_representor_norms(qf1,qf2);
@@ -234,13 +245,13 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::update_re
         flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_n1_N(Qa, Qa);
         for(int qa1 = 1; qa1 <= Qa; ++qa1) {
           for(int qa2 = qa1; qa2 <= Qa; ++qa2) {                  
-            A_n1_N(qa1, qa2) = inner_product(A_representors[n1][qa1-1], A_representors[N-1][qa2-1]);
+            A_n1_N(qa1, qa2) = test_inner_product(A_representors[n1][qa1-1], A_representors[N-1][qa2-1]);
             if(qa1 != qa2){
               if(n1 == N-1){
                 A_n1_N(qa2, qa1) = A_n1_N(qa1, qa2);
               }
               else{
-                A_n1_N(qa2, qa1) = inner_product(A_representors[n1][qa2-1], A_representors[N-1][qa1-1]);                              
+                A_n1_N(qa2, qa1) = test_inner_product(A_representors[n1][qa2-1], A_representors[N-1][qa1-1]);                              
               }
             }
           }
@@ -266,7 +277,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::update_re
     for(int qa = 1; qa <= Qa; ++qa) {
         for(int qf = 1; qf <= Qf; ++qf) {
            // std::cout << "....A_" << qa <<"(" << n << "), F_" << qf << std::endl;
-            A_F(qa, qf) = inner_product(A_representors[N-1][qa-1], F_representors[qf-1]);    
+            A_F(qa, qf) = test_inner_product(A_representors[N-1][qa-1], F_representors[qf-1]);    
         }
     }
     rb->A_F_representor_norms.push_back(A_F);
@@ -306,7 +317,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::write_rie
 
 template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 T
-AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::trial_inner_product(const CoeffVector& v1, const CoeffVector& v2)
 {
     T val = 0;
     
@@ -332,7 +343,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::inner_pro
         typename CoeffVector::const_iterator it1, it2;
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
-                val += (*it1).second * (*inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
+                val += (*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
             }
         }
         
@@ -340,6 +351,41 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::inner_pro
          T vXv = v1 * Xv;
          return vXv;
          */
+    }
+    return val;   
+}
+
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
+T
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::test_inner_product(const CoeffVector& v1, const CoeffVector& v2)
+{
+    T val = 0;
+    
+    if(use_inner_product_matrix && assembled_inner_product_matrix){
+        // Assumption here: both vectors and the matrix have the same indexset
+        
+        assert(v1.size() == v2.size());
+        typename CoeffVector::const_iterator it1, it2;
+        
+        // Build dense vectors
+        DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
+        int index_count = 1;
+        for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
+            v1_dense(index_count) = (*it1).second;
+            v2_dense(index_count) = (*it2).second;
+            
+        }
+        
+        DenseVectorT I_v2 = inner_product_matrix * v2_dense;
+        val = v1_dense * I_v2;
+    }
+    else{
+        typename CoeffVector::const_iterator it1, it2;
+        for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
+            for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
+                val += (*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
+            }
+        }
     }
     return val;   
 }
@@ -493,7 +539,7 @@ T
 AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::Operator_LHS_Representor::
 operator()(const Index2D &row_index, const Index2D &col_index)
 {
-    return (*thisTruth->inner_product_op)(row_index, col_index);
+    return (*thisTruth->test_inner_product_op)(row_index, col_index);
 }
 
 /* Operator RHS_BilFormRepresentor */

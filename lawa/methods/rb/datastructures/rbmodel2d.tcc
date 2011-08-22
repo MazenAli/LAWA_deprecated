@@ -745,7 +745,7 @@ RBModel2D<T, TruthSolver>::update_RB_inner_product()
     }
     
     for (unsigned int i = 1; i <= n_bf(); ++i) {
-      RB_inner_product(n_bf(), i) = truth->inner_product(rb_basis_functions[n_bf()-1], rb_basis_functions[i-1]);
+      RB_inner_product(n_bf(), i) = truth->trial_inner_product(rb_basis_functions[n_bf()-1], rb_basis_functions[i-1]);
       if (i != n_bf()) {
         RB_inner_product(i, n_bf()) = RB_inner_product(n_bf(),i);
       }      
