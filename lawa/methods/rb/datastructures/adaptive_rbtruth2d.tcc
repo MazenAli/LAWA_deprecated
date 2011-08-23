@@ -420,9 +420,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::assemble_
 template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
 void
 AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::assemble_inner_product_matrix(IndexSet<Index2D>& trial_indexset, IndexSet<Index2D>& test_indexset)
-{
-    assert(galerkin == true);
-    
+{    
     Timer timer;
     std::cout << "Assemble Inner Product Matrices ...." << std::endl;
     
