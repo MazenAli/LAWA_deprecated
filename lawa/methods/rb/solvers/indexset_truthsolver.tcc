@@ -101,6 +101,7 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
     
+    assert(truth_model->assembled_inner_product_matrix);
     std::cout << "    Using inner product matrix!" << std::endl;
     if (basis_set.size() > 0) {
       
@@ -126,8 +127,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
       switch(solution_method){
         case call_cg:
           std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
+          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -138,8 +139,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
           break;
         case call_gmres:
           std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
+          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -205,6 +206,7 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
     
+    assert(truth_model->assembled_inner_product_matrix);
     std::cout << "  Using inner product matrix!" << std::endl;
     if (basis_set.size() > 0) {
       
@@ -232,8 +234,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
       switch(solution_method){
         case call_cg:
           std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
+          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -244,8 +246,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
           break;
         case call_gmres:
           std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
+          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -313,6 +315,7 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_totalRes(RHS_ResRe
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
     
+    assert(truth_model->assembled_inner_product_matrix);
     std::cout << "  Using inner product matrix!" << std::endl;
     if (basis_set.size() > 0) {
       
@@ -340,8 +343,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_totalRes(RHS_ResRe
       switch(solution_method){
         case call_cg:
           std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
+          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -352,8 +355,8 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_totalRes(RHS_ResRe
           break;
         case call_gmres:
           std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
+          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;

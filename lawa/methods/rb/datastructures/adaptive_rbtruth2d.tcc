@@ -336,7 +336,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::trial_inn
             
         }
         
-        DenseVectorT I_v2 = inner_product_matrix * v2_dense;
+        DenseVectorT I_v2 = trial_inner_product_matrix * v2_dense;
         val = v1_dense * I_v2;
     }
     else{
@@ -376,7 +376,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::test_inne
             
         }
         
-        DenseVectorT I_v2 = inner_product_matrix * v2_dense;
+        DenseVectorT I_v2 = test_inner_product_matrix * v2_dense;
         val = v1_dense * I_v2;
     }
     else{
@@ -394,11 +394,14 @@ template <typename T, typename TrialBasis, typename TruthSolver, typename Compre
 void
 AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::assemble_inner_product_matrix(IndexSet<Index2D>& indexset)
 {
+  assert(galerkin == true);
+  
   Timer timer;
   std::cout << "Assemble Inner Product Matrix ...." << std::endl;
-  inner_product_matrix.resize(indexset.size(), indexset.size());
+  
+  trial_inner_product_matrix.resize(indexset.size(), indexset.size());
   timer.start();
-  toFlensSparseMatrix(repr_lhs_op, indexset, indexset, inner_product_matrix);
+  toFlensSparseMatrix(repr_lhs_op, indexset, indexset, trial_inner_product_matrix);
   timer.stop();
   std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
   
@@ -412,6 +415,35 @@ AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::assemble_
   */
   
   assembled_inner_product_matrix = true;
+}
+
+template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>
+void
+AdaptiveRBTruth2D<T, TrialBasis, TruthSolver, Compression, TestBasis>::assemble_inner_product_matrix(IndexSet<Index2D>& trial_indexset, IndexSet<Index2D>& test_indexset)
+{
+    assert(galerkin == true);
+    
+    Timer timer;
+    std::cout << "Assemble Inner Product Matrices ...." << std::endl;
+    
+    trial_inner_product_matrix.resize(trial_indexset.size(), trial_indexset.size());
+    test_inner_product_matrix.resize(test_indexset.size(), test_indexset.size());
+    timer.start();
+    toFlensSparseMatrix(repr_lhs_op, trial_indexset, trial_indexset, trial_inner_product_matrix);
+    toFlensSparseMatrix(repr_lhs_op, test_indexset, test_indexset, test_inner_product_matrix);
+    timer.stop();
+    std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
+    
+    /*
+     //------------------------------
+     int N = indexset.size();
+     FullColMatrixT I_dense(N, N);
+     densify(NoTrans, inner_product_matrix, I_dense);
+     std::cout << "Inner product matrix" << I_dense << std::endl;
+     //------------------------------
+     */
+    
+    assembled_inner_product_matrix = true;
 }
 
 template <typename T, typename TrialBasis, typename TruthSolver, typename Compression, typename TestBasis>

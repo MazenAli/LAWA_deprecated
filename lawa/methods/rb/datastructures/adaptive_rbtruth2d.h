@@ -97,6 +97,9 @@ class AdaptiveRBTruth2D{
         
         void
         assemble_inner_product_matrix(IndexSet<Index2D>& indexset);
+        
+        void
+        assemble_inner_product_matrix(IndexSet<Index2D>& trial_indexset, IndexSet<Index2D>& test_indexset);
 
         void
         assemble_A_operator_matrices(IndexSet<Index2D>& indexset);
@@ -243,7 +246,8 @@ class AdaptiveRBTruth2D{
         bool use_A_operator_matrices;
         bool use_F_operator_vectors;
         
-        SparseMatrixT   inner_product_matrix;
+        SparseMatrixT   trial_inner_product_matrix;
+        SparseMatrixT   test_inner_product_matrix;
         std::vector<SparseMatrixT> A_operator_matrices;
       
         class Operator_Residual_Representor {
