@@ -143,4 +143,5 @@ clear()
     data_laplace_x.clear();
 }
 
+
 } // namespace lawa

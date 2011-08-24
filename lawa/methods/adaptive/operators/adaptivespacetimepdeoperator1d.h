@@ -97,7 +97,6 @@ struct AdaptiveSpaceTimePDEOperator1D : public Operator2D<T> {
     void
     clear();
     
-    
     const Basis2D&      basis;
     const T             diffusion;
     const T             convection;
@@ -112,7 +111,7 @@ struct AdaptiveSpaceTimePDEOperator1D : public Operator2D<T> {
     Coefficients<Lexicographical,T,Index2D> P_right_data;
     
     const LeftPrec2D&   p_left;
-    const RightPrec2D&  p_right; 
+    const RightPrec2D&  p_right;
     NoPreconditioner1D  noprec;
     
     const IdentityOperator_t    op_identity_t;

@@ -111,7 +111,6 @@ struct AdaptiveSpaceTimePDEOperator1D_PG : public Operator2D<T> {
     void
     clear();
     
-    
     const TrialBasis&   trialbasis;
     const TestBasis&    testbasis;
     const T             diffusion;
