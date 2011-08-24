@@ -1,21 +1,21 @@
 namespace lawa {
 
-template <typename T, typename Basis, typename Index, typename Compression>
-IndexsetTruthSolver<T, Basis, Index, Compression>::
+template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::
 IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod, T _tol, int maxIts)
   : basis_set(_indexset), truth_model(&_truth), solution_method(solmethod), tol(_tol), maxIterations(maxIts)
 {}
 
-template <typename T, typename Basis, typename Index, typename Compression>
+template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
 void 
-IndexsetTruthSolver<T, Basis, Index, Compression>
-::set_model(AdaptiveRBTruth2D<T, Basis, IndexsetTruthSolver<T, Basis, Index, Compression>, Compression,Basis >& _truth_model){
+IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>
+::set_model(AdaptiveRBTruth2D<T, Basis, RPrec, LPrec, IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>, Compression, Basis>& _truth_model){
     truth_model = &_truth_model;
 }
 
-template <typename T, typename Basis, typename Index, typename Compression>
+template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, Index, Compression>::truth_solve()
+IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::truth_solve()
 { 
   Coefficients<Lexicographical,T,Index> u, f;
   std::cout << "Start Truth Solve: Call Method " << solution_method << std::endl; 
@@ -58,9 +58,9 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::truth_solve()
   return u;
 }
 
-template <typename T, typename Basis, typename Index, typename Compression>
+template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
+IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_F()
 {
   Coefficients<Lexicographical,T,Index> u, f;
   Timer timer1, timer2;
@@ -162,9 +162,9 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_F()
   return u;
 }
 
-template <typename T, typename Basis, typename Index, typename Compression>
+template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
+IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_A()
 {
   Timer timer1, timer2;
   Coefficients<Lexicographical,T,Index> u;
@@ -271,9 +271,9 @@ IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_A()
 }
 
 
-template <typename T, typename Basis, typename Index, typename Compression>
+template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_totalRes(RHS_ResRepr& res_repr_op)
+IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_totalRes(RHS_ResRepr& res_repr_op)
 {
   Timer timer1, timer2;
   Coefficients<Lexicographical,T,Index> u;
