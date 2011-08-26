@@ -530,7 +530,23 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
   
   trial_inner_product_matrix.resize(indexset.size(), indexset.size());
   timer.start();
-  toFlensSparseMatrix(repr_lhs_op, indexset, indexset, trial_inner_product_matrix);
+  
+    typedef typename IndexSet<Index2D>::const_iterator const_set_it;
+    std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
+    int row_count = 1, col_count = 1;
+    for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
+        row_indices[(*row)] = row_count;
+    }
+    repr_lhs_op.compression.setParameters(indexset);
+    for (const_set_it col=indexset.begin(); col!=indexset.end(); ++col, ++col_count) {
+        IndexSet<Index2D> LambdaRowSparse = repr_lhs_op.compression.SparsityPattern(*col, indexset);
+        for (const_set_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row, ++row_count) {
+            T tmp = (*trial_inner_product_op)(*row,*col);
+            if (fabs(tmp)>0)                trial_inner_product_matrix(row_indices[*row],col_count) = tmp;
+        }
+    }
+    trial_inner_product_matrix.finalize();
+    
   test_inner_product_matrix = trial_inner_product_matrix;
   timer.stop();
   std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
@@ -565,18 +581,33 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
     for (const_set_it row=trial_indexset.begin(); row!=trial_indexset.end(); ++row, ++row_count) {
         row_indices[(*row)] = row_count;
     }
- //   trial_inner_product_op.compression.setParameters(trial_indexset);
     for (const_set_it col=trial_indexset.begin(); col!=trial_indexset.end(); ++col, ++col_count) {
-     //   IndexSet<Index2D> LambdaRowSparse = trial_inner_product_op.compression.SparsityPattern(*col, LambdaRow);
-     //   for (const_set_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
         for (const_set_it row=trial_indexset.begin(); row!=trial_indexset.end(); ++row, ++row_count) {
-            T tmp = trial_inner_product_op(*row,*col);
+            T tmp = (*trial_inner_product_op)(*row,*col);
             if (fabs(tmp)>0)                trial_inner_product_matrix(row_indices[*row],col_count) = tmp;
         }
     }
     trial_inner_product_matrix.finalize();
     
-    toFlensSparseMatrix(repr_lhs_op, test_indexset, test_indexset, test_inner_product_matrix);
+                //toFlensSparseMatrix(repr_lhs_op, test_indexset, test_indexset, test_inner_product_matrix);
+    
+    // ToFlensSparseMatrix Test Indexset
+    row_indices.clear();    
+    row_count = 1;
+    col_count = 1;
+    for (const_set_it row=test_indexset.begin(); row!=test_indexset.end(); ++row, ++row_count) {
+        row_indices[(*row)] = row_count;
+    }
+    repr_lhs_op.compression.setParameters(test_indexset);
+    for (const_set_it col=test_indexset.begin(); col!=test_indexset.end(); ++col, ++col_count) {
+        IndexSet<Index2D> LambdaRowSparse = repr_lhs_op.compression.SparsityPattern(*col, test_indexset);
+        for (const_set_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
+            T tmp = (*test_inner_product_op)(*row,*col);
+            if (fabs(tmp)>0)                test_inner_product_matrix(row_indices[*row],col_count) = tmp;
+        }
+    }
+    test_inner_product_matrix.finalize();
+    
     timer.stop();
     std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
     
@@ -644,7 +675,7 @@ uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, 
   
   // Calculate Norm
   undo_test_prec(res_repr);
-  return std::sqrt(inner_product(res_repr, res_repr));
+  return std::sqrt(test_inner_product(res_repr, res_repr));
 }
 
 // ================================================================================================================ //
