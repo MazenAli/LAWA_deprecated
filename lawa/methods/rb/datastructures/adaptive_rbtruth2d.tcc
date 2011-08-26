@@ -140,9 +140,11 @@ Coefficients<Lexicographical,T,Index2D>
 AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, TestBasis>::truth_solve()
 {
     CoeffVector u = solver->truth_solve();
+    //std::cout << "u = " << u << std::endl;
     
     undo_trial_prec(u);
     
+    //std::cout << "u (rescaled) = " << u << std::endl;
     return u;
 }
 
@@ -153,7 +155,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
     // Undo preconditioning
     typename CoeffVector::iterator it;
     for(it = u_trial.begin(); it != u_trial.end(); ++it){
-        (*it).second /= get_trial_prec((*it).first);
+        (*it).second *= get_trial_prec((*it).first);
     }     
 }
 
@@ -164,7 +166,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
     // Undo preconditioning
     typename CoeffVector::iterator it;
     for(it = u_test.begin(); it != u_test.end(); ++it){
-        (*it).second /= get_test_prec((*it).first);
+        (*it).second *= get_test_prec((*it).first);
     } 
 
 }
@@ -226,19 +228,19 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
     CoeffVector new_bf = sol;
     
     CoeffVector sol_copy = sol;
-    undo_trial_prec(sol_copy);
+    //undo_trial_prec(sol_copy);
 
     CoeffVector bf;
     for (it = rb->rb_basis_functions.begin(); it != rb->rb_basis_functions.end(); ++it) {
         bf = (*it);
         
-        undo_trial_prec(bf);
+        //undo_trial_prec(bf);
 
         new_bf = new_bf - bf * trial_inner_product(bf, sol_copy); 
     }
     
-    undo_trial_prec(new_bf);
-    
+    //undo_trial_prec(new_bf);
+    std::cout << "Gram - Schmidt: norm^2 = " << trial_inner_product(new_bf, new_bf) << std::endl;
     new_bf.scale(1./std::sqrt(trial_inner_product(new_bf, new_bf)));
     rb->rb_basis_functions.push_back(new_bf);    
 }
@@ -326,8 +328,8 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
                
                vec1 = F_representors[qf1-1];
                vec2 = F_representors[qf2-1];
-               undo_test_prec(vec1);
-               undo_test_prec(vec2);
+               //undo_test_prec(vec1);
+               //undo_test_prec(vec2);
 
                rb->F_F_representor_norms(qf1,qf2) = test_inner_product(vec1, vec2);
 
@@ -356,8 +358,8 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
           
             vec1 = A_representors[n1][qa1-1];
             vec2 = A_representors[N-1][qa2-1];
-            undo_test_prec(vec1);
-            undo_test_prec(vec2);
+            //undo_test_prec(vec1);
+            //undo_test_prec(vec2);
                               
             A_n1_N(qa1, qa2) = test_inner_product(vec1, vec2);
             
@@ -369,8 +371,8 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
               
                 vec1 = A_representors[n1][qa2-1];
                 vec2 = A_representors[N-1][qa1-1];
-                undo_test_prec(vec1);
-                undo_test_prec(vec2);
+                //undo_test_prec(vec1);
+                //undo_test_prec(vec2);
                   
                 A_n1_N(qa2, qa1) = test_inner_product(vec1, vec2);                              
               }
@@ -401,8 +403,8 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
            
             vec1 = A_representors[N-1][qa-1];
             vec2 = F_representors[qf-1];
-            undo_test_prec(vec1);
-            undo_test_prec(vec2);
+            //undo_test_prec(vec1);
+            //undo_test_prec(vec2);
             
             A_F(qa, qf) = test_inner_product(vec1, vec2);    
         }
@@ -555,7 +557,25 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
     trial_inner_product_matrix.resize(trial_indexset.size(), trial_indexset.size());
     test_inner_product_matrix.resize(test_indexset.size(), test_indexset.size());
     timer.start();
-    toFlensSparseMatrix(repr_lhs_op, trial_indexset, trial_indexset, trial_inner_product_matrix);
+    
+    // ToFlensSparseMatrix Trial Indexset
+    typedef typename IndexSet<Index2D>::const_iterator const_set_it;
+    std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
+    int row_count = 1, col_count = 1;
+    for (const_set_it row=trial_indexset.begin(); row!=trial_indexset.end(); ++row, ++row_count) {
+        row_indices[(*row)] = row_count;
+    }
+ //   trial_inner_product_op.compression.setParameters(trial_indexset);
+    for (const_set_it col=trial_indexset.begin(); col!=trial_indexset.end(); ++col, ++col_count) {
+     //   IndexSet<Index2D> LambdaRowSparse = trial_inner_product_op.compression.SparsityPattern(*col, LambdaRow);
+     //   for (const_set_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
+        for (const_set_it row=trial_indexset.begin(); row!=trial_indexset.end(); ++row, ++row_count) {
+            T tmp = trial_inner_product_op(*row,*col);
+            if (fabs(tmp)>0)                trial_inner_product_matrix(row_indices[*row],col_count) = tmp;
+        }
+    }
+    trial_inner_product_matrix.finalize();
+    
     toFlensSparseMatrix(repr_lhs_op, test_indexset, test_indexset, test_inner_product_matrix);
     timer.stop();
     std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
@@ -643,10 +663,10 @@ operator()(const Index2D &row_index, const Index2D &col_index)
           val += (*thisTruth->rb->theta_a[i])(thisTruth->rb->get_current_param()) 
                * (*thisTruth->A_operators[i])(row_index, col_index);
       }
-      return val;
+      return thisTruth->get_trial_prec(col_index) * thisTruth->get_test_prec(row_index) * val;
     }
     else{
-      return (*thisTruth->A_operators[qa])(row_index, col_index);
+      return thisTruth->get_trial_prec(col_index) * thisTruth->get_test_prec(row_index) * (*thisTruth->A_operators[qa])(row_index, col_index);
     }
 }
 
@@ -662,7 +682,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
              * (*thisTruth->F_operators[i])(lambda);
     }
     
-    return val;
+    return thisTruth->get_test_prec(lambda) * val;
 }
 
 template <typename T, typename TrialBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression, typename TestBasis>
@@ -675,6 +695,10 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
               * (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param());
     }
     
+    for(typename Coefficients<Lexicographical, T, Index2D>::iterator it = c.begin(); it != c.end(); ++it){
+        (*it).second *= thisTruth->get_test_prec((*it).first);
+    }
+    
     return c;
 }
 
@@ -683,10 +707,21 @@ Coefficients<Lexicographical,T,Index2D>
 AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, TestBasis>::Operator_RHS::operator()(T tol)
 {
     Coefficients<Lexicographical,T,Index2D> c;
-    for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
+    
+    /*for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
         c += (*thisTruth->F_operators[i])(tol) 
            * (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param());
     }
+    
+    for(typename Coefficients<Lexicographical, T, Index2D>::iterator it = c.begin(); it != c.end(); ++it){
+        (*it).second *= thisTruth->get_test_prec((*it).first);
+    }
+    */
+    
+    
+    std::cerr << "Operator()(T tol) : Not implemented yet" << std::endl;
+    exit(1);
+    
     
     return c;
 }
@@ -698,7 +733,7 @@ T
 AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, TestBasis>::Operator_LHS_Representor::
 operator()(const Index2D &row_index, const Index2D &col_index)
 {
-    return (*thisTruth->test_inner_product_op)(row_index, col_index);
+    return thisTruth->get_test_prec(row_index) * thisTruth->get_trial_prec(col_index) * (*thisTruth->test_inner_product_op)(row_index, col_index);
 }
 
 /* Operator RHS_BilFormRepresentor */
@@ -710,10 +745,10 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
     T val = 0;
     typename Coefficients<Lexicographical,T,Index2D>::const_iterator it;
     for (it = current_bf->begin(); it != current_bf->end(); ++it) {
-        val += (*it).second * (*current_op)((*it).first, lambda) / thisTruth->get_trial_prec((*it).first);
+        val += (*it).second * (*current_op)((*it).first, lambda) ;// / thisTruth->get_trial_prec((*it).first);
     }
     
-    return - val;
+    return - thisTruth->get_test_prec(lambda) * val;
 }
 
 template <typename T, typename TrialBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression, typename TestBasis>
@@ -765,20 +800,30 @@ template <typename T, typename TrialBasis, typename TrialPrec,  typename TestPre
 T
 AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, TestBasis>::Operator_RHS_FunctionalRepresentor::operator()(const Index2D &lambda)
 {
-    return (*current_op)(lambda);
+    return thisTruth->get_test_prec(lambda) * (*current_op)(lambda);
 }
 
 template <typename T, typename TrialBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
 AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, TestBasis>::Operator_RHS_FunctionalRepresentor::operator()(const IndexSet<Index2D> &Lambda)
 {
-    return (*current_op)(Lambda);
+    
+    CoeffVector coeffs =  (*current_op)(Lambda);
+    
+    for(typename Coefficients<Lexicographical, T, Index2D>::iterator it = coeffs.begin(); it != coeffs.end(); ++it){
+        (*it).second *= thisTruth->get_test_prec((*it).first);
+    }
+    
+    return coeffs;
 }
 
 template <typename T, typename TrialBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression, typename TestBasis>
 Coefficients<Lexicographical,T,Index2D>
 AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, TestBasis>::Operator_RHS_FunctionalRepresentor::operator()(T tol)
 {
+    std::cerr << "Operator()(T tol) : Not implemented yet" << std::endl;
+    exit(1);
+    
     return (*current_op)(tol);
 }
 
@@ -811,7 +856,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
     for (int j = 0; j < u_N.length();++j){
       T val_A_bf = 0;
       for (it = thisTruth->rb->rb_basis_functions[j].begin(); it != thisTruth->rb->rb_basis_functions[j].end(); ++it) {
-        val_A_bf += (*it).second *(*thisTruth->A_operators[i])((*it).first,lambda) / thisTruth->get_trial_prec((*it).first);
+          val_A_bf += (*it).second *(*thisTruth->A_operators[i])((*it).first,lambda);// / thisTruth->get_trial_prec((*it).first);
       }
       val_Au += u_N(j+1) * val_A_bf;
     }
@@ -819,7 +864,7 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
     val -= (*thisTruth->rb->theta_a[i])(eval_mu) * val_Au;
   }
   
-  return val;
+  return thisTruth->get_test_prec(lambda) * val;
 }
 
 template <typename T, typename TrialBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression, typename TestBasis>
