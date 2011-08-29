@@ -9,22 +9,23 @@ namespace lawa {
 template<typename T, typename Index2D, typename Basis2D>
 class AverageOutput2D : public AdaptiveOutput<T, Index2D> {
 
+    typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
+
 public:
 
     AverageOutput2D(Basis2D _basis, T xmin, T xmax, T ymin, T ymax,
     		RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, H1NormPreconditioner2D<T, Basis2D> > _rhs);
     
     T
-    operator()(const Coefficients<Lexicographical, T, Index2D>& coeffs_u,
-    		const Coefficients<Lexicographical, T, Index2D>& basis_functions);
+    operator()(const CoeffVector& coeffs_u);
     
     T
     operator()(const Index2D &lambda);
 
-    Coefficients<Lexicographical,T,Index2D>
+    CoeffVector
     operator()(const IndexSet<Index2D> &Lambda);
 
-    Coefficients<Lexicographical,T,Index2D>
+    CoeffVector
     operator()(T tol);
 
 /*    T

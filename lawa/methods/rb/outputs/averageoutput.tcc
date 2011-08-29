@@ -11,14 +11,14 @@ AverageOutput2D<T,Index2D,Basis2D>::AverageOutput2D(Basis2D _basis, T xmin, T xm
 
 template<typename T, typename Index2D, typename Basis2D>
 T
-AverageOutput2D<T,Index2D,Basis2D>::operator()(const Coefficients<Lexicographical, T, Index2D>& coeffs_u,
-		const Coefficients<Lexicographical, T, Index2D>& basis_functions){
+AverageOutput2D<T,Index2D,Basis2D>::operator()(const CoeffVector& coeffs_u){
 	T output_value;
+	typename CoeffVector::const_iterator it;
 	if(abs(x_max-x_min)>1e-6 && abs(y_max-y_min)>1e-6){
 	  	std::cout << "Abstand in jeder Richtung sinnvoll definiert" <<std::endl;
 		T vol=(abs(x_max-x_min))*(abs(y_max-y_min));
-		for(int i=1; i<=size(coeffs_u);i++){
-			output_value+=coeffs_u(i)*rhs(1,basis_functions);
+		for(it=coeffs_u.begin(); it!=coeffs_u.end(); ++it){
+			output_value+=(*it).second * rhs.operator()((*it).second);
 		}
 		if(vol>1e-6){
 			std::cout << "Fläche hat positiven Wert"<< std::endl;
@@ -56,34 +56,5 @@ AverageOutput2D<T,Index2D,Basis2D>::operator()(T tol){
 	return rhs(tol);
 }
 
-/*template<typename T, typename Index2D, typename Basis2D>
-T
-AverageOutput2D<T,Index2D,Basis2D>::calculate_average_output
-(const Coefficients<Lexicographical, T, Index2D>& coeffs_u,
-		const Coefficients<Lexicographical, T, Index2D>& basis_functions){
-	T output_value;
-	//hier noch Sicherheitsvorkehrungen wenn x_max-x_min<eps, ets.
-	if(abs(x_max-x_min)>1e-6 && abs(y_max-y_min)>1e-6){
-	  	std::cout << "Abstand in jeder Richtung sinnvoll definiert" <<std::endl;
-		T vol=(abs(x_max-x_min))*(abs(y_max-y_min));
-		for(int i=1; i<=size(coeffs_u);i++){
-			output_value+=coeffs_u(i)*rhs(1,basis_functions);
-		}
-		if(vol>1e-6){ //Auslöschung? eigentlich nicht unbedingt nötig...
-			std::cout << "Fläche hat positiven Wert"<< std::endl;
-			output_value= 1/vol * output_value;
-		}
-		else{
-			std::cout << "Fehler bei Fläche - Fehlwert 0"<< std::endl;
-			output_value= 0; //0 als Fehlwert nehmen ?
-		}
-	}
-	else{
-		std::cout << "Fehler bei Abstand - Fehlwert 0"<< std::endl;
-		output_value= 0;
-
-	}
-	return output_value;
-}*/
 
 }		//namespace lawa

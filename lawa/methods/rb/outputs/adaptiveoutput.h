@@ -9,8 +9,7 @@ template<typename T, typename Index>
 struct AdaptiveOutput : public AdaptiveRhs<T, Index> {
 
     virtual T
-    operator()(const Coefficients<Lexicographical, T, Index>& coeffs_u,
-    		const Coefficients<Lexicographical, T, Index2D>& basis_functions) = 0;
+    operator()(const Coefficients<Lexicographical, T, Index>& coeffs_u) = 0;
     
 };
     
