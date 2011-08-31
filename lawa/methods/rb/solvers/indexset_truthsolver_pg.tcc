@@ -1,20 +1,20 @@
 namespace lawa {
 
-template <typename T, typename TrialBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression, typename TestBasis>
-IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, TestBasis>::
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
+IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::
 IndexsetTruthSolver_PG(IndexSet<Index>& _indexset_trial, IndexSet<Index>& _indexset_test, Truth& _truth, SolverCall solmethod, T _tol, int maxIts)
   : trialbasis_set(_indexset_trial), testbasis_set(_indexset_test), truth_model(&_truth), solution_method(solmethod), tol(_tol), maxIterations(maxIts)
 {}
 
-template <typename T, typename TrialBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression, typename TestBasis>
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 void 
-IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, TestBasis>::set_model(AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, TestBasis>, Compression, TestBasis>& _truth_model){
+IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::set_model(AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>, Compression>& _truth_model){
     truth_model = &_truth_model;
 }
 
-template <typename T, typename TrialBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression, typename TestBasis>
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, TestBasis>::truth_solve()
+IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::truth_solve()
 { 
   Coefficients<Lexicographical,T,Index> u, f;
   std::cout << "Start Truth Solve: Call Method " << solution_method << std::endl; 
@@ -76,9 +76,9 @@ IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, T
 }
 
 // Representor Solves: Only in Test Space 
-template <typename T, typename TrialBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression, typename TestBasis>
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, TestBasis>::repr_solve_F()
+IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::repr_solve_F()
 {
   Coefficients<Lexicographical,T,Index> u, f;
   Timer timer1, timer2;
@@ -197,9 +197,9 @@ IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, T
   return u;
 }
 
-template <typename T, typename TrialBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression, typename TestBasis>
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, TestBasis>::repr_solve_A()
+IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::repr_solve_A()
 {
   Timer timer1, timer2;
   Coefficients<Lexicographical,T,Index> u;
@@ -323,9 +323,9 @@ IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, T
 }
 
 
-template <typename T, typename TrialBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression, typename TestBasis>
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, TestBasis>::repr_solve_totalRes(RHS_ResRepr& res_repr_op)
+IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::repr_solve_totalRes(RHS_ResRepr& res_repr_op)
 {
   Timer timer1, timer2;
   Coefficients<Lexicographical,T,Index> u;

@@ -11,14 +11,14 @@ namespace lawa {
  *    
  */
   
-template <typename, typename, typename, typename, typename, typename, typename> class AdaptiveRBTruth2D;
+template <typename, typename, typename, typename, typename, typename, typename> class AdaptiveRBTruth2D_PG;
   
 
-template <typename T, typename TrialBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression, typename TestBasis>
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 class IndexsetTruthSolver_PG {
   
-  typedef  AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec,
-             IndexsetTruthSolver_PG<T, TrialBasis, TrialPrec, TestPrec, Index, Compression, TestBasis>, Compression, TestBasis> Truth;
+  typedef  AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec,
+             IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>, Compression> Truth;
   typedef typename Truth::Operator_LHS                                 LHS;
   typedef typename Truth::Operator_RHS                                 RHS;
   typedef typename Truth::Operator_LHS_Representor                     MatrixOp;
