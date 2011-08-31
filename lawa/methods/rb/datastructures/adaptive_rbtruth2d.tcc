@@ -520,6 +520,13 @@ AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, 
 }
 
 template <typename T, typename TrialBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression, typename TestBasis>
+T
+AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, TestBasis>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
+{
+    return trial_inner_product(v1, v2);
+}
+
+template <typename T, typename TrialBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression, typename TestBasis>
 void
 AdaptiveRBTruth2D<T, TrialBasis, TrialPrec, TestPrec, TruthSolver, Compression, TestBasis>::assemble_inner_product_matrix(IndexSet<Index2D>& indexset)
 {

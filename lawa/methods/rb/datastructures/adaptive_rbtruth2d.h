@@ -129,7 +129,9 @@ class AdaptiveRBTruth2D{
         T
         test_inner_product(const CoeffVector& v1, const CoeffVector& v2);
         
-        
+        T
+        inner_product(const CoeffVector& v1, const CoeffVector& v2);
+            
     /* Public members */
         
         TrialBasis&                             trialbasis;
