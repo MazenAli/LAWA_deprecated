@@ -45,6 +45,7 @@ class AdaptiveRBTruth2D{
         typedef T (*theta_fctptr)(const std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
         typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
         typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+        typedef flens::DiagonalMatrix<T>                                    DiagonalMatrixT;
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
 
@@ -121,6 +122,7 @@ class AdaptiveRBTruth2D{
         TruthSolver*                            solver;
         
         bool assembled_inner_product_matrix;
+        bool assembled_prec_vec;
         bool assembled_A_operator_matrices;
                 
          // Wrapper class for affine structure on left hand side       
@@ -243,6 +245,7 @@ class AdaptiveRBTruth2D{
         bool use_A_operator_matrices;
         
         SparseMatrixT   inner_product_matrix;
+        DenseVectorT    prec_vec;
         std::vector<SparseMatrixT> A_operator_matrices;
       
         class Operator_Residual_Representor {

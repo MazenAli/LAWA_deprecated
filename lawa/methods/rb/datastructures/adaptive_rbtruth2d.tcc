@@ -7,7 +7,7 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::
 AdaptiveRBTruth2D(Basis& _basis, Prec& _prec, bool _use_inner_product, bool _use_A_matrix)
     : basis(_basis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
-      assembled_inner_product_matrix(false),
+      assembled_inner_product_matrix(false), assembled_prec_vec(false), assembled_A_operator_matrices(false),
       prec(_prec), prec_data()
 {}
 
@@ -339,14 +339,27 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::assemble_inner_prod
   std::cout << "Assemble Inner Product Matrix ...." << std::endl;
   
   inner_product_matrix.resize(indexset.size(), indexset.size());
+  
   timer.start();
   
   typedef typename IndexSet<Index2D>::const_iterator const_set_it;
   std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
   int row_count = 1, col_count = 1;
-  for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
-    row_indices[(*row)] = row_count;
+
+  if(!assembled_prec_vec){
+      prec_vec.engine().resize((int)indexset.size());
+      for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
+          row_indices[(*row)] = row_count;
+          prec_vec(row_count) = get_prec((*row));
+      }
+      assembled_prec_vec = true;
   }
+  else{
+      for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
+          row_indices[(*row)] = row_count;
+      }    
+  }
+  
   repr_lhs_op.compression.setParameters(indexset);
   for (const_set_it col=indexset.begin(); col!=indexset.end(); ++col, ++col_count) {
     IndexSet<Index2D> LambdaRowSparse = repr_lhs_op.compression.SparsityPattern(*col, indexset);
@@ -379,8 +392,18 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::assemble_A_operator
     typedef typename IndexSet<Index2D>::const_iterator const_set_it;
     std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
     int row_count = 1, col_count = 1;
-    for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
-        row_indices[(*row)] = row_count;
+    if((!assembled_prec_vec) && qa == 1){
+        prec_vec.engine().resize((int)indexset.size());
+        for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
+            row_indices[(*row)] = row_count;
+            prec_vec(row_count) = get_prec((*row));
+        }
+        assembled_prec_vec = true;
+    }
+    else{
+        for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
+            row_indices[(*row)] = row_count;
+        }    
     }
     for (const_set_it col=indexset.begin(); col!=indexset.end(); ++col, ++col_count) {
         for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
@@ -395,7 +418,7 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::assemble_A_operator
   timer.stop();
   std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
   
-  rb->assembled_A_operator_matrices = true;
+  assembled_A_operator_matrices = true;
 }
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
