@@ -1,21 +1,21 @@
 namespace lawa {
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
-IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
+IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::
 IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod, T _tol, int maxIts)
   : basis_set(_indexset), truth_model(&_truth), solution_method(solmethod), tol(_tol), maxIterations(maxIts)
 {}
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void 
-IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>
-::set_model(AdaptiveRBTruth2D<T, Basis, RPrec, LPrec, IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>, Compression, Basis>& _truth_model){
+IndexsetTruthSolver<T, Basis, Prec, Index, Compression>
+::set_model(AdaptiveRBTruth2D<T, Basis, Prec, IndexsetTruthSolver<T, Basis, Prec, Index, Compression>, Compression>& _truth_model){
     truth_model = &_truth_model;
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::truth_solve()
+IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::truth_solve()
 { 
   Coefficients<Lexicographical,T,Index> u, f;
   std::cout << "Start Truth Solve: Call Method " << solution_method << std::endl; 
@@ -58,9 +58,9 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::truth_solve()
   return u;
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_F()
+IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
 {
   Coefficients<Lexicographical,T,Index> u, f;
   Timer timer1, timer2;
@@ -127,8 +127,8 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_F()
       switch(solution_method){
         case call_cg:
           std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->test_inner_product_matrix*x;
+          its = lawa::cg(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -139,8 +139,8 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_F()
           break;
         case call_gmres:
           std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->test_inner_product_matrix*x;
+          its = lawa::gmres(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -162,9 +162,9 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_F()
   return u;
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_A()
+IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
 {
   Timer timer1, timer2;
   Coefficients<Lexicographical,T,Index> u;
@@ -234,8 +234,8 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_A()
       switch(solution_method){
         case call_cg:
           std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->test_inner_product_matrix*x;
+          its = lawa::cg(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -246,8 +246,8 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_A()
           break;
         case call_gmres:
           std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->test_inner_product_matrix*x;
+          its = lawa::gmres(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -271,9 +271,9 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_A()
 }
 
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_totalRes(RHS_ResRepr& res_repr_op)
+IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS_ResRepr& res_repr_op)
 {
   Timer timer1, timer2;
   Coefficients<Lexicographical,T,Index> u;
@@ -343,8 +343,8 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_tota
       switch(solution_method){
         case call_cg:
           std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->test_inner_product_matrix*x;
+          its = lawa::cg(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
@@ -355,8 +355,8 @@ IndexsetTruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_tota
           break;
         case call_gmres:
           std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->test_inner_product_matrix*x;
+          its = lawa::gmres(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+          Ax = truth_model->inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
