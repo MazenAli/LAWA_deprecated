@@ -9,7 +9,6 @@ namespace  lawa {
 
 template <typename T, typename TruthModel>
 RBModel2D<T, TruthModel>::RBModel2D()
- : assembled_A_operator_matrices(false)
 {
 }
 
@@ -631,7 +630,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
     
     // Assemble new basis function vector
     DenseVectorT new_bf_dense;
-    if(truth->use_A_operator_matrices && assembled_A_operator_matrices){
+    if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
         // Build dense vector
         new_bf_dense.engine().resize((int)rb_basis_functions[n_bf()-1].size());
         int index_count = 1;
@@ -656,13 +655,13 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
         }
         
         DenseVectorT A_new_bf, A_new_bf_T;
-        if(truth->use_A_operator_matrices && assembled_A_operator_matrices){
+        if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
             A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense;
             A_new_bf_T = transpose(truth->A_operator_matrices[q_a]) * new_bf_dense;
         }
         
         for (unsigned int i = 1; i <= n_bf(); ++i) {
-            if(truth->use_A_operator_matrices && assembled_A_operator_matrices){
+            if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
                 DenseVectorT bf_dense(rb_basis_functions[i-1].size());
                 int index_count = 1;
                 for (it = rb_basis_functions[i-1].begin(); it != rb_basis_functions[i-1].end(); ++it, ++index_count) {
