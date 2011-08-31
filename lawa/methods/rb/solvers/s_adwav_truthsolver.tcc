@@ -1,8 +1,8 @@
 #include <lawa/aux/timer.h>
 namespace lawa {
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::
 S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, Truth& _truth, SolverCall solmethod)
     : s_adwav(_s_adwav),
       repr_s_adwav_F(_truth.basis, _truth.repr_lhs_op, _truth.repr_rhs_F_op, 0.125, 0.1),
@@ -14,8 +14,8 @@ S_ADWAV_TruthSolver(S_ADWAV<T, Index, Basis, LHS, RHS>& _s_adwav, Truth& _truth,
                            params.eps, params.MaxSizeLambda, params.resStopTol);
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::S_ADWAV_TruthSolver(Truth& _truth, SolverCall solmethod)
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::S_ADWAV_TruthSolver(Truth& _truth, SolverCall solmethod)
     : s_adwav(_truth.basis, _truth.lhs_op, _truth.rhs_op, 0.125, 0.1), 
       repr_s_adwav_F(_truth.basis, _truth.repr_lhs_op, _truth.repr_rhs_F_op, 0.125, 0.1),
       repr_s_adwav_A(_truth.basis, _truth.repr_lhs_op, _truth.repr_rhs_A_op, 0.125, 0.1),
@@ -24,16 +24,16 @@ S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::S_ADWAV_TruthSo
 }
 
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void 
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>
-::set_model(AdaptiveRBTruth2D<T, Basis, RPrec, LPrec, S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>, Compression,Basis>& _truth_model){
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>
+::set_model(AdaptiveRBTruth2D<T, Basis, Prec, S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>, Compression>& _truth_model){
     truth_model = &_truth_model;
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::truth_solve()
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::truth_solve()
 {    
     reset_s_adwav();
     
@@ -73,9 +73,9 @@ S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::truth_solve()
     return s_adwav.solutions[s_adwav.solutions.size() - 1];
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_F()
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
 {    
     reset_repr_s_adwav_F();
     
@@ -101,9 +101,9 @@ S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_F()
     return repr_s_adwav_F.solutions[repr_s_adwav_F.solutions.size() - 1];
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_A()
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
 {    
     reset_repr_s_adwav_A();
     
@@ -128,9 +128,9 @@ S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::repr_solve_A()
     return repr_s_adwav_A.solutions[repr_s_adwav_A.solutions.size() - 1];
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void 
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::clear_solver()
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::clear_solver()
 {
     s_adwav.solutions.clear();
     s_adwav.residuals.clear();
@@ -139,27 +139,27 @@ S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::clear_solver()
     s_adwav.toliters.clear();
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void 
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::reset_s_adwav()
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::reset_s_adwav()
 {   
     s_adwav.set_parameters(params.contraction, params.threshTol, params.linTol, 
                            params.resTol, params.NumOfIts, params.MaxItsPerThreshTol, 
                            params.eps, params.MaxSizeLambda, params.resStopTol);
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void 
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::reset_repr_s_adwav_F()
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::reset_repr_s_adwav_F()
 {
     repr_s_adwav_F.set_parameters(params_repr_F.contraction, params_repr_F.threshTol, params_repr_F.linTol, 
                            params_repr_F.resTol, params_repr_F.NumOfIts, params_repr_F.MaxItsPerThreshTol, 
                            params_repr_F.eps, params_repr_F.MaxSizeLambda, params_repr_F.resStopTol);
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void 
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::reset_repr_s_adwav_A()
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::reset_repr_s_adwav_A()
 {
     repr_s_adwav_A.set_parameters(params_repr_A.contraction, params_repr_A.threshTol, params_repr_A.linTol, 
                            params_repr_A.resTol, params_repr_A.NumOfIts, params_repr_A.MaxItsPerThreshTol, 
@@ -167,9 +167,9 @@ S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::reset_repr_s_ad
 }
 
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::set_parameters(T _contraction, T _threshTol, T _linTol, T _resTol, 
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters(T _contraction, T _threshTol, T _linTol, T _resTol, 
               int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
 {
     params.contraction = _contraction;
@@ -187,9 +187,9 @@ S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::set_parameters(
     
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::set_parameters_repr_F(T _contraction, T _threshTol, T _linTol, T _resTol, 
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters_repr_F(T _contraction, T _threshTol, T _linTol, T _resTol, 
               int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
 {
     params_repr_F.contraction = _contraction;
@@ -208,9 +208,9 @@ S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::set_parameters_
     
 }
 
-template <typename T, typename Basis, typename RPrec, typename LPrec, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void
-S_ADWAV_TruthSolver<T, Basis, RPrec, LPrec, Index, Compression>::set_parameters_repr_A(T _contraction, T _threshTol, T _linTol, T _resTol, 
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters_repr_A(T _contraction, T _threshTol, T _linTol, T _resTol, 
               int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
 {
     params_repr_A.contraction = _contraction;
