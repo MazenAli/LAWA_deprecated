@@ -67,7 +67,7 @@ void
 RBModel2D<T, TruthModel>::set_truthmodel(TruthModel& _truthmodel)
 {
   truth = &_truthmodel;
-    truth->set_rb_model(*this);
+  truth->set_rb_model(*this);
 }
 
 template <typename T, typename TruthModel>
@@ -342,7 +342,7 @@ RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_nam
   for(unsigned int i = 0; i < n_bf(); ++i){
     std::stringstream filename;
     filename << directory_name << "/bf_" << i+1 << ".dat";
-    saveCoeffVector2D(rb_basis_functions[i], truth->trialbasis, filename.str().c_str());
+    saveCoeffVector2D(rb_basis_functions[i], truth->basis, filename.str().c_str());
   }
 }
 
@@ -630,18 +630,14 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
     }
     
     // Assemble new basis function vector
-    DenseVectorT new_bf_dense_trial, new_bf_dense_test;
-    if(assembled_A_operator_matrices && truth->use_A_operator_matrices ){
+    DenseVectorT new_bf_dense;
+    if(truth->use_A_operator_matrices && assembled_A_operator_matrices){
         // Build dense vector
-        new_bf_dense_trial.engine().resize((int)rb_basis_functions[n_bf()-1].size());
-        new_bf_dense_test.engine().resize((int)rb_basis_functions[n_bf()-1].size());
+        new_bf_dense.engine().resize((int)rb_basis_functions[n_bf()-1].size());
         int index_count = 1;
         for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it, ++index_count) {
-            new_bf_dense_trial(index_count) = (*it).second ;/// truth->get_trial_prec((*it).first);
-            new_bf_dense_test(index_count) = (*it).second ;/// truth->get_test_prec((*it).first);
+            new_bf_dense(index_count) = (*it).second ;
         }
-        
-        //std::cout << "new_bf_dense: " << new_bf_dense << std::endl;
     }
     
     for (unsigned int q_a = 0; q_a < Q_a(); ++q_a) {
@@ -660,43 +656,34 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
         }
         
         DenseVectorT A_new_bf, A_new_bf_T;
-        if(assembled_A_operator_matrices && truth->use_A_operator_matrices){
-            A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense_trial;
-            A_new_bf_T = transpose(truth->A_operator_matrices[q_a]) * new_bf_dense_test;
-            //std::cout << A_new_bf << std::endl;
-            
-            //std::cout << A_new_bf_T << std::endl;
+        if(truth->use_A_operator_matrices && assembled_A_operator_matrices){
+            A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense;
+            A_new_bf_T = transpose(truth->A_operator_matrices[q_a]) * new_bf_dense;
         }
         
         for (unsigned int i = 1; i <= n_bf(); ++i) {
-            if(assembled_A_operator_matrices && truth->use_A_operator_matrices){
-                DenseVectorT bf_dense_trial(rb_basis_functions[i-1].size());
-                DenseVectorT bf_dense_test(rb_basis_functions[i-1].size());
+            if(truth->use_A_operator_matrices && assembled_A_operator_matrices){
+                DenseVectorT bf_dense(rb_basis_functions[i-1].size());
                 int index_count = 1;
                 for (it = rb_basis_functions[i-1].begin(); it != rb_basis_functions[i-1].end(); ++it, ++index_count) {
-                    bf_dense_trial(index_count) = (*it).second; // / truth->get_trial_prec((*it).first);
-                    bf_dense_test(index_count) = (*it).second; // / truth->get_test_prec((*it).first);
+                    bf_dense(index_count) = (*it).second;
                 }
-                RB_A_matrices[q_a](i, n_bf()) = bf_dense_test * A_new_bf;
+                RB_A_matrices[q_a](i, n_bf()) = bf_dense * A_new_bf;
                 if(i != n_bf()){
-                    RB_A_matrices[q_a](n_bf(), i) = A_new_bf_T * bf_dense_trial;                    
+                    RB_A_matrices[q_a](n_bf(), i) = A_new_bf_T * bf_dense;                    
                 }
             }
             else{
-                //int count = 0;
                 for (it1 = rb_basis_functions[n_bf()-1].begin(); it1 != rb_basis_functions[n_bf()-1].end(); ++it1) {
                     for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
-                        //if(n_bf() == 1){std::cout << "RB_A_matrices: A_operator Nb " << count << " = " <<  (*truth->A_operators[q_a])((*it1).first, (*it2).first) << std::endl;}
+                    
                         RB_A_matrices[q_a](n_bf(), i) += (*it1).second * (*it2).second 
                                                           * (*truth->A_operators[q_a])((*it1).first, (*it2).first) ;
-                                                   //* 1./truth->get_test_prec((*it1).first) * 1./truth->get_trial_prec((*it2).first);
                         if (i != n_bf()) {
                          RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
                                     * (*truth->A_operators[q_a])((*it2).first, (*it1).first) ;
-                                    //* 1./truth->get_test_prec((*it1).first) * 1./truth->get_trial_prec((*it2).first);
                         }
                         
-                       // count++;
                     }
                 }                
             }
@@ -705,7 +692,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
         std::cout << "RB_A(" << q_a << ") = " << RB_A_matrices[q_a] << std::endl;
     }
     
-}
+ }
 
 template <typename T, typename TruthSolver>
 void
@@ -727,7 +714,7 @@ RBModel2D<T, TruthSolver>::update_RB_F_vectors()
       }
 
       for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it) {
-          RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first) ;//* 1./truth->get_test_prec((*it).first);
+          RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first) ;
       }
       
       std::cout << "RB_F(" << q_f << ") = " << RB_F_vectors[q_f] << std::endl;
@@ -755,13 +742,11 @@ RBModel2D<T, TruthSolver>::update_RB_inner_product()
     }
     
     CoeffVector new_bf = rb_basis_functions[n_bf()-1];
-    //truth->undo_trial_prec(new_bf);
     
     for (unsigned int i = 1; i <= n_bf(); ++i) {
       CoeffVector bf_i = rb_basis_functions[i-1];
-      //truth->undo_trial_prec(bf_i);
           
-      RB_inner_product(n_bf(), i) = truth->trial_inner_product(new_bf, bf_i);
+      RB_inner_product(n_bf(), i) = truth->inner_product(new_bf, bf_i);
       if (i != n_bf()) {
         RB_inner_product(i, n_bf()) = RB_inner_product(n_bf(),i);
       }      
