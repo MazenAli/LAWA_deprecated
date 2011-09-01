@@ -1,8 +1,9 @@
 namespace lawa {
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
-GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F)
-    : A(_A), F(_F),
+GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F,
+                                                   bool _optimized_grow)
+    : A(_A), F(_F), optimized_grow(_optimized_grow),
       cA(A.cA), CA(A.CA), kappa(A.kappa),
       alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.),
       sparseMat_A(200000,200000)
@@ -16,7 +17,8 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
 Coefficients<Lexicographical,T,Index>
-GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, int NumOfIterations, T H1norm)
+GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filename,
+                                               int NumOfIterations, T H1norm)
 {
     T eps = _eps;
     Coefficients<Lexicographical,T,Index> w_k, w_kP1, g_kP1;
@@ -30,9 +32,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, int NumOfIteratio
               << theta << std::endl;
     std::cerr << "  cA=" << cA << ", CA=" << CA << ", kappa=" << kappa << std::endl;
 
-    std::stringstream filename;
-    filename << "ghs-adwav-nd-otf.dat";
-    std::ofstream file(filename.str().c_str());
+    std::ofstream file(filename);
 
     for (int i=1; i<=NumOfIterations; ++i) {
         Timer time;
@@ -66,15 +66,20 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, int NumOfIteratio
 
         time.start();
         std::cerr << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
+
+        /*
+         * Attention: update in rhs1d is set! Linear complexity still holds with better convergence!
+         */
         //g_kP1 = F(Lambda_kP1);                // update rhs vector
         g_kP1 = P(F(gamma*nu_k),Lambda_kP1);  // compute with restriction, otherwise GROW does not work
         w_kP1 = this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
-        //T r_norm_LambdaActive;
-        //int iterations = CG_Solve(Lambda_kP1, Apply.A, w_kP1, g_kP1, r_norm_LambdaActive, 1e-16);
-        //std::cerr << "   iterations = " << iterations << ", residual = "
-        //          << r_norm_LambdaActive << ", w_k = " << w_k << std::endl;
-        std::cerr << "  GALSOLVE finished." << std::endl;
 
+        std::cerr << "  GALSOLVE finished." << std::endl;
+/*
+        std::stringstream coefffile;
+        coefffile << "ghs_adwav_coeffs_" << i;
+        plotScatterCoeff2D(w_kP1, A.basis.first, A.basis.second, coefffile.str().c_str());
+*/
         nu_kM1 = nu_k;
         w_k = w_kP1;
         time.stop();
@@ -128,7 +133,13 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
             std::cerr << "   ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
             int addDoF = r_bucket.addBucketToIndexSet(Lambda,i,currentDoF);
             currentDoF += addDoF;
-            if (P_Lambda_r_norm_square >= alpha*r_norm*alpha*r_norm) break;
+            if (P_Lambda_r_norm_square >= alpha*r_norm*alpha*r_norm) {
+                if (optimized_grow) {
+                    int addDoF = r_bucket.addBucketToIndexSet(Lambda,i+1,currentDoF);
+                    currentDoF += addDoF;
+                }
+                break;
+            }
         }
         /*
         int count=0;
@@ -199,11 +210,10 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
 
     const_coeff_it r0_end = r0.end();
-    //const_coeff_it r0_end = g.end();
     if (!useLinearIndex) {
         int row_count=1;
         for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-            const_coeff_it it = g.find(*row);
+            const_coeff_it it = r0.find(*row);
             if (it != r0_end) rhs(row_count) = (*it).second;
             else              rhs(row_count) = 0.;
             ++row_count;
@@ -211,7 +221,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     }
     else {
         for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-            const_coeff_it it = g.find(*row);
+            const_coeff_it it = r0.find(*row);
             if (it != r0_end) rhs((*row).linearindex) = (*it).second;
             else              rhs((*row).linearindex) = 0.;
         }
@@ -231,14 +241,19 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     if (!useLinearIndex) {
         int row_count=1;
         for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-            ret[(*row)] = x(row_count);
+            const_coeff_it it=w.find(*row);
+            if (it!=w_end) {
+                ret[(*row)] = (*it).second + x(row_count);
+            }
+            else {
+                ret[(*row)] = x(row_count);
+            }
             ++row_count;
         }
     }
     else {
         for (const_coeff_it it=w.begin(); it!=w.end(); ++it) {
-            //ret[(*it).first] = (*it).second + x((*it).first.linearindex);
-            ret[(*it).first] = x((*it).first.linearindex);
+            ret[(*it).first] = (*it).second + x((*it).first.linearindex);
         }
         for (const_set_it row=Extension.begin(); row!=Extension.end(); ++row) {
             ret[*row] = x((*row).linearindex);

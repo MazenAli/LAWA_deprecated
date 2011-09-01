@@ -38,8 +38,9 @@ typedef HelmholtzOperator2D<T, Basis2D>                             HelmholtzOp2
 typedef DiagonalMatrixPreconditioner2D<T, Basis2D, HelmholtzOp2D>   DiagonalPrec;
 ///      Right Hand Side (RHS): basic 2D class for rhs integrals of the form $\int f \cdot v$,
 ///      with $f(x,y) = f_1(x) \cdot f_2(y)$, i.e. the RHS is separable.
-typedef SeparableRHS2D<T, Basis2D>                                  RHS2D;
-typedef SumOfTwoRHSIntegrals<T, Index2D, RHS2D, RHS2D>              SumOf2RHS;
+typedef SeparableRHS2D<T, Basis2D>                                  RhsIntegral2D;
+typedef SumOfTwoRHSIntegrals<T, Index2D, RhsIntegral2D,
+                             RhsIntegral2D>                         SumOf2RHS;
 
 /// The constant 'c' in the Helmholtz equation.
 const double c =  2.;
@@ -200,8 +201,8 @@ int main (int argc, char*argv[])
     deltas_x = 0.25, 3,
                0.75,-3;
     deltas_y =  0.5, 2;
-    RHS2D rhs1(basis2d, F1, deltas_x, nodeltas, 2);
-    RHS2D rhs2(basis2d, F2, nodeltas, deltas_y, 2);
+    RhsIntegral2D rhs1(basis2d, F1, deltas_x, nodeltas, 2);
+    RhsIntegral2D rhs2(basis2d, F2, nodeltas, deltas_y, 2);
     SumOf2RHS F(rhs1, rhs2);
 
     /// Assemble equations system

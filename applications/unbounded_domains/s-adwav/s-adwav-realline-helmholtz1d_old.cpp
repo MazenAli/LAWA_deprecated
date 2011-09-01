@@ -121,7 +121,7 @@ int main (int argc, char *argv[]) {
 
     Timer time;
     time.start();
-    s_adwav.solve(InitialLambda, "cg", refsol.H1norm());
+    s_adwav.solve(InitialLambda, "cg", "s-adwav-otf.dat", refsol.H1norm());
     time.stop();
     cout << "S-ADWAV required " << time.elapsed() << " seconds real time" << endl;
 

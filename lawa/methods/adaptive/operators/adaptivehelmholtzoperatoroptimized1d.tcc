@@ -14,7 +14,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::AdaptiveHelmholtzOperatorO
     if (!w_XBSpline) {    //only wavelet discretization
         std::cerr << "-Infinity" << std::endl;
         if (basis.d==2 && basis.d_==2 && c == 1.) {
-            cA = 0.19; CA = 2.;
+            cA = 0.19; CA = 2.1;
         }
         else if (basis.d==3 && basis.d_==3 && c == 1.) {
             cA = 0.038; CA = 2.7;
@@ -30,16 +30,16 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::AdaptiveHelmholtzOperatorO
             if      (basis.j0==2)  {    cA = 0.375; CA = 2.1;    }
             else if (basis.j0==1)  {    cA = 0.375; CA = 2.1;    }
             else if (basis.j0==0)  {    cA = 0.375; CA = 2.1;    }
-            else if (basis.j0==-1) {    cA = 0.58;  CA = 1.86;    }
-            else if (basis.j0==-2) {    cA = 0.58;  CA = 1.86;    }
-            else if (basis.j0==-3) {    cA = 0.55;  CA = 1.86;    }
-            else if (basis.j0==-4) {    cA = 0.46;  CA = 1.86;    }
-            else if (basis.j0==-5) {    cA = 0.4;   CA = 1.86;    }
-            else if (basis.j0==-6) {    cA = 0.36;  CA = 1.89;    }
-            else if (basis.j0==-7) {    cA = 0.33;  CA = 1.92;    }
-            else if (basis.j0==-8) {    cA = 0.3;   CA = 1.95;    }
-            else if (basis.j0==-8) {    cA = 0.29;  CA = 1.95;    }
-            else if (basis.j0==-10) {   cA = 0.27;  CA = 1.96;    }
+            else if (basis.j0==-1) {    cA = 0.58;  CA = 2.1;    }
+            else if (basis.j0==-2) {    cA = 0.58;  CA = 2.1;    }
+            else if (basis.j0==-3) {    cA = 0.55;  CA = 2.1;    }
+            else if (basis.j0==-4) {    cA = 0.46;  CA = 2.1;    }
+            else if (basis.j0==-5) {    cA = 0.4;   CA = 2.1;    }
+            else if (basis.j0==-6) {    cA = 0.36;  CA = 2.1;    }
+            else if (basis.j0==-7) {    cA = 0.33;  CA = 2.1;    }
+            else if (basis.j0==-8) {    cA = 0.3;   CA = 2.1;    }
+            else if (basis.j0==-8) {    cA = 0.29;  CA = 2.1;    }
+            else if (basis.j0==-10) {   cA = 0.27;  CA = 2.1;    }
             else assert(0);
         }
         else if (basis.d==3 && basis.d_==3 && c == 1.) {
@@ -174,10 +174,11 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::toFlensSparseMatrix(const 
 
 template <typename T>
 void
-AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow,
-                                                                 const IndexSet<Index1D>& LambdaCol,
-                                                                 SparseMatrixT &A_flens, T eps,
-                                                                 bool useLinearIndex)
+AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::toFlensSparseMatrix
+                                                      (const IndexSet<Index1D>& LambdaRow,
+                                                       const IndexSet<Index1D>& LambdaCol,
+                                                       SparseMatrixT &A_flens, T eps,
+                                                       bool useLinearIndex)
 {
     int J=0;        //compression
     J = (int)std::ceil(-1./(basis.d-1.5)*log(eps/CA)/log(2.));
@@ -207,7 +208,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
             IndexSet<Index1D> Lambda_v;
             int maxlevel;
             J==-1000 ? maxlevel=colindex.j+(k-s)+1 : maxlevel=J;
-            Lambda_v=lambdaTilde1d_PDE(colindex, basis,(k-s), basis.j0, maxlevel, false);
+            Lambda_v=lambdaTilde1d_PDE(colindex, basis,(k-s), basis.j0, std::max(maxlevel,36), false);
             for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
                 ret[*mu] += this->helmholtz_data1d(*mu, (*it).second) * prec_colindex * (*it).first;
             }
@@ -219,18 +220,22 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
         }
     }
     else {
-        /*
+/*
         int s = 0, count = 0;
-        for (const_coeff_abs_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
+        for (const_abs_coeff1d_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
             IndexSet<Index1D> Lambda_v;
-            Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, A.a.basis, (k-s), -50, 30);
-            for (const_set_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-                ret[*mu] += A(*mu, (*it).second) * (*it).first;
+            Index1D colindex = (*it).second;
+            int maxlevel=colindex.j+(k-s)+1;
+            Lambda_v=lambdaTilde1d_PDE_WO_XBSpline(colindex, basis, (k-s), -70,
+                                                   std::max(36,maxlevel));
+            for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+                ret[*mu] += this->operator()(*mu, (*it).second) * (*it).first;
             }
             ++count;
             s = int(log(T(count))/log(T(2))) + 1;
         }
-        */
+    }
+*/
 
         int s = 0, count = 0;
         T beta1 = 1./(d-0.5); //gamma-1 im nenner kuerzt sich raus!!
@@ -254,7 +259,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
                 if (maxlevel>0) maxlevel = int(std::ceil((j+beta1*kj)/beta2));
             }
 
-            Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, basis, kj, minlevel, maxlevel);
+            Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, basis, kj, minlevel,
+                                                    std::max(maxlevel,36));
             for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
                 ret[*mu] += this->operator()(*mu, (*it).second) * (*it).first;
             }
@@ -262,6 +268,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
             s = int(log(T(count))/log(T(2))) + 1;
         }
     }
+
     return ret;
 }
 
@@ -371,8 +378,9 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::findK(const Coefficients<A
         if (R_k<=eps) {
             std::cout << "   findK ==> k = " << k << ", k_eps = " << k_eps << std::endl;
             int maxlevel=22;
-            if (d==2)         {    maxlevel=25; }
-            else if (d==3)    {   maxlevel=19; }    //for non-singular examples, also lower values are possible
+            if (d==2)         {    maxlevel=28; }
+            else if (d==3)    {   maxlevel=21; }    //for non-singular examples, also lower values are possible
+                                                    //high level for ex. 3, j0=-inf required.
             return std::min(k,maxlevel);
         }
     }
@@ -533,7 +541,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::apply
         IndexSet<Index1D> Lambda_v;
         int maxlevel;
         J==-1000 ? maxlevel=colindex.j+(k-s)+1 : maxlevel=J;
-        Lambda_v=lambdaTilde1d_PDE(colindex, basis,(k-s), basis.j0, maxlevel, false);
+        Lambda_v=lambdaTilde1d_PDE(colindex, basis,(k-s), basis.j0, std::max(maxlevel,36), false);
         for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
             ret[*mu] += this->laplace_data1d(*mu, (*it).second) * prec_colindex * (*it).first;
         }
@@ -603,7 +611,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::findK
         if (R_k<=eps) {
             std::cout << "   findK ==> k = " << k << ", k_eps = " << k_eps << std::endl;
             int maxlevel=22;
-            if (d==2)         {    maxlevel=25; }
+            if (d==2)         {    maxlevel=28; }
             else if (d==3)    {   maxlevel=19; }    //for non-singular examples, also lower values are possible
             return std::min(k,maxlevel);
         }

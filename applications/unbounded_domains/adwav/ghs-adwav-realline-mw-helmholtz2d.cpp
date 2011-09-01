@@ -86,8 +86,13 @@ int main (int argc, char *argv[]) {
     int NumOfIterations=atoi(argv[7]);
 
     stringstream rhsfilename;
-    rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+    rhsfilename << "rhs/rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
                 << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
+
+    stringstream convfilename;
+    convfilename << "ghs_adwav_conv_realline_helmholtz2d_" << argv[1] << "_" << argv[2] << "_"
+                 << argv[3] << "_" << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
+
 
     int order=127;
 
@@ -133,11 +138,12 @@ int main (int argc, char *argv[]) {
     Coefficients<Lexicographical,T,Index2D> f;
     f = MW_F_Ref(Lambda);
 */
-    MW_GHS_ADWAV_SOLVER MW_ghs_adwav_solver(MW_A,MW_F);
+    MW_GHS_ADWAV_SOLVER MW_ghs_adwav_solver(MW_A,MW_F,true);
 
 
     Coefficients<Lexicographical,T,Index2D> u;
-    u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, NumOfIterations, refsol.H1norm());
+    u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
+                                  NumOfIterations, refsol.H1norm());
 
     return 0;
 }

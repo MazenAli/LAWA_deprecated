@@ -97,7 +97,7 @@ int main (int argc, char *argv[]) {
         CDF_Basis1D             CDF_basis(d,d_,j0);
         CDF_MA                  CDF_A(CDF_basis,w_XBSpline,c);
         if (w_XBSpline) {
-            for (int jmax=std::max(0,CDF_basis.j0); jmax<=max_level; jmax+=1) {
+            for (int jmax=CDF_basis.j0; jmax<=max_level; jmax+=1) {
                 for (T r=1.; r<=max_radius; r+=1.) {
                     IndexSet<Index1D> Lambda = LambdaForEigenvalues(CDF_basis, CDF_basis.j0, jmax,
                                                                     w_XBSpline, r);
@@ -227,16 +227,18 @@ LambdaForEigenvalues(const CDF_Basis1D &basis, int jmin, int jmax, bool w_XBSpli
     IndexSet<Index1D> Lambda;
     int k_left, k_right;
     if (w_XBSpline) {
+
         for (int j=jmin; j<=jmax; ++j) {
-            k_left = std::floor(-pow2i<T>(j)*r-psi.support(0,0).l2);
-            k_right =std::ceil(pow2i<T>(j)*r-psi.support(0,0).l1);
+            k_left = std::min((int)std::floor(-pow2i<T>(j)*r-psi.support(0,0).l2),-20);
+            k_right =std::max((int)std::ceil(pow2i<T>(j)*r-psi.support(0,0).l1),20);
             for (int k=k_left; k<=k_right; ++k) {
                 Lambda.insert(Index1D(j,k,XWavelet));
             }
         }
 
+
         k_left  = std::min(int(std::floor(-pow2i<T>(jmin)*r-phi.support(0,0).l2)),-20);
-        k_right = std::min(int(std::ceil(  pow2i<T>(jmin)*r-phi.support(0,0).l1)),20);
+        k_right = std::max(int(std::ceil(  pow2i<T>(jmin)*r-phi.support(0,0).l1)),20);
         for (int k=k_left; k<=k_right; ++k) {
             Lambda.insert(Index1D(jmin,k,XBSpline));
         }

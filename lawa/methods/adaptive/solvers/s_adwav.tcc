@@ -41,7 +41,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const char *linsolvertype,
-                                     bool optimized, T H1norm)
+                                     const char *filename, bool optimized, T H1norm)
 {
     Timer timer;
 
@@ -52,9 +52,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
     T old_res = 0.;
     int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
-    std::stringstream filename;
-    filename << "s-adwav-otf.dat";
-    std::ofstream file(filename.str().c_str());
+
+    std::ofstream file(filename);
 
     for (int its=0; its<NumOfIterations; ++its) {
         std::cout << "*** " << its+1 << ".iteration" << std::endl;

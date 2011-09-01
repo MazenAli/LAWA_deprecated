@@ -110,9 +110,13 @@ int main (int argc, char *argv[]) {
     Index1D index_y(j0_y,0,XBSpline);
     InitialLambda.insert(Index2D(index_x,index_y));
 
+    stringstream convfilename;
+    convfilename << "s_adwav_conv_realline_helmholtz2d_" << argv[1] << "_" << argv[2] << "_"
+                 << argv[3] << "_" << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
+
     //Righthand side construction for tensor solution
     if (example==1 || example==2 || example==3) {
-        int order = 127;
+        int order = 35;
         TensorRefSols_PDE_Realline2D<T> refsol;
         refsol.setExample(example, 1.);
         SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
@@ -139,7 +143,11 @@ int main (int argc, char *argv[]) {
             CDF_S_ADWAV_SOLVER_Tensor CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          3, 1e-2,1000000);
-            CDF_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+            CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+                                     refsol.H1norm());
+
+            plot2D<T,CDF_Basis2D,CDF_Prec>(CDF_basis2d, CDF_s_adwav_solver.solutions[NumOfIterations], CDF_P, refsol.exact,
+                   -80., 80, -80., 80., pow2i<T>(-4), "example2");
 
         }
         else if (strcmp(argv[1],"MW")==0) {
@@ -159,7 +167,8 @@ int main (int argc, char *argv[]) {
             MW_S_ADWAV_SOLVER_Tensor MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          3, 1e-2,1000000);
-            MW_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+            MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+                                    refsol.H1norm());
 
             stringstream rhsfilename;
             rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
@@ -169,6 +178,9 @@ int main (int argc, char *argv[]) {
             IndexSet<Index2D> Lambda;
             Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
 
+            IndexSet<Index2D> Extension;
+            Extension = C(Lambda,1.,MW_basis2d);
+            Lambda = Lambda + Extension;
             f = MW_F(Lambda);
             Coefficients<AbsoluteValue,T,Index2D> f_abs;
             f_abs = f;
@@ -198,8 +210,8 @@ int main (int argc, char *argv[]) {
             plot_filename << "s-adwav-realline-helmholtz2d-plot_" << example << "_" << d << "_" << d_
                           << "_" << j0_x << "_" << j0_y;
             cout << "Plot of solution started." << endl;
-            plot2D(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, refsol.exact, -10., 10., -10., 10.,
-                   pow2i<T>(-3), plot_filename.str().c_str());
+            plot2D(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, refsol.exact,
+                   -40., 40., -40., 40., pow2i<T>(-3), plot_filename.str().c_str());
             cout << "Plot of solution finished." << endl;
         }
         else if (strcmp(argv[1],"SparseMW")==0) {
@@ -219,7 +231,8 @@ int main (int argc, char *argv[]) {
             SparseMW_S_ADWAV_SOLVER_Tensor SparseMW_s_adwav_solver(SparseMW_basis2d, SparseMW_A, SparseMW_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          3, 1e-2,1000000);
-            SparseMW_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+            SparseMW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+                                          refsol.H1norm());
 
             stringstream plot_filename;
             plot_filename << "s-adwav-realline-helmholtz2d-plot_" << example << "_" << d << "_" << d_

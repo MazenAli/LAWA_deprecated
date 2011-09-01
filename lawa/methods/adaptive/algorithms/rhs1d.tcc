@@ -94,7 +94,7 @@ RHS1D<T,RHSINTEGRAL,Preconditioner>::operator()(const Index1D &lambda)
     }
     else {
         T ret = P(lambda) * rhsintegral(lambda);
-        //rhs_data[lambda] = ret;
+        rhs_data[lambda] = ret;
         return ret;
     }
 }
@@ -143,6 +143,10 @@ RHS1D<T,RHSINTEGRAL,Preconditioner>::operator()(T tol)
                   << tol << std::endl;
         long double squared_ell2norm=current_ell2norm*current_ell2norm;
         while(current_tol>tol) {
+            if (rhs_indexsets.size()==0 && current_tol>tol) {
+                std::cerr << "Attention: Insufficient rhs information." << std::endl;
+                exit(1);
+            }
             if (rhs_indexsets.size()>0) {
                 for (const_set1d_it it = (*rhs_indexsets.begin()).begin();
                                     it!= (*rhs_indexsets.begin()).end(); ++it) {
@@ -158,10 +162,7 @@ RHS1D<T,RHSINTEGRAL,Preconditioner>::operator()(T tol)
             current_tol *= 0.5;
         }
         current_ell2norm = std::sqrt(squared_ell2norm);
-        if (rhs_indexsets.size()==0 && current_tol>tol) {
-            std::cerr << "Attention: Insufficient rhs information." << std::endl;
-            exit(1);
-        }
+
         return this->operator()(tol);
     }
 

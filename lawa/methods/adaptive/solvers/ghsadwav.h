@@ -35,10 +35,10 @@ struct GHS_ADWAV {
 
         typedef typename flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
 
-        GHS_ADWAV(AdaptiveOperator &_A, RHS &_F);
+        GHS_ADWAV(AdaptiveOperator &_A, RHS &_F, bool _optimized_grow=false);
 
         Coefficients<Lexicographical,T,Index>
-        SOLVE(T nuM1, T _eps, int NumOfIterations=100, T H1norm=0.);
+        SOLVE(T nuM1, T _eps, const char *filename, int NumOfIterations=100, T H1norm=0.);
 
         IndexSet<Index>
         GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu);
@@ -50,6 +50,7 @@ struct GHS_ADWAV {
 
         AdaptiveOperator &A;
         RHS              &F;
+        bool             optimized_grow;
         T                cA, CA, kappa;
         T                alpha, omega, gamma, theta;
         T                eps;

@@ -100,6 +100,9 @@ int main (int argc, char *argv[]) {
         j0=atoi(argv[4]); w_XBSpline=true;
     }
 
+    stringstream convfilename;
+    convfilename << "s_adwav_conv_realline_helmholtz1d_" << argv[1] << "_" << argv[2] << "_"
+                 << argv[3] << "_" << argv[4] <<  "_" << c << "_" << argv[5] << ".dat";
     cout << "Initializing S-ADWAV, jmin = " << j0 << endl;
 
 
@@ -116,7 +119,22 @@ int main (int argc, char *argv[]) {
                                                    contraction, threshTol, cgTol, resTol,
                                                    NumOfIterations, 2, 1e-7, 100000);
 
-        CDF_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+        /*
+        ofstream plotfile1("biorthogonal_wavelet.dat");
+        for (T x=CDF_basis.psi.support(0,0).l1; x<=CDF_basis.psi.support(0,0).l2; x+=0.0625) {
+            plotfile1 << x << " " << CDF_basis.psi(x,0,0,0) << endl;
+        }
+        plotfile1.close();
+
+        ofstream plotfile2("biorthogonal_bspline.dat");
+        for (T x=CDF_basis.mra.phi.support(0,0).l1; x<=CDF_basis.mra.phi.support(0,0).l2; x+=0.0625) {
+            plotfile2 << x << " " << CDF_basis.mra.phi(x,0,0,0) << endl;
+        }
+        plotfile2.close();
+        return 0;
+        */
+        CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(),
+                                 true, refsol.H1norm());
     }
     else if (strcmp(argv[1],"MW")==0) {
         MW_Basis1D            MW_basis(d,j0);
@@ -128,7 +146,8 @@ int main (int argc, char *argv[]) {
                                                 contraction, threshTol, cgTol, resTol,
                                                 NumOfIterations, 4, 1e-7, 100000);
 
-        MW_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+        MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(),
+                                true, refsol.H1norm());
     }
     else if (strcmp(argv[1],"SparseMW")==0) {
         SparseMW_Basis1D            SparseMW_basis(d,j0);
@@ -140,7 +159,8 @@ int main (int argc, char *argv[]) {
                                                             contraction, threshTol, cgTol, resTol,
                                                             NumOfIterations, 2, 1e-7, 100000);
 
-        SparseMW_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+        SparseMW_s_adwav_solver.solve(InitialLambda, "cg",convfilename.str().c_str(),
+                                      true, refsol.H1norm());
     }
     return 0;
 

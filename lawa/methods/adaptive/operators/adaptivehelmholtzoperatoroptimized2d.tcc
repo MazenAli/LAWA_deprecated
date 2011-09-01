@@ -366,11 +366,78 @@ Coefficients<Lexicographical,T,Index2D>
 AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
 ::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps)
 {
+    Coefficients<Lexicographical,T,Index2D> ret;
+/*
     Coefficients<AbsoluteValue,T,Index2D> v_abs;
     v_abs = v;
     int k = this->findK(v_abs, eps);
-    Coefficients<Lexicographical,T,Index2D> ret;
     ret = this->apply(v, k);
+    return ret;
+*/
+
+    Coefficients<Bucket,T,Index2D> v_bucket;
+    T tol = 0.5*eps/CA;
+    v_bucket.bucketsort(v,tol);
+    //std::cerr << "APPLY: NumOfBuckets=" << v_bucket.buckets.size() << std::endl;
+    long double squared_v_norm = (long double)std::pow(v.norm(2.),2.);
+    long double squared_v_bucket_norm = 0.;
+    T delta=0.;
+    int l=0;
+    int support_size_all_buckets=0;
+    for (int i=0; i<(int)v_bucket.buckets.size(); ++i) {
+        squared_v_bucket_norm += v_bucket.bucket_ell2norms[i]*v_bucket.bucket_ell2norms[i];
+        T squared_delta = fabs(squared_v_norm - squared_v_bucket_norm);
+        support_size_all_buckets += v_bucket.buckets[i].size();
+        delta = std::sqrt(squared_delta);
+        l = i+1;
+        if (squared_delta<tol*tol) {
+            break;
+        }
+    }
+    //std::cerr << "APPLY: squared_v_norm=" << squared_v_norm << ", squared_v_bucket_norm=" << squared_v_bucket_norm << std::endl;
+
+    for (int i=0; i<l; ++i) {
+        Coefficients<Lexicographical,T,Index2D> w_p;
+        v_bucket.addBucketToCoefficients(w_p,i);
+        if (w_p.size()==0) continue;
+        T numerator = w_p.norm(2.) * support_size_all_buckets;
+        T denominator = w_p.size() * (eps-delta) / CA;
+        //std::cout << "Bucket " << i << ": size=" << w_p.size() << ", (eps-delta) " << fabs(eps-delta) << std::endl;
+        //int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.) / (basis.d-1.5), 0.);
+        int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.), 0.);
+        //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
+        for (const_coeff2d_it it=w_p.begin(); it!=w_p.end(); ++it) {
+            Index1D col_index_x = (*it).first.index1;
+            Index1D col_index_y = (*it).first.index2;
+            T prec_col_index = this->prec(Index2D(col_index_x, col_index_y));
+
+            ret[(*it).first] += c * prec_col_index * (*it).second;
+
+            IndexSet<Index1D> Lambda_x, Lambda_y;
+
+            int maxlevel_x = std::min(col_index_x.j+jp,36);
+            int maxlevel_y = std::min(col_index_y.j+jp,36);
+            Lambda_x=lambdaTilde1d_PDE(col_index_x, basis.first, jp, basis.first.j0,
+                                       maxlevel_x,false);
+
+            Lambda_y=lambdaTilde1d_PDE(col_index_y, basis.second,jp, basis.second.j0,
+                                       maxlevel_y,false);
+
+            for (const_set1d_it row_x = Lambda_x.begin(); row_x != Lambda_x.end(); ++row_x) {
+                Index2D row_index(*row_x, col_index_y);
+                ret[row_index] += this->laplace_data1d(*row_x, col_index_x) * prec_col_index * (*it).second;
+            }
+
+            for (const_set1d_it row_y = Lambda_y.begin(); row_y != Lambda_y.end(); ++row_y) {
+                Index2D row_index(col_index_x, *row_y);
+                ret[row_index] += this->laplace_data1d(*row_y, col_index_y) * prec_col_index * (*it).second;
+            }
+        }
+    }
+    for (coeff2d_it it=ret.begin(); it!=ret.end(); ++it) {
+        (*it).second *= this->prec((*it).first);
+    }
+
     return ret;
 }
 
