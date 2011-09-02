@@ -489,7 +489,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
   int N2 = (int)test_indexset.size();
   
   timer.start();
-  for(unsigned int qa = 1; qa <= Q_a; ++qa){
+  for(unsigned int qa = 0; qa < Q_a; ++qa){
     SparseMatrixT A_matrix(N1, N2);
     
     
@@ -497,7 +497,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
     int row_count = 1, col_count = 1;
     
-        if((!assembled_prec_vec) && qa == 1){
+        if((!assembled_prec_vec) && qa == 0){
           test_prec_vec.engine().resize((int)test_indexset.size());
           for (const_set_it row=test_indexset.begin(); row!=test_indexset.end(); ++row, ++row_count) {
               row_indices[(*row)] = row_count;

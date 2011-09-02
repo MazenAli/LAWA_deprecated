@@ -386,13 +386,13 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::assemble_A_operator
   int N = (int)indexset.size();
   
   timer.start();
-  for(unsigned int qa = 1; qa <= Q_a; ++qa){
+  for(unsigned int qa = 0; qa < Q_a; ++qa){
     SparseMatrixT A_matrix(N, N);
     
     typedef typename IndexSet<Index2D>::const_iterator const_set_it;
     std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
     int row_count = 1, col_count = 1;
-    if((!assembled_prec_vec) && qa == 1){
+    if((!assembled_prec_vec) && qa == 0){
         prec_vec.engine().resize((int)indexset.size());
         for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
             row_indices[(*row)] = row_count;
