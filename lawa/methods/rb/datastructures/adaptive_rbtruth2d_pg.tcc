@@ -8,7 +8,7 @@ AdaptiveRBTruth2D_PG(TrialBasis& _trialbasis, TestBasis& _testbasis, TrialPrec& 
                   bool _use_inner_product, bool _use_A_matrix)
     : trialbasis(_trialbasis), basis(_trialbasis), testbasis(_testbasis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
-      assembled_inner_product_matrix(false),
+      assembled_inner_product_matrix(false), assembled_prec_vec(false), assembled_A_operator_matrices(false),
       trial_prec(_trialprec), test_prec(_testprec), trial_prec_data(), test_prec_data()
 {}
 
@@ -422,8 +422,8 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     Timer timer;
     std::cout << "Assemble Inner Product Matrices ...." << std::endl;
     
-    trial_inner_product_matrix.resize(trial_indexset.size(), trial_indexset.size());
-    test_inner_product_matrix.resize(test_indexset.size(), test_indexset.size());
+    trial_inner_product_matrix.resize((int)trial_indexset.size(), (int)trial_indexset.size());
+    test_inner_product_matrix.resize((int)test_indexset.size(), (int)test_indexset.size());
     timer.start();
     
     // ToFlensSparseMatrix Trial Indexset
@@ -447,9 +447,21 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     row_indices.clear();    
     row_count = 1;
     col_count = 1;
-    for (const_set_it row=test_indexset.begin(); row!=test_indexset.end(); ++row, ++row_count) {
-        row_indices[(*row)] = row_count;
+    
+    if(!assembled_prec_vec){
+        test_prec_vec.engine().resize((int)test_indexset.size());
+        for (const_set_it row=test_indexset.begin(); row!=test_indexset.end(); ++row, ++row_count) {
+            row_indices[(*row)] = row_count;
+            test_prec_vec(row_count) = get_test_prec((*row));
+        }
+        assembled_prec_vec = true;
     }
+    else{
+        for (const_set_it row=test_indexset.begin(); row!=test_indexset.end(); ++row, ++row_count) {
+            row_indices[(*row)] = row_count;
+        }    
+    }
+    
     repr_lhs_op.compression.setParameters(test_indexset);
     for (const_set_it col=test_indexset.begin(); col!=test_indexset.end(); ++col, ++col_count) {
         IndexSet<Index2D> LambdaRowSparse = repr_lhs_op.compression.SparsityPattern(*col, test_indexset);
@@ -484,9 +496,21 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     typedef typename IndexSet<Index2D>::const_iterator const_set_it;
     std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
     int row_count = 1, col_count = 1;
-    for (const_set_it row=test_indexset.begin(); row!=test_indexset.end(); ++row, ++row_count) {
-        row_indices[(*row)] = row_count;
-    }
+    
+        if((!assembled_prec_vec) && qa == 1){
+          test_prec_vec.engine().resize((int)test_indexset.size());
+          for (const_set_it row=test_indexset.begin(); row!=test_indexset.end(); ++row, ++row_count) {
+              row_indices[(*row)] = row_count;
+              test_prec_vec(row_count) = get_test_prec((*row));
+          }
+          assembled_prec_vec = true;
+      }
+      else{
+          for (const_set_it row=test_indexset.begin(); row!=test_indexset.end(); ++row, ++row_count) {
+              row_indices[(*row)] = row_count;
+          }    
+      }
+      
     for (const_set_it col=trial_indexset.begin(); col!=trial_indexset.end(); ++col, ++col_count) {
         for (const_set_it row=trial_indexset.begin(); row!=trial_indexset.end(); ++row, ++row_count) {
             T tmp = (*A_operators[qa])(*row,*col);
@@ -500,7 +524,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
   timer.stop();
   std::cout << "... done: " << timer.elapsed() << " seconds" << std::endl;
   
-  rb->assembled_A_operator_matrices = true;
+  assembled_A_operator_matrices = true;
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>

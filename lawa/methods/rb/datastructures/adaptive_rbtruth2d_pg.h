@@ -135,6 +135,7 @@ class AdaptiveRBTruth2D_PG{
         TruthSolver*                            solver;
         
         bool assembled_inner_product_matrix;
+        bool assembled_prec_vec;
         bool assembled_A_operator_matrices;
                 
          // Wrapper class for affine structure on left hand side       
@@ -258,6 +259,7 @@ class AdaptiveRBTruth2D_PG{
         
         SparseMatrixT   trial_inner_product_matrix;
         SparseMatrixT   test_inner_product_matrix;
+        DenseVectorT    test_prec_vec;
         std::vector<SparseMatrixT> A_operator_matrices;
       
         class Operator_Residual_Representor {
