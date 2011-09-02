@@ -1,9 +1,9 @@
-#ifndef LAWA_METHODS_RB_SOLVERS_INDEXSET_TRUTHSOLVER_H
-#define LAWA_METHODS_RB_SOLVERS_INDEXSET_TRUTHSOLVER_H 1
+#ifndef LAWA_METHODS_RB_SOLVERS_INDEXSET_TRUTHSOLVER_PG_H
+#define LAWA_METHODS_RB_SOLVERS_INDEXSET_TRUTHSOLVER_PG_H 1
 
 namespace lawa {
   
-/* Indexset Truth Solver: 
+/* Indexset Truth Solver (Petrov-Galerkin): 
  *
  *    This class provides a wrapper for an CG/GMRES solve on a fixed 
  *    index set.
@@ -11,14 +11,14 @@ namespace lawa {
  *    
  */
   
-template <typename, typename, typename, typename, typename> class AdaptiveRBTruth2D;
+template <typename, typename, typename, typename, typename, typename, typename> class AdaptiveRBTruth2D_PG;
   
 
-template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
-class IndexsetTruthSolver {
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
+class IndexsetTruthSolver_PG {
   
-  typedef  AdaptiveRBTruth2D<T, Basis, Prec, 
-                            IndexsetTruthSolver<T, Basis, Prec, Index, Compression>, Compression> Truth;
+  typedef  AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec,
+             IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>, Compression> Truth;
   typedef typename Truth::Operator_LHS                                 LHS;
   typedef typename Truth::Operator_RHS                                 RHS;
   typedef typename Truth::Operator_LHS_Representor                     MatrixOp;
@@ -30,7 +30,8 @@ class IndexsetTruthSolver {
   
   
 public:
-  IndexsetTruthSolver(IndexSet<Index>& _indexset, Truth& _truth, SolverCall solmethod,
+  IndexsetTruthSolver_PG(IndexSet<Index>& _indexset_trial, IndexSet<Index>& _indexset_test, 
+                      Truth& _truth, SolverCall solmethod,
                       T _tol = std::numeric_limits<T>::epsilon(), int maxIts = 1000);
   
   void 
@@ -48,10 +49,8 @@ public:
   Coefficients<Lexicographical,T,Index>
   repr_solve_totalRes(RHS_ResRepr& res_repr_op);
 
-  Coefficients<Lexicographical,T,Index>
-  repr_solve_output();
-
-  IndexSet<Index>& basis_set;
+  IndexSet<Index>& trialbasis_set;
+  IndexSet<Index>& testbasis_set;
   
   //std::vector<DenseVectorT> F_operator_vectors;
   
@@ -72,6 +71,6 @@ private:
 
 } // namespace lawa
 
-#include <lawa/methods/rb/solvers/indexset_truthsolver.tcc>
+#include <lawa/methods/rb/solvers/indexset_truthsolver_pg.tcc>
 
-#endif // LAWA_METHODS_RB_SOLVERS_INDEXSET_TRUTHSOLVER_H
+#endif // LAWA_METHODS_RB_SOLVERS_INDEXSET_TRUTHSOLVER_PG_H

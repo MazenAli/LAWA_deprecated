@@ -18,4 +18,5 @@ validate/test_multiwavelets_interval
 validate/test_multiwavelets_realline
 applications/unbounded_domains/validate/test_MW_APPLY1D
 applications/unbounded_domains/parameters/eigenvalues_mw
-applications/unbounded_domains/adwav/ghs-adwav-realline-mw-helmholtz1d
+applications/unbounded_domains/adwav/ghs-adwav-realline-mw-helmholtz1d/tutorials/rb_examples/rb_example
+/tutorials/rb_examples/adaptive_rb_example

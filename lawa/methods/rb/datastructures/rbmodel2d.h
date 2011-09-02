@@ -80,9 +80,6 @@ class RBModel2D {
         void
         attach_theta_output_q(theta_fctptr theta_output_q);
 
-        void 
-        attach_inner_product_op(Operator2D<T>& _inner_product_op);
-
         void
         set_truthmodel(TruthModel& _truthmodel);
         
@@ -97,10 +94,6 @@ class RBModel2D {
 
         CoeffVector
         reconstruct_u_N(DenseVectorT u, unsigned int N);
-        
-        // Computes the inner product a(v,u) w.r.t. the operator a = inner_product_op
-        T
-        inner_product(const CoeffVector& v1, const CoeffVector& v2);
         
         T
         residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu);
@@ -124,7 +117,6 @@ class RBModel2D {
         
         void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
-        
         
         void
         write_basis_functions(const std::string& directory_name = "offline_data/bf");
@@ -152,8 +144,6 @@ class RBModel2D {
 
         std::vector<CoeffVector>        rb_basis_functions;
         
-        Operator2D<T>*  inner_product_op;
-        
         FullColMatrixT                               F_F_representor_norms; // Speicherbedarf kann verringert werden..
         std::vector<FullColMatrixT>                  A_F_representor_norms;
         std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
@@ -161,9 +151,6 @@ class RBModel2D {
         
         std::vector<std::vector<T> >  Xi_train;
         
-        bool assembled_inner_product_matrix;
-        bool assembled_A_operator_matrices;
-
         // Update the (dense) RB matrices / vectors with the last basis function
         void
         update_RB_A_matrices();

@@ -23,17 +23,20 @@ typedef TensorBasis2D<Adaptive,IntervalBasis,IntervalBasis> Basis2D;
 
 // Operator Definitions
 typedef WeightedHelmholtzOperator2D<T, Basis2D>                            WeightedLaplaceOp2D;
-typedef H1NormPreconditioner2D<T, Basis2D>                                DiagPrec2D;
-typedef WeightedAdaptiveHelmholtzOperator2D<T, Basis2D, DiagPrec2D>        WeightedAdaptHHOp2D;
-typedef AdaptiveHelmholtzOperator2D<T, Basis2D, DiagPrec2D>                AdaptHHOp2D;
-typedef RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, DiagPrec2D>             AdaptRHS;
+typedef H1NormPreconditioner2D<T, Basis2D>                                 DiagPrec2D;
+typedef NoPreconditioner<T, Index2D>                                       NoPrec2D;
+typedef WeightedAdaptiveHelmholtzOperator2D<T, Basis2D, NoPrec2D>          WeightedAdaptHHOp2D;
+typedef AdaptiveHelmholtzOperator2D<T, Basis2D, NoPrec2D>                  AdaptHHOp2D;
+typedef RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, NoPrec2D>               AdaptRHS;
 
 // Algorithm Definition
     // Class for calling the truth solver for snapshot calculations
 typedef CompressionWeightedPDE2D<T, Basis2D>                              Compression;
-typedef IndexsetTruthSolver<T, Basis2D, Index2D, Compression>             IndexsetSolver;
+typedef IndexsetTruthSolver<T, Basis2D, DiagPrec2D, 
+                            Index2D, Compression>                         IndexsetSolver;
     // Class containing all \calN-dependent data and functions
-typedef AdaptiveRBTruth2D<T, Basis2D, IndexsetSolver, Compression>        RBTruth;
+typedef AdaptiveRBTruth2D<T, Basis2D, DiagPrec2D, 
+                            IndexsetSolver, Compression>                  RBTruth;
     // Class containing only N-dependent data and functions
 typedef RBModel2D<T, RBTruth>                                             RBModel;
 
@@ -101,13 +104,10 @@ int main(int argc, char* argv[]) {
     Basis2D         basis2d(basis_x, basis_y);
     
     DiagPrec2D             prec(basis2d);
+    NoPrec2D               noprec;
 
     /* Model Initialization */
     RBModel rb_model;
-    
-        // Attach an inner product (here: H1 norm)
-    AdaptHHOp2D h1norm(basis2d, 1., prec, 1e-10);
-    rb_model.attach_inner_product_op(h1norm);
     
         // Parameter vector
     std::vector<T> refmu(1);
@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
     saveCoeffVector2D(u_approx, basis2d, filename.str().c_str());
     cout << "    ... done " << endl;
     cout << "Plotting function ... " << endl;
-    plot2D<T>(basis2d, u_approx, prec, plot_dummy_fct, 0, 1, 0, 1, h, filename_plot.str().c_str());
+    plot2D<T>(basis2d, u_approx, noprec, plot_dummy_fct, 0, 1, 0, 1, h, filename_plot.str().c_str());
     cout << "    ... done " << endl;
     
     return 0;
