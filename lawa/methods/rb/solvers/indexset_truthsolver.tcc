@@ -1,3 +1,5 @@
+#include <fstream>
+
 namespace lawa {
 
 template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
@@ -74,6 +76,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
     std::cout << "  Build Rhs... " <<  std::endl;
     timer2.start();
+    
     for(it = basis_set.begin(); it != basis_set.end(); ++it){
       f.insert(val_type((*it), truth_model->repr_rhs_F_op(*it)));
     }
@@ -118,9 +121,9 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
       int N = basis_set.size();
       DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
-      
+
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = truth_model->repr_rhs_F_op((*row));
+         rhs(row_count) = truth_model->repr_rhs_F_op((*row)) / truth_model->get_prec((*row));
         x(row_count) = 0.;  
       }
       timer2.stop();
@@ -137,7 +140,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_prec((*row)) ;
           }
           std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
           break;
@@ -149,7 +152,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_prec((*row));
           }
           std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;
           break;
@@ -231,7 +234,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
       int row_count=1;
       
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = truth_model->repr_rhs_A_op((*row));
+        rhs(row_count) = truth_model->repr_rhs_A_op((*row)) / truth_model->get_prec((*row));
         x(row_count) = 0.;  
       }
       timer2.stop();
@@ -248,7 +251,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_prec((*row));
           }
           std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
           break;
@@ -260,7 +263,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_prec((*row));
           }
           std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;          
           break;
@@ -344,7 +347,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
       int row_count=1;
       
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = res_repr_op((*row));
+        rhs(row_count) = res_repr_op((*row)) / truth_model->get_prec((*row));
         x(row_count) = 0.;  
       }
       timer2.stop();
@@ -361,7 +364,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_prec((*row));
           }
           std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
           break;
@@ -373,7 +376,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_prec((*row));
           }
           std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;          
           break;

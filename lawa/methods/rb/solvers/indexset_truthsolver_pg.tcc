@@ -125,6 +125,11 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
     
+    assert(truth_model->assembled_inner_product_matrix);
+    assert(truth_model->assembled_prec_vec);
+      
+    DiagonalMatrix<T> P(truth_model->test_prec_vec);  
+      
     std::cout << "    Using inner product matrix!" << std::endl;
     if (trialbasis_set.size() > 0) {
       
@@ -140,7 +145,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int row_count=1;
       
       for (const_set_it row = testbasis_set.begin(); row != testbasis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = truth_model->repr_rhs_F_op((*row));
+        rhs(row_count) = truth_model->repr_rhs_F_op((*row)) / truth_model->get_test_prec((*row));
       }
       timer2.stop();
       std::cout << "    .... done : " << timer2.elapsed() << " seconds " << std::endl;  
@@ -149,31 +154,33 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int its;
       switch(solution_method){
         case call_cg:
-          std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::pcg(P, truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
           Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_test_prec((*row));
           }
-          std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
+          std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
           break;
         case call_gmres:
-          std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          std::cout << "  Start PGMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::pgmres(P,truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
           Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_test_prec((*row));
           }
-          std::cout << "  GMRES iterations: " << its << ", residual = " << residual << std::endl;
+          std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;
           break;
         case call_cgls:
-          std::cout << "  Start CGLS Solve: Maximal iterations = " << maxIterations << std::endl; 
+              std::cerr << "Preconditioned version not yet implemented!" << std::endl;
+              exit(1);
+          /*std::cout << "  Start CGLS Solve: Maximal iterations = " << maxIterations << std::endl; 
           its = lawa::cgls(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
           Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
@@ -183,6 +190,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
              u[*row] = x(row_count);
           }
           std::cout << "  CGLS iterations: " << its << ", residual = " << residual << std::endl;
+          */
           break;
         default: 
           std::cerr << "Method not implemented yet " << std::endl;
@@ -246,6 +254,11 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     std::cout << "Done A Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;    
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
+  
+      assert(truth_model->assembled_inner_product_matrix);
+      assert(truth_model->assembled_prec_vec);
+      
+      DiagonalMatrix<T> P(truth_model->test_prec_vec);  
     
     std::cout << "  Using inner product matrix!" << std::endl;
     if (testbasis_set.size() > 0) {
@@ -263,7 +276,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int row_count=1;
       
       for (const_set_it row = testbasis_set.begin(); row != testbasis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = truth_model->repr_rhs_A_op((*row));
+        rhs(row_count) = truth_model->repr_rhs_A_op((*row)) / truth_model->get_test_prec((*row));
         x(row_count) = 0.;  
       }
       timer2.stop();
@@ -273,30 +286,33 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int its;
       switch(solution_method){
         case call_cg:
-          std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::pcg(P,truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
           Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_test_prec((*row));
           }
-          std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
+          std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
           break;
         case call_gmres:
-          std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          std::cout << "  Start PGMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::pgmres(P,truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
           Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_test_prec((*row));
           }
-          std::cout << "  GMRES iterations: " << its << ", residual = " << residual << std::endl;          
+          std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;          
           break;
         case call_cgls:
+              std::cerr <<"Preconditioned version not implemented yet!" << std::endl;
+              exit(1);
+        /*
           std::cout << "  Start CGLS Solve: Maximal iterations = " << maxIterations << std::endl; 
           its = lawa::cgls(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
           Ax = truth_model->test_inner_product_matrix*x;
@@ -307,6 +323,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
               u[*row] = x(row_count);
           }
           std::cout << "  CGLS iterations: " << its << ", residual = " << residual << std::endl;
+          */
           break;
         default: 
           std::cerr << "Method not implemented yet " << std::endl;
@@ -366,7 +383,11 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     std::cout << "Done Residual Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;    
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
-    
+      assert(truth_model->assembled_inner_product_matrix);
+      assert(truth_model->assembled_prec_vec);
+      
+      DiagonalMatrix<T> P(truth_model->test_prec_vec);  
+      
     std::cout << "  Using inner product matrix!" << std::endl;
     if (testbasis_set.size() > 0) {
       
@@ -383,7 +404,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int row_count=1;
       
       for (const_set_it row = testbasis_set.begin(); row != testbasis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = res_repr_op((*row));
+        rhs(row_count) = res_repr_op((*row)) / truth_model->get_test_prec((*row));
         x(row_count) = 0.;  
       }
       timer2.stop();
@@ -393,28 +414,28 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int its;
       switch(solution_method){
         case call_cg:
-          std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::cg(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::pcg(P,truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
           Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_test_prec((*row));
           }
-          std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
+          std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
           break;
         case call_gmres:
-          std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::gmres(truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
+          std::cout << "  Start PGMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
+          its = lawa::pgmres(P, truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
           Ax = truth_model->test_inner_product_matrix*x;
           res= Ax-rhs;
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=testbasis_set.begin(); row!=testbasis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count) / truth_model->get_test_prec((*row));
           }
-          std::cout << "  GMRES iterations: " << its << ", residual = " << residual << std::endl;          
+          std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;          
           break;
         default: 
           std::cerr << "Method not implemented yet " << std::endl;
