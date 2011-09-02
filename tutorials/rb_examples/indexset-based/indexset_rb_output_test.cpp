@@ -98,6 +98,18 @@ weight_Forcing_y(T y)
 }
 
 T
+output_x(T x)
+{
+	return (x >= 0.7) && (x<= 0.8) ? 1 : 0 ;
+}
+
+T
+output_y(T y)
+{
+	return (y >= 0.7) && (y<= 0.8) ? 1 : 0 ;
+}
+
+T
 theta_f_1(const std::vector<T>&)
 {
     return 1.;
@@ -174,7 +186,16 @@ int main(int argc, char* argv[]) {
     FullColMatrixT noDeltas;
     SeparableRHS2D<T, Basis2D> forcingIntegral(basis2d, forcingFct, noDeltas, noDeltas, 4);
     AdaptRHS F(forcingIntegral, prec);
-    Output AverageOutput(basis2d, 0.7,0.7,0.8,0.8, F);
+
+
+    /*RHS for Output Functional*/
+    DenseVectorT singpts_output_x(4), singpts_output_y(4);
+    singpts_output_x = 0., 0.7, 0.8, 1.;
+    singpts_output_y = 0., 0.7, 0.8, 1.;
+    SeparableFunction2D<T> sep_output_function(output_x, singpts_output_x, output_y, singpts_output_y);
+    SeparableRHS2D<T, Basis2D> sep_output_rhs(basis2d, sep_output_function, noDeltas, noDeltas, 4);
+    AdaptRHS Output_RHS(sep_output_rhs,prec);
+    Output AverageOutput(basis2d, 0.7,0.8,0.7,0.8, Output_RHS);
 
     rb_model.truth->attach_F_q(theta_f_1, F);
 
@@ -185,7 +206,6 @@ int main(int argc, char* argv[]) {
 
     readIndexSet2D<T>(basisset, argv[5]);
     std::cout << "Basis Set: " << basisset.size() << " functions" << std::endl;
-
 
     SolverCall call = call_cg;
     IndexsetSolver indexset_solver(basisset, rb_truth, call);
@@ -233,6 +253,9 @@ int main(int argc, char* argv[]) {
       // Reference truth solve at test parameter
       rb_model.set_current_param(Xi_test[i]);
       Coeffs u = rb_model.truth->solver->truth_solve();
+      cout << "size coeffs u : " << u.size() << endl;
+      T output_u = AverageOutput.operator()(u);
+      cout << "--------output operator u : " << output_u << endl;
 
       // RB solves for different basis sizes
       for(unsigned int n = 1; n <= rb_model.n_bf(); ++n){
@@ -241,8 +264,14 @@ int main(int argc, char* argv[]) {
         T error_bound = rb_model.residual_dual_norm(u_N, Xi_test[i]) / rb_model.alpha_LB(Xi_test[i]);
 
         Coeffs u_approx = rb_model.reconstruct_u_N(u_N, n);
+        cout << "size coeffs u_approx : " << u_approx.size() << endl<< endl;
+
+        T output_u_approx = AverageOutput.operator()(u_approx);
+        cout << "--------output operator u_approx : " << output_u_approx << endl;
         Coeffs coeff_diff = u - u_approx;
         T err_norm = rb_model.inner_product(coeff_diff, coeff_diff);
+
+        cout << "Differenz der Outputs: " << output_u-output_u_approx << endl;
 
         cout << "   N = " << n << ": " << err_norm << " " << error_bound << endl;
 
@@ -253,6 +282,13 @@ int main(int argc, char* argv[]) {
         }
       }
     }
+
+
+
+
+
+//    T output_u_diff = AverageOutput.operator()(coeff_diff);
+  //  cout << "--------output operator u_diff : " << output_u_diff << endl;
 
     // Print to errorfile
     ofstream errorfile(testerrorfile.c_str());

@@ -4,6 +4,8 @@
 #include <lawa/methods/rb/outputs/adaptiveoutput.h>
 #include <lawa/methods/adaptive/algorithms/rhs.h>
 
+using namespace std;
+
 namespace lawa {
   
 template<typename T, typename Index2D, typename Basis2D>
