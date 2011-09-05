@@ -150,7 +150,15 @@ class AdaptiveRBTruth2D_PG{
                     : thisTruth(_truth), compression(thisTruth->trialbasis), qa(-1){}
                 
                 T
-                operator()(const Index2D &row_index, const Index2D &col_index);         
+                operator()(const Index2D &row_index, const Index2D &col_index);   
+                
+                Coefficients<Lexicographical,T,Index2D>
+                mv(const IndexSet<Index2D> &LambdaRow,
+                   const Coefficients<Lexicographical,T,Index2D> &x);
+
+                void
+                toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
+                                    const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);      
                 
                 Compression compression;
                 
@@ -192,6 +200,14 @@ class AdaptiveRBTruth2D_PG{
 
                  T
                  operator()(const Index2D &row_index, const Index2D &col_index);
+                 
+                 Coefficients<Lexicographical,T,Index2D>
+                 mv(const IndexSet<Index2D> &LambdaRow,
+                    const Coefficients<Lexicographical,T,Index2D> &x);
+
+                 void
+                 toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
+                                     const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
 
                  Compression compression;
          };
