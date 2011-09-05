@@ -19,9 +19,9 @@
 
 namespace lawa {
 
-/*
- * Coefficient vector ordered by index
- */
+/* **********************************************************************************************
+ * Lexicographically sorted coefficient vector
+ * ********************************************************************************************** */
 
 template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index>::Coefficients()
@@ -97,13 +97,13 @@ Coefficients<Lexicographical,T,Index>::operator*(const Coefficients<Lexicographi
 {
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
     Coefficients<Lexicographical,T,Index> _coeff1 = *this;
-    T ret = 0.0;
+    long double ret = 0L;
     if (_coeff2.size() > 0) {
         for (const_it lambda = _coeff2.begin(); lambda != _coeff2.end(); ++lambda) {
-            ret += _coeff1.operator[]((*lambda).first) * (*lambda).second;
+            ret += (long double)(_coeff1.operator[]((*lambda).first) * (*lambda).second);
         }
     }
-    return ret;
+    return (T)ret;
 }
 
 template <typename T, typename Index>
@@ -134,15 +134,14 @@ T
 Coefficients<Lexicographical,T,Index>::norm(T tau) const
 {
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
-    T result=0.0;
+    long double result=0.0L;
     if (Coefficients<Lexicographical,T,Index>::size() > 0) {
         for (const_it mu=Coefficients<Lexicographical,T,Index>::begin();
              mu!=Coefficients<Lexicographical,T,Index>::end(); ++mu) {
-            result+=std::pow((T)fabs((*mu).second), (T)tau);
+            result+=std::pow((long double)fabs((*mu).second), (long double)tau);
         }
     }
-
-    return std::pow(result, 1.0/tau);
+    return std::pow(result, (long double)(1.0L/tau));
 }
 
 template <typename T, typename Index>
@@ -215,10 +214,121 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
     }
 }
 
+/* **********************************************************************************************
+ * Bucket sorted coefficient vector
+ * ********************************************************************************************** */
 
-/*
- * Coefficient vector ordered by absolute value
- */
+template <typename T, typename Index>
+Coefficients<Bucket,T,Index>::Coefficients()
+: supremumnorm(0.), buckets(), bucket_ell2norms()
+{
+
+}
+
+template <typename T, typename Index>
+void
+Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,Index> &_coeff, T eps)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    typedef typename Coefficients<Lexicographical,T,Index>::value_type val_type;
+
+    for (int i=0; i<(int)buckets.size(); ++i) {
+        buckets[i].clear();
+    }
+    buckets.clear();
+    bucket_ell2norms.clear();
+
+    supremumnorm = 0.;
+    if (_coeff.size() > 0) {
+        for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
+            supremumnorm = std::max(supremumnorm,fabs((*lambda).second));
+        }
+    }
+    //std::cerr << "Supremum norm = " << supremumnorm << std::endl;
+    int NumOfBuckets = std::max(0,(int)(2*std::log(supremumnorm*std::sqrt(_coeff.size())/eps)/std::log(T(2))));
+    //std::cerr << "Number of buckets = " << NumOfBuckets << std::endl;
+
+
+    for (int i=0; i<NumOfBuckets; ++i) {
+        BucketEntry tmp;
+        buckets.push_back(tmp);
+        bucket_ell2norms.push_back(0.);
+    }
+
+    if (_coeff.size() > 0) {
+        for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
+            int pos = std::max(0,int(std::ceil(-2*std::log(fabs((*lambda).second)/supremumnorm)/std::log(T(2))))-1);
+            if (pos>=NumOfBuckets-1) continue;
+            //std::cerr << "pos for " << (*lambda).first << ", " << (*lambda).second
+            //          << ": " << -2*std::log(fabs((*lambda).second)/supremumnorm)/std::log(T(2)) << std::endl;
+            const std::pair<const Index,T>* tmp = &(*lambda);
+            buckets[pos].push_back(tmp);
+            T val = (*lambda).second;
+            bucket_ell2norms[pos] += (long double)(val*val);
+        }
+    }
+
+    for (int i=0; i<(int)bucket_ell2norms.size(); ++i) {
+        bucket_ell2norms[i] = std::sqrt(bucket_ell2norms[i]);
+    }
+}
+
+template <typename T, typename Index>
+int
+Coefficients<Bucket,T,Index>::addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber,
+                                                  int count)
+{
+    if (count==-1) {
+        count = Lambda.size();
+    }
+    ++count;
+    typedef typename  Coefficients<Bucket,T,Index>::BucketEntry::const_iterator const_it;
+    for (const_it it=buckets[bucketnumber].begin(); it!=buckets[bucketnumber].end(); ++it) {
+        Index tmp((**it).first);
+        tmp.linearindex=count;
+        Lambda.insert(tmp);
+        ++count;
+    }
+    return buckets[bucketnumber].size();
+}
+
+template <typename T, typename Index>
+void
+Coefficients<Bucket,T,Index>::addBucketToCoefficients(Coefficients<Lexicographical,T,Index> &coeff,
+                                                      int bucketnumber)
+{
+
+    typedef typename  Coefficients<Bucket,T,Index>::BucketEntry::const_iterator const_it;
+    for (const_it it=buckets[bucketnumber].begin(); it!=buckets[bucketnumber].end(); ++it) {
+        Index tmp((**it).first);
+        coeff[tmp] = (**it).second;
+    }
+}
+
+template <typename T, typename Index>
+std::ostream& operator<< (std::ostream &s, const Coefficients<Bucket,T,Index> &c)
+{
+    typedef typename  Coefficients<Bucket,T,Index>::BucketEntry::const_iterator const_it;
+    s << std::endl << "Coefficients<Bucket,T,Index>:" << std::endl;
+    if (c.buckets.size() > 0) {
+        for (int i=0; i<(int)c.buckets.size(); ++i) {
+            s << "Bucketnumber " << i+1 << " contains values in (" << c.supremumnorm*pow2ih<T>(-(i+1))
+              << ", " << c.supremumnorm*pow2ih<T>(-i) << "]"
+              << ", ell2norm=" << c.bucket_ell2norms[i] << std::endl;
+            for (const_it it=c.buckets[i].begin(); it!=c.buckets[i].end(); ++it) {
+                s << " " << (**it).first << " " << (**it).second << std::endl;
+            }
+        }
+    }
+    return s << std::endl;
+
+}
+
+
+/* **********************************************************************************************
+ * Coefficient vector sorted by absolute values
+ * ********************************************************************************************** */
+
 template <typename T, typename Index>
 Coefficients<AbsoluteValue,T,Index>::Coefficients()
 {
@@ -261,11 +371,11 @@ template <typename T, typename Index>
 T
 Coefficients<AbsoluteValue,T,Index>::norm(T tau) const
 {
-    typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_it;
+    typedef typename Coefficients<AbsoluteValue,T,Index>::const_reverse_iterator const_it;
     T result=0.0;
     if (Coefficients<AbsoluteValue,T,Index>::size() > 0) {
-        for (const_it mu=Coefficients<AbsoluteValue,T,Index>::begin();
-             mu!=Coefficients<AbsoluteValue,T,Index>::end(); ++mu) {
+        for (const_it mu=Coefficients<AbsoluteValue,T,Index>::rbegin();
+             mu!=Coefficients<AbsoluteValue,T,Index>::rend(); ++mu) {
             result+=std::pow((T)fabs((*mu).first),(T) tau);
         }
     }

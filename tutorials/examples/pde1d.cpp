@@ -21,20 +21,21 @@ using namespace lawa;
 
 ///  Typedefs for Flens data types:
 typedef double T;
-typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::DiagonalMatrix<T>                                    DiagonalMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 ///  Typedefs for problem components:
 ///     Primal Basis over an interval, using Dijkema construction
-typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+//typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+typedef Basis<T, Primal, Interval, SparseMulti>                         PrimalBasis;
 
 ///     PDE-Operator in 1D, i.e. for $a(v,u) = \int(v_x \cdot u_x) \int(b(x) v \cdot u') + \int(a(x) v \cdot u)$
 typedef WeightedPDEOperator1D<T, PrimalBasis>                       PDEOp;
 
 ///     Preconditioner: diagonal scaling with norm of operator
-typedef H1NormPreconditioner1D<T, PrimalBasis>                      NormPrec;
+typedef DiagonalMatrixPreconditioner1D<T, PrimalBasis, PDEOp>       Prec;
 
 ///     Right Hand Side (RHS): basic 1D class for rhs integrals of the form $\int(f \cdot v)$,
 ///     possibly with additional peak contributions (not needed here)
@@ -64,26 +65,37 @@ u_xx_f(T x)
 T
 a_f(T x)
 {
-    return 1+exp(x);
+    return 1.;
+    //return 1+exp(x);
 }
 
 /// Non-constant convection term
 T
 b_f(T x)
 {
+    return 0.;
+    /*
     if (x<=0.4) {
         return 1.;
     }
     else {
         return -1.;
     }
+    */
+}
+
+/// constant diffusion term
+T
+c_f(T x)
+{
+    return 1.;  // must be a constant function!!
 }
 
 /// Forcing function of the form `T f(T x)` - here a constant function
 T
 rhs_f(T x)
 {
-    return -a_f(x)*u_xx_f(x) + b_f(x)*u_x_f(x) + a_f(x)*u_f(x);
+    return -c_f(x)*u_xx_f(x) + b_f(x)*u_x_f(x) + a_f(x)*u_f(x);
 }
 
 /// Auxiliary function to print solution values, generates `.txt`-file with
@@ -120,31 +132,39 @@ H1errorU(const DenseVectorT u, const PrimalBasis& basis, const int j, T &L2error
     H1error *= deltaX;
     H1error = std::sqrt(H1error);
 
+
 }
 
-int main()
+int main(int argc, char*argv[])
 {
+    if(argc != 5){
+        cerr << "Usage: " << argv[0] << " d d_ j0 J" << endl;
+        exit(-1);
+    }
     /// wavelet basis parameters:
-    int d = 3;          // (d,d_)-wavelets
-    int d_ = 3;
-    int j0 = 3;         // minimal level
-    int J = 8;          // maximal level
+    int d = atoi(argv[1]);
+    int d_ =atoi(argv[2]);
+    int j0 = atoi(argv[3]);
+    int J = atoi(argv[4]);
+
 
     /// Basis initialization, using Dirichlet boundary conditions
-    PrimalBasis basis(d, d_, j0);
+    //PrimalBasis basis(d, d_, j0);
+    PrimalBasis basis(d, j0);
     basis.enforceBoundaryCondition<DirichletBC>();
 
     /// Operator initialization
-    DenseVectorT a_singPts;
+    DenseVectorT a_singPts, c_singPts;
     DenseVectorT b_singPts(1); b_singPts = 0.5;
     Function<T> a(a_f, a_singPts);
     Function<T> b(b_f, b_singPts);
-    PDEOp       op(basis, a, b, a);
-    NormPrec    p(basis);
+    Function<T> c(c_f, c_singPts);
+    PDEOp       op(basis, a, b, c);
+    Prec        p(op);
 
     /// Righthandside initialization
     DenseVectorT singPts;                      // singular points of the rhs forcing function: here none
-    FullColMatrixT deltas;                     // peaks (and corresponding scaling coefficients): here none
+    DenseMatrixT deltas;                     // peaks (and corresponding scaling coefficients): here none
     Function<T> F(rhs_f, singPts);             // Function object (wraps a function and its singular points)
     Rhs rhs(basis, F, deltas, 10, false, true); // RHS: specify integration order for Gauss quadrature (here: 4) and
                                                //      if there are singular parts (false) and/or smooth parts (true)
@@ -158,15 +178,42 @@ int main()
         DiagonalMatrixT P = assembler.assemblePreconditioner(p, j);
         DenseVectorT    f = assembler.assembleRHS(rhs, j);
 
+        DenseMatrixT A_dense;
+        densify(cxxblas::NoTrans,A,A_dense);
+        int N = A_dense.numRows();
+
+
+        for (int i=1; i<=N; ++i) {
+            for (int j=1; j<=N; ++j) {
+                A_dense(i,j) *= P._diag(i)*P._diag(j);
+            }
+        }
+        DenseMatrixT U(A.numRows(),A.numRows()), V(A.numCols(),A.numCols());
+
+        DenseVector<Array<T> > wr(N), wi(N);
+        DenseMatrixT vl,vr;
+        ev(false, false, A_dense, wr, wi, vl, vr);
+        T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
+        for (int i=1; i<=wr.lastIndex(); ++i) {
+            cB = std::min(cB,wr(i));
+            CB = std::max(CB,wr(i));
+        }
+        cout << "Eigenvalues for A_" << j <<", kappa = " << CB/cB
+             << ", cA = " << cB << ", CA = " << CB << endl;
+
+        spy(A,"A");
+
+        getchar();
+
         /// Initialize empty solution vector
         DenseVectorT u(basis.mra.rangeI(j));
 
-        /// Solve problem using pcg
+        /// Solve problem using pgmres
         cout << pgmres(P, A, u, f) << " pgmres iterations" << endl;
 
         /// Compute errors
         T L2error=0, H1error=0.;
-        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-2));
+        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-8));
         file << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
 
         /// Print solution to file "u.txt"

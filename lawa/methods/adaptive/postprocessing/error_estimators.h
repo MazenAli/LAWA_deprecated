@@ -38,7 +38,7 @@ estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> 
 template <typename T, typename Index, typename MA, typename RHS>
 T
 computeErrorInH1Norm(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
-                     T H1NormOfExactSolution);
+                     T H1NormOfExactSolution, bool optimized=false);
 
 template <typename T, typename Index, typename SOLVER, typename MA_H, typename RHS_H>
 void

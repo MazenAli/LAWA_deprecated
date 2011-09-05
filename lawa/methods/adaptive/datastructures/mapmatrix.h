@@ -25,6 +25,7 @@
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/preconditioners/nopreconditioner.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/matrixoperations.h>
 #include <lawa/aux/timer.h>
 
 namespace lawa {
@@ -46,6 +47,18 @@ struct MapMatrix
 
     T
     operator()(const Index &row_index, const Index &col_index);
+
+    Coefficients<Lexicographical,T,Index>
+    mv(const IndexSet<Index> &LambdaRow,
+       const Coefficients<Lexicographical,T,Index> &x);
+
+    void
+    toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
+                        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, int J);
+
+    void
+    toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
+                        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, T tol);
 
     //T
     //operator()(T t, const  Index &row_index, const Index &col_index);

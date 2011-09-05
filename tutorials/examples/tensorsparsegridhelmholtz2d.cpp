@@ -38,7 +38,7 @@ typedef HelmholtzOperator1D<T, Basis1D>                              HelmholtzOp
 typedef TensorSparseGrid2D<T, Basis2D, HelmholtzOp1D, IdentityOp1D,
                             IdentityOp1D, HelmholtzOp1D>             TensorSparseGrid;
 
-typedef RHSWithPeaks1D<T, Basis1D>                                   RHS1D;
+typedef RHSWithPeaks1D<T, Basis1D>                                   RhsIntegral1D;
 
 /// The constant 'c' in the Helmholtz equation.
 const double c =  1.;
@@ -189,10 +189,10 @@ int main (int argc, char*argv[])
     Function<T> u2Fct(u2, sing_support_y);
     ///             (heights of jumps in derivatives)
     FullColMatrixT nodeltas;
-    RHS1D rhs_f1(basis, f1Fct, nodeltas, 4);
-    RHS1D rhs_f2(basis, f2Fct, nodeltas, 4);
-    RHS1D rhs_u1(basis, u1Fct, nodeltas, 4);
-    RHS1D rhs_u2(basis, u1Fct, nodeltas, 4);
+    RhsIntegral1D rhs_f1(basis, f1Fct, nodeltas, 4);
+    RhsIntegral1D rhs_f2(basis, f2Fct, nodeltas, 4);
+    RhsIntegral1D rhs_u1(basis, u1Fct, nodeltas, 4);
+    RhsIntegral1D rhs_u2(basis, u1Fct, nodeltas, 4);
 
     /// Assemble f of linear system Au=f
     cout << "Assembly of tensor sparse grid rhs started." << endl;

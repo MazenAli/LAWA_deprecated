@@ -40,14 +40,36 @@ powerMethod(const MatA &A, typename MatA::ElementType tol,
         lambdaOld = lambda;
         y = A*z;
         lambda = norm<lInfinity>(y);
-        if (absolute(lambda-lambdaOld)<tol*lambda) {
+        if (fabs(lambda-lambdaOld)<tol*lambda) {
             lambda = (y*z)/(z*z);
             y = z;
             return;
         }
-        z = y / lambda;
+        z = ((T)1./lambda) * y;
     }
 }
+
+template <typename MatA, typename VecX>
+void
+inversePowerMethod(const MatA &A, typename MatA::ElementType tol,
+                   typename MatA::ElementType &lambda, VecX &y)
+{
+    typedef typename MatA::ElementType T;
+    int maxIterations = std::numeric_limits<int>::max();
+
+    VecX v, q;
+    for (int i=1; i<=maxIterations; ++i) {
+        v = (1./norm<l2>(y)) * y;
+        gmresm(A,y,v,tol);
+        lambda = v*y;
+        if (norm<l2>(q = -lambda*v+y) <= tol*fabs(lambda)) {
+            lambda = 1./lambda;
+            return;
+        }
+    }
+}
+
+/*
 
 template <typename Prec, typename MatA, typename VecX>
 void
@@ -127,8 +149,8 @@ inversePowerMethod(const Matrix<I> &A, typename _powerMethod<I>::T tol,
     int maxIterations = std::numeric_limits<int>::max();
     VecX v, q;
     for (int i=1; i<=maxIterations; ++i) {
-        v = y / norm<l2>(y);
-        lawa::gmres(A,y,v,tol);
+        v = (1./norm<l2>(y)) * y;
+        gmres(A,y,v,tol);
         lambda = v*y;
         if (norm<l2>(q = -lambda*v+y) <= tol*absolute(lambda)) {
             lambda = 1./lambda;
@@ -189,6 +211,8 @@ condition(const Prec &P, const MatA &A, typename MatA::ElementType tol)
     assert(lambdaMin!=0);
     return absolute(lambdaMax) / absolute(lambdaMin);
 }
+
+*/
 
 } // namespace lawa
 
