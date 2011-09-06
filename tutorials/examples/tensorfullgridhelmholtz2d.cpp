@@ -45,7 +45,7 @@ typedef DiagonalMatrixPreconditioner2D<T, Basis2D, HelmholtzOp2D>   DiagonalPrec
 //typedef SeparableRHS2D<T, Basis2D>                                  RHS2D;
 //typedef SumOfTwoRHSIntegrals<T, Index2D, RHS2D, RHS2D>              SumOf2RHS;
 
-typedef RHSWithPeaks1D<T, Basis1D>                                   RHS1D;
+typedef RHSWithPeaks1D<T, Basis1D>                                   RhsIntegral1D;
 
 /// The constant 'c' in the Helmholtz equation.
 const double c =  1.;
@@ -196,10 +196,10 @@ int main (int argc, char*argv[])
     Function<T> u2Fct(u2, sing_support_y);
     ///             (heights of jumps in derivatives)
     FullColMatrixT nodeltas;
-    RHS1D rhs_f1(basis_x, f1Fct, nodeltas, 10);
-    RHS1D rhs_f2(basis_y, f2Fct, nodeltas, 10);
-    RHS1D rhs_u1(basis_x, u1Fct, nodeltas, 10);
-    RHS1D rhs_u2(basis_x, u1Fct, nodeltas, 10);
+    RhsIntegral1D rhs_f1(basis_x, f1Fct, nodeltas, 10);
+    RhsIntegral1D rhs_f2(basis_y, f2Fct, nodeltas, 10);
+    RhsIntegral1D rhs_u1(basis_x, u1Fct, nodeltas, 10);
+    RhsIntegral1D rhs_u2(basis_x, u1Fct, nodeltas, 10);
 
     DenseVectorT f(basis2d.dim(J_x,J_y));
     DenseVectorT P_vec(basis2d.dim(J_x,J_y));

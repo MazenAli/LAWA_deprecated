@@ -41,7 +41,7 @@ class WeightedHelmholtzOperator1D{
         const T c;
 
         WeightedHelmholtzOperator1D(const Basis& _basis, const T _c,
-                                    Function<T> weightFct, int order=10,
+                                    Function<T> &weightFct, int order=10,
                                     const T left=0., const T right=1.);
 
         T
@@ -53,7 +53,7 @@ class WeightedHelmholtzOperator1D{
 
     private:
 
-        Function<T> W;
+        Function<T> &W;
 
         IntegralF<Quad, Basis, Basis>   integral;
 

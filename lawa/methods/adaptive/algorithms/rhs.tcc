@@ -20,13 +20,13 @@
 namespace lawa {
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
-RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, const Preconditioner &_P)
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, Preconditioner &_P)
     :    rhsintegral(_rhsintegral), P(_P), rhs_data(), rhs_abs_data()
 {
 }
 
 template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
-RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, const Preconditioner &_P,
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::RHS(const RHSINTEGRAL &_rhsintegral, Preconditioner &_P,
                                              const Coefficients<Lexicographical,T,Index> &_rhs_data)
     :    rhsintegral(_rhsintegral), P(_P), rhs_data(), rhs_abs_data()
 {
@@ -53,6 +53,9 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
     }
     else {
         T ret = P(lambda) * rhsintegral(lambda);
+        //if (fabs(ret)<1e-17) {
+        //    std::cerr << "RHS: zero entry for " << lambda << std::endl;
+        //}
         rhs_data[lambda] = ret;
         rhs_abs_data.insert(val_type(ret, lambda));
         return ret;
@@ -77,7 +80,7 @@ Coefficients<Lexicographical,T,Index>
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(T tol)
 {
     Coefficients<Lexicographical,T,Index> ret;
-    ret = THRESH(rhs_abs_data,tol);
+    ret = THRESH(rhs_abs_data,tol,true);
     return ret;
 }
 

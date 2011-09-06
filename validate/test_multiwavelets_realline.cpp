@@ -224,47 +224,47 @@ int main(int argc, char *argv[]) {
 
     /// Check for orthogonality
     Integral<Gauss,MWBasis,MWBasis> integral(basis,basis);
-    cout << "Phi_1 vs. Phi1: " << integral(0,1,XBSpline,0, 0,1,XBSpline,0) << endl;
-    cout << "Phi_1 vs. Phi2: " << integral(0,1,XBSpline,0, 0,2,XBSpline,0) << endl;
-    cout << "Phi_1 vs. Phi3: " << integral(0,1,XBSpline,0, 0,3,XBSpline,0) << endl;
-    cout << "Phi_1 vs. Psi1: " << integral(0,1,XBSpline,0, 0,1,XWavelet,0) << endl;
-    cout << "Phi_1 vs. Psi2: " << integral(0,1,XBSpline,0, 0,2,XWavelet,0) << endl;
-    cout << "Phi_1 vs. Psi3: " << integral(0,1,XBSpline,0, 0,3,XWavelet,0) << endl << endl;
+    cout << "Phi_1 vs. Phi1: " << integral(j0,1,XBSpline,0, j0,1,XBSpline,0) << endl;
+    cout << "Phi_1 vs. Phi2: " << integral(j0,1,XBSpline,0, j0,2,XBSpline,0) << endl;
+    cout << "Phi_1 vs. Phi3: " << integral(j0,1,XBSpline,0, j0,3,XBSpline,0) << endl;
+    cout << "Phi_1 vs. Psi1: " << integral(j0,1,XBSpline,0, j0,1,XWavelet,0) << endl;
+    cout << "Phi_1 vs. Psi2: " << integral(j0,1,XBSpline,0, j0,2,XWavelet,0) << endl;
+    cout << "Phi_1 vs. Psi3: " << integral(j0,1,XBSpline,0, j0,3,XWavelet,0) << endl << endl;
 
-    cout << "Phi_2 vs. Phi1: " << integral(0,2,XBSpline,0, 0,1,XBSpline,0) << endl;
-    cout << "Phi_2 vs. Phi2: " << integral(0,2,XBSpline,0, 0,2,XBSpline,0) << endl;
-    cout << "Phi_2 vs. Phi3: " << integral(0,2,XBSpline,0, 0,3,XBSpline,0) << endl;
-    cout << "Phi_2 vs. Psi1: " << integral(0,2,XBSpline,0, 0,1,XWavelet,0) << endl;
-    cout << "Phi_2 vs. Psi2: " << integral(0,2,XBSpline,0, 0,2,XWavelet,0) << endl;
-    cout << "Phi_2 vs. Psi3: " << integral(0,2,XBSpline,0, 0,3,XWavelet,0) << endl << endl;
+    cout << "Phi_2 vs. Phi1: " << integral(j0,2,XBSpline,0, j0,1,XBSpline,0) << endl;
+    cout << "Phi_2 vs. Phi2: " << integral(j0,2,XBSpline,0, j0,2,XBSpline,0) << endl;
+    cout << "Phi_2 vs. Phi3: " << integral(j0,2,XBSpline,0, j0,3,XBSpline,0) << endl;
+    cout << "Phi_2 vs. Psi1: " << integral(j0,2,XBSpline,0, j0,1,XWavelet,0) << endl;
+    cout << "Phi_2 vs. Psi2: " << integral(j0,2,XBSpline,0, j0,2,XWavelet,0) << endl;
+    cout << "Phi_2 vs. Psi3: " << integral(j0,2,XBSpline,0, j0,3,XWavelet,0) << endl << endl;
 
-    cout << "Phi_3 vs. Phi1: " << integral(0,3,XBSpline,0, 0,1,XBSpline,0) << endl;
-    cout << "Phi_3 vs. Phi2: " << integral(0,3,XBSpline,0, 0,2,XBSpline,0) << endl;
-    cout << "Phi_3 vs. Phi3: " << integral(0,3,XBSpline,0, 0,3,XBSpline,0) << endl;
-    cout << "Phi_3 vs. Psi1: " << integral(0,3,XBSpline,0, 0,1,XWavelet,0) << endl;
-    cout << "Phi_3 vs. Psi2: " << integral(0,3,XBSpline,0, 0,2,XWavelet,0) << endl;
-    cout << "Phi_3 vs. Psi3: " << integral(0,3,XBSpline,0, 0,3,XWavelet,0) << endl << endl;
+    cout << "Phi_3 vs. Phi1: " << integral(j0,3,XBSpline,0, j0,1,XBSpline,0) << endl;
+    cout << "Phi_3 vs. Phi2: " << integral(j0,3,XBSpline,0, j0,2,XBSpline,0) << endl;
+    cout << "Phi_3 vs. Phi3: " << integral(j0,3,XBSpline,0, j0,3,XBSpline,0) << endl;
+    cout << "Phi_3 vs. Psi1: " << integral(j0,3,XBSpline,0, j0,1,XWavelet,0) << endl;
+    cout << "Phi_3 vs. Psi2: " << integral(j0,3,XBSpline,0, j0,2,XWavelet,0) << endl;
+    cout << "Phi_3 vs. Psi3: " << integral(j0,3,XBSpline,0, j0,3,XWavelet,0) << endl << endl;
 
-    cout << "Psi_1 vs. Phi1: " << integral(0,1,XWavelet,0, 0,1,XBSpline,0) << endl;
-    cout << "Psi_1 vs. Phi2: " << integral(0,1,XWavelet,0, 0,2,XBSpline,0) << endl;
-    cout << "Psi_1 vs. Phi3: " << integral(0,1,XWavelet,0, 0,3,XBSpline,0) << endl;
-    cout << "Psi_1 vs. Psi1: " << integral(0,1,XWavelet,0, 0,1,XWavelet,0) << endl;
-    cout << "Psi_1 vs. Psi2: " << integral(0,1,XWavelet,0, 0,2,XWavelet,0) << endl;
-    cout << "Psi_1 vs. Psi3: " << integral(0,1,XWavelet,0, 0,3,XWavelet,0) << endl << endl;
+    cout << "Psi_1 vs. Phi1: " << integral(j0,1,XWavelet,0, j0,1,XBSpline,0) << endl;
+    cout << "Psi_1 vs. Phi2: " << integral(j0,1,XWavelet,0, j0,2,XBSpline,0) << endl;
+    cout << "Psi_1 vs. Phi3: " << integral(j0,1,XWavelet,0, j0,3,XBSpline,0) << endl;
+    cout << "Psi_1 vs. Psi1: " << integral(j0,1,XWavelet,0, j0,1,XWavelet,0) << endl;
+    cout << "Psi_1 vs. Psi2: " << integral(j0,1,XWavelet,0, j0,2,XWavelet,0) << endl;
+    cout << "Psi_1 vs. Psi3: " << integral(j0,1,XWavelet,0, j0,3,XWavelet,0) << endl << endl;
 
-    cout << "Psi_2 vs. Phi1: " << integral(0,2,XWavelet,0, 0,1,XBSpline,0) << endl;
-    cout << "Psi_2 vs. Phi2: " << integral(0,2,XWavelet,0, 0,2,XBSpline,0) << endl;
-    cout << "Psi_2 vs. Phi3: " << integral(0,2,XWavelet,0, 0,3,XBSpline,0) << endl;
-    cout << "Psi_2 vs. Psi1: " << integral(0,2,XWavelet,0, 0,1,XWavelet,0) << endl;
-    cout << "Psi_2 vs. Psi2: " << integral(0,2,XWavelet,0, 0,2,XWavelet,0) << endl;
-    cout << "Psi_2 vs. Psi3: " << integral(0,2,XWavelet,0, 0,3,XWavelet,0) << endl << endl;
+    cout << "Psi_2 vs. Phi1: " << integral(j0,2,XWavelet,0, j0,1,XBSpline,0) << endl;
+    cout << "Psi_2 vs. Phi2: " << integral(j0,2,XWavelet,0, j0,2,XBSpline,0) << endl;
+    cout << "Psi_2 vs. Phi3: " << integral(j0,2,XWavelet,0, j0,3,XBSpline,0) << endl;
+    cout << "Psi_2 vs. Psi1: " << integral(j0,2,XWavelet,0, j0,1,XWavelet,0) << endl;
+    cout << "Psi_2 vs. Psi2: " << integral(j0,2,XWavelet,0, j0,2,XWavelet,0) << endl;
+    cout << "Psi_2 vs. Psi3: " << integral(j0,2,XWavelet,0, j0,3,XWavelet,0) << endl << endl;
 
-    cout << "Psi_3 vs. Phi1: " << integral(0,3,XWavelet,0, 0,1,XBSpline,0) << endl;
-    cout << "Psi_3 vs. Phi2: " << integral(0,3,XWavelet,0, 0,2,XBSpline,0) << endl;
-    cout << "Psi_3 vs. Phi3: " << integral(0,3,XWavelet,0, 0,3,XBSpline,0) << endl;
-    cout << "Psi_3 vs. Psi1: " << integral(0,3,XWavelet,0, 0,1,XWavelet,0) << endl;
-    cout << "Psi_3 vs. Psi2: " << integral(0,3,XWavelet,0, 0,2,XWavelet,0) << endl;
-    cout << "Psi_3 vs. Psi3: " << integral(0,3,XWavelet,0, 0,3,XWavelet,0) << endl << endl;
+    cout << "Psi_3 vs. Phi1: " << integral(j0,3,XWavelet,0, j0,1,XBSpline,0) << endl;
+    cout << "Psi_3 vs. Phi2: " << integral(j0,3,XWavelet,0, j0,2,XBSpline,0) << endl;
+    cout << "Psi_3 vs. Phi3: " << integral(j0,3,XWavelet,0, j0,3,XBSpline,0) << endl;
+    cout << "Psi_3 vs. Psi1: " << integral(j0,3,XWavelet,0, j0,1,XWavelet,0) << endl;
+    cout << "Psi_3 vs. Psi2: " << integral(j0,3,XWavelet,0, j0,2,XWavelet,0) << endl;
+    cout << "Psi_3 vs. Psi3: " << integral(j0,3,XWavelet,0, j0,3,XWavelet,0) << endl << endl;
 
     /// Test for vanishing moments
     DenseVectorT singPts;

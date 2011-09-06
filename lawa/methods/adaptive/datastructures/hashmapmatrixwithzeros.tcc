@@ -145,6 +145,38 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()
     }
 }
 
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
+Coefficients<Lexicographical,T,Index>
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::mv
+                                                    (const IndexSet<Index> &LambdaRow,
+                                                     const Coefficients<Lexicographical,T,Index> &x)
+{
+    return lawa::mv(LambdaRow,*this,x);
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
+void
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
+                                (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
+                                 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
+                                 int J)
+{
+    lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
+void
+MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
+                                (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
+                                 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
+                                 T tol)
+{
+    lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
+}
+
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 void
 MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::clear()

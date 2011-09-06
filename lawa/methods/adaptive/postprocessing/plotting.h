@@ -37,13 +37,13 @@ getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-     const Preconditioner &P, T (*u)(T), const char* filename);
+     Preconditioner &P, T (*u)(T), const char* filename);
 
 //Plot solution on a fixed grid
 template <typename T, typename Basis, typename Preconditioner>
 void
 plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-     const Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, const char* filename);
+     Preconditioner &P, T (*u)(T), T (*du)(T), T a, T b, T h, const char* filename);
 
 //Plot solution u times a weight function w (required for computations in weighted spaces)
 template <typename T, typename Basis, typename Preconditioner>

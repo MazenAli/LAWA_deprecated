@@ -3,10 +3,10 @@ namespace lawa {
 template <typename T, typename Basis, QuadratureType Quad>
 WeightedHelmholtzOperator1D<T, Basis, Quad>::WeightedHelmholtzOperator1D(const Basis& _basis,
                                                                          const T _c,
-                                                                         Function<T> weightFct,
+                                                                         Function<T> &weightFct,
                                                                          int order, const T left,
                                                                          const T right)
-    : basis(_basis), c(_c), W(weightFct), integral(W, _basis, _basis, left, right)
+    : basis(_basis), c(_c), W(weightFct), integral(weightFct, _basis, _basis, left, right)
 {
     integral.quadrature.setOrder(order);
 }
@@ -25,6 +25,7 @@ T
 WeightedHelmholtzOperator1D<T, Basis, Quad>::operator()(const Index1D &row_index,
                                                        const Index1D &col_index) const
 {
+    //std::cout << row_index << " " << col_index << std::endl;
     return this->operator()(row_index.xtype, row_index.j, row_index.k,
                             col_index.xtype, col_index.j, col_index.k);
 }

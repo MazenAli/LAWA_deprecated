@@ -582,6 +582,30 @@ operator()(const Index2D &row_index, const Index2D &col_index)
     }
 }
 
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::Operator_LHS::
+mv(const IndexSet<Index2D> &LambdaRow, const Coefficients<Lexicographical,T,Index2D> &x)
+{
+    std::cerr << "AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_LHS::mv not implemented."
+              << std::endl;
+    assert(0);
+    exit(1);
+}
+
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::Operator_LHS::
+toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,const IndexSet<Index2D> &LambdaCol,
+                    SparseMatrixT &A, T tol)
+{
+    std::cerr << "AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_LHS::toFlensSparseMatrix "
+              << "not implemented."
+              << std::endl;
+    assert(0);
+    exit(1);
+}
+
 /*  Operator RHS */
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
@@ -635,6 +659,29 @@ operator()(const Index2D &row_index, const Index2D &col_index)
     return thisTruth->get_test_prec(row_index) * thisTruth->get_test_prec(col_index) * (*thisTruth->test_inner_product_op)(row_index, col_index);
 }
 
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::Operator_LHS_Representor::
+mv(const IndexSet<Index2D> &LambdaRow, const Coefficients<Lexicographical,T,Index2D> &x)
+{
+    std::cerr << "AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_LHS_Representor::mv "
+              << "not implemented." << std::endl;
+    assert(0);
+    exit(1);
+}
+
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::Operator_LHS_Representor::
+toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow, const IndexSet<Index2D> &LambdaCol,
+                    SparseMatrixT &A, T tol)
+{
+    std::cerr << "AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_LHS_Representor::"
+              <<"toFlensSparseMatrix not implemented." << std::endl;
+    assert(0);
+    exit(1);
+}
+
 /* Operator RHS_BilFormRepresentor */
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
@@ -644,7 +691,8 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     T val = 0;
     typename Coefficients<Lexicographical,T,Index2D>::const_iterator it;
     for (it = current_bf->begin(); it != current_bf->end(); ++it) {
-        val += (*it).second * (*current_op)((*it).first, lambda) ;
+        //val += (*it).second * (*current_op)((*it).first, lambda) ;
+        val += (*it).second * (*current_op)(lambda, (*it).first) ;
     }
     
     return - thisTruth->get_test_prec(lambda) * val;
@@ -756,7 +804,8 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     for (int j = 0; j < u_N.length();++j){
       T val_A_bf = 0;
       for (it = thisTruth->rb->rb_basis_functions[j].begin(); it != thisTruth->rb->rb_basis_functions[j].end(); ++it) {
-          val_A_bf += (*it).second *(*thisTruth->A_operators[i])((*it).first,lambda);
+          //val_A_bf += (*it).second *(*thisTruth->A_operators[i])((*it).first,lambda);
+          val_A_bf += (*it).second *(*thisTruth->A_operators[i])(lambda, (*it).first);
       }
       val_Au += u_N(j+1) * val_A_bf;
     }

@@ -37,12 +37,17 @@ estimateError_Au_M_f(MA &A, RHS &F, const Coefficients<Lexicographical,T,Index> 
 template <typename T, typename Index, typename MA, typename RHS>
 T
 computeErrorInH1Norm(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Index> & u,
-                     T HNormOfExactSolution)
+                     T HNormOfExactSolution, bool optimized)
 {
     Coefficients<Lexicographical,T,Index> Au, f_H;
-    //Au = mv_sparse(supp(u),A_H,u);
-    Au = mv(supp(u),A_H,u);
-    std::cerr << "Attention: Slow matrix vector product..." << std::endl;
+    if (optimized) {
+        Au = A_H.mv(supp(u),u);
+    }
+    else {
+        Au = mv_sparse(supp(u),A_H,u);
+    }
+    //Au = mv(supp(u),A_H,u);
+    //std::cerr << "Attention: Slow matrix vector product..." << std::endl;
     T uAu = u*Au;
     f_H   = F_H(supp(u));
     T fu  = f_H*u;

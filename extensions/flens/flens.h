@@ -30,4 +30,6 @@
 #include <extensions/flens/sparse_blas.h>
 #include <extensions/flens/sparse_blas_flens.h>
 #include <extensions/flens/spy.h>
+#include <extensions/flens/powermethod.h>
+#include <extensions/flens/vectornorm.h>
 

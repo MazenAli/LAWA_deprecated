@@ -33,6 +33,8 @@ struct TensorBasis2D
 
     const FirstBasis &first;
     const SecondBasis &second;
+
+    int d;
 };
 
 } // namespace lawa

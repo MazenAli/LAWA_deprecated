@@ -33,14 +33,14 @@ class RHS : public AdaptiveRhs<T, Index>
 {
     public:
         const RHSINTEGRAL &rhsintegral;
-        const Preconditioner &P;
+        Preconditioner &P;
         Coefficients<Lexicographical,T,Index> rhs_data;
         Coefficients<AbsoluteValue,T,Index>   rhs_abs_data;
 
     //public:
-        RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P);
+        RHS(const RHSINTEGRAL &rhsintegral, Preconditioner &P);
 
-        RHS(const RHSINTEGRAL &rhsintegral, const Preconditioner &P,
+        RHS(const RHSINTEGRAL &rhsintegral, Preconditioner &P,
             const Coefficients<Lexicographical,T,Index> &_rhs_data);
 
         T

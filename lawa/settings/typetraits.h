@@ -158,6 +158,56 @@ struct IsPeriodic<BSpline<T,Side,Periodic,Cons> >
     static const bool value = true;
 };
 
+//--- IsRealline
+template <typename X>
+struct IsRealline
+{
+    static const bool value = false;
+};
+
+template <typename T, FunctionSide Side, Construction Cons>
+struct IsRealline<Wavelet<T,Side,R,Cons> >
+{
+    static const bool value = true;
+};
+
+template <typename T, FunctionSide Side, Construction Cons>
+struct IsRealline<BSpline<T,Side,R,Cons> >
+{
+    static const bool value = true;
+};
+
+template <typename T, FunctionSide Side, Construction Cons>
+struct IsRealline<Basis<T,Side,R,Cons> >
+{
+    static const bool value = true;
+};
+
+//--- IsSparseMulti
+template <typename X>
+struct IsSparseMulti
+{
+    static const bool value = false;
+};
+
+template <typename T, FunctionSide Side, DomainType Domain>
+struct IsSparseMulti<Wavelet<T,Side,Domain,SparseMulti> >
+{
+    static const bool value = true;
+};
+
+template <typename T, FunctionSide Side, DomainType Domain>
+struct IsSparseMulti<BSpline<T,Side,Domain,SparseMulti> >
+{
+    static const bool value = true;
+};
+
+template <typename T, FunctionSide Side, DomainType Domain>
+struct IsSparseMulti<Basis<T,Side,Domain,SparseMulti> >
+{
+    static const bool value = true;
+};
+
 } // namespace lawa
  
 #endif // LAWA_SETTINGS_TYPETRAITS_H

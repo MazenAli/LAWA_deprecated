@@ -35,6 +35,13 @@ template <typename MatA, typename VecX>
     powerMethod(const MatA &A, typename MatA::ElementType tol,
                 typename MatA::ElementType &lambda, VecX &y);
 
+template <typename MatA, typename VecX>
+    void
+    inversePowerMethod(const MatA &A, typename MatA::ElementType tol,
+                       typename MatA::ElementType &lambda, VecX &y);
+
+/*
+
 template <typename Prec, typename MatA, typename VecX>
     void
     powerMethod(const Prec &P, const MatA &A, typename MatA::ElementType tol,
@@ -75,6 +82,7 @@ template <typename Prec, typename MatA>
     typename MatA::ElementType
     condition(const Prec &P, const MatA &A, typename MatA::ElementType tol=1e-12);
 
+*/
 //-- trait specialization for FLENS types --------------------------------------
 
 template <typename I>

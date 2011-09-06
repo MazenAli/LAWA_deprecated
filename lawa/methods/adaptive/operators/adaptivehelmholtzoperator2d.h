@@ -30,6 +30,7 @@
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
 #include <lawa/preconditioners/preconditioners.h>
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+#include <lawa/methods/adaptive/datastructures/matrixoperations.h>
 
 namespace lawa {
 
@@ -38,6 +39,8 @@ struct AdaptiveHelmholtzOperator2D : public Operator2D<T>
 {
     typedef typename Basis2D::FirstBasisType  Basis_x;
     typedef typename Basis2D::SecondBasisType Basis_y;
+
+    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > SparseMatrixT;
 
     typedef CompressionPDE1D<T, Basis_x>                             Compression1D_x;
     typedef CompressionPDE1D<T, Basis_y>                             Compression1D_y;
@@ -72,6 +75,18 @@ struct AdaptiveHelmholtzOperator2D : public Operator2D<T>
 
     T
     prec(const Index2D &index);
+
+    Coefficients<Lexicographical,T,Index2D>
+    mv(const IndexSet<Index2D> &LambdaRow,
+       const Coefficients<Lexicographical,T,Index2D> &x);
+
+    void
+    toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
+                        SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);
+
+    void
+    toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
+                        SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
 
     void
     clear();
