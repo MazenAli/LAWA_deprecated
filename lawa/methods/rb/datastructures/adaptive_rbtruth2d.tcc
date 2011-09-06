@@ -698,7 +698,8 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::Operator_Residual_R
     for (int j = 0; j < u_N.length();++j){
       T val_A_bf = 0;
       for (it = thisTruth->rb->rb_basis_functions[j].begin(); it != thisTruth->rb->rb_basis_functions[j].end(); ++it) {
-          val_A_bf += (*it).second *(*thisTruth->A_operators[i])((*it).first,lambda);
+          //val_A_bf += (*it).second *(*thisTruth->A_operators[i])((*it).first,lambda);
+          val_A_bf += (*it).second *(*thisTruth->A_operators[i])(lambda, (*it).first);
       }
       val_Au += u_N(j+1) * val_A_bf;
     }
