@@ -108,7 +108,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
         break;
       case call_gmres:
         std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = GMRES_Solve(testbasis_set, testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = GMRES_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
         std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
         break;
       case call_cgls:
