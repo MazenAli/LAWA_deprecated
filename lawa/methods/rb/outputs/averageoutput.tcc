@@ -4,7 +4,7 @@ namespace lawa {
 
 template<typename T, typename Index2D, typename Basis2D>
 AverageOutput2D<T,Index2D,Basis2D>::AverageOutput2D(Basis2D _basis, T xmin, T xmax, T ymin, T ymax,
-		RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, H1NormPreconditioner2D<T, Basis2D> > _rhs)
+		RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, NoPreconditioner<T, Index2D> > _rhs)
 : basis(_basis), x_max(xmax), x_min(xmin), y_max(ymax), y_min(ymin), rhs(_rhs)
 {}
 

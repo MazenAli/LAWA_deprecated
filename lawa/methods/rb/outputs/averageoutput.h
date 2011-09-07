@@ -16,7 +16,7 @@ class AverageOutput2D : public AdaptiveOutput<T, Index2D> {
 public:
 
     AverageOutput2D(Basis2D _basis, T xmin, T xmax, T ymin, T ymax,
-    		RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, H1NormPreconditioner2D<T, Basis2D> > _rhs);
+    		RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, NoPreconditioner<T, Index2D> > _rhs);
     
     T
     operator()(const CoeffVector& coeffs_u);
@@ -36,7 +36,7 @@ public:
 
 private:
 
-	RHS<T, Index2D, SeparableRHS2D<T, Basis2D>, H1NormPreconditioner2D<T, Basis2D> >  rhs;
+	RHS<T, Index2D, SeparableRHS2D<T, Basis2D>, NoPreconditioner<T, Index2D> >  rhs;
 	T x_min, x_max, y_min, y_max;
 	Basis2D basis;
 

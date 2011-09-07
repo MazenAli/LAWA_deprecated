@@ -177,7 +177,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
   Coefficients<Lexicographical,T,Index> u;
   
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
-      
+
     timer1.start();    
     
     Coefficients<Lexicographical,T,Index> f;  
@@ -281,9 +281,9 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
   return u;  
 }
 
-template <typename T, typename Basis, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-IndexsetTruthSolver<T, Basis, Index, Compression>::repr_solve_output()
+IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
 {
   Coefficients<Lexicographical,T,Index> u, f;
   Timer timer1, timer2;

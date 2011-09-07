@@ -175,7 +175,7 @@ class AdaptiveRBTruth2D{
         // Wrapper class for affine structure on output
        class Operator_output {
            public:
-               Operator_output(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
+               Operator_output(AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
 
                T
                operator()(const Index2D &lambda);
@@ -187,7 +187,7 @@ class AdaptiveRBTruth2D{
                operator()(T tol);
 
            private:
-               AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;
+               AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;
        };
 
         Operator_LHS lhs_op;

@@ -128,9 +128,9 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
     return repr_s_adwav_A.solutions[repr_s_adwav_A.solutions.size() - 1];
 }
 
-template <typename T, typename Basis, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 Coefficients<Lexicographical,T,Index>
-S_ADWAV_TruthSolver<T, Basis, Index, Compression>::repr_solve_output()
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
 {
     reset_repr_s_adwav_output();
 
