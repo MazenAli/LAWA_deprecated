@@ -42,12 +42,12 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::truth_solve()
   switch(solution_method){
     case call_cg:
     std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = CG_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, maxIterations);
+      its = CG_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, false, maxIterations);
       std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
       break;
     case call_gmres:
     std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = GMRES_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, maxIterations);
+      its = GMRES_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, false, maxIterations);
       std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
       break;
     default: 
@@ -88,11 +88,11 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
     switch(solution_method){
       case call_cg:
       std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
         std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
         break;
       case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
         std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
         break;
       default: 
@@ -197,11 +197,11 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
     switch(solution_method){
       case call_cg:
         std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
         std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
         break;
       case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
         std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
         break;
       default: 
@@ -404,11 +404,11 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
     switch(solution_method){
       case call_cg:
         std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
         std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
         break;
       case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
+        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
         std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
         break;
       default: 
