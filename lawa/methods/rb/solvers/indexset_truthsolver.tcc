@@ -124,6 +124,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
 
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
          rhs(row_count) = truth_model->repr_rhs_F_op((*row)) / truth_model->get_prec((*row));
+
         x(row_count) = 0.;  
       }
       timer2.stop();
@@ -338,7 +339,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
       int row_count=1;
 
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
-        rhs(row_count) = truth_model->repr_rhs_output_op((*row));
+        rhs(row_count) = truth_model->repr_rhs_output_op((*row))/ truth_model->get_prec((*row));
         x(row_count) = 0.;
       }
       timer2.stop();
@@ -355,12 +356,12 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
           residual = std::sqrt(res*res);
           row_count = 1;
           for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count);
+              u[*row] = x(row_count)/ truth_model->get_prec((*row));
           }
           std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
           break;
         case call_gmres:
-          std::cerr << "Method not implemented yet " << std::endl;
+            std::cerr << "Method not implemented yet " << std::endl;
           break;
         default:
           std::cerr << "Method not implemented yet " << std::endl;
