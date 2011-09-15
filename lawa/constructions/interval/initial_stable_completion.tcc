@@ -41,7 +41,7 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     
 //    FullColMatrix *MM = new FullColMatrix[d/2];
     FullColMatrix MM[20];
-    MRA<T,Primal,Interval,ConsPrimal> _mra(mra.d, j); // TO BE ELIMINATED!!!!!!!!!!!!!!!!!!!!
+    MRA<T,Primal,Interval,ConsPrimal> _mra(mra.d, j); // TODO BE ELIMINATED!!!!!!!!!!!!!!!!!!!!
     densify(cxxblas::NoTrans, _mra.M0, MM[0], 1,1);
     const int size = MM[0].numRows();
     
