@@ -445,6 +445,14 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   repr_F_file.precision(precision);
   repr_F_file << std::scientific << F_F_representor_norms << std::endl;
   repr_F_file.close();
+
+  // Write output_output_representor_norms
+  std::stringstream repr_output_filename;
+  repr_output_filename << directory_name << "/output_output_representor_norms.dat";
+  std::ofstream repr_output_file(repr_output_filename.str().c_str());
+  repr_output_file.precision(precision);
+  repr_output_file << std::scientific << output_output_representor_norms << std::endl;
+  repr_output_file.close();
   
   // Write A_F_representor_norms
   std::stringstream repr_A_F_filename;
@@ -571,6 +579,25 @@ RBModel2D<T, TruthModel>::read_RB_data(const std::string& directory_name){
   }
   else{
     std::cerr << "Unable to open file " << F_F_filename.str() << " for reading!" << std::endl;
+    exit(1);
+  }
+
+  // Read output_output_representor norms
+  output_output_representor_norms.engine().resize((int)Q_output(), (int)Q_output());
+  std::stringstream output_output_filename;
+  output_output_filename << directory_name << "/output_output_representor_norms.dat";
+  std::ifstream output_output_file(output_output_filename.str().c_str());
+  if(output_output_file.is_open()){
+    for(unsigned int i = 1; i <= Q_output(); ++i){
+      for(unsigned int j = 1; j <= Q_output(); ++j){
+        output_output_file >> output_output_representor_norms(i,j);
+      }
+    }
+    output_output_file.close();
+    std::cout << " Read " << output_output_filename.str() << std::endl;
+  }
+  else{
+    std::cerr << "Unable to open file " << output_output_filename.str() << " for reading!" << std::endl;
     exit(1);
   }
   
