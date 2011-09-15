@@ -67,6 +67,12 @@ class AdaptiveRBTruth2D{
         
         void
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
+
+        void
+        attach_Output_q(theta_fctptr theta_output_q, AdaptiveRhs<T, Index2D>& Output_q);
+
+        void
+        attach_Output_q(AdaptiveRhs<T, Index2D>& Output_q);
     
         void 
         attach_inner_product_op(Operator2D<T>& _inner_product_op);
@@ -324,7 +330,7 @@ class AdaptiveRBTruth2D{
         
         std::vector<CoeffVector>                F_representors; // Dim: 1 x Q_f
         std::vector<std::vector<CoeffVector> >  A_representors; // Dim: n x Q_a
-        std::vector<CoeffVector>                output_representors; // Dim: 1 x Q_m ??
+        std::vector<CoeffVector>                output_representors; // Dim: 1 x Q_output
 
         
         Prec& prec;

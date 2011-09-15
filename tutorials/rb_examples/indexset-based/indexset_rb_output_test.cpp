@@ -4,7 +4,7 @@
  *  Created on: 28.07.2011
  *      Author: s_sglas
  */
-//Erweiterung (und Veränderung) des indexset_rb_test.tcc
+//Erweiterung (und Veränderung) des indexset_rb_test.cpp
 
 #include <iostream>
 #include <lawa/lawa.h>
@@ -75,6 +75,12 @@ weight_Omega_y(T y)
 }
 
 T
+weight_Omega_output(T output)
+{
+	return 1;
+}
+
+T
 theta_a_1(const std::vector<T>& mu)
 {
     return mu[0];
@@ -112,6 +118,12 @@ output_y(T y)
 
 T
 theta_f_1(const std::vector<T>&)
+{
+    return 1.;
+}
+
+T
+theta_output_1(const std::vector<T>&)
 {
     return 1.;
 }
@@ -158,8 +170,6 @@ int main(int argc, char* argv[]) {
     AdaptHHOp2D h1norm(basis2d, 1., noprec, 1e-10);
     rb_truth.attach_inner_product_op(h1norm);
 
-
-
         // Parameter vector
     std::vector<T> refmu(1);
     refmu[0] = 1.;
@@ -191,6 +201,9 @@ int main(int argc, char* argv[]) {
     SeparableRHS2D<T, Basis2D> forcingIntegral(basis2d, forcingFct, noDeltas, noDeltas, 4);
     AdaptRHS F(forcingIntegral, noprec);
 
+    rb_model.truth->attach_F_q(theta_f_1, F);
+
+    cout << "Q_f = " << rb_model.Q_f() << endl;
 
     /*RHS for Output Functional*/
     DenseVectorT singpts_output_x(4), singpts_output_y(4);
@@ -201,14 +214,15 @@ int main(int argc, char* argv[]) {
     AdaptRHS Output_RHS(sep_output_rhs, noprec);
     Output AverageOutput(basis2d, 0.7,0.8,0.7,0.8, Output_RHS);
 
-    rb_model.truth->attach_F_q(theta_f_1, F);
+    rb_model.truth->attach_Output_q(theta_output_1, Output_RHS);
 
-    cout << "Q_f = " << rb_model.Q_f() << endl;
+    cout << "Q_Output = " << rb_model.Q_output() << endl;
 
     /* Truth Solver: on fixed indexset */
     IndexSet<Index2D> basisset;
 
     readIndexSet2D<T>(basisset, argv[5]);
+
     std::cout << "Basis Set: " << basisset.size() << " functions" << std::endl;
 
     SolverCall call = call_cg;
@@ -274,7 +288,6 @@ int main(int argc, char* argv[]) {
         cout << "--------output operator u_approx : " << output_u_approx << endl;
         Coeffs coeff_diff = u - u_approx;
         T err_norm = rb_model.truth->inner_product(coeff_diff, coeff_diff);
-
         cout << "Differenz der Outputs: " << abs(output_u-output_u_approx) << endl;
 
         cout << "   N = " << n << ": " << err_norm << " " << error_bound << endl;

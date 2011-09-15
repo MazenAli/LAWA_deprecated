@@ -44,6 +44,21 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_F_q(Adaptive
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
 void
+AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_Output_q(theta_fctptr theta_output_q, AdaptiveRhs<T, Index2D>& Output_q)
+{
+    rb->theta_output.push_back(theta_output_q);
+    output_operators.push_back(&Output_q);
+}
+
+template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_Output_q(AdaptiveRhs<T, Index2D>& Output_q)
+{
+    output_operators.push_back(&Output_q);
+}
+
+template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
+void
 AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_inner_product_op(Operator2D<T>& _inner_product_op)
 {
     inner_product_op = &_inner_product_op;
@@ -154,8 +169,11 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::update_representors
             undo_prec(c);
             
             F_representors[i] = c;
+
         } 
         output_representors.resize(rb->Q_output());
+
+        std::cout << "Adaptive RB Truth: " << rb->Q_output() << std::endl;
         for (unsigned int i = 0; i < rb->Q_output(); ++i) {
             repr_rhs_output_op.set_current_op(*output_operators[i]);
             std::cout<< std::endl << "  --- Solving for Riesz Representor of Output_" << i+1 << "---" << std::endl<< std::endl;
@@ -164,6 +182,7 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::update_representors
             undo_prec(c);
 
             output_representors[i] = c;
+
         }
 
     }
@@ -230,6 +249,7 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::update_representor_
 
                 vec1 = output_representors[qoutput1-1];
                 vec2 = output_representors[qoutput2-1];
+
                 rb->output_output_representor_norms(qoutput1,qoutput2) = inner_product(vec1,vec2);
 
                 if(qoutput1 != qoutput2) {
@@ -346,16 +366,17 @@ T
 AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
 {
     T val = 0;
-    
+
     if(use_inner_product_matrix && assembled_inner_product_matrix){
         // Assumption here: both vectors and the matrix have the same indexset
-        
+
         assert(v1.size() == v2.size());
         typename CoeffVector::const_iterator it1, it2;
         
         // Build dense vectors
         DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
         int index_count = 1;
+
         for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
             v1_dense(index_count) = (*it1).second;
             v2_dense(index_count) = (*it2).second;
@@ -600,20 +621,22 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::Operator_output::op
              * (*thisTruth->output_operators[i])(lambda);
     }
 
-    return val;
+    return thisTruth->get_prec(lambda) * val;
 }
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
 Coefficients<Lexicographical,T,Index2D>
 AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::Operator_output::operator()(const IndexSet<Index2D> &Lambda)
 {
-    Coefficients<Lexicographical,T,Index2D> c;
-    for (unsigned int i = 0; i < thisTruth->output_operators.size(); ++i) {
-        c = c + (*thisTruth->output_operators[i])(Lambda)
-              * (*thisTruth->rb->theta_output[i])(thisTruth->rb->get_current_param());
+    Coefficients<Lexicographical, T, Index2D> coeffs;
+
+    typename IndexSet<Index2D>::const_iterator it_Lambda;
+    typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
+    for (it_Lambda = Lambda.begin(); it_Lambda != Lambda.end(); ++it_Lambda) {
+        coeffs.insert(val_type((*it_Lambda), this->operator()(*it_Lambda)));
     }
 
-    return c;
+    return coeffs;
 }
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
@@ -621,13 +644,14 @@ Coefficients<Lexicographical,T,Index2D>
 AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::Operator_output::operator()(T tol)
 {
     Coefficients<Lexicographical,T,Index2D> c;
-    for (unsigned int i = 0; i < thisTruth->output_operators.size(); ++i) {
-        c += (*thisTruth->output_operators[i])(tol)
-           * (*thisTruth->rb->theta_output[i])(thisTruth->rb->get_current_param());
-    }
+
+    std::cerr << "Operator()(T tol) : Not implemented yet" << std::endl;
+    exit(1);
+
 
     return c;
 }
+
 /*  Operator LHS_Representor */
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
