@@ -243,6 +243,12 @@ geev(bool jobvl, bool jobvr, int n, complex<double> *a, int lda,
      complex<double> *vl, int ldvl,
      complex<double> *vr, int ldvr,
      complex<double> *work, int lwork, double *rwork);
+     
+//- ggev
+int
+ggev(bool jobvl, bool jobvr, int n, double *a, int lda, double *b, int ldb,
+     double *wr, double *wi, double *beta, double *vl, int ldvl, double *vr, int ldvr,
+     double *work, int lwork);
 
 //- syev
 int

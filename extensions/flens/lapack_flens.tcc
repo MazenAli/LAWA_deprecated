@@ -468,6 +468,57 @@ ev(bool leftEV, bool rightEV,
                 work.engine().data(), work.length(), rwork.engine().data());
 }
 
+//-- ggev ----------------------------------------------------------------------
+
+template <typename MA, typename WR, typename WI, typename VL, typename VR>
+int
+gv(bool leftEV, bool rightEV,
+   GeMatrix<MA> &A, GeMatrix<MA> &B, DenseVector<WR> &wr, DenseVector<WI> &wi,
+   DenseVector<WR> &beta,
+   GeMatrix<VL> &vl, GeMatrix<VR> &vr)
+{
+    assert(A.numRows()==A.numCols());
+    assert(B.numRows()==B.numCols());
+    assert(wr.length()==A.numRows());
+    assert(wi.length()==A.numRows());
+    assert(beta.length()==A.numRows());
+    assert(vl.numRows()==vl.numCols());
+    assert(vr.numRows()==vr.numCols());
+    assert(!leftEV || (vl.numRows()==A.numRows()));
+    assert(!rightEV || (vr.numRows()==A.numRows()));
+    
+    typedef typename MA::ElementType T;
+    T lwork;
+    int info;
+    
+    int ldvl = leftEV  ? vl.engine().leadingDimension() : 1;
+    int ldvr = rightEV ? vr.engine().leadingDimension() : 1;
+    T *vldata = leftEV  ? vl.engine().data() : 0;
+    T *vrdata = rightEV ? vr.engine().data() : 0;
+    
+    // query optimal work space size
+    info = ggev(leftEV, rightEV, A.numRows(), 
+                A.engine().data(), A.engine().leadingDimension(),
+                B.engine().data(), B.engine().leadingDimension(),
+                wr.engine().data(), wi.engine().data(),
+                beta.engine().data(),
+                vldata, ldvl,
+                vrdata, ldvr,
+                &lwork, -1);
+    assert(info==0);
+    
+    // allocate work space
+    DenseVector<Array<T> > work(static_cast<int>(lwork));
+    return ggev(leftEV, rightEV, A.numRows(), 
+                A.engine().data(), A.engine().leadingDimension(),
+                B.engine().data(), B.engine().leadingDimension(),
+                wr.engine().data(), wi.engine().data(),
+                beta.engine().data(),
+                vldata, ldvl,
+                vrdata, ldvr,
+                work.engine().data(), work.length());    
+}
+
 //-- syev ----------------------------------------------------------------------
 
 template <typename MA, typename VW>

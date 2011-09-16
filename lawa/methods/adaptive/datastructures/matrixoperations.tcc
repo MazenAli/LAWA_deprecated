@@ -204,7 +204,8 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
         }
       timer.stop();
       std::cout << "    .... done : " << timer.elapsed() << " seconds " << std::endl;  
-        std::cout << "    Start cg ... " << std::endl;
+
+      std::cout << "    Start cg ... " << std::endl;
       timer.start();
         int number_of_iterations = lawa::cg(A_flens,x,rhs, tol, maxIterations);
       timer.stop();
@@ -230,7 +231,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 template <typename T, typename Index, typename MA>
 int
 GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
-            const Coefficients<Lexicographical,T,Index > &f, T &/*res*/, T tol,
+            const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol,
             bool useOptimizedAssembling, int maxIterations)
 {
         typedef typename IndexSet<Index >::const_iterator const_set_it;
@@ -263,7 +264,7 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
             int number_of_iterations = lawa::gmres(A_flens,x,rhs, tol, maxIterations);
             Ax = A_flens*x;
             res= Ax-rhs;
-            res = std::sqrt(res*res);
+            residual = std::sqrt(res*res);
             row_count = 1;
             for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
                 u[*row] = x(row_count);
@@ -278,7 +279,7 @@ template <typename T, typename Index, typename MA>
 int
 GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
            MA &A, Coefficients<Lexicographical,T,Index > &u,
-           const Coefficients<Lexicographical,T,Index > &f, T &/*res*/, T tol, int maxIterations)
+           const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol, int maxIterations)
 {
 		if(LambdaRow.size() != LambdaCol.size()){
 			std::cerr << "Cannot apply GMRES: Matrix not quadratic! " << std::endl;
@@ -309,7 +310,7 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
             std::cout << "... finished" << std::endl;
             Ax = A_flens*x;
             res= Ax-rhs;
-            res = std::sqrt(res*res);
+            residual = std::sqrt(res*res);
             int col_count = 1;
             for (const_set_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
                 u[*col] = x(col_count);

@@ -112,7 +112,7 @@ class AdaptiveRBTruth2D_PG{
 
         void
         assemble_A_operator_matrices(IndexSet<Index2D>& trial_indexset, IndexSet<Index2D>& test_indexset);
-        
+            
         T
         trial_inner_product(const CoeffVector& v1, const CoeffVector& v2);
     
@@ -307,7 +307,7 @@ class AdaptiveRBTruth2D_PG{
         T
         uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, 
                                     Coefficients<Lexicographical,T,Index2D>& res_repr);
-            
+        
     private:
                 
         RBModel2D<T, AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression> >*     rb;

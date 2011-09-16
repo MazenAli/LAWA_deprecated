@@ -27,7 +27,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 {
     A_operators.push_back(&A_q);
 }
-
+    
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
@@ -342,8 +342,8 @@ template <typename T, typename TrialBasis, typename TestBasis, typename TrialPre
 T
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::trial_inner_product(const CoeffVector& v1, const CoeffVector& v2)
 {
-    T val = 0;
-    
+    long double val = 0;
+
     if(use_inner_product_matrix && assembled_inner_product_matrix){
         // Assumption here: both vectors and the matrix have the same indexset
         
@@ -363,21 +363,24 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
         val = v1_dense * I_v2;
     }
     else{
+
         typename CoeffVector::const_iterator it1, it2;
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
-                val += (*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
+                val += (long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
             }
         }
+        
     }
-    return val;   
+
+    return (T)(val);
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 T
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::test_inner_product(const CoeffVector& v1, const CoeffVector& v2)
 {
-    T val = 0;
+    long double val = 0;
     
     if(use_inner_product_matrix && assembled_inner_product_matrix){
         // Assumption here: both vectors and the matrix have the same indexset
@@ -399,13 +402,15 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     }
     else{
         typename CoeffVector::const_iterator it1, it2;
+        
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
-                val += (*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
+                val += (long double)((*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
             }
         }
+        
     }
-    return val;   
+    return (T)(val);   
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
@@ -526,7 +531,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
   
   assembled_A_operator_matrices = true;
 }
-
+    
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 T
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu)

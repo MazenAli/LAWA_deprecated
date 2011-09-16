@@ -35,11 +35,11 @@ Coefficients<Lexicographical,T,Index>::operator=(const Coefficients<Lexicographi
 {
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
     typedef typename Coefficients<Lexicographical,T,Index>::value_type val_type;
-    erase(Coefficients<Lexicographical,T,Index>::begin(), Coefficients<Lexicographical,T,Index>::end());
+    this->erase(Coefficients<Lexicographical,T,Index>::begin(), Coefficients<Lexicographical,T,Index>::end());
 
     if (_coeff.size() > 0) {
         for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-            insert(val_type((*lambda).first, (*lambda).second));
+            this->insert(val_type((*lambda).first, (*lambda).second));
         }
     }
 
@@ -52,11 +52,11 @@ Coefficients<Lexicographical,T,Index>::operator=(const Coefficients<AbsoluteValu
 {
     typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_it;
     typedef typename Coefficients<Lexicographical,T,Index>::value_type val_type;
-    erase(Coefficients<Lexicographical,T,Index>::begin(), Coefficients<Lexicographical,T,Index>::end());
+    this->erase(Coefficients<Lexicographical,T,Index>::begin(), Coefficients<Lexicographical,T,Index>::end());
 
     if (_coeff.size() > 0) {
         for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-            insert(val_type((*lambda).second, (*lambda).first));
+            this->insert(val_type((*lambda).second, (*lambda).first));
         }
     }
 
