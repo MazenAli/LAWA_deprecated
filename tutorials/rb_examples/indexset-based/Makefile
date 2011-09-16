@@ -1,4 +1,4 @@
-SUBDIRS := ex1
+SUBDIRS := ex1 ex1_output
 
 all:
 	$(SILENT) for i in $(SUBDIRS); \

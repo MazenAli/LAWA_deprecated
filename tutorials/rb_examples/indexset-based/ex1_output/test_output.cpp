@@ -289,6 +289,7 @@ int main(int argc, char* argv[]) {
         Coeffs coeff_diff = u - u_approx;
         T err_norm = rb_model.truth->inner_product(coeff_diff, coeff_diff);
         cout << "Differenz der Outputs: " << abs(output_u-output_u_approx) << endl;
+        //representor norm neu berechnen? einlesen?
 
         cout << "   N = " << n << ": " << err_norm << " " << error_bound << endl;
 
@@ -300,12 +301,6 @@ int main(int argc, char* argv[]) {
       }
     }
 
-
-
-
-
-//    T output_u_diff = AverageOutput.operator()(coeff_diff);
-  //  cout << "--------output operator u_diff : " << output_u_diff << endl;
 
     // Print to errorfile
     ofstream errorfile(testerrorfile.c_str());
