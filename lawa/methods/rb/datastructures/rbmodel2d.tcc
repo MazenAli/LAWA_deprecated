@@ -303,8 +303,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
             T alpha =  alpha_LB(Xi_train[n]);
             T error_est = resnorm / alpha;
             
-            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::scientific << error_est 
-                      << " = " << resnorm << " / " << alpha << std::endl;
+            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::scientific << error_est << " = " << resnorm << " / " << alpha << std::endl;
             if ( error_est > maxerr) {
                 maxerr = error_est;
                 next_Mu = n;
@@ -325,6 +324,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
 template <typename T, typename TruthModel>
 void
 RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_name){
+
   // Make a directory to store all the data files
   if( mkdir(directory_name.c_str(), 0777) == -1)
   {
@@ -380,7 +380,7 @@ template <typename T, typename TruthModel>
 void
 RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   
-  const unsigned int precision = 16;
+  const unsigned int precision = 40;
   
   // Make a directory to store all the data files
   if( mkdir(directory_name.c_str(), 0777) == -1)
@@ -677,9 +677,10 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
                     for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
                     
                         RB_A_matrices[q_a](n_bf(), i) += (*it1).second * (*it2).second 
-                                                          * (*truth->A_operators[q_a])((*it1).first, (*it2).first) ;
+                                                         * (*truth->A_operators[q_a])((*it1).first, (*it2).first) ;
+
                         if (i != n_bf()) {
-                         RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
+                            RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
                                     * (*truth->A_operators[q_a])((*it2).first, (*it1).first) ;
                         }
                         
@@ -772,6 +773,7 @@ RBModel2D<T, TruthModel>::residual_dual_norm(const DenseVectorT& u_RB, const std
     DenseVectorT FF_T = F_F_representor_norms * ThetaF;
     
     res_dual_norm = ThetaF * FF_T;
+    
         
     int N = u_RB.length();
     DenseVectorT T_AF_T(N);
@@ -788,14 +790,14 @@ RBModel2D<T, TruthModel>::residual_dual_norm(const DenseVectorT& u_RB, const std
     }
     
     //std::cout << " Residual Dual Norm: size(u) = " << u_RB.length() << ", size(T_AF_T) = " << T_AF_T.length() << std::endl;
-    res_dual_norm += 2 * u_RB * T_AF_T;    
-    
+    //res_dual_norm += 2 * u_RB * T_AF_T;    
+
     DenseVectorT T_AA_T_u = T_AA_T * u_RB;
     res_dual_norm += u_RB * T_AA_T_u;    
-
-  
+    res_dual_norm += 2. * u_RB * T_AF_T;  
+                  
     if(res_dual_norm < 0){
-      std::cout << "Warning: Residual dual norm negative: " << std::setprecision(10) << res_dual_norm << std::endl;
+      std::cout << "Warning: Residual dual norm negative: " << std::setprecision(20) << res_dual_norm << std::endl;
       res_dual_norm = std::fabs(res_dual_norm);
     }
     
