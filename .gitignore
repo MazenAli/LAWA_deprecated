@@ -48,3 +48,8 @@ tutorials/rb_examples/rb_example
 applications/unbounded_domains/parameters/eigenvalues_old
 applications/unbounded_domains/adwav/estimate-rhs2d
 tutorials/examples/mv_sparse
+/lawa/methods/rb/solvers/indexset_truthsolver.tcc~
+/tutorials/rb_examples/adaptive/adaptive_rb_example_training
+/tutorials/rb_examples/indexset-based/indexset_rb_example_training_output
+/tutorials/rb_examples/indexset-based/indexset_rb_output_test
+/tutorials/rb_examples/uniform/rb_example
