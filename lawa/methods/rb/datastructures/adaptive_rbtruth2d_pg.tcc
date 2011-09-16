@@ -376,6 +376,53 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     return (T)(val);
 }
 
+/* // Version with sorted values to avoid cancellation
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+T
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::trial_inner_product(const CoeffVector& v1, const CoeffVector& v2)
+{
+    long double sorted_val = 0.;
+    
+    if(use_inner_product_matrix && assembled_inner_product_matrix){
+        // Assumption here: both vectors and the matrix have the same indexset
+        
+        assert(v1.size() == v2.size());
+        typename CoeffVector::const_iterator it1, it2;
+        
+        // Build dense vectors
+        DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
+        int index_count = 1;
+        for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
+            v1_dense(index_count) = (*it1).second;
+            v2_dense(index_count) = (*it2).second;
+            
+        }
+        
+        DenseVectorT I_v2 = trial_inner_product_matrix * v2_dense;
+        sorted_val = v1_dense * I_v2;
+    }
+    else{
+        
+        std::vector<long double> val_vec;
+        val_vec.reserve(v1.size() * v2.size());
+        typename CoeffVector::const_iterator it1, it2;
+        for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
+            for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
+                val_vec.push_back((long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second));
+            }
+        }
+        
+        sort(val_vec.begin(), val_vec.end(), lt_obj);
+        std::vector<long double>::const_reverse_iterator it;
+        for(it = val_vec.rbegin(); it != val_vec.rend(); ++it){
+            sorted_val += (*it);
+        }
+        
+    }
+    
+    return (T)(sorted_val);   
+}*/
+
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 T
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::test_inner_product(const CoeffVector& v1, const CoeffVector& v2)
@@ -412,6 +459,57 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     }
     return (T)(val);   
 }
+    
+/* // Version with sorted values to avoid cancellation
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+T
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::test_inner_product(const CoeffVector& v1, const CoeffVector& v2)
+{
+    long double val = 0;
+    long double sorted_val = 0;
+
+    if(use_inner_product_matrix && assembled_inner_product_matrix){
+        // Assumption here: both vectors and the matrix have the same indexset
+        
+        assert(v1.size() == v2.size());
+        typename CoeffVector::const_iterator it1, it2;
+        
+        // Build dense vectors
+        DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
+        int index_count = 1;
+        for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
+            v1_dense(index_count) = (*it1).second;
+            v2_dense(index_count) = (*it2).second;
+            
+        }
+        
+        DenseVectorT I_v2 = test_inner_product_matrix * v2_dense;
+        val = v1_dense * I_v2;
+        sorted_val = val;
+    }
+    else{
+        typename CoeffVector::const_iterator it1, it2;
+        std::vector<long double> val_vec;
+        val_vec.reserve(v1.size() * v2.size());
+        
+        for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
+            for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
+                val += (long double)((*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
+                val_vec.push_back((long double)((*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second));
+            }
+        }
+        
+        sort(val_vec.begin(), val_vec.end(), lt_obj);
+        std::vector<long double>::const_reverse_iterator it;
+        for(it = val_vec.rbegin(); it != val_vec.rend(); ++it){
+            sorted_val += (*it);
+        }
+        
+        
+    }
+    return (T)(sorted_val);   
+}
+*/
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 T

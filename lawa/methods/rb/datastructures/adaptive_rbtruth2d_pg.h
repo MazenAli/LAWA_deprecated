@@ -319,6 +319,8 @@ class AdaptiveRBTruth2D_PG{
         TestPrec&  test_prec;
         Coefficients<Lexicographical, T, Index2D> trial_prec_data;
         Coefficients<Lexicographical, T, Index2D> test_prec_data;
+        
+        lt<AbsoluteValue,T> lt_obj;
 };
     
 } // namespace lawa
