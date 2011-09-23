@@ -194,9 +194,9 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
     plotfile.close();
 }
 
-template <typename T>
+template <typename T, typename Basis>
 void
-plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,R,CDF> &basis, const char* filename)
+plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis &basis, const char* filename)
 {
     typedef typename Coefficients<AbsoluteValue,T,Index1D>::const_iterator const_it;
     if (coeff.size() == 0) {
@@ -386,7 +386,7 @@ plotScatterCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis
         double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
         if(fabs((*it).first) > 0){
-          data << x << " " << y << " " << (*it).second << std::endl;
+          data << x << " " << y << " " << (*it).second << " " << 1. << std::endl;
         }
     }
     data.close();
@@ -414,7 +414,7 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
         double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
         if(fabs((*it).second) > 0){
-          data << x << " " << y << " " << (*it).second << std::endl;
+          data << x << " " << y << " " << (*it).second << " " << -1. << std::endl;
         }
     }
     data.close();

@@ -62,9 +62,9 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
        const Preconditioner &P, T (*u)(T,T), T (*dy_u)(T,T), T a1, T b1, T a2, T b2, 
        T h1, T h2, const char* filename);
 
-template <typename T, DomainType Domain, Construction Cons>
+template <typename T, typename Basis>
 void
-plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis<T,Primal,Domain,Cons> &basis, const char* filename);
+plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis &basis, const char* filename);
 
 template <typename T, typename Index, typename Basis_x, typename Basis_y>
 void

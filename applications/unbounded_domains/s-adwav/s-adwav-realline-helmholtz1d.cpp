@@ -102,7 +102,7 @@ int main (int argc, char *argv[]) {
 
     stringstream convfilename;
     convfilename << "s_adwav_conv_realline_helmholtz1d_" << argv[1] << "_" << argv[2] << "_"
-                 << argv[3] << "_" << argv[4] <<  "_" << c << "_" << argv[5] << ".dat";
+                 << argv[3] << "_" << j0 <<  "_" << c << "_" << argv[5] << ".dat";
     cout << "Initializing S-ADWAV, jmin = " << j0 << endl;
 
 
