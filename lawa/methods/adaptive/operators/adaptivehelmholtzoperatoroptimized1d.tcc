@@ -273,18 +273,18 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
 }
 
 template <typename T>
-Coefficients<Lexicographical,T,Index1D>
+void
 AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<Lexicographical,T,Index1D> &v,
-                                                   T eps)
+                                                            T eps, Coefficients<Lexicographical,T,Index1D> &ret)
 {
-    Coefficients<Lexicographical,T,Index1D> ret;
-    if (v.size()==0) return ret;
+    //Coefficients<Lexicographical,T,Index1D> ret;
+    if (v.size()==0) return;// ret;
 
     Coefficients<AbsoluteValue,T,Index1D> v_abs;
     v_abs = v;
     int k = this->findK(v_abs, eps);
     ret = this->apply(v, k);
-    return ret;
+    return;// ret;
 
     //std::cerr << "APPLY called for eps = " << eps << std::endl;
 
@@ -335,6 +335,17 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
 
     return ret;
 */
+}
+
+template <typename T>
+void
+AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<Lexicographical,T,Index1D> &v,
+                                                            T eps, const IndexSet<Index1D> &Lambda,
+                                                            Coefficients<Lexicographical,T,Index1D> &ret)
+{
+    //todo: optimize!!
+    this->apply(v,eps,ret);
+    ret = P(ret,Lambda);
 }
 
 template <typename T>
@@ -556,17 +567,28 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::apply
 }
 
 template <typename T, DomainType Domain>
-Coefficients<Lexicographical,T,Index1D>
+void
 AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::apply
                                                   (const Coefficients<Lexicographical,T,Index1D> &v,
-                                                   T eps)
+                                                   T eps, Coefficients<Lexicographical,T,Index1D> & ret)
 {
     Coefficients<AbsoluteValue,T,Index1D> v_abs;
     v_abs = v;
     int k = this->findK(v_abs, eps);
-    Coefficients<Lexicographical,T,Index1D> ret;
+    //Coefficients<Lexicographical,T,Index1D> ret;
     ret = this->apply(v, k);
-    return ret;
+    return;// ret;
+}
+
+template <typename T, DomainType Domain>
+void
+AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::apply(const Coefficients<Lexicographical,T,Index1D> &v,
+                                                                       T eps, const IndexSet<Index1D> &Lambda,
+                                                                       Coefficients<Lexicographical,T,Index1D> &ret)
+{
+    //todo: optimize!!
+    this->apply(v,eps,ret);
+    ret = P(ret,Lambda);
 }
 
 template <typename T, DomainType Domain>
@@ -824,14 +846,25 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::apply
 }
 
 template<typename T, DomainType Domain>
-Coefficients<Lexicographical,T,Index1D>
+void
 AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::apply
                                                  (const Coefficients<Lexicographical,T,Index1D> &v,
-                                                  T /* eps */)
+                                                  T eps, Coefficients<Lexicographical,T,Index1D> &ret)
 {
-    Coefficients<Lexicographical,T,Index1D> ret;
+    //Coefficients<Lexicographical,T,Index1D> ret;
     ret = this->apply(v,0,0);
-    return ret;
+    return;// ret;
+}
+
+template <typename T, DomainType Domain>
+void
+AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>::apply(const Coefficients<Lexicographical,T,Index1D> &v,
+                                                                         T eps, const IndexSet<Index1D> &Lambda,
+                                                                         Coefficients<Lexicographical,T,Index1D> &ret)
+{
+    //todo: optimize!!
+    this->apply(v,eps,ret);
+    ret = P(ret,Lambda);
 }
 
 

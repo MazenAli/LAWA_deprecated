@@ -110,7 +110,7 @@ RHS2D<T,RHSINTEGRAL,Preconditioner>::operator()(const Index2D &lambda)
     }
     else {
         T ret = P(lambda) * rhsintegral(lambda);
-        //rhs_data[lambda] = ret;
+        rhs_data[lambda] = ret;
         return ret;
     }
 }

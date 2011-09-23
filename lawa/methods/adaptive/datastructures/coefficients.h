@@ -56,6 +56,9 @@ struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographic
     Coefficients<Lexicographical,T,Index>
     operator-(const Coefficients<Lexicographical,T,Index> &_coeff) const;
 
+    Coefficients<Lexicographical,T,Index> &
+    operator-=(const Coefficients<Lexicographical,T,Index> &_coeff);
+
     Coefficients<Lexicographical,T,Index>
     operator+(const Coefficients<Lexicographical,T,Index> &_coeff) const;
 
@@ -99,8 +102,11 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
 template <typename T, typename Index>
 struct Coefficients<Bucket,T,Index>
 {
-    typedef typename std::vector<std::list<const std::pair<const Index,T>* > > Buckets;
+
     typedef typename std::list<const std::pair<const Index,T>* >               BucketEntry;
+    typedef typename std::vector<BucketEntry> Buckets;
+
+
     Coefficients();        //required in rhs.h
 
     void

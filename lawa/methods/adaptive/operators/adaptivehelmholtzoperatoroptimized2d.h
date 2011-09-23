@@ -88,8 +88,13 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogona
     Coefficients<Lexicographical,T,Index2D>
     apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J=-1000);
 
-    Coefficients<Lexicographical,T,Index2D>
-    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps);
+    void
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+          Coefficients<Lexicographical,T,Index2D> &ret);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+          const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret);
 
     int
     findK(const Coefficients<AbsoluteValue,T,Index2D> &v, T eps);

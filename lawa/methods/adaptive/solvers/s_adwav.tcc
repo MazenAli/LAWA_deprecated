@@ -83,26 +83,25 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         linsolve_iterations[its] = iterations;
         std::cout << "   ...finished with res=" << r_norm_LambdaActive << std::endl;
 
-        //Threshold step
-        //std::cout << "Before THRESH: " << u << std::endl;
-        /*
-        std::cout << "Before THRESH: Size of supp(u) = " << u.size()
-                  << ", ||u||_2 = " << u.norm(2.) << ", threshTol = " << threshTol
-                  << " -> " << threshTol*u.norm(2.) << std::endl;
-        */
 
         // Attention: Relative threshold here removes lots of entries -> linear system was much
         // larger than necessary.
+        T thresh_off_quot = 1./T(u.size());
         //u = THRESH(u,threshTol*u.norm(2.),false);
         u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        thresh_off_quot *= T(u.size());
+
 
         /*
-        std::cout << "After THRESH:  Size of supp(u) = " << u.size()
-                  << ", ||u||_2 = " << u.norm(2.) << ", threshTol = " << threshTol
-                  << " -> " << threshTol*u.norm(2.) << std::endl;
+        std::stringstream coeff_filename;
+        coeff_filename << "s_adwav_coeff_" << u.size();
+        Coefficients<AbsoluteValue,T,Index1D> u_abs;
+        u_abs = u;
+        plotCoeff(u_abs, basis, coeff_filename.str().c_str());
         */
-        //std::cout << "After THRESH: u = " << u << std::endl;
-
+        std::stringstream coefffile;
+        coefffile << "s_adwav_coeffs_" << its;
+        plotScatterCoeff2D(u, A.basis.first, A.basis.second, coefffile.str().c_str());
 
         solutions[its] = u;
         LambdaThresh = supp(u);
@@ -142,20 +141,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         residuals[its] = estim_res;
         toliters[its] = linTol;
 
-        /*
-        std::cout << "Before THRESH: Size of supp(r) = " << r.size()
-                  << ", ||r||_2 = " << r.norm(2.) << ", threshTol = " << threshTol
-                  << " -> " << threshTol*r.norm(2.) << std::endl;
-        */
+        //r = THRESH(r,threshTol*r.norm(2.),false,false);
+        r = THRESH(r,threshTol, false, basis.d > 3 ? true : false);
 
-        //r = THRESH(r,threshTol*r.norm(2.));
-        r = THRESH(r,threshTol, true, basis.d > 3 ? true : false);
-
-        /*
-        std::cout << "After THRESH:  Size of supp(r) = " << r.size()
-                  << ", ||r||_2 = " << r.norm(2.) << ", threshTol = " << threshTol
-                  << " -> " << threshTol*r.norm(2.) << std::endl;
-        */
         LambdaActive = LambdaThresh+supp(r);
 
 
@@ -173,13 +161,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         if (its==0) {
             T total_time = time1+timer.elapsed();
             file << LambdaThresh.size() << " " << iterations << " " <<  total_time << " "
-                 << estim_res << " " << Error_H_energy << std::endl;
+                 << estim_res << " " << Error_H_energy << " " << thresh_off_quot << std::endl;
             times[its] = total_time;
         }
         else {
             T total_time = times[its-1] + time1 + timer.elapsed();
             file << LambdaThresh.size() << " " << iterations << " "  << total_time << " "
-                 << estim_res << " " << Error_H_energy << std::endl;
+                 << estim_res << " " << Error_H_energy << " " << thresh_off_quot << std::endl;
             times[its] = total_time;
         }
 

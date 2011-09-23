@@ -88,8 +88,13 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF> {
     Coefficients<Lexicographical,T,Index1D>
     apply(const Coefficients<Lexicographical,T,Index1D> &v, int k=0, int J=-1000);
 
-    Coefficients<Lexicographical,T,Index1D>
-    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps=0.);
+    void
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps,
+          Coefficients<Lexicographical,T,Index1D> &ret);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps,
+          const IndexSet<Index1D> &Lambda, Coefficients<Lexicographical,T,Index1D> &ret);
 
     int
     findK(const Coefficients<AbsoluteValue,T,Index1D> &v, T eps);
@@ -161,8 +166,13 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi> {
     Coefficients<Lexicographical,T,Index1D>
     apply(const Coefficients<Lexicographical,T,Index1D> &v, int k=0, int J=-1000);
 
-    Coefficients<Lexicographical,T,Index1D>
-    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps=0.);
+    void
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps,
+          Coefficients<Lexicographical,T,Index1D> &ret);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps,
+          const IndexSet<Index1D> &Lambda, Coefficients<Lexicographical,T,Index1D> &ret);
 
     int
     findK(const Coefficients<AbsoluteValue,T,Index1D> &v, T eps);
@@ -235,8 +245,13 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>
     Coefficients<Lexicographical,T,Index1D>
     apply(const Coefficients<Lexicographical,T,Index1D> &v, int k=0, int J=0);
 
-    Coefficients<Lexicographical,T,Index1D>
-    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps=0.);
+    void
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps,
+          Coefficients<Lexicographical,T,Index1D> &ret);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps,
+          const IndexSet<Index1D> &Lambda, Coefficients<Lexicographical,T,Index1D> &ret);
 
     void
     clear();

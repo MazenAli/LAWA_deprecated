@@ -52,7 +52,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         time.stop();
         total_time += time.elapsed();
 
-        Coefficients<Lexicographical,T,Index> Au, f;
+        Coefficients<Lexicographical,T,Index> Au, f, rhs;
         f = F(supp(w_k));
         T fu = w_k*f;
         Au = A.mv(supp(w_k), w_k);
@@ -63,6 +63,13 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << std::endl;
 
+        /*
+        std::stringstream coeff_filename;
+        coeff_filename << "adwav_coeff_" << w_k.size();
+        Coefficients<AbsoluteValue,T,Index1D> u_abs;
+        u_abs = w_k;
+        plotCoeff(u_abs, A.basis, coeff_filename.str().c_str());
+        */
 
         time.start();
         std::cerr << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
@@ -71,7 +78,8 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
          * Attention: update in rhs1d is set! Linear complexity still holds with better convergence!
          */
         //g_kP1 = F(Lambda_kP1);                // update rhs vector
-        g_kP1 = P(F(gamma*nu_k),Lambda_kP1);  // compute with restriction, otherwise GROW does not work
+        rhs = F(gamma*nu_k);
+        g_kP1 = P(rhs,Lambda_kP1);  // compute with restriction, otherwise GROW does not work
         w_kP1 = this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
 
         std::cerr << "  GALSOLVE finished." << std::endl;
@@ -96,12 +104,13 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
 {
     T zeta = 2.*(omega*nu_bar)/(1-omega);
     T r_norm = 0.;
-    Coefficients<Lexicographical,T,Index> r, Aw, rhs;
+    Coefficients<Lexicographical,T,Index> r, rhs;
     while (1) {
         zeta *= 0.5;
-        rhs = F(0.5*zeta);
-        Aw  = A.apply(w, 0.5*zeta);
-        r = rhs - Aw;
+
+        A.apply(w, 0.5*zeta, r);
+        r -= F(0.5*zeta);
+
         r_norm = r.norm(2.);
         nu = r_norm + zeta;
         std::cerr << "    zeta = " << zeta << ", r_norm = " << r_norm << ", omega*r_norm = "
@@ -122,7 +131,11 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
 
     T threshbound = std::sqrt(1-alpha*alpha) * r.norm(2.)/std::sqrt(T(r.size()));
     Coefficients<Bucket,T,Index> r_bucket;
+    std::cout << "  GROW: size of r = " << r.size() << std::endl;
+
     r_bucket.bucketsort(r, threshbound);
+
+    std::cout << "  GROW: size of r = " << r.size() << std::endl;
     std::cerr << "   Threshbound = " << threshbound << std::endl;
     std::cerr << "   Before extension: ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
               << ", alpha*r_norm = " << alpha*r_norm << std::endl;
@@ -203,9 +216,14 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
 
     //Compute approximate initial residual
     //std::cerr << "    Solving Bx=r0." << std::endl;
+    /*
     Coefficients<Lexicographical,T,Index> r0, APPLY_Aw;
     APPLY_Aw = A.apply(w, tol/3.);
     r0 = g - P(APPLY_Aw, Lambda);
+    */
+    Coefficients<Lexicographical,T,Index> r0, APPLY_Aw;
+    A.apply(w, tol/3.,Lambda, APPLY_Aw);
+    r0 = g - APPLY_Aw;
 
     DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
 

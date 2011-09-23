@@ -42,29 +42,38 @@ typedef Coefficients<AbsoluteValue,T,Index1D>::const_iterator           const_co
 typedef Coefficients<AbsoluteValue,T,Index2D>::const_iterator           const_coeff2d_abs_it;
 
 //Basis definitions
-typedef Basis<T,Orthogonal,R,Multi>                                     MWBasis1D;
-typedef TensorBasis2D<Adaptive, MWBasis1D, MWBasis1D>                   MWBasis2D;
+typedef Basis<T,Orthogonal,R,Multi>                                     MW_Basis1D;
+typedef TensorBasis2D<Adaptive, MW_Basis1D, MW_Basis1D>                 MW_Basis2D;
 
 //Operator definitions
-//typedef AdaptiveHelmholtzOperatorMW2D<T, MWBasis2D>                     MW_MA;
+//typedef AdaptiveHelmholtzOperatorMW2D<T, MW_Basis2D>                  MW_MA;
 typedef AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,R,Multi,
                                                Orthogonal,R,Multi>      MW_MA;
 typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D, MW_MA>        MW_Prec;
 
 //Righthandsides definitions (tensor)
-typedef RHSWithPeaks1D<T, MWBasis1D>                                    MW_RhsIntegral1D;
-typedef SeparableRHS2D<T,MWBasis2D>                                     MW_SeparableRhsIntegral2D;
+typedef RHSWithPeaks1D<T, MW_Basis1D>                                    MW_RhsIntegral1D;
+typedef SeparableRHS2D<T,MW_Basis2D>                                     MW_SeparableRhsIntegral2D;
 typedef SumOfTwoRHSIntegrals<T,Index2D,MW_SeparableRhsIntegral2D,
-                             MW_SeparableRhsIntegral2D>                 MW_SumOfSeparableRhsIntegral2D;
+                             MW_SeparableRhsIntegral2D>                  MW_SumOfSeparableRhsIntegral2D;
 typedef RHS<T,Index2D,MW_SumOfSeparableRhsIntegral2D,
-            MW_Prec>                                                    MW_Rhs_Ref;
-typedef RHS2D<T,MW_SumOfSeparableRhsIntegral2D,MW_Prec>                 MW_Rhs;
+            MW_Prec>                                                     MW_SumOfSeparableRhs_Ref;
+typedef RHS2D<T,MW_SumOfSeparableRhsIntegral2D,MW_Prec>                  MW_SumOfSeparableRhs;
 
-typedef GHS_ADWAV<T, Index2D, MW_MA, MW_Rhs>                            MW_GHS_ADWAV_SOLVER;
+//Righthandsides definitions (non-smooth)
+typedef SmoothRHSWithAlignedSing2D<T, MW_Basis2D, FullGridGL>            MW_NonSeparableRhsIntegralFG2D;
+typedef SumOfThreeRHSIntegrals<T, Index2D,
+                               MW_NonSeparableRhsIntegralFG2D>           MW_SumOfNonSeparableRhsIntegralFG2D;
+typedef RHS2D<T,MW_SumOfNonSeparableRhsIntegralFG2D,MW_Prec>             MW_SumOfNonSeparableRhsFG2D;
+
+//Algorithm definition
+typedef GHS_ADWAV<T, Index2D, MW_MA, MW_SumOfSeparableRhs>               MW_GHS_ADWAV_SOLVER_SeparableRhs;
+typedef GHS_ADWAV<T, Index2D, MW_MA, MW_SumOfNonSeparableRhsFG2D>        MW_GHS_ADWAV_SOLVER_SumNonSeparable;
+
 
 
 IndexSet<Index1D>
-computeRHSLambda_SmoothPart(const MWBasis1D &basis, T a, T b, int J_plus);
+computeRHSLambda_SmoothPart(const MW_Basis1D &basis, T a, T b, int J_plus);
 
 template<typename T, typename Basis2D>
 Coefficients<Lexicographical,T,Index2D>
@@ -96,61 +105,89 @@ int main (int argc, char *argv[]) {
 
     int order=127;
 
+    MW_Basis1D MW_basis_x(d,j0_x);
+    MW_Basis1D MW_basis_y(d,j0_y);
 
-    MWBasis1D MW_basis_x(d,j0_x);
-    MWBasis1D MW_basis_y(d,j0_y);
-
-    MWBasis2D           MW_basis2d(MW_basis_x,MW_basis_y);
+    MW_Basis2D           MW_basis2d(MW_basis_x,MW_basis_y);
     MW_MA               MW_A(MW_basis2d,1.);
-    MW_Prec             MW_prec(MW_A);
-
-    TensorRefSols_PDE_Realline2D<T> refsol;
-    refsol.setExample(example, 1.);
-    SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
-                                    refsol.exact_y, refsol.sing_pts_y);
-
-    SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
-                                    refsol.rhs_y, refsol.sing_pts_y);
-    GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
-    MW_SeparableRhsIntegral2D MW_rhsintegral_x(MW_basis2d, SepFunc1, refsol.deltas_x, no_deltas, order);
-    MW_SeparableRhsIntegral2D MW_rhsintegral_y(MW_basis2d, SepFunc2, no_deltas, refsol.deltas_y, order);
-    MW_SumOfSeparableRhsIntegral2D MW_rhsintegral2d(MW_rhsintegral_x,MW_rhsintegral_y);
-/*
-    Coefficients<Lexicographical,T,Index2D> f, u;
-    f = precomputeRHS(example, MW_basis2d, MW_prec, j0_x, j0_y, 5, 15., 15.);
+    MW_Prec             MW_P(MW_A);
 
 
-    for (const_coeff2d_it it=f.begin(); it!=f.end(); ++it) {
-        if (((*it).first.index2.xtype==XBSpline) && ((*it).first.index2.j!=j0_y)) {
-            cout << "Error in RHS: " << (*it).first << endl;
+    if (example==1 || example==2 || example==3) {
+
+        TensorRefSols_PDE_Realline2D<T> refsol;
+        refsol.setExample(example, 1.);
+        SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
+                                        refsol.exact_y, refsol.sing_pts_y);
+
+        SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
+                                        refsol.rhs_y, refsol.sing_pts_y);
+        GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
+        MW_SeparableRhsIntegral2D MW_rhsintegral_x(MW_basis2d, SepFunc1, refsol.deltas_x, no_deltas, order);
+        MW_SeparableRhsIntegral2D MW_rhsintegral_y(MW_basis2d, SepFunc2, no_deltas, refsol.deltas_y, order);
+        MW_SumOfSeparableRhsIntegral2D MW_rhsintegral2d(MW_rhsintegral_x,MW_rhsintegral_y);
+        /*
+        Coefficients<Lexicographical,T,Index2D> f, u;
+        f = precomputeRHS(example, MW_basis2d, MW_P, j0_x, j0_y, 5, 15., 15.);
+
+
+        for (const_coeff2d_it it=f.begin(); it!=f.end(); ++it) {
+            if (((*it).first.index2.xtype==XBSpline) && ((*it).first.index2.j!=j0_y)) {
+                cout << "Error in RHS: " << (*it).first << endl;
+            }
+        }
+
+        Rhs MW_F_test(rhsintegral2d,MW_P);
+        */
+
+        MW_SumOfSeparableRhs MW_F(MW_rhsintegral2d,MW_P);
+        MW_F.readIndexSets(rhsfilename.str().c_str());
+        /*
+        IndexSet<Index2D> Lambda = MW_F.getFullIndexSet();
+        MW_SumOfSeparableRhs_Ref MW_F_Ref(MW_rhsintegral2d,MW_P);
+
+        Coefficients<Lexicographical,T,Index2D> f;
+        f = MW_F_Ref(Lambda);
+        */
+        MW_GHS_ADWAV_SOLVER_SeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true);
+
+        Coefficients<Lexicographical,T,Index2D> u;
+        u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
+                                      NumOfIterations, refsol.H1norm());
+    }
+    else if (example==5) {
+        RefSols_PDE_Realline2D<T> refsol;
+        refsol.setExample(2, 1.);
+        Function2D<T> Func2d(refsol.exact, refsol.sing_pts_x, refsol.sing_pts_y);
+        Function2D<T> Func2d_x(refsol.exact_dx, refsol.sing_pts_x, refsol.sing_pts_y);
+        Function2D<T> Func2d_y(refsol.exact_dy, refsol.sing_pts_x, refsol.sing_pts_y);
+
+        if (d==2) {
+            int order = 20;
+            MW_NonSeparableRhsIntegralFG2D MW_rhsintegral_reaction(MW_basis2d, Func2d, order);
+            MW_NonSeparableRhsIntegralFG2D MW_rhsintegral_diffusion_x(MW_basis2d, Func2d_x, order, 1, 0);
+            MW_NonSeparableRhsIntegralFG2D MW_rhsintegral_diffusion_y(MW_basis2d, Func2d_y, order, 0, 1);
+            MW_SumOfNonSeparableRhsIntegralFG2D MW_rhsintegral2d(MW_rhsintegral_diffusion_x,
+                                                                 MW_rhsintegral_diffusion_y,
+                                                                 MW_rhsintegral_reaction);
+            MW_SumOfNonSeparableRhsFG2D MW_F(MW_rhsintegral2d,MW_P);
+            MW_F.readIndexSets(rhsfilename.str().c_str());
+
+            MW_GHS_ADWAV_SOLVER_SumNonSeparable MW_ghs_adwav_solver(MW_A,MW_F,true);
+
+            Coefficients<Lexicographical,T,Index2D> u;
+            u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
+                                          NumOfIterations, refsol.H1norm());
+
         }
     }
-
-    Rhs MW_F_test(rhsintegral2d,MW_prec);
-*/
-
-    MW_Rhs MW_F(MW_rhsintegral2d,MW_prec);
-    MW_F.readIndexSets(rhsfilename.str().c_str());
-/*
-    IndexSet<Index2D> Lambda = MW_F.getFullIndexSet();
-    MW_Rhs_Ref MW_F_Ref(MW_rhsintegral2d,MW_prec);
-
-    Coefficients<Lexicographical,T,Index2D> f;
-    f = MW_F_Ref(Lambda);
-*/
-    MW_GHS_ADWAV_SOLVER MW_ghs_adwav_solver(MW_A,MW_F,true);
-
-
-    Coefficients<Lexicographical,T,Index2D> u;
-    u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
-                                  NumOfIterations, refsol.H1norm());
 
     return 0;
 }
 
 /*
 IndexSet<Index1D>
-computeRHSLambda_SingularPart(const MWBasis1D &basis, const DenseVectorT &_f_singularPoints,
+computeRHSLambda_SingularPart(const MW_Basis1D &basis, const DenseVectorT &_f_singularPoints,
                               int J_plus)
 {
     IndexSet<Index1D> ret;
@@ -190,7 +227,7 @@ computeRHSLambda_SingularPart(const MWBasis1D &basis, const DenseVectorT &_f_sin
 }
 
 IndexSet<Index1D>
-computeRHSLambda_SmoothPart(const MWBasis1D &basis, T a, T b, int J_plus)
+computeRHSLambda_SmoothPart(const MW_Basis1D &basis, T a, T b, int J_plus)
 {
     IndexSet<Index1D> ret;
 

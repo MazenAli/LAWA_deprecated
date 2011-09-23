@@ -78,6 +78,21 @@ Coefficients<Lexicographical,T,Index>::operator-(const Coefficients<Lexicographi
 }
 
 template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index> &
+Coefficients<Lexicographical,T,Index>::operator-=(const Coefficients<Lexicographical,T,Index> &_coeff)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    //Coefficients<Lexicographical,T,Index> ret = *this;
+    if (_coeff.size() > 0) {
+        for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
+            (*this).operator[]((*lambda).first) -= (*lambda).second;
+        }
+    }
+    return (*this);
+}
+
+
+template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index>
 Coefficients<Lexicographical,T,Index>::operator+(const Coefficients<Lexicographical,T,Index> &_coeff) const
 {
@@ -246,7 +261,6 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
     }
     //std::cerr << "Supremum norm = " << supremumnorm << std::endl;
     int NumOfBuckets = std::max(0,(int)(2*std::log(supremumnorm*std::sqrt(_coeff.size())/eps)/std::log(T(2))));
-    //std::cerr << "Number of buckets = " << NumOfBuckets << std::endl;
 
 
     for (int i=0; i<NumOfBuckets; ++i) {
@@ -262,6 +276,9 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
             //std::cerr << "pos for " << (*lambda).first << ", " << (*lambda).second
             //          << ": " << -2*std::log(fabs((*lambda).second)/supremumnorm)/std::log(T(2)) << std::endl;
             const std::pair<const Index,T>* tmp = &(*lambda);
+            //std::cout << "sizeof(lambda): " << sizeof(*lambda) << std::endl;
+            //std::cout << "sizeof(tmo):    " << sizeof(tmp) << std::endl;
+
             buckets[pos].push_back(tmp);
             T val = (*lambda).second;
             bucket_ell2norms[pos] += (long double)(val*val);
