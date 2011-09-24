@@ -61,47 +61,76 @@ typedef AdaptiveHelmholtzOperatorOptimized2D<T,Primal,R,SparseMulti,
                                                Primal,R,SparseMulti>    SparseMW_MA;
 typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D,SparseMW_MA>   SparseMW_Prec;
 
-//Righthandsides definitions (tensor)
+//Righthandsides definitions (separable)
 typedef SeparableRHS2D<T,CDF_Basis2D >                                  CDF_SeparableRhsIntegral2D;
+typedef SeparableRHS2D<T,MW_Basis2D >                                   MW_SeparableRhsIntegral2D;
+typedef SeparableRHS2D<T,SparseMW_Basis2D >                             SparseMW_SeparableRhsIntegral2D;
+
 typedef SumOfTwoRHSIntegrals<T,Index2D,CDF_SeparableRhsIntegral2D,
                              CDF_SeparableRhsIntegral2D>                CDF_SumOfSeparableRhsIntegral2D;
-typedef RHS<T,Index2D, CDF_SumOfSeparableRhsIntegral2D,
-            CDF_Prec>                                                   CDF_SumOfSeparableRhs;
-
-typedef SeparableRHS2D<T,MW_Basis2D >                                   MW_SeparableRhsIntegral2D;
 typedef SumOfTwoRHSIntegrals<T,Index2D,MW_SeparableRhsIntegral2D,
                              MW_SeparableRhsIntegral2D>                 MW_SumOfSeparableRhsIntegral2D;
-typedef RHS<T,Index2D, MW_SumOfSeparableRhsIntegral2D,
-            MW_Prec>                                                    MW_SumOfSeparableRhs;
-
-typedef SeparableRHS2D<T,SparseMW_Basis2D >                             SparseMW_SeparableRhsIntegral2D;
 typedef SumOfTwoRHSIntegrals<T,Index2D,SparseMW_SeparableRhsIntegral2D,
                              SparseMW_SeparableRhsIntegral2D>           SparseMW_SumOfSeparableRhsIntegral2D;
+
+typedef RHS<T,Index2D, CDF_SumOfSeparableRhsIntegral2D,
+            CDF_Prec>                                                   CDF_SumOfSeparableRhs;
+typedef RHS<T,Index2D, MW_SumOfSeparableRhsIntegral2D,
+            MW_Prec>                                                    MW_SumOfSeparableRhs;
 typedef RHS<T,Index2D,SparseMW_SumOfSeparableRhsIntegral2D,
             SparseMW_Prec>                                              SparseMW_SumOfSeparableRhs;
 
-//Righthandsides definitions (non tensor, non smooth rhs)
+
+//Righthandsides definitions (non-separable)
+typedef SmoothRHSWithAlignedSing2D<T, CDF_Basis2D, SparseGridGP>        CDF_NonSeparableRhsIntegralSG2D;
+typedef SmoothRHSWithAlignedSing2D<T, MW_Basis2D, SparseGridGP>         MW_NonSeparableRhsIntegralSG2D;
+typedef SmoothRHSWithAlignedSing2D<T, SparseMW_Basis2D, SparseGridGP>   SparseMW_NonSeparableRhsIntegralSG2D;
+
 typedef SmoothRHSWithAlignedSing2D<T, CDF_Basis2D, FullGridGL>          CDF_NonSeparableRhsIntegralFG2D;
-typedef SumOfThreeRHSIntegrals<T, Index2D,
-                               CDF_NonSeparableRhsIntegralFG2D>         CDF_SumOfNonSeparableRhsIntegralFG2D;
-typedef RHS<T,Index2D, CDF_SumOfNonSeparableRhsIntegralFG2D,
-            CDF_Prec>                                                   CDF_SumOfNonSeparableRhsFG2D;
 typedef SmoothRHSWithAlignedSing2D<T, MW_Basis2D, FullGridGL>           MW_NonSeparableRhsIntegralFG2D;
+typedef SmoothRHSWithAlignedSing2D<T, SparseMW_Basis2D, FullGridGL>     SparseMW_NonSeparableRhsIntegralFG2D;
+
+
+typedef RHS<T,Index2D, CDF_NonSeparableRhsIntegralSG2D,
+            CDF_Prec>                                                   CDF_NonSeparableRhs2D;
+typedef RHS<T,Index2D, MW_NonSeparableRhsIntegralSG2D,
+            MW_Prec>                                                    MW_NonSeparableRhs2D;
+typedef RHS<T,Index2D, SparseMW_NonSeparableRhsIntegralSG2D,
+            SparseMW_Prec>                                              SparseMW_NonSeparableRhs2D;
+
 typedef SumOfThreeRHSIntegrals<T, Index2D,
-                               MW_NonSeparableRhsIntegralFG2D>          MW_SumOfNonSeparableRhsIntegralFG2D;
-typedef RHS<T,Index2D, MW_SumOfNonSeparableRhsIntegralFG2D,
-            MW_Prec>                                                    MW_SumOfNonSeparableRhsFG2D;
+                               CDF_NonSeparableRhsIntegralFG2D>         CDF_SumOfNonSeparableRhsIntegral2D;
+typedef SumOfThreeRHSIntegrals<T, Index2D,
+                               MW_NonSeparableRhsIntegralFG2D>          MW_SumOfNonSeparableRhsIntegral2D;
+typedef SumOfThreeRHSIntegrals<T, Index2D,
+                               SparseMW_NonSeparableRhsIntegralFG2D>    SparseMW_SumOfNonSeparableRhsIntegral2D;
+
+typedef RHS<T,Index2D, CDF_SumOfNonSeparableRhsIntegral2D,
+            CDF_Prec>                                                   CDF_SumOfNonSeparableRhs2D;
+typedef RHS<T,Index2D, MW_SumOfNonSeparableRhsIntegral2D,
+            MW_Prec>                                                    MW_SumOfNonSeparableRhs2D;
+typedef RHS<T,Index2D, SparseMW_SumOfNonSeparableRhsIntegral2D,
+            SparseMW_Prec>                                              SparseMW_SumOfNonSeparableRhs2D;
 
 //Algorithm definition
-typedef S_ADWAV<T,Index2D,CDF_Basis2D,CDF_MA,CDF_SumOfSeparableRhs>     CDF_S_ADWAV_SOLVER_Tensor;
-typedef S_ADWAV<T,Index2D,MW_Basis2D, MW_MA,MW_SumOfSeparableRhs>       MW_S_ADWAV_SOLVER_Tensor;
+typedef S_ADWAV<T,Index2D,CDF_Basis2D,CDF_MA,CDF_SumOfSeparableRhs>     CDF_S_ADWAV_SOLVER_SeparableRhs;
+typedef S_ADWAV<T,Index2D,MW_Basis2D, MW_MA,MW_SumOfSeparableRhs>       MW_S_ADWAV_SOLVER_SeparableRhs;
 typedef S_ADWAV<T,Index2D,SparseMW_Basis2D,SparseMW_MA,
-                SparseMW_SumOfSeparableRhs>                             SparseMW_S_ADWAV_SOLVER_Tensor;
+                SparseMW_SumOfSeparableRhs>                             SparseMW_S_ADWAV_SOLVER_SeparableRhs;
 
 typedef S_ADWAV<T,Index2D,CDF_Basis2D,CDF_MA,
-                CDF_SumOfNonSeparableRhsFG2D>                           CDF_S_ADWAV_SOLVER_NonSmooth;
+                CDF_NonSeparableRhs2D>                                  CDF_S_ADWAV_SOLVER_NonSeparableRhs;
 typedef S_ADWAV<T,Index2D,MW_Basis2D,MW_MA,
-                MW_SumOfNonSeparableRhsFG2D>                            MW_S_ADWAV_SOLVER_NonSmooth;
+                MW_NonSeparableRhs2D>                                   MW_S_ADWAV_SOLVER_NonSeparableRhs;
+typedef S_ADWAV<T,Index2D,SparseMW_Basis2D,SparseMW_MA,
+                SparseMW_NonSeparableRhs2D>                             SparseMW_S_ADWAV_SOLVER_NonSeparableRhs;
+
+typedef S_ADWAV<T,Index2D,CDF_Basis2D,CDF_MA,
+                CDF_SumOfNonSeparableRhs2D>                             CDF_S_ADWAV_SOLVER_SumNonSeparableRhs;
+typedef S_ADWAV<T,Index2D,MW_Basis2D,MW_MA,
+                MW_SumOfNonSeparableRhs2D>                              MW_S_ADWAV_SOLVER_SumNonSeparableRhs;
+typedef S_ADWAV<T,Index2D,MW_Basis2D,MW_MA,
+                MW_SumOfNonSeparableRhs2D>                              SparseMW_S_ADWAV_SOLVER_SumNonSeparableRhs;
 
 int main (int argc, char *argv[]) {
     if (argc!=8) {
@@ -161,7 +190,7 @@ int main (int argc, char *argv[]) {
             CDF_SumOfSeparableRhsIntegral2D CDF_rhsintegral2d(CDF_rhsintegral_x,CDF_rhsintegral_y);
             CDF_SumOfSeparableRhs CDF_F(CDF_rhsintegral2d,CDF_P);
 
-            CDF_S_ADWAV_SOLVER_Tensor CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
+            CDF_S_ADWAV_SOLVER_SeparableRhs CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          2, 1e-2,1000000);
             CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
@@ -169,6 +198,23 @@ int main (int argc, char *argv[]) {
 
             plot2D<T,CDF_Basis2D,CDF_Prec>(CDF_basis2d, CDF_s_adwav_solver.solutions[NumOfIterations-1], CDF_P, refsol.exact,
                    -80., 80, -80., 80., pow2i<T>(-4), "example2");
+        }
+        else if (example==4) {
+            int order = 7;
+            RefSols_PDE_Realline2D<T> refsol;
+            refsol.setExample(1, 1.);
+            Function2D<T> Func2d(refsol.rhs, refsol.sing_pts_x, refsol.sing_pts_y);
+            CDF_NonSeparableRhsIntegralSG2D CDF_rhsintegral2d(CDF_basis2d, Func2d, order);
+            CDF_NonSeparableRhs2D           CDF_F(CDF_rhsintegral2d,CDF_P);
+
+            CDF_S_ADWAV_SOLVER_NonSeparableRhs CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
+                                                                  threshTol, cgTol, resTol, NumOfIterations,
+                                                                  2, 1e-2,1000000);
+            CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+                                                 refsol.H1norm());
+
+            plot2D<T,CDF_Basis2D,CDF_Prec>(CDF_basis2d, CDF_s_adwav_solver.solutions[NumOfIterations-1], CDF_P, refsol.exact,
+                   -2.5, 2.5, -2.5, 2.5, pow2i<T>(-4), "example2");
         }
         else if (example==5) {
             RefSols_PDE_Realline2D<T> refsol;
@@ -182,11 +228,11 @@ int main (int argc, char *argv[]) {
                 CDF_NonSeparableRhsIntegralFG2D CDF_rhsintegral_reaction(CDF_basis2d, Func2d, order);
                 CDF_NonSeparableRhsIntegralFG2D CDF_rhsintegral_diffusion_x(CDF_basis2d, Func2d_x, order, 1, 0);
                 CDF_NonSeparableRhsIntegralFG2D CDF_rhsintegral_diffusion_y(CDF_basis2d, Func2d_y, order, 0, 1);
-                CDF_SumOfNonSeparableRhsIntegralFG2D CDF_rhsintegral2d(CDF_rhsintegral_diffusion_x,
+                CDF_SumOfNonSeparableRhsIntegral2D CDF_rhsintegral2d(CDF_rhsintegral_diffusion_x,
                                                                        CDF_rhsintegral_diffusion_y,
                                                                        CDF_rhsintegral_reaction);
-                CDF_SumOfNonSeparableRhsFG2D CDF_F(CDF_rhsintegral2d,CDF_P);
-                CDF_S_ADWAV_SOLVER_NonSmooth CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
+                CDF_SumOfNonSeparableRhs2D CDF_F(CDF_rhsintegral2d,CDF_P);
+                CDF_S_ADWAV_SOLVER_SumNonSeparableRhs CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
                                                                 threshTol, cgTol, resTol, NumOfIterations,
                                                                 2, 1e-2,1000000);
                 CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
@@ -222,14 +268,11 @@ int main (int argc, char *argv[]) {
             MW_SumOfSeparableRhsIntegral2D MW_rhsintegral2d(MW_rhsintegral_x,MW_rhsintegral_y);
             MW_SumOfSeparableRhs MW_F(MW_rhsintegral2d,MW_P);
 
-            MW_S_ADWAV_SOLVER_Tensor MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
+            MW_S_ADWAV_SOLVER_SeparableRhs MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          2, 1e-2,1000000);
             MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
                                     refsol.H1norm());
-
-            plot2D<T,MW_Basis2D,MW_Prec>(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, refsol.exact,
-                                           -80., 80, -80., 80., pow2i<T>(-2), "example3");
 
             stringstream rhsfilename;
             rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
@@ -275,6 +318,59 @@ int main (int argc, char *argv[]) {
                    -40., 40., -40., 40., pow2i<T>(-3), plot_filename.str().c_str());
             cout << "Plot of solution finished." << endl;
         }
+        else if (example==4) {
+            int order = 27;
+            RefSols_PDE_Realline2D<T> refsol;
+            refsol.setExample(1, 1.);
+            Function2D<T> Func2d(refsol.rhs, refsol.sing_pts_x, refsol.sing_pts_y);
+            MW_NonSeparableRhsIntegralSG2D MW_rhsintegral2d(MW_basis2d, Func2d, order);
+            MW_NonSeparableRhs2D           MW_F(MW_rhsintegral2d,MW_P);
+
+            MW_S_ADWAV_SOLVER_NonSeparableRhs MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
+                                                                threshTol, cgTol, resTol, NumOfIterations,
+                                                                2, 1e-2,1000000);
+            MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+                                                 refsol.H1norm());
+
+            stringstream rhsfilename;
+            rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+                        << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
+
+            Coefficients<Lexicographical,T,Index2D> f;
+            IndexSet<Index2D> Lambda;
+            Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
+
+            IndexSet<Index2D> Extension;
+            Extension = C(Lambda,1.,MW_basis2d);
+            Lambda = Lambda + Extension;
+            f = MW_F(Lambda);
+            Coefficients<AbsoluteValue,T,Index2D> f_abs;
+            f_abs = f;
+            cout << f.norm(2.) << " " << f_abs.norm(2.) << endl;
+
+            ofstream rhsfile(rhsfilename.str().c_str());
+            rhsfile << f.norm(2.) << endl;
+            for (int k=0; k<=30; ++k) {
+                T eta=pow(2.,(T)-k);
+                f = MW_F(eta);
+                cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
+
+                IndexSet<Index2D> supp_f;
+                supp_f = supp(f);
+                rhsfile << "#," << eta << endl;
+                for (const_set2d_it it=supp_f.begin(); it!=supp_f.end(); ++it) {
+                    if (Lambda.count(*it)>0) {
+                        Lambda.erase(*it);
+                        rhsfile << *it << endl;
+                    }
+                }
+                rhsfile << endl;
+            }
+            rhsfile.close();
+
+            plot2D<T,MW_Basis2D,MW_Prec>(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, refsol.exact,
+                   -2.5, 2.5, -2.5, 2.5, pow2i<T>(-4), "example4");
+        }
         else if (example==5) {
             RefSols_PDE_Realline2D<T> refsol;
             refsol.setExample(2, 1.);
@@ -284,14 +380,14 @@ int main (int argc, char *argv[]) {
 
             if (d==2) {
                 int order = 20;
-                MW_NonSeparableRhsIntegralFG2D MW_rhsintegral_reaction(MW_basis2d, Func2d, order);
-                MW_NonSeparableRhsIntegralFG2D MW_rhsintegral_diffusion_x(MW_basis2d, Func2d_x, order, 1, 0);
-                MW_NonSeparableRhsIntegralFG2D MW_rhsintegral_diffusion_y(MW_basis2d, Func2d_y, order, 0, 1);
-                MW_SumOfNonSeparableRhsIntegralFG2D MW_rhsintegral2d(MW_rhsintegral_diffusion_x,
-                                                                     MW_rhsintegral_diffusion_y,
-                                                                     MW_rhsintegral_reaction);
-                MW_SumOfNonSeparableRhsFG2D MW_F(MW_rhsintegral2d,MW_P);
-                MW_S_ADWAV_SOLVER_NonSmooth MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
+                MW_NonSeparableRhsIntegralFG2D       MW_rhsintegral_reaction(MW_basis2d, Func2d, order);
+                MW_NonSeparableRhsIntegralFG2D       MW_rhsintegral_diffusion_x(MW_basis2d, Func2d_x, order, 1, 0);
+                MW_NonSeparableRhsIntegralFG2D       MW_rhsintegral_diffusion_y(MW_basis2d, Func2d_y, order, 0, 1);
+                MW_SumOfNonSeparableRhsIntegral2D    MW_rhsintegral2d(MW_rhsintegral_diffusion_x,
+                                                                      MW_rhsintegral_diffusion_y,
+                                                                      MW_rhsintegral_reaction);
+                MW_SumOfNonSeparableRhs2D            MW_F(MW_rhsintegral2d,MW_P);
+                MW_S_ADWAV_SOLVER_SumNonSeparableRhs MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
                                                               threshTol, cgTol, resTol, NumOfIterations,
                                                               3, 1e-2,1000000);
                 MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
@@ -365,7 +461,7 @@ int main (int argc, char *argv[]) {
             SparseMW_SumOfSeparableRhsIntegral2D SparseMW_rhsintegral2d(SparseMW_rhsintegral_x,SparseMW_rhsintegral_y);
             SparseMW_SumOfSeparableRhs SparseMW_F(SparseMW_rhsintegral2d,SparseMW_P);
 
-            SparseMW_S_ADWAV_SOLVER_Tensor SparseMW_s_adwav_solver(SparseMW_basis2d, SparseMW_A, SparseMW_F, contraction,
+            SparseMW_S_ADWAV_SOLVER_SeparableRhs SparseMW_s_adwav_solver(SparseMW_basis2d, SparseMW_A, SparseMW_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          3, 1e-2,1000000);
             SparseMW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
