@@ -211,6 +211,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
     T old_res = 0.;
     int its_per_threshTol=0;
     std::cout << "Simple adaptive solver started." << std::endl;
+    
     std::stringstream filename;
     filename << "s-adwav-otf.dat";
     std::ofstream file(filename.str().c_str());
@@ -239,7 +240,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         //int jmin,jmax;
         //getMinAndMaxLevel(LambdaActive, jmin, jmax);
         //std::cout << "Before THRESH: jmin = " << jmin << ", jmax = " << jmax << std::endl;
-        std::cout << "After THRESH: " << u << std::endl;
+        //std::cout << "After THRESH: " << u << std::endl;
 
         solutions[its] = u;
         LambdaThresh = supp(u);

@@ -716,9 +716,12 @@ T
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::Operator_RHS::operator()(const Index2D &lambda)
 {
     T val = 0;
+    //std::cout << " =================================== " << lambda << " ============================= " << std::endl;
     for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
         val += (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param()) 
              * (*thisTruth->F_operators[i])(lambda);
+        //std::cout << "Theta_f = " << (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param()) << ", F() = " << (*thisTruth->F_operators[i])(lambda)
+        //<< "     -> val = " << val << std::endl;
     }
     
     return thisTruth->get_test_prec(lambda) * val;

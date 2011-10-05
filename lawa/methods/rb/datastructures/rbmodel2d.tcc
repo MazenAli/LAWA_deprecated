@@ -662,7 +662,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
         
         for (unsigned int i = 1; i <= n_bf(); ++i) {
             if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
-                DenseVectorT bf_dense(rb_basis_functions[i-1].size());
+                DenseVectorT bf_dense((int)rb_basis_functions[i-1].size());
                 int index_count = 1;
                 for (it = rb_basis_functions[i-1].begin(); it != rb_basis_functions[i-1].end(); ++it, ++index_count) {
                     bf_dense(index_count) = (*it).second;
