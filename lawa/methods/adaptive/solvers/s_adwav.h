@@ -44,6 +44,7 @@ class S_ADWAV {
         void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
         //solver for elliptic problems
         void solve_gmres(const IndexSet<Index> &Initial_Lambda);
+        void solve_gmresm(const IndexSet<Index> &Initial_Lambda);
         //solver for indefinite problems
         void solve_cgls(const IndexSet<Index> &Initial_Lambda);
         

@@ -82,7 +82,7 @@ enum MethodType {
 };
 
 enum SolverCall {
-    call_cg, call_gmres, call_cgls
+    call_cg, call_gmres, call_gmresm, call_cgls
 };
 
 } // namespace lawa
