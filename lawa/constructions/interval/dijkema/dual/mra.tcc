@@ -208,7 +208,11 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
             indices = 1, 2, 4, 7, 9, 12, 13, 15, 16, 17, 20;
         } else if ((d==2) && (d_==2)) {
             indices.engine().resize(2);
-            indices = 1, 1;
+            //--------------------------
+            //indices = 1, 1;
+            indices = 2, 4;
+            positions = 1, 2, 3, 4;
+            //--------------------------
         } else if ((d==2) && (d_==4)) {
             indices.engine().resize(4);
             indices = 1, 1, 4, 6;
@@ -251,6 +255,12 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
         } else if ((d==5) && (d_==9)) {
             indices.engine().resize(12);
             indices = 1, 3, 4, 5, 7, 9, 11, 12, 15, 16, 17, 20;
+            //--------------------------
+        } else if ((d==2) && (d_== 2)) {
+            indices.engine().resize(2);
+            indices = 2, 1;
+            positions = 1, 2, 3;
+            //--------------------------
         } else if ((d==2) && (d_==4)) {
             indices.engine().resize(4);
             indices = 1, 4, 5, 2;
