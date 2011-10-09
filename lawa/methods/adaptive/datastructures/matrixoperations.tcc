@@ -176,6 +176,9 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
     typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
+    //int n=lawa::test_cg(A, u, f, tol, maxIterations);
+    //return n;
+
     Timer timer;
     int N = Lambda.size();
     flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
@@ -220,7 +223,6 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
             //else               u[*row] = 0.;
             u[*row] = x(row_count);
         }
-        
         return number_of_iterations;
     }
     else return -1;

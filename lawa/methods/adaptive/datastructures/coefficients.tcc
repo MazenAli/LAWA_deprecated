@@ -91,6 +91,33 @@ Coefficients<Lexicographical,T,Index>::operator-=(const Coefficients<Lexicograph
     return (*this);
 }
 
+template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index> &
+Coefficients<Lexicographical,T,Index>::operator+=(const Coefficients<Lexicographical,T,Index> &_coeff)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    //Coefficients<Lexicographical,T,Index> ret = *this;
+    if (_coeff.size() > 0) {
+        for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
+            (*this).operator[]((*lambda).first) += (*lambda).second;
+        }
+    }
+    return (*this);
+}
+
+template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index> &
+Coefficients<Lexicographical,T,Index>::operator*=(const T factor)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    //Coefficients<Lexicographical,T,Index> ret = *this;
+    if ((*this).size() > 0) {
+        for (const_it lambda = (*this).begin(); lambda != (*this).end(); ++lambda) {
+            (*this).operator[]((*lambda).first) *= factor;
+        }
+    }
+    return (*this);
+}
 
 template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index>

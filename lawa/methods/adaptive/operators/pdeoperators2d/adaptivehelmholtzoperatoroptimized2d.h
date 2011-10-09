@@ -29,8 +29,8 @@
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/preconditioners/preconditioners.h>
 #include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
-#include <lawa/methods/adaptive/operators/adaptivelaplaceoperator1d.h>
-#include <lawa/methods/adaptive/operators/adaptiveidentityoperator1d.h>
+#include <lawa/methods/adaptive/operators/pdeoperators1d/adaptivelaplaceoperator1d.h>
+#include <lawa/methods/adaptive/operators/pdeoperators1d/adaptiveidentityoperator1d.h>
 
 namespace lawa {
 
@@ -86,15 +86,18 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogona
                         SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
 
     Coefficients<Lexicographical,T,Index2D>
-    apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J=-1000);
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J=-1000,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
 
     void
     apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
-          Coefficients<Lexicographical,T,Index2D> &ret);
+          Coefficients<Lexicographical,T,Index2D> &ret,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
 
     void
     apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
-          const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret);
+          const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
 
     int
     findK(const Coefficients<AbsoluteValue,T,Index2D> &v, T eps);
@@ -122,6 +125,7 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
     typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
     typedef IndexSet<Index2D>::const_iterator                                 const_set2d_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator  const_coeff1d_it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator  const_coeff2d_it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::iterator        coeff2d_it;
     typedef typename Coefficients<AbsoluteValue,T,Index2D>::const_iterator    const_abs_coeff2d_it;
@@ -153,6 +157,9 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
     mv(const IndexSet<Index2D> &LambdaRow,
        const Coefficients<Lexicographical,T,Index2D> &x);
 
+    Coefficients<Lexicographical,T,Index2D>
+    operator*(const Coefficients<Lexicographical,T,Index2D> &v);
+
     void
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
                         SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);
@@ -162,13 +169,18 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
                         SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
 
     Coefficients<Lexicographical,T,Index2D>
-    apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J=-1000);
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J=-1000,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
 
-    Coefficients<Lexicographical,T,Index2D>
-    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps);
+    void
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+          Coefficients<Lexicographical,T,Index2D> &ret,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
 
-    int
-    findK(const Coefficients<AbsoluteValue,T,Index2D> &v, T eps);
+    void
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+          const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
 
     void
     clear();
@@ -191,7 +203,7 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
 
 }   //namespace lawa
 
-#include <lawa/methods/adaptive/operators/adaptivehelmholtzoperatoroptimized2d.tcc>
+#include <lawa/methods/adaptive/operators/pdeoperators2d/adaptivehelmholtzoperatoroptimized2d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEHELMHOLTZOPERATOROPTIMIZED2D_H
 

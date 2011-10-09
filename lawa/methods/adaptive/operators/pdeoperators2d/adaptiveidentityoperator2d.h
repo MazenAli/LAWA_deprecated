@@ -76,7 +76,7 @@ struct AdaptiveIdentityOperator2D
 
 }   //namespace lawa
 
-#include <lawa/methods/adaptive/operators/adaptiveidentityoperator2d.tcc>
+#include <lawa/methods/adaptive/operators/pdeoperators2d/adaptiveidentityoperator2d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEIDENTITYOPERATOR2D_H
 

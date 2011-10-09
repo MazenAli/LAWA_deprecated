@@ -270,6 +270,6 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>
 
 }
 
-#include <lawa/methods/adaptive/operators/adaptivehelmholtzoperatoroptimized1d.tcc>
+#include <lawa/methods/adaptive/operators/pdeoperators1d/adaptivehelmholtzoperatoroptimized1d.tcc>
 
 #endif  // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEHELMHOLTZOPERATOROPTIMIZED1D_H

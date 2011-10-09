@@ -48,3 +48,6 @@ tutorials/rb_examples/rb_example
 applications/unbounded_domains/parameters/eigenvalues_old
 applications/unbounded_domains/adwav/estimate-rhs2d
 tutorials/examples/mv_sparse
+applications/unbounded_domains/adwav/ghs-adwav-realline-pde2d
+applications/unbounded_domains/adwav/ghs-adwav-realline-pde1d
+applications/unbounded_domains/adwav/ghs-adwav-realline-helmholtz2d

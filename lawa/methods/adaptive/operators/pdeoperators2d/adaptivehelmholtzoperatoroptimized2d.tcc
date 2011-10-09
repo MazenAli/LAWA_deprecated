@@ -322,7 +322,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
 template <typename T, DomainType Domain1, DomainType Domain2>
 Coefficients<Lexicographical,T,Index2D>
 AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
-::apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J)
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J, cxxblas::Transpose /*trans*/)
 {
     Coefficients<Lexicographical,T,Index2D> ret;
     if (v.size() == 0) return ret;
@@ -377,7 +377,7 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
 ::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
-        Coefficients<Lexicographical,T,Index2D> &ret)
+        Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose /*trans*/)
 {
 //    Coefficients<Lexicographical,T,Index2D> ret;
 /*
@@ -458,7 +458,7 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
 ::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
-        const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret)
+        const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose /*trans*/)
 {
 
 /*
@@ -613,7 +613,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
     std::cout << "AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,"
               << "Primal,Domain2,SparseMulti>: j0_x=" << basis.first.j0 << ", j0_y="
               << basis.second.j0 << std::endl;
-    if (basis.first.d==2 && basis.second.d==2 && c==1.) {
+    if (basis.first.d==4 && basis.second.d==4 && c==1.) {
 
         if      (basis.first.j0==0)  {    cA_x = 0.14;  CA_x = 2.9;    }
         else if (basis.first.j0==-1) {    cA_x = 0.14;  CA_x = 2.9;    }
@@ -630,8 +630,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         else assert(0);
 
     }
-    cA = std::min(cA_x,cA_y);
-    CA = std::max(CA_x,CA_y);
+    cA = std::min(cA_x*cA_x,cA_y*cA_y);
+    CA = std::max(CA_x*CA_x,CA_y*CA_y);
     kappa = CA/cA;
 }
 
@@ -640,7 +640,6 @@ T
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::operator()(const Index2D &row_index, const Index2D &col_index)
 {
-
     T id_x = 0., dd_y = 0.;
     if (fabs((row_index).index1.j-(col_index).index1.j)<=1) {
         id_x = identity_data1d(row_index.index1,col_index.index1);
@@ -672,20 +671,20 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 ::prec(const Index2D &index)
 {
     T prec = 1.;
-    //const_coeff2d_it it_P_end   = P_data.end();
-    //const_coeff2d_it it_index   = P_data.find(index);
-    //if (it_index != it_P_end) {
-    //    prec *= (*it_index).second;
-    //}
-    //else {
+    const_coeff2d_it it_P_end   = P_data.end();
+    const_coeff2d_it it_index   = P_data.find(index);
+    if (it_index != it_P_end) {
+        prec *= (*it_index).second;
+    }
+    else {
         T prec_id_x = identity_data1d(index.index1,index.index1);
         T prec_id_y = identity_data1d(index.index2,index.index2);
         T prec_dd_x = laplace_data1d(index.index1,index.index1);
         T prec_dd_y = laplace_data1d(index.index2,index.index2);
-        T tmp = 1./std::sqrt(fabs(prec_dd_x*prec_id_y + prec_id_x*prec_dd_y + c*prec_id_y*prec_id_y ));
-    //    P_data[index] = tmp;
+        T tmp = 1./std::sqrt(fabs(prec_dd_x*prec_id_y + prec_id_x*prec_dd_y + c*prec_id_x*prec_id_y ));
+        P_data[index] = tmp;
         prec *= tmp;
-    //}
+    }
     return prec;
 }
 
@@ -704,7 +703,6 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 
     compression_1d_x.setParameters(LambdaRow_x);
     compression_1d_y.setParameters(LambdaRow_y);
-
 
     for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
         Index2D col_index = (*col).first;
@@ -728,23 +726,14 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
 
         for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            T id_x = identity_data1d(*row_x,col_index.index1);
+            T dd_x = laplace_data1d(*row_x,col_index.index1);
+            if (fabs(id_x)<1e-13 && fabs(dd_x)<1e-13) continue;
             for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
             Index2D row_index(*row_x,*row_y);
                 if (LambdaRow.count(row_index)>0) {
-                    T id_x = 0., dd_y = 0.;
-                    if (fabs((row_index).index1.j-(col_index).index1.j)<=1) {
-                        id_x = identity_data1d(row_index.index1,col_index.index1);
-                        if (fabs(id_x)>1e-14) {
-                            dd_y = laplace_data1d(row_index.index2,col_index.index2);
-                        }
-                    }
-                    T id_y = 0., dd_x = 0.;
-                    if (fabs((row_index).index2.j-(col_index).index2.j)<=1) {
-                        id_y = identity_data1d(row_index.index2,col_index.index2);
-                        if (fabs(id_y)>1e-14) {
-                            dd_x = laplace_data1d(row_index.index1,col_index.index1);
-                        }
-                    }
+                   T dd_y = laplace_data1d(row_index.index2,col_index.index2);
+                   T id_y = identity_data1d(row_index.index2,col_index.index2);
 
                     T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
 
@@ -763,6 +752,14 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
+::operator*(const Coefficients<Lexicographical,T,Index2D> &v)
+{
+    return this->mv(supp(v), v);
+}
+
+template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
@@ -770,99 +767,137 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 {
     std::cerr << "  -> toFlensSparseMatrix called with J= " << J << std::endl;
 
-    IndexSet<Index1D> LambdaRow_x, LambdaRow_y;
-    split(LambdaRow, LambdaRow_x, LambdaRow_y);
+    int maxSizeSparsityPattern=0;
+
+    std::cerr << "  Size of DataLaplace1D : " << laplace_data1d.laplace_data1d.data.size() << std::endl;
+    std::cerr << "  Size of DataIdentity1D: " << identity_data1d.identity_data1d.data.size() << std::endl;
+
 
     std::map<Index1D,IndexSet<Index1D>,lt<Lexicographical,Index1D> > sparsitypatterns_x,
-                                                                     sparsitypatterns_y;
+                                                                             sparsitypatterns_y;
+    std::map<Index1D,Coefficients<Lexicographical,T,Index1D>,lt<Lexicographical,Index1D> >
+        sparsitypatterns_identity_x, sparsitypatterns_laplace_x,
+        sparsitypatterns_identity_y, sparsitypatterns_laplace_y;
+
+    IndexSet<Index1D> LambdaRow_x, LambdaRow_y;
+    split(LambdaRow, LambdaRow_x, LambdaRow_y);
 
     compression_1d_x.setParameters(LambdaRow_x);
     compression_1d_y.setParameters(LambdaRow_y);
 
-    const_set2d_it LambdaRow_end=LambdaRow.end();
 
-    int maxSizeSparsityPattern=0;
+    std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
+
+
     if (!useLinearIndex) {
-
-        std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
         int row_count = 1;
         for (const_set2d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
             row_indices[(*row)] = row_count;
         }
+    }
+    std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator row_indices_end;
+    row_indices_end = row_indices.end();
+    const_set2d_it LambdaRow_end=LambdaRow.end();
 
-        int col_count = 1;
-        for (const_set2d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
-            Index2D col_index = *col;
+    int col_count = 1;
+    for (const_set2d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
+        Index2D col_index = *col;
+        T prec_col_index = this->prec(col_index);
 
-            IndexSet<Index1D> LambdaRowSparse_x, LambdaRowSparse_y;
-            if (sparsitypatterns_x.count((*col).index1) == 0) {
-                LambdaRowSparse_x = this->compression_1d_x.SparsityPattern((*col).index1, LambdaRow_x, 1);
-                sparsitypatterns_x[(*col).index1] = LambdaRowSparse_x;
-            }
-            else {
-                LambdaRowSparse_x = sparsitypatterns_x[(*col).index1];
-            }
-
-            if (sparsitypatterns_y.count((*col).index2) == 0) {
-                LambdaRowSparse_y = this->compression_1d_y.SparsityPattern((*col).index2, LambdaRow_y, 1);
-                sparsitypatterns_y[(*col).index2] = LambdaRowSparse_y;
-            }
-            else {
-                LambdaRowSparse_y = sparsitypatterns_y[(*col).index2];
-            }
-            maxSizeSparsityPattern=std::max(maxSizeSparsityPattern,(int)(LambdaRowSparse_x.size()*LambdaRowSparse_y.size()));
+        IndexSet<Index1D> LambdaRowSparse_x, LambdaRowSparse_y;
+        Coefficients<Lexicographical,T,Index1D> LambdaRowSparseIdentity_x, LambdaRowSparseLaplace_x,
+                                                LambdaRowSparseIdentity_y, LambdaRowSparseLaplace_y;
+        if (sparsitypatterns_x.count((*col).index1) == 0) {
+            LambdaRowSparse_x = this->compression_1d_x.SparsityPattern((*col).index1, LambdaRow_x, 1);
+            sparsitypatterns_x[(*col).index1] = LambdaRowSparse_x;
             for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+                LambdaRowSparseIdentity_x[*row_x] = identity_data1d(*row_x,col_index.index1);
+                LambdaRowSparseLaplace_x[*row_x]  =  laplace_data1d(*row_x,col_index.index1);
+            }
+            sparsitypatterns_identity_x[(*col).index1] = LambdaRowSparseIdentity_x;
+            sparsitypatterns_laplace_x[(*col).index1]  = LambdaRowSparseLaplace_x;
+        }
+        else {
+            LambdaRowSparse_x         = sparsitypatterns_x[(*col).index1];
+            LambdaRowSparseIdentity_x = sparsitypatterns_identity_x[(*col).index1];
+            LambdaRowSparseLaplace_x  = sparsitypatterns_laplace_x[(*col).index1];
+        }
+
+        if (sparsitypatterns_y.count((*col).index2) == 0) {
+            LambdaRowSparse_y = this->compression_1d_y.SparsityPattern((*col).index2, LambdaRow_y, 1);
+            sparsitypatterns_y[(*col).index2] = LambdaRowSparse_y;
+            for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
+                LambdaRowSparseIdentity_y[*row_y] = identity_data1d(*row_y,col_index.index2);
+                LambdaRowSparseLaplace_y[*row_y]  =  laplace_data1d(*row_y,col_index.index2);
+            }
+            sparsitypatterns_identity_y[(*col).index2] = LambdaRowSparseIdentity_y;
+            sparsitypatterns_laplace_y[(*col).index2]  = LambdaRowSparseLaplace_y;
+        }
+        else {
+            LambdaRowSparse_y = sparsitypatterns_y[(*col).index2];
+            LambdaRowSparseIdentity_y = sparsitypatterns_identity_y[(*col).index2];
+            LambdaRowSparseLaplace_y  = sparsitypatterns_laplace_y[(*col).index2];
+        }
+
+        maxSizeSparsityPattern=std::max(maxSizeSparsityPattern,(int)(LambdaRowSparse_x.size()*LambdaRowSparse_y.size()));
+
+        if (!useLinearIndex) {
+            for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+                T id_x = 0., dd_x = 0.;
+                id_x = LambdaRowSparseIdentity_x[*row_x];
+                dd_x = LambdaRowSparseLaplace_x[*row_x];
+                if (fabs(id_x)<1e-13 && fabs(dd_x)<1e-13) continue;
                 for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
                     Index2D row_index(*row_x,*row_y);
-                    if (LambdaRow.count(row_index)>0) {
-                        T val = this->operator()(row_index,col_index);
-                        if (fabs(val)>thresh) {
-                            A_flens(row_indices[row_index],col_count) += val;
+                    std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator row_count_ptr;
+                    row_count_ptr = row_indices.find(row_index);
+                    if (row_count_ptr!=row_indices_end) {
+                        T id_y = 0., dd_y = 0.;
+                        id_y = LambdaRowSparseIdentity_y[*row_y];
+                        dd_y = LambdaRowSparseLaplace_y[*row_y];
+
+                        T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
+
+                        T prec_row_index = this->prec(row_index);
+                        T prec_val = prec_row_index* val * prec_col_index;
+                        if (fabs(prec_val)>thresh) {
+                            A_flens((*row_count_ptr).second,col_count) = prec_val;
                         }
                     }
                 }
             }
         }
-        std::cout << "Size of LambdaRow: " << LambdaRow.size()
-                  << ", size of LambdaRowSparse: " << maxSizeSparsityPattern << std::endl;
-    }
-
-    else {
-        for (const_set2d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col) {
-            Index2D col_index = *col;
-
-            IndexSet<Index1D> LambdaRowSparse_x, LambdaRowSparse_y;
-            if (sparsitypatterns_x.count((*col).index1) == 0) {
-                LambdaRowSparse_x = this->compression_1d_x.SparsityPattern((*col).index1, LambdaRow_x, J);
-                sparsitypatterns_x[(*col).index1] = LambdaRowSparse_x;
-            }
-            else {
-                LambdaRowSparse_x = sparsitypatterns_x[(*col).index1];
-            }
-
-            if (sparsitypatterns_y.count((*col).index2) == 0) {
-                LambdaRowSparse_y = this->compression_1d_y.SparsityPattern((*col).index2, LambdaRow_y, J);
-                sparsitypatterns_y[(*col).index2] = LambdaRowSparse_y;
-            }
-            else {
-                LambdaRowSparse_y = sparsitypatterns_y[(*col).index2];
-            }
-
+        else {
             for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+                T id_x = 0., dd_x = 0.;
+                id_x = LambdaRowSparseIdentity_x[*row_x];
+                dd_x = LambdaRowSparseLaplace_x[*row_x];
+                if (fabs(id_x)<1e-13 && fabs(dd_x)<1e-13) continue;
                 for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                    Index2D row_index(*row_x,(*col).index2);
+                    Index2D row_index(*row_x,*row_y);
                     const_set2d_it row_index_ptr = LambdaRow.find(row_index);
                     if (row_index_ptr!=LambdaRow_end) {
-                        T val = this->operator()(row_index,col_index);
-                        if (fabs(val)>thresh) {
-                            A_flens((*row_index_ptr).linearindex,col_index.linearindex) += val;
+                        T id_y = 0., dd_y = 0.;
+                        id_y = LambdaRowSparseIdentity_y[*row_y];
+                        dd_y = LambdaRowSparseLaplace_y[*row_y];
+
+                        T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
+
+                        T prec_row_index = this->prec(row_index);
+                        T prec_val = prec_row_index* val * prec_col_index;
+                        if (fabs(prec_val)>thresh) {
+                            A_flens((*row_index_ptr).linearindex,col_index.linearindex) = prec_val;
                         }
                     }
                 }
             }
         }
     }
+    std::cout << "Size of LambdaRow: " << LambdaRow.size()
+              << ", size of LambdaRowSparse: " << maxSizeSparsityPattern << std::endl;
+
     A_flens.finalize();
+    std::cerr << "   Number of non-zeros: " << A_flens.numNonZeros() << std::endl;
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>
@@ -872,6 +907,135 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
                       SparseMatrixT &A_flens, T eps, bool useLinearIndex)
 {
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1,useLinearIndex);
+}
+
+template <typename T, DomainType Domain1, DomainType Domain2>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J, cxxblas::Transpose /*trans*/)
+{
+    Coefficients<Lexicographical,T,Index2D> ret;
+    this->apply(v,0.,ret);
+    return ret;
+}
+
+template <typename T, DomainType Domain1, DomainType Domain2>
+void
+AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+        Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose /*trans*/)
+{
+    std::map<Index1D,IndexSet<Index1D>,lt<Lexicographical,Index1D> > sparsitypatterns_x,
+                                                                     sparsitypatterns_y;
+
+    for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
+        Index2D col_index = (*col).first;
+        Index1D col_index_x = (*col).first.index1;
+        Index1D col_index_y = (*col).first.index2;
+        T prec_val_col_index = this->prec(col_index) * (*col).second;
+
+        IndexSet<Index1D> LambdaRowSparse_x, LambdaRowSparse_y;
+        if (sparsitypatterns_x.count(col_index.index1) == 0) {
+            LambdaRowSparse_x = lambdaTilde1d_PDE(col_index_x, basis.first, 1, std::max(col_index_x.j-1,basis.first.j0),
+                                                  col_index_x.j+1, false);
+            sparsitypatterns_x[col_index.index1] = LambdaRowSparse_x;
+        }
+        else {
+            LambdaRowSparse_x = sparsitypatterns_x[col_index.index1];
+        }
+
+        if (sparsitypatterns_y.count(col_index.index2) == 0) {
+            LambdaRowSparse_y = lambdaTilde1d_PDE(col_index_y, basis.second, 1, std::max(col_index_y.j-1,basis.second.j0),
+                                                  col_index_y.j+1, false);
+            sparsitypatterns_y[col_index.index2] = LambdaRowSparse_y;
+        }
+        else {
+            LambdaRowSparse_y = sparsitypatterns_y[col_index.index2];
+        }
+
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            T id_x = identity_data1d(*row_x,col_index.index1);
+            T dd_x = laplace_data1d(*row_x,col_index.index1);
+            if (fabs(id_x)<1e-13 && fabs(dd_x)<1e-13) continue;
+            for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
+                Index2D row_index(*row_x,*row_y);
+
+                T dd_y = laplace_data1d(row_index.index2,col_index.index2);
+                T id_y = identity_data1d(row_index.index2,col_index.index2);
+
+                T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
+
+                if (fabs(val)>0.) {
+                   ret[row_index] += val * prec_val_col_index;
+                }
+            }
+        }
+
+    }
+    for (coeff2d_it it=ret.begin(); it!=ret.end(); ++it) {
+        (*it).second *=  this->prec((*it).first);
+    }
+}
+
+template <typename T, DomainType Domain1, DomainType Domain2>
+void
+AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+        const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+        cxxblas::Transpose /*trans*/)
+{
+    std::map<Index1D,IndexSet<Index1D>,lt<Lexicographical,Index1D> > sparsitypatterns_x,
+                                                                     sparsitypatterns_y;
+
+    for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
+        Index2D col_index = (*col).first;
+        Index1D col_index_x = (*col).first.index1;
+        Index1D col_index_y = (*col).first.index2;
+        T prec_val_col_index = this->prec(col_index) * (*col).second;
+
+        IndexSet<Index1D> LambdaRowSparse_x, LambdaRowSparse_y;
+        if (sparsitypatterns_x.count(col_index.index1) == 0) {
+            LambdaRowSparse_x = lambdaTilde1d_PDE(col_index_x, basis.first, 1, std::max(col_index_x.j-1,basis.first.j0),
+                                                  col_index_x.j+1, false);
+            sparsitypatterns_x[col_index.index1] = LambdaRowSparse_x;
+        }
+        else {
+            LambdaRowSparse_x = sparsitypatterns_x[col_index.index1];
+        }
+
+        if (sparsitypatterns_y.count(col_index.index2) == 0) {
+            LambdaRowSparse_y = lambdaTilde1d_PDE(col_index_y, basis.second, 1, std::max(col_index_y.j-1,basis.second.j0),
+                                                  col_index_y.j+1, false);
+            sparsitypatterns_y[col_index.index2] = LambdaRowSparse_y;
+        }
+        else {
+            LambdaRowSparse_y = sparsitypatterns_y[col_index.index2];
+        }
+
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            T id_x = identity_data1d(*row_x,col_index.index1);
+            T dd_x = laplace_data1d(*row_x,col_index.index1);
+            if (fabs(id_x)<1e-13 && fabs(dd_x)<1e-13) continue;
+            for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
+                Index2D row_index(*row_x,*row_y);
+                if (Lambda.count(row_index)>0) {
+
+                    T dd_y = laplace_data1d(row_index.index2,col_index.index2);
+                    T id_y = identity_data1d(row_index.index2,col_index.index2);
+
+                    T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
+
+                    if (fabs(val)>0.) {
+                       ret[row_index] += val * prec_val_col_index;
+                    }
+                }
+            }
+        }
+
+    }
+    for (coeff2d_it it=ret.begin(); it!=ret.end(); ++it) {
+        (*it).second *=  this->prec((*it).first);
+    }
 }
 
 }   // namespace lawa

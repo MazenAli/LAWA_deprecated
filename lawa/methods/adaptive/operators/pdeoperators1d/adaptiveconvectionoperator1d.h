@@ -18,13 +18,14 @@
  */
 
 
-#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR1D_H
-#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR1D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVECONVECTIONOPERATOR1D_H
+#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVECONVECTIONOPERATOR1D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/operators/operator2d.h>
+#include <lawa/operators/pdeoperators1d/convectionoperator1d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
@@ -34,13 +35,13 @@
 namespace lawa {
 
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
-struct AdaptiveIdentityOperator1D
+struct AdaptiveConvectionOperator1D
 {
 
 };
 
 template <typename T, FunctionSide Side, Construction Cons>
-struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
+struct AdaptiveConvectionOperator1D<T,Side,R,Cons>
 {
     typedef Basis<T,Side,R,Cons>                                     ReallineBasis1D;
 
@@ -48,14 +49,14 @@ struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
 
     typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
 
-    typedef IdentityOperator1D<T, ReallineBasis1D>                   IdentityOp1D;
+    typedef ConvectionOperator1D<T, ReallineBasis1D>                 ConvectionOp1D;
 
-    typedef MapMatrix<T, Index1D, IdentityOp1D,
-                     Compression1D, NoPreconditioner1D>              DataIdentity1D;
+    typedef MapMatrix<T, Index1D, ConvectionOp1D,
+                     Compression1D, NoPreconditioner1D>              DataConvection1D;
 
 
-    AdaptiveIdentityOperator1D(const ReallineBasis1D &_basis1d, T _c, T thresh=0.,
-                              int NumOfCols=4096, int NumOfRows=4096);
+    AdaptiveConvectionOperator1D(const ReallineBasis1D &_basis1d, T thresh=0.,
+                                 int NumOfCols=4096, int NumOfRows=4096);
 
     T
     operator()(const Index1D &row_index, const Index1D &col_index);
@@ -69,17 +70,17 @@ struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
 
     Compression1D               compression1d;
 
-    const IdentityOp1D          identity_op1d;
+    const ConvectionOp1D        convection_op1d;
 
     NoPreconditioner1D          prec1d;
 
-    DataIdentity1D              identity_data1d;
+    DataConvection1D            convection_data1d;
 
 };
 
 }   //namespace lawa
 
-#include <lawa/methods/adaptive/operators/adaptiveidentityoperator1d.tcc>
+#include <lawa/methods/adaptive/operators/pdeoperators1d/adaptiveconvectionoperator1d.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEIDENTITYOPERATOR1D_H
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVECONVECTIONOPERATOR1D_H
 

@@ -102,7 +102,7 @@ struct WeightedAdaptiveHelmholtzOperator2D : public Operator2D<T>
 
 }   //namespace lawa
 
-#include <lawa/methods/adaptive/operators/weightedadaptivehelmholtzoperator2d.tcc>
+#include <lawa/methods/adaptive/operators/pdeoperators2d/weightedadaptivehelmholtzoperator2d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_OPERATORS_WEIGHTEDADAPTIVELHELMHOLTZOPERATOR2D_H
 

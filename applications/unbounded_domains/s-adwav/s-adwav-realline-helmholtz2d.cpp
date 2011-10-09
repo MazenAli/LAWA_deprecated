@@ -90,6 +90,12 @@ typedef SmoothRHSWithAlignedSing2D<T, CDF_Basis2D, FullGridGL>          CDF_NonS
 typedef SmoothRHSWithAlignedSing2D<T, MW_Basis2D, FullGridGL>           MW_NonSeparableRhsIntegralFG2D;
 typedef SmoothRHSWithAlignedSing2D<T, SparseMW_Basis2D, FullGridGL>     SparseMW_NonSeparableRhsIntegralFG2D;
 
+typedef SumOfThreeRHSIntegrals<T, Index2D,
+                               CDF_NonSeparableRhsIntegralFG2D>         CDF_SumOfNonSeparableRhsIntegral2D;
+typedef SumOfThreeRHSIntegrals<T, Index2D,
+                               MW_NonSeparableRhsIntegralFG2D>          MW_SumOfNonSeparableRhsIntegral2D;
+typedef SumOfThreeRHSIntegrals<T, Index2D,
+                               SparseMW_NonSeparableRhsIntegralFG2D>    SparseMW_SumOfNonSeparableRhsIntegral2D;
 
 typedef RHS<T,Index2D, CDF_NonSeparableRhsIntegralSG2D,
             CDF_Prec>                                                   CDF_NonSeparableRhs2D;
@@ -97,13 +103,6 @@ typedef RHS<T,Index2D, MW_NonSeparableRhsIntegralSG2D,
             MW_Prec>                                                    MW_NonSeparableRhs2D;
 typedef RHS<T,Index2D, SparseMW_NonSeparableRhsIntegralSG2D,
             SparseMW_Prec>                                              SparseMW_NonSeparableRhs2D;
-
-typedef SumOfThreeRHSIntegrals<T, Index2D,
-                               CDF_NonSeparableRhsIntegralFG2D>         CDF_SumOfNonSeparableRhsIntegral2D;
-typedef SumOfThreeRHSIntegrals<T, Index2D,
-                               MW_NonSeparableRhsIntegralFG2D>          MW_SumOfNonSeparableRhsIntegral2D;
-typedef SumOfThreeRHSIntegrals<T, Index2D,
-                               SparseMW_NonSeparableRhsIntegralFG2D>    SparseMW_SumOfNonSeparableRhsIntegral2D;
 
 typedef RHS<T,Index2D, CDF_SumOfNonSeparableRhsIntegral2D,
             CDF_Prec>                                                   CDF_SumOfNonSeparableRhs2D;
@@ -148,7 +147,7 @@ int main (int argc, char *argv[]) {
     T c=1.; //for other values of c, on the fly error computation does not work!!
     T contraction = 0.125;
     T threshTol = 0.4;
-    T cgTol = 0.1*threshTol;//1e-12;
+    T cgTol = 0.001*threshTol;//1e-12;
     T resTol=1e-4;
 
     IndexSet<Index2D> InitialLambda;
@@ -161,8 +160,6 @@ int main (int argc, char *argv[]) {
                  << argv[3] << "_" << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
 
     //Righthand side construction for tensor solution
-
-
     if (strcmp(argv[1],"CDF")==0) {
         CDF_Basis1D       CDF_basis_x(d,d_,j0_x);
         CDF_Basis1D       CDF_basis_y(d,d_,j0_y);
@@ -175,7 +172,7 @@ int main (int argc, char *argv[]) {
         if (example==1 || example==2 || example==3) {
             int order = 35;
             TensorRefSols_PDE_Realline2D<T> refsol;
-            refsol.setExample(example, 1.);
+            refsol.setExample(example, c, 0. ,0. ,1.);
             SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
                                             refsol.exact_y, refsol.sing_pts_y);
 
@@ -253,7 +250,7 @@ int main (int argc, char *argv[]) {
         if (example==1 || example==2 || example==3) {
             int order = 35;
             TensorRefSols_PDE_Realline2D<T> refsol;
-            refsol.setExample(example, 1.);
+            refsol.setExample(example, 1., 0., 0., 1.);
             SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
                                             refsol.exact_y, refsol.sing_pts_y);
 
@@ -440,13 +437,13 @@ int main (int argc, char *argv[]) {
         SparseMW_Basis1D       SparseMW_basis_x(d,j0_x);
         SparseMW_Basis1D       SparseMW_basis_y(d,j0_y);
         SparseMW_Basis2D       SparseMW_basis2d(SparseMW_basis_x,SparseMW_basis_y);
-        SparseMW_MA            SparseMW_A(SparseMW_basis2d, c);
+        SparseMW_MA            SparseMW_A(SparseMW_basis2d, c, 1e-14);
         SparseMW_Prec          SparseMW_P(SparseMW_A);
 
         if (example==1 || example==2 || example==3) {
-            int order = 35;
+            int order = 40;
             TensorRefSols_PDE_Realline2D<T> refsol;
-            refsol.setExample(example, 1.);
+            refsol.setExample(example, 1., 0., 0., 1.);
             SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
                                             refsol.exact_y, refsol.sing_pts_y);
 
@@ -460,12 +457,49 @@ int main (int argc, char *argv[]) {
                                                          refsol.deltas_y, order);
             SparseMW_SumOfSeparableRhsIntegral2D SparseMW_rhsintegral2d(SparseMW_rhsintegral_x,SparseMW_rhsintegral_y);
             SparseMW_SumOfSeparableRhs SparseMW_F(SparseMW_rhsintegral2d,SparseMW_P);
-
             SparseMW_S_ADWAV_SOLVER_SeparableRhs SparseMW_s_adwav_solver(SparseMW_basis2d, SparseMW_A, SparseMW_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
-                                                         3, 1e-2,1000000);
+                                                         1, 1e-2,1000000);
             SparseMW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
                                           refsol.H1norm());
+
+            stringstream rhsfilename;
+                        rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+                                    << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
+
+            Coefficients<Lexicographical,T,Index2D> f;
+            IndexSet<Index2D> Lambda;
+            Lambda = supp(SparseMW_s_adwav_solver.solutions[NumOfIterations-1]);
+
+            IndexSet<Index2D> Extension;
+            Extension = C(Lambda,1.,SparseMW_basis2d);
+            Lambda = Lambda + Extension;
+            Extension = C(Lambda,1.,SparseMW_basis2d);
+            Lambda = Lambda + Extension;
+            f = SparseMW_F(Lambda);
+            Coefficients<AbsoluteValue,T,Index2D> f_abs;
+            f_abs = f;
+            cout << f.norm(2.) << " " << f_abs.norm(2.) << endl;
+
+            ofstream rhsfile(rhsfilename.str().c_str());
+            rhsfile << f.norm(2.) << endl;
+            for (int k=0; k<=50; ++k) {
+                T eta=pow(2.,(T)-k);
+                f = SparseMW_F(eta);
+                cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
+
+                IndexSet<Index2D> supp_f;
+                supp_f = supp(f);
+                rhsfile << "#," << eta << endl;
+                for (const_set2d_it it=supp_f.begin(); it!=supp_f.end(); ++it) {
+                    if (Lambda.count(*it)>0) {
+                        Lambda.erase(*it);
+                        rhsfile << *it << endl;
+                    }
+                }
+                rhsfile << endl;
+            }
+            rhsfile.close();
 
             stringstream plot_filename;
             plot_filename << "s-adwav-realline-helmholtz2d-plot_" << example << "_" << d << "_" << d_
@@ -475,7 +509,6 @@ int main (int argc, char *argv[]) {
                    pow2i<T>(-3), plot_filename.str().c_str());
             cout << "Plot of solution finished." << endl;
         }
-
     }
     else {
         std::cerr << "Not yet implemented for " << argv[1] << std::endl;

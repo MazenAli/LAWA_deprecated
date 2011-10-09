@@ -59,12 +59,19 @@ struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographic
     Coefficients<Lexicographical,T,Index> &
     operator-=(const Coefficients<Lexicographical,T,Index> &_coeff);
 
+    Coefficients<Lexicographical,T,Index> &
+    operator+=(const Coefficients<Lexicographical,T,Index> &_coeff);
+
+    Coefficients<Lexicographical,T,Index> &
+    operator*=(const T factor);
+
     Coefficients<Lexicographical,T,Index>
     operator+(const Coefficients<Lexicographical,T,Index> &_coeff) const;
 
     T
     operator*(const Coefficients<Lexicographical,T,Index> &_coeff) const;
     
+    //todo:: revise!!!
     Coefficients<Lexicographical,T,Index>
     operator*(const T factor) const;
     

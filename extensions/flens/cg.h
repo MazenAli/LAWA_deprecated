@@ -40,6 +40,10 @@ template <typename MA, typename VX, typename VB>
        typename _cg<VB>::T tol = std::numeric_limits<typename _cg<VB>::T>::epsilon(),
        int maxIterations = std::numeric_limits<int>::max());
 
+template <typename MA, typename VX, typename VB, typename T>
+    int
+    test_cg(MA &A, VX &x, const VB &b, T tol = 1e-16, int maxIterations=1000);
+
 template <typename MA, typename VX, typename VB>
     int
     cgls(const MA &A, VX &x, const VB &b,

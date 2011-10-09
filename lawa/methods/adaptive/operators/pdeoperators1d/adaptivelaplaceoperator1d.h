@@ -54,7 +54,7 @@ struct AdaptiveLaplaceOperator1D<T,Side,R,Cons>
                      Compression1D, NoPreconditioner1D>              DataLaplace1D;
 
 
-    AdaptiveLaplaceOperator1D(const ReallineBasis1D &_basis1d, T _c, T thresh=0.,
+    AdaptiveLaplaceOperator1D(const ReallineBasis1D &_basis1d, T thresh=0.,
                               int NumOfCols=4096, int NumOfRows=4096);
 
     T
@@ -79,7 +79,7 @@ struct AdaptiveLaplaceOperator1D<T,Side,R,Cons>
 
 }   //namespace lawa
 
-#include <lawa/methods/adaptive/operators/adaptivelaplaceoperator1d.tcc>
+#include <lawa/methods/adaptive/operators/pdeoperators1d/adaptivelaplaceoperator1d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVELAPLACEOPERATOR1D_H
 

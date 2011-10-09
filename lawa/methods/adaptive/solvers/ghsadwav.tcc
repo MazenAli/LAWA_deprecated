@@ -70,6 +70,11 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         u_abs = w_k;
         plotCoeff(u_abs, A.basis, coeff_filename.str().c_str());
         */
+        /*
+        std::stringstream coefffile;
+        coefffile << "s_adwav_coeffs_" << i;
+        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coefffile.str().c_str());
+        */
 
         time.start();
         std::cerr << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
@@ -108,6 +113,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
     while (1) {
         zeta *= 0.5;
 
+        std::cerr << "GROW: zeta = " << zeta << std::endl;
         A.apply(w, 0.5*zeta, r);
         r -= F(0.5*zeta);
 

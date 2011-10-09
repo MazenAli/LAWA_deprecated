@@ -88,7 +88,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         // larger than necessary.
         T thresh_off_quot = 1./T(u.size());
         //u = THRESH(u,threshTol*u.norm(2.),false);
-        u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        u = THRESH(u,threshTol,false,false); //u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
         thresh_off_quot *= T(u.size());
 
 
@@ -99,10 +99,11 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         u_abs = u;
         plotCoeff(u_abs, basis, coeff_filename.str().c_str());
         */
+        /*
         std::stringstream coefffile;
         coefffile << "s_adwav_coeffs_" << its;
         plotScatterCoeff2D(u, A.basis.first, A.basis.second, coefffile.str().c_str());
-
+        */
         solutions[its] = u;
         LambdaThresh = supp(u);
 

@@ -29,14 +29,18 @@ template<typename T>
 struct TensorRefSols_PDE_Realline2D
 {
     static int nr;
-    static T c;
+    static T reaction;
+    static T convection_x;
+    static T convection_y;
+    static T diffusion;
 
     static DenseVector<Array<T> > sing_pts_x, sing_pts_y;   //aligned singularities
 
     static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas_x, deltas_y;
+    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > H1_deltas_x, H1_deltas_y;
 
     static void
-    setExample(int _nr, T _c);
+    setExample(int _nr, T _reaction, T _convection_x, T _convection_y, T _diffusion);
 
     static T
     exact(T x, T y);
@@ -63,7 +67,13 @@ struct TensorRefSols_PDE_Realline2D
     rhs_x(T x);
 
     static T
+    H1_rhs_x(T x);
+
+    static T
     rhs_y(T y);
+
+    static T
+    H1_rhs_y(T y);
 
     static T
     H1norm();
