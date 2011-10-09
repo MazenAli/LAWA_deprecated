@@ -65,6 +65,28 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         f = F(LambdaActive);
         T f_norm_LambdaActive = f.norm(2.);
 
+        /*
+        std::cout << "Computing eigenvalues..." << std::endl;
+        T cB, CB;
+        int N = LambdaActive.size();
+        SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A_sparse(N,N);
+        A.toFlensSparseMatrix(LambdaActive,LambdaActive,A_sparse);
+        flens::DenseVector<flens::Array<T> > x(N);
+        for (int i=1; i<=N; ++i) {
+            x(i) = 1.;
+        }
+        std::cout << "powerMethod started." << std::endl;
+        lawa::powerMethod(A_sparse,(T)1e-12,CB,x);
+        std::cout << "powerMethod finished." << std::endl;
+        for (int i=1; i<=N; ++i) {
+            x(i) = 1.;
+        }
+        std::cout << "inversePowerMethod started." << std::endl;
+        lawa::inversePowerMethod(A_sparse,(T)1e-12,cB,x);
+        std::cout << "inversePowerMethod finished." << std::endl;
+
+        std::cout << "  -> cB = " << cB << ", CB = " << CB << std::endl;
+        */
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;

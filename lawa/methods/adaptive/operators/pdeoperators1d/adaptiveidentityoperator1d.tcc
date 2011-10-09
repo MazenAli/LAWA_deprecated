@@ -27,5 +27,14 @@ AdaptiveIdentityOperator1D<T,Side,R,Cons>::operator()(const Index1D &row_index,
     return tmp;
 }
 
+template <typename T, FunctionSide Side, Construction Cons>
+void
+AdaptiveIdentityOperator1D<T,Side,R,Cons>::toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow,
+                                                               const IndexSet<Index1D>& LambdaCol,
+                                                               SparseMatrixT &A_flens, int J,
+                                                               bool useLinearIndex)
+{
+    this->identity_data1d.toFlensSparseMatrix(LambdaRow, LambdaCol, A_flens,-1);
+}
 
 }   // namespace lawa

@@ -44,6 +44,10 @@ typedef Basis<T,Orthogonal,R,Multi>                                     MW_Basis
 typedef Basis<T,Primal,R,SparseMulti>                                   SparseMW_Basis1D;
 
 //Operator definitions
+typedef AdaptiveIdentityOperator1D<T,Primal,R,CDF>                      CDF_MA_L2;
+typedef AdaptiveIdentityOperator1D<T,Orthogonal,R,Multi>                MW_MA_L2;
+typedef AdaptiveIdentityOperator1D<T,Primal,R,SparseMulti>              SparseMW_MA_L2;
+
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>            CDF_MA;
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,R,Multi>      MW_MA;
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,SparseMulti>    SparseMW_MA;
@@ -71,14 +75,15 @@ void
 computeSV(DenseMatrixT &A, T &cB, T &CB);
 
 int main (int argc, char *argv[]) {
-    if (argc!=6) {
-        cout << "usage " << argv[0] << " basistype d d_ jmin c" << endl; exit(1);
+    if (argc!=7) {
+        cout << "usage " << argv[0] << " basistype d d_ jmin s c" << endl; exit(1);
     }
     cout.precision(10);
 
-    int d=atoi(argv[2]);
+    int d =atoi(argv[2]);
     int d_=atoi(argv[3]);
-    T   c=atof(argv[5]);
+    int s =atoi(argv[5]);
+    T   c=atof(argv[6]);
     int j0; bool w_XBSpline;
 
     if   (strcmp(argv[4],"-inf")==0) { j0=0;             w_XBSpline=false; }
@@ -88,14 +93,24 @@ int main (int argc, char *argv[]) {
     T   max_radius = 10.;
 
     std::stringstream filename;
-    filename << "eigenvalues_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
-                                         << argv[4] << "_" << argv[5] << ".dat";
+    if (s==0) {
+        filename << "eigenvalues_L2_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+                                      << argv[4] << ".dat";
+    }
+    else if (s==1) {
+        filename << "eigenvalues_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+                                             << argv[4] << "_" << argv[6] << ".dat";
+    }
+    else {
+        std::cerr << "Not implemented for s=" << s << std::endl;
+    }
     std::ofstream file_eigenvalues(filename.str().c_str());
     file_eigenvalues.precision(16);
 
     if (strcmp(argv[1],"CDF")==0) {
         CDF_Basis1D             CDF_basis(d,d_,j0);
         CDF_MA                  CDF_A(CDF_basis,w_XBSpline,c);
+        CDF_MA_L2               CDF_A_L2(CDF_basis);
         if (w_XBSpline) {
             for (int jmax=CDF_basis.j0; jmax<=max_level; jmax+=1) {
                 for (T r=1.; r<=max_radius; r+=1.) {
@@ -104,7 +119,13 @@ int main (int argc, char *argv[]) {
                     int N = Lambda.size();
                     cout << "Size of Lambda: " << N << endl;
                     SparseMatrixT A(N,N);
-                    CDF_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                    if (s==0) {
+                        CDF_A_L2.toFlensSparseMatrix(Lambda, Lambda, A);
+                    }
+                    else if (s==1) {
+                        CDF_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                    }
+
 
                     T cB=0., CB=0.;
                     //DenseMatrixT A_dense;
@@ -131,7 +152,12 @@ int main (int argc, char *argv[]) {
                     int N = Lambda.size();
                     cout << "Size of Lambda: " << N << endl;
                     SparseMatrixT A(N,N);
-                    CDF_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                    if (s==0) {
+                        CDF_A_L2.toFlensSparseMatrix(Lambda, Lambda, A);
+                    }
+                    else if (s==1) {
+                        CDF_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                    }
 
                     T cB=0, CB=0;
                     //DenseMatrixT A_dense;
@@ -154,6 +180,7 @@ int main (int argc, char *argv[]) {
     else if (strcmp(argv[1],"MW")==0) {
         MW_Basis1D             MW_basis(d,j0);
         MW_MA                  MW_A(MW_basis,w_XBSpline,c);
+        MW_MA_L2               MW_A_L2(MW_basis);
         if (w_XBSpline) {
             for (int jmax=std::max(0,MW_basis.j0); jmax<=max_level; jmax+=1) {
                 for (T r=1.; r<=max_radius; r+=1.) {
@@ -162,7 +189,12 @@ int main (int argc, char *argv[]) {
                     int N = Lambda.size();
                     cout << "Size of Lambda: " << N << endl;
                     SparseMatrixT A(N,N);
-                    MW_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                    if (s==0) {
+                        MW_A_L2.toFlensSparseMatrix(Lambda, Lambda, A);
+                    }
+                    else if (s==1) {
+                        MW_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                    }
 
                     T cB=0., CB=0.;
                     //DenseMatrixT A_dense;
@@ -185,15 +217,28 @@ int main (int argc, char *argv[]) {
     else if (strcmp(argv[1],"SparseMW")==0) {
         SparseMW_Basis1D       SparseMW_basis(d,j0);
         SparseMW_MA            SparseMW_A(SparseMW_basis,w_XBSpline,c);
+        SparseMW_MA_L2         SparseMW_A_L2(SparseMW_basis);
         if (w_XBSpline) {
             for (int jmax=std::max(0,SparseMW_basis.j0); jmax<=max_level; jmax+=1) {
                 for (T r=1.; r<=max_radius; r+=1.) {
                     IndexSet<Index1D> Lambda = LambdaForEigenvalues(SparseMW_basis, SparseMW_basis.j0,
                                                                     jmax, w_XBSpline, r);
+                    /*
+                    IndexSet<Index1D> Lambda;
+                    Lambda.insert(Index1D(SparseMW_basis.j0,0,XBSpline));
+                    Lambda.insert(Index1D(SparseMW_basis.j0,1,XBSpline));
+                    Lambda.insert(Index1D(SparseMW_basis.j0,2,XBSpline));
+                    Lambda.insert(Index1D(SparseMW_basis.j0,3,XBSpline));
+                    */
                     int N = Lambda.size();
                     cout << "Size of Lambda: " << N << endl;
                     SparseMatrixT A(N,N);
-                    SparseMW_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                    if (s==0) {
+                        SparseMW_A_L2.toFlensSparseMatrix(Lambda, Lambda, A);
+                    }
+                    else if (s==1) {
+                        SparseMW_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                    }
 
                     T cB=0., CB=0.;
                     //DenseMatrixT A_dense;
@@ -208,6 +253,7 @@ int main (int argc, char *argv[]) {
                                      << " " << cB << " " << cB2 << " " << CB  << " " << CB2 << endl;
                     cout             << " " << jmax << " " << r
                                      << " " << cB << " " << cB2 << " " << CB  << " " << CB2 << endl;
+
                 }
                 file_eigenvalues << endl;
             }
@@ -321,10 +367,11 @@ LambdaForEigenvalues(const SparseMW_Basis1D &basis, int jmin, int jmax, bool w_X
     }
 
     int wavelet_count = 0;
+
     for (int j=jmin; j<=jmax; ++j) {
 
-        k_left =  (int)(std::floor(-pow2i<T>(j)*r - basis.psi.max_support().l2) / 2) - 1;
-        k_right = (int)(std::ceil( pow2i<T>(j)*r -  basis.psi.max_support().l1) / 2 ) + 1;
+        k_left =  std::min((int)(std::floor(-pow2i<T>(j)*r - basis.psi.max_support().l2) / 2) - 1,-20);
+        k_right = std::max((int)(std::ceil( pow2i<T>(j)*r -  basis.psi.max_support().l1) / 2 ) + 1,20);
 
         for (int k_help=k_left; k_help<=k_right; ++k_help) {
             for (int k=(k_help-1)*numWavelets; k<=k_help*numWavelets-1; ++k) {
@@ -336,8 +383,8 @@ LambdaForEigenvalues(const SparseMW_Basis1D &basis, int jmin, int jmax, bool w_X
     }
 
     int scaling_count = 0;
-    k_left  = int(std::floor(-pow2i<T>(jmin)*r - basis.mra.phi.max_support().l2)) - 1;
-    k_right = int(std::ceil( pow2i<T>(jmin)*r -  basis.mra.phi.max_support().l1)) + 1;
+    k_left  = std::min(int(std::floor(-pow2i<T>(jmin)*r - basis.mra.phi.max_support().l2)) - 1,-20);
+    k_right = std::min(int(std::ceil( pow2i<T>(jmin)*r -  basis.mra.phi.max_support().l1)) + 1,20);
 
     for (int k_help=k_left; k_help<=k_right; ++k_help) {
         for (int k=(k_help-1)*numScaling+1; k<=k_help*numScaling; ++k) {
@@ -346,6 +393,7 @@ LambdaForEigenvalues(const SparseMW_Basis1D &basis, int jmin, int jmax, bool w_X
             ++scaling_count;
         }
     }
+
     cout << "   -> Current index set: " << scaling_count << " scaling indices, "
          << wavelet_count << " wavelet indices." << endl;
     return Lambda;

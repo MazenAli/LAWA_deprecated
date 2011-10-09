@@ -42,6 +42,9 @@ struct AdaptiveIdentityOperator1D
 template <typename T, FunctionSide Side, Construction Cons>
 struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
 {
+
+    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >        SparseMatrixT;
+
     typedef Basis<T,Side,R,Cons>                                     ReallineBasis1D;
 
     typedef CompressionPDE1D<T, ReallineBasis1D>                     Compression1D;
@@ -60,6 +63,9 @@ struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
     T
     operator()(const Index1D &row_index, const Index1D &col_index);
 
+    void
+    toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
+                        SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);
 
     void
     clear();
