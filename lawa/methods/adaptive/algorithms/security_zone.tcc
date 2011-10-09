@@ -136,7 +136,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,Periodic,CDF> &basis
         for (long int k1=kMin; k1<=kMax; ++k1) {
             if (overlap(contractedSupp, basis.psi.psiR.support(j+1,k1))>0)
             {
-                int k = k1;
+                int k = (int)k1;
                 if(k < basis.rangeJ(j+1).firstIndex()){
                     k = basis.rangeJ(j+1).lastIndex() + ((1 - (basis.rangeJ(j+1).firstIndex() - k))%basis.cardJ(j+1));
                 }
@@ -236,7 +236,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,R,Multi> &basis,
         kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - psi.max_support().l2);
         kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - psi.max_support().l1);
         for (long int k_help=kMin; k_help<=kMax; ++k_help) {
-            for (int k1=(k_help-1)*numWavelets+1; k1<=k_help*numWavelets; ++k1) {
+            for (long int k1=(k_help-1)*numWavelets+1; k1<=k_help*numWavelets; ++k1) {
                 if (overlap(contractedSupp, psi.support(j+1,k1))>0) {
                     ret.insert(Index1D(j+1,k1,XWavelet));
                 }

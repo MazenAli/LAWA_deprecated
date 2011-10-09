@@ -9,7 +9,6 @@ namespace  lawa {
 
 template <typename T, typename TruthModel>
 RBModel2D<T, TruthModel>::RBModel2D()
- : assembled_inner_product_matrix(false), assembled_A_operator_matrices(false)
 {
 }
 
@@ -64,17 +63,10 @@ RBModel2D<T, TruthModel>::attach_theta_f_q(theta_fctptr theta_f_q)
 
 template <typename T, typename TruthModel>
 void
-RBModel2D<T, TruthModel>::attach_inner_product_op(Operator2D<T>& _inner_product_op)
-{
-  inner_product_op = &_inner_product_op;
-}
-
-template <typename T, typename TruthModel>
-void
 RBModel2D<T, TruthModel>::set_truthmodel(TruthModel& _truthmodel)
 {
   truth = &_truthmodel;
-    truth->set_rb_model(*this);
+  truth->set_rb_model(*this);
 }
 
 template <typename T, typename TruthModel>
@@ -83,17 +75,11 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
 {
     std::cout << "Adding basis function .... " << std::endl;
     
-    CoeffVector new_bf = sol;
     Timer timer;
     
     std::cout << "  Gram-Schmidt...  " << std::endl;
-    typename std::vector<CoeffVector>::iterator it;
     timer.start();
-    for (it = rb_basis_functions.begin(); it != rb_basis_functions.end(); ++it) {
-        new_bf = new_bf - (*it) * inner_product((*it), sol); 
-    }
-    new_bf.scale(1./std::sqrt(inner_product(new_bf, new_bf)));
-    rb_basis_functions.push_back(new_bf);
+    truth->add_new_basis_function(sol);
     timer.stop();
     std::cout << "  ... done: " << timer.elapsed() << " seconds" << std::endl << std::endl;
     
@@ -283,7 +269,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
         std::cout << "Adding Snapshot at mu = " << get_current_param()[0] << std::endl << std::endl;
         error_file << N+1 << " " << get_current_param()[0];
         
-        CoeffVector u = truth->solver->truth_solve();
+        CoeffVector u = truth->truth_solve();
         add_to_basis(u);
         N++;
         
@@ -317,8 +303,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
             T alpha =  alpha_LB(Xi_train[n]);
             T error_est = resnorm / alpha;
             
-            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::scientific << error_est 
-                      << " = " << resnorm << " / " << alpha << std::endl;
+            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::scientific << error_est << " = " << resnorm << " / " << alpha << std::endl;
             if ( error_est > maxerr) {
                 maxerr = error_est;
                 next_Mu = n;
@@ -339,6 +324,7 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
 template <typename T, typename TruthModel>
 void
 RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_name){
+
   // Make a directory to store all the data files
   if( mkdir(directory_name.c_str(), 0777) == -1)
   {
@@ -394,7 +380,7 @@ template <typename T, typename TruthModel>
 void
 RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   
-  const unsigned int precision = 16;
+  const unsigned int precision = 40;
   
   // Make a directory to store all the data files
   if( mkdir(directory_name.c_str(), 0777) == -1)
@@ -644,15 +630,13 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
     
     // Assemble new basis function vector
     DenseVectorT new_bf_dense;
-    if(assembled_A_operator_matrices){
+    if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
         // Build dense vector
         new_bf_dense.engine().resize((int)rb_basis_functions[n_bf()-1].size());
         int index_count = 1;
         for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it, ++index_count) {
-          new_bf_dense(index_count) = (*it).second;
+            new_bf_dense(index_count) = (*it).second ;
         }
-        
-        //std::cout << "new_bf_dense: " << new_bf_dense << std::endl;
     }
     
     for (unsigned int q_a = 0; q_a < Q_a(); ++q_a) {
@@ -671,20 +655,17 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
         }
         
         DenseVectorT A_new_bf, A_new_bf_T;
-        if(assembled_A_operator_matrices){
+        if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
             A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense;
             A_new_bf_T = transpose(truth->A_operator_matrices[q_a]) * new_bf_dense;
-            //std::cout << A_new_bf << std::endl;
-            
-            //std::cout << A_new_bf_T << std::endl;
         }
         
         for (unsigned int i = 1; i <= n_bf(); ++i) {
-            if(assembled_A_operator_matrices){
+            if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
                 DenseVectorT bf_dense(rb_basis_functions[i-1].size());
                 int index_count = 1;
                 for (it = rb_basis_functions[i-1].begin(); it != rb_basis_functions[i-1].end(); ++it, ++index_count) {
-                  bf_dense(index_count) = (*it).second;
+                    bf_dense(index_count) = (*it).second;
                 }
                 RB_A_matrices[q_a](i, n_bf()) = bf_dense * A_new_bf;
                 if(i != n_bf()){
@@ -694,12 +675,15 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
             else{
                 for (it1 = rb_basis_functions[n_bf()-1].begin(); it1 != rb_basis_functions[n_bf()-1].end(); ++it1) {
                     for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
+                    
                         RB_A_matrices[q_a](n_bf(), i) += (*it1).second * (*it2).second 
-                                                   * (*truth->A_operators[q_a])((*it1).first, (*it2).first);
+                                                         * (*truth->A_operators[q_a])((*it1).first, (*it2).first) ;
+
                         if (i != n_bf()) {
-                         RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
-                                   * (*truth->A_operators[q_a])((*it2).first, (*it1).first);
+                            RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
+                                    * (*truth->A_operators[q_a])((*it2).first, (*it1).first) ;
                         }
+                        
                     }
                 }                
             }
@@ -708,7 +692,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
         std::cout << "RB_A(" << q_a << ") = " << RB_A_matrices[q_a] << std::endl;
     }
     
-}
+ }
 
 template <typename T, typename TruthSolver>
 void
@@ -730,7 +714,7 @@ RBModel2D<T, TruthSolver>::update_RB_F_vectors()
       }
 
       for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it) {
-          RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first);
+          RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first) ;
       }
       
       std::cout << "RB_F(" << q_f << ") = " << RB_F_vectors[q_f] << std::endl;
@@ -757,52 +741,16 @@ RBModel2D<T, TruthSolver>::update_RB_inner_product()
         }
     }
     
+    CoeffVector new_bf = rb_basis_functions[n_bf()-1];
+    
     for (unsigned int i = 1; i <= n_bf(); ++i) {
-      RB_inner_product(n_bf(), i) = inner_product(rb_basis_functions[n_bf()-1], rb_basis_functions[i-1]);
+      CoeffVector bf_i = rb_basis_functions[i-1];
+          
+      RB_inner_product(n_bf(), i) = truth->inner_product(new_bf, bf_i);
       if (i != n_bf()) {
         RB_inner_product(i, n_bf()) = RB_inner_product(n_bf(),i);
       }      
     }
-}
-
-template <typename T, typename TruthModel>
-T
-RBModel2D<T, TruthModel>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
-{
-  T val = 0;
-  
-  if(assembled_inner_product_matrix){
-      // Assumption here: both vectors and the matrix have the same indexset
-      
-    assert(v1.size() == v2.size());
-    typename CoeffVector::const_iterator it1, it2;
-    
-    // Build dense vectors
-    DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
-    int index_count = 1;
-    for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
-      v1_dense(index_count) = (*it1).second;
-      v2_dense(index_count) = (*it2).second;
-      
-    }
-    
-    DenseVectorT I_v2 = truth->inner_product_matrix * v2_dense;
-    val = v1_dense * I_v2;
-  }
-  else{
-    typename CoeffVector::const_iterator it1, it2;
-    for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
-        for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
-            val += (*it1).second * (*inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
-        }
-    }
-    
-    /*    CoeffVector Xv = mv_sparse(supp(v2), *inner_product_op, v2);
-        T vXv = v1 * Xv;
-        return vXv;
-    */
-  }
-  return val;   
 }
 
 template <typename T, typename TruthModel>
@@ -825,6 +773,7 @@ RBModel2D<T, TruthModel>::residual_dual_norm(const DenseVectorT& u_RB, const std
     DenseVectorT FF_T = F_F_representor_norms * ThetaF;
     
     res_dual_norm = ThetaF * FF_T;
+    
         
     int N = u_RB.length();
     DenseVectorT T_AF_T(N);
@@ -841,14 +790,14 @@ RBModel2D<T, TruthModel>::residual_dual_norm(const DenseVectorT& u_RB, const std
     }
     
     //std::cout << " Residual Dual Norm: size(u) = " << u_RB.length() << ", size(T_AF_T) = " << T_AF_T.length() << std::endl;
-    res_dual_norm += 2 * u_RB * T_AF_T;    
-    
+    //res_dual_norm += 2 * u_RB * T_AF_T;    
+
     DenseVectorT T_AA_T_u = T_AA_T * u_RB;
     res_dual_norm += u_RB * T_AA_T_u;    
-
-  
+    res_dual_norm += 2. * u_RB * T_AF_T;  
+                  
     if(res_dual_norm < 0){
-      std::cout << "Warning: Residual dual norm negative: " << std::setprecision(10) << res_dual_norm << std::endl;
+      std::cout << "Warning: Residual dual norm negative: " << std::setprecision(20) << res_dual_norm << std::endl;
       res_dual_norm = std::fabs(res_dual_norm);
     }
     

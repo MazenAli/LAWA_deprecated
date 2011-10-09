@@ -13,8 +13,8 @@ SYM_WEIGHTED_APPLY_1D<T,Basis1D,Parameters,MA>::operator()
                                                 (const Coefficients<Lexicographical,T,Index1D> &v,
                                                  int k)
 {
-    int d =basis.d;
-    int d_=basis.d_;
+    //int d =basis.d;
+    //int d_=basis.d_;
     Coefficients<Lexicographical,T,Index1D> ret;
     if (v.size() == 0) return ret;
 

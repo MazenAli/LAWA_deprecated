@@ -4,18 +4,20 @@
 
 namespace lawa {
 
-template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
-    AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
+template <typename T, typename TrialBasis, typename TestBasis, 
+          typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
+AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimePDEOperator1D_PG(const TrialBasis& _trialbasis, const TestBasis& _testbasis,
+                                   LeftPrec2D& _p_left, RightPrec2D& _p_right,
                                    T _diffusion, T _convection, T _reaction, T _timederivfactor,
                                    T _entrybound, int _NumOfRows, int _NumOfCols)
-    : basis(_basis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
+    : trialbasis(_trialbasis), testbasis(_testbasis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
       timederivfactor(_timederivfactor),
-      compression_1d_t(_basis.first), compression_1d_x(_basis.second), compression(_basis),
+      compression_1d_t(_trialbasis.first), compression_1d_x(_trialbasis.second), compression(_trialbasis),
       P_left_data(), P_right_data(), p_left(_p_left), p_right(_p_right), noprec(),
-      op_identity_t(_basis.first), op_identity_x(_basis.second), op_convection_t(_basis.first),
-      op_convection_x(_basis.second), op_laplace_x(_basis.second), 
-      op_noinitcond(), op_initcond(op_noinitcond),
+      op_identity_t(_trialbasis.first, _testbasis.first), op_identity_x(_trialbasis.second, _testbasis.second), 
+      op_convection_t(_trialbasis.first, _testbasis.first), op_convection_x(_trialbasis.second, _testbasis.second), 
+      op_laplace_x(_trialbasis.second, _testbasis.second), op_noinitcond(), op_initcond(op_noinitcond),
       entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
       data_identity_t(op_identity_t,     noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
       data_identity_x(op_identity_x,     noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
@@ -25,18 +27,21 @@ AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondi
 {
 }
     
-template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
-    AdaptiveSpaceTimePDEOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
+template <typename T, typename TrialBasis, typename TestBasis, 
+          typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
+AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimePDEOperator1D_PG(const TrialBasis& _trialbasis, const TestBasis& _testbasis,
+                                   LeftPrec2D& _p_left, RightPrec2D& _p_right,
                                    InitialCondition& _init_cond,
                                    T _diffusion, T _convection, T _reaction, T _timederivfactor,
                                    T _entrybound, int _NumOfRows, int _NumOfCols)
-    : basis(_basis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
+    : trialbasis(_trialbasis), testbasis(_testbasis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
       timederivfactor(_timederivfactor),
-      compression_1d_t(_basis.first), compression_1d_x(_basis.second), compression(_basis),
+      compression_1d_t(_trialbasis.first), compression_1d_x(_trialbasis.second), compression(_trialbasis),
       P_left_data(), P_right_data(), p_left(_p_left), p_right(_p_right), noprec(),
-      op_identity_t(_basis.first), op_identity_x(_basis.second), op_convection_t(_basis.first),
-      op_convection_x(_basis.second), op_laplace_x(_basis.second), op_noinitcond(), op_initcond(_init_cond),
+      op_identity_t(_trialbasis.first, _testbasis.first), op_identity_x(_trialbasis.second, _testbasis.second), 
+      op_convection_t(_trialbasis.first, _testbasis.first), op_convection_x(_trialbasis.second, _testbasis.second), 
+      op_laplace_x(_trialbasis.second, _testbasis.second), op_noinitcond(), op_initcond(op_noinitcond),
       entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
       data_identity_t(op_identity_t,     noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
       data_identity_x(op_identity_x,     noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
@@ -46,9 +51,10 @@ AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondi
 {
 }
 
-template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
+template <typename T, typename TrialBasis, typename TestBasis, 
+          typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 T
-AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPrec2D, InitialCondition>::
 operator()(const Index2D &row_index, const Index2D &col_index)
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
@@ -100,9 +106,10 @@ operator()(const Index2D &row_index, const Index2D &col_index)
                     + reaction * reaction_term);
 }
 
-template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
+template <typename T, typename TrialBasis, typename TestBasis, 
+          typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 T
-AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPrec2D, InitialCondition>::
 operator()(const Index1D &row_index, const Index2D &col_index)
 {
     if(flens::IsSame<NoInitialCondition, InitialCondition>::value){
@@ -131,32 +138,10 @@ operator()(const Index1D &row_index, const Index2D &col_index)
     return prec * op_initcond(row_index,col_index);
 }
 
-template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-Coefficients<Lexicographical,T,Index2D>
-AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
-mv(const IndexSet<Index2D> &LambdaRow, const Coefficients<Lexicographical,T,Index2D> &x)
-{
-    std::cerr << "AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::"
-              << "mv not implemented." << std::endl;
-    assert(0);
-    exit(1);
-}
-
-template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
+template <typename T, typename TrialBasis, typename TestBasis, 
+          typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 void
-AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
-toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow, const IndexSet<Index2D> &LambdaCol,
-                    SparseMatrixT &A, T tol)
-{
-    std::cerr << "AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::"
-              << "toFlensSparseMatrix not implemented." << std::endl;
-    assert(0);
-    exit(1);
-}
-
-template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-void
-AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPrec2D, InitialCondition>::
 clear()
 {
     data_identity_t.clear();
@@ -165,6 +150,5 @@ clear()
     data_convection_x.clear();
     data_laplace_x.clear();
 }
-
-
+    
 } // namespace lawa

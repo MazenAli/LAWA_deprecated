@@ -148,6 +148,14 @@ template <typename MA, typename WR, typename WI, typename VL, typename VR>
     ev(bool leftEV, bool rightEV,
        GeMatrix<MA> &A, DenseVector<WR> &wr, DenseVector<WI> &wi,
        GeMatrix<VL> &vl, GeMatrix<VR> &vr);
+       
+//== ggev,real -----------------------------------------------------------------
+template <typename MA, typename WR, typename WI, typename VL, typename VR>
+    int
+    gv(bool leftEV, bool rightEV,
+       GeMatrix<MA> &A, GeMatrix<MA> &B, DenseVector<WR> &wr, DenseVector<WI> &wi,
+       DenseVector<WR> &beta,
+       GeMatrix<VL> &vl, GeMatrix<VR> &vr);
 
 //== geev,complex --------------------------------------------------------------
 template <typename MA, typename W, typename VL, typename VR>

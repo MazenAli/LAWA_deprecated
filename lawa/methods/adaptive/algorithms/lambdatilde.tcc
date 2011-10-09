@@ -213,7 +213,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basi
     int numWavelets = (int)psi._numSplines;
 
     int j = lambda.j, k = lambda.k;
-    int d = psi.d;
+    //int d = psi.d;
 
     Support<T> max_support_refbspline = phi.max_support();
     Support<T> max_support_refwavelet = psi.max_support();
@@ -933,7 +933,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
     }
 
     int j = lambda.j, k = lambda.k;
-    int d = psi.d;
+    //int d = psi.d;
     IndexSet<Index1D> ret;
     Support<T> support_refbspline = phi.support(0,0);
     Support<T> support_refwavelet = psi.support(0,0);

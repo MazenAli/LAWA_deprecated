@@ -1,0 +1,5 @@
+training
+test
+online
+*.txt
+offline_data/*

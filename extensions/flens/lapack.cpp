@@ -256,6 +256,15 @@ extern "C" {
            complex<double> *vl, int *ldvl,
            complex<double> *vr, int *ldvr,
            complex<double> *work,int *lwork,double *rwork,int *info);
+           
+    void
+    dggev_(char *jobvl, char *jobvr, int *n, double *a, int *lda, 
+           double *b, int *ldb,
+           double *wr, double *wi, 
+           double *beta, 
+           double *vl, int *ldvl, 
+           double *vr, int *ldvr,
+           double *work, int *lwork, int *info);
 
     void
     ssyev_(char *jobz, char *uplo, int *n, float *a, int *lda,
@@ -1025,6 +1034,25 @@ geev(bool jobvl, bool jobvr, int n, complex<double> *a, int lda,
 
     zgeev_(&_jobvl, &_jobvr, &n, a, &lda, w, vl, &ldvl, vr, &ldvr,
            work, &lwork, rwork, &info);
+    return info;
+}
+
+//- ggev
+int
+ggev(bool jobvl, bool jobvr, int n, double *a, int lda, 
+     double *b, int ldb,
+     double *wr, double *wi, 
+     double *beta, 
+     double *vl, int ldvl, 
+     double *vr, int ldvr,
+     double *work, int lwork)
+{
+    int info;
+    char _jobvl = (jobvl==true) ? 'V' : 'N';
+    char _jobvr = (jobvr==true) ? 'V' : 'N';
+    
+    dggev_(&_jobvl, &_jobvr, &n, a, &lda, b, &ldb, wr, wi, beta, vl, &ldvl, vr, &ldvr,
+           work, &lwork, &info);
     return info;
 }
 

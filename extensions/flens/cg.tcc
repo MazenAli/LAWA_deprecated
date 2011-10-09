@@ -20,6 +20,8 @@
 #include <cassert>
 #include <limits>
 #include <iomanip>
+#include <fstream>
+#include <lawa/aux/densify.h>
 
 namespace lawa {
 
@@ -131,7 +133,17 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
     p = s;
     gammaPrev = s*s;
+#ifdef SOLVER_DEBUG
+    std::ofstream gammafile("CGLS_Convergence.txt");
+    gammafile << "# Norm(A'*r)^2  Norm(b-Ax)^2" << std::endl; 
+#endif
     for (int k=1; k<=maxIterations; k++) {
+        #ifdef SOLVER_DEBUG
+            typename _cg<VB>::T res = r*r;
+            gammafile << sqrt(gammaPrev) << " " << sqrt(res) << std::endl;
+            std::cerr << "k = " << k << ", gamma = " << sqrt(gammaPrev)
+            << std::endl;
+        #endif
         q = A*p;
         alpha = gammaPrev/(q*q);
         x +=   alpha *p;
@@ -146,6 +158,9 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         p += s;
         gammaPrev = gamma;
     }
+#ifdef SOLVER_DEBUG
+    gammafile.close();
+#endif
     return maxIterations;
 }
 
