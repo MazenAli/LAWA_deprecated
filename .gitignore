@@ -51,3 +51,9 @@ tutorials/examples/mv_sparse
 applications/unbounded_domains/adwav/ghs-adwav-realline-pde2d
 applications/unbounded_domains/adwav/ghs-adwav-realline-pde1d
 applications/unbounded_domains/adwav/ghs-adwav-realline-helmholtz2d
+tutorials/rb_examples/adaptive/adaptive_rb_example
+tutorials/rb_examples/adaptive/adaptive_rb_example_training
+tutorials/rb_examples/indexset-based/indexset_rb_example_training
+tutorials/rb_examples/indexset-based/indexset_rb_test
+tutorials/rb_examples/indexset-based/online_rb_example
+tutorials/rb_examples/uniform/rb_example
