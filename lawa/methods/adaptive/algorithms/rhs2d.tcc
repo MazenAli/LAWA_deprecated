@@ -91,6 +91,8 @@ RHS2D<T,RHSINTEGRAL,Preconditioner>::readIndexSets(const char *filename)
         return true;
     }
     else {
+        std::cerr << "Could not read file " << filename << std::endl;
+        exit(1);
         return false;
     }
 

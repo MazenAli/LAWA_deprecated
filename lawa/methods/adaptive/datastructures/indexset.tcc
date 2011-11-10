@@ -54,6 +54,17 @@ IndexSet<Index>::operator+(const IndexSet<Index> &_set) const
 }
 
 template <typename Index>
+IndexSet<Index> &
+IndexSet<Index>::operator+=(const IndexSet<Index> &_set)
+{
+    typedef typename IndexSet<Index>::const_iterator const_it;
+    for (const_it lambda = _set.begin(); lambda != _set.end(); ++lambda) {
+        (*this).insert(*lambda);
+    }
+    return (*this);
+}
+
+template <typename Index>
 std::ostream& operator<< (std::ostream &s, const IndexSet<Index> &i)
 {
     typedef typename IndexSet<Index>::const_iterator const_it;
