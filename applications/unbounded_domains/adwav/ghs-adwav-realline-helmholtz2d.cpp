@@ -46,7 +46,6 @@ typedef TensorBasis2D<Adaptive, MW_Basis1D, MW_Basis1D>                 MW_Basis
 typedef Basis<T,Primal,R,SparseMulti>                                   SparseMW_Basis1D;
 typedef TensorBasis2D<Adaptive, SparseMW_Basis1D,SparseMW_Basis1D>      SparseMW_Basis2D;
 
-
 //Operator definitions
 typedef AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,R,Multi,
                                                Orthogonal,R,Multi>      MW_MA;
@@ -98,7 +97,6 @@ typedef GHS_ADWAV<T, Index2D, SparseMW_MA,
                   SparseMW_SumOfNonSeparableRhs2D>                      SparseMW_GHS_ADWAV_SOLVER_SumNonSeparableRhs;
 
 
-
 IndexSet<Index1D>
 computeRHSLambda_SmoothPart(const MW_Basis1D &basis, T a, T b, int J_plus);
 
@@ -129,8 +127,7 @@ int main (int argc, char *argv[]) {
     convfilename << "ghs_adwav_conv_realline_helmholtz2d_" << argv[1] << "_" << argv[2] << "_"
                  << argv[3] << "_" << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
 
-
-    int order=127;
+    int order=20;
 
     if (strcmp(argv[1],"MW")==0) {
         MW_Basis1D MW_basis_x(d,j0_x);
@@ -155,12 +152,14 @@ int main (int argc, char *argv[]) {
             MW_SumOfSeparableRhs MW_F(MW_rhsintegral2d,MW_P);
             MW_F.readIndexSets(rhsfilename.str().c_str());
 
-            MW_GHS_ADWAV_SOLVER_SumofSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true);
+            MW_GHS_ADWAV_SOLVER_SumofSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,true);
+
 
             Coefficients<Lexicographical,T,Index2D> u;
             u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
                                           NumOfIterations, refsol.H1norm());
         }
+
         else if (example==4) {
             int order = 31;
             RefSols_PDE_Realline2D<T> refsol;
@@ -170,7 +169,7 @@ int main (int argc, char *argv[]) {
             MW_NonSeparableRhs2D           MW_F(MW_rhsintegral2d,MW_P);
             MW_F.readIndexSets(rhsfilename.str().c_str());
 
-            MW_GHS_ADWAV_SOLVER_NonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true);
+            MW_GHS_ADWAV_SOLVER_NonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,true);
 
             Coefficients<Lexicographical,T,Index2D> u;
             u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
@@ -194,7 +193,7 @@ int main (int argc, char *argv[]) {
                 MW_SumOfNonSeparableRhs2D         MW_F(MW_rhsintegral2d,MW_P);
                 MW_F.readIndexSets(rhsfilename.str().c_str());
 
-                MW_GHS_ADWAV_SOLVER_SumNonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true);
+                MW_GHS_ADWAV_SOLVER_SumNonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,true);
 
                 Coefficients<Lexicographical,T,Index2D> u;
                 u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
@@ -225,14 +224,15 @@ int main (int argc, char *argv[]) {
             SparseMW_SumOfSeparableRhs           SparseMW_F(SparseMW_rhsintegral2d,SparseMW_P);
             SparseMW_F.readIndexSets(rhsfilename.str().c_str());
 
-            SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,true);
+            SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,true,false);
+            T alpha = 0.4, omega = 0.25, gamma = 0.2, theta = 2*omega/(1+omega);
+            SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
 
             Coefficients<Lexicographical,T,Index2D> u;
-            u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
+            u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-7, convfilename.str().c_str(),
                                                 NumOfIterations, refsol.H1norm());
         }
     }
-
     return 0;
 }
 

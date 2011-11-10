@@ -170,7 +170,7 @@ template <typename T, typename Index, typename MA>
 int
 CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
          const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol,
-         bool useOptimizedAssembling, int maxIterations)
+         int assemble_matrix, int maxIterations)
 {
     typedef typename IndexSet<Index >::const_iterator const_set_it;
     typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -180,69 +180,42 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     //return n;
 
     Timer timer;
-    int N = Lambda.size();
-    flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
-    if (useOptimizedAssembling) {
-        A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
+    if (assemble_matrix==0) {
+
+        T alpha, beta, rNormSquare, rNormSquarePrev;
+        Coefficients<Lexicographical,T,Index> r, p;
+        //std::cerr << " u = " << u << std::endl;
+        A.apply(u, tol/3.,Lambda, r);
+        //std::cerr << " Au = " << r << std::endl;
+        r -= f;
+        p -= r;
+        rNormSquare = r*r;
+        for (int k=1; k<=10; k++) {
+            if (sqrt(rNormSquare)<=tol) {
+                return k;
+            }
+
+            Coefficients<Lexicographical,T,Index> Ap;
+            A.apply(p,tol/3.,Lambda, Ap);
+            //std::cerr << "Ap = " << Ap << std::endl;
+            T pAp = p * Ap;
+            //T pAp = A.innerproduct(p);
+            alpha = rNormSquare/pAp;
+            u += alpha*p;
+            r += alpha*Ap;
+
+            rNormSquarePrev = rNormSquare;
+            rNormSquare = r*r;
+            beta = rNormSquare/rNormSquarePrev;
+            p *= beta;
+            p -= r;
+        }
     }
     else {
-        toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
-    }
-
-    if (Lambda.size() > 0) {
-      std::cout << "    Build Dense Vectors ..." << std::endl;
-      timer.start();
-        DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
-        int row_count=1;
-        const_coeff_it f_end = f.end();
-        const_coeff_it u_end = u.end();
-        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
-            const_coeff_it f_it = f.find(*row);
-            if (f_it != f_end) rhs(row_count) = (*f_it).second;
-            else               rhs(row_count) = 0.;
-            const_coeff_it u_it = u.find(*row);
-            if (u_it != u_end) x(row_count) = (*u_it).second;
-            else               x(row_count) = 0.;
-
-        }
-      timer.stop();
-      std::cout << "    .... done : " << timer.elapsed() << " seconds " << std::endl;  
-
-      std::cout << "    Start cg ... " << std::endl;
-      timer.start();
-        int number_of_iterations = lawa::cg(A_flens,x,rhs, tol, maxIterations);
-      timer.stop();
-            
-      std::cout << "    .... done : " << timer.elapsed() << " seconds " << std::endl;
-        Ax = A_flens*x;
-        res= Ax-rhs;
-        residual = std::sqrt(res*res);
-        row_count = 1;
-        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
-            //const_coeff_it u_it = u.find(*row);
-            //if (u_it != u_end) u[*row] = x(row_count);
-            //else               u[*row] = 0.;
-            u[*row] = x(row_count);
-        }
-        return number_of_iterations;
-    }
-    else return -1;
-
-}
-
-template <typename T, typename Index, typename MA>
-int
-GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
-            const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol,
-            bool useOptimizedAssembling, int maxIterations)
-{
-        typedef typename IndexSet<Index >::const_iterator const_set_it;
-        typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
-        typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
         int N = Lambda.size();
         flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
-        if (useOptimizedAssembling) {
+        if (assemble_matrix==2) {
             A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
         }
         else {
@@ -250,6 +223,8 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
         }
 
         if (Lambda.size() > 0) {
+          std::cout << "    Build Dense Vectors ..." << std::endl;
+          timer.start();
             DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
             int row_count=1;
             const_coeff_it f_end = f.end();
@@ -263,18 +238,83 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
                 else               x(row_count) = 0.;
 
             }
-            int number_of_iterations = lawa::gmres(A_flens,x,rhs, tol, maxIterations);
+          timer.stop();
+          std::cout << "    .... done : " << timer.elapsed() << " seconds " << std::endl;
+
+          std::cout << "    Start cg ... " << std::endl;
+          timer.start();
+            int number_of_iterations = lawa::cg(A_flens,x,rhs, tol, maxIterations);
+          timer.stop();
+
+          std::cout << "    .... done : " << timer.elapsed() << " seconds " << std::endl;
             Ax = A_flens*x;
             res= Ax-rhs;
             residual = std::sqrt(res*res);
             row_count = 1;
             for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
+                //const_coeff_it u_it = u.find(*row);
+                //if (u_it != u_end) u[*row] = x(row_count);
+                //else               u[*row] = 0.;
                 u[*row] = x(row_count);
             }
             return number_of_iterations;
         }
         else return -1;
+    }
 
+}
+
+template <typename T, typename Index, typename MA>
+int
+GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
+            const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol,
+            int assemble_matrix, int maxIterations)
+{
+        typedef typename IndexSet<Index >::const_iterator const_set_it;
+        typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
+        typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
+
+        int N = Lambda.size();
+        if (assemble_matrix==0) {
+            std::cerr << "GMRES_Solve not yet implemented for hashmap data." << std::endl;
+            exit(1);
+            return 1;
+        }
+        else {
+            flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
+            if (assemble_matrix==2) {
+                A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
+            }
+            else {
+                toFlensSparseMatrix(A, Lambda, Lambda, A_flens);
+            }
+
+            if (Lambda.size() > 0) {
+                DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+                int row_count=1;
+                const_coeff_it f_end = f.end();
+                const_coeff_it u_end = u.end();
+                for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
+                    const_coeff_it f_it = f.find(*row);
+                    if (f_it != f_end) rhs(row_count) = (*f_it).second;
+                    else               rhs(row_count) = 0.;
+                    const_coeff_it u_it = u.find(*row);
+                    if (u_it != u_end) x(row_count) = (*u_it).second;
+                    else               x(row_count) = 0.;
+
+                }
+                int number_of_iterations = lawa::gmres(A_flens,x,rhs, tol, maxIterations);
+                Ax = A_flens*x;
+                res= Ax-rhs;
+                residual = std::sqrt(res*res);
+                row_count = 1;
+                for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
+                    u[*row] = x(row_count);
+                }
+                return number_of_iterations;
+            }
+            else return -1;
+        }
 }
 
 template <typename T, typename Index, typename MA>

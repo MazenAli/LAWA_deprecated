@@ -60,17 +60,26 @@ Coefficients<Lexicographical,T,Index2D>
 mv_sparse(t, const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
 */
 
+/* @assemble_matrix: "0" -> operate only on hashmap data,
+                     "1" -> use standard routine to assemble stiffness matrix
+                     "2" -> use operator intern routines to assemble stiffness matrix
+ */
 template <typename T, typename Index, typename MA>
 int
 CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
          const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 1e-6,
-         bool useOptimizedAssembling=false, int maxIterations = 1000);
+         int assemble_matrix=1, int maxIterations = 1000);
 
+
+/* @assemble_matrix: "0" -> operate only on hashmap data,
+                     "1" -> use standard routine to assemble stiffness matrix
+                     "2" -> use operator intern routines to assemble stiffness matrix
+ */
 template <typename T, typename Index, typename MA>
 int
 GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, 
             const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6,
-            bool useOptimizedAssembling=false, int maxIterations = 1000);
+            int assemble_matrix=1, int maxIterations = 1000);
 
 template <typename T, typename Index, typename MA>
 int

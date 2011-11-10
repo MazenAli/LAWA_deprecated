@@ -41,7 +41,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const char *linsolvertype,
-                                     const char *filename, bool optimized, T H1norm)
+                                     const char *filename, int assemble_matrix, T H1norm)
 {
     Timer timer;
 
@@ -65,37 +65,15 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         f = F(LambdaActive);
         T f_norm_LambdaActive = f.norm(2.);
 
-        /*
-        std::cout << "Computing eigenvalues..." << std::endl;
-        T cB, CB;
-        int N = LambdaActive.size();
-        SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A_sparse(N,N);
-        A.toFlensSparseMatrix(LambdaActive,LambdaActive,A_sparse);
-        flens::DenseVector<flens::Array<T> > x(N);
-        for (int i=1; i<=N; ++i) {
-            x(i) = 1.;
-        }
-        std::cout << "powerMethod started." << std::endl;
-        lawa::powerMethod(A_sparse,(T)1e-12,CB,x);
-        std::cout << "powerMethod finished." << std::endl;
-        for (int i=1; i<=N; ++i) {
-            x(i) = 1.;
-        }
-        std::cout << "inversePowerMethod started." << std::endl;
-        lawa::inversePowerMethod(A_sparse,(T)1e-12,cB,x);
-        std::cout << "inversePowerMethod finished." << std::endl;
-
-        std::cout << "  -> cB = " << cB << ", CB = " << CB << std::endl;
-        */
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations=0;
         if (strcmp(linsolvertype,"cg")==0) {
-            iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, optimized);
+            iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, assemble_matrix);
         }
         else if (strcmp(linsolvertype,"gmres")==0) {
-            iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, optimized);
+            iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, assemble_matrix);
         }
         else {
             assert(0);
@@ -103,7 +81,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
             exit(1);
         }
         linsolve_iterations[its] = iterations;
-        std::cout << "   ...finished with res=" << r_norm_LambdaActive << std::endl;
+        std::cerr << "   ...finished with res=" << r_norm_LambdaActive << std::endl;
 
 
         // Attention: Relative threshold here removes lots of entries -> linear system was much
@@ -149,11 +127,11 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         //Au = mv(DeltaLambda,A,u);
-        if (optimized) {
-            Au = A.mv(DeltaLambda,u);
+        if (assemble_matrix==1) {
+            Au = mv_sparse(DeltaLambda,A,u);
         }
         else {
-            Au = mv_sparse(DeltaLambda,A,u);
+            Au = A.mv(DeltaLambda,u);
         }
         r  = Au-f;
         T r_norm_DeltaLambda = r.norm(2.);
@@ -667,5 +645,28 @@ S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T&
     _resStopTol = _resStopTol;
 }
 
+
+/*
+       std::cout << "Computing eigenvalues..." << std::endl;
+       T cB, CB;
+       int N = LambdaActive.size();
+       SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A_sparse(N,N);
+       A.toFlensSparseMatrix(LambdaActive,LambdaActive,A_sparse);
+       flens::DenseVector<flens::Array<T> > x(N);
+       for (int i=1; i<=N; ++i) {
+           x(i) = 1.;
+       }
+       std::cout << "powerMethod started." << std::endl;
+       lawa::powerMethod(A_sparse,(T)1e-12,CB,x);
+       std::cout << "powerMethod finished." << std::endl;
+       for (int i=1; i<=N; ++i) {
+           x(i) = 1.;
+       }
+       std::cout << "inversePowerMethod started." << std::endl;
+       lawa::inversePowerMethod(A_sparse,(T)1e-12,cB,x);
+       std::cout << "inversePowerMethod finished." << std::endl;
+
+       std::cout << "  -> cB = " << cB << ", CB = " << CB << std::endl;
+       */
 }    //namespace lawa
 

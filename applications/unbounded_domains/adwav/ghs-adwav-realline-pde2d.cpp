@@ -96,7 +96,7 @@ int main (int argc, char *argv[]) {
     int d_  =atoi(argv[3]);
     int j0_x=atoi(argv[4]);
     int j0_y=atoi(argv[5]);
-    T reaction=1., convection_x=5., convection_y=5., diffusion=1.;
+    T reaction=1., convection_x=0., convection_y=0., diffusion=1.;
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
@@ -149,7 +149,7 @@ int main (int argc, char *argv[]) {
         SparseMW_SumOfSeparableRhs           SparseMW_H1_F(SparseMW_H1_rhsintegral2d,SparseMW_P);
         SparseMW_H1_F.readIndexSets(rhsfilename.str().c_str());
 
-        SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,SparseMW_H1_A,SparseMW_H1_F,true);
+        SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,SparseMW_H1_A,SparseMW_H1_F,true, true);
 
         Coefficients<Lexicographical,T,Index2D> u;
         u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-5, convfilename.str().c_str(),

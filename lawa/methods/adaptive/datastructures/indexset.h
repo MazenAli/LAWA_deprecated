@@ -32,8 +32,8 @@
 namespace lawa {
 
 template <typename Index>
-struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
-//struct IndexSet : __gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >
+//struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
+struct IndexSet : __gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >
 {
     //using std::set<Index, lt<Lexicographical, Index > >::erase;
     //using std::set<Index, lt<Lexicographical, Index > >::insert;
@@ -47,6 +47,9 @@ struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
 
     IndexSet<Index>
     operator+ (const IndexSet<Index> &_set) const;
+
+    IndexSet<Index>&
+    operator+= (const IndexSet<Index> &_set);
 };
 
 template <typename Index>

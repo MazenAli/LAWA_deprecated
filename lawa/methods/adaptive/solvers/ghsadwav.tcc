@@ -2,8 +2,8 @@ namespace lawa {
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
 GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F,
-                                                   bool _optimized_grow)
-    : A(_A), F(_F), optimized_grow(_optimized_grow),
+                                                   bool _optimized_grow, bool _assemble_matrix)
+    : A(_A), F(_F), optimized_grow(_optimized_grow), assemble_matrix(_assemble_matrix),
       cA(A.cA), CA(A.CA), kappa(A.kappa),
       alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.),
       sparseMat_A(200000,200000)
@@ -13,6 +13,16 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F
     gamma = 0.5 * (1./6.) * 1./sqrt(kappa) * (alpha-omega)/(1+omega);
     theta = 2./7.;
 
+}
+
+template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
+void
+GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::setParameters(T _alpha, T _omega, T _gamma, T _theta)
+{
+    alpha = _alpha;
+    omega = _omega;
+    gamma = _gamma;
+    theta = _theta;
 }
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
@@ -38,28 +48,27 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         Timer time;
         std::cerr << "*** " << i << ".iteration ***" << std::endl;
         time.start();
-        std::cerr << "  GROW started." << std::endl;
+        std::cerr << "   GROW started." << std::endl;
 
         IndexSet<Index> Extension;
         Extension = this->GROW(w_k, theta*nu_kM1, nu_k);
-        Lambda_kP1 = Lambda_kP1 + Extension;
-        std::cerr << "  GROW finished." << std::endl;
-        //solutions.push_back(w_kP1);
-        residuals.push_back(nu_k);
-        times.push_back(total_time);
-        if (nu_k <=eps) break;
+        Lambda_kP1 += Extension;
+        std::cerr << "   GROW finished." << std::endl;
 
         time.stop();
         total_time += time.elapsed();
+        residuals.push_back(nu_k);
+        times.push_back(total_time);
+
+        if (nu_k <=eps) break;
 
         Coefficients<Lexicographical,T,Index> Au, f, rhs;
         f = F(supp(w_k));
         T fu = w_k*f;
-        Au = A.mv(supp(w_k), w_k);
+        Au = A.mv(supp(w_k),w_k);
         T uAu = w_k*Au;
         std::cerr.precision(16);
         T Error_H_energy = sqrt(fabs(std::pow(H1norm,2.)- 2*fu + uAu));
-        //T Error_H_energy = computeErrorInH1Norm(Apply.A, F, w_k, H1norm);
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << std::endl;
 
@@ -78,23 +87,17 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
 
         time.start();
         std::cerr << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
-
         /*
          * Attention: update in rhs1d is set! Linear complexity still holds with better convergence!
          */
         //g_kP1 = F(Lambda_kP1);                // update rhs vector
         rhs = F(gamma*nu_k);
         g_kP1 = P(rhs,Lambda_kP1);  // compute with restriction, otherwise GROW does not work
-        w_kP1 = this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
+        this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
+        std::cerr << "   GALSOLVE finished." << std::endl;
 
-        std::cerr << "  GALSOLVE finished." << std::endl;
-/*
-        std::stringstream coefffile;
-        coefffile << "ghs_adwav_coeffs_" << i;
-        plotScatterCoeff2D(w_kP1, A.basis.first, A.basis.second, coefffile.str().c_str());
-*/
         nu_kM1 = nu_k;
-        w_k = w_kP1;
+        //w_k = w_kP1;
         time.stop();
         total_time += time.elapsed();
         std::cerr << std::endl;
@@ -113,13 +116,17 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
     while (1) {
         zeta *= 0.5;
 
-        std::cerr << "GROW: zeta = " << zeta << std::endl;
+        std::cerr << "      zeta = " << zeta << std::endl;
+        Timer time_apply;
+        time_apply.start();
         A.apply(w, 0.5*zeta, r);
+        time_apply.stop();
+        std::cerr << "      Required time for APPLY: " << time_apply.elapsed() << std::endl;
         r -= F(0.5*zeta);
 
         r_norm = r.norm(2.);
         nu = r_norm + zeta;
-        std::cerr << "    zeta = " << zeta << ", r_norm = " << r_norm << ", omega*r_norm = "
+        std::cerr << "      zeta = " << zeta << ", r_norm = " << r_norm << ", omega*r_norm = "
                   << omega*r_norm << ", nu = " << nu << std::endl;
         if (nu <= eps) break;
         if (zeta<=omega*r_norm) break;
@@ -137,25 +144,29 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
 
     T threshbound = std::sqrt(1-alpha*alpha) * r.norm(2.)/std::sqrt(T(r.size()));
     Coefficients<Bucket,T,Index> r_bucket;
-    std::cout << "  GROW: size of r = " << r.size() << std::endl;
+    std::cerr << "      size of r = " << r.size() << std::endl;
 
     r_bucket.bucketsort(r, threshbound);
 
-    std::cout << "  GROW: size of r = " << r.size() << std::endl;
-    std::cerr << "   Threshbound = " << threshbound << std::endl;
-    std::cerr << "   Before extension: ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
+
+    std::cerr << "      ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
               << ", alpha*r_norm = " << alpha*r_norm << std::endl;
     if (nu > eps) {
         int currentDoF = w.size();
         for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
             P_Lambda_r_norm_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
-            std::cerr << "   ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
+            std::cerr << "      ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
             int addDoF = r_bucket.addBucketToIndexSet(Lambda,i,currentDoF);
+            std::cerr << "      Added " << addDoF << " indices with norm " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
             currentDoF += addDoF;
             if (P_Lambda_r_norm_square >= alpha*r_norm*alpha*r_norm) {
                 if (optimized_grow) {
                     int addDoF = r_bucket.addBucketToIndexSet(Lambda,i+1,currentDoF);
+                    std::cerr << "      Added " << addDoF << " indices with norm " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
                     currentDoF += addDoF;
+                    //addDoF = r_bucket.addBucketToIndexSet(Lambda,i+2,currentDoF);
+                    //std::cerr << "      Added " << addDoF << " indices with norm " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
+                    //currentDoF += addDoF;
                 }
                 break;
             }
@@ -177,116 +188,143 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
         }
         */
     }
-    //getchar();
+    std::cerr << "      #Lambda_{k+1} / #Lambda_k = " << T(Lambda.size()+w.size())/T(w.size()) << std::endl;
     return Lambda;
 }
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
-Coefficients<Lexicographical,T,Index>
+void
 GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
                                                   const IndexSet<Index> &Extension,
                                                   const Coefficients<Lexicographical,T,Index> &g,
-                                                  const Coefficients<Lexicographical,T,Index> &w,
+                                                  Coefficients<Lexicographical,T,Index> &w,
                                                   T delta, T tol)
 {
-    int d=A.basis.d;
-    Coefficients<Lexicographical,T,Index> ret;
+    if (assemble_matrix) {
 
-    if (Lambda.size()==0) return ret;
+        int d=A.basis.d;
+        if (Lambda.size()==0) return;
 
-    //Determine compression level
-    int J=0;        //compression
-    if      (d==2) {   J = -std::ceil(2*std::log(tol/((3*tol+3*delta)*kappa))); }
-    else if (d==3) {   J = -std::ceil((1./1.5)*std::log(tol/((3*tol+3*delta)*kappa))); }
-    else if (d==4) {   J = -std::ceil((1./2.5)*std::log(tol/((3*tol+3*delta)*kappa))); }
-    else              { assert(0); }
-    std::cerr << "   Estimated compression level for delta=" << delta << " and target tol=" << tol
-              << " : " << J << std::endl;
+        //Determine compression level
+        int J=0;        //compression
+        if      (d==2) {   J = -std::ceil(2*std::log(tol/((3*tol+3*delta)*kappa))); }
+        else if (d==3) {   J = -std::ceil((1./1.5)*std::log(tol/((3*tol+3*delta)*kappa))); }
+        else if (d==4) {   J = -std::ceil((1./2.5)*std::log(tol/((3*tol+3*delta)*kappa))); }
+        else              { assert(0); }
+        std::cerr << "      Estimated compression level for delta=" << delta << " and target tol=" << tol
+                  << " : " << J << std::endl;
 
-    //Assemble sparse matrix B
-    unsigned long N = Lambda.size();
-    //std::cerr << "    Assembling of B started with N=" << N << std::endl;
+        //Assemble sparse matrix B
+        unsigned long N = Lambda.size();
+        //std::cerr << "    Assembling of B started with N=" << N << std::endl;
 
-    bool useLinearIndex=true;
+        bool useLinearIndex=false;
 
-    flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
-    A.toFlensSparseMatrix(Lambda,Lambda,B,J,useLinearIndex);
+        flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
+        Timer time_assemble;
+        time_assemble.start();
+        A.toFlensSparseMatrix(Lambda,Lambda,B,J,useLinearIndex);
+        time_assemble.stop();
+        std::cerr << "      Required time for matrix assembly: " << time_assemble.elapsed() << std::endl;
 
-/*
-    A.extendFlensSparseMatrix(supp(w),Extension,sparseMat_A);
-    SparseMatrixT B(N,N,sparseMat_A.initializer());
-    B.finalize();
-*/
+        Coefficients<Lexicographical,T,Index> r0, APPLY_Aw;
+        Timer time_apply;
+        time_apply.start();
+        A.apply(w, tol/3.,Lambda, APPLY_Aw);
+        time_apply.stop();
+        std::cerr << "      Required time for APPLY: " << time_apply.elapsed() << std::endl;
+        r0 = g - APPLY_Aw;
 
-    //std::cerr << "    Assembling of B finished." << std::endl;
+        DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
 
-    //Compute approximate initial residual
-    //std::cerr << "    Solving Bx=r0." << std::endl;
-    /*
-    Coefficients<Lexicographical,T,Index> r0, APPLY_Aw;
-    APPLY_Aw = A.apply(w, tol/3.);
-    r0 = g - P(APPLY_Aw, Lambda);
-    */
-    Coefficients<Lexicographical,T,Index> r0, APPLY_Aw;
-    A.apply(w, tol/3.,Lambda, APPLY_Aw);
-    r0 = g - APPLY_Aw;
-
-    DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
-
-    const_coeff_it r0_end = r0.end();
-    if (!useLinearIndex) {
-        int row_count=1;
-        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-            const_coeff_it it = r0.find(*row);
-            if (it != r0_end) rhs(row_count) = (*it).second;
-            else              rhs(row_count) = 0.;
-            ++row_count;
-        }
-    }
-    else {
-        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-            const_coeff_it it = r0.find(*row);
-            if (it != r0_end) rhs((*row).linearindex) = (*it).second;
-            else              rhs((*row).linearindex) = 0.;
-        }
-    }
-
-    int iters = lawa::cg(B,x,rhs,tol/3.);
-    linsolve_iterations.push_back(iters);
-    Bx = B*x;
-    res= Bx-rhs;
-    T lin_res = std::sqrt(res*res);
-    std::cerr << "    cg-method needed " << iters << " iterations, res=" << lin_res << std::endl;
-    assert(lin_res<tol);
-
-
-    const_coeff_it w_end = w.end();
-
-    if (!useLinearIndex) {
-        int row_count=1;
-        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-            const_coeff_it it=w.find(*row);
-            if (it!=w_end) {
-                ret[(*row)] = (*it).second + x(row_count);
+        const_coeff_it r0_end = r0.end();
+        if (!useLinearIndex) {
+            int row_count=1;
+            for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
+                const_coeff_it it = r0.find(*row);
+                if (it != r0_end) rhs(row_count) = (*it).second;
+                else              rhs(row_count) = 0.;
+                ++row_count;
             }
-            else {
-                ret[(*row)] = x(row_count);
+        }
+        else {
+            for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
+                const_coeff_it it = r0.find(*row);
+                if (it != r0_end) rhs((*row).linearindex) = (*it).second;
+                else              rhs((*row).linearindex) = 0.;
             }
-            ++row_count;
+        }
+
+        int iters = lawa::cg(B,x,rhs,tol/3.);
+        linsolve_iterations.push_back(iters);
+        Bx = B*x;
+        res= Bx-rhs;
+        T lin_res = std::sqrt(res*res);
+        std::cerr << "      cg-method needed " << iters << " iterations, res=" << lin_res << std::endl;
+        assert(lin_res<tol);
+
+
+        const_coeff_it w_end = w.end();
+
+        if (!useLinearIndex) {
+            int row_count=1;
+            for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
+
+                w[*row] += x(row_count);
+                /*
+                const_coeff_it it=w.find(*row);
+                if (it!=w_end) {
+                    ret[(*row)] = (*it).second + x(row_count);
+                }
+                else {
+                    ret[(*row)] = x(row_count);
+                }
+                */
+                ++row_count;
+            }
+        }
+        else {
+            for (coeff_it it=w.begin(); it!=w.end(); ++it) {
+                //ret[(*it).first] = (*it).second + x((*it).first.linearindex);
+                (*it).second += x((*it).first.linearindex);
+            }
+            for (const_set_it row=Extension.begin(); row!=Extension.end(); ++row) {
+                w[*row] = x((*row).linearindex);
+            }
         }
     }
+
     else {
-        for (const_coeff_it it=w.begin(); it!=w.end(); ++it) {
-            ret[(*it).first] = (*it).second + x((*it).first.linearindex);
+
+        T alpha, beta, rNormSquare, rNormSquarePrev;
+        Coefficients<Lexicographical,T,Index> r, p;
+        A.apply(w, tol/3.,Lambda, r);
+        r -= g;
+        p -= r;
+        rNormSquare = r*r;
+        for (int k=1; k<=1000; k++) {
+            Coefficients<Lexicographical,T,Index> Ap;
+            A.apply(p,tol/3.,Lambda, Ap);
+            T pAp = p * Ap;
+            //T pAp = A.innerproduct(p);
+            alpha = rNormSquare/pAp;
+            w += alpha*p;
+            r += alpha*Ap;
+
+            if (sqrt(rNormSquare)<=tol) {
+                std::cerr << "      cg iterations: " << k << std::endl;
+                break;
+            }
+
+            rNormSquarePrev = rNormSquare;
+            rNormSquare = r*r;
+            beta = rNormSquare/rNormSquarePrev;
+            p *= beta;
+            p -= r;
         }
-        for (const_set_it row=Extension.begin(); row!=Extension.end(); ++row) {
-            ret[*row] = x((*row).linearindex);
-        }
+
     }
-
-
-
-    return ret;
+    return;
 }
 
 }   //namespace lawa

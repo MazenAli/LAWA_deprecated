@@ -4,8 +4,9 @@ template <typename T, typename Index, typename AdaptiveOperator, typename RHS,
           typename PP_AdaptiveOperator, typename PP_RHS>
 GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 ::GHS_NONSYM_ADWAV(AdaptiveOperator &_A, RHS &_F, PP_AdaptiveOperator &_PP_A, PP_RHS &_PP_F,
-                   bool _optimized_grow)
-    : A(_A), F(_F), PP_A(_PP_A), PP_F(_PP_F), optimized_grow(_optimized_grow),
+                   bool _optimized_grow, bool _assemble_matrix)
+    : A(_A), F(_F), PP_A(_PP_A), PP_F(_PP_F),
+      optimized_grow(_optimized_grow), assemble_matrix(_assemble_matrix),
       cA(A.cA), CA(A.CA), kappa(A.kappa),
       alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.)
 {
@@ -201,51 +202,61 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
            const Coefficients<Lexicographical,T,Index> &g, const Coefficients<Lexicographical,T,Index> &w,
            T delta, T tol)
 {
-    IndexSet<Index> LambdaCol, LambdaRow;
-    LambdaCol = Lambda + Extension;
-    Coefficients<Lexicographical,T,Index> help1, help2, help3;
-    for (const_set_it it=LambdaCol.begin(); it!=LambdaCol.end(); ++it) {
-        help1[*it] = 1.;
+
+    if (assemble_matrix) {
+        IndexSet<Index> LambdaCol, LambdaRow;
+        LambdaCol = Lambda + Extension;
+        Coefficients<Lexicographical,T,Index> help1, help2, help3;
+        for (const_set_it it=LambdaCol.begin(); it!=LambdaCol.end(); ++it) {
+            help1[*it] = 1.;
+        }
+        A.apply(help1,0.,help2,NoTrans);
+        LambdaRow = supp(help2);
+
+    //    T res1 = 0.;
+    //    int n=CGLS_Solve(LambdaRow, LambdaCol, A, help3, g, res1, tol/3., 1000);
+    //    return help3;
+
+        flens::SparseGeMatrix<CRS<T,CRS_General> > B(LambdaRow.size(),LambdaCol.size());
+        A.toFlensSparseMatrix(LambdaRow,LambdaCol,B,1,false);
+
+        std::cerr << "LambdaRow.size() = " << LambdaRow.size() << ", LambdaCol.size() = " << LambdaCol.size() << std::endl;
+
+        DenseVector<Array<T> > g_vec(LambdaRow.size()), x_vec(LambdaCol.size()), Ax_vec(LambdaRow.size());
+        const_coeff_it g_end = g.end();
+        const_coeff_it w_end = w.end();
+        int row_count=1;
+        for (const_set_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row) {
+            const_coeff_it it = g.find(*row);
+            if (it != g_end) g_vec(row_count) = (*it).second;
+            else             g_vec(row_count) = 0.;
+            ++row_count;
+        }
+        row_count=1;
+        for (const_set_it row=LambdaCol.begin(); row!=LambdaCol.end(); ++row) {
+            const_coeff_it it2 = w.find(*row);
+            if (it2 != w_end) x_vec(row_count) = (*it2).second;
+            else              x_vec(row_count) = 0.;
+            ++row_count;
+        }
+        int iters = lawa::cgls(B,x_vec,g_vec,tol);
+
+        linsolve_iterations.push_back(iters);
+
+        Coefficients<Lexicographical,T,Index> x;
+        row_count=1;
+        for (const_set_it row=LambdaCol.begin(); row!=LambdaCol.end(); ++row) {
+            x[(*row)] = x_vec(row_count);
+            ++row_count;
+        }
+        return x;
     }
-    A.apply(help1,0.,help2,NoTrans);
-    LambdaRow = supp(help2);
-
-//    T res1 = 0.;
-//    int n=CGLS_Solve(LambdaRow, LambdaCol, A, help3, g, res1, tol/3., 1000);
-//    return help3;
-
-    flens::SparseGeMatrix<CRS<T,CRS_General> > B(LambdaRow.size(),LambdaCol.size());
-    A.toFlensSparseMatrix(LambdaRow,LambdaCol,B,1,false);
-
-    std::cerr << "LambdaRow.size() = " << LambdaRow.size() << ", LambdaCol.size() = " << LambdaCol.size() << std::endl;
-
-    DenseVector<Array<T> > g_vec(LambdaRow.size()), x_vec(LambdaCol.size()), Ax_vec(LambdaRow.size());
-    const_coeff_it g_end = g.end();
-    const_coeff_it w_end = w.end();
-    int row_count=1;
-    for (const_set_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row) {
-        const_coeff_it it = g.find(*row);
-        if (it != g_end) g_vec(row_count) = (*it).second;
-        else             g_vec(row_count) = 0.;
-        ++row_count;
+    else {
+        std::cerr << "     Not yet implemented. Sorry..." << std::endl;
+        exit(1);
     }
-    row_count=1;
-    for (const_set_it row=LambdaCol.begin(); row!=LambdaCol.end(); ++row) {
-        const_coeff_it it2 = w.find(*row);
-        if (it2 != w_end) x_vec(row_count) = (*it2).second;
-        else              x_vec(row_count) = 0.;
-        ++row_count;
-    }
-    int iters = lawa::cgls(B,x_vec,g_vec,tol);
 
-    linsolve_iterations.push_back(iters);
 
-    Coefficients<Lexicographical,T,Index> x;
-    row_count=1;
-    for (const_set_it row=LambdaCol.begin(); row!=LambdaCol.end(); ++row) {
-        x[(*row)] = x_vec(row_count);
-        ++row_count;
-    }
 
     /*
 
@@ -303,7 +314,6 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 
     */
 
-    return x;
 
 }
 

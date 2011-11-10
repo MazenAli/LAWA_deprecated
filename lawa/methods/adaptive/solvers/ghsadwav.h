@@ -28,14 +28,19 @@ namespace lawa {
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
 struct GHS_ADWAV {
 
-        typedef typename IndexSet<Index>::const_iterator                       const_set_it;
-        typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
-        typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator   const_coeff_abs_it;
-        typedef typename Coefficients<Lexicographical,T,Index>::value_type     val_type;
+        typedef typename IndexSet<Index>::const_iterator                          const_set_it;
+        typedef typename Coefficients<Lexicographical,T,Index>::iterator          coeff_it;
+        typedef typename Coefficients<Lexicographical,T,Index>::const_iterator    const_coeff_it;
+        typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator      const_coeff_abs_it;
+        typedef typename Coefficients<Lexicographical,T,Index>::value_type        val_type;
 
-        typedef typename flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+        typedef typename flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > SparseMatrixT;
 
-        GHS_ADWAV(AdaptiveOperator &_A, RHS &_F, bool _optimized_grow=false);
+        GHS_ADWAV(AdaptiveOperator &_A, RHS &_F, bool _optimized_grow=false,
+                  bool _assemble_matrix=false);
+
+        void
+        setParameters(T _alpha, T _omega, T _gamma, T _theta);
 
         Coefficients<Lexicographical,T,Index>
         SOLVE(T nuM1, T _eps, const char *filename, int NumOfIterations=100, T H1norm=0.);
@@ -43,14 +48,14 @@ struct GHS_ADWAV {
         IndexSet<Index>
         GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu);
 
-        Coefficients<Lexicographical,T,Index>
+        void
         GALSOLVE(const IndexSet<Index> &Lambda, const IndexSet<Index> &Extension,
                 const Coefficients<Lexicographical,T,Index> &g,
-                const Coefficients<Lexicographical,T,Index> &w, T delta, T tol);
+                Coefficients<Lexicographical,T,Index> &w, T delta, T tol);
 
         AdaptiveOperator &A;
         RHS              &F;
-        bool             optimized_grow;
+        bool             optimized_grow, assemble_matrix;
         T                cA, CA, kappa;
         T                alpha, omega, gamma, theta;
         T                eps;

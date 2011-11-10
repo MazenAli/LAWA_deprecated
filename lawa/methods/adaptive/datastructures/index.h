@@ -20,6 +20,8 @@
 #ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEX_H
 #define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEX_H 1
 
+#include <boost/functional/hash.hpp>
+
 #include <lawa/settings/enum.h>
 #include <iostream>
 
@@ -139,6 +141,30 @@ struct index_hashfunction<Index2D>
 {
     //inline
     size_t operator()(const Index2D& index) const;
+};
+
+template <typename Index>
+struct entry_eqfunction
+{
+};
+
+template <>
+struct entry_eqfunction<Index1D>
+{
+    //inline
+    bool operator()(const Entry<Index1D>& leftentry, const Entry<Index1D>& rightentry) const;
+};
+
+template <typename Index>
+struct entry_hashfunction
+{
+};
+
+template <>
+struct entry_hashfunction<Index1D>
+{
+    //inline
+    size_t operator()(const Entry<Index1D>& entry) const;
 };
 
 } //namespace lawa

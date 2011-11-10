@@ -80,7 +80,6 @@ typedef RHS<T,Index2D, MW_SumOfSeparableRhsIntegral2D,
 typedef RHS<T,Index2D,SparseMW_SumOfSeparableRhsIntegral2D,
             SparseMW_Prec>                                              SparseMW_SumOfSeparableRhs;
 
-
 //Righthandsides definitions (non-separable)
 typedef SmoothRHSWithAlignedSing2D<T, CDF_Basis2D, SparseGridGP>        CDF_NonSeparableRhsIntegralSG2D;
 typedef SmoothRHSWithAlignedSing2D<T, MW_Basis2D, SparseGridGP>         MW_NonSeparableRhsIntegralSG2D;
@@ -147,7 +146,7 @@ int main (int argc, char *argv[]) {
     T c=1.; //for other values of c, on the fly error computation does not work!!
     T contraction = 0.125;
     T threshTol = 0.4;
-    T cgTol = 0.001*threshTol;//1e-12;
+    T cgTol = 0.1*threshTol;//1e-12;
     T resTol=1e-4;
 
     IndexSet<Index2D> InitialLambda;
@@ -166,7 +165,7 @@ int main (int argc, char *argv[]) {
         CDF_Basis2D       CDF_basis2d(CDF_basis_x,CDF_basis_y);
         CDF_HelmholtzOp2D CDF_Bil(CDF_basis2d, c);
         CDF_Prec          CDF_P(CDF_Bil);
-        CDF_MA            CDF_A(CDF_basis2d, c, CDF_P, 1e-12, 8092, 8092);
+        CDF_MA            CDF_A(CDF_basis2d, c, CDF_P, 0., 8092, 8092);
 
 
         if (example==1 || example==2 || example==3) {
@@ -190,7 +189,7 @@ int main (int argc, char *argv[]) {
             CDF_S_ADWAV_SOLVER_SeparableRhs CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          2, 1e-2,1000000);
-            CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+            CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 2,
                                      refsol.H1norm());
 
             plot2D<T,CDF_Basis2D,CDF_Prec>(CDF_basis2d, CDF_s_adwav_solver.solutions[NumOfIterations-1], CDF_P, refsol.exact,
@@ -207,7 +206,7 @@ int main (int argc, char *argv[]) {
             CDF_S_ADWAV_SOLVER_NonSeparableRhs CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
                                                                   threshTol, cgTol, resTol, NumOfIterations,
                                                                   2, 1e-2,1000000);
-            CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+            CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 2,
                                                  refsol.H1norm());
 
             plot2D<T,CDF_Basis2D,CDF_Prec>(CDF_basis2d, CDF_s_adwav_solver.solutions[NumOfIterations-1], CDF_P, refsol.exact,
@@ -232,7 +231,7 @@ int main (int argc, char *argv[]) {
                 CDF_S_ADWAV_SOLVER_SumNonSeparableRhs CDF_s_adwav_solver(CDF_basis2d, CDF_A, CDF_F, contraction,
                                                                 threshTol, cgTol, resTol, NumOfIterations,
                                                                 2, 1e-2,1000000);
-                CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+                CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 2,
                                          refsol.H1norm());
 
                 plot2D<T,CDF_Basis2D,CDF_Prec>(CDF_basis2d, CDF_s_adwav_solver.solutions[NumOfIterations-1],
@@ -268,7 +267,7 @@ int main (int argc, char *argv[]) {
             MW_S_ADWAV_SOLVER_SeparableRhs MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          2, 1e-2,1000000);
-            MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+            MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 2,
                                     refsol.H1norm());
 
             stringstream rhsfilename;
@@ -326,7 +325,7 @@ int main (int argc, char *argv[]) {
             MW_S_ADWAV_SOLVER_NonSeparableRhs MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
                                                                 threshTol, cgTol, resTol, NumOfIterations,
                                                                 2, 1e-2,1000000);
-            MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+            MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 2,
                                                  refsol.H1norm());
 
             stringstream rhsfilename;
@@ -338,7 +337,7 @@ int main (int argc, char *argv[]) {
             Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
 
             IndexSet<Index2D> Extension;
-            Extension = C(Lambda,1.,MW_basis2d);
+            Extension = C(Lambda,4.,MW_basis2d);
             Lambda = Lambda + Extension;
             f = MW_F(Lambda);
             Coefficients<AbsoluteValue,T,Index2D> f_abs;
@@ -387,7 +386,7 @@ int main (int argc, char *argv[]) {
                 MW_S_ADWAV_SOLVER_SumNonSeparableRhs MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
                                                               threshTol, cgTol, resTol, NumOfIterations,
                                                               3, 1e-2,1000000);
-                MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+                MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 2,
                                          refsol.H1norm());
 
                 plot2D<T,MW_Basis2D,MW_Prec>(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1],
@@ -402,7 +401,9 @@ int main (int argc, char *argv[]) {
                Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
 
                IndexSet<Index2D> Extension;
-               Extension = C(Lambda,1.,MW_basis2d);
+               Extension = C(Lambda,4.,MW_basis2d);
+               Lambda = Lambda + Extension;
+               Extension = C(Lambda,4.,MW_basis2d);
                Lambda = Lambda + Extension;
                f = MW_F(Lambda);
                Coefficients<AbsoluteValue,T,Index2D> f_abs;
@@ -437,11 +438,11 @@ int main (int argc, char *argv[]) {
         SparseMW_Basis1D       SparseMW_basis_x(d,j0_x);
         SparseMW_Basis1D       SparseMW_basis_y(d,j0_y);
         SparseMW_Basis2D       SparseMW_basis2d(SparseMW_basis_x,SparseMW_basis_y);
-        SparseMW_MA            SparseMW_A(SparseMW_basis2d, c, 1e-14);
+        SparseMW_MA            SparseMW_A(SparseMW_basis2d, c);
         SparseMW_Prec          SparseMW_P(SparseMW_A);
 
         if (example==1 || example==2 || example==3) {
-            int order = 40;
+            int order = 50;
             TensorRefSols_PDE_Realline2D<T> refsol;
             refsol.setExample(example, 1., 0., 0., 1.);
             SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
@@ -460,7 +461,7 @@ int main (int argc, char *argv[]) {
             SparseMW_S_ADWAV_SOLVER_SeparableRhs SparseMW_s_adwav_solver(SparseMW_basis2d, SparseMW_A, SparseMW_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
                                                          1, 1e-2,1000000);
-            SparseMW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), true,
+            SparseMW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 0,
                                           refsol.H1norm());
 
             stringstream rhsfilename;
@@ -472,10 +473,11 @@ int main (int argc, char *argv[]) {
             Lambda = supp(SparseMW_s_adwav_solver.solutions[NumOfIterations-1]);
 
             IndexSet<Index2D> Extension;
-            Extension = C(Lambda,1.,SparseMW_basis2d);
+            Extension = C(Lambda,4.,SparseMW_basis2d);
             Lambda = Lambda + Extension;
-            Extension = C(Lambda,1.,SparseMW_basis2d);
-            Lambda = Lambda + Extension;
+            std::cerr << "  Size of enlarged Lambda: " << Lambda.size() << std::endl;
+//            Extension = C(Lambda,4.,SparseMW_basis2d);
+//            Lambda = Lambda + Extension;
             f = SparseMW_F(Lambda);
             Coefficients<AbsoluteValue,T,Index2D> f_abs;
             f_abs = f;

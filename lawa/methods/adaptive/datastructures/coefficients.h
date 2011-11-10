@@ -37,10 +37,10 @@ struct Coefficients
  * ********************************************************************************************** */
 
 template <typename T, typename Index>
-struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
-//struct Coefficients<Lexicographical,T,Index> : __gnu_cxx::hash_map<Index, T,
-//                                                                   index_hashfunction<Index>,
-//                                                                   index_eqfunction<Index> >
+//struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
+struct Coefficients<Lexicographical,T,Index> : __gnu_cxx::hash_map<Index, T,
+                                                                   index_hashfunction<Index>,
+                                                                   index_eqfunction<Index> >
 {
     //using std::map<Index,T,lt<Lexicographical,Index> >::insert;
     //using std::map<Index,T,lt<Lexicographical,Index> >::erase;

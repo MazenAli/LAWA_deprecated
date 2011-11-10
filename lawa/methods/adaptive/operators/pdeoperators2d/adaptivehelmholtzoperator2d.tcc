@@ -154,6 +154,42 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::toFlensSparseMatrix(
 }
 
 template <typename T, typename Basis2D, typename Preconditioner>
+Coefficients<Lexicographical,T,Index2D>
+AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::apply
+                                                  (const Coefficients<Lexicographical,T,Index2D> &v,
+                                                   int k, int J,
+                                                   cxxblas::Transpose trans)
+{
+    std::cerr << "Apply not yet implemented for this operator." << std::endl;
+    exit(1);
+    Coefficients<Lexicographical,T,Index2D> ret;
+    return ret;
+}
+
+template <typename T, typename Basis2D, typename Preconditioner>
+void
+AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::apply
+                                                  (const Coefficients<Lexicographical,T,Index2D> &v,
+                                                   T eps, Coefficients<Lexicographical,T,Index2D> &ret,
+                                                   cxxblas::Transpose trans)
+{
+    std::cerr << "Apply not yet implemented for this operator." << std::endl;
+    exit(1);
+}
+
+template <typename T, typename Basis2D, typename Preconditioner>
+void
+AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::apply
+                                                  (const Coefficients<Lexicographical,T,Index2D> &v,
+                                                   T eps, const IndexSet<Index2D> &Lambda,
+                                                   Coefficients<Lexicographical,T,Index2D> &ret,
+                                                   cxxblas::Transpose trans)
+{
+    std::cerr << "Apply not yet implemented for this operator." << std::endl;
+    exit(1);
+}
+
+template <typename T, typename Basis2D, typename Preconditioner>
 void
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::clear()
 {

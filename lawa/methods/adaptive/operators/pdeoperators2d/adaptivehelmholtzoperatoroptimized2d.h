@@ -130,9 +130,9 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
     typedef typename Coefficients<Lexicographical,T,Index2D>::iterator        coeff2d_it;
     typedef typename Coefficients<AbsoluteValue,T,Index2D>::const_iterator    const_abs_coeff2d_it;
 
-    typedef Basis<T,Primal,Domain1,SparseMulti>                                 Basis_x;
-    typedef Basis<T,Primal,Domain2,SparseMulti>                                 Basis_y;
-    typedef TensorBasis2D<Adaptive,Basis_x,Basis_y>                             Basis2D;
+    typedef Basis<T,Primal,Domain1,SparseMulti>                               Basis_x;
+    typedef Basis<T,Primal,Domain2,SparseMulti>                               Basis_y;
+    typedef TensorBasis2D<Adaptive,Basis_x,Basis_y>                           Basis2D;
 
     ct_assert(   IsRealline<typename Basis2D::FirstBasisType>::value
               && IsRealline<typename Basis2D::SecondBasisType>::value);

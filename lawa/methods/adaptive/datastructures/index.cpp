@@ -189,13 +189,37 @@ index_eqfunction<Index2D>::operator()(const Index2D& leftindex, const Index2D& r
 size_t
 index_hashfunction<Index1D>::operator()(const Index1D& index) const
 {
-    return index.val % 26681;
+    boost::hash<long> hasher;
+    return hasher(index.val);
+//    return index.val % 26681;
 }
 
 size_t
 index_hashfunction<Index2D>::operator()(const Index2D& index) const
 {
-    return (index.index1.val + index.index2.val) % 26681;
+    std::size_t seed = 0;
+    boost::hash_combine(seed, index.index1.val);
+    boost::hash_combine(seed, index.index2.val);
+    return seed;
+//    return (3*index.index1.val + 7*index.index2.val) % 999331;
+}
+
+bool
+entry_eqfunction<Index1D>::operator()(const Entry<Index1D>& leftentry,
+                                      const Entry<Index1D>& rightentry) const
+{
+    return (    (leftentry.col_index.val == rightentry.col_index.val)
+             && (leftentry.row_index.val == rightentry.row_index.val) );
+}
+
+size_t
+entry_hashfunction<Index1D>::operator()(const Entry<Index1D>& entry) const
+{
+    std::size_t seed = 0;
+    boost::hash_combine(seed, entry.col_index.val);
+    boost::hash_combine(seed, entry.row_index.val);
+    return seed;
+//    return (3*index.index1.val + 7*index.index2.val) % 999331;
 }
 
 

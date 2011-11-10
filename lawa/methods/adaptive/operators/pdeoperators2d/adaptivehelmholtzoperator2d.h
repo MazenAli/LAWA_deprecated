@@ -88,6 +88,20 @@ struct AdaptiveHelmholtzOperator2D : public Operator2D<T>
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
                         SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
 
+    Coefficients<Lexicographical,T,Index2D>
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J=-1000,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+          Coefficients<Lexicographical,T,Index2D> &ret,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+          const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
+
     void
     clear();
 

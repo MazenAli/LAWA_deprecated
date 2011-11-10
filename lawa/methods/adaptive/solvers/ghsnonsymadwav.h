@@ -35,7 +35,11 @@ struct GHS_NONSYM_ADWAV {
         typedef typename Coefficients<Lexicographical,T,Index>::value_type     val_type;
 
         GHS_NONSYM_ADWAV(AdaptiveOperator &_A, RHS &_F,
-                         PP_AdaptiveOperator &_PP_A, PP_RHS &_PP_F,bool _optimized_grow=false);
+                         PP_AdaptiveOperator &_PP_A, PP_RHS &_PP_F, bool _optimized_grow=false,
+                         bool _assemble_matrix=false);
+
+        void
+        setParameters(T _alpha, T _omega, T _gamma, T _theta);
 
         Coefficients<Lexicographical,T,Index>
         SOLVE(T nuM1, T _eps, const char *filename, int NumOfIterations=100, T H1norm=0.);
@@ -52,7 +56,7 @@ struct GHS_NONSYM_ADWAV {
         RHS                 &F;
         PP_AdaptiveOperator &PP_A;
         PP_RHS              &PP_F;
-        bool                optimized_grow;
+        bool                optimized_grow, assemble_matrix;
         T                   cA, CA, kappa;
         T                   alpha, omega, gamma, theta;
         T                   eps;
