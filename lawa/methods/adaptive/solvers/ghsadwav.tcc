@@ -68,7 +68,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         Au = A.mv(supp(w_k),w_k);
         T uAu = w_k*Au;
         std::cerr.precision(16);
-        T Error_H_energy = sqrt(fabs(std::pow(H1norm,2.)- 2*fu + uAu));
+        T Error_H_energy = sqrt(fabs(std::pow(H1norm,(T)2.)- 2*fu + uAu));
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << std::endl;
 
@@ -137,7 +137,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
     if (w.size() > 0) {
         for (const_coeff_it it=w.begin(); it!=w.end(); ++it) {
             //Lambda.insert((*it).first);
-            P_Lambda_r_norm_square += std::pow(r[(*it).first],2.);
+            P_Lambda_r_norm_square += std::pow(r[(*it).first],(T)2.);
             r.erase((*it).first);
         }
     }

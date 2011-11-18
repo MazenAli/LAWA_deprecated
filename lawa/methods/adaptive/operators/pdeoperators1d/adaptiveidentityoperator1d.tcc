@@ -2,8 +2,8 @@ namespace lawa {
 
 template <typename T, FunctionSide Side, Construction Cons>
 AdaptiveIdentityOperator1D<T,Side,R,Cons>::AdaptiveIdentityOperator1D(const ReallineBasis1D &_basis1d,
-                                                                      T thresh, int NumOfCols,
-                                                                      int NumOfRows)
+                                                                      T /*thresh*/, int /*NumOfCols*/,
+                                                                      int /*NumOfRows*/)
 : basis1d(_basis1d),
   compression1d(basis1d), identity_op1d(basis1d), prec1d(),
   identity_data1d(identity_op1d, prec1d, compression1d)// thresh, NumOfRows, NumOfCols)
@@ -31,8 +31,8 @@ template <typename T, FunctionSide Side, Construction Cons>
 void
 AdaptiveIdentityOperator1D<T,Side,R,Cons>::toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow,
                                                                const IndexSet<Index1D>& LambdaCol,
-                                                               SparseMatrixT &A_flens, int J,
-                                                               bool useLinearIndex)
+                                                               SparseMatrixT &A_flens, int /*J*/,
+                                                               bool /*useLinearIndex*/)
 {
     this->identity_data1d.toFlensSparseMatrix(LambdaRow, LambdaCol, A_flens,-1);
 }

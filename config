@@ -21,14 +21,6 @@ ifeq ($(TARGET),Darwin)
     CPPFLAGS += -DWITH_VECLIB
     LDFLAGS  += -framework Accelerate
   endif
-  ifeq ($(COMPILER),clang)
-    CC  = clang
-    CXX = clang++
-    ifeq ($(BLASLAPACK),platform)
-      CPPFLAGS += -DWITH_VECLIB
-      LDFLAGS  += -framework Accelerate
-    endif
-  endif
 endif
 
 ifeq ($(TARGET),Linux)
@@ -61,8 +53,8 @@ RELEASEMODE = -O3 -DNDEBUG
 PROFILEMODE = -p -g -DNDEBUG
 
 # --- select compilation-mode here by commenting / uncommenting
-#CXXFLAGS += $(DEBUGMODE)
-CXXFLAGS += $(RELEASEMODE)
+CXXFLAGS += $(DEBUGMODE)
+#CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 #CPPFLAGS += -D_GLIBCXX_PERMIT_BACKWARD_HASH

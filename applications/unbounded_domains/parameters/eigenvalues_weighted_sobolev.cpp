@@ -118,7 +118,7 @@ int main (int argc, char *argv[]) {
 
 
 
-    T cB_norm, CB_norm, cB_midpoint, CB_midpoint;
+    T cB_norm=0., CB_norm=0., cB_midpoint=0., CB_midpoint=0.;
     FullMatT A_dense;
     std::stringstream filename;
     filename << "eigenvalues_weighted_sobolev_" << jmin << "_" << d << "_" << d_  << ".dat";

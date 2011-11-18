@@ -5,7 +5,8 @@ template<typename T, DomainType Domain>
 AdaptivePDEOperatorOptimized1D<T, Primal,Domain,SparseMulti>::AdaptivePDEOperatorOptimized1D
                                                            (const SparseMultiBasis1D &_basis,
                                                             T _reaction, T _convection, T _diffusion,
-                                                            T thresh, int NumOfCols, int NumOfRows)
+                                                            T /*thresh*/, int /*NumOfCols*/,
+                                                            int /*NumOfRows*/)
 : basis(_basis), reaction(_reaction), convection(_convection), diffusion(_diffusion),
   cA(0.), CA(0.), kappa(0.),
   compression(basis), pde_op1d(basis,reaction,convection,diffusion), prec1d(),
@@ -86,7 +87,7 @@ void
 AdaptivePDEOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSparseMatrix
                                                            (const IndexSet<Index1D>& LambdaRow,
                                                             const IndexSet<Index1D>& LambdaCol,
-                                                            SparseMatrixT &A_flens, int J,
+                                                            SparseMatrixT &A_flens, int /*J*/,
                                                             bool useLinearIndex)
 {
     if (!useLinearIndex) {
@@ -134,7 +135,7 @@ void
 AdaptivePDEOperatorOptimized1D<T,Primal,Domain,SparseMulti>::toFlensSparseMatrix
                                                         (const IndexSet<Index1D>& LambdaRow,
                                                          const IndexSet<Index1D>& LambdaCol,
-                                                         SparseMatrixT &A_flens, T eps,
+                                                         SparseMatrixT &A_flens, T /*eps*/,
                                                          bool useLinearIndex)
 {
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1,useLinearIndex);
@@ -145,7 +146,7 @@ void
 AdaptivePDEOperatorOptimized1D<T, Primal,Domain,SparseMulti>::extendFlensSparseMatrix
                                                          (const IndexSet<Index1D>& Lambda,
                                                           const IndexSet<Index1D>& Extension,
-                                                          SparseMatrixT &A_flens, int J)
+                                                          SparseMatrixT &A_flens, int /*J*/)
 {
     if (Extension.size()!=0) {
         const_set1d_it Lambda_end=Lambda.end();
@@ -223,7 +224,7 @@ template<typename T, DomainType Domain>
 void
 AdaptivePDEOperatorOptimized1D<T, Primal,Domain,SparseMulti>::apply
                                                  (const Coefficients<Lexicographical,T,Index1D> &v,
-                                                  T eps, Coefficients<Lexicographical,T,Index1D> &ret,
+                                                  T /*eps*/, Coefficients<Lexicographical,T,Index1D> &ret,
                                                   cxxblas::Transpose trans)
 {
     //Coefficients<Lexicographical,T,Index1D> ret;

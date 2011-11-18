@@ -4,7 +4,7 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::AdaptivePDEOperatorOptimized2D(const Basis2D &_basis, T _reaction, T _convection_x,
                                  T _convection_y, T _diffusion,
-                                 T _thresh, int NumOfCols, int NumOfRows)
+                                 T _thresh, int /*NumOfCols*/, int /*NumOfRows*/)
 : basis(_basis), reaction(_reaction), convection_x(_convection_x), convection_y(_convection_y),
   diffusion(_diffusion),
   thresh(_thresh),
@@ -314,7 +314,7 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                      SparseMatrixT &A_flens, T eps, bool useLinearIndex)
+                      SparseMatrixT &A_flens, T /*eps*/, bool useLinearIndex)
 {
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1,useLinearIndex);
 }
@@ -322,7 +322,8 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 template <typename T, DomainType Domain1, DomainType Domain2>
 Coefficients<Lexicographical,T,Index2D>
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
-::apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J, cxxblas::Transpose trans)
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, int /*k*/, int /*J*/,
+        cxxblas::Transpose trans)
 {
     Coefficients<Lexicographical,T,Index2D> ret;
     this->apply(v,0.,ret,trans);
@@ -332,7 +333,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
-::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, T /*eps*/,
         Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose trans)
 {
     std::map<Index1D,IndexSet<Index1D>,lt<Lexicographical,Index1D> > sparsitypatterns_x,
@@ -446,7 +447,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
-::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, T /*eps*/,
         const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
         cxxblas::Transpose trans)
 {

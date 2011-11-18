@@ -91,7 +91,7 @@ void
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
                                 (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
                                  flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
-                                 int J)
+                                 int /*J*/)
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
 }
@@ -102,7 +102,7 @@ void
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
                                 (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
                                  flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
-                                 T tol)
+                                 T /*tol*/)
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
 }

@@ -58,3 +58,4 @@ tutorials/rb_examples/indexset-based/indexset_rb_test
 tutorials/rb_examples/indexset-based/online_rb_example
 tutorials/rb_examples/uniform/rb_example
 validate/plot_wavelets
+applications/unbounded_domains/validate/test_index

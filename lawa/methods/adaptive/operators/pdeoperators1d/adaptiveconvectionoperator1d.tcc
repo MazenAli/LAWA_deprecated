@@ -2,8 +2,8 @@ namespace lawa {
 
 template <typename T, FunctionSide Side, Construction Cons>
 AdaptiveConvectionOperator1D<T,Side,R,Cons>::AdaptiveConvectionOperator1D
-                                            (const ReallineBasis1D &_basis1d, T thresh,
-                                             int NumOfCols, int NumOfRows)
+                                            (const ReallineBasis1D &_basis1d, T /*thresh*/,
+                                             int /*NumOfCols*/, int /*NumOfRows*/)
 : basis1d(_basis1d),
   compression1d(basis1d), convection_op1d(basis1d), prec1d(),
   convection_data1d(convection_op1d, prec1d, compression1d)// thresh, NumOfRows, NumOfCols)

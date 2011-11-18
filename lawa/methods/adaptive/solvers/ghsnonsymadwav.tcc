@@ -200,7 +200,7 @@ Coefficients<Lexicographical,T,Index>
 GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 ::GALSOLVE(const IndexSet<Index> &Lambda, const IndexSet<Index> &Extension,
            const Coefficients<Lexicographical,T,Index> &g, const Coefficients<Lexicographical,T,Index> &w,
-           T delta, T tol)
+           T /*delta*/, T tol)
 {
 
     if (assemble_matrix) {

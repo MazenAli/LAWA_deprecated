@@ -3,7 +3,7 @@ namespace lawa {
 template <typename T>
 AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::AdaptiveHelmholtzOperatorOptimized1D
                                              (const ReallineCDFBasis1D &_basis, bool _w_XBSpline,
-                                              T _c, T thresh, int NumOfCols, int NumOfRows)
+                                              T _c, T /*thresh*/, int /*NumOfCols*/, int /*NumOfRows*/)
 : basis(_basis), w_XBSpline(_w_XBSpline), c(_c),
   cA(0.), CA(0.), kappa(0.),
   compression(basis), helmholtz_op1d(basis,c), prec1d(),
@@ -403,8 +403,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::findK(const Coefficients<A
 template<typename T, DomainType Domain>
 AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::AdaptiveHelmholtzOperatorOptimized1D
                                                            (const MWBasis1D &_basis,
-                                                            T _c, T thresh, int NumOfCols,
-                                                            int NumOfRows)
+                                                            T _c, T /*thresh*/, int /*NumOfCols*/,
+                                                            int /*NumOfRows*/)
 : basis(_basis), c(_c),
   cA(0.), CA(0.), kappa(0.),
   compression(basis), laplace_op1d(basis), prec1d(),
@@ -646,8 +646,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::findK
 template<typename T, DomainType Domain>
 AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::AdaptiveHelmholtzOperatorOptimized1D
                                                            (const SparseMultiBasis1D &_basis,
-                                                            T _c, T thresh, int NumOfCols,
-                                                            int NumOfRows)
+                                                            T _c, T /*thresh*/, int /*NumOfCols*/,
+                                                            int /*NumOfRows*/)
 : basis(_basis), c(_c),
   cA(0.), CA(0.), kappa(0.),
   compression(basis), helmholtz_op1d(basis,c), prec1d(),
@@ -711,7 +711,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::mv
     Coefficients<Lexicographical,T,Index1D> ret;
     for (const_coeff1d_it it=v.begin(); it!=v.end(); ++it) {
         Index1D col_index = (*it).first;
-        IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE(col_index, basis, 1, basis.j0);
+        IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE<T>(col_index, basis, 1, basis.j0);
         for (const_set1d_it set_it=lambdaTilde.begin(); set_it!=lambdaTilde.end(); ++set_it) {
             Index1D row_index = *set_it;
             if (LambdaRow.count(row_index)>0) {
@@ -728,7 +728,7 @@ void
 AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSparseMatrix
                                                            (const IndexSet<Index1D>& LambdaRow,
                                                             const IndexSet<Index1D>& LambdaCol,
-                                                            SparseMatrixT &A_flens, int J,
+                                                            SparseMatrixT &A_flens, int /*J*/,
                                                             bool useLinearIndex)
 {
     if (!useLinearIndex) {
@@ -754,7 +754,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSpars
         int col_count=1;
         for (const_set1d_it set_it=LambdaCol.begin(); set_it!=LambdaCol.end(); ++set_it) {
             Index1D col_index = *set_it;
-            IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE(col_index, basis, 1, basis.j0);
+            IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE<T>(col_index, basis, 1, basis.j0);
             for (const_set1d_it set_it=lambdaTilde.begin(); set_it!=lambdaTilde.end(); ++set_it) {
                 const_set1d_it row_index = LambdaRow.find(*set_it);
                 if (row_index!=LambdaRow_end) {
@@ -776,7 +776,7 @@ void
 AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>::toFlensSparseMatrix
                                                         (const IndexSet<Index1D>& LambdaRow,
                                                          const IndexSet<Index1D>& LambdaCol,
-                                                         SparseMatrixT &A_flens, T eps,
+                                                         SparseMatrixT &A_flens, T /*eps*/,
                                                          bool useLinearIndex)
 {
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1,useLinearIndex);
@@ -787,7 +787,7 @@ void
 AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::extendFlensSparseMatrix
                                                          (const IndexSet<Index1D>& Lambda,
                                                           const IndexSet<Index1D>& Extension,
-                                                          SparseMatrixT &A_flens, int J)
+                                                          SparseMatrixT &A_flens, int /*J*/)
 {
     if (Extension.size()!=0) {
         const_set1d_it Lambda_end=Lambda.end();
@@ -829,7 +829,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::apply
 
     for (const_coeff1d_it it=v.begin(); it!=v.end(); ++it) {
         Index1D col_index = (*it).first;
-        IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE(col_index, basis, 1, basis.j0);
+        IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE<T>(col_index, basis, 1, basis.j0);
         T prec_col_index = this->prec(col_index);
         for (const_set1d_it set_it=lambdaTilde.begin(); set_it!=lambdaTilde.end(); ++set_it) {
             Index1D row_index = *set_it;
@@ -849,7 +849,7 @@ template<typename T, DomainType Domain>
 void
 AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::apply
                                                  (const Coefficients<Lexicographical,T,Index1D> &v,
-                                                  T eps, Coefficients<Lexicographical,T,Index1D> &ret)
+                                                  T /*eps*/, Coefficients<Lexicographical,T,Index1D> &ret)
 {
     //Coefficients<Lexicographical,T,Index1D> ret;
     ret = this->apply(v,0,0);

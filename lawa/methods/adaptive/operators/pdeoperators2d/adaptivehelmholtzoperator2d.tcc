@@ -127,7 +127,7 @@ void
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::toFlensSparseMatrix
                                                          (const IndexSet<Index2D>& LambdaRow,
                                                           const IndexSet<Index2D>& LambdaCol,
-                                                          SparseMatrixT &A_flens, int J,
+                                                          SparseMatrixT &A_flens, int /*J*/,
                                                           bool useLinearIndex)
 {
     if (!useLinearIndex) {
@@ -146,8 +146,8 @@ void
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::toFlensSparseMatrix(
                                                          const IndexSet<Index2D>& LambdaRow,
                                                          const IndexSet<Index2D>& LambdaCol,
-                                                         SparseMatrixT &A_flens, T eps,
-                                                         bool useLinearIndex)
+                                                         SparseMatrixT &A_flens, T /*eps*/,
+                                                         bool /*useLinearIndex*/)
 {
     //toFlensSparseMatrix<T,Index2D,AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner> >(*this,LambdaRow,LambdaCol,A_flens);
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
@@ -156,9 +156,9 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::toFlensSparseMatrix(
 template <typename T, typename Basis2D, typename Preconditioner>
 Coefficients<Lexicographical,T,Index2D>
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::apply
-                                                  (const Coefficients<Lexicographical,T,Index2D> &v,
-                                                   int k, int J,
-                                                   cxxblas::Transpose trans)
+                                                  (const Coefficients<Lexicographical,T,Index2D> &/*v*/,
+                                                   int /*k*/, int /*J*/,
+                                                   cxxblas::Transpose /*trans*/)
 {
     std::cerr << "Apply not yet implemented for this operator." << std::endl;
     exit(1);
@@ -169,9 +169,9 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::apply
 template <typename T, typename Basis2D, typename Preconditioner>
 void
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::apply
-                                                  (const Coefficients<Lexicographical,T,Index2D> &v,
-                                                   T eps, Coefficients<Lexicographical,T,Index2D> &ret,
-                                                   cxxblas::Transpose trans)
+                                                  (const Coefficients<Lexicographical,T,Index2D> &/*v*/,
+                                                   T /*eps*/, Coefficients<Lexicographical,T,Index2D> &/*ret*/,
+                                                   cxxblas::Transpose /*trans*/)
 {
     std::cerr << "Apply not yet implemented for this operator." << std::endl;
     exit(1);
@@ -180,10 +180,10 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::apply
 template <typename T, typename Basis2D, typename Preconditioner>
 void
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::apply
-                                                  (const Coefficients<Lexicographical,T,Index2D> &v,
-                                                   T eps, const IndexSet<Index2D> &Lambda,
-                                                   Coefficients<Lexicographical,T,Index2D> &ret,
-                                                   cxxblas::Transpose trans)
+                                                  (const Coefficients<Lexicographical,T,Index2D> &/*v*/,
+                                                   T /*eps*/, const IndexSet<Index2D> &/*Lambda*/,
+                                                   Coefficients<Lexicographical,T,Index2D> &/*ret*/,
+                                                   cxxblas::Transpose /*trans*/)
 {
     std::cerr << "Apply not yet implemented for this operator." << std::endl;
     exit(1);

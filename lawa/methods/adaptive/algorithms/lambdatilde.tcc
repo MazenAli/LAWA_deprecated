@@ -7,7 +7,7 @@ namespace lawa {
 template <typename T>
 IndexSet<Index1D>
 lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis, 
-                  int s_tilde, int jmin, int jmax, bool update)
+                  int s_tilde, int jmin, int jmax=100, bool update=false)
 {
     const BSpline<T,Primal,R,CDF> phi = basis.mra.phi;
     const Wavelet<T,Primal,R,CDF> psi = basis.psi;
@@ -203,9 +203,10 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
 template <typename T>
 IndexSet<Index1D>
 lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basis,
-                  int s_tilde, int jmin, int jmax, bool update)
+                  int s_tilde, int jmin, int jmax=100, bool update=false)
 {
     IndexSet<Index1D> ret;
+    if (update) return ret;
 
     const BSpline<T,Orthogonal,R,Multi> &phi = basis.mra.phi;
     const Wavelet<T,Orthogonal,R,Multi> &psi = basis.psi;
@@ -339,9 +340,10 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basi
 template <typename T>
 IndexSet<Index1D>
 lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,SparseMulti> &basis,
-                  int s_tilde, int jmin, int jmax=1000, bool update=false)
+                  int /*s_tilde*/, int jmin, int jmax=100, bool update=false)
 {
     IndexSet<Index1D> ret;
+    if (update) return ret;
 
     const BSpline<T,Primal,R,SparseMulti> &phi = basis.mra.phi;
     const Wavelet<T,Primal,R,SparseMulti> &psi = basis.psi;
@@ -766,8 +768,8 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
 
 template <typename T>
 IndexSet<Index1D>
-lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basis,
-                              int s_tilde, int jmin, int jmax)
+lambdaTilde1d_PDE_WO_XBSpline(const Index1D &/*lambda*/, const Basis<T,Orthogonal,R,Multi> &/*basis*/,
+                              int /*s_tilde*/, int /*jmin*/, int /*jmax*/)
 {
     assert(0);
     std::cerr << "lambdaTilde1d_PDE_WO_XBSpline not implemented for "
