@@ -473,7 +473,10 @@ int main (int argc, char *argv[]) {
             Lambda = supp(SparseMW_s_adwav_solver.solutions[NumOfIterations-1]);
 
             IndexSet<Index2D> Extension;
-            Extension = C(Lambda,4.,SparseMW_basis2d);
+            Extension = C(Lambda,0.25,SparseMW_basis2d);
+            Lambda = Lambda + Extension;
+            std::cerr << "  Size of enlarged Lambda: " << Lambda.size() << std::endl;
+            Extension = C(Lambda,0.25,SparseMW_basis2d);
             Lambda = Lambda + Extension;
             std::cerr << "  Size of enlarged Lambda: " << Lambda.size() << std::endl;
 //            Extension = C(Lambda,4.,SparseMW_basis2d);

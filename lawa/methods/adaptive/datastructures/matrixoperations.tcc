@@ -190,7 +190,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
         r -= f;
         p -= r;
         rNormSquare = r*r;
-        for (int k=1; k<=10; k++) {
+        for (int k=1; k<=maxIterations; k++) {
             if (sqrt(rNormSquare)<=tol) {
                 return k;
             }
@@ -210,6 +210,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
             p *= beta;
             p -= r;
         }
+        return maxIterations;
     }
     else {
 
@@ -261,7 +262,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
         }
         else return -1;
     }
-
+    return -1;
 }
 
 template <typename T, typename Index, typename MA>

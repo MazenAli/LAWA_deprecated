@@ -151,7 +151,7 @@ RHS2D<T,RHSINTEGRAL,Preconditioner>::operator()(T tol)
             rhs_bucket.addBucketToCoefficients(ret,i);
             //std::cerr << "(" << i << ", " << rhs_bucket.bucket_ell2norms.size() << ")" << std::endl;
             //std::cerr << "  -> ell2-norm: " << squared_ell2norm << std::endl;
-            if (fabs(current_ell2norm*current_ell2norm-squared_ell2norm) <= std::pow(tol-current_tol,2.)) break;
+            if (fabs(current_ell2norm*current_ell2norm-squared_ell2norm) <= std::pow(tol-current_tol,(T)2.)) break;
         }
         return ret;
 

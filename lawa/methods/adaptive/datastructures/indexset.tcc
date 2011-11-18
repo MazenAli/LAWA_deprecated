@@ -32,10 +32,10 @@ IndexSet<Index>&
 IndexSet<Index>::operator=(const IndexSet<Index> &_set)
 {
     typedef typename IndexSet<Index>::const_iterator const_it;
-    erase(IndexSet<Index>::begin(), IndexSet<Index>::end());
+    this->erase(IndexSet<Index>::begin(), IndexSet<Index>::end());
     if (_set.size() > 0) {
         for (const_it lambda = _set.begin(); lambda != _set.end(); ++lambda) {
-            insert(*lambda);
+            this->insert(*lambda);
         }
     }
     return *this;

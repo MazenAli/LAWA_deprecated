@@ -283,7 +283,7 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
     supremumnorm = 0.;
     if (_coeff.size() > 0) {
         for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-            supremumnorm = std::max(supremumnorm,fabs((*lambda).second));
+            supremumnorm = std::max(supremumnorm,(T)fabs((*lambda).second));
         }
     }
     //std::cerr << "Supremum norm = " << supremumnorm << std::endl;

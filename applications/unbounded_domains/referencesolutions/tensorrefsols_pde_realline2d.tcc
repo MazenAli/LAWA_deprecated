@@ -270,8 +270,8 @@ TensorRefSols_PDE_Realline2D<T>::H1norm()
         T b2 = 0.5;
         T c1=1., c2= 1.;
         ret += c1*c1*std::sqrt(0.5*M_PI/(b1)) * c2*c2*std::sqrt(0.5*M_PI/(b2));
-        ret += c1*c1*b1*b1*std::sqrt(0.5*M_PI)/std::pow(b1,1.5)*c2*c2*std::sqrt(0.5*M_PI/(b2));
-        ret += c1*c1*std::sqrt(0.5*M_PI/(b1))*c2*c2*b2*b2*std::sqrt(0.5*M_PI)/std::pow(b2,1.5);
+        ret += c1*c1*b1*b1*std::sqrt(0.5*M_PI)/std::pow(b1,(T)1.5)*c2*c2*std::sqrt(0.5*M_PI/(b2));
+        ret += c1*c1*std::sqrt(0.5*M_PI/(b1))*c2*c2*b2*b2*std::sqrt(0.5*M_PI)/std::pow(b2,(T)1.5);
         ret = sqrt(ret);
     }
     if (nr==2) {

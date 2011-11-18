@@ -109,6 +109,11 @@ BSpline<T,Primal,R,SparseMulti>::_type(long k) const
     if (d==4) {
         return k>=0 ? (int) k%_numSplines : (int) _numSplines - (int)(-k+1)%_numSplines - 1;
     }
+    else {
+        std::cerr << "BSpline<T,Primal,R,SparseMulti> not implemented for d=" << d << std::endl;
+        exit(1);
+        return 1;
+    }
 }
 
     

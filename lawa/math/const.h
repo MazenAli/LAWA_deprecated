@@ -38,6 +38,14 @@ struct Const<double>
     static double R_SQRT2;
 };
 
+template <>
+struct Const<long double>
+{
+    static long double EQUALITY_EPS;
+    static long double SQRT2;
+    static long double R_SQRT2;
+};
+
 } // namespace lawa
 
 #endif // LAWA_MATH_CONST_H

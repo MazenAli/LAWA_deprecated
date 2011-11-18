@@ -500,6 +500,20 @@ toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,const IndexSet<Index2D> &
     exit(1);
 }
 
+template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::Operator_LHS::
+apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+      const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+      cxxblas::Transpose trans)
+{
+    std::cerr << "AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_LHS::apply "
+              << "not implemented."
+              << std::endl;
+    assert(0);
+    exit(1);
+}
+
 /*  Operator RHS */
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
@@ -572,6 +586,19 @@ toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow, const IndexSet<Index2D> 
 {
     std::cerr << "AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_LHS_Representor::"
               <<"toFlensSparseMatrix not implemented." << std::endl;
+    assert(0);
+    exit(1);
+}
+
+template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::Operator_LHS_Representor::
+apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+      const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+      cxxblas::Transpose trans)
+{
+    std::cerr << "AdaptiveRBTruth2D<T, Basis, TruthSolver>::Operator_LHS_Representor::"
+              <<"apply not implemented." << std::endl;
     assert(0);
     exit(1);
 }
