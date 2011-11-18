@@ -21,6 +21,8 @@
 #ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEHELMHOLTZOPERATOROPTIMIZED2D_H
 #define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEHELMHOLTZOPERATOROPTIMIZED2D_H 1
 
+#include <ext/hash_map>
+
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
@@ -130,6 +132,12 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
     typedef typename Coefficients<Lexicographical,T,Index2D>::iterator        coeff2d_it;
     typedef typename Coefficients<AbsoluteValue,T,Index2D>::const_iterator    const_abs_coeff2d_it;
 
+    typedef typename __gnu_cxx::hash_map<Index1D,
+                                         Coefficients<Lexicographical,T,Index1D>,
+                                         index_hashfunction<Index1D>,
+                                         index_eqfunction<Index1D> >          Index1D_Coefficients1D_Hash;
+    typedef typename Index1D_Coefficients1D_Hash::const_iterator              const_Index1D_Coefficients1D_Hash_it;
+
     typedef Basis<T,Primal,Domain1,SparseMulti>                               Basis_x;
     typedef Basis<T,Primal,Domain2,SparseMulti>                               Basis_y;
     typedef TensorBasis2D<Adaptive,Basis_x,Basis_y>                           Basis2D;
@@ -181,6 +189,17 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
     apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
           const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
           cxxblas::Transpose trans=cxxblas::NoTrans);
+
+
+    void
+    apply_deprecated(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                     Coefficients<Lexicographical,T,Index2D> &ret,
+                     cxxblas::Transpose trans=cxxblas::NoTrans);
+
+    void
+    apply_deprecated(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                     const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+                     cxxblas::Transpose trans=cxxblas::NoTrans);
 
     void
     clear();

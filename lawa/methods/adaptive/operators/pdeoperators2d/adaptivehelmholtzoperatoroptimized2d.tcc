@@ -4,7 +4,7 @@ namespace lawa {
 template <typename T, DomainType Domain1, DomainType Domain2>
 AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
 ::AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis, T _c, T thresh,
-                                       int NumOfCols, int NumOfRows)
+                                       int /*NumOfCols*/, int /*NumOfRows*/)
 : basis(_basis), c(_c),
   cA(0.), CA(0.), kappa(0.),
   compression_1d_x(basis.first), compression_1d_y(basis.second), compression(basis),
@@ -392,7 +392,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     T tol = 0.5*eps/CA;
     v_bucket.bucketsort(v,tol);
     //std::cerr << "APPLY: NumOfBuckets=" << v_bucket.buckets.size() << std::endl;
-    long double squared_v_norm = (long double)std::pow(v.norm(2.),2.);
+    long double squared_v_norm = (long double)std::pow(v.norm(2.),(T)2.);
     long double squared_v_bucket_norm = 0.;
     T delta=0.;
     int l=0;
@@ -417,7 +417,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
         T denominator = w_p.size() * (eps-delta) / CA;
         //std::cout << "Bucket " << i << ": size=" << w_p.size() << ", (eps-delta) " << fabs(eps-delta) << std::endl;
         //int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.) / (basis.d-1.5), 0.);
-        int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.), 0.);
+        int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.), (T)0.);
         //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
         for (const_coeff2d_it it=w_p.begin(); it!=w_p.end(); ++it) {
             Index1D col_index_x = (*it).first.index1;
@@ -473,7 +473,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     T tol = 0.5*eps/CA;
     v_bucket.bucketsort(v,tol);
     //std::cerr << "APPLY: NumOfBuckets=" << v_bucket.buckets.size() << std::endl;
-    long double squared_v_norm = (long double)std::pow(v.norm(2.),2.);
+    long double squared_v_norm = (long double)std::pow(v.norm(2.),(T)2.);
     long double squared_v_bucket_norm = 0.;
     T delta=0.;
     int l=0;
@@ -498,7 +498,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
         T denominator = w_p.size() * (eps-delta) / CA;
         //std::cout << "Bucket " << i << ": size=" << w_p.size() << ", (eps-delta) " << fabs(eps-delta) << std::endl;
         //int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.) / (basis.d-1.5), 0.);
-        int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.), 0.)+2;
+        int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.), (T)0.)+2;
         //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
         for (const_coeff2d_it it=w_p.begin(); it!=w_p.end(); ++it) {
             Index1D col_index_x = (*it).first.index1;
@@ -602,7 +602,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
 template <typename T, DomainType Domain1, DomainType Domain2>
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis, T _c, T _thresh,
-                                       int NumOfCols, int NumOfRows)
+                                       int /*NumOfCols*/, int /*NumOfRows*/)
 : basis(_basis), c(_c), thresh(_thresh),
   cA(0.), CA(0.), kappa(0.),
   compression_1d_x(basis.first), compression_1d_y(basis.second), compression(basis),
@@ -851,7 +851,7 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                      SparseMatrixT &A_flens, T eps, bool useLinearIndex)
+                      SparseMatrixT &A_flens, T /*eps*/, bool useLinearIndex)
 {
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1,useLinearIndex);
 }
@@ -859,7 +859,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 template <typename T, DomainType Domain1, DomainType Domain2>
 Coefficients<Lexicographical,T,Index2D>
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
-::apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J, cxxblas::Transpose /*trans*/)
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, int /*k*/, int /*J*/,
+        cxxblas::Transpose /*trans*/)
 {
     Coefficients<Lexicographical,T,Index2D> ret;
     this->apply(v,0.,ret);
@@ -869,8 +870,315 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
-::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, T /*eps*/,
         Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose /*trans*/)
+{
+    if (v.size()==0) return;
+
+    Index1D_Coefficients1D_Hash y_v;
+    Coefficients<Lexicographical,T,Index2D> I_A_v, I_M_v;
+
+    Timer time;
+    time.start();
+    for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
+        if (y_v.count((*col).first.index2)>0) {
+            y_v[(*col).first.index2].operator[]((*col).first.index1) = this->prec((*col).first) * (*col).second;
+        }
+        else {
+            Coefficients<Lexicographical,T,Index1D> coeff_x;
+            coeff_x[(*col).first.index1] = this->prec((*col).first) * (*col).second;
+            y_v[(*col).first.index2] = coeff_x;
+        }
+    }
+
+    for (const_Index1D_Coefficients1D_Hash_it it=y_v.begin(); it!=y_v.end(); ++it) {
+        Index1D col_index_y = (*it).first;
+
+        IndexSet<Index1D> LambdaRowSparse_y;
+        Coefficients<Lexicographical,T,Index1D> Columnvalues_A_y_index;
+        Coefficients<Lexicographical,T,Index1D> Columnvalues_M_y_index;
+
+        LambdaRowSparse_y = lambdaTilde1d_PDE(col_index_y, basis.second, 1, std::max(col_index_y.j-1,basis.second.j0),
+                                                          col_index_y.j+1, false);
+        for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
+            T dd_y = laplace_data1d(*row_y,col_index_y);
+            T id_y = identity_data1d(*row_y,col_index_y);
+            Columnvalues_A_y_index[*row_y] = (0.5*c*id_y + dd_y);
+            Columnvalues_M_y_index[*row_y] = id_y;
+        }
+
+        for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
+            Index1D col_index_x = (*coeff_x_it).first;
+            T prec_val_col_index = (*coeff_x_it).second;
+
+            for (const_coeff1d_it val_y=Columnvalues_M_y_index.begin(); val_y!=Columnvalues_M_y_index.end(); ++val_y) {
+                Index2D row_index(col_index_x,(*val_y).first);
+                T val1 = (*val_y).second * prec_val_col_index;
+                I_A_v[row_index] += val1;
+            }
+
+            for (const_coeff1d_it val_y=Columnvalues_A_y_index.begin(); val_y!=Columnvalues_A_y_index.end(); ++val_y) {
+               Index2D row_index(col_index_x,(*val_y).first);
+               T val2 = (*val_y).second * prec_val_col_index;
+               I_M_v[row_index] += val2;
+           }
+        }
+    }
+
+    Index1D_Coefficients1D_Hash x_I_A_v, x_I_M_v;
+    for (const_coeff2d_it col=I_A_v.begin(); col!=I_A_v.end(); ++col) {
+        if (x_I_A_v.count((*col).first.index1)>0) {
+            x_I_A_v[(*col).first.index1].operator[]((*col).first.index2) = (*col).second;
+        }
+        else {
+            Coefficients<Lexicographical,T,Index1D> coeff_y;
+            coeff_y[(*col).first.index2] = (*col).second;
+            x_I_A_v[(*col).first.index1] = coeff_y;
+        }
+    }
+    for (const_coeff2d_it col=I_M_v.begin(); col!=I_M_v.end(); ++col) {
+        if (x_I_M_v.count((*col).first.index1)>0) {
+            x_I_M_v[(*col).first.index1].operator[]((*col).first.index2) = (*col).second;
+        }
+        else {
+            Coefficients<Lexicographical,T,Index1D> coeff_y;
+            coeff_y[(*col).first.index2] = (*col).second;
+            x_I_M_v[(*col).first.index1] = coeff_y;
+        }
+    }
+
+    for (const_Index1D_Coefficients1D_Hash_it it=x_I_A_v.begin(); it!=x_I_A_v.end(); ++it) {
+
+        Index1D col_index_x = (*it).first;
+
+        IndexSet<Index1D> LambdaRowSparse_x;
+
+        Coefficients<Lexicographical,T,Index1D> Columnvalues_A_x_index;
+        LambdaRowSparse_x = lambdaTilde1d_PDE(col_index_x, basis.first, 1, std::max(col_index_x.j-1,basis.first.j0),
+                                              col_index_x.j+1, false);
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            T id_x = identity_data1d(*row_x,col_index_x);
+            T dd_x = laplace_data1d(*row_x,col_index_x);
+            Columnvalues_A_x_index[*row_x] = (0.5*c*id_x + dd_x);
+        }
+
+        for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
+            Index1D col_index_y = (*coeff_y_it).first;
+            T val_tmp1 = (*coeff_y_it).second;
+
+            for (const_coeff1d_it val_x=Columnvalues_A_x_index.begin(); val_x!=Columnvalues_A_x_index.end(); ++val_x) {
+                Index2D row_index((*val_x).first,col_index_y);
+                T val = (*val_x).second * val_tmp1;
+                if (fabs(val)>0.) ret[row_index] += val;
+            }
+        }
+    }
+
+    for (const_Index1D_Coefficients1D_Hash_it it=x_I_M_v.begin(); it!=x_I_M_v.end(); ++it) {
+        Index1D col_index_x = (*it).first;
+
+        IndexSet<Index1D> LambdaRowSparse_x;
+
+        Coefficients<Lexicographical,T,Index1D> Columnvalues_M_x_index;
+        LambdaRowSparse_x = lambdaTilde1d_PDE(col_index_x, basis.first, 1, std::max(col_index_x.j-1,basis.first.j0),
+                                              col_index_x.j+1, false);
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            T id_x = identity_data1d(*row_x,col_index_x);
+            Columnvalues_M_x_index[*row_x] = id_x;
+        }
+
+        for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
+            Index1D col_index_y = (*coeff_y_it).first;
+            T val_tmp2 = (*coeff_y_it).second;
+
+            for (const_coeff1d_it val_x=Columnvalues_M_x_index.begin(); val_x!=Columnvalues_M_x_index.end(); ++val_x) {
+                Index2D row_index((*val_x).first,col_index_y);
+                T val = (*val_x).second * val_tmp2;
+                if (fabs(val)>0.) ret[row_index] += val;
+            }
+        }
+    }
+    for (coeff2d_it it=ret.begin(); it!=ret.end(); ++it) {
+
+        (*it).second *=  this->prec((*it).first);
+    }
+
+    time.stop();
+    std::cerr << "New structure required: " << time.elapsed() << std::endl;
+
+    std::cerr << "         Input length = " << v.size()  << ", output length = " << ret.size()
+              << ", quotient(output vs. input) = " << T(ret.size())/T(v.size()) << std::endl;
+
+
+}
+
+template <typename T, DomainType Domain1, DomainType Domain2>
+void
+AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
+::apply(const Coefficients<Lexicographical,T,Index2D> &v, T /*eps*/,
+        const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+        cxxblas::Transpose /*trans*/)
+{
+    if (v.size()==0) return;
+
+    Index1D_Coefficients1D_Hash y_v;
+
+    IndexSet<Index1D> Lambda_x, Lambda_y;
+    split(Lambda, Lambda_x, Lambda_y);
+    int jmin_x, jmax_x, jmin_y, jmax_y;
+    getMinAndMaxLevel(Lambda_x, jmin_x, jmax_x);
+    getMinAndMaxLevel(Lambda_y, jmin_y, jmax_y);
+    std::cerr << "      Max level in x-direction: " << jmax_x << std::endl;
+    std::cerr << "      Max level in y-direction: " << jmax_y << std::endl;
+
+    Coefficients<Lexicographical,T,Index2D> I_A_v, I_M_v;
+
+    Timer time;
+    time.start();
+    for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
+        if (y_v.count((*col).first.index2)>0) {
+            y_v[(*col).first.index2].operator[]((*col).first.index1) = this->prec((*col).first) * (*col).second;
+        }
+        else {
+            Coefficients<Lexicographical,T,Index1D> coeff_x;
+            coeff_x[(*col).first.index1] = this->prec((*col).first) * (*col).second;
+            y_v[(*col).first.index2] = coeff_x;
+        }
+    }
+
+    for (const_Index1D_Coefficients1D_Hash_it it=y_v.begin(); it!=y_v.end(); ++it) {
+        Index1D col_index_y = (*it).first;
+
+        IndexSet<Index1D> LambdaRowSparse_y;
+        Coefficients<Lexicographical,T,Index1D> Columnvalues_A_y_index;
+        Coefficients<Lexicographical,T,Index1D> Columnvalues_M_y_index;
+
+        LambdaRowSparse_y = lambdaTilde1d_PDE(col_index_y, basis.second, 1, std::max(col_index_y.j-1,basis.second.j0),
+                                                          col_index_y.j+1, false);
+        for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
+            if (Lambda_y.count(*row_y)==0) continue;
+            T dd_y = laplace_data1d(*row_y,col_index_y);
+            T id_y = identity_data1d(*row_y,col_index_y);
+            Columnvalues_A_y_index[*row_y] = (0.5*c*id_y + dd_y);
+            Columnvalues_M_y_index[*row_y] = id_y;
+        }
+
+        for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
+            Index1D col_index_x = (*coeff_x_it).first;
+            T prec_val_col_index = (*coeff_x_it).second;
+
+            for (const_coeff1d_it val_y=Columnvalues_M_y_index.begin(); val_y!=Columnvalues_M_y_index.end(); ++val_y) {
+                Index2D row_index(col_index_x,(*val_y).first);
+                T val1 = (*val_y).second * prec_val_col_index;
+                I_A_v[row_index] += val1;
+            }
+
+            for (const_coeff1d_it val_y=Columnvalues_A_y_index.begin(); val_y!=Columnvalues_A_y_index.end(); ++val_y) {
+               Index2D row_index(col_index_x,(*val_y).first);
+               T val2 = (*val_y).second * prec_val_col_index;
+               I_M_v[row_index] += val2;
+           }
+        }
+    }
+
+    Index1D_Coefficients1D_Hash x_I_A_v, x_I_M_v;
+    for (const_coeff2d_it col=I_A_v.begin(); col!=I_A_v.end(); ++col) {
+        if (x_I_A_v.count((*col).first.index1)>0) {
+            x_I_A_v[(*col).first.index1].operator[]((*col).first.index2) = (*col).second;
+        }
+        else {
+            Coefficients<Lexicographical,T,Index1D> coeff_y;
+            coeff_y[(*col).first.index2] = (*col).second;
+            x_I_A_v[(*col).first.index1] = coeff_y;
+        }
+    }
+    for (const_coeff2d_it col=I_M_v.begin(); col!=I_M_v.end(); ++col) {
+        if (x_I_M_v.count((*col).first.index1)>0) {
+            x_I_M_v[(*col).first.index1].operator[]((*col).first.index2) = (*col).second;
+        }
+        else {
+            Coefficients<Lexicographical,T,Index1D> coeff_y;
+            coeff_y[(*col).first.index2] = (*col).second;
+            x_I_M_v[(*col).first.index1] = coeff_y;
+        }
+    }
+
+    for (const_Index1D_Coefficients1D_Hash_it it=x_I_A_v.begin(); it!=x_I_A_v.end(); ++it) {
+
+        Index1D col_index_x = (*it).first;
+
+        IndexSet<Index1D> LambdaRowSparse_x;
+
+        Coefficients<Lexicographical,T,Index1D> Columnvalues_A_x_index;
+        LambdaRowSparse_x = lambdaTilde1d_PDE(col_index_x, basis.first, 1, std::max(col_index_x.j-1,basis.first.j0),
+                                              col_index_x.j+1, false);
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            if (Lambda_x.count(*row_x)==0) continue;
+            T id_x = identity_data1d(*row_x,col_index_x);
+            T dd_x = laplace_data1d(*row_x,col_index_x);
+            Columnvalues_A_x_index[*row_x] = (0.5*c*id_x + dd_x);
+        }
+
+        for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
+            Index1D col_index_y = (*coeff_y_it).first;
+            T val_tmp1 = (*coeff_y_it).second;
+
+            for (const_coeff1d_it val_x=Columnvalues_A_x_index.begin(); val_x!=Columnvalues_A_x_index.end(); ++val_x) {
+                Index2D row_index((*val_x).first,col_index_y);
+                if (Lambda.count(row_index)==0) continue;
+                T val = (*val_x).second * val_tmp1;
+                if (fabs(val)>0.) ret[row_index] += val;
+            }
+        }
+    }
+
+    for (const_Index1D_Coefficients1D_Hash_it it=x_I_M_v.begin(); it!=x_I_M_v.end(); ++it) {
+        Index1D col_index_x = (*it).first;
+
+        IndexSet<Index1D> LambdaRowSparse_x;
+
+        Coefficients<Lexicographical,T,Index1D> Columnvalues_M_x_index;
+        LambdaRowSparse_x = lambdaTilde1d_PDE(col_index_x, basis.first, 1, std::max(col_index_x.j-1,basis.first.j0),
+                                              col_index_x.j+1, false);
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            if (Lambda_x.count(*row_x)==0) continue;
+            T id_x = identity_data1d(*row_x,col_index_x);
+            Columnvalues_M_x_index[*row_x] = id_x;
+        }
+
+        for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
+            Index1D col_index_y = (*coeff_y_it).first;
+            T val_tmp2 = (*coeff_y_it).second;
+
+            for (const_coeff1d_it val_x=Columnvalues_M_x_index.begin(); val_x!=Columnvalues_M_x_index.end(); ++val_x) {
+                Index2D row_index((*val_x).first,col_index_y);
+                if (Lambda.count(row_index)==0) continue;
+                T val = (*val_x).second * val_tmp2;
+                if (fabs(val)>0.) ret[row_index] += val;
+            }
+        }
+    }
+    for (coeff2d_it it=ret.begin(); it!=ret.end(); ++it) {
+
+        (*it).second *=  this->prec((*it).first);
+    }
+
+    time.stop();
+    std::cerr << "New structure required: " << time.elapsed() << std::endl;
+
+    std::cerr << "         Input length = " << v.size()  << ", output length = " << ret.size()
+              << ", quotient(output vs. input) = " << T(ret.size())/T(v.size()) << std::endl;
+
+
+}
+
+
+
+template <typename T, DomainType Domain1, DomainType Domain2>
+void
+AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
+::apply_deprecated(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                   Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose /*trans*/)
 {
     if (v.size()==0) return;
 
@@ -882,12 +1190,13 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
     std::map<Index1D,Coefficients<Lexicographical,T,Index1D>,lt<Lexicographical,Index1D> >
                                                                       columnvalues_A_x,
                                                                       columnvalues_M_x;
-
-
     Timer time;
+    time.start();
     Coefficients<Lexicographical,T,Index2D> tmp1, tmp2;
+
     time.start();
     for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
+
         Index2D col_index = (*col).first;
         Index1D col_index_x = (*col).first.index1;
         Index1D col_index_y = (*col).first.index2;
@@ -897,7 +1206,12 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         Coefficients<Lexicographical,T,Index1D> Columnvalues_A_y_index;
         Coefficients<Lexicographical,T,Index1D> Columnvalues_M_y_index;
 
-        if (columnvalues_A_y.count(col_index_y) == 0) {
+        bool already_calculated=false;
+        if (columnvalues_A_y.count(col_index_y) > 0) {
+            already_calculated=true;
+        }
+
+        if (!already_calculated) {
             LambdaRowSparse_y = lambdaTilde1d_PDE(col_index_y, basis.second, 1, std::max(col_index_y.j-1,basis.second.j0),
                                                   col_index_y.j+1, false);
             for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
@@ -913,7 +1227,6 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             Columnvalues_A_y_index = columnvalues_A_y[col_index_y];
             Columnvalues_M_y_index = columnvalues_M_y[col_index_y];
         }
-
         for (const_coeff1d_it val_y=Columnvalues_M_y_index.begin(); val_y!=Columnvalues_M_y_index.end(); ++val_y) {
             Index2D row_index(col_index_x,(*val_y).first);
             T val1 = (*val_y).second * prec_val_col_index;
@@ -925,13 +1238,16 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             tmp2[row_index] += val2;
         }
     }
-    time.stop();
-    //std::cerr << "         Elapsed time for first loop: " << time.elapsed() << std::endl;
-    //std::cerr << "         eps = " << eps << ", size of tmp1: " << tmp1.size() << ", size of tmp2: " << tmp2.size() << std::endl;
+
+    std::cerr << "         Elapsed time for first loop: " << time.elapsed() << std::endl;
+    std::cerr << "         eps = " << eps << ", size of tmp1: " << tmp1.size() << ", size of tmp2: " << tmp2.size() << std::endl;
+    std::cerr.precision(16);
+
 
     time.start();
     Index1D col_index_x_old = Index1D(-100,0,XBSpline);
     Coefficients<Lexicographical,T,Index1D> Columnvalues_A_x_index;
+
 
     for (const_coeff2d_it col=tmp1.begin(); col!=tmp1.end(); ++col) {
         Index2D col_index   = (*col).first;
@@ -971,7 +1287,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
     }
     time.stop();
-    //std::cerr << "          Elapsed time for second loop: " << time.elapsed() << std::endl;
+    std::cerr << "          Elapsed time for second loop: " << time.elapsed() << std::endl;
     time.start();
 
     col_index_x_old = (*tmp2.begin()).first.index1;
@@ -994,24 +1310,27 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
     }
     time.stop();
-    //std::cerr << "         Elapsed time for third loop: " << time.elapsed() << std::endl;
+    std::cerr << "         Elapsed time for third loop: " << time.elapsed() << std::endl;
+
+    int size_of_test = 0;
 
     for (coeff2d_it it=ret.begin(); it!=ret.end(); ++it) {
+
         (*it).second *=  this->prec((*it).first);
     }
 
-    std::cerr << "         Input length = " << v.size() << ", output length = " << ret.size()
-              << ", quotient(output vs. input) = " << T(ret.size())/T(v.size()) << std::endl;
 
+    std::cerr << "         Input length = " << v.size() << " ("  << size_of_test << ")" << ", output length = " << ret.size()
+              << ", quotient(output vs. input) = " << T(ret.size())/T(v.size()) << std::endl;
 
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
-::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
-        const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
-        cxxblas::Transpose /*trans*/)
+::apply_deprecated(const Coefficients<Lexicographical,T,Index2D> &v, T /*eps*/,
+                   const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+                   cxxblas::Transpose /*trans*/)
 {
     if (v.size()==0 || Lambda.size()==0) return;
 
