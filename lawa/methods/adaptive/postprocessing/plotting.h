@@ -64,6 +64,11 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
 
 template <typename T, typename Basis>
 void
+plotCoeff(const Coefficients<Lexicographical,T,Index1D > &coeff,
+          const Basis &basis, const char* filename, bool locally_single_scale=false);
+
+template <typename T, typename Basis>
+void
 plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis &basis, const char* filename);
 
 template <typename T, typename Index, typename Basis_x, typename Basis_y>

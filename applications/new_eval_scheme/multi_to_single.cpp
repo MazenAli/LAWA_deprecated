@@ -1,5 +1,6 @@
 #include <iostream>
 #include <lawa/lawa.h>
+#include <applications/new_eval_scheme/loc_single_scale_transforms.h>
 
 using namespace std;
 using namespace lawa;
@@ -10,17 +11,15 @@ typedef Basis<T,Primal,Interval,Dijkema>                            PrimalBasis;
 typedef Basis<T,Dual,Interval,Dijkema>                              DualBasis;
 
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
-typedef DenseVectorT::View                                          DenseVectorTView;
-
 typedef IndexSet<Index1D>::const_iterator                           const_set1d_it;
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff1d_it;
-typedef std::map<int, IndexSet<Index1D> >                           IndexSetByLevels;
-typedef std::map<int, Coefficients<Lexicographical,T,Index1D> >     CoefficientsByLevels;
 
-typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff1d_it;
 
 
 typedef IntegralF<Gauss, PrimalBasis>                               IntegralFPrimal;
+
+/*
+typedef std::map<int, Coefficients<Lexicographical,T,Index1D> >     CoefficientsByLevels;
 
 void
 constructRandomGradedTree(const PrimalBasis &basis, int J, IndexSet<Index1D> &LambdaTree);
@@ -35,11 +34,18 @@ computeMultiToLocallySingleRepr(const PrimalBasis &basis,
                                 Coefficients<Lexicographical,T,Index1D> &u_loc_single);
 
 void
+computeLocallySingleToMultiRepr(const DualBasis &dual_basis,
+                                const Coefficients<Lexicographical,T,Index1D> &u_loc_single,
+                                Coefficients<Lexicographical,T,Index1D> &u_multi);
+
+void
 neighborhood(const PrimalBasis &basis, const Index1D &index, T c, IndexSet<Index1D> &ret);
 
 void
 plot(const PrimalBasis &basis, const Coefficients<Lexicographical,T,Index1D> &u,
      stringstream &filename);
+
+*/
 
 void
 computeCoefficientVector(const PrimalBasis &basis, const IndexSet<Index1D> LambdaTree,
@@ -66,65 +72,46 @@ int main (int argc, char *argv[]) {
     PrimalBasis basis(d,d_,j0);
     DualBasis   dual_basis(d,d_,j0);
 
+    cout << "Range primal MRA:      " << basis.mra.rangeI(j0+2) << endl;
+    cout << "Range primal wavelets: " << basis.rangeJ(j0+2) << endl;
+
+    cout << "Range dual MRA:        " << dual_basis.mra_.rangeI_(j0+2) << endl;
+    cout << "Range dual wavelets:   " << dual_basis.rangeJ_(j0+2) << endl;
+
     IndexSet<Index1D> LambdaTree;
     constructRandomGradedTree(basis, J, LambdaTree);
 
-    Coefficients<Lexicographical,T,Index1D> u_multi, u_loc_single;
-    computeCoefficientVector(basis, LambdaTree, u_multi);
+    Coefficients<Lexicographical,T,Index1D> u_multi, u_loc_single, u_multi2, diff_u_multi;
 
-    stringstream filename1;
+    stringstream filename1, filename2;
     filename1 << "u_multi.dat";
+    filename2 << "u_multi_coeff";
+    computeCoefficientVector(basis, LambdaTree, u_multi);
     plot(basis, u_multi, filename1);
+    plotCoeff<T,PrimalBasis>(u_multi, basis, filename2.str().c_str(), false);
 
-    computeMultiToLocallySingleRepr(basis, u_multi, u_loc_single);
-    cout << u_loc_single << endl;
-
-    stringstream filename2;
-    filename2 << "u_loc_single.dat";
-    plot(basis, u_loc_single, filename2);
-
-    stringstream filename3;
-    filename3 << "u_multi_coeff";
-    plotCoeff<T,PrimalBasis>(u_multi, basis, filename3.str().c_str(), false);
-    stringstream filename4;
+    stringstream filename3, filename4;
+    filename3 << "u_loc_single.dat";
     filename4 << "u_loc_single_coeff";
+    computeMultiToLocallySingleRepr(basis, u_multi, u_loc_single);
+    plot(basis, u_loc_single, filename3);
     plotCoeff<T,PrimalBasis>(u_loc_single, basis, filename4.str().c_str(), true);
 
-    /*
-    DenseVectorT c(basis.mra.rangeI(J));
-    for (int i=basis.mra.rangeI(j0).firstIndex(); i<=basis.mra.rangeI(j0).lastIndex(); ++i) {
-        c(i) = 1.;
-    }
-    for (int j=j0; j<=J-1; ++j) {
-        for (int i=basis.rangeJ(j).firstIndex(); i<=basis.rangeJ(j).lastIndex(); ++i) {
-            c(basis.mra.cardI(j)+i) = 1.;
-        }
-    }
+    stringstream filename5, filename6;
+    filename5 << "u_multi2.dat";
+    filename6 << "u_multi2_coeff.dat";
+    computeLocallySingleToMultiRepr(dual_basis, u_loc_single, LambdaTree, u_multi2);
+    plot(basis, u_multi2, filename5);
+    plotCoeff<T,PrimalBasis>(u_multi2, basis, filename6.str().c_str(), false);
 
-    for (int l=basis.j0; l<=J; ++l) {
-        PrimalBasis basis_shifted(d,d_,l);
-
-        stringstream filename;
-        filename << "u_shift_" << l-basis.j0 << ".dat";
-        ofstream file(filename.str().c_str());
-        for (T x=0.; x<=1.; x+=pow2i<T>(-J-2)) {
-            file << x << " " << evaluate(basis_shifted, J, c, x, 0) << endl;
-        }
-        file.close();
-
-        if (l==J) break;
-
-        DenseVectorTView cview = c(basis.mra.rangeI(l+1));
-        DenseVectorT     z = c(basis.mra.rangeI(l+1));
-        reconstruct(z, basis, l, cview);
-    }
-
-    */
+    diff_u_multi = u_multi-u_multi2;
+    cout << "|| u_multi - u_multi2 ||_2 = " << diff_u_multi.norm(2.) << endl;
 
 
     return 0;
 }
 
+/*
 void
 constructRandomGradedTree(const PrimalBasis &basis, int J, IndexSet<Index1D> &LambdaTree)
 {
@@ -138,15 +125,15 @@ constructRandomGradedTree(const PrimalBasis &basis, int J, IndexSet<Index1D> &La
     IndexSetByLevels LambdaByLevels;
     decomposeGradedTree(basis, LambdaTree, LambdaByLevels);
 
-    cout << "Before extending to a tree..." << endl;
+    //cout << "Before extending to a tree..." << endl;
     for (int i=basis.j0-1; i<=LambdaByLevels.size()+basis.j0-2; ++i) {
-        cout << "i = " << i << endl;
+        //cout << "i = " << i << endl;
         for (const_set1d_it it=LambdaByLevels[i].begin(); it!=LambdaByLevels[i].end(); ++it) {
             if ((*it).xtype == XWavelet) {
-                cout << "   " << *it << " " << basis.psi.support((*it).j,(*it).k) << endl;
+            //    cout << "   " << *it << " " << basis.psi.support((*it).j,(*it).k) << endl;
             }
             else {
-                cout << "   " << *it << " " << basis.mra.phi.support((*it).j,(*it).k) << endl;
+            //    cout << "   " << *it << " " << basis.mra.phi.support((*it).j,(*it).k) << endl;
             }
         }
         cout << endl;
@@ -174,27 +161,27 @@ constructRandomGradedTree(const PrimalBasis &basis, int J, IndexSet<Index1D> &La
         }
     }
 
-    cout << "After extending to a tree..." << endl;
+//    cout << "After extending to a tree..." << endl;
     for (int j=basis.j0-1; j<=basis.j0+LambdaByLevels.size()-2; ++j) {
-        cout << "j = " << j << endl;
+        //cout << "j = " << j << endl;
         for (const_set1d_it it=LambdaByLevels[j].begin(); it!=LambdaByLevels[j].end(); ++it) {
             LambdaTree.insert(*it);
             if ((*it).xtype == XWavelet) {
-                cout << "   " << *it << " " << basis.psi.support((*it).j,(*it).k) << endl;
+              //  cout << "   " << *it << " " << basis.psi.support((*it).j,(*it).k) << endl;
             }
             else {
-                cout << "   " << *it << " " << basis.mra.phi.support((*it).j,(*it).k) << endl;
+              //  cout << "   " << *it << " " << basis.mra.phi.support((*it).j,(*it).k) << endl;
             }
         }
-        cout << endl;
+        //cout << endl;
     }
 }
+
 
 void
 decomposeGradedTree(const PrimalBasis &basis, const IndexSet<Index1D> &LambdaTree,
                     IndexSetByLevels & LambdaByLevels)
 {
-    cout << "LambdaTree = " << LambdaTree << endl;
     for (const_set1d_it it=LambdaTree.begin(); it!=LambdaTree.end(); ++it) {
         int j;
         if ((*it).xtype == XBSpline) {  j = basis.j0-1; }
@@ -210,6 +197,7 @@ decomposeGradedTree(const PrimalBasis &basis, const IndexSet<Index1D> &LambdaTre
         }
     }
 }
+
 
 void
 computeMultiToLocallySingleRepr(const PrimalBasis &basis,
@@ -236,7 +224,6 @@ computeMultiToLocallySingleRepr(const PrimalBasis &basis,
     u_multi_by_levels[JP1] = u_multi_J;
 
     while(j<=J) {
-        cout << "j = " << j << endl;
         DenseVectorT x(basis.mra.rangeI(j+1));
         DenseVectorT y(basis.mra.rangeI(j+1));
         for (const_coeff1d_it it=u_multi_by_levels[j].begin(); it!=u_multi_by_levels[j].end(); ++it) {
@@ -249,7 +236,7 @@ computeMultiToLocallySingleRepr(const PrimalBasis &basis,
                 x(basis.mra.cardI(j) + k) = val;
             }
             else {
-                cout << (*it).first << " : " << basis.mra.phi.support(j,k) << endl;
+                //cout << (*it).first << " : " << basis.mra.phi.support(j,k) << endl;
                 bool has_neighbor = false;
                 IndexSet<Index1D> tmp;
                 neighborhood(basis,(*it).first,pow2i<T>(-j), tmp);
@@ -262,11 +249,11 @@ computeMultiToLocallySingleRepr(const PrimalBasis &basis,
 
                 }
                 if (has_neighbor) {
-                    cout << "   -> neighbor found!" << endl;
+                    //cout << "   -> neighbor found!" << endl;
                     x(k) = val;
                 }
                 else {
-                    cout << "   -> no neighbor found, inserting!" << endl;
+                    //cout << "   -> no neighbor found, inserting!" << endl;
                     u_loc_single[(*it).first] = (*it).second;
                 }
             }
@@ -282,8 +269,70 @@ computeMultiToLocallySingleRepr(const PrimalBasis &basis,
     for (const_coeff1d_it it=u_multi_by_levels[JP1].begin(); it!=u_multi_by_levels[JP1].end(); ++it) {
         u_loc_single[(*it).first] = (*it).second;
     }
+    cout << "Transformation to locally single scale has finished." << endl;
+}
 
+void
+computeLocallySingleToMultiRepr(const DualBasis &dual_basis,
+                                const Coefficients<Lexicographical,T,Index1D> &u_loc_single,
+                                Coefficients<Lexicographical,T,Index1D> &u_multi)
+{
+    int J = -10000;
+    CoefficientsByLevels u_loc_single_by_levels;
+    for (const_coeff1d_it it=u_loc_single.begin(); it!=u_loc_single.end(); ++it) {
+        int j = (*it).first.j;
+        J = std::max(J,j);
+        if (u_loc_single_by_levels.count(j)==0) {
+            Coefficients<Lexicographical,T,Index1D> u_loc_single_j;
+            u_loc_single_j[(*it).first] = (*it).second;
+            u_loc_single_by_levels[j] = u_loc_single_j;
+        }
+        else {
+            u_loc_single_by_levels[j].operator[]((*it).first) = (*it).second;
+        }
+    }
+    for (int j=dual_basis.j0; j<=J; ++j) {
+        if (u_loc_single_by_levels.count(j)==0) {
+            Coefficients<Lexicographical,T,Index1D> u_loc_single_j;
+            u_loc_single_by_levels[j] = u_loc_single_j;
+        }
+    }
 
+    for (int j=J; j>dual_basis.j0; --j) {
+        cout << "j = " << j << endl;
+        DenseVectorT x(dual_basis.mra_.rangeI_(j));
+        DenseVectorT y(dual_basis.mra_.rangeI_(j));
+        for (const_coeff1d_it it=u_loc_single_by_levels[j].begin(); it!=u_loc_single_by_levels[j].end(); ++it) {
+            int k       = (*it).first.k;
+            XType xtype = (*it).first.xtype;
+            T val       = (*it).second;
+
+            if ((*it).first.xtype==XBSpline) {
+                x(k) = val;
+            }
+            else {
+                u_multi[(*it).first] = val;
+            }
+        }
+        decompose(x, dual_basis, j-1, y);
+
+        for (int i=dual_basis.mra_.rangeI_(j-1).firstIndex(); i<=dual_basis.mra_.rangeI_(j-1).lastIndex(); ++i) {
+            T val = y(i);
+            if (val!=0.) {
+                u_loc_single_by_levels[j-1].operator[](Index1D(j-1,i,XBSpline)) += val;
+            }
+        }
+        for (int i=dual_basis.rangeJ_(j-1).firstIndex(); i<=dual_basis.rangeJ_(j-1).lastIndex(); ++i) {
+            T val = y(dual_basis.mra_.cardI_(j-1) + i);
+            if (val!=0.) {
+                u_loc_single_by_levels[j-1].operator[](Index1D(j-1,i,XWavelet)) = val;
+            }
+        }
+    }
+    for (const_coeff1d_it it=u_loc_single_by_levels[dual_basis.j0].begin(); it!=u_loc_single_by_levels[dual_basis.j0].end(); ++it) {
+        u_multi[(*it).first] = (*it).second;
+    }
+    cout << "Transformation to multi scale has finished." << endl;
 }
 
 void
@@ -327,7 +376,7 @@ plot(const PrimalBasis &basis, const Coefficients<Lexicographical,T,Index1D> &u,
     }
     file.close();
 }
-
+*/
 
 void
 computeCoefficientVector(const PrimalBasis &basis, const IndexSet<Index1D> LambdaTree,

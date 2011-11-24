@@ -196,6 +196,112 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
 
 template <typename T, typename Basis>
 void
+plotCoeff(const Coefficients<Lexicographical,T,Index1D > &coeff, const Basis &basis,
+          const char* filename, bool locally_single_scale)
+{
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_it;
+    std::stringstream gpsFilename;
+    gpsFilename << filename << ".gps";
+    std::ofstream gps(gpsFilename.str().c_str());
+
+    int shift = locally_single_scale ? 0 : 1;
+
+    int j0  =  100000;
+    int J   = -100000;
+    T left  =  100000.;
+    T right = -100000.;
+    T maxCoeff = 0.;
+
+    for (const_it it = coeff.begin(); it != coeff.end(); ++it) {
+        int  j = (*it).first.j;
+        long k = (*it).first.k;
+
+        j0 = std::min(j0, j);
+        J  = std::max(J, j);
+        if ((*it).first.xtype == XBSpline) {
+            maxCoeff = std::max(maxCoeff, fabs((*it).second));
+            left  = std::min(left, basis.mra.phi.support(j,k).l1);
+            right = std::max(right, basis.mra.phi.support(j,k).l2);
+        }
+        else {
+            maxCoeff = std::max(maxCoeff, fabs((*it).second));
+            left  = std::min(left, basis.psi.support(j,k).l1);
+            right = std::max(right, basis.psi.support(j,k).l2);
+        }
+    }
+
+    gps << "reset" << std::endl;
+    gps << "set terminal postscript eps enh color; set output '" << filename << ".eps'" << std::endl;
+    gps << "set palette color; set colorbox vertical" << std::endl;
+
+    int i=1;
+    for (const_it it = coeff.begin(); it != coeff.end(); ++it) {
+        T lineWidth = 0.1;
+        T ctr, fromX, toX, fromY, toY;
+        T color = 0.0;
+        int j       = (*it).first.j;
+        long int k  = (*it).first.k;
+        XType xtype = (*it).first.xtype;
+
+        if (xtype==XBSpline) {
+            fromX = basis.mra.phi.support(j,k).l1;
+            toX   = basis.mra.phi.support(j,k).l2;
+            fromY = j-shift-0.5;
+            toY   = j-shift+0.5;
+            color = fabs((*it).second) / maxCoeff;
+        }
+
+        else {
+            fromX = basis.psi.support(j,k).l1;
+            toX   = basis.psi.support(j,k).l2;
+            fromY = j-0.5;
+            toY   = j+0.5;
+            color = fabs((*it).second) / maxCoeff;
+        }
+        gps << "set arrow " << i << " from " << fromX << ", " << fromY
+                                 << " to " << fromX << ", " << toY << "lt -1 lw 3 nohead" << std::endl;
+        ++i;
+        gps << "set arrow " << i << " from " << fromX << ", " << fromY
+                                 << " to " << toX << ", " << fromY << "lt -1 lw 3 nohead" << std::endl;
+        ++i;
+        gps << "set arrow " << i << " from " << toX << ", " << fromY
+                                 << " to " << toX << ", " << toY << " lt -1 lw 3 nohead" << std::endl;
+        ++i;
+        gps << "set arrow " << i << " from " << fromX << ", " << toY
+                                 << " to " << toX << ", " << toY << " lt -1 lw 3 nohead" << std::endl;
+        ++i;
+        /*
+        gps << "set object rectangle from " << fromX << ", " << fromY
+            << " to " << toX << "," << toY << " fc rgb";
+        if (color > 0.5) gps << " 'black' ";
+        else if ((0.5 >= color) && (color > 0.25)) gps << " 'purple' ";
+        else if ((0.25 >= color) && (color > 0.125)) gps << " 'magenta' ";
+        else if ((0.125 >= color) && (color > 0.0625)) gps << " 'red' ";
+        else if ((0.0625 >= color) && (color > 0.03125)) gps << " 'orangered' ";
+        else if ((0.03125 >= color) && (color > 0.015625)) gps << " 'orange' ";
+        else if ((0.015625 >= color) && (color > 0.0078125)) gps << " 'yellow' ";
+        else gps << " 'grey' ";
+        gps << " linewidth " << 0.1 << " fillstyle solid" << std::endl;
+        */
+    }
+
+
+    gps << "set xrange["<< left <<":"<< right <<"]" << std::endl;
+    gps << "set yrange[" << j0-shift-0.5 << ":" << J+0.5 << "]" << std::endl;
+    //gps << "set xtics 1" << endl;
+    //gps << "set ytics ('" << j0 << "' " << j0-1;
+    //gps << ", '" << j0 << "' " << j0;
+    //for (int j = j0+1; j <= J; ++j) {
+    //    gps << ", '" << j << "' " << j;
+    //}
+    //gps << ")" << std::endl;
+    gps << "plot " << j0-shift-0.5 << " with lines linecolor rgb 'black' notitle" << std::endl;
+    gps << "reset; set terminal pop" << std::endl;
+    gps.close();
+}
+
+template <typename T, typename Basis>
+void
 plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis &basis, const char* filename)
 {
     typedef typename Coefficients<AbsoluteValue,T,Index1D>::const_iterator const_it;
