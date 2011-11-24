@@ -34,7 +34,8 @@ class H1NormPreconditioner2D
         H1NormPreconditioner2D(const Basis2D &_basis);
 
         T
-        operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
+        operator()(XType xtype1, int j1, long k1,
+                   XType xtype2, int j2, long k2) const;
 
         T
         operator()(const Index2D &index) const;

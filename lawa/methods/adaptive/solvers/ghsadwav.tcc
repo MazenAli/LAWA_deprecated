@@ -218,7 +218,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
         unsigned long N = Lambda.size();
         //std::cerr << "    Assembling of B started with N=" << N << std::endl;
 
-        bool useLinearIndex=false;
+        bool useLinearIndex=true;
 
         flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
         Timer time_assemble;

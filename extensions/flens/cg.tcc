@@ -61,44 +61,6 @@ cg(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     return maxIterations;
 }
 
-template <typename MA, typename VX, typename VB, typename T>
-int
-test_cg(MA &A, VX &x, const VB &b, T tol, int maxIterations)
-{
-    T alpha, beta, rNormSquare, rNormSquarePrev;
-    VB Ap, r, p;
-/*
-    if (x.length()!=A.numCols()) {
-        x.engine().resize(A.numCols());
-    }
-*/
-    r = A*x - b;
-    p = r;
-    p *= -1.;
-    rNormSquare = r*r;
-    for (int k=1; k<=maxIterations; k++) {
-        #ifdef SOLVER_DEBUG
-            std::cerr << "k = " << k << ", rho = " << sqrt(rNormSquare)
-                << std::endl;
-        #endif
-        if (sqrt(rNormSquare)<=tol) {
-            return k-1;
-        }
-        std::cerr << "   Iteration " << k << ", performing marix-vector product..." << std::endl;
-        Ap = A*p;
-        std::cerr << "   Iteration " << k << ", finished marix-vector product..." << std::endl;
-        alpha = rNormSquare/(p * Ap);
-        x += alpha*p;
-        r += alpha*Ap;
-
-        rNormSquarePrev = rNormSquare;
-        rNormSquare = r*r;
-        beta = rNormSquare/rNormSquarePrev;
-        p = beta*p - r;
-    }
-    return maxIterations;
-}
-
 template <typename MA, typename VX, typename VB>
 int
 cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,

@@ -14,7 +14,7 @@ WeightedSobolevNormPreconditioner1D<T,Basis>::WeightedSobolevNormPreconditioner1
 
 template <typename T, typename Basis>
 T
-WeightedSobolevNormPreconditioner1D<T,Basis>::operator()(XType xtype, int j, int k) const
+WeightedSobolevNormPreconditioner1D<T,Basis>::operator()(XType xtype, int j, long k) const
 {
     if (_sobolev_order==0) {
         return 1./std::sqrt(_integral(j,k,xtype,0,j,k,xtype,0));

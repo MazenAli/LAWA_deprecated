@@ -1,6 +1,6 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
+  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,23 +17,27 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_OPERATORS_DELTAS_H
-#define LAWA_OPERATORS_DELTAS_H 1
-
-#include <lawa/settings/enum.h>
-#include <lawa/constructions/bspline.h>
-#include <lawa/constructions/wavelet.h>
-#include <lawa/constructions/support.h>
-
-
 namespace lawa {
 
-template <typename T, typename Basis>
-GeMatrix<FullStorage<T,ColMajor> >
-computeDeltas(const Basis &basis, int j, long k, XType e);
+template <typename Index>
+Entry<Index>::Entry(const Index &_index1, const Index &_index2)
+: row_index(_index1), col_index(_index2)
+{
+}
 
-}    //namespace lawa
+template <typename Index>
+std::ostream& operator<<(std::ostream &s, const Entry<Index> &entry) {
+    s << "[" << entry.row_index << ", " << entry.col_index  << "]";
+    return s;
+}
 
-#include <lawa/operators/deltas.tcc>
+template <typename SortingType>
+struct lt<AbsoluteValue, SortingType>
+{
+    bool operator()(const SortingType &left, const SortingType &right) const
+        {
+            return (fabs(left) > fabs(right));    //todo: Is this the right call for fabs (template?)
+        }
+};
 
-#endif    //LAWA_OPERATORS_DELTAS_H
+} //namespace lawa

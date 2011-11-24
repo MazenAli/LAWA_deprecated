@@ -42,7 +42,7 @@ class WeightedSobolevNormPreconditioner1D
                                             const int sobolev_order);
 
         T
-        operator()(XType xtype1, int j1, int k1) const;
+        operator()(XType xtype1, int j1, long k1) const;
 
         T
         operator()(const Index1D &index) const;

@@ -20,7 +20,7 @@ class TimedepSeparableRHS1D
         TimedepSeparableRHS1D(const Basis1D& _basis, const SeparableFunction2D<T>& _F, int order);
                
         T
-        operator()(T t, XType xtype, int j, int k) const;
+        operator()(T t, XType xtype, int j, long k) const;
                            
         T
         operator()(T t, const Index1D &index) const;
@@ -38,7 +38,7 @@ public:
     SumOfTimedepRHS1D(const TimedepRHS &rhs1, const TimedepRHS &rhs2);
     
     T
-    operator()(T t, XType xtype, int j, int k) const;
+    operator()(T t, XType xtype, int j, long k) const;
     
     T
     operator()(T t, const Index1D &index) const;

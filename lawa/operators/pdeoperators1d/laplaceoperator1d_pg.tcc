@@ -8,8 +8,8 @@ LaplaceOperator1D_PG<T,TrialBasis, TestBasis>::LaplaceOperator1D_PG(const TrialB
 
 template <typename T, typename TrialBasis, typename TestBasis>
 T
-LaplaceOperator1D_PG<T,TrialBasis, TestBasis>::operator()(XType xtype1, int j1, int k1,
-                                                          XType xtype2, int j2, int k2) const
+LaplaceOperator1D_PG<T,TrialBasis, TestBasis>::operator()(XType xtype1, int j1, long k1,
+                                                          XType xtype2, int j2, long k2) const
 {   
     // v_x * u_x
     return integral(j1, k1, xtype1, 1, j2, k2, xtype2, 1);

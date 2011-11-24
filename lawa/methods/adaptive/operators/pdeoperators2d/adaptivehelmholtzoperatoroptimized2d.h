@@ -79,6 +79,9 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogona
     mv(const IndexSet<Index2D> &LambdaRow,
        const Coefficients<Lexicographical,T,Index2D> &x);
 
+    Coefficients<Lexicographical,T,Index2D>
+    operator*(const Coefficients<Lexicographical,T,Index2D> &v);
+
     void
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
                         SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);

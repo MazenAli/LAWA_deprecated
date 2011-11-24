@@ -69,6 +69,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations=0;
+
         if (strcmp(linsolvertype,"cg")==0) {
             iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, assemble_matrix);
         }
@@ -83,12 +84,11 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         linsolve_iterations[its] = iterations;
         std::cerr << "   ...finished with res=" << r_norm_LambdaActive << std::endl;
 
-
         // Attention: Relative threshold here removes lots of entries -> linear system was much
         // larger than necessary.
         T thresh_off_quot = 1./T(u.size());
         //u = THRESH(u,threshTol*u.norm(2.),false);
-        u = THRESH(u,threshTol,false,false); //u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
         thresh_off_quot *= T(u.size());
 
 
@@ -123,6 +123,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         std::cout << "... finished." << std::endl;
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         f = F(DeltaLambda);
+
+
+
         std::cout << "   ...finished" << std::endl;
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
@@ -134,6 +137,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
             Au = A.mv(DeltaLambda,u);
         }
         r  = Au-f;
+
         T r_norm_DeltaLambda = r.norm(2.);
         T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
         T denominator = f_norm_DeltaLambda*f_norm_DeltaLambda + f_norm_LambdaActive*f_norm_LambdaActive;

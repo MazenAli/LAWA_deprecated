@@ -15,8 +15,8 @@ SeparableRHS2D<T, Basis2D>::SeparableRHS2D
 
 template<typename T, typename Basis2D>
 T
-SeparableRHS2D<T, Basis2D>::operator()(XType xtype_x, int j_x, int k_x,
-                                                XType xtype_y, int j_y, int k_y) const
+SeparableRHS2D<T, Basis2D>::operator()(XType xtype_x, int j_x, long k_x,
+                                       XType xtype_y, int j_y, long k_y) const
 {
     T val_x = 0;
     T val_y = 0;

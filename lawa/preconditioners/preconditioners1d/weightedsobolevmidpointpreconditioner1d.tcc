@@ -14,7 +14,7 @@ WeightedSobolevMidPointPreconditioner1D<T,Basis>::WeightedSobolevMidPointPrecond
 
 template <typename T, typename Basis>
 T
-WeightedSobolevMidPointPreconditioner1D<T,Basis>::operator()(XType xtype, int j, int k) const
+WeightedSobolevMidPointPreconditioner1D<T,Basis>::operator()(XType xtype, int j, long k) const
 {
     T center = 0.5*(_basis.generator(xtype).support(j,k).l2+_basis.generator(xtype).support(j,k).l1);
     if (_sobolev_order==0) {

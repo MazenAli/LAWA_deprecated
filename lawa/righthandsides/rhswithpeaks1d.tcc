@@ -33,7 +33,7 @@ RHSWithPeaks1D<T,Basis>::RHSWithPeaks1D(const Basis &_basis, Function<T> _f,
 
 template <typename T, typename Basis>
 T
-RHSWithPeaks1D<T,Basis>::operator()(XType xtype, int j, int k) const
+RHSWithPeaks1D<T,Basis>::operator()(XType xtype, int j, long k) const
 {
     T ret = 0.;
     if (with_smooth_part) ret += integralf(j,k,xtype,0);
@@ -42,7 +42,6 @@ RHSWithPeaks1D<T,Basis>::operator()(XType xtype, int j, int k) const
             ret += deltas(i,2) * basis.generator(xtype)(deltas(i,1),j,k,0);
         }
     }
-
     return ret;
 }
 
@@ -230,7 +229,7 @@ RHSWithPeaks1D_WO_XBSpline<T>::operator()(const Index1D &lambda) const
 
 template <typename T>
 T
-RHSWithPeaks1D_WO_XBSpline<T>::operator()(int j, int k, T a, T b) const
+RHSWithPeaks1D_WO_XBSpline<T>::operator()(int j, long k, T a, T b) const
 {
     long double ret = 0.0L;
     for (int i=1; i<=order; ++i) {

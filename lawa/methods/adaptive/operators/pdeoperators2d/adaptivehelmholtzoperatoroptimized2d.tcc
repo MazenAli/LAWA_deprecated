@@ -53,18 +53,24 @@ T
 AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
 ::operator()(const Index2D &row_index, const Index2D &col_index)
 {
+    /*
     if (     (row_index).index1.val!=(col_index).index1.val
           && (row_index).index2.val!=(col_index).index2.val  ) {
         return 0.;
     }
+    */
 
     T id_x = 0., dd_y = 0.;
-    if ((row_index).index1.val==(col_index).index1.val) {
+    if ((row_index).index1.k==(col_index).index1.k && (row_index).index1.j==(col_index).index1.j &&
+        (row_index).index1.xtype==(col_index).index1.xtype) {
+//    if ((row_index).index1.val==(col_index).index1.val) {
         id_x = 1.;
         dd_y = laplace_data1d(row_index.index2,col_index.index2);
     }
     T id_y = 0., dd_x = 0.;
-    if ((row_index).index2.val==(col_index).index2.val) {
+    if ((row_index).index2.k==(col_index).index2.k && (row_index).index2.j==(col_index).index2.j &&
+        (row_index).index2.xtype==(col_index).index2.xtype) {
+    //if ((row_index).index2.val==(col_index).index2.val) {
         id_y = 1.;
         dd_x = laplace_data1d(row_index.index1,col_index.index1);
     }
@@ -1256,8 +1262,10 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         T val_tmp1          = (*col).second;
 
         IndexSet<Index1D> LambdaRowSparse_x;
+        if (col_index_x_old.k    !=col_index_x.k || col_index_x_old.j!=col_index_x.j ||
+            col_index_x_old.xtype!=col_index_x.xtype) {
 
-        if (col_index_x_old.val!=col_index_x.val) {
+//        if (col_index_x_old.val!=col_index_x.val) {
             if (columnvalues_A_x.count(col_index_x) == 0) {
                 Coefficients<Lexicographical,T,Index1D> Columnvalues_A_x_index_tmp;
                 Coefficients<Lexicographical,T,Index1D> Columnvalues_M_x_index_tmp;
@@ -1299,7 +1307,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         Index1D col_index_y = (*col).first.index2;
         T val_tmp2          = (*col).second;
 
-        if (col_index_x.val!=col_index_x_old.val) {
+        //if (col_index_x.val!=col_index_x_old.val) {
+        if (col_index_x_old.k    !=col_index_x.k || col_index_x_old.j!=col_index_x.j ||
+            col_index_x_old.xtype!=col_index_x.xtype) {
             col_index_x_old = col_index_x;
             Columnvalues_M_x_index = columnvalues_M_x[col_index_x];
         }
@@ -1409,7 +1419,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 
         IndexSet<Index1D> LambdaRowSparse_x;
 
-        if (col_index_x_old.val!=col_index_x.val) {
+//        if (col_index_x_old.val!=col_index_x.val) {
+        if (col_index_x_old.k    !=col_index_x.k || col_index_x_old.j!=col_index_x.j ||
+            col_index_x_old.xtype!=col_index_x.xtype) {
             if (columnvalues_A_x.count(col_index_x) == 0) {
                 Coefficients<Lexicographical,T,Index1D> Columnvalues_A_x_index_tmp;
                 Coefficients<Lexicographical,T,Index1D> Columnvalues_M_x_index_tmp;
@@ -1455,7 +1467,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 
         //if (Lambda_y.count(col_index_y)==0) continue;
 
-        if (col_index_x.val!=col_index_x_old.val) {
+//        if (col_index_x.val!=col_index_x_old.val) {
+        if (col_index_x_old.k    !=col_index_x.k || col_index_x_old.j!=col_index_x.j ||
+                    col_index_x_old.xtype!=col_index_x.xtype) {
             col_index_x_old = col_index_x;
             Columnvalues_M_x_index = columnvalues_M_x[col_index_x];
         }

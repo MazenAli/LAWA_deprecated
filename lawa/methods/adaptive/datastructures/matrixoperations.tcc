@@ -127,45 +127,6 @@ mv_sparse(const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicograp
     return w_;
 }
 
-/*
-template <typename T, typename Index, typename MA>
-Coefficients<Lexicographical,T,Index>
-mv(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
-{
-    // ersetzen durch iteration Ÿber alle matrix-elemente und gleichzeitiges schreiben in den result-vector
-    typedef typename IndexSet<Index>::const_iterator set_const_it;
-    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator coeff_const_it;
-
-    Coefficients<Lexicographical,T,Index> w(v.d,v.d_);
-    for (set_const_it lambda = LambdaRow.begin(); lambda != LambdaRow.end(); ++lambda) {
-        T val = 0;
-        for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
-            val += A(t, *lambda,(*mu).first) * (*mu).second;
-        }
-        w[*lambda] = val;
-    }
-    return w;
-}
-
-template <typename T, typename Index, typename MA>
-Coefficients<Lexicographical,T,Index>
-mv_sparse(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
-{
-    typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
-    typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator coeff_const_it;
-
-    A.c.setParameters(LambdaRow);
-    Coefficients<Lexicographical,T,Index2D> w_(v.d,v.d_);
-    for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
-        IndexSet<Index2D> LambdaRowSparse = A.c.SparsityPattern((*mu).first, LambdaRow);
-        for (set2d_const_it lambda = LambdaRowSparse.begin(); lambda != LambdaRowSparse.end(); ++lambda) {
-            w_[*lambda] += A(t,*lambda,(*mu).first) * (*mu).second;
-        }
-    }
-    return w_;
-}
-*/
-
 template <typename T, typename Index, typename MA>
 int
 CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
@@ -462,7 +423,47 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
         else return -1;
 
 }
+
 }   //namespace lawa
+
+/*
+template <typename T, typename Index, typename MA>
+Coefficients<Lexicographical,T,Index>
+mv(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
+{
+    // ersetzen durch iteration Ÿber alle matrix-elemente und gleichzeitiges schreiben in den result-vector
+    typedef typename IndexSet<Index>::const_iterator set_const_it;
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator coeff_const_it;
+
+    Coefficients<Lexicographical,T,Index> w(v.d,v.d_);
+    for (set_const_it lambda = LambdaRow.begin(); lambda != LambdaRow.end(); ++lambda) {
+        T val = 0;
+        for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
+            val += A(t, *lambda,(*mu).first) * (*mu).second;
+        }
+        w[*lambda] = val;
+    }
+    return w;
+}
+
+template <typename T, typename Index, typename MA>
+Coefficients<Lexicographical,T,Index>
+mv_sparse(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index > &v)
+{
+    typedef typename IndexSet<Index2D>::const_iterator set2d_const_it;
+    typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator coeff_const_it;
+
+    A.c.setParameters(LambdaRow);
+    Coefficients<Lexicographical,T,Index2D> w_(v.d,v.d_);
+    for (coeff_const_it mu = v.begin(); mu != v.end(); ++mu) {
+        IndexSet<Index2D> LambdaRowSparse = A.c.SparsityPattern((*mu).first, LambdaRow);
+        for (set2d_const_it lambda = LambdaRowSparse.begin(); lambda != LambdaRowSparse.end(); ++lambda) {
+            w_[*lambda] += A(t,*lambda,(*mu).first) * (*mu).second;
+        }
+    }
+    return w_;
+}
+*/
 
 /*
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;

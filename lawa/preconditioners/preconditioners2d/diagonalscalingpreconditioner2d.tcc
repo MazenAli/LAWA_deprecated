@@ -12,8 +12,8 @@ DiagonalScalingPreconditioner2D<T>::DiagonalScalingPreconditioner2D(int sx, int 
 
 template<typename T>
 T
-DiagonalScalingPreconditioner2D<T>::operator()(XType XisSpline, int jx, int /*kx*/,
-                                               XType YisSpline, int jy, int /*ky*/) const
+DiagonalScalingPreconditioner2D<T>::operator()(XType XisSpline, int jx, long /*kx*/,
+                                               XType YisSpline, int jy, long /*ky*/) const
 {
     assert(XisSpline);
     assert(YisSpline);

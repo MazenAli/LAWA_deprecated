@@ -29,12 +29,12 @@ HelmholtzOperator3D<T, Basis3D>::HelmholtzOperator3D(const Basis3D & _basis, con
 
 template <typename T, typename Basis3D>
 T
-HelmholtzOperator3D<T, Basis3D>::operator()(XType row_xtype_x, int j1_x, int k1_x,
-                                            XType row_xtype_y, int j1_y, int k1_y,
-                                            XType row_xtype_z, int j1_z, int k1_z,
-                                            XType col_xtype_x, int j2_x, int k2_x,
-                                            XType col_xtype_y, int j2_y, int k2_y,
-                                            XType col_xtype_z, int j2_z, int k2_z) const
+HelmholtzOperator3D<T, Basis3D>::operator()(XType row_xtype_x, int j1_x, long k1_x,
+                                            XType row_xtype_y, int j1_y, long k1_y,
+                                            XType row_xtype_z, int j1_z, long k1_z,
+                                            XType col_xtype_x, int j2_x, long k2_x,
+                                            XType col_xtype_y, int j2_y, long k2_y,
+                                            XType col_xtype_z, int j2_z, long k2_z) const
 {
     T val_x =    integral_x(j1_x, k1_x, row_xtype_x, 0, j2_x, k2_x, col_xtype_x, 0);
     T dd_val_x = integral_x(j1_x, k1_x, row_xtype_x, 1, j2_x, k2_x, col_xtype_x, 1);

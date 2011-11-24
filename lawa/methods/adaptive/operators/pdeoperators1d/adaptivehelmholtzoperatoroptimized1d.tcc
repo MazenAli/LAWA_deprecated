@@ -432,7 +432,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::operator()(cons
                                                                     const Index1D &col_index)
 {
     T val = laplace_data1d(row_index,col_index);
-    if (row_index.val==col_index.val) {
+    if (row_index.k==col_index.k && row_index.j==col_index.j && row_index.xtype==col_index.xtype) {
+//    if (row_index.val==col_index.val) {
        val += this->c;
     }
     return this->prec(row_index) * val * this->prec(col_index);
@@ -708,10 +709,12 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::mv
                                                   (const IndexSet<Index1D> &LambdaRow,
                                                    const Coefficients<Lexicographical,T,Index1D> &v)
 {
+    std::cerr << "mv called." << std::endl;
     Coefficients<Lexicographical,T,Index1D> ret;
     for (const_coeff1d_it it=v.begin(); it!=v.end(); ++it) {
         Index1D col_index = (*it).first;
         IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE<T>(col_index, basis, 1, basis.j0);
+        //for (const_set1d_it set_it=LambdaRow.begin(); set_it!=LambdaRow.end(); ++set_it) {
         for (const_set1d_it set_it=lambdaTilde.begin(); set_it!=lambdaTilde.end(); ++set_it) {
             Index1D row_index = *set_it;
             if (LambdaRow.count(row_index)>0) {
@@ -732,6 +735,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSpars
                                                             bool useLinearIndex)
 {
     if (!useLinearIndex) {
+        std::cerr << "toFlensSparseMatrix called." << std::endl;
         std::map<Index1D,int,lt<Lexicographical,Index1D> > row_indices;
         int row_count = 1, col_count = 1;
         for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
@@ -740,8 +744,12 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSpars
         this->compression.setParameters(LambdaRow);
         for (const_set1d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
             IndexSet<Index1D> LambdaRowSparse = this->compression.SparsityPattern(*col, LambdaRow);
+            //for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row) {
             for (const_set1d_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
                 T val = this->operator()(*row,*col);
+                if (col_count==1 && row_indices[*row]==1) {
+                    std::cerr << *row << ", " << *col << " : " << val << std::endl;
+                }
                 if (fabs(val)>0) {
                     A_flens(row_indices[*row],col_count) = val;
                 }

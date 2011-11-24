@@ -9,8 +9,8 @@ WeightedLaplaceOperator1D<T,Basis,Quad>::WeightedLaplaceOperator1D(const Basis& 
 
 template <typename T, typename Basis, QuadratureType Quad>
 T
-WeightedLaplaceOperator1D<T,Basis,Quad>::operator()(XType xtype1, int j1, int k1,
-                              		                XType xtype2, int j2, int k2) const
+WeightedLaplaceOperator1D<T,Basis,Quad>::operator()(XType xtype1, int j1, long k1,
+                              		                XType xtype2, int j2, long k2) const
 {   
     // v_x * u_x
     return integral(j1, k1, xtype1, 1, j2, k2, xtype2, 1);
