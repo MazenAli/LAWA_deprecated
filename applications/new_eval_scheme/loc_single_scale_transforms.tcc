@@ -81,26 +81,68 @@ computeLocalReconstruction(const Coefficients<Lexicographical,T,Index1D> &u_mult
         int k       = (*it).first.k;
         XType xtype = (*it).first.xtype;
         T val       = (*it).second;
-        if ((*it).first.xtype==XWavelet) {
-            x(basis.mra.cardI(j) + k) = val;
-        }
-        else {
-            bool has_neighbor = false;
-            IndexSet<Index1D> tmp;
-            neighborhood(basis,(*it).first,pow2i<T>(-j), tmp);
-            for (const_set1d_it tmp_it=tmp.begin(); tmp_it!=tmp.end(); ++tmp_it) {
-                const_coeff1d_it p_u_multi_j = u_multi_j.find(*tmp_it);
-                if (p_u_multi_j!=p_u_multi_j_end) {
-                    has_neighbor = true;
-                    break;
-                }
+        if ((*it).first.xtype==XWavelet) {  x(basis.mra.cardI(j) + k) = val;  }
+        else                             {  x(k) = val; }
 
-            }
-            if (has_neighbor) { x(k) = val; }
-            else {              u_loc_single_jP1[(*it).first] = (*it).second; }
-        }
     }
     reconstruct(x, basis, j, y);
+    for (int i=y.firstIndex(); i<=y.lastIndex(); ++i) {
+        if (y(i)!=0.) {
+            u_loc_single_jP1[Index1D(j+1,i,XBSpline)] = y(i);
+        }
+    }
+}
+
+template <typename T, typename PrimalBasis>
+void
+computeLocalReconstruction(const IndexSet<Index1D> &Lambda_multi_j,
+                           const PrimalBasis &basis, int j,
+                           IndexSet<Index1D> &Lambda_loc_single_jP1)
+{
+    typedef typename flens::DenseVector<flens::Array<T> >                      DenseVectorT;
+    typedef IndexSet<Index1D>::const_iterator                                  const_set1d_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator   const_coeff1d_it;
+    DenseVectorT x(basis.mra.rangeI(j+1));
+    DenseVectorT y(basis.mra.rangeI(j+1));
+
+    const_set1d_it p_Lambda_multi_j_end = Lambda_multi_j.end();
+    for (const_set1d_it it=Lambda_multi_j.begin(); it!=Lambda_multi_j.end(); ++it) {
+        int k       = (*it).k;
+        XType xtype = (*it).xtype;
+        T val       = 1.;
+        if (xtype==XWavelet) {  x(basis.mra.cardI(j) + k) = val;    }
+        else                 {  x(k) = val; }
+    }
+    reconstruct(x, basis, j, y);
+    for (int i=y.firstIndex(); i<=y.lastIndex(); ++i) {
+        if (y(i)!=0.) {
+            Lambda_loc_single_jP1.insert(Index1D(j+1,i,XBSpline));
+        }
+    }
+}
+
+template <typename T, typename DualBasis>
+void
+computeLocalReconstruction_(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
+                            const DualBasis &dual_basis, int j,
+                            Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1)
+{
+    typedef typename flens::DenseVector<flens::Array<T> >                      DenseVectorT;
+    typedef IndexSet<Index1D>::const_iterator                                  const_set1d_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator   const_coeff1d_it;
+    DenseVectorT x(dual_basis.mra_.rangeI_(j+1));
+    DenseVectorT y(dual_basis.mra_.rangeI_(j+1));
+
+    const_coeff1d_it p_u_multi_j_end = u_multi_j.end();
+    for (const_coeff1d_it it=u_multi_j.begin(); it!=u_multi_j.end(); ++it) {
+        int k       = (*it).first.k;
+        XType xtype = (*it).first.xtype;
+        T val       = (*it).second;
+        if ((*it).first.xtype==XWavelet) {  x(dual_basis.mra_.cardI_(j) + k) = val;  }
+        else                             {  x(k) = val; }
+
+    }
+    reconstruct_(x, dual_basis, j, y);
     for (int i=y.firstIndex(); i<=y.lastIndex(); ++i) {
         if (y(i)!=0.) {
             u_loc_single_jP1[Index1D(j+1,i,XBSpline)] = y(i);
@@ -140,7 +182,43 @@ computeMultiToLocallySingleRepr(const PrimalBasis &basis,
     u_multi_by_levels[JP1] = u_multi_J;
 
     while(j<=J) {
+        Coefficients<Lexicographical,T,Index1D> u_multi_j = u_multi_by_levels[j];
+        const_coeff1d_it p_u_multi_j_end = u_multi_j.end();
+        for (const_coeff1d_it it=u_multi_j.begin(); it!=u_multi_j.end(); ++it) {
+            int k       = (*it).first.k;
+            XType xtype = (*it).first.xtype;
+
+            if ((*it).first.xtype==XBSpline) {
+                bool has_neighbor = false;
+                IndexSet<Index1D> tmp;
+                neighborhood(basis,(*it).first,pow2i<T>(-j), tmp);
+                for (const_set1d_it tmp_it=tmp.begin(); tmp_it!=tmp.end(); ++tmp_it) {
+                    const_coeff1d_it p_u_multi_j = u_multi_j.find(*tmp_it);
+                    if (p_u_multi_j!=p_u_multi_j_end) {
+                        has_neighbor = true;
+                        break;
+                    }
+
+                }
+                if (!has_neighbor) {
+                    u_loc_single[(*it).first] = (*it).second;
+                    u_multi_by_levels[j].erase((*it).first);
+                }
+            }
+        }
         computeLocalReconstruction(u_multi_by_levels[j], basis, j,u_multi_by_levels[j+1]);
+
+        /*
+        IndexSet<Index1D> Lambda_multi_j, Lambda_loc_single_jP1;
+        Lambda_multi_j = supp(u_multi_by_levels[j]);
+        std::cout << "j = " << j << " shift from:" << std::endl;
+        std::cout << u_multi_by_levels[j] << std::endl;
+        std::cout << " to " << u_multi_by_levels[j+1] << std::endl;
+        computeLocalReconstruction<T,PrimalBasis>(Lambda_multi_j, basis, j,Lambda_loc_single_jP1);
+        std::cout << std::endl;
+        std::cout << Lambda_multi_j << std::endl;
+        std::cout << Lambda_loc_single_jP1 << std::endl;
+        */
         ++j;
     }
     for (const_coeff1d_it it=u_multi_by_levels[JP1].begin(); it!=u_multi_by_levels[JP1].end(); ++it) {
@@ -173,16 +251,57 @@ computeLocalDecomposition(const Coefficients<Lexicographical,T,Index1D> &u_loc_s
     decompose(x, dual_basis, j-1, y);
 
     for (int i=dual_basis.mra_.rangeI_(j-1).firstIndex(); i<=dual_basis.mra_.rangeI_(j-1).lastIndex(); ++i) {
-        T val = y(i);
-        if (val!=0.) {
-            u_loc_single_jM1[Index1D(j-1,i,XBSpline)] += val;
+        Index1D index(j-1,i,XBSpline);
+        if (LambdaTree.count(index)>0) {
+            T val = y(i);
+            u_loc_single_jM1[index] += val;
         }
     }
     for (int i=dual_basis.rangeJ_(j-1).firstIndex(); i<=dual_basis.rangeJ_(j-1).lastIndex(); ++i) {
-        Index1D wavelet_index(j-1,i,XWavelet);
-        if (LambdaTree.count(wavelet_index)>0) {
+        Index1D index(j-1,i,XWavelet);
+        if (LambdaTree.count(index)>0) {
             T val = y(dual_basis.mra_.cardI_(j-1) + i);
-            u_multi[wavelet_index] = val;
+            u_multi[index] = val;
+        }
+    }
+}
+
+template <typename T, typename PrimalBasis>
+void
+computeLocalDecomposition_(const Coefficients<Lexicographical,T,Index1D> &u_loc_single_j,
+                           const PrimalBasis &basis, int j,
+                           const IndexSet<Index1D> &LambdaTree,
+                           Coefficients<Lexicographical,T,Index1D> &u_loc_single_jM1,
+                           Coefficients<Lexicographical,T,Index1D> &u_multi)
+{
+    typedef typename flens::DenseVector<flens::Array<T> >                     DenseVectorT;
+    typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator  const_coeff1d_it;
+
+    DenseVectorT x(basis.mra.rangeI(j));
+    DenseVectorT y(basis.mra.rangeI(j));
+    for (const_coeff1d_it it=u_loc_single_j.begin(); it!=u_loc_single_j.end(); ++it) {
+        int k       = (*it).first.k;
+        XType xtype = (*it).first.xtype;
+        T val       = (*it).second;
+
+        x(k) = val;
+
+    }
+    decompose_(x, basis, j-1, y);
+
+    for (int i=basis.mra.rangeI(j-1).firstIndex(); i<=basis.mra.rangeI(j-1).lastIndex(); ++i) {
+        Index1D index(j-1,i,XBSpline);
+        if (LambdaTree.count(index)>0) {
+            T val = y(i);
+            u_loc_single_jM1[index] += val;
+        }
+    }
+    for (int i=basis.rangeJ(j-1).firstIndex(); i<=basis.rangeJ(j-1).lastIndex(); ++i) {
+        Index1D index(j-1,i,XWavelet);
+        if (LambdaTree.count(index)>0) {
+            T val = y(basis.mra.cardI(j-1) + i);
+            u_multi[index] = val;
         }
     }
 }

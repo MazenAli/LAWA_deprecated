@@ -34,7 +34,19 @@ template <typename T, typename PrimalBasis>
 void
 computeLocalReconstruction(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
                            const PrimalBasis &basis, int j,
-                           Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1);
+                           Coefficients<Lexicographical,T,Index1D> &u_multi_jP1);
+
+template <typename T, typename PrimalBasis>
+void
+computeLocalReconstruction(const IndexSet<Index1D> &Lambda_multi_j,
+                           const PrimalBasis &basis, int j,
+                           IndexSet<Index1D> &Lambda_loc_single_jP1);
+
+template <typename T, typename DualBasis>
+void
+computeLocalReconstruction_(const IndexSet<Index1D> &Lambda_multi_j,
+                            const DualBasis &dual_basis, int j,
+                            IndexSet<Index1D> &Lambda_loc_single_jP1);
 
 template <typename T, typename PrimalBasis>
 void
@@ -45,10 +57,18 @@ computeMultiToLocallySingleRepr(const PrimalBasis &basis,
 template <typename T, typename DualBasis>
 void
 computeLocalDecomposition(const Coefficients<Lexicographical,T,Index1D> &u_loc_single_j,
-                          const DualBasis &basis, int j,
+                          const DualBasis &dual_basis, int j,
                           const IndexSet<Index1D> &LambdaTree,
                           Coefficients<Lexicographical,T,Index1D> &u_loc_single_jM1,
                           Coefficients<Lexicographical,T,Index1D> &u_multi);
+
+template <typename T, typename PrimalBasis>
+void
+computeLocalDecomposition_(const Coefficients<Lexicographical,T,Index1D> &u_loc_single_j,
+                           const PrimalBasis &basis, int j,
+                           const IndexSet<Index1D> &LambdaTree,
+                           Coefficients<Lexicographical,T,Index1D> &u_loc_single_jM1,
+                           Coefficients<Lexicographical,T,Index1D> &u_multi);
 
 template <typename T, typename DualBasis>
 void
