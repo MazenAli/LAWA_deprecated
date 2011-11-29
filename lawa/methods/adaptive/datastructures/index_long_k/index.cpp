@@ -154,7 +154,7 @@ index_hashfunction<Index1D>::operator()(const Index1D& index) const
     std::size_t hash_value = 0;
     boost::hash_combine(hash_value, val);
     boost::hash_combine(hash_value, index.k);
-    return hasher(hash_value);
+    return hash_value;
 }
 
 size_t

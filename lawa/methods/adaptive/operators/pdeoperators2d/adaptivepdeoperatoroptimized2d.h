@@ -86,11 +86,11 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
 
     void
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                        SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);
+                        SparseMatrixT &A_flens, int J=-1);
 
     void
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                        SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
+                        SparseMatrixT &A_flens, T eps);
 
     Coefficients<Lexicographical,T,Index2D>
     apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J=-1000,

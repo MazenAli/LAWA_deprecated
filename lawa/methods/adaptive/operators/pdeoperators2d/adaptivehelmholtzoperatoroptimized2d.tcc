@@ -188,7 +188,7 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                      SparseMatrixT &A_flens, int J, bool useLinearIndex)
+                      SparseMatrixT &A_flens, int J)
 {
     std::cerr << "  -> toFlensSparseMatrix called with J= " << J << std::endl;
     IndexSet<Index1D> LambdaRow_x, LambdaRow_y;
@@ -201,128 +201,74 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
 
     const_set2d_it LambdaRow_end=LambdaRow.end();
 
-    if (!useLinearIndex) {
-        std::cerr << "AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>::toFlensSparseMatrix called." << std::endl;
 
-        std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
-        int row_count = 1;
-        for (const_set2d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
-            row_indices[(*row)] = row_count;
+    std::cerr << "AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>::toFlensSparseMatrix called." << std::endl;
+
+    std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
+    int row_count = 1;
+    for (const_set2d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
+        row_indices[(*row)] = row_count;
+    }
+
+    int col_count = 1;
+    for (const_set2d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
+        Index2D col_index = *col;
+
+        T prec_col_index = this->prec(col_index);
+        if (LambdaRow.count(col_index)>0) {
+            A_flens(col_count,col_count) += c * prec_col_index*prec_col_index;
         }
 
-        int col_count = 1;
-        for (const_set2d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
-            Index2D col_index = *col;
-
-            T prec_col_index = this->prec(col_index);
-            if (LambdaRow.count(col_index)>0) {
-                A_flens(col_count,col_count) += c * prec_col_index*prec_col_index;
-            }
-
-            IndexSet<Index1D> LambdaRowSparse_x, LambdaRowSparse_y;
-            if (sparsitypatterns_x.count((*col).index1) == 0) {
-                LambdaRowSparse_x = this->compression_1d_x.SparsityPattern((*col).index1, LambdaRow_x, J);
-                sparsitypatterns_x[(*col).index1] = LambdaRowSparse_x;
-            }
-            else {
-                LambdaRowSparse_x = sparsitypatterns_x[(*col).index1];
-            }
+        IndexSet<Index1D> LambdaRowSparse_x, LambdaRowSparse_y;
+        if (sparsitypatterns_x.count((*col).index1) == 0) {
+            LambdaRowSparse_x = this->compression_1d_x.SparsityPattern((*col).index1, LambdaRow_x, J);
+            sparsitypatterns_x[(*col).index1] = LambdaRowSparse_x;
+        }
+        else {
+            LambdaRowSparse_x = sparsitypatterns_x[(*col).index1];
+        }
 
 
-            if (sparsitypatterns_y.count((*col).index2) == 0) {
-                LambdaRowSparse_y = this->compression_1d_y.SparsityPattern((*col).index2, LambdaRow_y, J);
-                sparsitypatterns_y[(*col).index2] = LambdaRowSparse_y;
-            }
-            else {
-                LambdaRowSparse_y = sparsitypatterns_y[(*col).index2];
-            }
+        if (sparsitypatterns_y.count((*col).index2) == 0) {
+            LambdaRowSparse_y = this->compression_1d_y.SparsityPattern((*col).index2, LambdaRow_y, J);
+            sparsitypatterns_y[(*col).index2] = LambdaRowSparse_y;
+        }
+        else {
+            LambdaRowSparse_y = sparsitypatterns_y[(*col).index2];
+        }
 
-            for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                Index2D tmp_row_index(*row_x,(*col).index2);
-                if (LambdaRow.count(tmp_row_index)>0) {
-                    T val_x = laplace_data1d(*row_x,(*col).index1);
-                    if (fabs(val_x)>0.) {
-                        A_flens(row_indices[tmp_row_index],col_count) += this->prec(tmp_row_index)*val_x*prec_col_index;
-                    }
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            Index2D tmp_row_index(*row_x,(*col).index2);
+            if (LambdaRow.count(tmp_row_index)>0) {
+                T val_x = laplace_data1d(*row_x,(*col).index1);
+                if (fabs(val_x)>0.) {
+                    A_flens(row_indices[tmp_row_index],col_count) += this->prec(tmp_row_index)*val_x*prec_col_index;
                 }
             }
-            for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                Index2D tmp_row_index((*col).index1, *row_y);
-                if (LambdaRow.count(tmp_row_index)>0) {
-                     T val_y = laplace_data1d(*row_y,(*col).index2);
-                    if (fabs(val_y)>0.) {
-                        A_flens(row_indices[tmp_row_index],col_count) += this->prec(tmp_row_index)*val_y*prec_col_index;
-                    }
+        }
+        for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
+            Index2D tmp_row_index((*col).index1, *row_y);
+            if (LambdaRow.count(tmp_row_index)>0) {
+                 T val_y = laplace_data1d(*row_y,(*col).index2);
+                if (fabs(val_y)>0.) {
+                    A_flens(row_indices[tmp_row_index],col_count) += this->prec(tmp_row_index)*val_y*prec_col_index;
                 }
             }
         }
     }
-
-    else {
-        for (const_set2d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col) {
-            Index2D col_index = *col;
-
-            T prec_col_index = this->prec(col_index);
-            if (LambdaRow.count(col_index)>0) {
-                A_flens(col_index.linearindex,col_index.linearindex) += c * prec_col_index*prec_col_index;
-            }
-
-
-
-            IndexSet<Index1D> LambdaRowSparse_x, LambdaRowSparse_y;
-            if (sparsitypatterns_x.count((*col).index1) == 0) {
-                LambdaRowSparse_x = this->compression_1d_x.SparsityPattern((*col).index1, LambdaRow_x, J);
-                sparsitypatterns_x[(*col).index1] = LambdaRowSparse_x;
-            }
-            else {
-                LambdaRowSparse_x = sparsitypatterns_x[(*col).index1];
-            }
-
-
-            if (sparsitypatterns_y.count((*col).index2) == 0) {
-                LambdaRowSparse_y = this->compression_1d_y.SparsityPattern((*col).index2, LambdaRow_y, J);
-                sparsitypatterns_y[(*col).index2] = LambdaRowSparse_y;
-            }
-            else {
-                LambdaRowSparse_y = sparsitypatterns_y[(*col).index2];
-            }
-
-            for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                Index2D tmp_row_index(*row_x,(*col).index2);
-                const_set2d_it row_index = LambdaRow.find(tmp_row_index);
-                if (row_index!=LambdaRow_end) {
-                    T val_x = laplace_data1d(*row_x,(*col).index1);
-                    if (fabs(val_x)>0.) {
-                        A_flens((*row_index).linearindex,col_index.linearindex) += this->prec(tmp_row_index)*val_x*prec_col_index;
-                    }
-                }
-            }
-            for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                Index2D tmp_row_index((*col).index1, *row_y);
-                const_set2d_it row_index = LambdaRow.find(tmp_row_index);
-                if (row_index!=LambdaRow_end) {
-                    T val_y = laplace_data1d(*row_y,(*col).index2);
-                    if (fabs(val_y)>0.) {
-                        A_flens((*row_index).linearindex,col_index.linearindex) += this->prec(tmp_row_index)*val_y*prec_col_index;
-                    }
-                }
-            }
-        }
-    }
-    A_flens.finalize();
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                      SparseMatrixT &A_flens, T eps, bool useLinearIndex)
+                      SparseMatrixT &A_flens, T eps)
 {
     int J=0;        //compression
     J = (int)std::ceil(-1./(basis.d-1.5)*log(eps/CA)/log(2.));
     std::cerr << "   -> toFlensSparseMatrix: Estimated compression level for "
               << "tol = " << eps << " : " << J << std::endl;
-    this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,J,useLinearIndex);
+    this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,J);
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>
@@ -716,7 +662,7 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                      SparseMatrixT &A_flens, int J, bool useLinearIndex)
+                      SparseMatrixT &A_flens, int J)
 {
     std::cerr << "  -> toFlensSparseMatrix called with J= " << J << std::endl;
 
@@ -742,11 +688,10 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
     std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
 
 
-    if (!useLinearIndex) {
-        int row_count = 1;
-        for (const_set2d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
-            row_indices[(*row)] = row_count;
-        }
+
+    int row_count = 1;
+    for (const_set2d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
+        row_indices[(*row)] = row_count;
     }
     std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator row_indices_end;
     row_indices_end = row_indices.end();
@@ -794,53 +739,26 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 
         maxSizeSparsityPattern=std::max(maxSizeSparsityPattern,(int)(LambdaRowSparse_x.size()*LambdaRowSparse_y.size()));
 
-        if (!useLinearIndex) {
-            for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                T id_x = 0., dd_x = 0.;
-                id_x = LambdaRowSparseIdentity_x[*row_x];
-                dd_x = LambdaRowSparseLaplace_x[*row_x];
-                if (fabs(id_x)<1e-13 && fabs(dd_x)<1e-13) continue;
-                for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                    Index2D row_index(*row_x,*row_y);
-                    std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator row_count_ptr;
-                    row_count_ptr = row_indices.find(row_index);
-                    if (row_count_ptr!=row_indices_end) {
-                        T id_y = 0., dd_y = 0.;
-                        id_y = LambdaRowSparseIdentity_y[*row_y];
-                        dd_y = LambdaRowSparseLaplace_y[*row_y];
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            T id_x = 0., dd_x = 0.;
+            id_x = LambdaRowSparseIdentity_x[*row_x];
+            dd_x = LambdaRowSparseLaplace_x[*row_x];
+            if (fabs(id_x)<1e-13 && fabs(dd_x)<1e-13) continue;
+            for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
+                Index2D row_index(*row_x,*row_y);
+                std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator row_count_ptr;
+                row_count_ptr = row_indices.find(row_index);
+                if (row_count_ptr!=row_indices_end) {
+                    T id_y = 0., dd_y = 0.;
+                    id_y = LambdaRowSparseIdentity_y[*row_y];
+                    dd_y = LambdaRowSparseLaplace_y[*row_y];
 
-                        T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
+                    T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
 
-                        T prec_row_index = this->prec(row_index);
-                        T prec_val = prec_row_index* val * prec_col_index;
-                        if (fabs(prec_val)>thresh) {
-                            A_flens((*row_count_ptr).second,col_count) = prec_val;
-                        }
-                    }
-                }
-            }
-        }
-        else {
-            for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                T id_x = 0., dd_x = 0.;
-                id_x = LambdaRowSparseIdentity_x[*row_x];
-                dd_x = LambdaRowSparseLaplace_x[*row_x];
-                if (fabs(id_x)<1e-13 && fabs(dd_x)<1e-13) continue;
-                for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                    Index2D row_index(*row_x,*row_y);
-                    const_set2d_it row_index_ptr = LambdaRow.find(row_index);
-                    if (row_index_ptr!=LambdaRow_end) {
-                        T id_y = 0., dd_y = 0.;
-                        id_y = LambdaRowSparseIdentity_y[*row_y];
-                        dd_y = LambdaRowSparseLaplace_y[*row_y];
-
-                        T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
-
-                        T prec_row_index = this->prec(row_index);
-                        T prec_val = prec_row_index* val * prec_col_index;
-                        if (fabs(prec_val)>thresh) {
-                            A_flens((*row_index_ptr).linearindex,col_index.linearindex) = prec_val;
-                        }
+                    T prec_row_index = this->prec(row_index);
+                    T prec_val = prec_row_index* val * prec_col_index;
+                    if (fabs(prec_val)>thresh) {
+                        A_flens((*row_count_ptr).second,col_count) = prec_val;
                     }
                 }
             }
@@ -857,9 +775,9 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                      SparseMatrixT &A_flens, T /*eps*/, bool useLinearIndex)
+                      SparseMatrixT &A_flens, T /*eps*/)
 {
-    this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1,useLinearIndex);
+    this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1);
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>

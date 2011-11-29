@@ -74,15 +74,11 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF> {
 
     void
     toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
-                        SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);
+                        SparseMatrixT &A_flens, int J=-1);
 
     void
     toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
-                        SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
-
-    void
-    extendFlensSparseMatrix(const IndexSet<Index1D>& Lambda, const IndexSet<Index1D>& Extension,
-                            SparseMatrixT &A_flens, int J=-1);
+                        SparseMatrixT &A_flens, T eps);
 
 
     Coefficients<Lexicographical,T,Index1D>
@@ -152,16 +148,11 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi> {
 
     void
     toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
-                        SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);
+                        SparseMatrixT &A_flens, int J=-1);
 
     void
     toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
-                        SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
-
-    void
-    extendFlensSparseMatrix(const IndexSet<Index1D>& Lambda, const IndexSet<Index1D>& Extension,
-                            SparseMatrixT &A_flens, int J=-1);
-
+                        SparseMatrixT &A_flens, T eps);
 
     Coefficients<Lexicographical,T,Index1D>
     apply(const Coefficients<Lexicographical,T,Index1D> &v, int k=0, int J=-1000);
@@ -231,16 +222,11 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>
 
     void
     toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
-                        SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);
+                        SparseMatrixT &A_flens, int J=-1);
 
     void
     toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
-                        SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
-
-    void
-    extendFlensSparseMatrix(const IndexSet<Index1D>& Lambda, const IndexSet<Index1D>& Extension,
-                            SparseMatrixT &A_flens, int J=-1);
-
+                        SparseMatrixT &A_flens, T eps);
 
     Coefficients<Lexicographical,T,Index1D>
     apply(const Coefficients<Lexicographical,T,Index1D> &v, int k=0, int J=0);

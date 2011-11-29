@@ -87,47 +87,24 @@ void
 AdaptivePDEOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSparseMatrix
                                                            (const IndexSet<Index1D>& LambdaRow,
                                                             const IndexSet<Index1D>& LambdaCol,
-                                                            SparseMatrixT &A_flens, int /*J*/,
-                                                            bool useLinearIndex)
+                                                            SparseMatrixT &A_flens, int /*J*/)
 {
-    if (!useLinearIndex) {
-        std::map<Index1D,int,lt<Lexicographical,Index1D> > row_indices;
-        int row_count = 1, col_count = 1;
-        for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
-            row_indices[(*row)] = row_count;
-        }
-        this->compression.setParameters(LambdaRow);
-        for (const_set1d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
-            IndexSet<Index1D> LambdaRowSparse = this->compression.SparsityPattern(*col, LambdaRow);
-            for (const_set1d_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
-                T val = this->operator()(*row,*col);
-                if (fabs(val)>0) {
-                    A_flens(row_indices[*row],col_count) = val;
-                }
+    std::map<Index1D,int,lt<Lexicographical,Index1D> > row_indices;
+    int row_count = 1, col_count = 1;
+    for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
+        row_indices[(*row)] = row_count;
+    }
+    this->compression.setParameters(LambdaRow);
+    for (const_set1d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
+        IndexSet<Index1D> LambdaRowSparse = this->compression.SparsityPattern(*col, LambdaRow);
+        for (const_set1d_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
+            T val = this->operator()(*row,*col);
+            if (fabs(val)>0) {
+                A_flens(row_indices[*row],col_count) = val;
             }
         }
-        A_flens.finalize();
     }
-    else {
-        const_set1d_it LambdaRow_end=LambdaRow.end();
-        int col_count=1;
-        for (const_set1d_it set_it=LambdaCol.begin(); set_it!=LambdaCol.end(); ++set_it) {
-            Index1D col_index = *set_it;
-            IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE(col_index, basis, 1, basis.j0);
-            for (const_set1d_it set_it=lambdaTilde.begin(); set_it!=lambdaTilde.end(); ++set_it) {
-                const_set1d_it row_index = LambdaRow.find(*set_it);
-                if (row_index!=LambdaRow_end) {
-                    T val = this->operator()(*row_index,col_index);
-                    if (fabs(val)>0) {
-                        A_flens((*row_index).linearindex,col_index.linearindex) = val;
-
-                    }
-                }
-            }
-            ++col_count;
-        }
-        A_flens.finalize();
-    }
+    A_flens.finalize();
 }
 
 template <typename T, DomainType Domain>
@@ -135,46 +112,9 @@ void
 AdaptivePDEOperatorOptimized1D<T,Primal,Domain,SparseMulti>::toFlensSparseMatrix
                                                         (const IndexSet<Index1D>& LambdaRow,
                                                          const IndexSet<Index1D>& LambdaCol,
-                                                         SparseMatrixT &A_flens, T /*eps*/,
-                                                         bool useLinearIndex)
+                                                         SparseMatrixT &A_flens, T /*eps*/)
 {
-    this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1,useLinearIndex);
-}
-
-template<typename T, DomainType Domain>
-void
-AdaptivePDEOperatorOptimized1D<T, Primal,Domain,SparseMulti>::extendFlensSparseMatrix
-                                                         (const IndexSet<Index1D>& Lambda,
-                                                          const IndexSet<Index1D>& Extension,
-                                                          SparseMatrixT &A_flens, int /*J*/)
-{
-    if (Extension.size()!=0) {
-        const_set1d_it Lambda_end=Lambda.end();
-        const_set1d_it Extension_end=Extension.end();
-
-        for (const_set1d_it set_it=Extension.begin(); set_it!=Extension.end(); ++set_it) {
-            Index1D col_index = *set_it;
-            IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE(col_index, basis, 1, basis.j0);
-            for (const_set1d_it set_it=lambdaTilde.begin(); set_it!=lambdaTilde.end(); ++set_it) {
-                const_set1d_it row_index = Lambda.find(*set_it);
-                if (row_index!=Lambda_end) {
-                    T val = this->operator()(*row_index,col_index);
-                    if (fabs(val)>0) {
-                        A_flens((*row_index).linearindex,col_index.linearindex) = val;
-                        A_flens(col_index.linearindex,(*row_index).linearindex) = val;
-                    }
-                    continue;
-                }
-                row_index = Extension.find(*set_it);
-                if (row_index!=Extension_end) {
-                    T val = this->operator()(*row_index,col_index);
-                    if (fabs(val)>0) {
-                        A_flens((*row_index).linearindex,col_index.linearindex) = val;
-                    }
-                }
-            }
-        }
-    }
+    this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1);
 }
 
 template<typename T, DomainType Domain>

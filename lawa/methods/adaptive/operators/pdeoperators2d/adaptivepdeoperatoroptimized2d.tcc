@@ -164,7 +164,7 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                      SparseMatrixT &A_flens, int J, bool useLinearIndex)
+                      SparseMatrixT &A_flens, int J)
 {
     std::cerr << "  -> toFlensSparseMatrix called with J= " << J << std::endl;
 
@@ -190,11 +190,10 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
     std::map<Index2D,int,lt<Lexicographical,Index2D> > row_indices;
 
 
-    if (!useLinearIndex) {
-        int row_count = 1;
-        for (const_set2d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
-            row_indices[(*row)] = row_count;
-        }
+
+    int row_count = 1;
+    for (const_set2d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
+        row_indices[(*row)] = row_count;
     }
     std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator row_indices_end;
     row_indices_end = row_indices.end();
@@ -249,59 +248,33 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 
         maxSizeSparsityPattern=std::max(maxSizeSparsityPattern,(int)(LambdaRowSparse_x.size()*LambdaRowSparse_y.size()));
 
-        if (!useLinearIndex) {
-            for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                T id_x = LambdaRowSparseIdentity_x[*row_x];
-                T d_x  = LambdaRowSparseConvection_x[*row_x];
-                T dd_x = LambdaRowSparseLaplace_x[*row_x];
-                if (fabs(id_x)<1e-13 && fabs(d_x)<1e-13 && fabs(dd_x)<1e-13) continue;
-                for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                    Index2D row_index(*row_x,*row_y);
-                    std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator row_count_ptr;
-                    row_count_ptr = row_indices.find(row_index);
-                    if (row_count_ptr!=row_indices_end) {
-                        T id_y = LambdaRowSparseIdentity_y[*row_y];
-                        T d_y  = LambdaRowSparseConvection_y[*row_y];
-                        T dd_y = LambdaRowSparseLaplace_y[*row_y];
 
-                        T val =   (diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x)*id_y
-                                + (diffusion*dd_y + convection_y*d_y + 0.5*reaction*id_y)*id_x;
+        for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
+            T id_x = LambdaRowSparseIdentity_x[*row_x];
+            T d_x  = LambdaRowSparseConvection_x[*row_x];
+            T dd_x = LambdaRowSparseLaplace_x[*row_x];
+            if (fabs(id_x)<1e-13 && fabs(d_x)<1e-13 && fabs(dd_x)<1e-13) continue;
+            for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
+                Index2D row_index(*row_x,*row_y);
+                std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator row_count_ptr;
+                row_count_ptr = row_indices.find(row_index);
+                if (row_count_ptr!=row_indices_end) {
+                    T id_y = LambdaRowSparseIdentity_y[*row_y];
+                    T d_y  = LambdaRowSparseConvection_y[*row_y];
+                    T dd_y = LambdaRowSparseLaplace_y[*row_y];
 
-                        T prec_row_index = this->prec(row_index);
-                        T prec_val = prec_row_index* val * prec_col_index;
-                        if (fabs(prec_val)>thresh) {
-                            A_flens((*row_count_ptr).second,col_count) = prec_val;
-                        }
+                    T val =   (diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x)*id_y
+                            + (diffusion*dd_y + convection_y*d_y + 0.5*reaction*id_y)*id_x;
+
+                    T prec_row_index = this->prec(row_index);
+                    T prec_val = prec_row_index* val * prec_col_index;
+                    if (fabs(prec_val)>thresh) {
+                        A_flens((*row_count_ptr).second,col_count) = prec_val;
                     }
                 }
             }
         }
-        else {
-            for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                T id_x = LambdaRowSparseIdentity_x[*row_x];
-                T d_x  = LambdaRowSparseConvection_x[*row_x];
-                T dd_x = LambdaRowSparseLaplace_x[*row_x];
-                if (fabs(id_x)<1e-13 && fabs(d_x)<1e-13 && fabs(dd_x)<1e-13) continue;
-                for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                    Index2D row_index(*row_x,*row_y);
-                    const_set2d_it row_index_ptr = LambdaRow.find(row_index);
-                    if (row_index_ptr!=LambdaRow_end) {
-                        T id_y = LambdaRowSparseIdentity_y[*row_y];
-                        T d_y  = LambdaRowSparseConvection_y[*row_y];
-                        T dd_y = LambdaRowSparseLaplace_y[*row_y];
 
-                        T val =   (diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x)*id_y
-                                + (diffusion*dd_y + convection_y*d_y + 0.5*reaction*id_y)*id_x;
-
-                        T prec_row_index = this->prec(row_index);
-                        T prec_val = prec_row_index* val * prec_col_index;
-                        if (fabs(prec_val)>thresh) {
-                            A_flens((*row_index_ptr).linearindex,col_index.linearindex) = prec_val;
-                        }
-                    }
-                }
-            }
-        }
     }
     std::cout << "Size of LambdaRow: " << LambdaRow.size()
               << ", size of LambdaRowSparse: " << maxSizeSparsityPattern << std::endl;
@@ -314,9 +287,9 @@ template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                      SparseMatrixT &A_flens, T /*eps*/, bool useLinearIndex)
+                      SparseMatrixT &A_flens, T /*eps*/)
 {
-    this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1,useLinearIndex);
+    this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,1);
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>

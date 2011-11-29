@@ -218,12 +218,11 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
         unsigned long N = Lambda.size();
         //std::cerr << "    Assembling of B started with N=" << N << std::endl;
 
-        bool useLinearIndex=true;
 
         flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
         Timer time_assemble;
         time_assemble.start();
-        A.toFlensSparseMatrix(Lambda,Lambda,B,J,useLinearIndex);
+        A.toFlensSparseMatrix(Lambda,Lambda,B,J);
         time_assemble.stop();
         std::cerr << "      Required time for matrix assembly: " << time_assemble.elapsed() << std::endl;
 
@@ -238,21 +237,12 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
         DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
 
         const_coeff_it r0_end = r0.end();
-        if (!useLinearIndex) {
-            int row_count=1;
-            for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-                const_coeff_it it = r0.find(*row);
-                if (it != r0_end) rhs(row_count) = (*it).second;
-                else              rhs(row_count) = 0.;
-                ++row_count;
-            }
-        }
-        else {
-            for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
-                const_coeff_it it = r0.find(*row);
-                if (it != r0_end) rhs((*row).linearindex) = (*it).second;
-                else              rhs((*row).linearindex) = 0.;
-            }
+        int row_count=1;
+        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
+            const_coeff_it it = r0.find(*row);
+            if (it != r0_end) rhs(row_count) = (*it).second;
+            else              rhs(row_count) = 0.;
+            ++row_count;
         }
 
         int iters = lawa::cg(B,x,rhs,tol/3.);
@@ -266,31 +256,11 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
 
         const_coeff_it w_end = w.end();
 
-        if (!useLinearIndex) {
-            int row_count=1;
-            for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
+        row_count=1;
+        for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
 
-                w[*row] += x(row_count);
-                /*
-                const_coeff_it it=w.find(*row);
-                if (it!=w_end) {
-                    ret[(*row)] = (*it).second + x(row_count);
-                }
-                else {
-                    ret[(*row)] = x(row_count);
-                }
-                */
-                ++row_count;
-            }
-        }
-        else {
-            for (coeff_it it=w.begin(); it!=w.end(); ++it) {
-                //ret[(*it).first] = (*it).second + x((*it).first.linearindex);
-                (*it).second += x((*it).first.linearindex);
-            }
-            for (const_set_it row=Extension.begin(); row!=Extension.end(); ++row) {
-                w[*row] = x((*row).linearindex);
-            }
+            w[*row] += x(row_count);
+            ++row_count;
         }
     }
 

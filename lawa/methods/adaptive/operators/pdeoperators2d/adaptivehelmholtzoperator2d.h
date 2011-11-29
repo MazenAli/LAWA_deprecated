@@ -54,13 +54,13 @@ struct AdaptiveHelmholtzOperator2D : public Operator2D<T>
     typedef LaplaceOperator1D<T, Basis_x>                            LaplaceOperator_x;
     typedef LaplaceOperator1D<T, Basis_y>                            LaplaceOperator_y;
 
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x,
+    typedef MapMatrix<T, Index1D, IdentityOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataIdentity_x;
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_y,
+    typedef MapMatrix<T, Index1D, IdentityOperator_y,
                                Compression1D_y, NoPreconditioner1D>  DataIdentity_y;
-    typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_x,
+    typedef MapMatrix<T, Index1D, LaplaceOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataLaplace_x;
-    typedef MapMatrixWithZeros<T, Index1D, LaplaceOperator_y,
+    typedef MapMatrix<T, Index1D, LaplaceOperator_y,
                                Compression1D_y, NoPreconditioner1D>  DataLaplace_y;
 
     typedef HelmholtzOperator2D<T, Basis2D>                 HelmholtzBilinearForm2D;

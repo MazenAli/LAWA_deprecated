@@ -322,16 +322,10 @@ int
 Coefficients<Bucket,T,Index>::addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber,
                                                   int count)
 {
-    if (count==-1) {
-        count = Lambda.size();
-    }
-    ++count;
     typedef typename  Coefficients<Bucket,T,Index>::BucketEntry::const_iterator const_it;
     for (const_it it=buckets[bucketnumber].begin(); it!=buckets[bucketnumber].end(); ++it) {
-        Index tmp((**it).first);
-        tmp.linearindex=count;
-        Lambda.insert(tmp);
-        ++count;
+        //Index tmp((**it).first);
+        Lambda.insert((**it).first);
     }
     return buckets[bucketnumber].size();
 }

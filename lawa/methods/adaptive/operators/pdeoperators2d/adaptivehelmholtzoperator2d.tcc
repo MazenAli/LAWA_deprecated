@@ -4,16 +4,17 @@ template <typename T, typename Basis2D, typename Preconditioner>
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::AdaptiveHelmholtzOperator2D
                                                          (const Basis2D &_basis, T _c,
                                                           const Preconditioner &_Prec,
-                                                          T thresh, int NumOfCols, int NumOfRows)
+                                                          T /*thresh*/, int /*NumOfCols*/,
+                                                          int /*NumOfRows*/)
 : basis(_basis), c(_c), Prec(_Prec),
   compression_1d_x(basis.first), compression_1d_y(basis.second), compression(basis),
   op_identity_x(basis.first), op_identity_y(basis.second),
   op_laplace_x(basis.first), op_laplace_y(basis.second),
   Prec1D(),
-  data_identity_x(op_identity_x, Prec1D, compression_1d_x, thresh, NumOfRows, NumOfCols),
-  data_identity_y(op_identity_y, Prec1D, compression_1d_y, thresh, NumOfRows, NumOfCols),
-  data_laplace_x(op_laplace_x,   Prec1D, compression_1d_x, thresh, NumOfRows, NumOfCols),
-  data_laplace_y(op_laplace_y,   Prec1D, compression_1d_y, thresh, NumOfRows, NumOfCols),
+  data_identity_x(op_identity_x, Prec1D, compression_1d_x),
+  data_identity_y(op_identity_y, Prec1D, compression_1d_y),
+  data_laplace_x(op_laplace_x,   Prec1D, compression_1d_x),
+  data_laplace_y(op_laplace_y,   Prec1D, compression_1d_y),
   P_data()
 {
 
