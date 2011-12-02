@@ -14,7 +14,7 @@ eval(int l, const PrimalTestBasis &test_basis, const PrimalTrialBasis &trial_bas
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator   const_coeff1d_it;
     typedef Integral<Gauss, PrimalTestBasis, PrimalTrialBasis>                 Integral_Psi_Psi;
 
-    std::cerr << "l = " << l << std::endl << std::endl;
+    //std::cerr << "l = " << l << std::endl << std::endl;
 
     if (SquareCap_lM1.size()==0 && Lhd.count(l)==0) return;
 
@@ -35,8 +35,8 @@ eval(int l, const PrimalTestBasis &test_basis, const PrimalTrialBasis &trial_bas
             }
         }
     }
-    std::cout << "l = " << l << ", SquareCap_lM1_1 = " << SquareCap_lM1_1 << std::endl;
-    std::cout << "l = " << l << ", SquareCap_lM1_2 = " << SquareCap_lM1_2 << std::endl;
+    //std::cout << "l = " << l << ", SquareCap_lM1_1 = " << SquareCap_lM1_1 << std::endl;
+    //std::cout << "l = " << l << ", SquareCap_lM1_2 = " << SquareCap_lM1_2 << std::endl;
 
     // Splitting of d_lM1
     Coefficients<Lexicographical,T,Index1D> d_lM1_1, d_lM1_2;
@@ -53,8 +53,8 @@ eval(int l, const PrimalTestBasis &test_basis, const PrimalTrialBasis &trial_bas
             }
         }
     }
-    std::cout << "l = " << l << ", d_lM1_1 = " << d_lM1_1 << std::endl;
-    std::cout << "l = " << l << ", d_lM1_2 = " << d_lM1_2 << std::endl;
+    //std::cout << "l = " << l << ", d_lM1_1 = " << d_lM1_1 << std::endl;
+    //std::cout << "l = " << l << ", d_lM1_2 = " << d_lM1_2 << std::endl;
 
     //Compute SquareCap_l
     IndexSet<Index1D> SquareCap_lM1_2_u_Lhd_l, SquareCap_l;
@@ -79,10 +79,22 @@ eval(int l, const PrimalTestBasis &test_basis, const PrimalTrialBasis &trial_bas
     }
 
     //Compute lsf e
-    Coefficients<Lexicographical,T,Index1D> e_multi, e;
+    Coefficients<Lexicographical,T,Index1D> e_multi, e, tmp;
     e_multi = d_lM1_2;
     if (c.count(l)>0)   { e_multi+= c[l]; }
+    Timer time;
+    time.start();
     computeLocalReconstruction(e_multi, trial_basis, l, e);
+    time.stop();
+    T time_oldLocalReconstruction = time.elapsed();
+    LocalRefinement<PrimalTrialBasis> LocalRefine(trial_basis,false);
+    time.start();
+    LocalRefine.reconstruct(e_multi, l, tmp);
+    time.stop();
+    tmp -= e;
+    std::cerr << "Testing local refinement: error = " << tmp.norm(2.)
+              << ", time was " << time.elapsed() << "(" << time_oldLocalReconstruction << ")"<< std::endl;
+
     //std::cout << "e_multi = " << e_multi << std::endl;
     //std::cout << "e       = " << e << std::endl;
 
@@ -92,12 +104,26 @@ eval(int l, const PrimalTestBasis &test_basis, const PrimalTrialBasis &trial_bas
 
     Coefficients<Lexicographical,T,Index1D> upsilon_vs_v_lM1_SquareCap_lM1_2;
     //Coefficients<Lexicographical,T,Index1D> theta_vs_v_lM1_Lhd_l;
-    std::cerr << "l = " << l << ", current Lambda = " << SquareCap_lM1_2+Lhd[l] << std::endl;
+    //std::cerr << "l = " << l << ", current Lambda = " << SquareCap_lM1_2+Lhd[l] << std::endl;
+    Coefficients<Lexicographical,T,Index1D> test_upsilon_vs_v_lM1_SquareCap_lM1_2, test_theta_vs_v_lM1_Lhd;
+    test_theta_vs_v_lM1_Lhd = theta_vs_v_lM1_Lhd;
+    time.start();
     computeLocalDecomposition_(UpsilonVsV_l, test_basis, l+1, SquareCap_lM1_2+Lhd[l],
                                upsilon_vs_v_lM1_SquareCap_lM1_2, theta_vs_v_lM1_Lhd);
+    time.stop();
+    T time_oldLocalDecompose = time.elapsed();
+    LocalRefinement<PrimalTestBasis> LocalRefineTest(test_basis,false);
+    time.start();
+    LocalRefineTest.decompose_(UpsilonVsV_l, SquareCap_lM1_2+Lhd[l], test_upsilon_vs_v_lM1_SquareCap_lM1_2, test_theta_vs_v_lM1_Lhd);
+    time.stop();
+    test_upsilon_vs_v_lM1_SquareCap_lM1_2 -= upsilon_vs_v_lM1_SquareCap_lM1_2;
+    test_theta_vs_v_lM1_Lhd -= theta_vs_v_lM1_Lhd;
+    std::cerr << "Testing local decompose: error = " << test_upsilon_vs_v_lM1_SquareCap_lM1_2.norm(2.)
+              << " , " << test_theta_vs_v_lM1_Lhd.norm(2.)
+              << ", time was " << time.elapsed() << "(" << time_oldLocalDecompose << ")"<< std::endl;
 
-    std::cerr << "l = " << l << ", theta_vs_v_lM1_Lhd " << theta_vs_v_lM1_Lhd << std::endl;
-    std::cerr << "l = " << l << ", upsilon_vs_v_lM1_SquareCap_lM1_2 " << upsilon_vs_v_lM1_SquareCap_lM1_2 << std::endl;
+    //std::cerr << "l = " << l << ", theta_vs_v_lM1_Lhd " << theta_vs_v_lM1_Lhd << std::endl;
+    //std::cerr << "l = " << l << ", upsilon_vs_v_lM1_SquareCap_lM1_2 " << upsilon_vs_v_lM1_SquareCap_lM1_2 << std::endl;
     for (const_set1d_it mu=SquareCap_lM1_2.begin(); mu!=SquareCap_lM1_2.end(); ++mu) {
         T val = 0.;
         for (const_coeff1d_it lambda=d_lM1_1.begin(); lambda!=d_lM1_1.end(); ++lambda) {
@@ -106,13 +132,13 @@ eval(int l, const PrimalTestBasis &test_basis, const PrimalTrialBasis &trial_bas
         }
         upsilon_vs_v_lM1_SquareCap_lM1_2[*mu] += val;
     }
-    std::cout << "l = " << l << ", upsilon_vs_v_lM1_SquareCap_lM1_1 = " << upsilon_vs_v_lM1_SquareCap_lM1_1 << std::endl;
-    std::cerr << "l = " << l << ", upsilon_vs_v_lM1_SquareCap_lM1_2 = " << upsilon_vs_v_lM1_SquareCap_lM1_2 << std::endl;
+    //std::cout << "l = " << l << ", upsilon_vs_v_lM1_SquareCap_lM1_1 = " << upsilon_vs_v_lM1_SquareCap_lM1_1 << std::endl;
+    //std::cerr << "l = " << l << ", upsilon_vs_v_lM1_SquareCap_lM1_2 = " << upsilon_vs_v_lM1_SquareCap_lM1_2 << std::endl;
 
     upsilon_vs_v_lM1_SquareCap_lM1 = upsilon_vs_v_lM1_SquareCap_lM1_1;
     upsilon_vs_v_lM1_SquareCap_lM1+= upsilon_vs_v_lM1_SquareCap_lM1_2;
     //theta_vs_v_lM1_Lhd  += theta_vs_v_lM1_Lhd_l;
-    std::cerr << "l = " << l << ", upsilon_vs_v_lM1_SquareCap_lM1 " << upsilon_vs_v_lM1_SquareCap_lM1 << std::endl;
+    //std::cerr << "l = " << l << ", upsilon_vs_v_lM1_SquareCap_lM1 " << upsilon_vs_v_lM1_SquareCap_lM1 << std::endl;
     //std::cerr << "l = " << l << ", theta_vs_v_lM1_Lhd_l " << theta_vs_v_lM1_Lhd_l << std::endl;
     return;
 

@@ -47,7 +47,7 @@ constructRandomGradedTree(const PrimalBasis &basis, int J, IndexSet<Index1D> &La
         }
     }
 
-    for (int j=basis.j0-1; j<=basis.j0+LambdaByLevels.size()-2; ++j) {
+    for (int j=basis.j0-1; j<=basis.j0+(int)LambdaByLevels.size()-2; ++j) {
         //std::cout << "j = " << j << std::endl;
         for (const_set1d_it it=LambdaByLevels[j].begin(); it!=LambdaByLevels[j].end(); ++it) {
             LambdaTree.insert(*it);
@@ -207,18 +207,6 @@ computeMultiToLocallySingleRepr(const PrimalBasis &basis,
             }
         }
         computeLocalReconstruction(u_multi_by_levels[j], basis, j,u_multi_by_levels[j+1]);
-
-        /*
-        IndexSet<Index1D> Lambda_multi_j, Lambda_loc_single_jP1;
-        Lambda_multi_j = supp(u_multi_by_levels[j]);
-        std::cout << "j = " << j << " shift from:" << std::endl;
-        std::cout << u_multi_by_levels[j] << std::endl;
-        std::cout << " to " << u_multi_by_levels[j+1] << std::endl;
-        computeLocalReconstruction<T,PrimalBasis>(Lambda_multi_j, basis, j,Lambda_loc_single_jP1);
-        std::cout << std::endl;
-        std::cout << Lambda_multi_j << std::endl;
-        std::cout << Lambda_loc_single_jP1 << std::endl;
-        */
         ++j;
     }
     for (const_coeff1d_it it=u_multi_by_levels[JP1].begin(); it!=u_multi_by_levels[JP1].end(); ++it) {

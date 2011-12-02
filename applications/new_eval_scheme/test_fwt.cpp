@@ -1,5 +1,6 @@
 #include <iostream>
 #include <lawa/lawa.h>
+#include <applications/new_eval_scheme/localrefinement.h>
 
 using namespace std;
 using namespace lawa;
@@ -13,17 +14,23 @@ typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT
 
 int main (int argc, char *argv[]) {
 
-    if (argc!=5) {
-        cout << "Usage: " << argv[0] << " d d_ j0 J" << endl;
+    if (argc!=6) {
+        cout << "Usage: " << argv[0] << " d d_ j0 J bc" << endl;
         return 0;
     }
     int d  = atoi(argv[1]);
     int d_ = atoi(argv[2]);
     int j0 = atoi(argv[3]);
     int J  = atoi(argv[4]);
+    bool withDirichletBC = atoi(argv[5]);
 
     PrimalBasis basis(d,d_,j0);
     DualBasis   dual_basis(d,d_,j0);
+    if (withDirichletBC) {
+        basis.enforceBoundaryCondition<DirichletBC>();
+        dual_basis.enforceBoundaryCondition<DirichletBC>();
+    }
+
 
     DenseVectorT c(basis.mra.rangeI(J));
     for (int i=basis.mra.rangeI(j0).firstIndex(); i<=basis.mra.rangeI(j0).lastIndex(); ++i) {
@@ -51,28 +58,6 @@ int main (int argc, char *argv[]) {
     }
     ell2norm = sqrt(ell2norm);
     cout << "|| c_diff || = " << ell2norm << endl;
-
-
-/*
-    for (int l=basis.j0; l<=J; ++l) {
-        PrimalBasis basis_shifted(d,d_,l);
-
-        stringstream filename;
-        filename << "u_shift_" << l-basis.j0 << ".dat";
-        ofstream file(filename.str().c_str());
-        for (T x=0.; x<=1.; x+=pow2i<T>(-J-2)) {
-            file << x << " " << evaluate(basis_shifted, J, c, x, 0) << endl;
-        }
-        file.close();
-
-        if (l==J) break;
-
-        DenseVectorTView cview = c(basis.mra.rangeI(l+1));
-        DenseVectorT     z = c(basis.mra.rangeI(l+1));
-        reconstruct(z, basis, l, cview);
-    }
-*/
-
 
     return 0;
 }

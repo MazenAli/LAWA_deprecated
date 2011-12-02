@@ -22,6 +22,7 @@
 
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
+#include <applications/new_eval_scheme/localrefinement.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 
 namespace lawa {

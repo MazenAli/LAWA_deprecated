@@ -62,3 +62,7 @@ applications/unbounded_domains/validate/test_index
 applications/new_eval_scheme/plot_wavelets
 applications/new_eval_scheme/multi_to_single
 applications/new_eval_scheme/fwt
+applications/new_eval_scheme/test_fwt
+applications/new_eval_scheme/test_local_refinement
+applications/new_eval_scheme/test_multi_to_single
+applications/new_eval_scheme/test_new_mv

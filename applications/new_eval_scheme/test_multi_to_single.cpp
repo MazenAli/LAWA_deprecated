@@ -1,6 +1,7 @@
 #include <iostream>
 #include <lawa/lawa.h>
 #include <applications/new_eval_scheme/loc_single_scale_transforms.h>
+#include <applications/new_eval_scheme/localrefinement.h>
 
 using namespace std;
 using namespace lawa;
@@ -32,23 +33,23 @@ DenseVectorT u_singPts;
 
 int main (int argc, char *argv[]) {
 
-    if (argc!=5) {
-        cout << "Usage: " << argv[0] << " d d_ j0 J" << endl;
+    if (argc!=6) {
+        cout << "Usage: " << argv[0] << " d d_ j0 J withDirichletBC" << endl;
         return 0;
     }
-    int d  = atoi(argv[1]);
-    int d_ = atoi(argv[2]);
-    int j0 = atoi(argv[3]);
-    int J  = atoi(argv[4]);
+    int d                = atoi(argv[1]);
+    int d_               = atoi(argv[2]);
+    int j0               = atoi(argv[3]);
+    int J                = atoi(argv[4]);
+    bool withDirichletBC = atoi(argv[5]);
 
     PrimalBasis basis(d,d_,j0);
     DualBasis   dual_basis(d,d_,j0);
 
-    cout << "Range primal MRA:      " << basis.mra.rangeI(j0+2) << endl;
-    cout << "Range primal wavelets: " << basis.rangeJ(j0+2) << endl;
-
-    cout << "Range dual MRA:        " << dual_basis.mra_.rangeI_(j0+2) << endl;
-    cout << "Range dual wavelets:   " << dual_basis.rangeJ_(j0+2) << endl;
+    if (withDirichletBC) {
+        basis.enforceBoundaryCondition<DirichletBC>();
+        dual_basis.enforceBoundaryCondition<DirichletBC>();
+    }
 
     IndexSet<Index1D> LambdaTree;
     constructRandomGradedTree(basis, J, LambdaTree);

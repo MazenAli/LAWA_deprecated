@@ -24,6 +24,7 @@
 #include <lawa/constructions/basis.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 #include <applications/new_eval_scheme/loc_single_scale_transforms.h>
+#include <applications/new_eval_scheme/localrefinement.h>
 
 namespace lawa {
 

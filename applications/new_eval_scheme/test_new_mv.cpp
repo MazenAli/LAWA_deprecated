@@ -56,20 +56,26 @@ int main (int argc, char *argv[]) {
         return 0;
     }
 
+    Timer time;
+
     PrimalBasis test_basis(test_d,test_d_,test_j0);
     PrimalBasis trial_basis(trial_d,trial_d_,trial_j0);
 
     IndexSet<Index1D> test_LambdaTree;
     constructRandomGradedTree(test_basis, J+shift, test_LambdaTree);
-    cout << "test_LambdaTree = " << test_LambdaTree << endl;
+    //cout << "test_LambdaTree = " << test_LambdaTree << endl;
 
     IndexSet<Index1D> trial_LambdaTree;
     constructRandomGradedTree(trial_basis, J, trial_LambdaTree);
-    cout << "trial_LambdaTree = " << trial_LambdaTree << endl;
+    //cout << "trial_LambdaTree = " << trial_LambdaTree << endl;
 
     Coefficients<Lexicographical,T,Index1D> trial_u_multi, test_Mu;
     computeCoefficientVector(trial_basis, trial_LambdaTree, trial_u_multi);
+
+    time.start();
     computeMatrixVectorRef(test_basis, trial_basis, trial_u_multi, test_LambdaTree, test_Mu);
+    time.stop();
+    T time_computeMatrixVectorRef = time.elapsed();
 
 
     Coefficients<Lexicographical,T,Index1D>                    d_lM1;
@@ -112,23 +118,31 @@ int main (int argc, char *argv[]) {
     }
 
 
-    cout << "d_lM1 = " << d_lM1 << endl;
+    //cout << "d_lM1 = " << d_lM1 << endl;
     for (int j=trial_basis.j0; j<=J; ++j) {
-        cout << "c_" << j << " = " << c[j] << endl;
+    //    cout << "c_" << j << " = " << c[j] << endl;
     }
-    cout << "SquareCap_lM1 = " << SquareCap_lM1 << endl;
+    //cout << "SquareCap_lM1 = " << SquareCap_lM1 << endl;
     for (int j=test_basis.j0; j<=J+shift; ++j) {
-        cout << "Lhd_" << j << " = " << Lhd[j] << endl;
+    //    cout << "Lhd_" << j << " = " << Lhd[j] << endl;
     }
+
+
+    time.start();
     Coefficients<Lexicographical,T,Index1D> upsilon_vs_v, theta_vs_v, test_Mu2, diff;
     eval<T, PrimalBasis, PrimalBasis>(test_basis.j0, test_basis, trial_basis, c, d_lM1,
                                       Lhd, SquareCap_lM1, upsilon_vs_v, theta_vs_v);
-
+    time.stop();
+    T time_eval = time.elapsed();
     test_Mu2 = upsilon_vs_v + theta_vs_v;
     diff = test_Mu - test_Mu2;
     //cout << "Mu  = " << test_Mu << endl;
     //cout << "Mu2 = " << test_Mu2 << endl;
     cout << "||Mu-Mu2||_2 = " << diff.norm(2.) << endl;
+
+    cout << "Size of LambdaTest: " << test_LambdaTree.size() << ", size of LambdaTrial: " << trial_LambdaTree.size() << endl;
+    cout << "Reference Matrix Vector product: " << time_computeMatrixVectorRef << endl;
+    cout << "eval                           : " << time_eval << endl;
 
 }
 
