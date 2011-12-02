@@ -651,14 +651,6 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>
-Coefficients<Lexicographical,T,Index2D>
-AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
-::operator*(const Coefficients<Lexicographical,T,Index2D> &v)
-{
-    return this->mv(supp(v), v);
-}
-
-template <typename T, DomainType Domain1, DomainType Domain2>
 void
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
@@ -801,9 +793,13 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 
     Index1D_Coefficients1D_Hash y_v;
     Coefficients<Lexicographical,T,Index2D> I_A_v, I_M_v;
+    Index1D_Coefficients1D_Hash x_I_A_v, x_I_M_v;
 
     Timer time;
     time.start();
+    Timer time_restr;
+    T elapsed_time_restr=0.;
+    time_restr.start();
     for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
         if (y_v.count((*col).first.index2)>0) {
             y_v[(*col).first.index2].operator[]((*col).first.index1) = this->prec((*col).first) * (*col).second;
@@ -814,6 +810,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             y_v[(*col).first.index2] = coeff_x;
         }
     }
+    time_restr.stop();
+    elapsed_time_restr+=time_restr.elapsed();
 
     for (const_Index1D_Coefficients1D_Hash_it it=y_v.begin(); it!=y_v.end(); ++it) {
         Index1D col_index_y = (*it).first;
@@ -838,18 +836,19 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             for (const_coeff1d_it val_y=Columnvalues_M_y_index.begin(); val_y!=Columnvalues_M_y_index.end(); ++val_y) {
                 Index2D row_index(col_index_x,(*val_y).first);
                 T val1 = (*val_y).second * prec_val_col_index;
-                I_A_v[row_index] += val1;
+                I_M_v[row_index] += val1;
             }
 
             for (const_coeff1d_it val_y=Columnvalues_A_y_index.begin(); val_y!=Columnvalues_A_y_index.end(); ++val_y) {
                Index2D row_index(col_index_x,(*val_y).first);
                T val2 = (*val_y).second * prec_val_col_index;
-               I_M_v[row_index] += val2;
+               I_A_v[row_index] += val2;
            }
         }
     }
 
-    Index1D_Coefficients1D_Hash x_I_A_v, x_I_M_v;
+    time_restr.start();
+
     for (const_coeff2d_it col=I_A_v.begin(); col!=I_A_v.end(); ++col) {
         if (x_I_A_v.count((*col).first.index1)>0) {
             x_I_A_v[(*col).first.index1].operator[]((*col).first.index2) = (*col).second;
@@ -860,6 +859,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             x_I_A_v[(*col).first.index1] = coeff_y;
         }
     }
+    I_A_v.clear();
     for (const_coeff2d_it col=I_M_v.begin(); col!=I_M_v.end(); ++col) {
         if (x_I_M_v.count((*col).first.index1)>0) {
             x_I_M_v[(*col).first.index1].operator[]((*col).first.index2) = (*col).second;
@@ -870,8 +870,12 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             x_I_M_v[(*col).first.index1] = coeff_y;
         }
     }
+    I_M_v.clear();
+    time_restr.stop();
+    elapsed_time_restr+=time_restr.elapsed();
+    //std::cerr << "Required time for restructuring: " << elapsed_time_restr << std::endl;
 
-    for (const_Index1D_Coefficients1D_Hash_it it=x_I_A_v.begin(); it!=x_I_A_v.end(); ++it) {
+    for (const_Index1D_Coefficients1D_Hash_it it=x_I_M_v.begin(); it!=x_I_M_v.end(); ++it) {
 
         Index1D col_index_x = (*it).first;
 
@@ -898,7 +902,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
     }
 
-    for (const_Index1D_Coefficients1D_Hash_it it=x_I_M_v.begin(); it!=x_I_M_v.end(); ++it) {
+    for (const_Index1D_Coefficients1D_Hash_it it=x_I_A_v.begin(); it!=x_I_A_v.end(); ++it) {
         Index1D col_index_x = (*it).first;
 
         IndexSet<Index1D> LambdaRowSparse_x;
@@ -928,9 +932,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
     }
 
     time.stop();
-    std::cerr << "New structure required: " << time.elapsed() << std::endl;
+    std::cerr << "      New structure required: " << time.elapsed() << std::endl;
 
-    std::cerr << "         Input length = " << v.size()  << ", output length = " << ret.size()
+    std::cerr << "      Input length = " << v.size()  << ", output length = " << ret.size()
               << ", quotient(output vs. input) = " << T(ret.size())/T(v.size()) << std::endl;
 
 
@@ -994,13 +998,13 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             for (const_coeff1d_it val_y=Columnvalues_M_y_index.begin(); val_y!=Columnvalues_M_y_index.end(); ++val_y) {
                 Index2D row_index(col_index_x,(*val_y).first);
                 T val1 = (*val_y).second * prec_val_col_index;
-                I_A_v[row_index] += val1;
+                I_M_v[row_index] += val1;
             }
 
             for (const_coeff1d_it val_y=Columnvalues_A_y_index.begin(); val_y!=Columnvalues_A_y_index.end(); ++val_y) {
                Index2D row_index(col_index_x,(*val_y).first);
                T val2 = (*val_y).second * prec_val_col_index;
-               I_M_v[row_index] += val2;
+               I_A_v[row_index] += val2;
            }
         }
     }
@@ -1027,7 +1031,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
     }
 
-    for (const_Index1D_Coefficients1D_Hash_it it=x_I_A_v.begin(); it!=x_I_A_v.end(); ++it) {
+    for (const_Index1D_Coefficients1D_Hash_it it=x_I_M_v.begin(); it!=x_I_M_v.end(); ++it) {
 
         Index1D col_index_x = (*it).first;
 
@@ -1056,7 +1060,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
     }
 
-    for (const_Index1D_Coefficients1D_Hash_it it=x_I_M_v.begin(); it!=x_I_M_v.end(); ++it) {
+    for (const_Index1D_Coefficients1D_Hash_it it=x_I_A_v.begin(); it!=x_I_A_v.end(); ++it) {
         Index1D col_index_x = (*it).first;
 
         IndexSet<Index1D> LambdaRowSparse_x;
@@ -1088,9 +1092,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
     }
 
     time.stop();
-    std::cerr << "New structure required: " << time.elapsed() << std::endl;
+    std::cerr << "      New structure required: " << time.elapsed() << std::endl;
 
-    std::cerr << "         Input length = " << v.size()  << ", output length = " << ret.size()
+    std::cerr << "      Input length = " << v.size()  << ", output length = " << ret.size()
               << ", quotient(output vs. input) = " << T(ret.size())/T(v.size()) << std::endl;
 
 

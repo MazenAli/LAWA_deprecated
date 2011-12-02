@@ -147,7 +147,7 @@ template <typename T>
 T
 TensorRefSols_PDE_Realline2D<T>::rhs_y(T y)
 {
-    return -exact_y(y,2) + convection_y*exact_y(y,1) + 0.5*reaction*exact_y(y,0);
+    return -diffusion*exact_y(y,2) + convection_y*exact_y(y,1) + 0.5*reaction*exact_y(y,0);
 }
 
 template <typename T>
@@ -170,7 +170,7 @@ TensorRefSols_PDE_Realline2D<T>::exact_x(T x, int deriv_x)
     else if (nr==2) {
         if (deriv_x==0)         return  std::exp(-0.1*fabs(x-0.0001));
         else if (deriv_x==1) {
-            if (x < 1./3.)      return   0.1*std::exp(-0.1*fabs(x-0.0001));
+            if (x < 0.0001)     return   0.1*std::exp(-0.1*fabs(x-0.0001));
             else                return  -0.1*std::exp(-0.1*fabs(x-0.0001));
         }
         else                    return   0.01*std::exp(-0.1*fabs(x-0.0001));
@@ -223,7 +223,7 @@ TensorRefSols_PDE_Realline2D<T>::exact_y(T y, int deriv_y)
     else if (nr==2) {
         if (deriv_y==0)         return  std::exp(-0.5*fabs(y-0.0001));
         else if (deriv_y==1) {
-            if (y < 1./3.) return   0.5*std::exp(-0.5*fabs(y-0.0001));
+            if (y < 0.0001) return   0.5*std::exp(-0.5*fabs(y-0.0001));
             else           return  -0.5*std::exp(-0.5*fabs(y-0.0001));
         }
         else               return   0.25*std::exp(-0.5*fabs(y-0.0001));

@@ -27,16 +27,18 @@
 
 namespace lawa {
 
-#define JMAX 55
+#define JMAX 36
 
 struct Index1D
 {
     short j;
-    long k;
+    int k;
     XType xtype;
+    long val;
+    mutable unsigned int linearindex;
 
     Index1D(void);
-    Index1D(int j, long k, XType _xtype);
+    Index1D(int j, int k, XType _xtype);
     Index1D(const Index1D &index);
     ~Index1D();
 };
@@ -45,6 +47,7 @@ std::ostream& operator<<(std::ostream &s, const Index1D &_Index);
 
 struct Index2D
 {
+    mutable unsigned int linearindex;
     Index2D(const Index1D &index1, const Index1D &index2);
     ~Index2D();
     Index1D index1, index2;
@@ -55,6 +58,7 @@ std::ostream& operator<<(std::ostream &s, const Index2D &_Index);
 
 struct Index3D
 {
+    mutable unsigned int linearindex;
     Index3D(const Index1D &index1, const Index1D &index2, const Index1D &index3);
     ~Index3D();
     Index1D index1, index2, index3;
@@ -79,7 +83,7 @@ struct lt
 };
 
 //Bitmask implementation
-template<>
+template<> 
 struct lt<Lexicographical, Index1D>
 {
     bool operator()(const Index1D &left, const Index1D &right) const;
@@ -94,7 +98,6 @@ struct lt<Lexicographical, Index2D>
 
     bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const;
 };
-
 
 template <>
 struct lt<Lexicographical, Index3D>

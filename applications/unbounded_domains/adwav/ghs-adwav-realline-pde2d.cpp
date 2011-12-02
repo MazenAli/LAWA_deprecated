@@ -74,7 +74,6 @@ typedef RHS2D<T,SparseMW_NonSeparableRhsIntegralSG2D, SparseMW_Prec>    SparseMW
 
 typedef RHS2D<T,SparseMW_SumOfNonSeparableRhsIntegral2D,SparseMW_Prec>  SparseMW_SumOfNonSeparableRhs2D;
 
-
 //Algorithm definition
 typedef GHS_NONSYM_ADWAV<T, Index2D, SparseMW_MA, SparseMW_SumOfSeparableRhs,
                          SparseMW_H1_MA, SparseMW_SumOfSeparableRhs>               SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs;
@@ -96,7 +95,7 @@ int main (int argc, char *argv[]) {
     int d_  =atoi(argv[3]);
     int j0_x=atoi(argv[4]);
     int j0_y=atoi(argv[5]);
-    T reaction=1., convection_x=0., convection_y=0., diffusion=1.;
+    T reaction=1., convection_x=5., convection_y=0., diffusion=1.;
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
@@ -149,17 +148,30 @@ int main (int argc, char *argv[]) {
         SparseMW_SumOfSeparableRhs           SparseMW_H1_F(SparseMW_H1_rhsintegral2d,SparseMW_P);
         SparseMW_H1_F.readIndexSets(rhsfilename.str().c_str());
 
-        SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,SparseMW_H1_A,SparseMW_H1_F,true, true);
+        SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,SparseMW_H1_A,SparseMW_H1_F,true, false);
+        T alpha = 0.4, omega = 0.2, gamma = 0.05, theta = 2*omega/(1+omega);
+        SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
 
         Coefficients<Lexicographical,T,Index2D> u;
-        u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
+        u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                             NumOfIterations, refsol.H1norm());
+
+        plot2D<T,SparseMW_Basis2D,SparseMW_Prec>(SparseMW_basis2d, u, SparseMW_P, refsol.exact,
+                                   -10., 10, -10., 10., pow2i<T>(-3), "example2_1");
+
+        IndexSet<Index2D> Lambda;
+        Lambda = supp(u);
+        T res = 0.;
+        int numiter =
+        GMRES_Solve(Lambda, SparseMW_A, u, SparseMW_F(Lambda), res, 1e-8, 1, 100);
 
         plotScatterCoeff2D(u, SparseMW_basis_x, SparseMW_basis_y, coefffilename.str().c_str());
 
         plot2D<T,SparseMW_Basis2D,SparseMW_Prec>(SparseMW_basis2d, u, SparseMW_P, refsol.exact,
-                           -20., 20, -20., 20., pow2i<T>(-3), "example2");
+                           -10., 10, -10., 10., pow2i<T>(-3), "example2_2");
     }
+
 
     return 0;
 }
+

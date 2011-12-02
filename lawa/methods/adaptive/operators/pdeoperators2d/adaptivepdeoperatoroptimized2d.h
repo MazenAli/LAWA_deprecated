@@ -21,6 +21,8 @@
 #ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEPDEOPERATOROPTIMIZED2D_H
 #define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEPDEOPERATOROPTIMIZED2D_H 1
 
+#include <ext/hash_map>
+
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
@@ -47,10 +49,18 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
     typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
     typedef IndexSet<Index2D>::const_iterator                                 const_set2d_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::iterator        coeff1d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator  const_coeff1d_it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator  const_coeff2d_it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::iterator        coeff2d_it;
     typedef typename Coefficients<AbsoluteValue,T,Index2D>::const_iterator    const_abs_coeff2d_it;
+
+    typedef typename __gnu_cxx::hash_map<Index1D,
+                                         Coefficients<Lexicographical,T,Index1D>,
+                                         index_hashfunction<Index1D>,
+                                         index_eqfunction<Index1D> >          Index1D_Coefficients1D_Hash;
+    typedef typename Index1D_Coefficients1D_Hash::iterator                    Index1D_Coefficients1D_Hash_it;
+    typedef typename Index1D_Coefficients1D_Hash::const_iterator              const_Index1D_Coefficients1D_Hash_it;
 
     typedef Basis<T,Primal,Domain1,SparseMulti>                               Basis_x;
     typedef Basis<T,Primal,Domain2,SparseMulti>                               Basis_y;
@@ -81,9 +91,10 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
     mv(const IndexSet<Index2D> &LambdaRow,
        const Coefficients<Lexicographical,T,Index2D> &x);
 
+    /*
     Coefficients<Lexicographical,T,Index2D>
     operator*(const Coefficients<Lexicographical,T,Index2D> &v);
-
+    */
     void
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
                         SparseMatrixT &A_flens, int J=-1);
@@ -102,8 +113,8 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
 
     void
     apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
-          const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
-          cxxblas::Transpose trans=cxxblas::NoTrans);
+             const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+             cxxblas::Transpose trans=cxxblas::NoTrans);
 
     void
     clear();

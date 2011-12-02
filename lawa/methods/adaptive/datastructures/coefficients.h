@@ -38,14 +38,20 @@ struct Coefficients
 
 template <typename T, typename Index>
 //struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
-struct Coefficients<Lexicographical,T,Index> : __gnu_cxx::hash_map<Index, T,
+struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index, T,
                                                                    index_hashfunction<Index>,
                                                                    index_eqfunction<Index> >
 {
     //using std::map<Index,T,lt<Lexicographical,Index> >::insert;
     //using std::map<Index,T,lt<Lexicographical,Index> >::erase;
+    //using __gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map;
     
-    Coefficients();        //required in rhs.h
+    Coefficients(void);
+
+    Coefficients(long numOfBuckets)
+       :__gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map(numOfBuckets) {
+
+    };         //required in rhs.h
 
     Coefficients<Lexicographical,T,Index>&
     operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
@@ -77,6 +83,9 @@ struct Coefficients<Lexicographical,T,Index> : __gnu_cxx::hash_map<Index, T,
     
     void
     scale(const T factor);
+
+    void
+    setToZero();
 
     T
     norm(T tau=2.0) const;

@@ -156,7 +156,7 @@ int main (int argc, char *argv[]) {
 
 
             Coefficients<Lexicographical,T,Index2D> u;
-            u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
+            u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                           NumOfIterations, refsol.H1norm());
         }
 
@@ -172,7 +172,7 @@ int main (int argc, char *argv[]) {
             MW_GHS_ADWAV_SOLVER_NonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,true);
 
             Coefficients<Lexicographical,T,Index2D> u;
-            u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
+            u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                           NumOfIterations, refsol.H1norm());
         }
         else if (example==5) {
@@ -196,7 +196,7 @@ int main (int argc, char *argv[]) {
                 MW_GHS_ADWAV_SOLVER_SumNonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,true);
 
                 Coefficients<Lexicographical,T,Index2D> u;
-                u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-5, convfilename.str().c_str(),
+                u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                               NumOfIterations, refsol.H1norm());
             }
         }
@@ -229,7 +229,7 @@ int main (int argc, char *argv[]) {
             SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
 
             Coefficients<Lexicographical,T,Index2D> u;
-            u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-7, convfilename.str().c_str(),
+            u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                                 NumOfIterations, refsol.H1norm());
         }
     }

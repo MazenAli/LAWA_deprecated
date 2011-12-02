@@ -24,7 +24,7 @@ namespace lawa {
  * ********************************************************************************************** */
 
 template <typename T, typename Index>
-Coefficients<Lexicographical,T,Index>::Coefficients()
+Coefficients<Lexicographical,T,Index>::Coefficients(void)
 {
 
 }
@@ -168,6 +168,16 @@ Coefficients<Lexicographical,T,Index>::scale(const T factor)
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
     for (const_it lambda = (*this).begin(); lambda != (*this).end(); ++lambda) {
         (*this).operator[]((*lambda).first) *= factor;
+    }
+}
+
+template <typename T, typename Index>
+void
+Coefficients<Lexicographical,T,Index>::setToZero(void)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    for (const_it it = (*this).begin(); it!=(*this).end(); ++it) {
+        (*this).operator[]((*it).first) = 0.;
     }
 }
 

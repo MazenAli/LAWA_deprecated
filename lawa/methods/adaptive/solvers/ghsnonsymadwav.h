@@ -47,10 +47,10 @@ struct GHS_NONSYM_ADWAV {
         IndexSet<Index>
         GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu);
 
-        Coefficients<Lexicographical,T,Index>
+        void
         GALSOLVE(const IndexSet<Index> &Lambda, const IndexSet<Index> &Extension,
                  const Coefficients<Lexicographical,T,Index> &g,
-                 const Coefficients<Lexicographical,T,Index> &w, T delta, T tol);
+                 Coefficients<Lexicographical,T,Index> &w, T delta, T tol);
 
         AdaptiveOperator    &A;
         RHS                 &F;

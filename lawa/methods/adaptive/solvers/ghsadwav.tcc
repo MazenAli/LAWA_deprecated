@@ -5,8 +5,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F
                                                    bool _optimized_grow, bool _assemble_matrix)
     : A(_A), F(_F), optimized_grow(_optimized_grow), assemble_matrix(_assemble_matrix),
       cA(A.cA), CA(A.CA), kappa(A.kappa),
-      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.),
-      sparseMat_A(200000,200000)
+      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.), w_k(1257787)
 {
     omega = 0.01;
     alpha = 1./std::sqrt(kappa)-(1.+1./std::sqrt(kappa))*omega-0.00001;
@@ -31,7 +30,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
                                                int NumOfIterations, T H1norm)
 {
     T eps = _eps;
-    Coefficients<Lexicographical,T,Index> w_k, w_kP1, g_kP1;
+    Coefficients<Lexicographical,T,Index> /*w_k,*/ g_kP1;
     IndexSet<Index> Lambda_kP1;
     T nu_kM1 = nuM1;
     T nu_k   = 0.;

@@ -66,7 +66,8 @@ struct GHS_ADWAV {
         std::vector<int>                                    linsolve_iterations;
 
         std::map<Index,int,lt<Lexicographical,Index> >      row_indices;
-        SparseMatrixT                                       sparseMat_A;
+
+        Coefficients<Lexicographical,T,Index>               w_k;
 
 };
 

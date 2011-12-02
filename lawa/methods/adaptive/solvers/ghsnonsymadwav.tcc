@@ -19,6 +19,18 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS,
           typename PP_AdaptiveOperator, typename PP_RHS>
+void
+GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
+::setParameters(T _alpha, T _omega, T _gamma, T _theta)
+{
+    alpha = _alpha;
+    omega = _omega;
+    gamma = _gamma;
+    theta = _theta;
+}
+
+template <typename T, typename Index, typename AdaptiveOperator, typename RHS,
+          typename PP_AdaptiveOperator, typename PP_RHS>
 Coefficients<Lexicographical,T,Index>
 GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 ::SOLVE(T nuM1, T _eps, const char *filename, int NumOfIterations, T H1norm)
@@ -41,12 +53,12 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
         Timer time;
         std::cerr << "*** " << i << ".iteration ***" << std::endl;
         time.start();
-        std::cerr << "  GROW started." << std::endl;
+        std::cerr << "   GROW started." << std::endl;
 
         IndexSet<Index> Extension;
         Extension = this->GROW(w_k, theta*nu_kM1, nu_k);
         Lambda_kP1 = Lambda_kP1 + Extension;
-        std::cerr << "  GROW finished." << std::endl;
+        std::cerr << "   GROW finished." << std::endl;
         //solutions.push_back(w_kP1);
         residuals.push_back(nu_k);
         times.push_back(total_time);
@@ -62,7 +74,8 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
             u[(*it).first] *= A.prec((*it).first);
             u[(*it).first] *= 1./PP_A.prec((*it).first);
         }
-        PP_f = F(supp(u));
+        //Maybe, we need this...
+        //PP_f = F(supp(u));
         PP_f = PP_F(supp(u));
         T fu = u*PP_f;
         PP_Au = PP_A.mv(supp(u), u);
@@ -71,9 +84,13 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 
         Coefficients<Lexicographical,T,Index> Au_M_f;
         A.apply(w_k,0.,Au_M_f,NoTrans);
-        Au_M_f -= F(1e-7);
+        Au_M_f -= F(0.01*nu_k);
+        int liniters=0;
+        if (i>1) {
+            liniters = linsolve_iterations.back();
+        }
         file << w_k.size() << " " << total_time << " " <<  nu_k << " "
-                         << Error_H_energy << " " << Au_M_f.norm(2.) << std::endl;
+                         << Error_H_energy << " " << Au_M_f.norm(2.) << " "  << liniters << std::endl;
 
         /*
         std::stringstream coeff_filename;
@@ -95,19 +112,18 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
          * Attention: update in rhs1d is set! Linear complexity still holds with better convergence!
          */
         Coefficients<Lexicographical,T,Index> rhs;
-        //g_kP1 = F(Lambda_kP1);                // update rhs vector
+        g_kP1 = F(Lambda_kP1);                // update rhs vector
         rhs = F(gamma*nu_k);
         g_kP1 = P(rhs,Lambda_kP1);  // compute with restriction, otherwise GROW does not work
-        w_kP1 = this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
+        this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
 
-        std::cerr << "  GALSOLVE finished." << std::endl;
+        std::cerr << "   GALSOLVE finished." << std::endl;
 /*
         std::stringstream coefffile;
         coefffile << "ghs_adwav_coeffs_" << i;
         plotScatterCoeff2D(w_kP1, A.basis.first, A.basis.second, coefffile.str().c_str());
 */
         nu_kM1 = nu_k;
-        w_k = w_kP1;
         time.stop();
         total_time += time.elapsed();
         std::cerr << std::endl;
@@ -127,18 +143,19 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
     while (1) {
         zeta *= 0.5;
 
-        std::cerr << "GROW: zeta = " << zeta << std::endl;
-        A.apply(w, 0.25*zeta, help, cxxblas::NoTrans);
-        help = THRESH(help,0.1*zeta);
-        A.apply(help, 0.25*zeta, r, cxxblas::Trans);
-        std::cerr << "      size of r: " << r.size() << std::endl;
-        help = F(0.25*zeta);
-        A.apply(help, 0.25*zeta, rhs, cxxblas::Trans);
+        std::cerr << "      zeta = " << zeta << std::endl;
+        A.apply(w, zeta, help, cxxblas::NoTrans);
+        //help = THRESH(help,0.1*zeta);
+        A.apply(help, zeta, r, cxxblas::Trans);
+        std::cerr << "      size of A^T A v: " << r.size() << std::endl;
+        help = F(zeta);
+        A.apply(help, zeta, rhs, cxxblas::Trans);
+        std::cerr << "      size of A^T f:    " << rhs.size() << std::endl;
         r -= rhs;
 
         r_norm = r.norm(2.);
         nu = r_norm + zeta;
-        std::cerr << "    zeta = " << zeta << ", r_norm = " << r_norm << ", omega*r_norm = "
+        std::cerr << "      zeta = " << zeta << ", r_norm = " << r_norm << ", omega*r_norm = "
                   << omega*r_norm << ", nu = " << nu << std::endl;
         if (nu <= eps) break;
         if (zeta<=omega*r_norm) break;
@@ -170,9 +187,9 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
     r_bucket.bucketsort(r, threshbound);
     //std::cerr << r_bucket << std::endl;
 
-    std::cout << "  GROW: size of r = " << r.size() << std::endl;
-    std::cerr << "   Threshbound = " << threshbound << std::endl;
-    std::cerr << "   Before extension: ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
+    std::cout << "      size of r = " << r.size() << std::endl;
+    std::cerr << "      Threshbound = " << threshbound << std::endl;
+    std::cerr << "      Before extension: ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
               << ", alpha*r_norm = " << alpha*r_norm << std::endl;
     if (nu > eps) {
         int currentDoF = w.size();
@@ -190,37 +207,36 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
             }
         }
     }
+    r.clear();
+    rhs.clear();
+    help.clear();
     //getchar();
     return Lambda;
 }
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS,
           typename PP_AdaptiveOperator, typename PP_RHS>
-Coefficients<Lexicographical,T,Index>
+void
 GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 ::GALSOLVE(const IndexSet<Index> &Lambda, const IndexSet<Index> &Extension,
-           const Coefficients<Lexicographical,T,Index> &g, const Coefficients<Lexicographical,T,Index> &w,
-           T /*delta*/, T tol)
+           const Coefficients<Lexicographical,T,Index> &g,
+           Coefficients<Lexicographical,T,Index> &w, T /*delta*/, T tol)
 {
-
+    IndexSet<Index> LambdaCol, LambdaRow;
+    LambdaCol = Lambda + Extension;
+    Coefficients<Lexicographical,T,Index> help1, help2, help3;
+    for (const_set_it it=LambdaCol.begin(); it!=LambdaCol.end(); ++it) {
+        help1[*it] = 1.;
+    }
+    A.apply(help1,0.,help2,NoTrans);
+    LambdaRow = supp(help2);
     if (assemble_matrix) {
-        IndexSet<Index> LambdaCol, LambdaRow;
-        LambdaCol = Lambda + Extension;
-        Coefficients<Lexicographical,T,Index> help1, help2, help3;
-        for (const_set_it it=LambdaCol.begin(); it!=LambdaCol.end(); ++it) {
-            help1[*it] = 1.;
-        }
-        A.apply(help1,0.,help2,NoTrans);
-        LambdaRow = supp(help2);
 
-    //    T res1 = 0.;
-    //    int n=CGLS_Solve(LambdaRow, LambdaCol, A, help3, g, res1, tol/3., 1000);
-    //    return help3;
 
         flens::SparseGeMatrix<CRS<T,CRS_General> > B(LambdaRow.size(),LambdaCol.size());
-        A.toFlensSparseMatrix(LambdaRow,LambdaCol,B,1,false);
+        A.toFlensSparseMatrix(LambdaRow,LambdaCol,B,1);
 
-        std::cerr << "LambdaRow.size() = " << LambdaRow.size() << ", LambdaCol.size() = " << LambdaCol.size() << std::endl;
+        std::cerr << "      LambdaRow.size() = " << LambdaRow.size() << ", LambdaCol.size() = " << LambdaCol.size() << std::endl;
 
         DenseVector<Array<T> > g_vec(LambdaRow.size()), x_vec(LambdaCol.size()), Ax_vec(LambdaRow.size());
         const_coeff_it g_end = g.end();
@@ -239,81 +255,56 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
             else              x_vec(row_count) = 0.;
             ++row_count;
         }
+        std::cerr << "      target tolerance: " << tol << std::endl;
         int iters = lawa::cgls(B,x_vec,g_vec,tol);
 
         linsolve_iterations.push_back(iters);
+        std::cerr << "      number of iterations: " << iters << ", res = " << tol << std::endl;
 
         Coefficients<Lexicographical,T,Index> x;
         row_count=1;
         for (const_set_it row=LambdaCol.begin(); row!=LambdaCol.end(); ++row) {
-            x[(*row)] = x_vec(row_count);
+            w[(*row)] = x_vec(row_count);
             ++row_count;
         }
-        return x;
     }
     else {
-        std::cerr << "     Not yet implemented. Sorry..." << std::endl;
-        exit(1);
+        T alpha_cgls, beta_cgls, gammaPrev_cgls, gamma_cgls;
+        Coefficients<Lexicographical,T,Index> r, q, s, p;
+
+        A.apply(w,0.,r,NoTrans);
+        r -= g;
+        r *= -1.;
+        A.apply(r,0.,LambdaCol,s,Trans);
+        p = s;
+        gammaPrev_cgls = s*s;
+        std::cerr << "      gammaPrev = " << gammaPrev_cgls << std::endl;
+
+        for (int k=1; k<=1000; k++) {
+           q.setToZero();
+           A.apply(p,0.,q,NoTrans);   //q = A*p;
+           alpha_cgls = gammaPrev_cgls/(q*q);
+           w +=   alpha_cgls*p;
+           r -=   alpha_cgls*q;
+           s.setToZero();
+           A.apply(r,0.,LambdaCol,s,Trans);  // flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+
+           gamma_cgls = s*s;
+
+           std::cerr << "     iteration: " << k << " : current error = " << sqrt(gamma_cgls) << " (tol=" << tol << ")" << std::endl;
+           if (sqrt(gamma_cgls)<=tol) {
+               linsolve_iterations.push_back(k);
+               std::cerr << "      inner iterations: " << k << std::endl;
+               break;
+           }
+
+           beta_cgls  = gamma_cgls/gammaPrev_cgls;
+           p *= beta_cgls;
+           p += s;
+           gammaPrev_cgls = gamma_cgls;
+        }
+
     }
-
-
-
-    /*
-
-
-    T alpha, beta, gammaPrev, gamma, b_norm;
-    Coefficients<Lexicographical,T,Index1D> b,x2;
-    Coefficients<Lexicographical,T,Index1D> r2, q, s, p;
-    b = g;
-    x2 = w;
-    b_norm = b.norm(2.);
-    A.apply(x2,0.,r2,NoTrans);
-    r2 -= b;
-    r2 *= -1.;
-    std::cerr << "  r = " << r2 << std::endl;
-    A.apply(r2,0.,LambdaCol,s,Trans);
-    p = s;
-    gammaPrev = s*s;
-
-    for (int k=1; k<=50; k++) {
-       A.apply(p,0.,q,NoTrans);   //q = A*p;
-       alpha = gammaPrev/(q*q);
-       x2 +=   alpha *p;
-       r2 -=   alpha*q;
-       A.apply(r2,0.,LambdaCol,s,Trans);  // flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
-
-       gamma = s*s;
-       //std::cout << "Iteration " << k << ": gamma = " << gamma << std::endl;
-
-       if (sqrt(gamma)<=tol) {
-           std::cerr << "   inner iterations: " << k << std::endl;
-           break;
-       }
-
-       beta  = gamma/gammaPrev;
-       p *= beta;
-       p += s;
-       gammaPrev = gamma;
-    }
-
-    std::cerr << "   x2 = " << x2 << std::endl;
-
-
-    Coefficients<Lexicographical,T,Index> Ax, AtAx, Atg, residual;
-    A.apply(x,0.,Ax,NoTrans);
-    A.apply(Ax,0.,LambdaCol,AtAx,Trans);
-    A.apply(g,0.,LambdaCol,Atg,Trans);
-    residual = AtAx - Atg;
-    std::cerr << "   ||At(Ax-g)||_2 = " << residual.norm(2.) << std::endl;
-
-    Coefficients<Lexicographical,T,Index> Ax2, AtAx2, residual2;
-    A.apply(x2,0.,Ax2,NoTrans);
-    A.apply(Ax2,0.,LambdaCol,AtAx2,Trans);
-    residual2 = AtAx2 - Atg;
-    std::cerr << "   ||At(Ax2-g)||_2 = " << residual2.norm(2.) << std::endl;
-
-    */
-
 
 }
 
