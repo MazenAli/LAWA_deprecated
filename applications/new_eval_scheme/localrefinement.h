@@ -23,6 +23,7 @@
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
+#include <applications/new_eval_scheme/treecoefficients1d.h>
 
 namespace lawa {
 
@@ -46,13 +47,22 @@ class LocalRefinement
         void
         reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j, int j,
                     Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1);
+
+        void
+        reconstruct(const CoefficientsByLevel<T> &u_scaling, const CoefficientsByLevel<T> &u_wavelet,
+                    int j, CoefficientsByLevel<T> &u_loc_single_jP1);
+
         /*
          * Expects an coefficient entry (wavelets or scaling function) and computes the _local_ refinement.
          * Result is _added_ to u_loc_single_jP1
          */
         void
-        reconstruct(const Index1D &lambda, T coeff,
+        reconstruct(const short &j, const long &k, const XType &xtype, T coeff,
                     Coefficients<Lexicographical,T,Index1D> &u_loc_single);
+
+        void
+        reconstruct(const short &j, const long &k, const XType &xtype, T coeff,
+                    CoefficientsByLevel<T> &u_loc_single);
 
         /*
          * Expects a vector <Phi_{j+1},v> (u_loc_single) with scaling functions on level j+1.
@@ -67,9 +77,18 @@ class LocalRefinement
                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jM1,
                    Coefficients<Lexicographical,T,Index1D> &u_multi);
 
+        void
+        decompose_(CoefficientsByLevel<T>  &u_loc_single, int j,
+                   CoefficientsByLevel<T>  &u_scaling,
+                   CoefficientsByLevel<T>  &u_wavelet);
+
         T
         decompose_(Coefficients<Lexicographical,T,Index1D> &u_loc_single,
-                   const Index1D &row);
+                   const short &j, const long &k, const XType &xtype);
+
+        T
+        decompose_(CoefficientsByLevel<T> &u_loc_single,
+                   const short &j, const long &k, const XType &xtype);
 
 
 

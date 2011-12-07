@@ -63,7 +63,6 @@ int main (int argc, char *argv[]) {
     PrimalBasis test_basis(test_d,test_d_,test_j0);
     PrimalBasis trial_basis(trial_d,trial_d_,trial_j0);
 
-    LocalOperator<PrimalBasis,PrimalBasis> localoperator(test_basis, false, trial_basis, false, 2);
 
     IndexSet<Index1D> test_LambdaTree;
     constructRandomGradedTree(test_basis, J+shift, test_LambdaTree);
@@ -81,43 +80,74 @@ int main (int argc, char *argv[]) {
     time.stop();
     T time_computeMatrixVectorRef = time.elapsed();
 
-    CoefficientsByLevel<T> d;
-    TreeCoefficients1D<T>  c;
-    CoefficientsByLevel<T> PhiPiCheck_vs_v;
-    TreeCoefficients1D<T>  PsiLambdaCheck_vs_v;
+
+    Coefficients<Lexicographical,T,Index1D>                    d;
+    std::map<int, Coefficients<Lexicographical,T,Index1D> >    c;
+    IndexSet<Index1D>                                          PiCheck;
+    std::map<int, IndexSet<Index1D> >                          LambdaCheck;
 
     for (const_coeff1d_it it=trial_u_multi.begin(); it!=trial_u_multi.end(); ++it) {
         int j = (*it).first.j;
         if ((*it).first.xtype == XBSpline) {
-            d[(*it).first.k] = (*it).second;
+            d[(*it).first] = (*it).second;
+            continue;
+        }
+
+        if (c.count(j)==0) {
+            Coefficients<Lexicographical,T,Index1D> c_multi_j;
+            c_multi_j[(*it).first] = (*it).second;
+            c[j] = c_multi_j;
+        }
+        else {
+            c[j].operator[]((*it).first) = (*it).second;
         }
     }
-    c = trial_u_multi;
 
     for (const_set1d_it it=test_LambdaTree.begin(); it!=test_LambdaTree.end(); ++it) {
         int j = (*it).j;
         if ((*it).xtype == XBSpline) {
-            PhiPiCheck_vs_v[(*it).k] = 0.;
+            PiCheck.insert((*it));
             continue;
         }
+
+        if (LambdaCheck.count(j)==0) {
+            IndexSet<Index1D> Lhd_j;
+            Lhd_j.insert((*it));
+            LambdaCheck[j] = Lhd_j;
+        }
         else {
-            PsiLambdaCheck_vs_v[j].operator[]((*it).k) = 0.;
+            LambdaCheck[j].insert((*it));
         }
     }
 
+
+    //cout << "d_lM1 = " << d_lM1 << endl;
+    for (int j=trial_basis.j0; j<=J; ++j) {
+    //    cout << "c_" << j << " = " << c[j] << endl;
+    }
+    //cout << "SquareCap_lM1 = " << SquareCap_lM1 << endl;
+    for (int j=test_basis.j0; j<=J+shift; ++j) {
+    //    cout << "Lhd_" << j << " = " << Lhd[j] << endl;
+    }
+
     time.start();
-    localoperator.evalA(test_basis.j0, d, c, PhiPiCheck_vs_v, PsiLambdaCheck_vs_v);
+    Coefficients<Lexicographical,T,Index1D> upsilon_vs_v, theta_vs_v, test_Mu2, diff;
+    eval<T, PrimalBasis, PrimalBasis>(test_basis.j0, test_basis, trial_basis, c, d,
+                                      LambdaCheck, PiCheck, upsilon_vs_v, theta_vs_v);
     time.stop();
-    PsiLambdaCheck_vs_v[test_basis.j0-1] = PhiPiCheck_vs_v;
-    cout << "Sizes of trees: " << test_LambdaTree.size()+trial_LambdaTree.size()
-         << " " << time.elapsed() << endl;
 
-    PsiLambdaCheck_vs_v -= test_Mu;
-    cout << "Error norm = " << PsiLambdaCheck_vs_v.norm(2.) << endl;
-    //cout << "PsiLambdaCheck_vs_v = " << PsiLambdaCheck_vs_v << endl;
+    cout << "test_PhiPiCheck_vs_v     = " << upsilon_vs_v << endl;
+    cout << "test_PsiLambdaCheck_vs_v = " << theta_vs_v << endl;
 
-//    cout << "PhiPiCheck_vs_v     = " << PhiPiCheck_vs_v << endl;
-//    cout << "PsiLambdaCheck_vs_v = " << PsiLambdaCheck_vs_v << endl;
+    T time_eval = time.elapsed();
+    test_Mu2 = upsilon_vs_v + theta_vs_v;
+    diff = test_Mu - test_Mu2;
+    cout << "||Mu-Mu2||_2 = " << diff.norm(2.) << endl;
+
+    cout << "Size of LambdaTest: " << test_LambdaTree.size() << ", size of LambdaTrial: " << trial_LambdaTree.size() << endl;
+    cout << "Reference Matrix Vector product: " << time_computeMatrixVectorRef << endl;
+    cout << "eval                           : " << time_eval << endl;
+
 }
 
 void
