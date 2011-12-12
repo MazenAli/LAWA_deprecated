@@ -230,9 +230,21 @@ RBModel2D<T, TruthModel>::generate_uniform_trainingset(std::vector<int>& n_train
             Xi_train.push_back(new_mu);   
         }
     }
-    else {
-        std::cerr << "Generate Trainingsset for dim = " << n_train.size() << " : Not implemented yet " << std::endl;
-    }
+    else{
+        if (n_train.size() == 2) {
+            for (int i = 0; i < n_train[0]; ++i){
+                for (int j = 0; j < n_train[1]; ++j){
+                    std::vector<T> new_mu;
+                    new_mu.push_back(std::min(min_param[0] + i*h[0], max_param[0]));
+                    new_mu.push_back(std::min(min_param[1] + j*h[1], max_param[1]));
+                    Xi_train.push_back(new_mu); 
+                }  
+            }
+        }
+        else {
+            std::cerr << "Generate Trainingsset for dim = " << n_train.size() << " : Not implemented yet " << std::endl;
+        }  
+    } 
 }
 
 template <typename T, typename TruthModel>
