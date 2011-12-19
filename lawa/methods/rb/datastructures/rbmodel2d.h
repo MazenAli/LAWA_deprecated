@@ -95,6 +95,9 @@ class RBModel2D {
         // Lower bound for coercivity constant, min-Theta approach
         virtual T
         alpha_LB(std::vector<T>& _param);
+        
+        virtual T
+        RB_errorbound(const DenseVectorT& u_RB, std::vector<T>& _param);
 
         void
         set_min_param(const std::vector<T>& _param);
@@ -111,6 +114,12 @@ class RBModel2D {
         
         void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
+        
+        void
+        generate_logarithmic_trainingset(std::vector<int>& param_nbs_per_dim);
+        
+        void
+        generate_loglin2d_trainingset(std::vector<int>& param_nbs_per_dim);
         
         void
         write_basis_functions(const std::string& directory_name = "offline_data/bf");

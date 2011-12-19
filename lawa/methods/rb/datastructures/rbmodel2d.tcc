@@ -4,6 +4,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <iomanip>
+#include <cmath>
 
 namespace  lawa {
 
@@ -249,6 +250,74 @@ RBModel2D<T, TruthModel>::generate_uniform_trainingset(std::vector<int>& n_train
 
 template <typename T, typename TruthModel>
 void
+RBModel2D<T, TruthModel>::generate_logarithmic_trainingset(std::vector<int>& n_train)
+{
+    std::vector<T> h(current_param.size());
+    std::vector<T> logmin(current_param.size());
+    std::vector<T> logrange(current_param.size());
+    
+    T eps = 1.e-6;
+    
+    for(unsigned int d = 0; d < current_param.size(); ++d) {
+        logmin[d] = log10(min_param[d] + eps);
+        logrange[d] =  log10( (max_param[d]-eps)/(min_param[d]+eps));
+        h[d] = logrange[d] / std::max(1,n_train[d]-1);
+        std::cout << logmin[d] << " " << logrange[d] << " " << h[d] << std::endl;
+    }
+    
+    if(n_train.size() == 1) {
+        for (int i = 0; i < n_train[0]; ++i){
+            std::vector<T> new_mu;
+            new_mu.push_back(std::min(pow(10, logmin[0] + i*h[0]), max_param[0]));
+            Xi_train.push_back(new_mu);   
+        }
+    }
+    else{
+        if (n_train.size() == 2) {
+            for (int i = 0; i < n_train[0]; ++i){
+                for (int j = 0; j < n_train[1]; ++j){
+                    std::vector<T> new_mu;
+                    new_mu.push_back(std::min(pow(10, logmin[0] + i*h[0]), max_param[0]));
+                    new_mu.push_back(std::min(pow(10, logmin[1] + i*h[1]), max_param[1]));
+                    Xi_train.push_back(new_mu); 
+                }  
+            }
+        }
+        else {
+            std::cerr << "Generate Trainingsset for dim = " << n_train.size() << " : Not implemented yet " << std::endl;
+        }  
+    } 
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::generate_loglin2d_trainingset(std::vector<int>& n_train)
+{
+    std::vector<T> h(current_param.size());
+    std::vector<T> logmin(current_param.size());
+    std::vector<T> logrange(current_param.size());
+    
+    T eps = 1.e-6;
+    
+    logmin[0] = log10(min_param[0] + eps);
+    logrange[0] =  log10( (max_param[0]-eps)/(min_param[0]+eps));
+    h[0] = logrange[0] / std::max(1,n_train[0]-1);
+    h[1] = (max_param[1] - min_param[1]) / (n_train[1]-1);
+
+
+    for (int i = 0; i < n_train[0]; ++i){
+        for (int j = 0; j < n_train[1]; ++j){
+            std::vector<T> new_mu;
+            new_mu.push_back(std::min(std::pow(10., (double)(logmin[0] + i*h[0])), max_param[0]));
+            new_mu.push_back(std::min(min_param[1] + j*h[1], max_param[1]));
+            Xi_train.push_back(new_mu); 
+        }  
+    }
+
+}
+
+template <typename T, typename TruthModel>
+void
 RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename, SolverCall call)
 {
     // Initial Snapshot
@@ -278,9 +347,17 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
     int N = 0;
     do {
         std::cout << " ================================================= " << std::endl << std::endl;
-        std::cout << "Adding Snapshot at mu = " << get_current_param()[0] << std::endl << std::endl;
-        error_file << N+1 << " " << get_current_param()[0];
+        std::cout << "Adding Snapshot at mu = " ;
+        for(unsigned int i = 0; i < get_current_param().size(); ++i){
+            std::cout << get_current_param()[i]  << " ";
+        }
+        std::cout << std::endl << std::endl;
         
+        error_file << N+1 << " ";
+        for(unsigned int i = 0; i < get_current_param().size(); ++i){
+            error_file << get_current_param()[i]  << " ";
+        }
+                
         CoeffVector u = truth->truth_solve();
         add_to_basis(u);
         N++;
@@ -308,14 +385,21 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
         for (unsigned int n = 0; n < Xi_train.size(); ++n) {
             
             set_current_param(Xi_train[n]);
-            std::cout << "    Parameter set to " << Xi_train[n][0] << std::endl;
+            std::cout << "    Parameter set to " ;
+            for(unsigned int i = 0; i < Xi_train[n].size(); ++i){
+                std::cout << Xi_train[n][i] << " ";
+            }
+            std::cout << std::endl;
+            
             DenseVectorT u_N = RB_solve(N, Xi_train[n], call);
             
-            T resnorm = residual_dual_norm(u_N, Xi_train[n]);
-            T alpha =  alpha_LB(Xi_train[n]);
-            T error_est = resnorm / alpha;
+            T error_est = RB_errorbound(u_N, Xi_train[n]);
             
-            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::scientific << error_est << " = " << resnorm << " / " << alpha << std::endl;
+            std::cout << "Training parameter ";             
+            for(unsigned int i = 0; i < Xi_train[n].size(); ++i){
+                std::cout << Xi_train[n][i] << " ";
+            }
+            std::cout  << ": Error = " << std::scientific << error_est << std::endl;
             if ( error_est > maxerr) {
                 maxerr = error_est;
                 next_Mu = n;
@@ -830,5 +914,13 @@ RBModel2D<T, TruthModel>::alpha_LB(std::vector<T>& _param)
     
     return alpha_lb;
 }
+
+template <typename T, typename TruthModel>
+T
+RBModel2D<T, TruthModel>::RB_errorbound(const DenseVectorT& u_RB, std::vector<T>& _param)
+{
+    return  residual_dual_norm(u_RB, _param) / alpha_LB(_param);
+}
+
 } // namespace lawa
 
