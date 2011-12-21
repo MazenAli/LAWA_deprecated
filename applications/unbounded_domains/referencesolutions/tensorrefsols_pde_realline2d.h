@@ -35,7 +35,7 @@ struct TensorRefSols_PDE_Realline2D
     static T diffusion;
 
     static DenseVector<Array<T> > sing_pts_x, sing_pts_y;   //aligned singularities
-
+    static T singpt_ex2;
     static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas_x, deltas_y;
     static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > H1_deltas_x, H1_deltas_y;
 

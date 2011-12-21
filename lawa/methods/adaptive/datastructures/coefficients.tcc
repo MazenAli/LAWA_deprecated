@@ -26,7 +26,6 @@ namespace lawa {
 template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index>::Coefficients(void)
 {
-
 }
 
 template <typename T, typename Index>
@@ -185,6 +184,9 @@ template <typename T, typename Index>
 T
 Coefficients<Lexicographical,T,Index>::norm(T tau) const
 {
+    //Coefficients<AbsoluteValue,T,Index> abs;
+    //abs = *this;
+    //return abs.norm(2.);
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
     long double result=0.0L;
     if (Coefficients<Lexicographical,T,Index>::size() > 0) {

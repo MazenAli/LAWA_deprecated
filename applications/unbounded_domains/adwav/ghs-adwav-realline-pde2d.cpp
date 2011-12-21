@@ -118,9 +118,9 @@ int main (int argc, char *argv[]) {
     SparseMW_Basis1D SparseMW_basis_x(d,j0_x);
     SparseMW_Basis1D SparseMW_basis_y(d,j0_y);
     SparseMW_Basis2D SparseMW_basis2d(SparseMW_basis_x,SparseMW_basis_y);
-    SparseMW_MA      SparseMW_A(SparseMW_basis2d,reaction,convection_x,convection_y,diffusion,1e-12);
+    SparseMW_MA      SparseMW_A(SparseMW_basis2d,reaction,convection_x,convection_y,diffusion);
     //SparseMW_MA      SparseMW_A(SparseMW_basis2d,1.,1e-12);
-    SparseMW_H1_MA   SparseMW_H1_A(SparseMW_basis2d,1.,1e-12);
+    SparseMW_H1_MA   SparseMW_H1_A(SparseMW_basis2d,1.);
     SparseMW_Prec    SparseMW_P(SparseMW_A);
 
     if (example==1 || example==2 || example==3) {

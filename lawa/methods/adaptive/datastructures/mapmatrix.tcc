@@ -68,8 +68,8 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
                 prec *= tmp;
             }
         }
-
         T val = prec * a(row_index,col_index);
+
         if (fabs(val) > 0.) data.insert(val_type(entry,val));
         return val;
     }

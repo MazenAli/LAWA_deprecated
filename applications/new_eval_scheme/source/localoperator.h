@@ -20,14 +20,15 @@
 #ifndef APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR_H
 #define APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR_H 1
 
+#define DERIV 0
+
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
-#include <lawa/methods/adaptive/datastructures/datastructures.h>
-#include <applications/new_eval_scheme/treecoefficients1d.h>
+#include <lawa/methods/adaptive/algorithms/localrefinement.h>
 
 namespace lawa {
 
-template <typename TestBasis, typename TrialBasis>
+template <typename TestBasis, typename TrialBasis, typename BilinearForm, typename Preconditioner>
 struct LocalOperator {
 
     typedef typename TrialBasis::T T;
@@ -36,22 +37,36 @@ struct LocalOperator {
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator   const_coeff1d_it;
     typedef typename TreeCoefficients1D<T>::const_by_level_it                  const_by_level_it;
     typedef typename TreeCoefficients1D<T>::by_level_it                        by_level_it;
-    typedef Integral<Gauss, TestBasis, TrialBasis>                             Integral_Psi_Psi;
 
     LocalOperator(const TestBasis &_test_basis,   bool test_withDirichletBC,
                   const TrialBasis &_trial_basis, bool trial_withDirichletBC,
-                  const int offset);
+                  const int offset,
+                  const BilinearForm &_Bil, const Preconditioner &_Prec);
+
+    void
+    scale_wrt_trialbasis(const TreeCoefficients1D<T> &x, TreeCoefficients1D<T> &y);
 
     void
     evalA(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
-          CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v);
+          CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
+          bool pre_apply_prec=true);
+
+    void
+    evalU(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
+          CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
+          bool pre_apply_prec=true);
+
+    void
+    evalL(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
+          TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec=true);
 
 
     const TestBasis                   &test_basis;
     const TrialBasis                  &trial_basis;
+    const BilinearForm                &Bil;
+    const Preconditioner              &Prec;
     LocalRefinement<TestBasis>        test_localtransform;
     LocalRefinement<TrialBasis>       trial_localtransform;
-    Integral_Psi_Psi                  integral;
 
     //Important for integration: we only into account indices within the range {k-offset,...,k+offset}.
     //This approach might fail if offset is not chosen w.r.t. the underlying bases!!
@@ -60,6 +75,6 @@ struct LocalOperator {
 
 }   // namespace lawa
 
-#include <applications/new_eval_scheme/localoperator.tcc>
+#include <applications/new_eval_scheme/source/localoperator.tcc>
 
 #endif // APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR_H

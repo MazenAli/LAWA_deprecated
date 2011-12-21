@@ -45,11 +45,11 @@ struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index,
     //using std::map<Index,T,lt<Lexicographical,Index> >::insert;
     //using std::map<Index,T,lt<Lexicographical,Index> >::erase;
     //using __gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map;
-    
+
     Coefficients(void);
 
-    Coefficients(long numOfBuckets)
-       :__gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map(numOfBuckets) {
+    Coefficients(size_t n)
+       :__gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map(n) {
 
     };         //required in rhs.h
 

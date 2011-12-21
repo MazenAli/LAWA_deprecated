@@ -13,8 +13,10 @@ constructRandomGradedTree(const PrimalBasis &basis, int J, IndexSet<Index1D> &La
         LambdaTree.insert(Index1D(basis.j0,k,XBSpline));
     }
     for (int j=basis.j0; j<=J; ++j) {
-        int random_k = rand() % basis.cardJ(j) + 1;
-        LambdaTree.insert(Index1D(j,random_k,XWavelet));
+        int random_k1 = rand() % basis.cardJ(j) + 1;
+        LambdaTree.insert(Index1D(j,random_k1,XWavelet));
+        int random_k2 = rand() % basis.cardJ(j) + 1;
+        LambdaTree.insert(Index1D(j,random_k2,XWavelet));
     }
     IndexSetByLevels LambdaByLevels;
     for (const_set1d_it it=LambdaTree.begin(); it!=LambdaTree.end(); ++it) {

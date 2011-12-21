@@ -133,7 +133,6 @@ Wavelet<T,Orthogonal,R,Multi>::singularSupport(int j, long k) const
 {
     const int typ = _type(k);
     const long shift = _shift(k);
-    
     DenseVector<Array<T> > result = _singularSupport[typ];
     result += shift;
     
@@ -158,7 +157,7 @@ template <typename T>
 int
 Wavelet<T,Orthogonal,R,Multi>::_type(long k) const
 {
-    return k>=0 ? (int) k%3 : (int) _numSplines - (int)(-k+2)% ((int)_numSplines) - 1;
+    return k>=0 ? (int) (k%3) : (int) _numSplines - (int)((-k+2)% ((int)_numSplines)) - 1;
 }
 
 //------------------------------------------------------------------------------

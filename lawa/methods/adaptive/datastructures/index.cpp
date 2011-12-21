@@ -86,21 +86,6 @@ std::ostream& operator<<(std::ostream &s, const Index3D &_i)
 
 //Bitmask implementation
 
-bool
-lt<Lexicographical, Index1D>::operator()(const Index1D &left, const Index1D &right) const
-{
-    if (left.j!=right.j) {
-        return (left.j<right.j);
-    } else {
-        if ((left.xtype==XBSpline)&&(right.xtype==XWavelet)) {
-            return true;
-        } else if ((left.xtype==XWavelet)&&(right.xtype==XBSpline)) {
-            return false;
-        } else {
-            return (left.k<right.k);
-        }
-    }
-}
 
 bool
 lt<Lexicographical, Index2D>::operator()(const Index2D &left, const Index2D &right) const
@@ -129,78 +114,6 @@ lt<Lexicographical, Index2D>::operator()(const Index2D &left, const Index2D &rig
     else {
         return (left.index2.k<right.index2.k);
     }
-}
-
-bool
-index_eqfunction<Index1D>::operator()(const Index1D& leftindex, const Index1D& rightindex) const
-{
-    return (leftindex.k == rightindex.k && leftindex.j == rightindex.j && leftindex.xtype == rightindex.xtype);
-}
-
-bool
-index_eqfunction<Index2D>::operator()(const Index2D& leftindex, const Index2D& rightindex) const
-{
-    return (leftindex.index1.k == rightindex.index1.k && leftindex.index2.k == rightindex.index2.k &&
-            leftindex.index1.j == rightindex.index1.j && leftindex.index2.j == rightindex.index2.j &&
-            leftindex.index1.xtype == rightindex.index1.xtype && leftindex.index2.xtype == rightindex.index2.xtype);
-}
-
-size_t
-index_hashfunction<Index1D>::operator()(const Index1D& index) const
-{
-    int val = index.xtype;
-    val = (((val << 16) | (unsigned short) index.j));
-
-    std::size_t hash_value = 0;
-    boost::hash_combine(hash_value, val);
-    boost::hash_combine(hash_value, index.k);
-    return hash_value;
-}
-
-size_t
-index_hashfunction<Index2D>::operator()(const Index2D& index) const
-{
-    int val1 = index.index1.xtype;
-    int val2 = index.index2.xtype;
-    val1 = (((val1 << 16) | (unsigned short) index.index1.j));
-    val2 = (((val2 << 16) | (unsigned short) index.index2.j));
-
-    std::size_t hash_value = 0;
-    boost::hash_combine(hash_value, val1);
-    boost::hash_combine(hash_value, val2);
-    boost::hash_combine(hash_value, index.index1.k);
-    boost::hash_combine(hash_value, index.index2.k);
-
-    return hash_value;
-
-}
-
-bool
-entry_eqfunction<Index1D>::operator()(const Entry<Index1D>& leftentry,
-                                      const Entry<Index1D>& rightentry) const
-{
-
-    return (leftentry.col_index.k     == rightentry.col_index.k     && leftentry.row_index.k     == rightentry.row_index.k &&
-            leftentry.col_index.j     == rightentry.col_index.j     && leftentry.row_index.j     == rightentry.row_index.j &&
-            leftentry.col_index.xtype == rightentry.col_index.xtype && leftentry.row_index.xtype == rightentry.row_index.xtype);
-
-}
-
-size_t
-entry_hashfunction<Index1D>::operator()(const Entry<Index1D>& entry) const
-{
-    int val1 = entry.col_index.xtype;
-    int val2 = entry.row_index.xtype;
-    val1 = (((val1 << 16) | (unsigned short) entry.col_index.j));
-    val2 = (((val2 << 16) | (unsigned short) entry.row_index.j));
-
-    std::size_t hash_value = 0;
-    boost::hash_combine(hash_value, val1);
-    boost::hash_combine(hash_value, val2);
-    boost::hash_combine(hash_value, entry.col_index.k);
-    boost::hash_combine(hash_value, entry.row_index.k);
-
-    return hash_value;
 }
 
 

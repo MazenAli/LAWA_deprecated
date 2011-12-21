@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS1D_H
-#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS1D_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS2D_H
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS2D_H 1
 
 #include <ext/hash_map>
 #include <tr1/unordered_map>
@@ -27,63 +27,58 @@
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <applications/new_eval_scheme/treecoefficients1d.h>
 
 namespace lawa {
 
 template <typename T>
-struct CoefficientsByLevel : public std::tr1::unordered_map<long, T>
+struct PtrToTreeCoefficients1DByLevel : public std::tr1::unordered_map<long, TreeCoefficients1D<T>* >
 {
-
     typedef typename std::tr1::unordered_map<long, T>::const_iterator const_it;
     typedef typename std::tr1::unordered_map<long, T>::value_type     val_type;
 
-    CoefficientsByLevel<T>&
-    operator=(const CoefficientsByLevel<T> &_coeff);
 
-    CoefficientsByLevel<T>&
-    operator+=(const CoefficientsByLevel<T> &_coeff);
 };
 
-template <typename T>
-std::ostream& operator<<(std::ostream &s, const CoefficientsByLevel<T> &_treecoeff);
 
 template <typename T>
-struct TreeCoefficients1D
+struct TreeCoefficients2D
 {
     typedef typename CoefficientsByLevel<T>::value_type                         val_type;
     typedef typename CoefficientsByLevel<T>::const_iterator                     const_by_level_it;
     typedef typename CoefficientsByLevel<T>::iterator                           by_level_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator    const_coeff1d_it;
 
-    CoefficientsByLevel<T> bylevel[JMAX+1];
+    PtrToTreeCoefficients1DByLevel<T> bylevel[JMAX+1];
 
-    TreeCoefficients1D(void);
+    TreeCoefficients2D(void);
 
-    TreeCoefficients1D(unsigned int n);
+    TreeCoefficients2D(unsigned int n);
 
-    TreeCoefficients1D<T>&
-    operator=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
+    TreeCoefficients2D<T>&
+    operator=(const Coefficients<Lexicographical,T,Index2D> &_coeff);
 
-    TreeCoefficients1D<T>&
-    operator-=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
+    TreeCoefficients2D<T>&
+    operator-=(const Coefficients<Lexicographical,T,Index2D> &_coeff);
 
-    const CoefficientsByLevel<T>&
-    operator[](short j)  const;
-
-    CoefficientsByLevel<T>&
-    operator[](short j);
+    TreeCoefficients2D<T>&
+    operator-=(const TreeCoefficients2D<T> &_coeff);
 
     T
     norm(T factor);
 
 };
+/*
+template<typename T, typename ScalingOperator>
+void
+scale(const TreeCoefficients1D<T> &x, const ScalingOperator &D, TreeCoefficients1D<T> y);
 
 template <typename T>
 std::ostream& operator<<(std::ostream &s, const TreeCoefficients1D<T> &_treecoeff);
 
-
+*/
 }   // namespace lawa
 
-#include <applications/new_eval_scheme/treecoefficients1d.tcc>
+//#include <applications/new_eval_scheme/treecoefficients2d.tcc>
 
-#endif  //  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS1D_H
+#endif  //  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS2D_H

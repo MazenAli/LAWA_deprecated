@@ -507,9 +507,13 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::apply
         IndexSet<Index1D> Lambda_v;
         int maxlevel;
         J==-1000 ? maxlevel=colindex.j+(k-s)+1 : maxlevel=J;
-        Lambda_v=lambdaTilde1d_PDE(colindex, basis,(k-s), basis.j0, std::max(maxlevel,36), false);
+        //JMAX is defined in index.h
+        Lambda_v=lambdaTilde1d_PDE(colindex, basis,(k-s), basis.j0, std::min(maxlevel,JMAX), false);
         for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-            ret[*mu] += this->laplace_data1d(*mu, (*it).second) * prec_colindex * (*it).first;
+            T val = this->laplace_data1d(*mu, (*it).second);
+            val *= prec_colindex * (*it).first;
+
+            ret[*mu] += val;
         }
         ++count;
         s = int(log(T(count))/log(T(2))) + 1;

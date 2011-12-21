@@ -51,6 +51,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
     LambdaActive = InitialLambda;
     T old_res = 0.;
     int its_per_threshTol=0;
+    T timeMatrixVector=0.;
     std::cout << "Simple adaptive solver started." << std::endl;
 
     std::ofstream file(filename);
@@ -71,10 +72,10 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         int iterations=0;
 
         if (strcmp(linsolvertype,"cg")==0) {
-            iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, assemble_matrix);
+            iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 100, timeMatrixVector, assemble_matrix);
         }
         else if (strcmp(linsolvertype,"gmres")==0) {
-            iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, assemble_matrix);
+            iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol,100, assemble_matrix);
         }
         else {
             assert(0);
@@ -90,20 +91,6 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         //u = THRESH(u,threshTol*u.norm(2.),false);
         u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
         thresh_off_quot *= T(u.size());
-
-
-        /*
-        std::stringstream coeff_filename;
-        coeff_filename << "s_adwav_coeff_" << u.size();
-        Coefficients<AbsoluteValue,T,Index1D> u_abs;
-        u_abs = u;
-        plotCoeff(u_abs, basis, coeff_filename.str().c_str());
-        */
-        /*
-        std::stringstream coefffile;
-        coefffile << "s_adwav_coeffs_" << its;
-        plotScatterCoeff2D(u, A.basis.first, A.basis.second, coefffile.str().c_str());
-        */
         solutions[its] = u;
         LambdaThresh = supp(u);
 
@@ -439,7 +426,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         std::cout << "   GMRES solver started with N = " << LambdaActive.size() << std::endl;
-        int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
+        int maxIterations = 1000;
+        int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 1000);
         std::cout << "   ...finished." << std::endl;
 
 
@@ -648,6 +636,23 @@ S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T&
     _MaxSizeLambda = MaxSizeLambda;
     _resStopTol = _resStopTol;
 }
+
+
+
+
+
+/*
+std::stringstream coeff_filename;
+coeff_filename << "s_adwav_coeff_" << u.size();
+Coefficients<AbsoluteValue,T,Index1D> u_abs;
+u_abs = u;
+plotCoeff(u_abs, basis, coeff_filename.str().c_str());
+*/
+/*
+std::stringstream coefffile;
+coefffile << "s_adwav_coeffs_" << its;
+plotScatterCoeff2D(u, A.basis.first, A.basis.second, coefffile.str().c_str());
+*/
 
 
 /*

@@ -17,6 +17,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+
 #include <iostream>
 #include <lawa/lawa.h>
 #include <applications/unbounded_domains/referencesolutions/referencesolutions.h>
@@ -120,9 +121,14 @@ int main (int argc, char *argv[]) {
     int NumOfIterations=atoi(argv[7]);
 
     stringstream rhsfilename;
+    rhsfilename << "rhs/rhs_realline_pde2d_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+                << argv[4] << "_" << argv[5] << "_cx_0_cy_0_" << argv[6] << ".dat";
+
+    /*
+    stringstream rhsfilename;
     rhsfilename << "rhs/rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
                 << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
-
+    */
     stringstream convfilename;
     convfilename << "ghs_adwav_conv_realline_helmholtz2d_" << argv[1] << "_" << argv[2] << "_"
                  << argv[3] << "_" << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
@@ -159,7 +165,6 @@ int main (int argc, char *argv[]) {
             u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                           NumOfIterations, refsol.H1norm());
         }
-
         else if (example==4) {
             int order = 31;
             RefSols_PDE_Realline2D<T> refsol;
@@ -225,8 +230,9 @@ int main (int argc, char *argv[]) {
             SparseMW_F.readIndexSets(rhsfilename.str().c_str());
 
             SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,true,false);
-            T alpha = 0.4, omega = 0.25, gamma = 0.2, theta = 2*omega/(1+omega);
+            T alpha = 0.6, omega = 0.2, gamma = 0.15, theta = 2*omega/(1+omega);
             SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
+
 
             Coefficients<Lexicographical,T,Index2D> u;
             u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),

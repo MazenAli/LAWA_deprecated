@@ -23,8 +23,8 @@
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
-#include <applications/new_eval_scheme/loc_single_scale_transforms.h>
-#include <applications/new_eval_scheme/localrefinement.h>
+#include <applications/new_eval_scheme/source/loc_single_scale_transforms.h>
+//#include <applications/new_eval_scheme/source/localrefinement.h>
 
 namespace lawa {
 
@@ -40,6 +40,6 @@ eval(int l, const PrimalTestBasis &test_basis, const PrimalTrialBasis &trial_bas
 
 }   // namespace lawa
 
-#include <applications/new_eval_scheme/new_eval.tcc>
+#include <applications/new_eval_scheme/source/new_eval.tcc>
 
 #endif  // APPLICATIONS_NEWEVALSCHEME_NEWEVAL_H

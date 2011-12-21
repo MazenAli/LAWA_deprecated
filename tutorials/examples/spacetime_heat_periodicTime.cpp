@@ -149,7 +149,8 @@ int main (int argc, char *argv[]) {
     FillWithZeros(ExpandedLambda,u_exact);
     Coefficients<Lexicographical,T,Index2D> f = F(ExpandedLambda);
     T tmp = 0.0;
-    cout << GMRES_Solve(ExpandedLambda, A, u_exact, f, tmp, cgTol) << " Gmres iterations for exact solution" << endl;
+    int maxIterations=1000;
+    cout << GMRES_Solve(ExpandedLambda, A, u_exact, f, tmp, cgTol, 1000) << " Gmres iterations for exact solution" << endl;
     cout << "Residuum of exact solution: " << tmp << endl;
     
     cout << "Size of u_exact: " << supp(u_exact).size() << endl;

@@ -78,7 +78,6 @@ LocalRefinement<PrimalBasis>::LocalRefinement(const PrimalBasis &_basis, bool wi
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
-                                          int j,
                                           Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1)
 {
     for (const_coeff1d_it it=u_multi_j.begin(); it!=u_multi_j.end(); ++it) {
@@ -89,14 +88,28 @@ LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,I
 
 template <typename PrimalBasis>
 void
+LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
+                                          int j,
+                                          Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1)
+{
+    for (const_coeff1d_it it=u_multi_j.begin(); it!=u_multi_j.end(); ++it) {
+        if ((*it).first.j==j) {
+            this->reconstruct((*it).first.j, (*it).first.k, (*it).first.xtype,
+                              (*it).second, u_loc_single_jP1);
+        }
+    }
+}
+
+template <typename PrimalBasis>
+void
 LocalRefinement<PrimalBasis>::reconstruct(const CoefficientsByLevel<T> &u_scaling,
                                           const CoefficientsByLevel<T> &u_wavelet, int j,
                                           CoefficientsByLevel<T> &u_loc_single_jP1)
 {
-    for (typename CoefficientsByLevel<T>::const_iterator it=u_scaling.begin(); it!=u_scaling.end(); ++it) {
+    for (typename CoefficientsByLevel<T>::const_it it=u_scaling.map.begin(); it!=u_scaling.map.end(); ++it) {
         this->reconstruct(j, (*it).first, XBSpline, (*it).second, u_loc_single_jP1);
     }
-    for (typename CoefficientsByLevel<T>::const_iterator it=u_wavelet.begin(); it!=u_wavelet.end(); ++it) {
+    for (typename CoefficientsByLevel<T>::const_it it=u_wavelet.map.begin(); it!=u_wavelet.map.end(); ++it) {
         this->reconstruct(j, (*it).first, XWavelet, (*it).second, u_loc_single_jP1);
     }
 }
@@ -161,21 +174,21 @@ LocalRefinement<PrimalBasis>::reconstruct(const short &j, const long &k, const X
         if (k<=numLeftBoundaryWavelets) {
             long k_first_scaling=basis.mra.rangeI(j+1).firstIndex()-1;
             for (int i=leftM1(k).firstIndex(); i<=leftM1(k).lastIndex(); ++i) {
-                u_loc_single[k_first_scaling+i] += coeff * leftM1(k).operator()(i);
+                u_loc_single.map[k_first_scaling+i] += coeff * leftM1(k).operator()(i);
             }
         }
         else if (k>basis.cardJ(j)-numRightBoundaryWavelets) {
             int type = basis.cardJ(j) - k + 1;
             long k_first_scaling= basis.mra.rangeI(j+1).lastIndex() - rightM1(type).length();
             for (int i=rightM1(type).firstIndex(); i<=rightM1(type).lastIndex(); ++i) {
-                u_loc_single[k_first_scaling+i] += coeff * rightM1(type).operator()(i);
+                u_loc_single.map[k_first_scaling+i] += coeff * rightM1(type).operator()(i);
             }
         }
         else {
             long k_first_scaling= (k - numLeftBoundaryWavelets - 1)*2 + inner_wavelet_offset - 1;
             T factor = ((basis.d % 2 != 0) && (k>basis.cardJ(j)/2.)) ? -1. : 1.;
             for (int i=innerM1.firstIndex(); i<=innerM1.lastIndex(); ++i) {
-                u_loc_single[k_first_scaling+i] += coeff * factor * innerM1(i);
+                u_loc_single.map[k_first_scaling+i] += coeff * factor * innerM1(i);
             }
         }
     }
@@ -184,20 +197,20 @@ LocalRefinement<PrimalBasis>::reconstruct(const short &j, const long &k, const X
             int offset = basis.mra.rangeI(basis.j0).firstIndex()-1;
             long k_first_scaling= basis.mra.rangeI(j+1).firstIndex() - 1;
             for (int i=leftM0(k-offset).firstIndex(); i<=leftM0(k-offset).lastIndex(); ++i) {
-                u_loc_single[k_first_scaling+i] += coeff * leftM0(k-offset).operator()(i);
+                u_loc_single.map[k_first_scaling+i] += coeff * leftM0(k-offset).operator()(i);
             }
         }
         else if (k>=basis.mra.rangeIR(j).firstIndex()) {
             int type = basis.mra.rangeI(j).lastIndex() - k + 1;
             long k_first_scaling= basis.mra.rangeI(j+1).lastIndex() - rightM0(type).length();
             for (int i=rightM0(type).firstIndex(); i<=rightM0(type).lastIndex(); ++i) {
-                u_loc_single[k_first_scaling+i] += coeff * rightM0(type).operator()(i);
+                u_loc_single.map[k_first_scaling+i] += coeff * rightM0(type).operator()(i);
             }
         }
         else {
             long k_first_scaling= (k - numLeftBoundaryScalings - 1)*2 + inner_scaling_offset - 1;
             for (int i=innerM0.firstIndex(); i<=innerM0.lastIndex(); ++i) {
-                u_loc_single[k_first_scaling+i] += coeff * innerM0(i);
+                u_loc_single.map[k_first_scaling+i] += coeff * innerM0(i);
             }
         }
     }
@@ -225,11 +238,11 @@ LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T>  &u_loc_single, 
                                          CoefficientsByLevel<T>  &u_scaling,
                                          CoefficientsByLevel<T>  &u_wavelet)
 {
-    for (typename CoefficientsByLevel<T>::iterator it=u_scaling.begin(); it!=u_scaling.end(); ++it) {
+    for (typename CoefficientsByLevel<T>::iter it=u_scaling.map.begin(); it!=u_scaling.map.end(); ++it) {
         T coeff = this->decompose_(u_loc_single, j-1, (*it).first, XBSpline);
         (*it).second += coeff;
     }
-    for (typename CoefficientsByLevel<T>::iterator it=u_wavelet.begin(); it!=u_wavelet.end(); ++it) {
+    for (typename CoefficientsByLevel<T>::iter it=u_wavelet.map.begin(); it!=u_wavelet.map.end(); ++it) {
         T coeff = this->decompose_(u_loc_single, j-1, (*it).first, XWavelet);
         (*it).second += coeff;
     }
@@ -293,26 +306,26 @@ typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T> &u_loc_single,
                                          const short &j, const long &k, const XType &xtype)
 {
-    T val = 0.;
+    long double val = 0.L;
     if (xtype==XWavelet) {
         if (k<=numLeftBoundaryWavelets) {
             long k_first_scaling=basis.mra.rangeI(j+1).firstIndex()-1;
             for (int i=leftM1(k).firstIndex(); i<=leftM1(k).lastIndex(); ++i) {
-                val += u_loc_single[k_first_scaling+i] * leftM1(k).operator()(i);
+                val += (long double)(u_loc_single.map[k_first_scaling+i] * leftM1(k).operator()(i));
             }
         }
         else if (k>basis.cardJ(j)-numRightBoundaryWavelets) {
             int type = basis.cardJ(j) - k + 1;
             long k_first_scaling= basis.mra.rangeI(j+1).lastIndex() - rightM1(type).length();
             for (int i=rightM1(type).firstIndex(); i<=rightM1(type).lastIndex(); ++i) {
-                val += u_loc_single[k_first_scaling+i] * rightM1(type).operator()(i);
+                val += (long double)(u_loc_single.map[k_first_scaling+i] * rightM1(type).operator()(i));
             }
         }
         else {
             long k_first_scaling= (k - numLeftBoundaryWavelets - 1)*2 + inner_wavelet_offset - 1;
             T factor = ((basis.d % 2 != 0) && (k>basis.cardJ(j)/2.)) ? -1. : 1.;
             for (int i=innerM1.firstIndex(); i<=innerM1.lastIndex(); ++i) {
-                val += u_loc_single[k_first_scaling+i] * factor * innerM1(i);
+                val += (long double)(u_loc_single.map[k_first_scaling+i] * factor * innerM1(i));
             }
         }
     }
@@ -321,20 +334,20 @@ LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T> &u_loc_single,
             int offset = basis.mra.rangeI(basis.j0).firstIndex()-1;
             long k_first_scaling= basis.mra.rangeI(j+1).firstIndex() - 1;
             for (int i=leftM0(k-offset).firstIndex(); i<=leftM0(k-offset).lastIndex(); ++i) {
-                val += u_loc_single[k_first_scaling+i] * leftM0(k-offset).operator()(i);
+                val += (long double)(u_loc_single.map[k_first_scaling+i] * leftM0(k-offset).operator()(i));
             }
         }
         else if (k>=basis.mra.rangeIR(j).firstIndex()) {
             int type = basis.mra.rangeI(j).lastIndex() - k + 1;
             long k_first_scaling= basis.mra.rangeI(j+1).lastIndex() - rightM0(type).length();
             for (int i=rightM0(type).firstIndex(); i<=rightM0(type).lastIndex(); ++i) {
-                val += u_loc_single[k_first_scaling+i] * rightM0(type).operator()(i);
+                val += (long double)(u_loc_single.map[k_first_scaling+i] * rightM0(type).operator()(i));
             }
         }
         else {
             long k_first_scaling= (k - numLeftBoundaryScalings - 1)*2 + inner_scaling_offset - 1;
             for (int i=innerM0.firstIndex(); i<=innerM0.lastIndex(); ++i) {
-                val += u_loc_single[k_first_scaling+i] * innerM0(i);
+                val += (long double)(u_loc_single.map[k_first_scaling+i] * innerM0(i));
             }
         }
     }

@@ -60,49 +60,6 @@ Coefficients<Lexicographical,T,Index2D>
 mv_sparse(t, const IndexSet<Index2D> &LambdaRow, MA &A, const Coefficients<Lexicographical,T,Index2D > &v);
 */
 
-/* @assemble_matrix: "0" -> operate only on hashmap data,
-                     "1" -> use standard routine to assemble stiffness matrix
-                     "2" -> use operator intern routines to assemble stiffness matrix
- */
-template <typename T, typename Index, typename MA>
-int
-CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
-         const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 1e-6,
-         int assemble_matrix=1, int maxIterations = 1000);
-
-
-/* @assemble_matrix: "0" -> operate only on hashmap data,
-                     "1" -> use standard routine to assemble stiffness matrix
-                     "2" -> use operator intern routines to assemble stiffness matrix
- */
-template <typename T, typename Index, typename MA>
-int
-GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, 
-            const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6,
-            int assemble_matrix=1, int maxIterations = 1000);
-
-template <typename T, typename Index, typename MA>
-int
-GMRES_Solve_PG(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, 
-            const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6, int maxIterations = 1000);
-
-template <typename T, typename Index, typename SpaceIndex, typename MA>
-int
-CGLS_Solve(const IndexSet<Index> &LambdaRowOp,
-           const IndexSet<SpaceIndex> &LambdaRowInitCond, MA &A,
-           const IndexSet<Index> &LambdaCol,
-           Coefficients<Lexicographical,T,Index > &u,
-           const Coefficients<Lexicographical,T,Index > &f,
-           const Coefficients<Lexicographical,T,SpaceIndex > &u0,
-           T &res, T tol = 1e-6, int maxIterations = 1000);
-
-template <typename T, typename Index, typename MA>
-int
-CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
-           MA &A, Coefficients<Lexicographical,T,Index > &u,
-           const Coefficients<Lexicographical,T,Index > &f,
-           T &res, T tol = 1e-6, int maxIterations = 1000);
-
 } // namespace lawa
 
 #include <lawa/methods/adaptive/datastructures/matrixoperations.tcc>

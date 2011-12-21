@@ -162,7 +162,7 @@ int
 Wavelet<T,Primal,R,SparseMulti>::_type(long k) const
 {
     if (d==4) {
-        return k>=0 ? (int) k%_numSplines : (int) _numSplines-(int)(-k+_numSplines-1)%_numSplines-1;
+        return k>=0 ? (int) (k%_numSplines) : (int) _numSplines-(int)((-k+_numSplines-1)%_numSplines)-1;
     }
     else {
         std::cerr << "Wavelet<T,Primal,R,SparseMulti> not implemented for d=" << d << std::endl;

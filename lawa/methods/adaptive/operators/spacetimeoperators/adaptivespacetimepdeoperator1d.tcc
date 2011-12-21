@@ -157,6 +157,19 @@ toFlensSparseMatrix(const IndexSet<Index2D> &/*LambdaRow*/, const IndexSet<Index
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 void
 AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
+apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+      const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+      cxxblas::Transpose trans)
+{
+    std::cerr << "AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::"
+              << "apply not implemented." << std::endl;
+    assert(0);
+    exit(1);
+}
+
+template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
+void
+AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
 clear()
 {
     data_identity_t.clear();

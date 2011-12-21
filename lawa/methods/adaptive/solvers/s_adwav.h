@@ -24,6 +24,7 @@
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/methods/adaptive/datastructures/matrixoperations.h>
+#include <lawa/methods/adaptive/algorithms/linearsystemsolvers.h>
 #include <lawa/methods/adaptive/postprocessing/postprocessing.h>
 
 namespace lawa {

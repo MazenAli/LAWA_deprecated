@@ -28,6 +28,11 @@
 namespace lawa {
 
 #define JMAX 36
+#define SIZEHASHINDEX1D         72073
+#define SIZELARGEHASHINDEX1D  1046527
+#define SIZEHASHINDEX2D       1046527
+#define SIZELARGEHASHINDEX2D 16769023
+
 
 struct Index1D
 {

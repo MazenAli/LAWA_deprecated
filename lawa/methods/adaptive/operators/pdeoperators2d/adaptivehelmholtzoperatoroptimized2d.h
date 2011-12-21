@@ -66,8 +66,7 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogona
 
     typedef AdaptiveLaplaceOperator1D<T,Orthogonal,R,Multi>                   DataLaplace1D;
 
-    AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis2d, T _c, T thresh=0.,
-                                         int NumOfCols=4096, int NumOfRows=4096);
+    AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis2d, T _c);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);
@@ -132,14 +131,20 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
     typedef IndexSet<Index2D>::const_iterator                                 const_set2d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator  const_coeff1d_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::iterator        coeff1d_it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator  const_coeff2d_it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::iterator        coeff2d_it;
     typedef typename Coefficients<AbsoluteValue,T,Index2D>::const_iterator    const_abs_coeff2d_it;
 
+    /*
     typedef typename __gnu_cxx::hash_map<Index1D,
                                          Coefficients<Lexicographical,T,Index1D>,
                                          index_hashfunction<Index1D>,
                                          index_eqfunction<Index1D> >          Index1D_Coefficients1D_Hash;
+     */
+    typedef typename std::map<Index1D, Coefficients<Lexicographical,T,Index1D>,
+                              lt<Lexicographical, Index1D> >                       Index1D_Coefficients1D_Hash;
+    typedef typename Index1D_Coefficients1D_Hash::iterator                    Index1D_Coefficients1D_Hash_it;
     typedef typename Index1D_Coefficients1D_Hash::const_iterator              const_Index1D_Coefficients1D_Hash_it;
 
     typedef Basis<T,Primal,Domain1,SparseMulti>                               Basis_x;
@@ -156,8 +161,7 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
     typedef AdaptiveLaplaceOperator1D<T,Primal,R,SparseMulti>                 DataLaplace1D;
     typedef AdaptiveIdentityOperator1D<T,Primal,R,SparseMulti>                DataIdentity1D;
 
-    AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis2d, T _c, T _thresh=0.,
-                                         int NumOfCols=4096, int NumOfRows=4096);
+    AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis2d, T _c);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);

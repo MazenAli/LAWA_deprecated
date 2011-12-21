@@ -105,6 +105,11 @@ struct AdaptiveSpaceTimePDEOperator1D : public Operator2D<T> {
                         const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
 
     void
+    apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+          const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+          cxxblas::Transpose trans=cxxblas::NoTrans);
+
+    void
     clear();
     
     const Basis2D&      basis;

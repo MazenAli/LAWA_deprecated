@@ -17,13 +17,12 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef APPLICATIONS_NEWEVALSCHEME_LOCALREFINEMENT_H
-#define APPLICATIONS_NEWEVALSCHEME_LOCALREFINEMENT_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_ALGORITHMS_LOCALREFINEMENT_H
+#define LAWA_METHODS_ADAPTIVE_ALGORITHMS_LOCALREFINEMENT_H 1
 
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
-#include <applications/new_eval_scheme/treecoefficients1d.h>
 
 namespace lawa {
 
@@ -44,6 +43,10 @@ class LocalRefinement
          * Computes the _local_ representation in terms of scaling functions.
          * _Adds_ the coefficients to a vector _u_loc_single_jP1 .
          */
+        void
+        reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
+                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1);
+
         void
         reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j, int j,
                     Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1);
@@ -113,6 +116,6 @@ class LocalRefinement
 
 }   // namespace lawa
 
-#include <applications/new_eval_scheme/localrefinement.tcc>
+#include <lawa/methods/adaptive/algorithms/localrefinement.tcc>
 
-#endif // APPLICATIONS_NEWEVALSCHEME_LOCALREFINEMENT_H
+#endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_LOCALREFINEMENT_H

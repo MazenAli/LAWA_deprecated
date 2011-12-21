@@ -89,7 +89,7 @@ int main (int argc, char *argv[]) {
     if   (strcmp(argv[4],"-inf")==0) { j0=0;             w_XBSpline=false; }
     else                             { j0=atoi(argv[4]); w_XBSpline=true; }
 
-    int max_level  = 10;
+    int max_level  = 16;
     T   max_radius = 10.;
 
     std::stringstream filename;
@@ -223,13 +223,9 @@ int main (int argc, char *argv[]) {
                 for (T r=1.; r<=max_radius; r+=1.) {
                     IndexSet<Index1D> Lambda = LambdaForEigenvalues(SparseMW_basis, SparseMW_basis.j0,
                                                                     jmax, w_XBSpline, r);
-                    /*
-                    IndexSet<Index1D> Lambda;
-                    Lambda.insert(Index1D(SparseMW_basis.j0,0,XBSpline));
-                    Lambda.insert(Index1D(SparseMW_basis.j0,1,XBSpline));
-                    Lambda.insert(Index1D(SparseMW_basis.j0,2,XBSpline));
-                    Lambda.insert(Index1D(SparseMW_basis.j0,3,XBSpline));
-                    */
+
+                    if (jmax>=12 && r!=5) continue;
+
                     int N = Lambda.size();
                     cout << "Size of Lambda: " << N << endl;
                     SparseMatrixT A(N,N);
@@ -383,8 +379,8 @@ LambdaForEigenvalues(const SparseMW_Basis1D &basis, int jmin, int jmax, bool w_X
     }
 
     int scaling_count = 0;
-    k_left  = std::min(int(std::floor(-pow2i<T>(jmin)*r - basis.mra.phi.max_support().l2)) - 1,-20);
-    k_right = std::min(int(std::ceil( pow2i<T>(jmin)*r -  basis.mra.phi.max_support().l1)) + 1,20);
+    k_left  = std::min(int(std::floor(-pow2i<T>(jmin)*r - basis.mra.phi.max_support().l2)) - 1,-100);
+    k_right = std::min(int(std::ceil( pow2i<T>(jmin)*r -  basis.mra.phi.max_support().l1)) + 1,100);
 
     for (int k_help=k_left; k_help<=k_right; ++k_help) {
         for (int k=(k_help-1)*numScaling+1; k<=k_help*numScaling; ++k) {

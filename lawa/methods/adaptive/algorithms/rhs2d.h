@@ -55,6 +55,7 @@ struct RHS2D
     T                                       norm_estimate;
     T                                       current_tol;
     long double                             current_ell2norm;
+    bool                                    new_values;
 };
 
 }    //namespace lawa

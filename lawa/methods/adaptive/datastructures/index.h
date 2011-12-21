@@ -27,7 +27,15 @@
 
 namespace lawa {
 
-#define JMAX 55
+static boost::hash<long int> hash_long;
+
+#define JMINOFFSET                  2
+#define JMAX                       40
+#define SIZEHASHINDEX1D         24593//196613
+#define SIZELARGEHASHINDEX1D  3145739//1572869
+#define SIZEHASHINDEX2D       3145739//1572869
+#define SIZELARGEHASHINDEX2D 12582917
+
 
 struct Index1D
 {
@@ -82,7 +90,21 @@ struct lt
 template<>
 struct lt<Lexicographical, Index1D>
 {
-    bool operator()(const Index1D &left, const Index1D &right) const;
+    inline
+    bool operator()(const Index1D &leftindex, const Index1D &rightindex) const
+    {
+        if (leftindex.j!=rightindex.j) {
+            return (leftindex.j<rightindex.j);
+        } else {
+            if ((leftindex.xtype==XBSpline)&&(rightindex.xtype==XWavelet)) {
+                return true;
+            } else if ((leftindex.xtype==XWavelet)&&(rightindex.xtype==XBSpline)) {
+                return false;
+            } else {
+                return (leftindex.k<rightindex.k);
+            }
+        }
+    }
 
     bool operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const;
 };
@@ -112,15 +134,56 @@ struct index_eqfunction
 template <>
 struct index_eqfunction<Index1D>
 {
-    //inline
-    bool operator()(const Index1D& leftindex, const Index1D& rightindex) const;
+    inline
+    bool operator()(const Index1D& leftindex, const Index1D& rightindex) const
+    {
+        if (leftindex.k != rightindex.k) return false;
+        else {
+            int leftval = leftindex.xtype;
+            leftval = (((leftval << 16) | (unsigned short) leftindex.j));
+            int rightval = rightindex.xtype;
+            rightval = (((rightval << 16) | (unsigned short) rightindex.j));
+            return (leftval==rightval);
+        }
+        /*
+        if (leftindex.k != rightindex.k) return false;
+        else {
+            if (leftindex.j != rightindex.j) return false;
+            else                             return (leftindex.xtype == rightindex.xtype);
+        }
+        */
+    }
 };
 
 template <>
 struct index_eqfunction<Index2D>
 {
-    //inline
-    bool operator()(const Index2D& leftindex, const Index2D& rightindex) const;
+    inline
+    bool operator()(const Index2D& leftindex, const Index2D& rightindex) const
+    {
+        if (leftindex.index1.k != rightindex.index1.k) return false;
+        else {
+            if (leftindex.index2.k != rightindex.index2.k) return false;
+            else {
+                int leftval1 = leftindex.index1.xtype;
+                leftval1 = (((leftval1 << 16) | (unsigned short) leftindex.index1.j));
+                int rightval1 = rightindex.index1.xtype;
+                rightval1 = (((rightval1 << 16) | (unsigned short) rightindex.index1.j));
+                if (leftval1 != rightval1) return false;
+                else {
+                    int leftval2 = leftindex.index2.xtype;
+                    leftval2 = (((leftval2 << 16) | (unsigned short) leftindex.index2.j));
+                    int rightval2 = rightindex.index2.xtype;
+                    rightval2 = (((rightval2 << 16) | (unsigned short) rightindex.index2.j));
+                    return (leftval2==rightval2);
+                }
+            }
+        }
+        //return (leftindex.index1.k == rightindex.index1.k && leftindex.index2.k == rightindex.index2.k &&
+        //        leftindex.index1.j == rightindex.index1.j && leftindex.index2.j == rightindex.index2.j &&
+        //        leftindex.index1.xtype == rightindex.index1.xtype && leftindex.index2.xtype == rightindex.index2.xtype);
+
+    }
 };
 
 template <typename Index>
@@ -131,15 +194,60 @@ struct index_hashfunction
 template <>
 struct index_hashfunction<Index1D>
 {
-    //inline
-    size_t operator()(const Index1D& index) const;
+    inline
+    size_t operator()(const Index1D& index) const
+    {
+        // Note: hash_values is taken mod "length of hashtable" automatically!!
+        long pow2ij = (1L << (index.j+index.xtype));
+        size_t hash_value = (pow2ij + index.k);
+
+        return hash_value;
+
+        /*
+        int val = index.xtype;
+        val = (((val << 16) | (unsigned short) index.j));
+
+        std::size_t hash_value = 0;
+        boost::hash_combine(hash_value, val);
+        boost::hash_combine(hash_value, index.k);
+        return hash_value;
+        */
+    }
 };
 
 template <>
 struct index_hashfunction<Index2D>
 {
-    //inline
-    size_t operator()(const Index2D& index) const;
+    // performs better without storing 2^l values... why??
+    inline
+    size_t operator()(const Index2D& index) const
+    {
+        size_t l1 = (1L << (index.index1.j+index.index1.xtype) ) + index.index1.k;
+        size_t l2 = (1L << (index.index2.j+index.index2.xtype) ) + index.index2.k;
+        size_t s1 = l1;
+        size_t s2 = l1+l2;
+        size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
+        return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
+    }
+
+    /*
+    inline
+    size_t operator()(const Index2D& index) const
+    {
+        int val1 = index.index1.xtype;
+        int val2 = index.index2.xtype;
+        val1 = (((val1 << 16) | (unsigned short) index.index1.j));
+        val2 = (((val2 << 16) | (unsigned short) index.index2.j));
+
+        std::size_t hash_value = 0;
+        boost::hash_combine(hash_value, val1);
+        boost::hash_combine(hash_value, val2);
+        boost::hash_combine(hash_value, index.index1.k);
+        boost::hash_combine(hash_value, index.index2.k);
+
+        return hash_value;
+    }
+    */
 };
 
 template <typename Index>
@@ -150,8 +258,30 @@ struct entry_eqfunction
 template <>
 struct entry_eqfunction<Index1D>
 {
-    //inline
-    bool operator()(const Entry<Index1D>& leftentry, const Entry<Index1D>& rightentry) const;
+    inline
+    bool operator()(const Entry<Index1D>& leftentry, const Entry<Index1D>& rightentry) const
+    {
+        if (leftentry.col_index.k!=rightentry.col_index.k) return false;
+        else {
+            if (leftentry.row_index.k!=rightentry.row_index.k) return false;
+            else {
+                if (leftentry.col_index.j!=rightentry.col_index.j) return false;
+                else {
+                    if (leftentry.row_index.j!=rightentry.row_index.j) return false;
+                    else {
+                        if (leftentry.col_index.xtype!=rightentry.col_index.xtype) return false;
+                        else return (leftentry.row_index.xtype==rightentry.row_index.xtype);
+                    }
+                }
+            }
+        }
+
+        /*
+        return (leftentry.col_index.k     == rightentry.col_index.k     && leftentry.row_index.k     == rightentry.row_index.k &&
+                leftentry.col_index.j     == rightentry.col_index.j     && leftentry.row_index.j     == rightentry.row_index.j &&
+                leftentry.col_index.xtype == rightentry.col_index.xtype && leftentry.row_index.xtype == rightentry.row_index.xtype);
+        */
+    }
 };
 
 template <typename Index>
@@ -162,8 +292,22 @@ struct entry_hashfunction
 template <>
 struct entry_hashfunction<Index1D>
 {
-    //inline
-    size_t operator()(const Entry<Index1D>& entry) const;
+    inline
+    size_t operator()(const Entry<Index1D>& entry) const
+    {
+        int val1 = entry.col_index.xtype;
+        int val2 = entry.row_index.xtype;
+        val1 = (((val1 << 16) | (unsigned short) entry.col_index.j));
+        val2 = (((val2 << 16) | (unsigned short) entry.row_index.j));
+
+        std::size_t hash_value = 0;
+        boost::hash_combine(hash_value, val1);
+        boost::hash_combine(hash_value, val2);
+        boost::hash_combine(hash_value, entry.col_index.k);
+        boost::hash_combine(hash_value, entry.row_index.k);
+
+        return hash_value;
+    }
 };
 
 } //namespace lawa

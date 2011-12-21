@@ -3,15 +3,13 @@ namespace lawa {
 template <typename T, DomainType Domain1, DomainType Domain2>
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::AdaptivePDEOperatorOptimized2D(const Basis2D &_basis, T _reaction, T _convection_x,
-                                 T _convection_y, T _diffusion,
-                                 T _thresh, int /*NumOfCols*/, int /*NumOfRows*/)
+                                 T _convection_y, T _diffusion)
 : basis(_basis), reaction(_reaction), convection_x(_convection_x), convection_y(_convection_y),
   diffusion(_diffusion),
-  thresh(_thresh),
   cA(0.), CA(0.), kappa(0.),
   compression_1d_x(basis.first), compression_1d_y(basis.second), compression(basis),
-  laplace_data1d(basis.first, thresh), convection_data1d(basis.first,thresh),
-  identity_data1d(basis.first, thresh),
+  laplace_data1d(basis.first, 0.), convection_data1d(basis.first,0.),
+  identity_data1d(basis.first, 0.),
   P_data()
 {
     T cA_x=0., CA_x=0., cA_y=0., CA_y = 0.;
@@ -268,7 +266,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 
                     T prec_row_index = this->prec(row_index);
                     T prec_val = prec_row_index* val * prec_col_index;
-                    if (fabs(prec_val)>thresh) {
+                    if (fabs(prec_val)>0.) {
                         A_flens((*row_count_ptr).second,col_count) = prec_val;
                     }
                 }
@@ -590,9 +588,6 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 
     IndexSet<Index1D> Lambda_x, Lambda_y;
     split(Lambda, Lambda_x, Lambda_y);
-    int jmin_x, jmax_x, jmin_y, jmax_y;
-    getMinAndMaxLevel(Lambda_x, jmin_x, jmax_x);
-    getMinAndMaxLevel(Lambda_y, jmin_y, jmax_y);
 
     Index1D_Coefficients1D_Hash y_v;
 
@@ -655,7 +650,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                 T id_x = identity_data1d(*row_x,col_index_x);
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                     Index2D row_index(*row_x,(*coeff_y_it).first);
-                    if (Lambda.count(row_index)>0) continue;
+                    if (Lambda.count(row_index)==0) continue;
                     T val = id_x * (*coeff_y_it).second;
                     if (fabs(val)>0.) ret[row_index] += val;
                 }
@@ -721,13 +716,10 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                 }
             }
         }
-
-
         for (coeff2d_it it=ret.begin(); it!=ret.end(); ++it) {
 
             (*it).second *=  this->prec((*it).first);
         }
-
         time.stop();
         //std::cerr << "      New structure required: " << time.elapsed() << std::endl;
 

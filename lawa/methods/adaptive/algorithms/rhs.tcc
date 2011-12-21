@@ -53,9 +53,6 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const Index &lambda)
     }
     else {
         T ret = P(lambda) * rhsintegral(lambda);
-        //if (fabs(ret)<1e-17) {
-        //    std::cerr << "RHS: zero entry for " << lambda << std::endl;
-        //}
         rhs_data[lambda] = ret;
         rhs_abs_data.insert(val_type(ret, lambda));
         return ret;

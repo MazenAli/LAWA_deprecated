@@ -46,7 +46,6 @@ typedef TensorBasis2D<Adaptive, MW_Basis1D,MW_Basis1D>                  MW_Basis
 typedef Basis<T,Primal,R,SparseMulti>                                   SparseMW_Basis1D;
 typedef TensorBasis2D<Adaptive, SparseMW_Basis1D,SparseMW_Basis1D>      SparseMW_Basis2D;
 
-
 //Operator definitions
 typedef HelmholtzOperator2D<T, CDF_Basis2D>                             CDF_HelmholtzOp2D;
 typedef DiagonalMatrixPreconditioner2D<T,CDF_Basis2D,
@@ -120,15 +119,11 @@ typedef S_ADWAV<T,Index2D,CDF_Basis2D,CDF_MA,
                 CDF_NonSeparableRhs2D>                                  CDF_S_ADWAV_SOLVER_NonSeparableRhs;
 typedef S_ADWAV<T,Index2D,MW_Basis2D,MW_MA,
                 MW_NonSeparableRhs2D>                                   MW_S_ADWAV_SOLVER_NonSeparableRhs;
-typedef S_ADWAV<T,Index2D,SparseMW_Basis2D,SparseMW_MA,
-                SparseMW_NonSeparableRhs2D>                             SparseMW_S_ADWAV_SOLVER_NonSeparableRhs;
 
 typedef S_ADWAV<T,Index2D,CDF_Basis2D,CDF_MA,
                 CDF_SumOfNonSeparableRhs2D>                             CDF_S_ADWAV_SOLVER_SumNonSeparableRhs;
 typedef S_ADWAV<T,Index2D,MW_Basis2D,MW_MA,
                 MW_SumOfNonSeparableRhs2D>                              MW_S_ADWAV_SOLVER_SumNonSeparableRhs;
-typedef S_ADWAV<T,Index2D,MW_Basis2D,MW_MA,
-                MW_SumOfNonSeparableRhs2D>                              SparseMW_S_ADWAV_SOLVER_SumNonSeparableRhs;
 
 int main (int argc, char *argv[]) {
     if (argc!=8) {
@@ -463,6 +458,7 @@ int main (int argc, char *argv[]) {
                                                          1, 1e-2,1000000);
             SparseMW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 0,
                                           refsol.H1norm());
+
 
             stringstream rhsfilename;
                         rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"

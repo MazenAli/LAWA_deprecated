@@ -78,8 +78,7 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
     typedef AdaptiveIdentityOperator1D<T,Primal,R,SparseMulti>                DataIdentity1D;
 
     AdaptivePDEOperatorOptimized2D(const Basis2D &_basis2d, T _reaction, T convection_x,
-                                   T convection_y, T diffusion_x,
-                                   T _thresh=0., int NumOfCols=4096, int NumOfRows=4096);
+                                   T convection_y, T diffusion);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);
@@ -121,7 +120,6 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
 
     const Basis2D              &basis;
     T reaction, convection_x, convection_y, diffusion;
-    T thresh;
 
     T cA, CA, kappa;
 

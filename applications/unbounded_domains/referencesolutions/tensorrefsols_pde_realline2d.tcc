@@ -29,6 +29,11 @@ flens::DenseVector<Array<T> >
 TensorRefSols_PDE_Realline2D<T>::sing_pts_y;
 
 template <typename T>
+T
+TensorRefSols_PDE_Realline2D<T>::singpt_ex2 = 1./3.;
+//TensorRefSols_PDE_Realline2D<T>::singpt_ex2 = 0.0001;
+
+template <typename T>
 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
 TensorRefSols_PDE_Realline2D<T>::deltas_x;
 
@@ -58,12 +63,12 @@ TensorRefSols_PDE_Realline2D<T>::setExample(int _nr, T _reaction, T _convection_
     nr=_nr;
 
     if (nr==2) {
-        sing_pts_x.engine().resize(1); sing_pts_x(1) = 0.0001;
-        sing_pts_y.engine().resize(1); sing_pts_y(1) = 0.0001;
-        deltas_x.engine().resize(1,2); deltas_x(1,1) = diffusion*0.0001; deltas_x(1,2) = diffusion*0.2;
-        deltas_y.engine().resize(1,2); deltas_y(1,1) = diffusion*0.0001; deltas_y(1,2) = diffusion*1.;
-        H1_deltas_x.engine().resize(1,2); H1_deltas_x(1,1) = 0.0001; H1_deltas_x(1,2) = 0.2;
-        H1_deltas_y.engine().resize(1,2); H1_deltas_y(1,1) = 0.0001; H1_deltas_y(1,2) = 1.;
+        sing_pts_x.engine().resize(1); sing_pts_x(1) = singpt_ex2;
+        sing_pts_y.engine().resize(1); sing_pts_y(1) = singpt_ex2;
+        deltas_x.engine().resize(1,2); deltas_x(1,1) = diffusion*singpt_ex2; deltas_x(1,2) = diffusion*0.2;
+        deltas_y.engine().resize(1,2); deltas_y(1,1) = diffusion*singpt_ex2; deltas_y(1,2) = diffusion*1.;
+        H1_deltas_x.engine().resize(1,2); H1_deltas_x(1,1) = singpt_ex2; H1_deltas_x(1,2) = 0.2;
+        H1_deltas_y.engine().resize(1,2); H1_deltas_y(1,1) = singpt_ex2; H1_deltas_y(1,2) = 1.;
     }
     if (nr==3) {
         sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
@@ -168,12 +173,12 @@ TensorRefSols_PDE_Realline2D<T>::exact_x(T x, int deriv_x)
                                         *(4*0.1*0.1*(x+0.1)*(x+0.1)-2*0.1);
     }
     else if (nr==2) {
-        if (deriv_x==0)         return  std::exp(-0.1*fabs(x-0.0001));
+        if (deriv_x==0)             return  std::exp(-0.1*fabs(x-singpt_ex2));
         else if (deriv_x==1) {
-            if (x < 0.0001)     return   0.1*std::exp(-0.1*fabs(x-0.0001));
-            else                return  -0.1*std::exp(-0.1*fabs(x-0.0001));
+            if (x < singpt_ex2)     return   0.1*std::exp(-0.1*fabs(x-singpt_ex2));
+            else                    return  -0.1*std::exp(-0.1*fabs(x-singpt_ex2));
         }
-        else                    return   0.01*std::exp(-0.1*fabs(x-0.0001));
+        else                        return   0.01*std::exp(-0.1*fabs(x-singpt_ex2));
     }
     else if (nr==3) {
         if (deriv_x==0)         return  std::exp(-2.*fabs(x-1./3.));
@@ -221,12 +226,12 @@ TensorRefSols_PDE_Realline2D<T>::exact_y(T y, int deriv_y)
                                         * (4*0.5*0.5*(y-0.1)*(y-0.1)-2*0.5);
     }
     else if (nr==2) {
-        if (deriv_y==0)         return  std::exp(-0.5*fabs(y-0.0001));
+        if (deriv_y==0)         return  std::exp(-0.5*fabs(y-singpt_ex2));
         else if (deriv_y==1) {
-            if (y < 0.0001) return   0.5*std::exp(-0.5*fabs(y-0.0001));
-            else           return  -0.5*std::exp(-0.5*fabs(y-0.0001));
+            if (y < singpt_ex2) return   0.5*std::exp(-0.5*fabs(y-singpt_ex2));
+            else                return  -0.5*std::exp(-0.5*fabs(y-singpt_ex2));
         }
-        else               return   0.25*std::exp(-0.5*fabs(y-0.0001));
+        else                    return   0.25*std::exp(-0.5*fabs(y-singpt_ex2));
     }
     else if (nr==3) {
         if (deriv_y==0)         return std::exp(-0.1*(y-1./3.)*(y-1./3.));

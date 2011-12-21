@@ -5,7 +5,7 @@ namespace lawa {
 template <typename T, typename RHSINTEGRAL, typename Preconditioner>
 RHS2D<T,RHSINTEGRAL,Preconditioner>::RHS2D(const RHSINTEGRAL &_rhsintegral, Preconditioner &_P)
     :    rhsintegral(_rhsintegral), P(_P), rhs_data(), rhs_indexsets(), norm_estimate(0.),
-         current_tol(2.), current_ell2norm(0.)
+         current_tol(2.), current_ell2norm(0.), new_values(false)
 {
 
 }
@@ -46,12 +46,13 @@ RHS2D<T,RHSINTEGRAL,Preconditioner>::readIndexSets(const char *filename)
                     std::getline( line_ss, field4, ',' );
                     std::getline( line_ss, field5, ',' );
                     std::getline( line_ss, field6, ',' );
-                    int j1,k1,j2,k2;
+                    int j1,j2;
+                    long k1,k2;
 
                     j1 = atoi(field2.c_str());
-                    k1 = atoi(field3.c_str());
+                    k1 = atol(field3.c_str());
                     j2 = atoi(field5.c_str());
-                    k2 = atoi(field6.c_str());
+                    k2 = atol(field6.c_str());
 
                     if (strcmp(field1.c_str(),"wavelet")==0 && strcmp(field4.c_str(),"wavelet")==0) {
                         Index1D index_x(j1,k1,XWavelet);
@@ -113,6 +114,7 @@ RHS2D<T,RHSINTEGRAL,Preconditioner>::operator()(const Index2D &lambda)
     else {
         T ret = P(lambda) * rhsintegral(lambda);
         rhs_data[lambda] = ret;
+        new_values = true;
         return ret;
     }
 }
@@ -134,7 +136,8 @@ template <typename T, typename RHSINTEGRAL, typename Preconditioner>
 Coefficients<Lexicographical,T,Index2D>
 RHS2D<T,RHSINTEGRAL,Preconditioner>::operator()(T tol)
 {
-    if (tol > current_tol) {
+    if (tol > current_tol  || new_values) {
+        new_values = false;
         Coefficients<Lexicographical,T,Index2D> ret;
         Coefficients<Bucket,T,Index2D>          rhs_bucket;
 

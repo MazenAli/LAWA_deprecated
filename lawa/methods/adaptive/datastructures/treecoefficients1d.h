@@ -1,0 +1,162 @@
+/*
+  LAWA - Library for Adaptive Wavelet Applications.
+  Copyright (C) 2008,2009  Mario Rometsch, Kristina Steih, Alexander Stippler.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS1D_H
+#define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS1D_H 1
+
+#ifdef TRONE
+    #include <tr1/unordered_map>
+#else
+    #include <ext/hash_set>
+#endif
+
+#include <iostream>
+#include <lawa/settings/enum.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
+
+namespace lawa {
+
+#define COEFFBYLEVELSIZE 256
+
+struct long_hashfunction
+{
+    inline
+    size_t operator()(const long &k) const
+    {
+        return k % COEFFBYLEVELSIZE;
+    }
+};
+
+template <typename T>
+struct CoefficientsByLevel
+{
+    #ifdef TRONE
+        typedef typename std::tr1::unordered_map<long, T/*, long_hashfunction*/> TranslationIndexToValueMap;
+    #else
+        typedef typename __gnu_cxx::hash_map<long, T, long_hashfunction> TranslationIndexToValueMap;
+    #endif
+
+    typedef typename TranslationIndexToValueMap::const_iterator const_it;
+    typedef typename TranslationIndexToValueMap::iterator       iter;
+    typedef typename TranslationIndexToValueMap::value_type     val_type;
+
+    CoefficientsByLevel(void);
+
+    CoefficientsByLevel(short _j, size_t n);
+
+    void
+    set(short _j, size_t n);
+
+    CoefficientsByLevel<T>&
+    operator=(const CoefficientsByLevel<T> &_coeff);
+
+    CoefficientsByLevel<T>&
+    operator+=(const CoefficientsByLevel<T> &_coeff);
+
+    short j;
+    TranslationIndexToValueMap map;
+
+};
+
+template <typename T>
+std::ostream& operator<<(std::ostream &s, const CoefficientsByLevel<T> &_treecoeff);
+
+template <typename T>
+struct TreeCoefficients1D
+{
+    typedef typename CoefficientsByLevel<T>::val_type                           val_type;
+    typedef typename CoefficientsByLevel<T>::const_it                           const_by_level_it;
+    typedef typename CoefficientsByLevel<T>::iter                               by_level_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator    const_coeff1d_it;
+
+    TreeCoefficients1D(size_t n);
+
+    TreeCoefficients1D<T>&
+    operator=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
+
+    TreeCoefficients1D<T>&
+    operator-=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
+
+    TreeCoefficients1D<T>&
+    operator-=(const TreeCoefficients1D<T> &_coeff);
+
+    const CoefficientsByLevel<T>&
+    operator[](short j)  const;
+
+    CoefficientsByLevel<T>&
+    operator[](short j);
+
+
+    // someone can tell me how to put that into the tcc-file??
+
+    template<typename Index, typename PrincipalIndex>
+    void
+    addTo_x1aligned(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v, int j0)
+    {
+        for (int l=j0-1; l<=JMAX; ++l) {
+            if (this->bylevel[l].map.size()==0) break;
+            XType xtype_row_y;
+            int j;
+            if (l==j0-1) { xtype_row_y = XBSpline; j=l+1; }
+            else         { xtype_row_y = XWavelet; j=l;  }
+            for (const_by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
+                Index1D row_y(j,(*it).first,xtype_row_y);
+                if (fabs((*it).second)>0)  v[Index2D(lambda,row_y)] += (*it).second;
+            }
+        }
+    }
+
+    template<typename Index, typename PrincipalIndex>
+    void
+    addTo_x2aligned(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v, int j0)
+    {
+        for (int l=j0-1; l<=JMAX; ++l) {
+            if (this->bylevel[l].map.size()==0) break;
+            XType xtype_row_x;
+            int j;
+            if (l==j0-1) { xtype_row_x = XBSpline; j=l+1; }
+            else         { xtype_row_x = XWavelet; j=l;  }
+            for (const_by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
+                Index1D row_x(j,(*it).first,xtype_row_x);
+                if (fabs((*it).second)>0)  v[Index2D(row_x,lambda)] += (*it).second;
+            }
+        }
+    }
+
+    T
+    norm(T factor);
+
+    CoefficientsByLevel<T> bylevel[JMAX+1];
+
+};
+
+template<typename T, typename ScalingOperator>
+void
+scale(const TreeCoefficients1D<T> &x, const ScalingOperator &D, TreeCoefficients1D<T> y);
+
+template <typename T>
+std::ostream& operator<<(std::ostream &s, const TreeCoefficients1D<T> &_treecoeff);
+
+
+}   // namespace lawa
+
+#include <lawa/methods/adaptive/datastructures/treecoefficients1d.tcc>
+
+#endif  //  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_TREEFCOEFFICIENTS1D_H

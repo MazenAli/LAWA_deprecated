@@ -28,6 +28,12 @@ IndexSet<Index>::IndexSet(void)
 }
 
 template <typename Index>
+IndexSet<Index>::IndexSet(size_t n)
+:__gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >::hash_set(n)
+{
+}
+
+template <typename Index>
 IndexSet<Index>&
 IndexSet<Index>::operator=(const IndexSet<Index> &_set)
 {

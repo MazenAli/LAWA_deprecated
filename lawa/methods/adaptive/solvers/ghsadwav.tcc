@@ -2,10 +2,10 @@ namespace lawa {
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
 GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F,
-                                                   bool _optimized_grow, bool _assemble_matrix)
+                                                   bool _optimized_grow, int _assemble_matrix)
     : A(_A), F(_F), optimized_grow(_optimized_grow), assemble_matrix(_assemble_matrix),
       cA(A.cA), CA(A.CA), kappa(A.kappa),
-      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.), w_k(1257787)
+      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.), w_k(SIZEHASHINDEX2D)
 {
     omega = 0.01;
     alpha = 1./std::sqrt(kappa)-(1.+1./std::sqrt(kappa))*omega-0.00001;
@@ -30,11 +30,16 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
                                                int NumOfIterations, T H1norm)
 {
     T eps = _eps;
-    Coefficients<Lexicographical,T,Index> /*w_k,*/ g_kP1;
-    IndexSet<Index> Lambda_kP1;
+    Coefficients<Lexicographical,T,Index> g_kP1(SIZEHASHINDEX2D);
+    IndexSet<Index> Lambda_kP1(SIZEHASHINDEX2D);
     T nu_kM1 = nuM1;
     T nu_k   = 0.;
     T total_time=0.;
+    int numOfIterations=0;
+    T timeApply=0.;
+    T timeMatrixVector=0.;
+    int maxIterations=100;
+    int lengthOfResidual = 1;
 
     std::cerr << "GHS-ADWAV-SOLVE has started with the following parameters: " << std::endl;
     std::cerr << "  alpha=" << alpha << ", omega=" << omega << ", gamma=" << gamma << ", theta="
@@ -50,7 +55,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         std::cerr << "   GROW started." << std::endl;
 
         IndexSet<Index> Extension;
-        Extension = this->GROW(w_k, theta*nu_kM1, nu_k);
+        Extension = this->GROW(w_k, theta*nu_kM1, nu_k, lengthOfResidual, timeApply);
         Lambda_kP1 += Extension;
         std::cerr << "   GROW finished." << std::endl;
 
@@ -61,6 +66,12 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
 
         if (nu_k <=eps) break;
 
+        IndexSet<Index1D> Lambda_x, Lambda_y;
+        split(Lambda_kP1, Lambda_x, Lambda_y);
+        int jmin_x, jmax_x, jmin_y, jmax_y;
+        getMinAndMaxLevel(Lambda_x, jmin_x, jmax_x);
+        getMinAndMaxLevel(Lambda_y, jmin_y, jmax_y);
+        std::cerr << "   Current jmax  = (" << jmax_x << ", " << jmax_y << ")" << std::endl;
         Coefficients<Lexicographical,T,Index> Au, f, rhs;
         f = F(supp(w_k));
         T fu = w_k*f;
@@ -68,8 +79,9 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         T uAu = w_k*Au;
         std::cerr.precision(16);
         T Error_H_energy = sqrt(fabs(std::pow(H1norm,(T)2.)- 2*fu + uAu));
-        file << w_k.size() << " " << total_time << " " <<  nu_k << " "
-                         << Error_H_energy << std::endl;
+        file << w_k.size() << " " << numOfIterations << " " << total_time << " " <<  nu_k << " "
+                         << Error_H_energy << " " << timeApply << " " << timeMatrixVector << " "
+                         << T(lengthOfResidual)/T(w_k.size()) << std::endl;
 
         /*
         std::stringstream coeff_filename;
@@ -89,10 +101,18 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         /*
          * Attention: update in rhs1d is set! Linear complexity still holds with better convergence!
          */
+
         //g_kP1 = F(Lambda_kP1);                // update rhs vector
         rhs = F(gamma*nu_k);
         g_kP1 = P(rhs,Lambda_kP1);  // compute with restriction, otherwise GROW does not work
-        this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
+        T res;
+        numOfIterations=CG_Solve(Lambda_kP1, A, w_k, g_kP1, res, gamma*nu_k,
+                                 maxIterations,timeMatrixVector,assemble_matrix);
+        std::cerr << "      ... required " << numOfIterations << " iterations." << std::endl;
+        if (numOfIterations>maxIterations) {
+            std::cerr << "   Attention: maximum number of iterations exceeded!" << std::endl;
+        }
+        //this->GALSOLVE(Lambda_kP1, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
         std::cerr << "   GALSOLVE finished." << std::endl;
 
         nu_kM1 = nu_k;
@@ -107,11 +127,11 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
 IndexSet<Index>
 GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical,T,Index> &w,
-                                              T nu_bar, T &nu)
+                                              T nu_bar, T &nu, int &lengthOfResidual, T &timeApply)
 {
     T zeta = 2.*(omega*nu_bar)/(1-omega);
     T r_norm = 0.;
-    Coefficients<Lexicographical,T,Index> r, rhs;
+    Coefficients<Lexicographical,T,Index> r(16769023), rhs;
     while (1) {
         zeta *= 0.5;
 
@@ -120,7 +140,8 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
         time_apply.start();
         A.apply(w, 0.5*zeta, r);
         time_apply.stop();
-        std::cerr << "      Required time for APPLY: " << time_apply.elapsed() << std::endl;
+        timeApply = time_apply.elapsed();
+        std::cerr << "      Required time for APPLY: " << timeApply << std::endl;
         r -= F(0.5*zeta);
 
         r_norm = r.norm(2.);
@@ -130,6 +151,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
         if (nu <= eps) break;
         if (zeta<=omega*r_norm) break;
     }
+    lengthOfResidual = r.size();
 
     IndexSet<Index> Lambda;
     long double P_Lambda_r_norm_square = 0.0L;
@@ -194,12 +216,11 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
 void
 GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
-                                                  const IndexSet<Index> &Extension,
-                                                  const Coefficients<Lexicographical,T,Index> &g,
                                                   Coefficients<Lexicographical,T,Index> &w,
+                                                  const Coefficients<Lexicographical,T,Index> &g,
                                                   T delta, T tol)
 {
-    if (assemble_matrix) {
+    if (assemble_matrix==1 || assemble_matrix==2) {
 
         int d=A.basis.d;
         if (Lambda.size()==0) return;

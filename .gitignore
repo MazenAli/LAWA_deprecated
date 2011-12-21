@@ -68,3 +68,8 @@ applications/new_eval_scheme/test_multi_to_single
 applications/new_eval_scheme/test_new_mv
 applications/new_eval_scheme/test_new_mv_ref
 applications/new_eval_scheme/test_treecoefficients1d
+applications/new_eval_scheme/test_local_refinement2
+applications/new_eval_scheme/test_new_mv2d
+applications/new_eval_scheme/test_treecoefficients2d
+applications/unbounded_domains/s-adwav/s-adwav-realline-pde2d
+applications/unbounded_domains/validate/test_hashfunctions

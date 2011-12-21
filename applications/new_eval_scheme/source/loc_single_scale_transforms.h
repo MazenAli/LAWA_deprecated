@@ -22,7 +22,7 @@
 
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
-#include <applications/new_eval_scheme/localrefinement.h>
+//#include <applications/new_eval_scheme/source/localrefinement.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 
 namespace lawa {
@@ -91,6 +91,6 @@ plot(const PrimalBasis &basis, const Coefficients<Lexicographical,T,Index1D> &u,
 
 }   // namespace lawa
 
-#include <applications/new_eval_scheme/loc_single_scale_transforms.tcc>
+#include <applications/new_eval_scheme/source/loc_single_scale_transforms.tcc>
 
 #endif // APPLICATIONS_NEWEVALSCHEME_LOCSINGLESCALETRANSFORMS_H
