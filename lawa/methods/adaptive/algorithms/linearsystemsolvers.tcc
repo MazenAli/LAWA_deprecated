@@ -16,7 +16,8 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     if (assemble_matrix==0) {
 
         T alpha, beta, rNormSquare, rNormSquarePrev;
-        Coefficients<Lexicographical,T,Index> r(SIZEHASHINDEX2D), p(SIZEHASHINDEX2D);
+        Coefficients<Lexicographical,T,Index> r(SIZEHASHINDEX2D), p(SIZEHASHINDEX2D),
+                                              Ap(SIZEHASHINDEX2D);
         A.apply(u, tol/3.,Lambda, r);
         r -= f;
         p -= r;
@@ -27,7 +28,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
                 res = sqrt(rNormSquare);
                 return k;
             }
-            Coefficients<Lexicographical,T,Index> Ap;
+            Ap.setToZero();
             timer.start();
             A.apply(p,tol/3.,Lambda, Ap);
             timer.stop();
@@ -260,37 +261,37 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, MA &A, Coefficients<Lexicographical
         typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
         typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
-        //Attention: LambdaCol = supp(u)!!
-        IndexSet<Index> LambdaCol;
-        LambdaCol = supp(u);
-
         if (assemble_matrix==0) {   //Algorithm by Saad, p.237 ("CGNR")
             T alpha_cgls, beta_cgls, gammaPrev_cgls, gamma_cgls;
-            Coefficients<Lexicographical,T,Index> r, q, s, p;
+            Coefficients<Lexicographical,T,Index> r(SIZEHASHINDEX2D), q(SIZEHASHINDEX2D),
+                                                  s(SIZEHASHINDEX2D), p(SIZEHASHINDEX2D);
 
-            A.apply(u,0.,LambdaRow,r,NoTrans);
+            A.apply(u,0.,r,NoTrans);
             r -= f;
             r *= -1.;
-            A.apply(r,0.,LambdaCol,s,Trans);
+            A.apply(r,0.,LambdaRow,s,Trans);
             p = s;
             gammaPrev_cgls = s*s;
             std::cerr << "      gammaPrev = " << gammaPrev_cgls << std::endl;
 
             for (int k=1; k<=maxIterations; k++) {
                q.setToZero();
-               A.apply(p,0.,LambdaRow,q,NoTrans);   //q = A*p;
+               A.apply(p,0.,q,NoTrans);   //q = A*p;
                alpha_cgls = gammaPrev_cgls/(q*q);
                u +=   alpha_cgls*p;
                r -=   alpha_cgls*q;
                s.setToZero();
-               A.apply(r,0.,LambdaCol,s,Trans);  // flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+               A.apply(r,0.,LambdaRow,s,Trans);  // flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
 
                gamma_cgls = s*s;
                res = r.norm(2.);
                std::cerr << "     iteration: " << k << " : current error ||A^T A u - A^f|| =" << sqrt(gamma_cgls)
                          << ", ||Au-f|| = " << res  << " (tol = " << tol << ")" << std::endl;
-               if (res<=tol) {
-                   std::cerr << "      inner iterations: " << k << std::endl;
+               if (sqrt(gamma_cgls)<=tol) {
+                   Coefficients<Lexicographical,T,Index> help, AtAu;
+                   A.apply(u, 0., help, cxxblas::NoTrans);
+                   A.apply(help, 0., AtAu, cxxblas::Trans);
+                   std::cerr << "      inner iterations: " << k  << ", ||A^T A u|| = " << AtAu.norm(2.) << std::endl;
                    return k-1;
                }
 
@@ -301,6 +302,9 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, MA &A, Coefficients<Lexicographical
             }
         }
         else {
+            //Attention: LambdaCol = supp(u)!!
+            IndexSet<Index> LambdaCol;
+            LambdaCol = supp(u);
             int NumOfRows = (int)LambdaRow.size();
             int NumOfCols = (int)LambdaCol.size();
             flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);

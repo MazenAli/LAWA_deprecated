@@ -55,10 +55,8 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
     typedef typename Coefficients<Lexicographical,T,Index2D>::iterator        coeff2d_it;
     typedef typename Coefficients<AbsoluteValue,T,Index2D>::const_iterator    const_abs_coeff2d_it;
 
-    typedef typename __gnu_cxx::hash_map<Index1D,
-                                         Coefficients<Lexicographical,T,Index1D>,
-                                         index_hashfunction<Index1D>,
-                                         index_eqfunction<Index1D> >          Index1D_Coefficients1D_Hash;
+    typedef typename std::map<Index1D, Coefficients<Lexicographical,T,Index1D>,
+                                  lt<Lexicographical, Index1D> >              Index1D_Coefficients1D_Hash;
     typedef typename Index1D_Coefficients1D_Hash::iterator                    Index1D_Coefficients1D_Hash_it;
     typedef typename Index1D_Coefficients1D_Hash::const_iterator              const_Index1D_Coefficients1D_Hash_it;
 

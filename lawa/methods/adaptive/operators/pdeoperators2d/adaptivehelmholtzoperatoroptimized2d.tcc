@@ -789,10 +789,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 {
     if (v.size()==0) return;
 
-    //Index1D_Coefficients1D_Hash y_v(SIZEHASHINDEX1D);
     Index1D_Coefficients1D_Hash y_v;
     Coefficients<Lexicographical,T,Index2D> I_S_v(SIZEHASHINDEX2D);
-    //Index1D_Coefficients1D_Hash x_I_S_v(SIZEHASHINDEX1D);
     Index1D_Coefficients1D_Hash x_I_S_v;
 
     Timer time;
@@ -952,8 +950,12 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
         else {
             Coefficients<Lexicographical,T,Index1D> coeff_x;
-            coeff_x[(*col).first.index1] = this->prec((*col).first) * (*col).second;
             y_v[(*col).first.index2] = coeff_x;
+            p_y_v=y_v.find((*col).first.index2);
+            //(*p_y_v).second.resize(500);
+            (*p_y_v).second.operator[]((*col).first.index1) = this->prec((*col).first) * (*col).second;
+            //coeff_x[(*col).first.index1] = this->prec((*col).first) * (*col).second;
+            //y_v[(*col).first.index2] = coeff_x;
         }
     }
 
@@ -983,8 +985,12 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
         else {
             Coefficients<Lexicographical,T,Index1D> coeff_y;
-            coeff_y[(*col).first.index2] = (*col).second;
             x_I_S_v[(*col).first.index1] = coeff_y;
+            p_x_I_S_v=x_I_S_v.find((*col).first.index1);
+            //(*p_x_I_S_v).second.resize(500);
+            (*p_x_I_S_v).second.operator[]((*col).first.index2) = (*col).second;
+            //coeff_y[(*col).first.index2] = (*col).second;
+            //x_I_S_v[(*col).first.index1] = coeff_y;
         }
     }
     for (const_Index1D_Coefficients1D_Hash_it it=x_I_S_v.begin(); it!=x_I_S_v.end(); ++it) {
@@ -1039,8 +1045,12 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
         else {
             Coefficients<Lexicographical,T,Index1D> coeff_y;
-            coeff_y[(*col).first.index2] = (*col).second;
             x_I_S_v[(*col).first.index1] = coeff_y;
+            p_x_I_S_v=x_I_S_v.find((*col).first.index1);
+            //(*p_x_I_S_v).second.resize(500);
+            (*p_x_I_S_v).second.operator[]((*col).first.index2) = (*col).second;
+            //coeff_y[(*col).first.index2] = (*col).second;
+            //x_I_S_v[(*col).first.index1] = coeff_y;
         }
     }
 

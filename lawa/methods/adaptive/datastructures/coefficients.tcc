@@ -331,8 +331,7 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
 
 template <typename T, typename Index>
 int
-Coefficients<Bucket,T,Index>::addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber,
-                                                  int count)
+Coefficients<Bucket,T,Index>::addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber)
 {
     typedef typename  Coefficients<Bucket,T,Index>::BucketEntry::const_iterator const_it;
     for (const_it it=buckets[bucketnumber].begin(); it!=buckets[bucketnumber].end(); ++it) {

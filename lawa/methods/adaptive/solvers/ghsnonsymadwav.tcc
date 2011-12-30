@@ -36,11 +36,16 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 ::SOLVE(T nuM1, T _eps, const char *filename, int NumOfIterations, T H1norm)
 {
     T eps = _eps;
-    Coefficients<Lexicographical,T,Index> w_k, w_kP1, g_kP1;
+    Coefficients<Lexicographical,T,Index> w_k(SIZEHASHINDEX2D), g_kP1(SIZEHASHINDEX2D);
     IndexSet<Index> Lambda_kP1;
     T nu_kM1 = nuM1;
     T nu_k   = 0.;
     T total_time=0.;
+    T timeApply=0.;
+    int numOfIterations=0;
+    T timeMatrixVector=0.;
+    int maxIterations=100;
+    int lengthOfResidual = 1;
 
     std::cerr << "GHS-NONSYM-ADWAV-SOLVE has started with the following parameters: " << std::endl;
     std::cerr << "  alpha=" << alpha << ", omega=" << omega << ", gamma=" << gamma << ", theta="
@@ -56,17 +61,22 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
         std::cerr << "   GROW started." << std::endl;
 
         IndexSet<Index> Extension;
-        Extension = this->GROW(w_k, theta*nu_kM1, nu_k);
+        Extension = this->GROW(w_k, theta*nu_kM1, nu_k, lengthOfResidual, timeApply);
         Lambda_kP1 = Lambda_kP1 + Extension;
+
         std::cerr << "   GROW finished." << std::endl;
-        //solutions.push_back(w_kP1);
-        residuals.push_back(nu_k);
-        times.push_back(total_time);
-        if (nu_k <=eps) break;
 
         time.stop();
         total_time += time.elapsed();
 
+        if (nu_k <=eps) break;
+
+        IndexSet<Index1D> Lambda_x, Lambda_y;
+        split(Lambda_kP1, Lambda_x, Lambda_y);
+        int jmin_x, jmax_x, jmin_y, jmax_y;
+        getMinAndMaxLevel(Lambda_x, jmin_x, jmax_x);
+        getMinAndMaxLevel(Lambda_y, jmin_y, jmax_y);
+        std::cerr << "   Current jmax  = (" << jmax_x << ", " << jmax_y << ")" << std::endl;
 
         Coefficients<Lexicographical,T,Index> PP_Au, PP_f, u;
         u = w_k;
@@ -81,29 +91,13 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
         PP_Au = PP_A.mv(supp(u), u);
         T uAu = u*PP_Au;
         T Error_H_energy = sqrt(fabs(std::pow(H1norm,2.)- 2*fu + uAu));
-
         Coefficients<Lexicographical,T,Index> Au_M_f;
         A.apply(w_k,0.,Au_M_f,NoTrans);
         Au_M_f -= F(0.01*nu_k);
-        int liniters=0;
-        if (i>1) {
-            liniters = linsolve_iterations.back();
-        }
-        file << w_k.size() << " " << total_time << " " <<  nu_k << " "
-                         << Error_H_energy << " " << Au_M_f.norm(2.) << " "  << liniters << std::endl;
+        file << w_k.size() << " " << numOfIterations << " " << total_time << " " <<  nu_k << " "
+                         << Error_H_energy << " " << Au_M_f.norm(2.) << " "  << T(lengthOfResidual)/T(w_k.size())  << std::endl;
 
-        /*
-        std::stringstream coeff_filename;
-        coeff_filename << "adwav_coeff_" << w_k.size();
-        Coefficients<AbsoluteValue,T,Index1D> u_abs;
-        u_abs = w_k;
-        plotCoeff(u_abs, A.basis, coeff_filename.str().c_str());
-        */
-        /*
-        std::stringstream coefffile;
-        coefffile << "s_adwav_coeffs_" << i;
-        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coefffile.str().c_str());
-        */
+
 
         time.start();
         std::cerr << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
@@ -113,16 +107,20 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
          */
         Coefficients<Lexicographical,T,Index> rhs;
         g_kP1 = F(Lambda_kP1);                // update rhs vector
-        rhs = F(gamma*nu_k);
-        g_kP1 = P(rhs,Lambda_kP1);  // compute with restriction, otherwise GROW does not work
-        this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
-
+        std::cerr << "      Tolerance for GALSOLVE rhs: " << gamma*nu_k*(1./A.CA) << std::endl;
+        g_kP1 = F(gamma*nu_k*(1./A.CA));
+        //g_kP1 = P(rhs,Lambda_kP1);
+        // compute with restriction, otherwise GROW does not work
+        // "peaks" in the error estimator may arise from omega too small: if the approximation of rhs
+        // for solving the Galerkin system is much smaller than the corresponding tolerance in GROW,
+        // such effects can show up.
+        T res;
+        numOfIterations=CGLS_Solve(Lambda_kP1, A, w_k, g_kP1, res, gamma*nu_k,
+                                   maxIterations,assemble_matrix);
+        std::cerr << "      ... required " << numOfIterations << " iterations." << std::endl;
+        //this->GALSOLVE(Lambda_kP1, Extension, g_kP1, w_k, (1+gamma)*nu_k, gamma*nu_k);
         std::cerr << "   GALSOLVE finished." << std::endl;
-/*
-        std::stringstream coefffile;
-        coefffile << "ghs_adwav_coeffs_" << i;
-        plotScatterCoeff2D(w_kP1, A.basis.first, A.basis.second, coefffile.str().c_str());
-*/
+
         nu_kM1 = nu_k;
         time.stop();
         total_time += time.elapsed();
@@ -135,31 +133,35 @@ template <typename T, typename Index, typename AdaptiveOperator, typename RHS,
           typename PP_AdaptiveOperator, typename PP_RHS>
 IndexSet<Index>
 GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
-::GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu)
+::GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu, int &lengthOfResidual,
+       T &timeApply)
 {
     T zeta = 2.*(omega*nu_bar)/(1-omega);
     T r_norm = 0.;
-    Coefficients<Lexicographical,T,Index> r, rhs, help;
+    Coefficients<Lexicographical,T,Index> r(SIZEHASHINDEX2D), AtAw(SIZEHASHINDEX2D),
+                                          help(SIZEHASHINDEX2D);
+
+    A.apply(w, zeta, help, cxxblas::NoTrans);
+    A.apply(help, zeta, AtAw, cxxblas::Trans);
+    std::cerr << "      size of A^T A w: " << AtAw.size() << std::endl;
+    help.setToZero();
     while (1) {
         zeta *= 0.5;
 
         std::cerr << "      zeta = " << zeta << std::endl;
-        A.apply(w, zeta, help, cxxblas::NoTrans);
-        //help = THRESH(help,0.1*zeta);
-        A.apply(help, zeta, r, cxxblas::Trans);
-        std::cerr << "      size of A^T A v: " << r.size() << std::endl;
         help = F(zeta);
-        A.apply(help, zeta, rhs, cxxblas::Trans);
-        std::cerr << "      size of A^T f:    " << rhs.size() << std::endl;
-        r -= rhs;
+        A.apply(help, zeta, r, cxxblas::Trans);
+        std::cerr << "      size of A^T f:    " << r.size() << std::endl;
+        r -= AtAw;
 
         r_norm = r.norm(2.);
-        nu = r_norm + zeta;
+        nu = r_norm + zeta*A.CA;
         std::cerr << "      zeta = " << zeta << ", r_norm = " << r_norm << ", omega*r_norm = "
                   << omega*r_norm << ", nu = " << nu << std::endl;
         if (nu <= eps) break;
-        if (zeta<=omega*r_norm) break;
+        if (zeta*A.CA<=omega*r_norm) break;
     }
+    lengthOfResidual = r.size();
 
     IndexSet<Index> Lambda;
     long double P_Lambda_r_norm_square = 0.0L;
@@ -173,42 +175,35 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 
     T threshbound = std::sqrt(1-alpha*alpha) * r.norm(2.)/std::sqrt(T(r.size()));
     Coefficients<Bucket,T,Index> r_bucket;
-    /*
-    Coefficients<AbsoluteValue,T,Index> r_abs;
-    r_abs = r;
-    int count=1;
-    for (const_coeff_abs_it it=r_abs.begin(); it!=r_abs.end(); ++it,++count) {
-        std::cerr << "   " << (*it).first << ", " << (*it).second << std::endl;
-        if (count >10) break;
-    }
-    getchar();
-    */
+
 
     r_bucket.bucketsort(r, threshbound);
     //std::cerr << r_bucket << std::endl;
 
     std::cout << "      size of r = " << r.size() << std::endl;
-    std::cerr << "      Threshbound = " << threshbound << std::endl;
     std::cerr << "      Before extension: ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
               << ", alpha*r_norm = " << alpha*r_norm << std::endl;
     if (nu > eps) {
-        int currentDoF = w.size();
+        int addDoF = 0;
         for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
             P_Lambda_r_norm_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
-            std::cerr << "   ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
-            int addDoF = r_bucket.addBucketToIndexSet(Lambda,i,currentDoF);
-            currentDoF += addDoF;
+            addDoF += r_bucket.addBucketToIndexSet(Lambda,i);
+            std::cerr << "      Currently " << addDoF << " added indices, ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
             if (P_Lambda_r_norm_square >= alpha*r_norm*alpha*r_norm) {
                 if (optimized_grow) {
-                    int addDoF = r_bucket.addBucketToIndexSet(Lambda,i+1,currentDoF);
-                    currentDoF += addDoF;
+                    while ((T) addDoF /(T) w.size() < 0.1) {
+                        ++i;
+                        P_Lambda_r_norm_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
+                        addDoF += r_bucket.addBucketToIndexSet(Lambda,i);
+                        std::cerr << "      Currently " << addDoF << " added indices, ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
+                    }
                 }
                 break;
             }
         }
     }
     r.clear();
-    rhs.clear();
+    AtAw.clear();
     help.clear();
     //getchar();
     return Lambda;
@@ -258,7 +253,6 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
         std::cerr << "      target tolerance: " << tol << std::endl;
         int iters = lawa::cgls(B,x_vec,g_vec,tol);
 
-        linsolve_iterations.push_back(iters);
         std::cerr << "      number of iterations: " << iters << ", res = " << tol << std::endl;
 
         Coefficients<Lexicographical,T,Index> x;
@@ -293,7 +287,6 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 
            std::cerr << "     iteration: " << k << " : current error = " << sqrt(gamma_cgls) << " (tol=" << tol << ")" << std::endl;
            if (sqrt(gamma_cgls)<=tol) {
-               linsolve_iterations.push_back(k);
                std::cerr << "      inner iterations: " << k << std::endl;
                break;
            }
@@ -305,7 +298,19 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
         }
 
     }
-
 }
+
+/*
+        std::stringstream coeff_filename;
+        coeff_filename << "adwav_coeff_" << w_k.size();
+        Coefficients<AbsoluteValue,T,Index1D> u_abs;
+        u_abs = w_k;
+        plotCoeff(u_abs, A.basis, coeff_filename.str().c_str());
+        */
+        /*
+        std::stringstream coefffile;
+        coefffile << "s_adwav_coeffs_" << i;
+        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coefffile.str().c_str());
+        */
 
 }   // namespace lawa

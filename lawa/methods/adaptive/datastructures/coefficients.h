@@ -129,7 +129,7 @@ struct Coefficients<Bucket,T,Index>
     bucketsort(const Coefficients<Lexicographical,T,Index> &_coeff, T eps);
 
     int
-    addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber, int count=-1);
+    addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber);
 
     void
     addBucketToCoefficients(Coefficients<Lexicographical,T,Index> &coeff, int bucketnumber);

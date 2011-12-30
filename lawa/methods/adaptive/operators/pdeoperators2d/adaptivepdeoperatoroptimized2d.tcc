@@ -310,7 +310,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
     if (v.size()==0) return;
 
     Index1D_Coefficients1D_Hash y_v;
-    Coefficients<Lexicographical,T,Index2D> I_S_v;
+    Coefficients<Lexicographical,T,Index2D> I_S_v(SIZEHASHINDEX2D);
     Index1D_Coefficients1D_Hash x_I_S_v;
 
     Timer time;
@@ -590,8 +590,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
     split(Lambda, Lambda_x, Lambda_y);
 
     Index1D_Coefficients1D_Hash y_v;
-
-    Coefficients<Lexicographical,T,Index2D> I_S_v;
+    Coefficients<Lexicographical,T,Index2D> I_S_v(SIZEHASHINDEX2D);
     Index1D_Coefficients1D_Hash x_I_S_v;
 
     Timer time;
@@ -863,6 +862,15 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
     }
     x_I_S_v.clear();
 
+}
+
+template <typename T, DomainType Domain1, DomainType Domain2>
+void
+AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
+::clear()
+{
+    Coefficients<Lexicographical,T,Index2D> tmp;
+    P_data = tmp;
 }
 
 }   //lawa

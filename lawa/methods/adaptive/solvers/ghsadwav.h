@@ -20,6 +20,7 @@
 #ifndef  LAWA_METHODS_ADAPTIVE_SOLVERS_GHSADWAV_H
 #define  LAWA_METHODS_ADAPTIVE_SOLVERS_GHSADWAV_H 1
 
+#include <map>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 #include <lawa/methods/adaptive/algorithms/algorithms.h>
 
@@ -61,16 +62,6 @@ struct GHS_ADWAV {
         T                cA, CA, kappa;
         T                alpha, omega, gamma, theta;
         T                eps;
-
-        //        std::vector<Coefficients<Lexicographical,T,Index> > solutions;
-        std::vector<T>                                      residuals;
-        std::vector<T>                                      times;
-        std::vector<int>                                    linsolve_iterations;
-
-        std::map<Index,int,lt<Lexicographical,Index> >      row_indices;
-
-        Coefficients<Lexicographical,T,Index>               w_k;
-
 };
 
 

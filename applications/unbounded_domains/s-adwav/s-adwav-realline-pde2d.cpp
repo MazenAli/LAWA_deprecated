@@ -36,10 +36,10 @@ typedef Basis<T,Primal,R,SparseMulti>                                   SparseMW
 typedef TensorBasis2D<Adaptive, SparseMW_Basis1D,SparseMW_Basis1D>      SparseMW_Basis2D;
 
 //Operator definitions
-//typedef AdaptivePDEOperatorOptimized2D<T,Primal,R,SparseMulti,
-//                                        Primal,R,SparseMulti>          SparseMW_MA;
-typedef AdaptiveHelmholtzOperatorOptimized2D<T,Primal,R,SparseMulti,
-                                         Primal,R,SparseMulti>          SparseMW_MA;
+typedef AdaptivePDEOperatorOptimized2D<T,Primal,R,SparseMulti,
+                                        Primal,R,SparseMulti>          SparseMW_MA;
+//typedef AdaptiveHelmholtzOperatorOptimized2D<T,Primal,R,SparseMulti,
+//                                         Primal,R,SparseMulti>          SparseMW_MA;
 typedef AdaptiveHelmholtzOperatorOptimized2D<T,Primal,R,SparseMulti,
                                              Primal,R,SparseMulti>      SparseMW_H1_MA;
 
@@ -72,7 +72,7 @@ int main (int argc, char *argv[]) {
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
-    T reaction=1., convection_x=0., convection_y=0., diffusion=1.;
+    T reaction=1., convection_x=5., convection_y=5., diffusion=1.;
     T contraction = 0.125;
     T threshTol = 0.4;
     T cgTol = 0.1*threshTol;//1e-12;
@@ -96,8 +96,6 @@ int main (int argc, char *argv[]) {
                   << argv[3] << "_" << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
                   << convection_y << "_" << argv[6] << ".dat";
 
-
-
     //Righthand side construction for tensor solution
     if (strcmp(argv[1],"CDF")==0) {
         cout << "Not implemented yet" << endl;
@@ -111,8 +109,8 @@ int main (int argc, char *argv[]) {
         SparseMW_Basis1D       SparseMW_basis_x(d,j0_x);
         SparseMW_Basis1D       SparseMW_basis_y(d,j0_y);
         SparseMW_Basis2D       SparseMW_basis2d(SparseMW_basis_x,SparseMW_basis_y);
-        //SparseMW_MA            SparseMW_A(SparseMW_basis2d,reaction,convection_x,convection_y,diffusion);
-        SparseMW_MA            SparseMW_A(SparseMW_basis2d,1.);
+        SparseMW_MA            SparseMW_A(SparseMW_basis2d,reaction,convection_x,convection_y,diffusion);
+        //SparseMW_MA            SparseMW_A(SparseMW_basis2d,1.);
         SparseMW_H1_MA         SparseMW_H1_A(SparseMW_basis2d,1.);
         SparseMW_Prec          SparseMW_P(SparseMW_A);
 
@@ -143,6 +141,7 @@ int main (int argc, char *argv[]) {
             SparseMW_S_ADWAV_SOLVER_Optim_SeparableRhs SparseMW_s_adwav_solver_optim
                             (SparseMW_A, SparseMW_F, SparseMW_H1_A, SparseMW_H1_F,
                              contraction, threshTol, cgTol, resTol, NumOfIterations, 1, 1e-2);
+
 
             SparseMW_A.clear();
             Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);

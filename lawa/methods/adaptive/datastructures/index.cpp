@@ -53,6 +53,11 @@ std::ostream& operator<<(std::ostream &s, const Index1D &_i)
 }
 
 
+Index2D::Index2D(void)
+: index1(), index2()
+{
+}
+
 Index2D::Index2D(const Index1D &_index1, const Index1D &_index2)
 : index1(_index1), index2(_index2)
 {

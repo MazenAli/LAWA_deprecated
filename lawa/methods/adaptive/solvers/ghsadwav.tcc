@@ -5,7 +5,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F
                                                    bool _optimized_grow, int _assemble_matrix)
     : A(_A), F(_F), optimized_grow(_optimized_grow), assemble_matrix(_assemble_matrix),
       cA(A.cA), CA(A.CA), kappa(A.kappa),
-      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.), w_k(SIZEHASHINDEX2D)
+      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.)
 {
     omega = 0.01;
     alpha = 1./std::sqrt(kappa)-(1.+1./std::sqrt(kappa))*omega-0.00001;
@@ -30,8 +30,8 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
                                                int NumOfIterations, T H1norm)
 {
     T eps = _eps;
-    Coefficients<Lexicographical,T,Index> g_kP1(SIZEHASHINDEX2D);
-    IndexSet<Index> Lambda_kP1(SIZEHASHINDEX2D);
+    Coefficients<Lexicographical,T,Index> w_k(SIZEHASHINDEX2D), g_kP1(SIZEHASHINDEX2D);
+    IndexSet<Index>                       Lambda_kP1(SIZEHASHINDEX2D);
     T nu_kM1 = nuM1;
     T nu_k   = 0.;
     T total_time=0.;
@@ -61,8 +61,6 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
 
         time.stop();
         total_time += time.elapsed();
-        residuals.push_back(nu_k);
-        times.push_back(total_time);
 
         if (nu_k <=eps) break;
 
@@ -81,20 +79,10 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         T Error_H_energy = sqrt(fabs(std::pow(H1norm,(T)2.)- 2*fu + uAu));
         file << w_k.size() << " " << numOfIterations << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << " " << timeApply << " " << timeMatrixVector << " "
-                         << T(lengthOfResidual)/T(w_k.size()) << std::endl;
+                         << T(lengthOfResidual)/T(w_k.size())  << std::endl;
 
-        /*
-        std::stringstream coeff_filename;
-        coeff_filename << "adwav_coeff_" << w_k.size();
-        Coefficients<AbsoluteValue,T,Index1D> u_abs;
-        u_abs = w_k;
-        plotCoeff(u_abs, A.basis, coeff_filename.str().c_str());
-        */
-        /*
-        std::stringstream coefffile;
-        coefffile << "s_adwav_coeffs_" << i;
-        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coefffile.str().c_str());
-        */
+
+
 
         time.start();
         std::cerr << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
@@ -116,7 +104,6 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         std::cerr << "   GALSOLVE finished." << std::endl;
 
         nu_kM1 = nu_k;
-        //w_k = w_kP1;
         time.stop();
         total_time += time.elapsed();
         std::cerr << std::endl;
@@ -133,8 +120,8 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
     T r_norm = 0.;
     Coefficients<Lexicographical,T,Index> r(16769023), rhs;
     while (1) {
+        r.setToZero();
         zeta *= 0.5;
-
         std::cerr << "      zeta = " << zeta << std::endl;
         Timer time_apply;
         time_apply.start();
@@ -173,41 +160,19 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
     std::cerr << "      ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square)
               << ", alpha*r_norm = " << alpha*r_norm << std::endl;
     if (nu > eps) {
-        int currentDoF = w.size();
         for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
             P_Lambda_r_norm_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
             std::cerr << "      ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
-            int addDoF = r_bucket.addBucketToIndexSet(Lambda,i,currentDoF);
+            int addDoF = r_bucket.addBucketToIndexSet(Lambda,i);
             std::cerr << "      Added " << addDoF << " indices with norm " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
-            currentDoF += addDoF;
             if (P_Lambda_r_norm_square >= alpha*r_norm*alpha*r_norm) {
                 if (optimized_grow) {
-                    int addDoF = r_bucket.addBucketToIndexSet(Lambda,i+1,currentDoF);
+                    int addDoF = r_bucket.addBucketToIndexSet(Lambda,i+1);
                     std::cerr << "      Added " << addDoF << " indices with norm " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
-                    currentDoF += addDoF;
-                    //addDoF = r_bucket.addBucketToIndexSet(Lambda,i+2,currentDoF);
-                    //std::cerr << "      Added " << addDoF << " indices with norm " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
-                    //currentDoF += addDoF;
                 }
                 break;
             }
         }
-        /*
-        int count=0;
-        int sizeExtensionOfLambda=1;
-        for (const_coeff_abs_it it=r_abs.begin(); it!=r_abs.end(); ++it) {
-
-            Lambda.insert((*it).second);
-            ++count;
-
-            P_Lambda_r_norm_square += std::pow((*it).first,2);
-            std::cerr << "    Added " << (*it).second << ", " << (*it).first << ", now: ||P_{Lambda}r ||_2 = "
-                      << std::sqrt(P_Lambda_r_norm_square) << ", alpha*r_norm = "
-                      << alpha*r_norm << std::endl;
-
-            if (count>=5*sizeExtensionOfLambda)                     break;
-        }
-        */
     }
     std::cerr << "      #Lambda_{k+1} / #Lambda_k = " << T(Lambda.size()+w.size())/T(w.size()) << std::endl;
     return Lambda;
@@ -221,7 +186,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
                                                   T delta, T tol)
 {
     if (assemble_matrix==1 || assemble_matrix==2) {
-
+        std::map<Index,int,lt<Lexicographical,Index> >      row_indices;
         int d=A.basis.d;
         if (Lambda.size()==0) return;
 
@@ -266,7 +231,6 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
         }
 
         int iters = lawa::cg(B,x,rhs,tol/3.);
-        linsolve_iterations.push_back(iters);
         Bx = B*x;
         res= Bx-rhs;
         T lin_res = std::sqrt(res*res);
@@ -316,5 +280,57 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     }
     return;
 }
+
+
+/*
+int count=0;
+int sizeExtensionOfLambda=1;
+for (const_coeff_abs_it it=r_abs.begin(); it!=r_abs.end(); ++it) {
+
+    Lambda.insert((*it).second);
+    ++count;
+
+    P_Lambda_r_norm_square += std::pow((*it).first,2);
+    std::cerr << "    Added " << (*it).second << ", " << (*it).first << ", now: ||P_{Lambda}r ||_2 = "
+              << std::sqrt(P_Lambda_r_norm_square) << ", alpha*r_norm = "
+              << alpha*r_norm << std::endl;
+
+    if (count>=5*sizeExtensionOfLambda)                     break;
+}
+*/
+
+
+        /*
+        index_hashfunction<Index2D> hasher2d;
+        std::map<size_t,Index2D> hash_values;
+        int collisions = 0;
+        T time_hash = 0.;
+        for (const_coeff_it it=w_k.begin(); it!=w_k.end(); ++it) {
+            time.start();
+            size_t hash_value = hasher2d((*it).first);
+            time.stop();
+            time_hash += time.elapsed();
+            int count = hash_values.count(hash_value);
+            if (count==0) hash_values[hash_value] = (*it).first;
+            else {
+               std::cerr << "   Collision: " << (*it).first << " " << hash_value << " same as " << hash_values[hash_value] << " -> " << count << std::endl;
+                ++collisions;
+            }
+        }
+        std::cerr << "   Hash test: " << collisions << " / " << w_k.size() << " " << time_hash << std::endl;
+        T percent_collisions = (T)collisions / (T) w_k.size();
+        */
+        /*
+        std::stringstream coeff_filename;
+        coeff_filename << "adwav_coeff_" << w_k.size();
+        Coefficients<AbsoluteValue,T,Index1D> u_abs;
+        u_abs = w_k;
+        plotCoeff(u_abs, A.basis, coeff_filename.str().c_str());
+        */
+        /*
+        std::stringstream coefffile;
+        coefffile << "s_adwav_coeffs_" << i;
+        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coefffile.str().c_str());
+        */
 
 }   //namespace lawa

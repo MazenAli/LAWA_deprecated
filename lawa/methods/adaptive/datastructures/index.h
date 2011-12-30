@@ -29,12 +29,12 @@ namespace lawa {
 
 static boost::hash<long int> hash_long;
 
-#define JMINOFFSET                  2
+#define JMINOFFSET                 10
 #define JMAX                       40
-#define SIZEHASHINDEX1D         24593//196613
-#define SIZELARGEHASHINDEX1D  3145739//1572869
-#define SIZEHASHINDEX2D       3145739//1572869
-#define SIZELARGEHASHINDEX2D 12582917
+#define SIZEHASHINDEX1D         12869//196613
+#define SIZELARGEHASHINDEX1D    72869//1572869
+#define SIZEHASHINDEX2D       6291469//1572869
+#define SIZELARGEHASHINDEX2D  6291469
 
 
 struct Index1D
@@ -53,6 +53,7 @@ std::ostream& operator<<(std::ostream &s, const Index1D &_Index);
 
 struct Index2D
 {
+    Index2D(void);
     Index2D(const Index1D &index1, const Index1D &index2);
     ~Index2D();
     Index1D index1, index2;
@@ -198,7 +199,7 @@ struct index_hashfunction<Index1D>
     size_t operator()(const Index1D& index) const
     {
         // Note: hash_values is taken mod "length of hashtable" automatically!!
-        long pow2ij = (1L << (index.j+index.xtype));
+        long pow2ij = (1L << (index.j+JMINOFFSET+index.xtype));
         size_t hash_value = (pow2ij + index.k);
 
         return hash_value;
@@ -219,18 +220,29 @@ template <>
 struct index_hashfunction<Index2D>
 {
     // performs better without storing 2^l values... why??
+    index_hashfunction(void)
+    {
+        for (int i=0; i<JMAX+JMINOFFSET+2; ++i) {
+            power2i[i] = 1L << i;
+        }
+    }
+    size_t power2i[JMAX+JMINOFFSET+2];
+
+    /*
     inline
     size_t operator()(const Index2D& index) const
     {
-        size_t l1 = (1L << (index.index1.j+index.index1.xtype) ) + index.index1.k;
-        size_t l2 = (1L << (index.index2.j+index.index2.xtype) ) + index.index2.k;
+        //size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
+        //size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
+        size_t l1 = power2i[index.index1.j+index.index1.xtype+JMINOFFSET] + index.index1.k;
+        size_t l2 = power2i[index.index2.j+index.index2.xtype+JMINOFFSET] + index.index2.k;
         size_t s1 = l1;
         size_t s2 = l1+l2;
         size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
         return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
     }
+    */
 
-    /*
     inline
     size_t operator()(const Index2D& index) const
     {
@@ -247,7 +259,8 @@ struct index_hashfunction<Index2D>
 
         return hash_value;
     }
-    */
+
+
 };
 
 template <typename Index>

@@ -45,7 +45,8 @@ struct GHS_NONSYM_ADWAV {
         SOLVE(T nuM1, T _eps, const char *filename, int NumOfIterations=100, T H1norm=0.);
 
         IndexSet<Index>
-        GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu);
+        GROW(const Coefficients<Lexicographical,T,Index> &w, T nu_bar, T &nu,
+             int &lengthOfResidual, T &timeApply);
 
         void
         GALSOLVE(const IndexSet<Index> &Lambda, const IndexSet<Index> &Extension,
@@ -61,12 +62,6 @@ struct GHS_NONSYM_ADWAV {
         T                   alpha, omega, gamma, theta;
         T                   eps;
 
-        //        std::vector<Coefficients<Lexicographical,T,Index> > solutions;
-        std::vector<T>                                      residuals;
-        std::vector<T>                                      times;
-        std::vector<int>                                    linsolve_iterations;
-
-        std::map<Index,int,lt<Lexicographical,Index> >      row_indices;
 
 };
 

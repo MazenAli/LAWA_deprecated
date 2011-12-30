@@ -95,13 +95,14 @@ int main (int argc, char *argv[]) {
     int d_  =atoi(argv[3]);
     int j0_x=atoi(argv[4]);
     int j0_y=atoi(argv[5]);
-    T reaction=1., convection_x=5., convection_y=0., diffusion=1.;
+    T reaction=1., convection_x=5., convection_y=5., diffusion=1.;
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
     stringstream rhsfilename;
-    rhsfilename << "rhs/rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
-                << argv[4] << "_" << argv[5] << "_" << 1. << "_" << argv[6] << ".dat";
+    rhsfilename << "rhs/rhs_realline_pde2d_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+                << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
+                << convection_y << "_" << argv[6] << ".dat";
 
     stringstream convfilename;
     convfilename << "ghs_adwav_conv_realline_pde2d_" << argv[1] << "_" << argv[2] << "_"
@@ -149,8 +150,9 @@ int main (int argc, char *argv[]) {
         SparseMW_H1_F.readIndexSets(rhsfilename.str().c_str());
 
         SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,SparseMW_H1_A,SparseMW_H1_F,true, false);
-        T alpha = 0.4, omega = 0.2, gamma = 0.05, theta = 2*omega/(1+omega);
+        T alpha = 0.6, omega = 0.01, gamma = 0.02, theta = 2*omega/(1+omega);
         SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
+
 
         Coefficients<Lexicographical,T,Index2D> u;
         u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
