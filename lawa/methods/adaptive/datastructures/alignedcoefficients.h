@@ -23,7 +23,7 @@
 #ifdef TRONE
     #include <tr1/unordered_map>
 #else
-    #include <ext/hash_set>
+    #include <ext/hash_map>
 #endif
 
 #include <lawa/methods/adaptive/datastructures/index.h>

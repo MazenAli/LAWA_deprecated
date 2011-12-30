@@ -49,16 +49,16 @@ struct LocalOperator {
     void
     evalA(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
           CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
-          bool pre_apply_prec=true);
+          bool pre_apply_prec=true) const;
 
     void
     evalU(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
           CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
-          bool pre_apply_prec=true);
+          bool pre_apply_prec=true) const;
 
     void
     evalL(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
-          TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec=true);
+          TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec=true) const;
 
 
     const TestBasis                   &test_basis;

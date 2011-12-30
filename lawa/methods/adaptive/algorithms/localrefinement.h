@@ -45,15 +45,15 @@ class LocalRefinement
          */
         void
         reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
-                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1);
+                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1) const;
 
         void
         reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j, int j,
-                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1);
+                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1) const;
 
         void
         reconstruct(const CoefficientsByLevel<T> &u_scaling, const CoefficientsByLevel<T> &u_wavelet,
-                    int j, CoefficientsByLevel<T> &u_loc_single_jP1);
+                    int j, CoefficientsByLevel<T> &u_loc_single_jP1) const;
 
         /*
          * Expects an coefficient entry (wavelets or scaling function) and computes the _local_ refinement.
@@ -61,11 +61,11 @@ class LocalRefinement
          */
         void
         reconstruct(const short &j, const long &k, const XType &xtype, T coeff,
-                    Coefficients<Lexicographical,T,Index1D> &u_loc_single);
+                    Coefficients<Lexicographical,T,Index1D> &u_loc_single) const;
 
         void
         reconstruct(const short &j, const long &k, const XType &xtype, T coeff,
-                    CoefficientsByLevel<T> &u_loc_single);
+                    CoefficientsByLevel<T> &u_loc_single) const;
 
         /*
          * Expects a vector <Phi_{j+1},v> (u_loc_single) with scaling functions on level j+1.
@@ -78,20 +78,20 @@ class LocalRefinement
         decompose_(Coefficients<Lexicographical,T,Index1D> &u_loc_single,
                    const IndexSet<Index1D> &Lambda,
                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jM1,
-                   Coefficients<Lexicographical,T,Index1D> &u_multi);
+                   Coefficients<Lexicographical,T,Index1D> &u_multi) const;
 
         void
         decompose_(CoefficientsByLevel<T>  &u_loc_single, int j,
                    CoefficientsByLevel<T>  &u_scaling,
-                   CoefficientsByLevel<T>  &u_wavelet);
+                   CoefficientsByLevel<T>  &u_wavelet) const;
 
         T
         decompose_(Coefficients<Lexicographical,T,Index1D> &u_loc_single,
-                   const short &j, const long &k, const XType &xtype);
+                   const short &j, const long &k, const XType &xtype) const;
 
         T
         decompose_(CoefficientsByLevel<T> &u_loc_single,
-                   const short &j, const long &k, const XType &xtype);
+                   const short &j, const long &k, const XType &xtype) const;
 
 
 
@@ -99,7 +99,7 @@ class LocalRefinement
          * "Graphical test" if refinement is correct.
          */
         void
-        test_reconstruct(int j, long k, XType xtype);
+        test_reconstruct(int j, long k, XType xtype) const;
 
         const PrimalBasis &basis;
 

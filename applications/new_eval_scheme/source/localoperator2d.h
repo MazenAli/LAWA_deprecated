@@ -47,15 +47,16 @@ struct LocalOperator2D {
 
     void
     evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-           Coefficients<Lexicographical,T,Index2D> &AAv);
+           Coefficients<Lexicographical,T,Index2D> &UIv,
+           Coefficients<Lexicographical,T,Index2D> &AAv) const;
 
     void
     evalUI(const Coefficients<Lexicographical,T,Index2D> &v,
-           Coefficients<Lexicographical,T,Index2D> &UIv);
+           Coefficients<Lexicographical,T,Index2D> &UIv) const;
 
     void
     evalIA(const Coefficients<Lexicographical,T,Index2D> &UIv,
-           Coefficients<Lexicographical,T,Index2D> &AAv);
+           Coefficients<Lexicographical,T,Index2D> &AAv) const;
 
     const Basis                   &basis;
     const LocalOperator1          &localoperator1;

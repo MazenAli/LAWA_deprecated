@@ -37,7 +37,7 @@ void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::evalA(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
         CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
-        bool pre_apply_prec)
+        bool pre_apply_prec) const
 {
     if (PhiPiCheck_vs_v.map.size()==0 && PsiLambdaCheck_vs_v[l].map.size()==0) return;
 
@@ -191,7 +191,7 @@ void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::evalU(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
         CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
-        bool pre_apply_prec)
+        bool pre_apply_prec) const
 {
     if (PhiPiCheck_vs_v.map.size()==0 && PsiLambdaCheck_vs_v[l].map.size()==0) return;
 
@@ -314,7 +314,7 @@ template <typename TestBasis, typename TrialBasis, typename BilinearForm, typena
 void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::evalL(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
-        TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec)
+        TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec) const
 {
     if (PsiLambdaCheck_vs_v[l].map.size()==0) return;
 

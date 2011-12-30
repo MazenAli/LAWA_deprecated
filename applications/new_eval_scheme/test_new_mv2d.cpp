@@ -68,113 +68,51 @@ int main (int argc, char *argv[]) {
     LocalOp1D localoperator(basis, false, basis, false, offset, Bil, Prec);
     LocalOp2D localop2d(basis,localoperator,localoperator);
 
-
-
-
     Timer time;
 
-    ofstream file2("v_insert_times.dat");
+
+    ofstream file2("comptimes_mv2d.dat");
     Coefficients<Lexicographical,T,Index2D> v((J+3)*basis.mra.cardI(j0+J+3));
+    Coefficients<Lexicographical,T,Index2D> MMv((J+3)*basis.mra.cardI(j0+J+3));
+    Coefficients<Lexicographical,T,Index2D> UIv((J+3)*basis.mra.cardI(j0+J+3));
+
     for (int j=1; j<=J; ++j) {
-        time.start();
+
         getSparseGridIndexSet(basis,v,j);
-        time.stop();
-        T time_v_insert = time.elapsed();
 
-        std::cerr << "Computing alignment." << std::endl;
-        time.start();
-        AlignedCoefficients<T,Index2D,Index1D,Index1D> alignedv(4*basis.mra.cardI(j0+j),255);
-        alignedv.align_x2(v, j0+J);
-        time.stop();
-        T time_align = time.elapsed();
-
-        std::cerr << "Setting up trees." << std::endl;
-        time.start();
-        for (alignedCoefficients::const_map_prindex_it it=alignedv.map.begin(); it!=alignedv.map.end(); ++it) {
-            TreeCoefficients1D<T> v_x_tree(255);
-            v_x_tree = (*it).second;
-            //cout << (*it).first << " " << v_x_tree << endl;
+        for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
+            UIv[(*it).first] = 0.;
+            MMv[(*it).first] = 0.;
         }
-        time.stop();
-        T time_trees = time.elapsed();
 
-        cout << v.size() << " " << time_v_insert << " " << time_align << " " << time_trees << endl;
-        file2 << v.size() << " " << time_v_insert << " " << time_align << " " << time_trees << endl;
+        cout << "New scheme started..." << endl;
+        time.start();
+        localop2d.evalAA(v,UIv, MMv);
+        time.stop();
+        T time_evalAA1 = time.elapsed();
+        cout << "New scheme finished." << endl;
+
+        /*
+        cout << "Reference calculation started..." << endl;
+        Coefficients<Lexicographical,T,Index2D> UIv_ref, MMv_ref;
+        refComputation1(Bil, v, UIv_ref);
+        refComputation2(Bil, UIv_ref, MMv_ref);
+        cout << "Reference calculation finished." << endl;
+
+        UIv -= UIv_ref;
+        MMv -= MMv_ref;
+
+        cout << "Difference in norm UIv: " << UIv.norm(2.) << endl;
+        cout << "Difference in norm MMv: " << MMv.norm(2.) << endl;
+
+
+        cout << v.size() << " " << time_evalAA1 << endl;
+        file2 << v.size() << " " << time_evalAA1 << endl;
+        */
+
+
     }
     file2.close();
-
-
-    cout << "New scheme started..." << endl;
-    Coefficients<Lexicographical,T,Index2D> MMv((J+3)*basis.mra.cardI(j0+J+3));
-    for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
-        MMv[(*it).first] = 0.;
-    }
-
-    AlignedCoefficients<T,Index2D,Index1D,Index1D> x2aligned_v(4*basis.mra.cardI(j0+J),255);
-    x2aligned_v.align_x2(v, j0+J);
-    Coefficients<Lexicographical,T,Index2D> UIv((J+3)*basis.mra.cardI(j0+J+3));
-    for (alignedCoefficients::const_map_prindex_it it=x2aligned_v.map.begin(); it!=x2aligned_v.map.end(); ++it) {
-        Index1D row_y = (*it).first;
-        TreeCoefficients1D<T> v_x_tree(255);
-        v_x_tree = (*it).second;
-
-        CoefficientsByLevel<T> U_PhiPiCheck_vs_v(j0,255);
-        TreeCoefficients1D<T> U_PsiLambdaCheck_vs_v(255);
-
-        for (long k=basis.mra.rangeI(j0).firstIndex(); k<=basis.mra.rangeI(j0).lastIndex(); ++k) {
-            U_PhiPiCheck_vs_v.map[k] = 0.;
-        }
-        for (int j=j0; j<=j0+J; ++j) {
-            for (long k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
-                U_PsiLambdaCheck_vs_v[j].map[k] = 0.;
-            }
-        }
-
-        localoperator.evalU(j0, v_x_tree[j0-1], v_x_tree, U_PhiPiCheck_vs_v, U_PsiLambdaCheck_vs_v);
-        U_PsiLambdaCheck_vs_v[j0-1].map = U_PhiPiCheck_vs_v.map;
-
-        U_PsiLambdaCheck_vs_v.addTo_x2aligned<Index2D,Index1D>(row_y,UIv,j0);
-    }
-    cout << "Size of v: " << v.size() << ", size of UIv: " << UIv.size() << endl;
-
-    AlignedCoefficients<T,Index2D,Index1D,Index1D> x1aligned_UIv(4*basis.mra.cardI(j0+J),255);
-    AlignedCoefficients<T,Index2D,Index1D,Index1D> x1aligned_MMv(4*basis.mra.cardI(j0+J),255);
-    x1aligned_UIv.align_x1(UIv, j0+J);
-    x1aligned_MMv.align_x1(MMv, j0+J);
-    Coefficients<Lexicographical,T,Index2D> IAUIv((J+3)*basis.mra.cardI(j0+J+3));
-    for (alignedCoefficients::const_map_prindex_it it=x1aligned_UIv.map.begin(); it!=x1aligned_UIv.map.end(); ++it) {
-        Index1D row_x = (*it).first;
-        TreeCoefficients1D<T> x1aligned_UIv_tree(255), x1aligned_MMv_tree(255);
-        x1aligned_UIv_tree = (*it).second;
-
-        CoefficientsByLevel<T> A_PhiPiCheck_vs_v(j0,255);
-        TreeCoefficients1D<T> A_PsiLambdaCheck_vs_v(255);
-
-        A_PsiLambdaCheck_vs_v = x1aligned_MMv.map[(*it).first];
-        A_PhiPiCheck_vs_v = A_PsiLambdaCheck_vs_v[j0-1];
-
-        localoperator.evalA(j0, x1aligned_UIv_tree[j0-1], x1aligned_UIv_tree, A_PhiPiCheck_vs_v, A_PsiLambdaCheck_vs_v);
-
-        A_PsiLambdaCheck_vs_v[j0-1].map = A_PhiPiCheck_vs_v.map;
-        A_PsiLambdaCheck_vs_v.addTo_x1aligned<Index2D,Index1D>(row_x,MMv,j0);
-
-    }
-
-
-    cout << "New scheme finished." << endl;
-
-    cout << "Reference calculation started..." << endl;
-    Coefficients<Lexicographical,T,Index2D> UIv_ref, MMv_ref;
-    refComputation1(Bil, v, UIv_ref);
-    refComputation2(Bil, UIv_ref, MMv_ref);
-    cout << "Reference calculation finished." << endl;
-
-    UIv -= UIv_ref;
-    MMv -= MMv_ref;
-    cout << "Difference in norm UIv: " << UIv.norm(2.) << endl;
-    cout << "Difference in norm MMv: " << MMv.norm(2.) << endl;
-
-    localop2d.evalAA(v,MMv);
 
     return 0;
 }

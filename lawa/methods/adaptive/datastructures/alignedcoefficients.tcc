@@ -11,7 +11,7 @@ template <typename T, typename Index, typename PrincipalIndex, typename AlignedI
 AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex>::AlignedCoefficients(size_t _n1, size_t _n2)
 : /*map()*/ map(_n1), n1(_n1), n2(_n2)
 {
-    std::cerr << "Created hash map with " << n1 << " buckets." << std::endl;
+
 }
 
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>

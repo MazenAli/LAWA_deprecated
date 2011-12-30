@@ -78,7 +78,7 @@ LocalRefinement<PrimalBasis>::LocalRefinement(const PrimalBasis &_basis, bool wi
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
-                                          Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1)
+                                          Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1) const
 {
     for (const_coeff1d_it it=u_multi_j.begin(); it!=u_multi_j.end(); ++it) {
         this->reconstruct((*it).first.j, (*it).first.k, (*it).first.xtype,
@@ -90,7 +90,7 @@ template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
                                           int j,
-                                          Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1)
+                                          Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1) const
 {
     for (const_coeff1d_it it=u_multi_j.begin(); it!=u_multi_j.end(); ++it) {
         if ((*it).first.j==j) {
@@ -104,7 +104,7 @@ template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::reconstruct(const CoefficientsByLevel<T> &u_scaling,
                                           const CoefficientsByLevel<T> &u_wavelet, int j,
-                                          CoefficientsByLevel<T> &u_loc_single_jP1)
+                                          CoefficientsByLevel<T> &u_loc_single_jP1) const
 {
     for (typename CoefficientsByLevel<T>::const_it it=u_scaling.map.begin(); it!=u_scaling.map.end(); ++it) {
         this->reconstruct(j, (*it).first, XBSpline, (*it).second, u_loc_single_jP1);
@@ -117,7 +117,7 @@ LocalRefinement<PrimalBasis>::reconstruct(const CoefficientsByLevel<T> &u_scalin
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::reconstruct(const short &j, const long &k, const XType &xtype, T coeff,
-                                          Coefficients<Lexicographical,T,Index1D> &u_loc_single)
+                                          Coefficients<Lexicographical,T,Index1D> &u_loc_single) const
 {
     if (xtype==XWavelet) {
         if (k<=numLeftBoundaryWavelets) {
@@ -168,7 +168,7 @@ LocalRefinement<PrimalBasis>::reconstruct(const short &j, const long &k, const X
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::reconstruct(const short &j, const long &k, const XType &xtype, T coeff,
-                                          CoefficientsByLevel<T> &u_loc_single)
+                                          CoefficientsByLevel<T> &u_loc_single) const
 {
     if (xtype==XWavelet) {
         if (k<=numLeftBoundaryWavelets) {
@@ -223,7 +223,7 @@ void
 LocalRefinement<PrimalBasis>::decompose_(Coefficients<Lexicographical,T,Index1D> &u_loc_single,
                                          const IndexSet<Index1D> &Lambda,
                                          Coefficients<Lexicographical,T,Index1D> &u_loc_single_jM1,
-                                         Coefficients<Lexicographical,T,Index1D> &u_multi)
+                                         Coefficients<Lexicographical,T,Index1D> &u_multi) const
 {
     for (const_set1d_it row=Lambda.begin(); row!=Lambda.end(); ++row) {
         T coeff = this->decompose_(u_loc_single, (*row).j, (*row).k, (*row).xtype);
@@ -236,7 +236,7 @@ template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T>  &u_loc_single, int j,
                                          CoefficientsByLevel<T>  &u_scaling,
-                                         CoefficientsByLevel<T>  &u_wavelet)
+                                         CoefficientsByLevel<T>  &u_wavelet) const
 {
     for (typename CoefficientsByLevel<T>::iter it=u_scaling.map.begin(); it!=u_scaling.map.end(); ++it) {
         T coeff = this->decompose_(u_loc_single, j-1, (*it).first, XBSpline);
@@ -251,7 +251,7 @@ LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T>  &u_loc_single, 
 template <typename PrimalBasis>
 typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_(Coefficients<Lexicographical,T,Index1D> &u_loc_single,
-                                         const short &j, const long &k, const XType &xtype)
+                                         const short &j, const long &k, const XType &xtype) const
 {
     T val = 0.;
     if (xtype==XWavelet) {
@@ -304,7 +304,7 @@ LocalRefinement<PrimalBasis>::decompose_(Coefficients<Lexicographical,T,Index1D>
 template <typename PrimalBasis>
 typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T> &u_loc_single,
-                                         const short &j, const long &k, const XType &xtype)
+                                         const short &j, const long &k, const XType &xtype) const
 {
     long double val = 0.L;
     if (xtype==XWavelet) {
@@ -359,7 +359,7 @@ LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T> &u_loc_single,
 
 template <typename PrimalBasis>
 void
-LocalRefinement<PrimalBasis>::test_reconstruct(int j, long k, XType xtype)
+LocalRefinement<PrimalBasis>::test_reconstruct(int j, long k, XType xtype) const
 {
     std::ofstream file("test.dat");
     if (xtype==XWavelet) {
