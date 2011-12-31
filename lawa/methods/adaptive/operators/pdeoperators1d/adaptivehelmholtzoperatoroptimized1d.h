@@ -189,7 +189,7 @@ template <typename T, DomainType Domain>
 struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>
 {
     typedef Basis<T,Primal,Domain,SparseMulti>  SparseMultiBasis1D;
-    ct_assert( IsRealline<SparseMultiBasis1D>::value);
+    //ct_assert( IsRealline<SparseMultiBasis1D>::value);
 
 
     typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
@@ -207,8 +207,7 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>
     typedef MapMatrix<T, Index1D, HelmholtzOp1D,
                      Compression1D, NoPreconditioner1D>                       DataHelmholtz1D;
 
-    AdaptiveHelmholtzOperatorOptimized1D(const SparseMultiBasis1D &_basis1d, T _c, T thresh=0.,
-                                         int NumOfCols=4096, int NumOfRows=4096);
+    AdaptiveHelmholtzOperatorOptimized1D(const SparseMultiBasis1D &_basis1d, T _c);
 
     T
     operator()(const Index1D &row_index, const Index1D &col_index);

@@ -23,39 +23,35 @@
 namespace lawa {
 
 template <typename T>
-Basis<T,Primal,Interval,SparseMulti>::Basis(int _d, int j)
-    : mra(_d, j), d(_d), j0(mra.j0), _bc(2,0), _j(j0), psi(*this)
+Basis<T,Primal,RPlus,SparseMulti>::Basis(int _d, int j)
+    : mra(_d, j), d(_d), j0(mra.j0), _bc(1,0), _j(j0), psi(*this)
 {
     assert(d>=2);
-    assert(j0>=2);
-
+    std::cerr << "Basis<T,Primal,RPlus,SparseMulti>::j0 = " << j0 << std::endl;
     setLevel(_j);
 }
     
 template <typename T>
-Basis<T,Primal,Interval,SparseMulti>::~Basis()
+Basis<T,Primal,RPlus,SparseMulti>::~Basis()
 {
     delete[] _leftEvaluator;
     delete[] _innerEvaluator;
-    delete[] _rightEvaluator;
     delete[] _leftSupport;
     delete[] _innerSupport;
-    delete[] _rightSupport;
     delete[] _leftSingularSupport;
     delete[] _innerSingularSupport;
-    delete[] _rightSingularSupport;
 }
 
 template <typename T>
 int
-Basis<T,Primal,Interval,SparseMulti>::level() const
+Basis<T,Primal,RPlus,SparseMulti>::level() const
 {
     return _j;
 }
 
 template <typename T>
 void
-Basis<T,Primal,Interval,SparseMulti>::setLevel(int j) const
+Basis<T,Primal,RPlus,SparseMulti>::setLevel(int j) const
 {
     assert(j>=j0);
     _j = j;
@@ -64,10 +60,10 @@ Basis<T,Primal,Interval,SparseMulti>::setLevel(int j) const
 template <typename T>
 template <BoundaryCondition BC>
 void
-Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
+Basis<T,Primal,RPlus,SparseMulti>::enforceBoundaryCondition()
 {
     assert(BC==DirichletBC);
-    _bc = 1,1;
+    _bc(0) = DirichletBC;
 
     
     switch (d) {
@@ -117,23 +113,9 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _innerScalingFactors = 15./std::sqrt(13./7.), 39./(4.*std::sqrt(11./7.)),
                                    60./std::sqrt(2467613./2002.), 60./std::sqrt(7841./2002.);
 
-            // right wavelets
-            _numRightParts = 1;
-            _rightEvaluator = new Evaluator[1];
-            _rightEvaluator[0] = _sparsemulti_cubic_wavelet_right_evaluator0;
-
-            _rightSupport = new Support<T>[1];
-            _rightSupport[0] = Support<T>(-2.0,0.0);
-
-            _rightSingularSupport = new DenseVector<Array<T> >[1];
-            _rightSingularSupport[0] = linspace(-2.0,0.0,5);
-
-            _rightScalingFactors.engine().resize(1,0);
-            _rightScalingFactors = 120./std::sqrt(7841./1001.);
-
             break;
 
-        default: std::cerr << "Wavelet<T,Primal,Interval,SparseMulti> not yet realized"
+        default: std::cerr << "Wavelet<T,Primal,RPlus,SparseMulti> not yet realized"
             " for d = " << d << ". Stopping." << std::endl;
             exit(-1);
     }
@@ -143,8 +125,8 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
 }
 
 template <typename T>
-const BasisFunction<T,Primal,Interval,SparseMulti> &
-Basis<T,Primal,Interval,SparseMulti>::generator(XType xtype) const
+const BasisFunction<T,Primal,RPlus,SparseMulti> &
+Basis<T,Primal,RPlus,SparseMulti>::generator(XType xtype) const
 {
     if (xtype==XBSpline) {
         return mra.phi; 
@@ -153,70 +135,22 @@ Basis<T,Primal,Interval,SparseMulti>::generator(XType xtype) const
     }
 }
 
-// cardinalities of whole, left, inner, right index sets (primal).
+// cardinalities of left index sets (primal).
 template <typename T>
 long
-Basis<T,Primal,Interval,SparseMulti>::cardJ(int j) const
+Basis<T,Primal,RPlus,SparseMulti>::cardJL(int j) const
 {
     assert(j>=j0);
-    return 2*pow2i<long>(j);
-}
-
-template <typename T>
-long
-Basis<T,Primal,Interval,SparseMulti>::cardJL(int j) const
-{
-    assert(j>=j0 or j==-1);
     return _numLeftParts;
 }
 
+// ranges of whole, left index sets (primal).
 template <typename T>
-long
-Basis<T,Primal,Interval,SparseMulti>::cardJI(int j) const
+const Range<long>
+Basis<T,Primal,RPlus,SparseMulti>::rangeJL(int j) const
 {
     assert(j>=j0);
-    return 2*pow2i<long>(j)-_numLeftParts-_numRightParts;
-}
-
-template <typename T>
-long
-Basis<T,Primal,Interval,SparseMulti>::cardJR(int j) const
-{
-    assert(j>=j0);
-    return _numRightParts;
-}
-
-// ranges of whole, left, inner, right index sets (primal).
-template <typename T>
-const Range<int>
-Basis<T,Primal,Interval,SparseMulti>::rangeJ(int j) const
-{
-    assert(j>=j0);
-    return Range<int>(1,cardJ(j));
-}
-
-template <typename T>
-const Range<int>
-Basis<T,Primal,Interval,SparseMulti>::rangeJL(int j) const
-{
-    assert(j>=j0 or j==-1);
-    return Range<int>(1,cardJL(j));
-}
-
-template <typename T>
-const Range<int>
-Basis<T,Primal,Interval,SparseMulti>::rangeJI(int j) const
-{
-    assert(j>=j0);
-    return Range<int>(cardJL(j)+1,cardJL(j)+cardJI(j));
-}
-
-template <typename T>
-const Range<int>
-Basis<T,Primal,Interval,SparseMulti>::rangeJR(int j) const
-{
-    assert(j>=j0);
-    return Range<int>(cardJL(j)+cardJI(j)+1,cardJ(j));
+    return Range<long>(1,cardJL(j));
 }
 
 } // namespace lawa

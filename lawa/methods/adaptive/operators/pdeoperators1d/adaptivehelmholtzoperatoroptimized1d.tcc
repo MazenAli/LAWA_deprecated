@@ -604,9 +604,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::findK
 
 template<typename T, DomainType Domain>
 AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::AdaptiveHelmholtzOperatorOptimized1D
-                                                           (const SparseMultiBasis1D &_basis,
-                                                            T _c, T /*thresh*/, int /*NumOfCols*/,
-                                                            int /*NumOfRows*/)
+                                                           (const SparseMultiBasis1D &_basis, T _c)
 : basis(_basis), c(_c),
   cA(0.), CA(0.), kappa(0.),
   compression(basis), helmholtz_op1d(basis,c), prec1d(),
@@ -614,10 +612,13 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::AdaptiveHelm
   P_data()
 {
     std::cout << "AdaptiveHelmholtzOperatorOptimized1D<T, Primal, Domain, SparseMulti>: j0="
-              << basis.j0 << std::endl;
+              << basis.j0  << ", c = " << c<< std::endl;
     if (basis.d==4 && c==1.) {
 
         if      (basis.j0==0)  {    cA = 0.25;  CA = 2.9;    }
+        else if (basis.j0== 1) {    cA = 0.25;  CA = 2.9;    }  //todo: remove, only for debug!!
+        else if (basis.j0== 2) {    cA = 0.25;  CA = 2.9;    }  //todo: remove!!
+        else if (basis.j0== 3) {    cA = 0.25;  CA = 2.9;    }  //todo: remove!!
         else if (basis.j0==-1) {    cA = 0.25;  CA = 2.9;    }
         else if (basis.j0==-2) {    cA = 0.25;  CA = 2.9;    }
         else if (basis.j0==-3) {    cA = 0.25;  CA = 2.9;    }
@@ -691,7 +692,6 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSpars
                                                             const IndexSet<Index1D>& LambdaCol,
                                                             SparseMatrixT &A_flens, int /*J*/)
 {
-    std::cerr << "toFlensSparseMatrix called." << std::endl;
     std::map<Index1D,int,lt<Lexicographical,Index1D> > row_indices;
     int row_count = 1, col_count = 1;
     for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
@@ -703,9 +703,6 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSpars
         //for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row) {
         for (const_set1d_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
             T val = this->operator()(*row,*col);
-            if (col_count==1 && row_indices[*row]==1) {
-                std::cerr << *row << ", " << *col << " : " << val << std::endl;
-            }
             if (fabs(val)>0) {
                 A_flens(row_indices[*row],col_count) = val;
             }
