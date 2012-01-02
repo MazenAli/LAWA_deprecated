@@ -50,10 +50,16 @@ class AdaptiveRBTruth2D_PG{
 
     public:
 
+        typedef TrialBasis                                         TrialBasisType;
+        typedef TestBasis                                          TestBasisType;
+        typedef TrialPrec                                          TrialPrecType;
+        typedef TestPrec                                           TestPrecType;
+    
     /* Public member functions */
                           
         AdaptiveRBTruth2D_PG(TrialBasis& _trialbasis, TestBasis& _testbasis, TrialPrec& _trialprec, TestPrec& _testprec, 
-                          bool _use_inner_product = false, bool _use_A_matrix = false);
+                          bool _use_inner_product = false, bool _use_A_matrix = false,
+                          bool _orthwithX = false, bool _useinnprodX = false);
         
         void 
         attach_A_q (theta_fctptr theta_a_q, Operator2D<T>& A_q);
@@ -73,7 +79,7 @@ class AdaptiveRBTruth2D_PG{
         void
         set_truthsolver(TruthSolver& _truthsolver);
         
-        void
+        virtual void
         set_rb_model(RBModel2D<T, AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression> >& _rb);
         
         RBModel2D<T, AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression> >&
@@ -95,7 +101,7 @@ class AdaptiveRBTruth2D_PG{
         void
         undo_test_prec(CoeffVector& u_test);
         
-        void
+        virtual void
         add_new_basis_function(const CoeffVector& sol);
         
         void
@@ -119,7 +125,7 @@ class AdaptiveRBTruth2D_PG{
         T
         test_inner_product(const CoeffVector& v1, const CoeffVector& v2);
         
-        T
+        virtual T
         inner_product(const CoeffVector& v1, const CoeffVector& v2);
             
     /* Public members */
@@ -308,7 +314,7 @@ class AdaptiveRBTruth2D_PG{
         uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, 
                                     Coefficients<Lexicographical,T,Index2D>& res_repr);
         
-    private:
+    protected:
                 
         RBModel2D<T, AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression> >*     rb;
         
@@ -321,6 +327,9 @@ class AdaptiveRBTruth2D_PG{
         Coefficients<Lexicographical, T, Index2D> test_prec_data;
         
         lt<AbsoluteValue,T> lt_obj;
+        
+        bool orth_wrt_X;
+        bool use_innprod_X;
 };
     
 } // namespace lawa

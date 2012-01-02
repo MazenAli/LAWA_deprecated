@@ -5,12 +5,19 @@ namespace  lawa {
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
 AdaptiveRBTruth2D_PG(TrialBasis& _trialbasis, TestBasis& _testbasis, TrialPrec& _trialprec, TestPrec& _testprec,
-                  bool _use_inner_product, bool _use_A_matrix)
+                  bool _use_inner_product, bool _use_A_matrix,
+                  bool _orthwithX, bool _useinnprodX)
     : trialbasis(_trialbasis), basis(_trialbasis), testbasis(_testbasis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
+      orth_wrt_X(_orthwithX), use_innprod_X(_useinnprodX),
       assembled_inner_product_matrix(false), assembled_prec_vec(false), assembled_A_operator_matrices(false),
       trial_prec(_trialprec), test_prec(_testprec), trial_prec_data(), test_prec_data()
-{}
+{
+    std::cout << "Truth Model: " << std::endl;
+    std::cout << "      orthogonalize with respect to X-inner product: " << orth_wrt_X << std::endl;
+    std::cout << "      use X-inner product for RB inner product     : " << use_innprod_X << std::endl << std::endl;
+    
+}
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
@@ -165,16 +172,31 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 {
     typename std::vector<CoeffVector>::iterator it;
     CoeffVector new_bf = sol;
-
     CoeffVector bf;
-    for (it = rb->rb_basis_functions.begin(); it != rb->rb_basis_functions.end(); ++it) {
-        bf = (*it);
-        new_bf = new_bf - bf * trial_inner_product(bf, sol); 
+
+    if(orth_wrt_X){
+        
+        for (it = rb->rb_basis_functions.begin(); it != rb->rb_basis_functions.end(); ++it) {
+            bf = (*it);
+            new_bf = new_bf - bf * trial_inner_product(bf, sol); 
+        }
+        
+        std::cout << "Gram - Schmidt: norm^2 = " << trial_inner_product(new_bf, new_bf) << std::endl;
+        new_bf.scale(1./std::sqrt(trial_inner_product(new_bf, new_bf)));
     }
+    else{
     
-    std::cout << "Gram - Schmidt: norm^2 = " << trial_inner_product(new_bf, new_bf) << std::endl;
-    new_bf.scale(1./std::sqrt(trial_inner_product(new_bf, new_bf)));
-    rb->rb_basis_functions.push_back(new_bf);    
+        for (it = rb->rb_basis_functions.begin(); it != rb->rb_basis_functions.end(); ++it) {
+            bf = (*it);
+            new_bf = new_bf - bf * test_inner_product(bf, sol); 
+        }
+        
+        std::cout << "Gram - Schmidt: norm^2 = " << test_inner_product(new_bf, new_bf) << std::endl;
+        new_bf.scale(1./std::sqrt(test_inner_product(new_bf, new_bf)));
+    }   
+    
+    rb->rb_basis_functions.push_back(new_bf);   
+
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
@@ -368,6 +390,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
                 val += (long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
+                //std::cout << "(u_v)_i = " << (long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second) << std::endl;
             }
         }
         
@@ -449,12 +472,14 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     }
     else{
         typename CoeffVector::const_iterator it1, it2;
-        
+        int count = 0;
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
                 val += (long double)((*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
+                count++;
             }
         }
+        std::cout << "Test inner product: " << count << " inner product evaluations " << std::endl;
         
     }
     return (T)(val);   
@@ -515,7 +540,13 @@ template <typename T, typename TrialBasis, typename TestBasis, typename TrialPre
 T
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
 {
-    return trial_inner_product(v1, v2);
+    if(use_innprod_X){
+        return trial_inner_product(v1, v2);
+    }
+    else
+    {
+        return test_inner_product(v1, v2);        
+    }
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
