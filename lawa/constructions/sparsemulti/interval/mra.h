@@ -22,6 +22,9 @@ class MRA<_T,Primal,Interval,SparseMulti>
         
         ~MRA();
         
+        Support<T>
+        max_support() const;
+
         // cardinalities of whole, left, inner, right index sets.
         long
         cardI(int j) const;
@@ -36,16 +39,16 @@ class MRA<_T,Primal,Interval,SparseMulti>
         cardIR(int j=-1) const;
         
         // ranges of whole left, inner, right index sets.
-        Range<int>
+        Range<long>
         rangeI(int j) const;
         
-        Range<int>
+        Range<long>
         rangeIL(int j=-1) const;
         
-        Range<int>
+        Range<long>
         rangeII(int j) const;
         
-        Range<int>
+        Range<long>
         rangeIR(int j) const;
         
         int
@@ -62,6 +65,7 @@ class MRA<_T,Primal,Interval,SparseMulti>
         const int j0;          // minimal used(!) level.
         
         BSpline<T,Primal,Interval,SparseMulti> phi;
+        unsigned int _numSplines;
         
     private:
         DenseVector<Array<int> > _bc;  // the boundary conditions

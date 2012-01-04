@@ -795,6 +795,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
 
     Timer time;
     time.start();
+    std::cerr << "      matrix entries: id -> " << identity_data1d.identity_data1d.data.size() << std::endl;
 
     for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
         Index1D_Coefficients1D_Hash_it p_y_v=y_v.find((*col).first.index2);

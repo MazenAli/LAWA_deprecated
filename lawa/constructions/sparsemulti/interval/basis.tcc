@@ -24,7 +24,7 @@ namespace lawa {
 
 template <typename T>
 Basis<T,Primal,Interval,SparseMulti>::Basis(int _d, int j)
-    : mra(_d, j), d(_d), j0(mra.j0), _bc(2,0), _j(j0), psi(*this)
+    : mra(_d, j), d(_d), j0(mra.j0), _bc(2,0), _j(j0), _numSplines(4), psi(*this)
 {
     assert(d>=2);
     assert(j0>=2);
@@ -72,6 +72,7 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
     
     switch (d) {
         case 4:
+            _numSplines = 4;        //required for lambdaTilde
             // left wavelets
             _numLeftParts = 3;
             _leftEvaluator = new Evaluator[3];
@@ -153,6 +154,13 @@ Basis<T,Primal,Interval,SparseMulti>::generator(XType xtype) const
     }
 }
 
+template <typename T>
+Support<T>
+Basis<T,Primal,Interval,SparseMulti>::max_support() const
+{
+    if (d==4) return Support<T>(-2.,2.);
+}
+
 // cardinalities of whole, left, inner, right index sets (primal).
 template <typename T>
 long
@@ -188,35 +196,35 @@ Basis<T,Primal,Interval,SparseMulti>::cardJR(int j) const
 
 // ranges of whole, left, inner, right index sets (primal).
 template <typename T>
-const Range<int>
+const Range<long>
 Basis<T,Primal,Interval,SparseMulti>::rangeJ(int j) const
 {
     assert(j>=j0);
-    return Range<int>(1,cardJ(j));
+    return Range<long>(1,cardJ(j));
 }
 
 template <typename T>
-const Range<int>
+const Range<long>
 Basis<T,Primal,Interval,SparseMulti>::rangeJL(int j) const
 {
     assert(j>=j0 or j==-1);
-    return Range<int>(1,cardJL(j));
+    return Range<long>(1,cardJL(j));
 }
 
 template <typename T>
-const Range<int>
+const Range<long>
 Basis<T,Primal,Interval,SparseMulti>::rangeJI(int j) const
 {
     assert(j>=j0);
-    return Range<int>(cardJL(j)+1,cardJL(j)+cardJI(j));
+    return Range<long>(cardJL(j)+1,cardJL(j)+cardJI(j));
 }
 
 template <typename T>
-const Range<int>
+const Range<long>
 Basis<T,Primal,Interval,SparseMulti>::rangeJR(int j) const
 {
     assert(j>=j0);
-    return Range<int>(cardJL(j)+cardJI(j)+1,cardJ(j));
+    return Range<long>(cardJL(j)+cardJI(j)+1,cardJ(j));
 }
 
 } // namespace lawa

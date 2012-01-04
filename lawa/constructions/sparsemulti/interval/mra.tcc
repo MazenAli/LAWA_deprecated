@@ -24,7 +24,7 @@ namespace lawa {
 
 template <typename T>
 MRA<T,Primal,Interval,SparseMulti>::MRA(int _d, int j)
-    : d(_d), j0((j==-1) ? 0 : j), _bc(2,0), _j(j0), phi(*this)
+    : d(_d), j0((j==-1) ? 0 : j), _bc(2,0), _j(j0), _numSplines(4), phi(*this)
 {
     assert(d>=2);
     assert(j0>=2);
@@ -38,6 +38,13 @@ MRA<T,Primal,Interval,SparseMulti>::~MRA()
     delete[] _innerEvaluator;
     delete[] _innerSupport;
     delete[] _innerSingularSupport;
+}
+
+template <typename T>
+Support<T>
+MRA<T,Primal,Interval,SparseMulti>::max_support() const
+{
+    if (d==4) return Support<T>(0.,2.);
 }
 
 //--- cardinalities of whole, left, inner, right index sets. -------------------
@@ -75,32 +82,32 @@ MRA<T,Primal,Interval,SparseMulti>::cardIR(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets. --------------------------
 
 template <typename T>
-Range<int>
+Range<long>
 MRA<T,Primal,Interval,SparseMulti>::rangeI(int j) const
 {
     assert(j>=j0);
-    return Range<int>(0,cardI(j)-1);
+    return Range<long>(0,cardI(j)-1);
 }
 
 template <typename T>
-Range<int>
+Range<long>
 MRA<T,Primal,Interval,SparseMulti>::rangeIL(int /*j*/) const
 {
-    return Range<int>(0,0);
+    return Range<long>(0,0);
 }
 
 template <typename T>
-Range<int>
+Range<long>
 MRA<T,Primal,Interval,SparseMulti>::rangeII(int j) const
 {
-    return Range<int>(1,cardI(j)-2);
+    return Range<long>(1,cardI(j)-2);
 }
 
 template <typename T>
-Range<int>
+Range<long>
 MRA<T,Primal,Interval,SparseMulti>::rangeIR(int j) const
 {
-    return Range<int>(cardI(j)-1,cardI(j)-1);
+    return Range<long>(cardI(j)-1,cardI(j)-1);
 }
 
 template <typename T>
@@ -127,6 +134,7 @@ MRA<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
 
     switch (d) {
         case 4:
+            _numSplines = 2;     //required for lambdaTilde
             // left B-splines
             _numLeftParts = 1;
             _leftEvaluator = new Evaluator[1];

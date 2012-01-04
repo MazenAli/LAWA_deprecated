@@ -25,8 +25,7 @@ BSpline<T,Primal,Interval,SparseMulti>::operator()(T x, int j, long k, unsigned 
             return pow2ih<T>(2*(j)*deriv+j) * mra._leftScalingFactors(0) *
                    mra._leftEvaluator[0](pow2i<T>(j)*x, deriv);
         }
-
-         // inner part
+        // inner part
         if (k!=mra.rangeI(j).lastIndex()) {
             int type  = (int)(k % mra._numInnerParts);
             long shift = (long)std::ceil(T(k) / T(mra._numInnerParts));
@@ -34,7 +33,6 @@ BSpline<T,Primal,Interval,SparseMulti>::operator()(T x, int j, long k, unsigned 
             return pow2ih<T>(2*j*deriv+j) * mra._innerScalingFactors(type) *
                    mra._innerEvaluator[type](pow2i<T>(j)*x-shift,deriv);
         }
-
         // right boundary
         long shift = k / mra._numInnerParts + 1;
         return pow2ih<T>(2*j*deriv+j) * mra._rightScalingFactors(0) *

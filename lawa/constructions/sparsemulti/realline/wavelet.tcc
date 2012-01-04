@@ -73,8 +73,10 @@ Wavelet<T,Primal,R,SparseMulti>::Wavelet(const Basis<T,Primal,R,SparseMulti> &_b
                 _singularSupport[3] = linspace(-2.0,2.0,9);
 
                 _ScalingFactors.engine().resize(4,0);
-                _ScalingFactors = 15./std::sqrt(13./7.), 39./(4.*std::sqrt(11./7.)),
-                                  60./std::sqrt(2467613./2002.), 60./std::sqrt(7841./2002.);
+                _ScalingFactors = 15./(2.*std::sqrt(13./7.)), 39./(8.*std::sqrt(11./7.)),
+                                  30./std::sqrt(2467613./2002.), 30./std::sqrt(7841./2002.);
+//                _ScalingFactors = 15./std::sqrt(13./7.), 39./(4.*std::sqrt(11./7.)),
+//                                  60./std::sqrt(2467613./2002.), 60./std::sqrt(7841./2002.);
 
                 _max_support = Support<T>(-2.,2.);
                 break;

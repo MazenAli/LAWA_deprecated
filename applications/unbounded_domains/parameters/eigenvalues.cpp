@@ -48,7 +48,12 @@ typedef Basis<T,Primal,RPlus,SparseMulti>                                SparseM
 typedef AdaptiveIdentityOperator1D<T,Primal,R,CDF>                       CDF_MA_L2;
 typedef AdaptiveIdentityOperator1D<T,Orthogonal,R,Multi>                 MW_MA_L2;
 typedef AdaptiveIdentityOperator1D<T,Primal,R,SparseMulti>               SparseMW_MA_L2;
-typedef AdaptiveIdentityOperator1D<T,Primal,RPlus,SparseMulti>           SparseMWRPlus_MA_L2;
+typedef CompressionPDE1D<T,SparseMWRPlus_Basis1D>                        SparseMWRPlus_Compression1D;
+typedef NoPreconditioner<T,Index1D>                                      NoPreconditioner1D;
+typedef IdentityOperator1D<T,SparseMWRPlus_Basis1D>                      SparseMWRPlus_IdOp;
+typedef MapMatrix<T, Index1D, SparseMWRPlus_IdOp,
+                  SparseMWRPlus_Compression1D, NoPreconditioner1D>       SparseMWRPlus_MA_L2;
+//typedef AdaptiveIdentityOperator1D<T,Primal,RPlus,SparseMulti>           SparseMWRPlus_MA_L2;
 
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>             CDF_MA;
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,R,Multi>       MW_MA;
@@ -122,7 +127,7 @@ int main (int argc, char *argv[]) {
     int s =atoi(argv[5]);
     T   c=atof(argv[6]);
     int j0; bool w_XBSpline;
-    bool rplus = true;
+    bool rplus = false;
 
     if   (strcmp(argv[4],"-inf")==0) { j0=0;             w_XBSpline=false; }
     else                             { j0=atoi(argv[4]); w_XBSpline=true; }
@@ -266,6 +271,7 @@ int main (int argc, char *argv[]) {
                     if (jmax>=12 && r!=5) continue;
 
                     int N = Lambda.size();
+                    //cout << "Lambda = " << Lambda << endl;
                     cout << "Size of Lambda: " << N << endl;
                     SparseMatrixT A(N,N);
                     if (s==0) {
@@ -278,6 +284,7 @@ int main (int argc, char *argv[]) {
                     T cB=0., CB=0.;
                     //DenseMatrixT A_dense;
                     //densify(cxxblas::NoTrans,A,A_dense);
+                    //cout << "A = " << A_dense << endl;
                     //computeEV(A_dense, cB, CB);
 
                     T cB2, CB2;
@@ -297,6 +304,11 @@ int main (int argc, char *argv[]) {
             SparseMWRPlus_Basis1D       SparseMWRPlus_basis(d,j0);
             SparseMWRPlus_basis.enforceBoundaryCondition<DirichletBC>();
             SparseMWRPlus_MA            SparseMWRPlus_A(SparseMWRPlus_basis,c);
+            SparseMWRPlus_Compression1D SparseMWRPlus_compression(SparseMWRPlus_basis);
+            NoPreconditioner1D          NoPrec;
+            SparseMWRPlus_IdOp          SparseMWRPlus_idop(SparseMWRPlus_basis);
+            SparseMWRPlus_MA_L2         SparseMWRPlus_A_L2(SparseMWRPlus_idop, NoPrec, SparseMWRPlus_compression);
+
 //            SparseMWRPlus_MA_L2         SparseMWRPlus_A_L2(SparseMWRPlus_basis);
             for (int jmax=std::max(0,SparseMWRPlus_basis.j0); jmax<=max_level; jmax+=1) {
                 for (T r=1.; r<=max_radius; r+=1.) {
@@ -307,28 +319,29 @@ int main (int argc, char *argv[]) {
                     if (jmax>=12 && r!=5) continue;
                     DenseVectorT singpts(1);
                     singpts= 1.;
-                    Function<T> f_fct(F,singpts);
+                    Function<T> f_fct(U,singpts);
+
 
                     IntegralRPlus integral(f_fct,SparseMWRPlus_basis);
                     integral.quadrature.setOrder(20);
                     Coefficients<Lexicographical,T,Index1D> f_coeff,u_coeff;
                     for (const_set1d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
-                        f_coeff[*it] = integral((*it).j,(*it).k,(*it).xtype,0) * SparseMWRPlus_A.prec((*it));
+                        f_coeff[*it] = integral((*it).j,(*it).k,(*it).xtype,0);// * SparseMWRPlus_A.prec((*it));
                         u_coeff[*it] = 0.;
                     }
                     cout << "Lambda = " << Lambda << endl;
                     T res=0., tol=1e-12, timeMatrixVector=0.;
-                    CG_Solve(Lambda, SparseMWRPlus_A, u_coeff, f_coeff, res, tol, 100,
+                    CG_Solve(Lambda, SparseMWRPlus_A_L2, u_coeff, f_coeff, res, tol, 100,
                              timeMatrixVector, 2);
                     ofstream file("test.dat");
                     for (T x=0.; x<=10.; x+=0.001) {
                         T ret = 0.;
                         for (const_coeff1d_it it=u_coeff.begin(); it!=u_coeff.end(); ++it) {
                             if ((*it).first.xtype==XBSpline) {
-                                ret += (*it).second * SparseMWRPlus_basis.mra.phi(x,(*it).first.j,(*it).first.k,0) * SparseMWRPlus_A.prec((*it).first);
+                                ret += (*it).second * SparseMWRPlus_basis.mra.phi(x,(*it).first.j,(*it).first.k,0);// * SparseMWRPlus_A.prec((*it).first);
                             }
                             else {
-                                ret += (*it).second * SparseMWRPlus_basis.psi(x,(*it).first.j,(*it).first.k,0) * SparseMWRPlus_A.prec((*it).first);
+                                ret += (*it).second * SparseMWRPlus_basis.psi(x,(*it).first.j,(*it).first.k,0);// * SparseMWRPlus_A.prec((*it).first);
                             }
                         }
                         file << x << " " << U(x) << " " << ret << endl;
@@ -339,15 +352,18 @@ int main (int argc, char *argv[]) {
                     cout << "Size of Lambda: " << N << endl;
                     SparseMatrixT A(N,N);
                     if (s==0) {
-                        //SparseMWRPlus_A_L2.toFlensSparseMatrix(Lambda, Lambda, A);
+                        cout << " s=0" << endl;
+                        SparseMWRPlus_A_L2.toFlensSparseMatrix(Lambda, Lambda, A,-1);
                     }
                     else if (s==1) {
+                        cout << " s=1" << endl;
                         SparseMWRPlus_A.toFlensSparseMatrix(Lambda, Lambda, A);
                     }
 
                     T cB=0., CB=0.;
-                    //DenseMatrixT A_dense;
-                    //densify(cxxblas::NoTrans,A,A_dense);
+                    DenseMatrixT A_dense;
+                    densify(cxxblas::NoTrans,A,A_dense);
+                    cout << "A = " << A_dense << endl;
                     //computeEV(A_dense, cB, CB);
 
                     T cB2, CB2;
@@ -469,11 +485,8 @@ LambdaForEigenvalues(const SparseMW_Basis1D &basis, int jmin, int jmax, bool w_X
         assert(0);
         exit(1);
     }
-
     int wavelet_count = 0;
-
     for (int j=jmin; j<=jmax; ++j) {
-
         k_left =  std::min((int)(std::floor(-pow2i<T>(j)*r - basis.psi.max_support().l2) / 2) - 1,-20);
         k_right = std::max((int)(std::ceil( pow2i<T>(j)*r -  basis.psi.max_support().l1) / 2 ) + 1,20);
 
@@ -513,12 +526,10 @@ LambdaForEigenvalues(const SparseMWRPlus_Basis1D &basis, int jmin, int jmax, boo
         assert(0);
         exit(1);
     }
-
     int wavelet_count = 0;
     for (int j=jmin; j<=jmax; ++j) {
-
         k_left =  std::min((int)(std::floor(-pow2i<T>(j)*r - basis.psi.max_support().l2) / 2) - 1, 0);
-        k_right = std::max((int)(std::ceil( pow2i<T>(j)*r -  basis.psi.max_support().l1) / 2 ) + 1,10);
+        k_right = std::max((int)(std::ceil( pow2i<T>(j)*r -  basis.psi.max_support().l1) / 2 ) + 1,100);
 
         for (long k_help=k_left; k_help<=k_right; ++k_help) {
             for (long k=std::max((k_help-1)*numWavelets,basis.rangeJL(jmin).firstIndex()); k<=k_help*numWavelets-1; ++k) {
@@ -530,7 +541,7 @@ LambdaForEigenvalues(const SparseMWRPlus_Basis1D &basis, int jmin, int jmax, boo
     }
     int scaling_count = 0;
     k_left  = std::min(int(std::floor(-pow2i<T>(jmin)*r - basis.mra.phi.max_support().l2)) - 1, 0);
-    k_right = std::max(int(std::ceil( pow2i<T>(jmin)*r -  basis.mra.phi.max_support().l1)) + 1,10);
+    k_right = std::max(int(std::ceil( pow2i<T>(jmin)*r -  basis.mra.phi.max_support().l1)) + 1,100);
 
     for (long k_help=k_left; k_help<=k_right; ++k_help) {
         for (long k=std::max((k_help-1)*numScaling+1,basis.mra.rangeIL(jmin).firstIndex()); k<=k_help*numScaling; ++k) {

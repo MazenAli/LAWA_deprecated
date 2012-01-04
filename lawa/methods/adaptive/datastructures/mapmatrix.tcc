@@ -106,6 +106,17 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
 }
+
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
+void
+MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::
+apply(const Coefficients<Lexicographical,T,Index> &u, T tol, const IndexSet<Index> Lambda,
+      Coefficients<Lexicographical,T,Index> &r)
+{
+    std::cerr << "Apply not implemented for MapMatrix." << std::endl;
+    exit(1);
+}
 /*
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>
 T

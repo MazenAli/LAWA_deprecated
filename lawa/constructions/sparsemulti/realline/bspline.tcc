@@ -12,23 +12,40 @@ BSpline<T,Primal,R,SparseMulti>::BSpline(const int _d)
     
     switch (d) {
         case 4: _numSplines = 2;
-                
+                /*
                 _evaluator = new Evaluator[2];
                 _evaluator[0] = _cubic_sparsemulti_realline_scaling_evaluator0;
                 _evaluator[1] = _cubic_sparsemulti_realline_scaling_evaluator1;
-            
+
                 _support = new Support<T>[2];
-                _support[0] = Support<T>(-2,2);
-                _support[1] = Support<T>(-2,2);
+                _support[0] = Support<T>(-2.,2.);
+                _support[1] = Support<T>(-2.,2.);
 
                 _singularSupport = new DenseVector<Array<T> >[2];
                 _singularSupport[0] = linspace(-2.,2.,5);
                 _singularSupport[1] = linspace(-2.,2.,5);
 
                 _ScalingFactors.engine().resize(2,0);
-                _ScalingFactors = 1.,1.;//std::sqrt(70./13.),std::sqrt(210.);
+                _ScalingFactors = std::sqrt(105./106.)/2.,7.*std::sqrt(35./33.)/16.;//1.,1.;
 
-                _max_support = Support<T>(-2,2);
+                _max_support = Support<T>(-2.,2.);
+                */
+                _evaluator = new Evaluator[2];
+                _evaluator[0] = _cubic_sparsemulti_scaling_inner_evaluator0;
+                _evaluator[1] = _cubic_sparsemulti_scaling_inner_evaluator1;
+            
+                _support = new Support<T>[2];
+                _support[0] = Support<T>(-1.,1.);
+                _support[1] = Support<T>(-1.,1.);
+
+                _singularSupport = new DenseVector<Array<T> >[2];
+                _singularSupport[0] = linspace(-1.,1.,3);
+                _singularSupport[1] = linspace(-1.,1.,3);
+
+                _ScalingFactors.engine().resize(2,0);
+                _ScalingFactors = std::sqrt(35./26.),std::sqrt(105./2.);
+
+                _max_support = Support<T>(-1.,1.);
                 break;
             
         default: std::cerr << "BSpline<T,Primal,R,SparseMulti> not yet realized"

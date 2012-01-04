@@ -16,6 +16,7 @@ _cubic_sparsemulti_realline_scaling_evaluator0(T x, unsigned short deriv)
               +( 45./4.)* _cubic_sparsemulti_scaling_inner_evaluator1(x-1.,deriv)
               +(-45./4.)* _cubic_sparsemulti_scaling_inner_evaluator1(x+1.,deriv);
         value *= 2./3.;
+//        value=            _cubic_sparsemulti_scaling_inner_evaluator0(x,   deriv);
     }
     else {
         value=0.;
@@ -37,6 +38,7 @@ _cubic_sparsemulti_realline_scaling_evaluator1(T x, unsigned short deriv)
               +( 5./4.)* _cubic_sparsemulti_scaling_inner_evaluator1(x-1.,deriv)
               +( 5./4.)* _cubic_sparsemulti_scaling_inner_evaluator1(x+1.,deriv);
         value *= 48./7.;
+//        value=           _cubic_sparsemulti_scaling_inner_evaluator1(x,   deriv);
     }
     else {
         value=0.;

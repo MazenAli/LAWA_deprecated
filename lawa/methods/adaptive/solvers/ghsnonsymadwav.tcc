@@ -44,8 +44,9 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
     T timeApply=0.;
     int numOfIterations=0;
     T timeMatrixVector=0.;
-    int maxIterations=100;
+    int maxIterations=300;
     int lengthOfResidual = 1;
+
 
     std::cerr << "GHS-NONSYM-ADWAV-SOLVE has started with the following parameters: " << std::endl;
     std::cerr << "  alpha=" << alpha << ", omega=" << omega << ", gamma=" << gamma << ", theta="
@@ -93,7 +94,7 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
         T Error_H_energy = sqrt(fabs(std::pow(H1norm,2.)- 2*fu + uAu));
         Coefficients<Lexicographical,T,Index> Au_M_f;
         A.apply(w_k,0.,Au_M_f,NoTrans);
-        Au_M_f -= F(0.01*nu_k);
+        Au_M_f -= F(0.0001*nu_k);
         file << w_k.size() << " " << numOfIterations << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << " " << Au_M_f.norm(2.) << " "  << T(lengthOfResidual)/T(w_k.size())  << std::endl;
 
@@ -191,12 +192,12 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
             std::cerr << "      Currently " << addDoF << " added indices, ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
             if (P_Lambda_r_norm_square >= alpha*r_norm*alpha*r_norm) {
                 if (optimized_grow) {
-                    while ((T) addDoF /(T) w.size() < 0.1) {
+                    //while ((T) addDoF /(T) w.size() < 0.07) {
                         ++i;
                         P_Lambda_r_norm_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
                         addDoF += r_bucket.addBucketToIndexSet(Lambda,i);
                         std::cerr << "      Currently " << addDoF << " added indices, ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_r_norm_square) << std::endl;
-                    }
+                    //}
                 }
                 break;
             }

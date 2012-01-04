@@ -150,9 +150,8 @@ int main (int argc, char *argv[]) {
         SparseMW_H1_F.readIndexSets(rhsfilename.str().c_str());
 
         SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,SparseMW_H1_A,SparseMW_H1_F,true, false);
-        T alpha = 0.6, omega = 0.01, gamma = 0.02, theta = 2*omega/(1+omega);
+        T alpha = 0.4, omega = 0.001, gamma = 0.1, theta = 2*omega/(1+omega);
         SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
-
 
         Coefficients<Lexicographical,T,Index2D> u;
         u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
@@ -160,6 +159,7 @@ int main (int argc, char *argv[]) {
 
         plot2D<T,SparseMW_Basis2D,SparseMW_Prec>(SparseMW_basis2d, u, SparseMW_P, refsol.exact,
                                    -10., 10, -10., 10., pow2i<T>(-3), "example2_1");
+
 
         IndexSet<Index2D> Lambda;
         Lambda = supp(u);
