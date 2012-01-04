@@ -46,4 +46,6 @@ tutorials/rb_examples/adaptive_rb_example
 tutorials/rb_examples/adaptive_rb_example_training
 tutorials/rb_examples/rb_example
 applications/unbounded_domains/parameters/eigenvalues_old
-applications/unbounded_domains/adwav/estimate-rhs2d
+applications/unbounded_domains/adwav/estimate-rhs2d/applications/unbounded_domains/parameters/eigenvalues.cpp~
+/applications/unbounded_domains/adwav/estimate-rhs2d
+/applications/unbounded_domains/parameters/eigenvalues.cpp~
