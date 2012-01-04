@@ -33,9 +33,21 @@ template <typename X, typename Y, Construction Cons>
 
 template <typename X, typename Y, Construction Cons>
     void
+    decompose_(const DenseVector<X> &x,
+               const Basis<typename X::ElementType,Primal,Interval,Cons> &basis, int j,
+               DenseVector<Y> &y);
+
+template <typename X, typename Y, Construction Cons>
+    void
     reconstruct(const DenseVector<X> &x, 
                 const Basis<typename X::ElementType,Primal,Interval,Cons> &basis, int j,
                 DenseVector<Y> &y);
+
+template <typename X, typename Y, Construction Cons>
+    void
+    reconstruct_(const DenseVector<X> &x,
+                 const Basis<typename X::ElementType,Dual,Interval,Cons> &basis, int j,
+                 DenseVector<Y> &y);
 
 template <typename X, typename Y, Construction Cons>
     void

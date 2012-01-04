@@ -48,8 +48,8 @@ class WeightedPDEOperator1D{
                               int order=10);
 
         T
-        operator()(XType xtype1, int j1, int k1,
-                   XType xtype2, int j2, int k2) const;
+        operator()(XType xtype1, int j1, long k1,
+                   XType xtype2, int j2, long k2) const;
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index) const;

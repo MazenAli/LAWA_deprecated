@@ -32,8 +32,8 @@ SmoothRHSWithAlignedSing2D<T,Basis2D,Quad>::SmoothRHSWithAlignedSing2D
 
 template<typename T, typename Basis2D, QuadratureType Quad>
 T
-SmoothRHSWithAlignedSing2D<T,Basis2D,Quad>::operator()(XType ex, int jx, int kx,
-                                                       XType ey, int jy, int ky) const
+SmoothRHSWithAlignedSing2D<T,Basis2D,Quad>::operator()(XType ex, int jx, long kx,
+                                                       XType ey, int jy, long ky) const
 {
     return integral2d(jx, kx, ex, derivx, jy, ky, ey, derivy);
 }

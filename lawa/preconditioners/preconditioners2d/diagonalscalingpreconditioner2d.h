@@ -29,8 +29,8 @@ class DiagonalScalingPreconditioner2D
         DiagonalScalingPreconditioner2D(int sx, int sy);
 
         T
-        operator()(XType XisSpline, int jx, int kx,
-                   XType YisSpline, int jy, int ky) const;
+        operator()(XType XisSpline, int jx, long kx,
+                   XType YisSpline, int jy, long ky) const;
 
     private:
         int _sx;

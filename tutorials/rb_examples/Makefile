@@ -1,4 +1,5 @@
-SUBDIRS := adaptive indexset-based uniform
+#SUBDIRS := adaptive indexset-based uniform
+SUBDIRS := indexset-based
 
 all:
 	$(SILENT) for i in $(SUBDIRS); \

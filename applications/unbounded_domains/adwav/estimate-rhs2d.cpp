@@ -92,7 +92,7 @@ int main (int argc, char *argv[]) {
     //Righthand side construction for tensor solution
     if (example==1 || example==2 || example==3) {
         TensorRefSols_PDE_Realline2D<T> refsol;
-        refsol.setExample(example, c);
+        refsol.setExample(example, c, 0., 0., 1.);
         SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
                                         refsol.exact_y, refsol.sing_pts_y);
 
@@ -101,7 +101,7 @@ int main (int argc, char *argv[]) {
         GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
 
         int order=35;
-        T r_x =  40.;
+        T r_x =  100.;
         T r_y =  40.;
         int J_smooth = 6, J_singular=40;
 
@@ -144,10 +144,10 @@ int main (int argc, char *argv[]) {
             cout << "Sizes of 1d u vectors before thresholding: " << u1_coeff.size() << ", " << u2_coeff.size() << endl;
             cout << "Sizes of 1d f vectors before thresholding: " << f1_coeff.size() << ", " << f2_coeff.size() << endl;
 
-            u1_coeff = ABSOLUTE_THRESH(u1_coeff,1e-15);
-            u2_coeff = ABSOLUTE_THRESH(u2_coeff,1e-15);
-            f1_coeff = ABSOLUTE_THRESH(f1_coeff,1e-15);
-            f2_coeff = ABSOLUTE_THRESH(f2_coeff,1e-15);
+            u1_coeff = ABSOLUTE_THRESH(u1_coeff,1e-11);
+            u2_coeff = ABSOLUTE_THRESH(u2_coeff,1e-11);
+            f1_coeff = ABSOLUTE_THRESH(f1_coeff,1e-11);
+            f2_coeff = ABSOLUTE_THRESH(f2_coeff,1e-11);
 
             cout << "Sizes of 1d u vectors after thresholding: " << u1_coeff.size() << ", " << u2_coeff.size() << endl;
             cout << "Sizes of 1d f vectors after thresholding: " << f1_coeff.size() << ", " << f2_coeff.size() << endl;
@@ -162,7 +162,7 @@ int main (int argc, char *argv[]) {
                for (const_coeff1d_it it_y=f2_coeff.begin(); it_y!=f2_coeff.end(); ++it_y) {
                    Index2D index((*it_x).first,(*it_y).first);
                    T f_val = (*it_x).second * (*it_y).second * MW_P(index);
-                   if (fabs(f_val)>1e-12) {
+                   if (fabs(f_val)>1e-11) {
                        f[index] += f_val;
                    }
                }
@@ -171,7 +171,7 @@ int main (int argc, char *argv[]) {
                for (const_coeff1d_it it_y=u2_coeff.begin(); it_y!=u2_coeff.end(); ++it_y) {
                    Index2D index((*it_x).first,(*it_y).first);
                    T f_val = (*it_x).second * (*it_y).second * MW_P(index);
-                   if (fabs(f_val)>1e-12) {
+                   if (fabs(f_val)>1e-11) {
                        f[index] += f_val;
                    }
                }

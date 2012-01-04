@@ -88,7 +88,7 @@ b_f(T x)
 T
 c_f(T x)
 {
-    return 1.;  // must be a constant function!!
+    return 0.;  // must be a constant function!!
 }
 
 /// Forcing function of the form `T f(T x)` - here a constant function

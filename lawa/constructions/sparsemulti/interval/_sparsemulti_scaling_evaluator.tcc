@@ -10,14 +10,14 @@ _cubic_sparsemulti_scaling_left_evaluator0(T x, unsigned short deriv)
 
     if(deriv == 0){
         if (x>=0. && x<=1.) {
-            value=x*(0.5+x*(-1+0.5*x));
+            value=x*(1.+x*(-2.+1.*x));
         }
         else {
             value=0.;
         }
     } else if (deriv == 1) {
         if (x>=0. && x<=1.) {
-            value=0.5+x*(-2+1.5*x);
+            value=1.+x*(-4.+3.*x);
         }
         else {
             value=0.;
@@ -25,12 +25,13 @@ _cubic_sparsemulti_scaling_left_evaluator0(T x, unsigned short deriv)
     }
     else if (deriv == 2) {
         if (x>=0. && x<=1.) {
-            value=3*x-2;
+            value=6.*x-4.;
         }
         else {
             value=0.;
         }
     }
+
     return value;
 }
 
@@ -44,30 +45,30 @@ _cubic_sparsemulti_scaling_inner_evaluator0(T x, unsigned short deriv)
 
     if(deriv == 0){
         if (x>=-1. && x<=0.) {
-            value=0.5+x*(x*(-1.5-x));
+            value=1.+x*(x*(-3.-2.*x));
         }
         else if (x>=0. && x<=1.) {
-            value=0.5+x*(x*(-1.5+x));
+            value=1.+x*(x*(-3.+2.*x));
         }
         else {
             value=0.;
         }
     } else if (deriv == 1) {
         if (x>=-1. && x<=0.) {
-            value=-3*x*(x+1);
+            value=-6.*x*(x+1);
         }
         else if (x>=0. && x<=1.) {
-             value=3*x*(x-1);
+             value=6.*x*(x-1);
         }
         else {
             value=0.;
         }
     }else if (deriv == 2) {
         if (x>=-1. && x<=0.) {
-            value=-6*x-3;
+            value=-12.*x-6.;
         }
         else if (x>=0. && x<=1.) {
-             value=6*x-3;
+             value=12.*x-6.;
         }
         else {
             value=0.;
@@ -86,20 +87,20 @@ _cubic_sparsemulti_scaling_inner_evaluator1(T x, unsigned short deriv)
 
     if(deriv == 0){
         if (x>=-1. && x<=0.) {
-            value=x*(0.5+x*(1+0.5*x));
+            value=x*(1.+x*(2.+1.*x));
         }
         else if (x>=0. && x<=1.) {
-            value=x*(0.5+x*(-1+0.5*x));
+            value=x*(1.+x*(-2.+1.*x));
         }
         else {
             value=0.;
         }
     } else if (deriv == 1) {
         if (x>=-1. && x<=0.) {
-            value=0.5+x*(2+1.5*x);
+            value=1.+x*(4.+3.*x);
         }
         else if (x>=0. && x<=1.) {
-            value=0.5+x*(-2+1.5*x);
+            value=1.+x*(-4.+3.*x);
         }
         else {
             value=0.;
@@ -107,10 +108,10 @@ _cubic_sparsemulti_scaling_inner_evaluator1(T x, unsigned short deriv)
     }
     else if (deriv == 2) {
         if (x>=-1. && x<=0.) {
-            value=3*x+2;
+            value=6.*x+4.;
         }
         else if (x>=0. && x<=1.) {
-            value=3*x-2;
+            value=6.*x-4.;
         }
         else {
             value=0.;
@@ -128,14 +129,14 @@ _cubic_sparsemulti_scaling_right_evaluator0(T x, unsigned short deriv)
 
     if(deriv == 0){
         if (x>=-1. && x<=0.) {
-            value=x*(0.5+x*(1+0.5*x));
+            value=x*(1.+x*(2.+1.*x));
         }
         else {
             value=0.;
         }
     } else if (deriv == 1) {
         if (x>=-1. && x<=0.) {
-            value=0.5+x*(2+1.5*x);
+            value=1.+x*(4.+3.*x);
         }
         else {
             value=0.;
@@ -143,7 +144,7 @@ _cubic_sparsemulti_scaling_right_evaluator0(T x, unsigned short deriv)
     }
     else if (deriv == 2) {
         if (x>=-1. && x<=0.) {
-            value=3*x+2;
+            value=6.*x+4.;
         }
         else {
             value=0.;

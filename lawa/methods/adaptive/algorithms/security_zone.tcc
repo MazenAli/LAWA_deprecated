@@ -136,7 +136,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,Periodic,CDF> &basis
         for (long int k1=kMin; k1<=kMax; ++k1) {
             if (overlap(contractedSupp, basis.psi.psiR.support(j+1,k1))>0)
             {
-                int k = k1;
+                int k = (int)k1;
                 if(k < basis.rangeJ(j+1).firstIndex()){
                     k = basis.rangeJ(j+1).lastIndex() + ((1 - (basis.rangeJ(j+1).firstIndex() - k))%basis.cardJ(j+1));
                 }
@@ -236,7 +236,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,R,Multi> &basis,
         kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - psi.max_support().l2);
         kMax = ceil(pow2i<T>(j+1)*contractedSupp.l2 - psi.max_support().l1);
         for (long int k_help=kMin; k_help<=kMax; ++k_help) {
-            for (int k1=(k_help-1)*numWavelets+1; k1<=k_help*numWavelets; ++k1) {
+            for (long int k1=(k_help-1)*numWavelets+1; k1<=k_help*numWavelets; ++k1) {
                 if (overlap(contractedSupp, psi.support(j+1,k1))>0) {
                     ret.insert(Index1D(j+1,k1,XWavelet));
                 }
@@ -251,7 +251,9 @@ void
 index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,SparseMulti> &basis,
            IndexSet<Index1D> &ret)
 {
-    int j=lambda.j, k=lambda.k;
+    int  j=lambda.j;
+    if (j>=JMAX) return;
+    long  k=lambda.k;
         XType xtype=lambda.xtype;
 
     const BSpline<T,Primal,R,SparseMulti> &phi = basis.mra.phi;
@@ -273,8 +275,8 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,SparseMulti> &basi
         contractedSupp.l1 = c*supp.l1 + (1-c)*center;
         contractedSupp.l2 = c*supp.l2 + (1-c)*center;
 
-        int kMin = floor( pow2i<T>(j)*contractedSupp.l1 - psi.max_support().l2) - 1;
-        int kMax =  ceil( pow2i<T>(j)*contractedSupp.l2 - psi.max_support().l1) + 1;
+        long kMin = floor( pow2i<long double>(j)*contractedSupp.l1 - psi.max_support().l2) - 1;
+        long kMax =  ceil( pow2i<long double>(j)*contractedSupp.l2 - psi.max_support().l1) + 1;
 
         for (int k_row=kMin*numSplines; k_row<=kMax*numSplines; ++k_row) {
             //std::cerr << "  -> wavelet (" << j << ", " << k_row << "): " << psi.support(j,k_row) << " vs. " << contractedSupp << std::endl;
@@ -288,14 +290,15 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,SparseMulti> &basi
         T center = 0.5*(supp.l1 + supp.l2);
         contractedSupp.l1 = c*supp.l1 + (1-c)*center;
         contractedSupp.l2 = c*supp.l2 + (1-c)*center;
-        long int kMin, kMax;
+        long kMin, kMax;
 
-        kMin = floor( pow2i<T>(j+1)*contractedSupp.l1 - psi.max_support().l2) / 2 - 1;
-        kMax =  ceil( pow2i<T>(j+1)*contractedSupp.l2 - psi.max_support().l1) / 2 + 1;
+        kMin = floor( pow2i<long double>(j+1)*contractedSupp.l1 - psi.max_support().l2) / 2 - 1;
+        kMax =  ceil( pow2i<long double>(j+1)*contractedSupp.l2 - psi.max_support().l1) / 2 + 1;
+
         kMin = kMin*numWavelets;
         kMax = kMax*numWavelets;
 
-                for (long int k_row=kMin; k_row<=kMax; ++k_row) {
+        for (long k_row=kMin; k_row<=kMax; ++k_row) {
             Support<T> supp_row = psi.support(j+1,k_row);
             //std::cerr << "  -> wavelet (" << j+1 << ", " << k_row << "): " << supp_row << " vs. " << contractedSupp << std::endl;
             if (overlap(contractedSupp, supp_row) > 0)  {

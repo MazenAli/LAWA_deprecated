@@ -150,7 +150,7 @@ int main (int argc, char *argv[]) {
             refsol.getRHS_W_XBSplineParameters(CDF_basis.d, CDF_basis.d_, left_bound, right_bound,
                                                J_plus_smooth, J_plus_singular, singular_integral);
 
-            CDF_RhsIntegral1D       CDF_rhsintegral1d(CDF_basis, rhsFct, refsol.deltas, 40);
+            CDF_RhsIntegral1D       CDF_rhsintegral1d(CDF_basis, rhsFct, refsol.deltas, 120);
             CDF_Rhs1D               CDF_F(CDF_rhsintegral1d,CDF_prec);
             CDF_Rhs_Ref             CDF_F_Ref(CDF_rhsintegral1d,CDF_prec);
 
@@ -169,7 +169,7 @@ int main (int argc, char *argv[]) {
 
             ofstream rhsfile(rhsfilename.str().c_str());
             rhsfile << f.norm(2.) << endl;
-            for (int k=0; k<=40; ++k) {
+            for (int k=0; k<=50; ++k) {
                 T eta=pow(2.,(T)-k);
                 f = CDF_F_Ref(eta);
                 cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
@@ -193,6 +193,19 @@ int main (int argc, char *argv[]) {
             else {
                 cout << "RHS: Could not open file." << endl;
                 return 0;
+            }
+
+            Coefficients<Lexicographical,T,Index1D> f_eta, diff;
+
+            for (T eta=0.1; eta>1e-8; eta*=0.5) {
+                f_eta = CDF_F(eta);
+                diff = f-f_eta;
+                cout << "|| f - f_thresh ||_2 = " << diff.norm(2.) << " (should be " << eta << ")" << endl;
+                cout << "f norm: " << CDF_F.rhs_data.norm(2.) << endl;
+                f_eta = CDF_F_Ref(eta);
+                diff = f-f_eta;
+                cout << "|| f - f_thresh_Ref ||_2 = " << diff.norm(2.) << " (should be " << eta << ")" << endl;
+                cout << "f norm: " << CDF_F_Ref.rhs_data.norm(2.) << endl << endl;;
             }
         }
         else {
@@ -219,7 +232,7 @@ int main (int argc, char *argv[]) {
             f = CDF_F_Ref_WO_XBSpline(Lambda);
             ofstream rhsfile(rhsfilename.str().c_str());
             rhsfile << f.norm(2.) << endl;
-            for (int k=0; k<=40; ++k) {
+            for (int k=0; k<=50; ++k) {
                 T eta=pow(2.,(T)-k);
                 f = CDF_F_Ref_WO_XBSpline(eta);
                 cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;

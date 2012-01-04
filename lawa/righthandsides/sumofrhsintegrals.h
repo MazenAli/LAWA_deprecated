@@ -36,8 +36,8 @@ public:
     operator()(const Index &index) const;
     
     T
-    operator()(XType xtype_x, int j_x, int k_x,
-               XType xtype_y, int j_y, int k_y) const;
+    operator()(XType xtype_x, int j_x, long k_x,
+               XType xtype_y, int j_y, long k_y) const;
 };
 
 

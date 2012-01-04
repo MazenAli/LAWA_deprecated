@@ -33,7 +33,7 @@ RHSWithPeaks1D<T,Basis>::RHSWithPeaks1D(const Basis &_basis, Function<T> _f,
 
 template <typename T, typename Basis>
 T
-RHSWithPeaks1D<T,Basis>::operator()(XType xtype, int j, int k) const
+RHSWithPeaks1D<T,Basis>::operator()(XType xtype, int j, long k) const
 {
     T ret = 0.;
     if (with_smooth_part) ret += integralf(j,k,xtype,0);
@@ -42,7 +42,6 @@ RHSWithPeaks1D<T,Basis>::operator()(XType xtype, int j, int k) const
             ret += deltas(i,2) * basis.generator(xtype)(deltas(i,1),j,k,0);
         }
     }
-
     return ret;
 }
 
@@ -140,7 +139,7 @@ RHSWithPeaks1D_WO_XBSpline<T>::operator()(const Index1D &lambda) const
 {
     //std::cout << "Integral_WO_XBSpline<T>::operator(" << lambda << ") was called." << std::endl;
 
-    T ret = 0.0;
+    long double ret = 0.0L;
 
     if (with_singular_part) {
         for (int i=1; i<=deltas.numRows(); ++i) {
@@ -213,31 +212,31 @@ RHSWithPeaks1D_WO_XBSpline<T>::operator()(const Index1D &lambda) const
                     while (a<right) {
                         T b = a+stepsize;
                         //std::cout << "[" << a << ", " << b << "]" << std::endl;
-                        ret += this->operator()(lambda.j,lambda.k,a,b);
+                        ret += (long double)(this->operator()(lambda.j,lambda.k,a,b));
                         a = b;
                         stepsize = std::min(h,right-b);
                     }
                     if (fabs(a-right)>1e-14) {
                         //std::cout << "rest: [" << a << ", " << right << "]" << std::endl;
-                        ret += this->operator()(lambda.j,lambda.k,a,right);
+                        ret += (long double)(this->operator()(lambda.j,lambda.k,a,right));
                     }
                 }
             }
         }
     }
-    return ret;
+    return (T)ret;
 }
 
 template <typename T>
 T
-RHSWithPeaks1D_WO_XBSpline<T>::operator()(int j, int k, T a, T b) const
+RHSWithPeaks1D_WO_XBSpline<T>::operator()(int j, long k, T a, T b) const
 {
-    T ret = 0.0;
+    long double ret = 0.0L;
     for (int i=1; i<=order; ++i) {
         T x = 0.5*(b-a)*_knots(order,i)+0.5*(b+a);
-        ret += _weights(order,i) * psi(x,j,k,0) * truncated_f(x);
+        ret += (long double)(_weights(order,i) * psi(x,j,k,0) * truncated_f(x));
     }
-    ret *= 0.5*(b-a);
+    ret *= (long double)(0.5*(b-a));
 
     return ret;
 }

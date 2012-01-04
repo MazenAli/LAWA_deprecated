@@ -29,14 +29,6 @@ template <typename T>
     T
     _sparsemulti_cubic_wavelet_left_evaluator1(T x, unsigned short deriv);
 
-template <typename T>
-    T
-    _sparsemulti_cubic_wavelet_left_evaluator2(T x, unsigned short deriv);
-
-template <typename T>
-    T
-    _sparsemulti_cubic_wavelet_right_evaluator0(T x, unsigned short deriv);
-
 } // namespace lawa
 
 #include <lawa/constructions/sparsemulti/interval/_sparsemulti_wavelet_evaluator.tcc>

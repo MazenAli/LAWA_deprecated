@@ -24,9 +24,8 @@ namespace lawa {
  * ********************************************************************************************** */
 
 template <typename T, typename Index>
-Coefficients<Lexicographical,T,Index>::Coefficients()
+Coefficients<Lexicographical,T,Index>::Coefficients(void)
 {
-
 }
 
 template <typename T, typename Index>
@@ -35,11 +34,11 @@ Coefficients<Lexicographical,T,Index>::operator=(const Coefficients<Lexicographi
 {
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
     typedef typename Coefficients<Lexicographical,T,Index>::value_type val_type;
-    erase(Coefficients<Lexicographical,T,Index>::begin(), Coefficients<Lexicographical,T,Index>::end());
+    this->erase(Coefficients<Lexicographical,T,Index>::begin(), Coefficients<Lexicographical,T,Index>::end());
 
     if (_coeff.size() > 0) {
         for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-            insert(val_type((*lambda).first, (*lambda).second));
+            this->insert(val_type((*lambda).first, (*lambda).second));
         }
     }
 
@@ -52,11 +51,11 @@ Coefficients<Lexicographical,T,Index>::operator=(const Coefficients<AbsoluteValu
 {
     typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_it;
     typedef typename Coefficients<Lexicographical,T,Index>::value_type val_type;
-    erase(Coefficients<Lexicographical,T,Index>::begin(), Coefficients<Lexicographical,T,Index>::end());
+    this->erase(Coefficients<Lexicographical,T,Index>::begin(), Coefficients<Lexicographical,T,Index>::end());
 
     if (_coeff.size() > 0) {
         for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-            insert(val_type((*lambda).second, (*lambda).first));
+            this->insert(val_type((*lambda).second, (*lambda).first));
         }
     }
 
@@ -75,6 +74,48 @@ Coefficients<Lexicographical,T,Index>::operator-(const Coefficients<Lexicographi
         }
     }
     return ret;
+}
+
+template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index> &
+Coefficients<Lexicographical,T,Index>::operator-=(const Coefficients<Lexicographical,T,Index> &_coeff)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    //Coefficients<Lexicographical,T,Index> ret = *this;
+    if (_coeff.size() > 0) {
+        for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
+            (*this).operator[]((*lambda).first) -= (*lambda).second;
+        }
+    }
+    return (*this);
+}
+
+template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index> &
+Coefficients<Lexicographical,T,Index>::operator+=(const Coefficients<Lexicographical,T,Index> &_coeff)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    //Coefficients<Lexicographical,T,Index> ret = *this;
+    if (_coeff.size() > 0) {
+        for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
+            (*this).operator[]((*lambda).first) += (*lambda).second;
+        }
+    }
+    return (*this);
+}
+
+template <typename T, typename Index>
+Coefficients<Lexicographical,T,Index> &
+Coefficients<Lexicographical,T,Index>::operator*=(const T factor)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    //Coefficients<Lexicographical,T,Index> ret = *this;
+    if ((*this).size() > 0) {
+        for (const_it lambda = (*this).begin(); lambda != (*this).end(); ++lambda) {
+            (*this).operator[]((*lambda).first) *= factor;
+        }
+    }
+    return (*this);
 }
 
 template <typename T, typename Index>
@@ -130,9 +171,22 @@ Coefficients<Lexicographical,T,Index>::scale(const T factor)
 }
 
 template <typename T, typename Index>
+void
+Coefficients<Lexicographical,T,Index>::setToZero(void)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
+    for (const_it it = (*this).begin(); it!=(*this).end(); ++it) {
+        (*this).operator[]((*it).first) = 0.;
+    }
+}
+
+template <typename T, typename Index>
 T
 Coefficients<Lexicographical,T,Index>::norm(T tau) const
 {
+    //Coefficients<AbsoluteValue,T,Index> abs;
+    //abs = *this;
+    //return abs.norm(2.);
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
     long double result=0.0L;
     if (Coefficients<Lexicographical,T,Index>::size() > 0) {
@@ -241,12 +295,11 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
     supremumnorm = 0.;
     if (_coeff.size() > 0) {
         for (const_it lambda = _coeff.begin(); lambda != _coeff.end(); ++lambda) {
-            supremumnorm = std::max(supremumnorm,fabs((*lambda).second));
+            supremumnorm = std::max(supremumnorm,(T)fabs((*lambda).second));
         }
     }
     //std::cerr << "Supremum norm = " << supremumnorm << std::endl;
     int NumOfBuckets = std::max(0,(int)(2*std::log(supremumnorm*std::sqrt(_coeff.size())/eps)/std::log(T(2))));
-    //std::cerr << "Number of buckets = " << NumOfBuckets << std::endl;
 
 
     for (int i=0; i<NumOfBuckets; ++i) {
@@ -262,6 +315,9 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
             //std::cerr << "pos for " << (*lambda).first << ", " << (*lambda).second
             //          << ": " << -2*std::log(fabs((*lambda).second)/supremumnorm)/std::log(T(2)) << std::endl;
             const std::pair<const Index,T>* tmp = &(*lambda);
+            //std::cout << "sizeof(lambda): " << sizeof(*lambda) << std::endl;
+            //std::cout << "sizeof(tmo):    " << sizeof(tmp) << std::endl;
+
             buckets[pos].push_back(tmp);
             T val = (*lambda).second;
             bucket_ell2norms[pos] += (long double)(val*val);
@@ -275,19 +331,12 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
 
 template <typename T, typename Index>
 int
-Coefficients<Bucket,T,Index>::addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber,
-                                                  int count)
+Coefficients<Bucket,T,Index>::addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber)
 {
-    if (count==-1) {
-        count = Lambda.size();
-    }
-    ++count;
     typedef typename  Coefficients<Bucket,T,Index>::BucketEntry::const_iterator const_it;
     for (const_it it=buckets[bucketnumber].begin(); it!=buckets[bucketnumber].end(); ++it) {
-        Index tmp((**it).first);
-        tmp.linearindex=count;
-        Lambda.insert(tmp);
-        ++count;
+        //Index tmp((**it).first);
+        Lambda.insert((**it).first);
     }
     return buckets[bucketnumber].size();
 }

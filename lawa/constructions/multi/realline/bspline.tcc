@@ -119,7 +119,7 @@ template <typename T>
 int
 BSpline<T,Orthogonal,R,Multi>::_type(long k) const
 {
-    return k>=0 ? (int) k%3 : (int) _numSplines - (int)(-k+2)%_numSplines - 1;
+    return k>=0 ? (int) k%3 : (int) _numSplines - (int)(-k+2)%((int)_numSplines) - 1;
 }
 
 //------------------------------------------------------------------------------

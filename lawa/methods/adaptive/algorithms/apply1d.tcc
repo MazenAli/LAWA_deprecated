@@ -82,7 +82,7 @@ template <typename T, typename Index, typename Basis1D, typename Parameters, typ
 Coefficients<Lexicographical,T,Index>
 SYM_APPLY_1D<T,Index,Basis1D,Parameters,MA>::operator()(const Coefficients<Lexicographical,T,Index> &v, int k, int J)
 {
-    int d=basis.d;
+    //int d=basis.d;
     Coefficients<Lexicographical,T,Index> ret;
     if (v.size() == 0) return ret;
 

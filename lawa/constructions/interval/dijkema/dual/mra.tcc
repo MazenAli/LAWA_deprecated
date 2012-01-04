@@ -356,7 +356,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     FullColMatrix Transformation(knots.length()-d, knots.length()-d);
     Transformation.diag(0) = 1.;
     for (int i=1; i<d; ++i) {
-        FullColMatrix Tmp = insertKnot(d-1,knots,0.), Tmp2;
+        FullColMatrix Tmp = insertKnot(d-1,knots,(T)0.), Tmp2;
         blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,
                  1.,Tmp,Transformation,0.,Tmp2);
         Transformation = Tmp2;

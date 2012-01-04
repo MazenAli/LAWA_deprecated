@@ -11,8 +11,8 @@ RightNormPreconditioner2D_a<T,Basis2D>::RightNormPreconditioner2D_a(const Basis2
 
 template <typename T, typename Basis2D>
 T
-RightNormPreconditioner2D_a<T,Basis2D>::operator()(XType xtype1, int j1, int k1,
-                                                 XType xtype2, int j2, int k2) const
+RightNormPreconditioner2D_a<T,Basis2D>::operator()(XType xtype1, int j1, long k1,
+                                                   XType xtype2, int j2, long k2) const
 {
     T value_t    = _integral_t(j1,k1,xtype1,0, j1,k1,xtype1,0);
     T dd_value_t = _integral_t(j1,k1,xtype1,1, j1,k1,xtype1,1);

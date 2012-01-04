@@ -30,7 +30,7 @@ p2(T x) {
 
 T
 p3(T x) {
-    return exp(x);
+    return x*x*x;
 }
 
 Range<int>
@@ -40,11 +40,11 @@ int main (int argc, char *argv[]) {
 
     cout.precision(16);
     int d=4;
-    int j0=2;
+    int j0=0;
 
     Basis1D basis(d,j0);
 
-    int j=2;
+    int j=0;
 
     Integral1D integral(basis,basis);
 
@@ -65,6 +65,22 @@ int main (int argc, char *argv[]) {
     }
 
 
+    cout << "Testing sparse multiscaling: " << endl;
+    Range<int> scalingrange = getRange(basis, j, XBSpline);
+    for (int k=scalingrange.firstIndex(); k<=scalingrange.lastIndex(); ++k) {
+        ofstream file("sparsemulti_scaling.dat");
+
+        cout << basis.mra.phi.support(j,k) << endl;
+        cout << basis.mra.phi.singularSupport(j,k) << endl;
+        cout << "<phi, phi> = " << integral(j,k,XBSpline,0,j,k,XBSpline,0) << endl;
+        for (T x=-4.; x<=4.; x+=pow2i<T>(-8)) {
+            file << x << " " << basis.mra.phi(x,j,k,0) << " " << basis.mra.phi(x,j,k,1) <<  endl;
+        }
+        file.close();
+        getchar();
+    }
+
+    cout << "Testing sparse multiwavelets: " << endl;
     Range<int> waveletrange = getRange(basis, j, XWavelet);
     for(int k=waveletrange.firstIndex(); k<=waveletrange.lastIndex(); ++k) {
         ofstream file("sparsemulti_wavelet.dat");
@@ -79,20 +95,6 @@ int main (int argc, char *argv[]) {
         T l2=basis.psi.support(j,k).l2;
         for (T x=l1; x<=l2; x+=pow2i<T>(-9)) {
             file << x << " " << basis.psi(x,j,k,0) << " " << basis.psi(x,j,k,1)  << endl;
-        }
-        file.close();
-        getchar();
-    }
-
-    Range<int> scalingrange = getRange(basis, j, XBSpline);
-    for (int k=scalingrange.firstIndex(); k<=scalingrange.lastIndex(); ++k) {
-        ofstream file("sparsemulti_scaling.dat");
-
-        cout << basis.mra.phi.support(j,k) << endl;
-        cout << basis.mra.phi.singularSupport(j,k) << endl;
-        cout << "<psi, psi> = " << integral(j,k,XBSpline,0,j,k,XBSpline,0) << endl;
-        for (T x=-2.; x<=2.; x+=pow2i<T>(-8)) {
-            file << x << " " << basis.mra.phi(x,j,k,0) << " " << basis.mra.phi(x,j,k,1) <<  endl;
         }
         file.close();
         getchar();

@@ -11,19 +11,20 @@ namespace lawa {
  *    
  */
   
-template <typename, typename, typename, typename> class AdaptiveRBTruth2D;
+template <typename, typename, typename, typename, typename> class AdaptiveRBTruth2D;
   
 
-template <typename T, typename Basis, typename Index, typename Compression>
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 class IndexsetTruthSolver {
   
-  typedef  AdaptiveRBTruth2D<T, Basis, 
-             IndexsetTruthSolver<T, Basis, Index, Compression>, Compression > Truth;
+  typedef  AdaptiveRBTruth2D<T, Basis, Prec, 
+                            IndexsetTruthSolver<T, Basis, Prec, Index, Compression>, Compression> Truth;
   typedef typename Truth::Operator_LHS                                 LHS;
   typedef typename Truth::Operator_RHS                                 RHS;
   typedef typename Truth::Operator_LHS_Representor                     MatrixOp;
   typedef typename Truth::Operator_RHS_BilFormRepresentor              RHS_BilFormRepr;
   typedef typename Truth::Operator_RHS_FunctionalRepresentor           RHS_FctRepr;
+  typedef typename Truth::Operator_Residual_Representor                RHS_ResRepr;
   
   typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
   
@@ -43,6 +44,9 @@ public:
   
   Coefficients<Lexicographical,T,Index>
   repr_solve_A();
+  
+  Coefficients<Lexicographical,T,Index>
+  repr_solve_totalRes(RHS_ResRepr& res_repr_op);
 
   IndexSet<Index>& basis_set;
   

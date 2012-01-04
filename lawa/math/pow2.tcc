@@ -37,6 +37,13 @@ pow2i(int expo)
 }
 
 template <typename T>
+typename RestrictTo<flens::IsSame<T,long double>::value, T>::Type
+pow2i(int expo)
+{
+    return std::ldexp(1.L, expo);
+}
+
+template <typename T>
 T
 pow2ih(int expo)
 {

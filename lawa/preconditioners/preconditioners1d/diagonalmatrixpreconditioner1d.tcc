@@ -10,7 +10,7 @@ DiagonalMatrixPreconditioner1D<T,Basis,BilinearForm>::DiagonalMatrixPrecondition
 
 template <typename T, typename Basis, typename BilinearForm>
 T
-DiagonalMatrixPreconditioner1D<T,Basis,BilinearForm>::operator()(XType xtype, int j, int k) const
+DiagonalMatrixPreconditioner1D<T,Basis,BilinearForm>::operator()(XType xtype, int j, long k) const
 {
     return 1./std::sqrt(fabs(_a(xtype,j,k,xtype,j,k)));
 }

@@ -11,7 +11,7 @@ TimedepSeparableRHS1D<T, Basis1D>::TimedepSeparableRHS1D(const Basis1D& _basis,
     
 template<typename T, typename Basis1D>
 T
-TimedepSeparableRHS1D<T, Basis1D>::operator()(T t, XType xtype, int j, int k) const
+TimedepSeparableRHS1D<T, Basis1D>::operator()(T t, XType xtype, int j, long k) const
 {
     return F.F_x(t) * integralf(j,k,xtype,0);
 }   
@@ -36,7 +36,7 @@ SumOfTimedepRHS1D<T, TimedepRHS>::SumOfTimedepRHS1D(const TimedepRHS &_rhs1,
 
 template<typename T, typename TimedepRHS>
 T
-SumOfTimedepRHS1D<T, TimedepRHS>::operator()(T t, XType xtype, int j, int k) const
+SumOfTimedepRHS1D<T, TimedepRHS>::operator()(T t, XType xtype, int j, long k) const
 {
        return rhs1(t, xtype, j, k)
           +rhs2(t, xtype, j, k); 

@@ -43,8 +43,8 @@ class SeparableRHS2D : public Rhs2D<T>
                        int order);
 
         T
-        operator()(XType xtype_x, int j_x, int k_x,
-                   XType xtype_y, int j_y, int k_y) const;
+        operator()(XType xtype_x, int j_x, long k_x,
+                   XType xtype_y, int j_y, long k_y) const;
 
         T
         operator()(const Index2D &index) const;

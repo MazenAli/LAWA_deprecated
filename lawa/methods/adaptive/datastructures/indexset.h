@@ -20,7 +20,6 @@
 #ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEXSET_H_
 #define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_INDEXSET_H_ 1
 
-#include <set>
 #include <ext/hash_set>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/constructions/basis.h>
@@ -32,21 +31,20 @@
 namespace lawa {
 
 template <typename Index>
-struct IndexSet : std::set<Index, lt<Lexicographical, Index > >
-//struct IndexSet : __gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >
+struct IndexSet : __gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >
 {
-    //using std::set<Index, lt<Lexicographical, Index > >::erase;
-    //using std::set<Index, lt<Lexicographical, Index > >::insert;
-
-    //typename __gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> > map;
-
     IndexSet(void);
+
+    IndexSet(size_t n);
 
     IndexSet<Index>&
     operator= (const IndexSet<Index> &_set);
 
     IndexSet<Index>
     operator+ (const IndexSet<Index> &_set) const;
+
+    IndexSet<Index>&
+    operator+= (const IndexSet<Index> &_set);
 };
 
 template <typename Index>

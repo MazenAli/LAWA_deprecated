@@ -41,13 +41,22 @@ THRESH(const Coefficients<Lexicographical,T,Index1D> &v, T eta, bool deleteBSpli
         }
         ret = temp;
     }
-
     if (!deleteBSpline) {
+        Coefficients<Lexicographical,T,Index1D > scaling_indices;
+        Coefficients<AbsoluteValue,T,Index1D > abs_scaling_indices;
         for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
-            if ((*it).first.xtype==XBSpline && ret.count((*it).first)==0) {
-                ret[(*it).first] = (*it).second;
+            if ((*it).first.xtype==XBSpline) {
+                if (ret.count((*it).first)==0) {
+                    scaling_indices.insert(*it);
+                }
+                else {
+                    return ret;
+                }
             }
         }
+        abs_scaling_indices = scaling_indices;
+        it max_scaling_index = abs_scaling_indices.begin();
+        ret[(*max_scaling_index).second] = (*max_scaling_index).first;
     }
     return ret;
 }
@@ -77,14 +86,22 @@ THRESH(const Coefficients<Lexicographical,T,Index2D> &v, T eta, bool deleteBSpli
         ret = temp;
     }
     if (!deleteBSpline) {
+        Coefficients<Lexicographical,T,Index2D> scaling_indices;
+        Coefficients<AbsoluteValue,T,Index2D> abs_scaling_indices;
         for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
-            if (    (*it).first.index1.xtype==XBSpline && (*it).first.index2.xtype==XBSpline
-                 && (ret.count((*it).first)==0) ) {
-                ret[(*it).first] = (*it).second;
+            if ((*it).first.index1.xtype==XBSpline && (*it).first.index2.xtype==XBSpline) {
+                if (ret.count((*it).first)==0) {
+                    scaling_indices.insert(*it);
+                }
+                else {
+                    return ret;
+                }
             }
         }
+        abs_scaling_indices = scaling_indices;
+        it max_scaling_index = abs_scaling_indices.begin();
+        ret[(*max_scaling_index).second] = (*max_scaling_index).first;
     }
-
     return ret;
 }
 

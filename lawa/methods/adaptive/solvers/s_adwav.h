@@ -24,6 +24,7 @@
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/methods/adaptive/datastructures/matrixoperations.h>
+#include <lawa/methods/adaptive/algorithms/linearsystemsolvers.h>
 #include <lawa/methods/adaptive/postprocessing/postprocessing.h>
 
 namespace lawa {
@@ -37,7 +38,7 @@ class S_ADWAV {
 
         //solver for symmetric elliptic problems
         void solve(const IndexSet<Index> &Initial_Lambda, const char *linsolvertype,
-                   bool optimized=false, T H1norm=0.);
+                   const char *filename, int assemble_matrix=2, T H1norm=0.);
         //solver for symmetric elliptic problems
         void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
         //solver for symmetric elliptic problems without B-Splines

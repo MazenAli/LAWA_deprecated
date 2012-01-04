@@ -20,6 +20,8 @@
 #include <cassert>
 #include <limits>
 #include <iomanip>
+#include <fstream>
+#include <lawa/aux/densify.h>
 
 namespace lawa {
 
@@ -68,14 +70,17 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     typename _cg<VB>::AuxVector r, q, s, p;
 
     assert(b.length()==A.numRows());
-/*
+
+    std::cerr << "   cgls: tol = " << tol << std::endl;
     if (x.length()!=A.numCols()) {
         x.engine().resize(A.numCols());
     }
+    /*
     for (int i=x.firstIndex(); i<=x.lastIndex(); ++i) {
         x(i) = 0;
     }
-*/
+    */
+
     b_norm = b*b;
     if (std::sqrt(b_norm) < 1e-15) {
         for (int i=x.firstIndex(); i<=x.lastIndex(); ++i) {
@@ -84,12 +89,23 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         return 0;
     }
 
-    //r = b;
-    r = b-A*x;
+    r = A*x;
+    r += (-1.)*b;
+    r *= -1.;
     flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
     p = s;
     gammaPrev = s*s;
+#ifdef SOLVER_DEBUG
+    std::ofstream gammafile("CGLS_Convergence.txt");
+    gammafile << "# Norm(A'*r)^2  Norm(b-Ax)^2" << std::endl; 
+#endif
     for (int k=1; k<=maxIterations; k++) {
+        #ifdef SOLVER_DEBUG
+            typename _cg<VB>::T res = r*r;
+            gammafile << sqrt(gammaPrev) << " " << sqrt(res) << std::endl;
+            std::cerr << "k = " << k << ", gamma = " << sqrt(gammaPrev)
+            << std::endl;
+        #endif
         q = A*p;
         alpha = gammaPrev/(q*q);
         x +=   alpha *p;
@@ -97,7 +113,6 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
         gamma = s*s;
         if (sqrt(gamma)<=tol) {
-            std::cerr << "    cgls: gamma = " << gamma << std::endl;
             return k-1;
         }
         beta  = gamma/gammaPrev;
@@ -105,6 +120,9 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         p += s;
         gammaPrev = gamma;
     }
+#ifdef SOLVER_DEBUG
+    gammafile.close();
+#endif
     return maxIterations;
 }
 

@@ -71,7 +71,7 @@ typedef GHS_ADWAV<T, Index1D, SparseMW_MA, SparseMW_Rhs>                SparseMW
 
 int main (int argc, char *argv[]) {
     if (argc!=7) {
-        cout << "usage " << argv[0] << "basistype d d_ jmin example max_its" << endl; exit(1);
+        cout << "usage " << argv[0] << " basistype d d_ jmin example max_its" << endl; exit(1);
     }
     cout.precision(3);
 
@@ -106,11 +106,14 @@ int main (int argc, char *argv[]) {
                     << argv[3] << "_" << argv[4] << "_" << c << "_" << argv[5] << ".dat";
     }
 
-
     stringstream plotfilename;
-    plotfilename << "ghs_adwav_realline_helmholtz1d_plot_" << argv[1] << "_" << argv[2] << "_"
+    plotfilename << "ghs_adwav_plot_realline_helmholtz1d_" << argv[1] << "_" << argv[2] << "_"
                   << argv[3] << "_" << argv[4] << "_" << c << "_"
                   << argv[5] << "_" << argv[6] << ".dat";
+
+    stringstream convfilename;
+    convfilename << "ghs_adwav_conv_realline_helmholtz1d_" << argv[1] << "_" << argv[2] << "_"
+                 << argv[3] << "_" << argv[4] << "_" << c << "_" << argv[5] << ".dat";
 
     Coefficients<Lexicographical,T,Index1D> u;
 
@@ -121,9 +124,9 @@ int main (int argc, char *argv[]) {
         CDF_Prec                CDF_prec(CDF_A);
 
         if (w_XBSpline) {
-            CDF_RhsIntegral1D       CDF_rhsintegral1d(CDF_basis, rhsFct, refsol.deltas, 60);
+            CDF_RhsIntegral1D       CDF_rhsintegral1d(CDF_basis, rhsFct, refsol.deltas, 70);
             CDF_Rhs                 CDF_F(CDF_rhsintegral1d,CDF_prec);
-            CDF_GHS_ADWAV_SOLVER    CDF_ghs_adwav_solver(CDF_A, CDF_F);
+            CDF_GHS_ADWAV_SOLVER    CDF_ghs_adwav_solver(CDF_A, CDF_F,true);
             if (CDF_F.readIndexSets(rhsfilename.str().c_str()) ) {
                 cout << "Index sets for rhs read... Ready to start."  << endl;
             }
@@ -131,10 +134,9 @@ int main (int argc, char *argv[]) {
                 cout << "RHS: Could not open file." << endl;
                 return 0;
             }
-            u = CDF_ghs_adwav_solver.SOLVE(CDF_F.norm_estimate, 1e-10,
+            u = CDF_ghs_adwav_solver.SOLVE(CDF_F.norm_estimate, 1e-10,  convfilename.str().c_str(),
                                            NumOfIterations, refsol.H1norm());
         }
-
         else {
             T left_bound = 0., right_bound = 0.;
             int J_plus_smooth = 0, J_minus_smooth = 0, J_plus_singular = 0, J_minus_singular = 0;
@@ -145,7 +147,7 @@ int main (int argc, char *argv[]) {
             CDF_RhsIntegral1D_WO_XBSpline       CDF_rhsintegral1d_WO_XBSpline
                                                   (CDF_basis.psi, refsol.rhs, refsol.sing_pts,
                                                    refsol.deltas, left_bound, right_bound,
-                                                   1., 100);
+                                                   4., 20);
             CDF_Rhs_WO_XBSpline                 CDF_F_WO_XBSpline(CDF_rhsintegral1d_WO_XBSpline,
                                                                   CDF_prec);
             CDF_GHS_ADWAV_SOLVER_WO_XBSpline    CDF_ghs_adwav_solver_WO_XBSpline(CDF_A,
@@ -158,11 +160,12 @@ int main (int argc, char *argv[]) {
                 return 0;
             }
             u = CDF_ghs_adwav_solver_WO_XBSpline.SOLVE(CDF_F_WO_XBSpline.norm_estimate, 1e-10,
+                                                       convfilename.str().c_str(),
                                                        NumOfIterations, refsol.H1norm());
         }
 
         cout << "Plot of solution started." << endl;
-        plot<T, CDF_Basis1D, CDF_Prec>(CDF_basis, u, CDF_prec, refsol.u, refsol.d_u, -10., 10.,
+        plot<T, CDF_Basis1D, CDF_Prec>(CDF_basis, u, CDF_prec, refsol.u, refsol.d_u, -80., 80.,
                                        pow2i<T>(-5), plotfilename.str().c_str());
         cout << "Plot of solution finished." << endl;
     }
@@ -181,7 +184,7 @@ int main (int argc, char *argv[]) {
             cout << "RHS: Could not open file." << endl;
             return 0;
         }
-        u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-10,
+        u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-10,  convfilename.str().c_str(),
                                       NumOfIterations, refsol.H1norm());
         cout << "Plot of solution started." << endl;
         plot<T, MW_Basis1D, MW_Prec>(MW_basis, u, MW_prec, refsol.u,
@@ -198,6 +201,8 @@ int main (int argc, char *argv[]) {
         SparseMW_Rhs                SparseMW_F(SparseMW_rhsintegral1d,SparseMW_prec);
         SparseMW_GHS_ADWAV_SOLVER   SparseMW_ghs_adwav_solver(SparseMW_A, SparseMW_F);
 
+        T alpha = 0.6, omega = 0.2, gamma = 0.15, theta = 2*omega/(1+omega);
+        SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
         if (SparseMW_F.readIndexSets(rhsfilename.str().c_str()) ) {
             cout << "Index sets for rhs read... Ready to start."  << endl;
         }
@@ -205,7 +210,7 @@ int main (int argc, char *argv[]) {
             cout << "RHS: Could not open file." << endl;
             return 0;
         }
-        u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-10,
+        u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                             NumOfIterations, refsol.H1norm());
         cout << "Plot of solution started." << endl;
         plot<T, SparseMW_Basis1D, SparseMW_Prec>(SparseMW_basis, u, SparseMW_prec, refsol.u,

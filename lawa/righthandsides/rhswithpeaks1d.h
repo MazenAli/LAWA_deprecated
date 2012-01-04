@@ -42,7 +42,7 @@ class RHSWithPeaks1D
                        int order, bool _with_singular_part=true, bool _with_smooth_part=true);
 
         T
-        operator()(XType xtype, int j, int k) const;
+        operator()(XType xtype, int j, long k) const;
 
         T
         operator()(const Index1D &lambda) const;
@@ -74,7 +74,7 @@ class RHSWithPeaks1D_WO_XBSpline
         operator()(const Index1D &lambda) const;
 
         T
-        operator()(int j, int k, T a, T b) const;
+        operator()(int j, long k, T a, T b) const;
 
     private:
 

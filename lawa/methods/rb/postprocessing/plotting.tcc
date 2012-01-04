@@ -9,7 +9,7 @@ saveCoeffVector2D(const Coefficients<Lexicographical,T,Index2D> &coeff, const Ba
   typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
   
   std::ofstream data(filename);
-  data.precision(16);
+  data.precision(40);
   data << "# Center_x Center_y Value Xtype1 j1 k1 Xtype2 j2 k2" << std::endl;
   
   typename Basis::FirstBasisType basis_x = basis2d.first;

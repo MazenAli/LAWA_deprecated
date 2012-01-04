@@ -137,7 +137,7 @@ const Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJI(int j) const
 {
     assert(j>=min_j0);
-    return _(d+d_-1,pow2i<T>(j)-(d+d_-3));
+    return _(d+d_-1,pow2i<T>(j)-(d+d_-2));
 }
 
 template <typename T>
@@ -145,7 +145,7 @@ const Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 {
     assert(j>=min_j0);
-    return _(pow2i<T>(j)-(d+d_-2),pow2i<T>(j));
+    return _(pow2i<T>(j)-(d+d_-3),pow2i<T>(j));
 }
 
 } // namespace lawa

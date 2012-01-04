@@ -73,13 +73,13 @@ Wavelet<T,Primal,Interval,Cons>::singularSupport(int j, long k) const
     assert(k<=basis.rangeJ(j).lastIndex());
 
     if (k<=basis.M1.left.lastIndex()) {
-        return linspace(0.,
+        return linspace((T)0.,
                         pow2i<T>(-j-1)*basis.M1.lengths(k),
                         2*basis.M1.lengths(k)+1.);
     }
     if (k>pow2i<T>(j)-basis.M1.right.length()) {
-        return linspace(1-pow2i<T>(-j-1)*(basis.M1.lengths(k-1-pow2i<T>(j))), 
-                        1.,
+        return linspace(1-pow2i<T>(-j-1)*(basis.M1.lengths(k-1-pow2i<T>(j))),
+                        (T)1.,
                         2*basis.M1.lengths(k-1-pow2i<T>(j))+1.);
     }
     // FIXME: remove std::max: left support end cannot be less than 0. Check for error (Primbs!!!)

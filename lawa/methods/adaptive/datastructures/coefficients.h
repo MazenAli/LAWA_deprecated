@@ -37,15 +37,21 @@ struct Coefficients
  * ********************************************************************************************** */
 
 template <typename T, typename Index>
-struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
-//struct Coefficients<Lexicographical,T,Index> : __gnu_cxx::hash_map<Index, T,
-//                                                                   index_hashfunction<Index>,
-//                                                                   index_eqfunction<Index> >
+//struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
+struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index, T,
+                                                                   index_hashfunction<Index>,
+                                                                   index_eqfunction<Index> >
 {
     //using std::map<Index,T,lt<Lexicographical,Index> >::insert;
     //using std::map<Index,T,lt<Lexicographical,Index> >::erase;
-    
-    Coefficients();        //required in rhs.h
+    //using __gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map;
+
+    Coefficients(void);
+
+    Coefficients(size_t n)
+       :__gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map(n) {
+
+    };         //required in rhs.h
 
     Coefficients<Lexicographical,T,Index>&
     operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
@@ -56,17 +62,30 @@ struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographic
     Coefficients<Lexicographical,T,Index>
     operator-(const Coefficients<Lexicographical,T,Index> &_coeff) const;
 
+    Coefficients<Lexicographical,T,Index> &
+    operator-=(const Coefficients<Lexicographical,T,Index> &_coeff);
+
+    Coefficients<Lexicographical,T,Index> &
+    operator+=(const Coefficients<Lexicographical,T,Index> &_coeff);
+
+    Coefficients<Lexicographical,T,Index> &
+    operator*=(const T factor);
+
     Coefficients<Lexicographical,T,Index>
     operator+(const Coefficients<Lexicographical,T,Index> &_coeff) const;
 
     T
     operator*(const Coefficients<Lexicographical,T,Index> &_coeff) const;
     
+    //todo:: revise!!!
     Coefficients<Lexicographical,T,Index>
     operator*(const T factor) const;
     
     void
     scale(const T factor);
+
+    void
+    setToZero();
 
     T
     norm(T tau=2.0) const;
@@ -99,15 +118,18 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
 template <typename T, typename Index>
 struct Coefficients<Bucket,T,Index>
 {
-    typedef typename std::vector<std::list<const std::pair<const Index,T>* > > Buckets;
+
     typedef typename std::list<const std::pair<const Index,T>* >               BucketEntry;
+    typedef typename std::vector<BucketEntry> Buckets;
+
+
     Coefficients();        //required in rhs.h
 
     void
     bucketsort(const Coefficients<Lexicographical,T,Index> &_coeff, T eps);
 
     int
-    addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber, int count=-1);
+    addBucketToIndexSet(IndexSet<Index> &Lambda, int bucketnumber);
 
     void
     addBucketToCoefficients(Coefficients<Lexicographical,T,Index> &coeff, int bucketnumber);

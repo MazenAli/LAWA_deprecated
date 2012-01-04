@@ -41,6 +41,9 @@ class Basis<_T,Primal,Interval,SparseMulti>
         const BasisFunctionType &
         generator(XType xtype) const;
 
+        Support<T>
+        max_support() const;
+
         //--- cardinalities of whole, left, inner, right index set.
         long
         cardJ(const int j) const;
@@ -55,22 +58,23 @@ class Basis<_T,Primal,Interval,SparseMulti>
         cardJR(const int j=-1) const;
     
         //--- ranges of whole, left, inner, right index set.
-        const flens::Range<int>
+        const flens::Range<long>
         rangeJ(const int j) const;
     
-        const flens::Range<int>
+        const flens::Range<long>
         rangeJL(const int j=-1) const;
 
-        const flens::Range<int>
+        const flens::Range<long>
         rangeJI(const int j) const;
 
-        const flens::Range<int>
+        const flens::Range<long>
         rangeJR(const int j=-1) const;
     
         MRA<T,Primal,Interval,SparseMulti> mra;
     
         const int d;
         const int j0;          // minimal used(!) level.
+        unsigned int _numSplines;
     
     private:
         DenseVector<Array<int> > _bc;  // the boundary conditions

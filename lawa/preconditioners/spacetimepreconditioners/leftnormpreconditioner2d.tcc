@@ -11,8 +11,8 @@ LeftNormPreconditioner2D<T,Basis2D>::LeftNormPreconditioner2D(const Basis2D &bas
 
 template <typename T, typename Basis2D>
 T
-LeftNormPreconditioner2D<T,Basis2D>::operator()(XType /*xtype1*/, int /*j1*/, int /*k1*/,
-                                                XType xtype2, int j2, int k2) const
+LeftNormPreconditioner2D<T,Basis2D>::operator()(XType /*xtype1*/, int /*j1*/, long /*k1*/,
+                                                XType xtype2, int j2, long k2) const
 {
     T value = _integral(j2,k2,xtype2,0,j2,k2,xtype2,0);
 

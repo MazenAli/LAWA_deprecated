@@ -186,7 +186,7 @@ const
     T ret=0.;
     for (int block=0; block<(int)_sg_blocks.size(); ++block) {
         int ix=_sg_blocks[block][0]-1, iy = _sg_blocks[block][1]-1;
-        int dim_x = _sg_blocks[block][4], dim_y = _sg_blocks[block][5];
+        //int dim_x = _sg_blocks[block][4], dim_y = _sg_blocks[block][5];
 
         if (ix<0) {
             if (iy<0) {    //SF*SF
@@ -452,7 +452,7 @@ TensorSparseGrid2D<T, Basis2D, S1_x, S1_y, S2_x, S2_y>::assembleMatrices()
     for (LevelPairMap::const_iterator it=_levelpair_map.begin(); it!=_levelpair_map.end(); ++it) {
         int i1 = (*it).first.first;
         int i2 = (*it).first.second;
-        int pos = (*it).second;
+        //int pos = (*it).second;
         //std::cout << "(" << i1 << ", " << i2 << "): " << pos << std::endl;
         SparseMatrixT A_s1_x = _blockassembler1d.assembleStiffnessMatrixBlock(_s1_x,i1-1,i2-1,0.);
         SparseMatrixT A_s1_y = _blockassembler1d.assembleStiffnessMatrixBlock(_s1_y,i1-1,i2-1,0.);

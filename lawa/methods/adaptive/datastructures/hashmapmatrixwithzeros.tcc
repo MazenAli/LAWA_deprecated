@@ -48,7 +48,7 @@ MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::operator()
     Index temp_row_index = _row_index;
     Index temp_col_index = _col_index;
     typedef typename IndexSet<Index>::iterator set_it;
-    int size = ConsecutiveIndices.size();
+    int size = (int)ConsecutiveIndices.size();
     std::pair<set_it,bool> row = ConsecutiveIndices.insert(temp_row_index);
     std::pair<set_it,bool> col = ConsecutiveIndices.insert(temp_col_index);
 
@@ -161,7 +161,7 @@ void
 MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
                                 (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
                                  flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
-                                 int J)
+                                 int /*J*/)
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
 }
@@ -172,7 +172,7 @@ void
 MapMatrixWithZeros<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
                                 (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
                                  flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
-                                 T tol)
+                                 T /*tol*/)
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
 }

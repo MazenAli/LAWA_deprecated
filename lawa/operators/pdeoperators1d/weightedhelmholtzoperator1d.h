@@ -41,19 +41,19 @@ class WeightedHelmholtzOperator1D{
         const T c;
 
         WeightedHelmholtzOperator1D(const Basis& _basis, const T _c,
-                                    Function<T> weightFct, int order=10,
+                                    Function<T> &weightFct, int order=10,
                                     const T left=0., const T right=1.);
 
         T
-        operator()(XType xtype1, int j1, int k1,
-                   XType xtype2, int j2, int k2) const;
+        operator()(XType xtype1, int j1, long k1,
+                   XType xtype2, int j2, long k2) const;
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index) const;
 
     private:
 
-        Function<T> W;
+        Function<T> &W;
 
         IntegralF<Quad, Basis, Basis>   integral;
 

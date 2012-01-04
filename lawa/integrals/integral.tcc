@@ -43,7 +43,7 @@ _integrate(const Integral<Gauss,First,Second> &integral)
     const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
 
     // the (minimal) width of the polynomial pieces.
-    T unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
+    long double unit = std::min(first.tic(integral.j1), second.tic(integral.j2));
     integral.quadrature.setOrder((integral.first.d-integral.deriv1+integral.second.d-integral.deriv2)/2+1);
 
     long double ret = 0.;
@@ -51,8 +51,8 @@ _integrate(const Integral<Gauss,First,Second> &integral)
     Support<T> common;
     if (overlap(first.support(integral.j1,integral.k1),
                second.support(integral.j2,integral.k2),common)) {
-        T a = common.l1;
-        for (T b=a+unit; b<=common.l2; b+=unit) {
+        long double a = common.l1;
+        for (long double b=a+unit; b<=common.l2; b+=unit) {
             ret += (long double)integral.quadrature(a,b);
             //ret += integral.quadrature(a,b);
             a = b;

@@ -57,7 +57,6 @@ typedef RHSWithPeaks1D<T, CDF_Basis1D>                                  CDF_RhsI
 typedef RHSWithPeaks1D<T, MW_Basis1D>                                   MW_RhsIntegral1D;
 typedef RHSWithPeaks1D<T, SparseMW_Basis1D>                             SparseMW_RhsIntegral1D;
 
-
 typedef RHS1D<T, CDF_RhsIntegral1D, CDF_Prec>                           CDF_Rhs;
 typedef RHS1D<T, MW_RhsIntegral1D, MW_Prec>                             MW_Rhs;
 typedef RHS1D<T, SparseMW_RhsIntegral1D, SparseMW_Prec>                 SparseMW_Rhs;
@@ -100,7 +99,18 @@ int main (int argc, char *argv[]) {
         j0=atoi(argv[4]); w_XBSpline=true;
     }
 
+    stringstream convfilename;
+    convfilename << "s_adwav_conv_realline_helmholtz1d_" << argv[1] << "_" << argv[2] << "_"
+                 << argv[3] << "_" << j0 <<  "_" << c << "_" << argv[5] << ".dat";
+
+    stringstream plotfilename;
+    plotfilename << "s_adwav_plot_realline_helmholtz1d_" << argv[1] << "_" << argv[2] << "_"
+                 << argv[3] << "_" << j0 <<  "_" << c << "_" << argv[5] << ".dat";
+
+
     cout << "Initializing S-ADWAV, jmin = " << j0 << endl;
+
+
 
 
     IndexSet<Index1D> InitialLambda;
@@ -116,7 +126,12 @@ int main (int argc, char *argv[]) {
                                                    contraction, threshTol, cgTol, resTol,
                                                    NumOfIterations, 2, 1e-7, 100000);
 
-        CDF_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+        CDF_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(),
+                                 2, refsol.H1norm());
+
+        plot<T, CDF_Basis1D, CDF_Prec>(CDF_basis, CDF_s_adwav_solver.solutions[NumOfIterations-1], CDF_prec, refsol.u, refsol.d_u, -80., 80.,
+                                       0.01, plotfilename.str().c_str());
+        cout << "Plot of solution finished." << endl;
     }
     else if (strcmp(argv[1],"MW")==0) {
         MW_Basis1D            MW_basis(d,j0);
@@ -128,7 +143,11 @@ int main (int argc, char *argv[]) {
                                                 contraction, threshTol, cgTol, resTol,
                                                 NumOfIterations, 4, 1e-7, 100000);
 
-        MW_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+        MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(),
+                                2, refsol.H1norm());
+        plot<T, MW_Basis1D, MW_Prec>(MW_basis, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_prec, refsol.u, refsol.d_u, -80., 80.,
+                                       0.01, plotfilename.str().c_str());
+        cout << "Plot of solution finished." << endl;
     }
     else if (strcmp(argv[1],"SparseMW")==0) {
         SparseMW_Basis1D            SparseMW_basis(d,j0);
@@ -140,7 +159,14 @@ int main (int argc, char *argv[]) {
                                                             contraction, threshTol, cgTol, resTol,
                                                             NumOfIterations, 2, 1e-7, 100000);
 
-        SparseMW_s_adwav_solver.solve(InitialLambda, "cg", true, refsol.H1norm());
+
+        SparseMW_s_adwav_solver.solve(InitialLambda, "cg",convfilename.str().c_str(),
+                                      2, refsol.H1norm());
+
+        cout << "Plot of solution started." << endl;
+        plot<T, SparseMW_Basis1D, SparseMW_Prec>(SparseMW_basis, SparseMW_s_adwav_solver.solutions[NumOfIterations-1], SparseMW_prec, refsol.u, refsol.d_u, -80., 80.,
+                                       0.01, plotfilename.str().c_str());
+        cout << "Plot of solution finished." << endl;
     }
     return 0;
 

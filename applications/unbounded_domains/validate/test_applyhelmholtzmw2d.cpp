@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
     // Assemble f vector and u vector
     DenseMatrixT nodeltas;
     TensorRefSols_PDE_Realline2D<T> refsol;
-    refsol.setExample(1, c);
+    refsol.setExample(1, c, 0., 0., 1.);
     Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
     Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
     RhsIntegral1D       u1_integral(mwbasis2d.first, u1Fct, nodeltas, 35);

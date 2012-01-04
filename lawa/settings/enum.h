@@ -31,6 +31,7 @@ enum FunctionSide {
 enum DomainType {
     Periodic,
     R,
+    RPlus,
     Interval
 };
 

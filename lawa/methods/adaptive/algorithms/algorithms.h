@@ -1,7 +1,8 @@
 #include <lawa/methods/adaptive/algorithms/apply1d.h>
 #include <lawa/methods/adaptive/algorithms/apply2d.h>
-#include <lawa/methods/adaptive/algorithms/applyhelmholtzmw2d.h>
 #include <lawa/methods/adaptive/algorithms/lambdatilde.h>
+#include <lawa/methods/adaptive/algorithms/linearsystemsolvers.h>
+#include <lawa/methods/adaptive/algorithms/localrefinement.h>
 #include <lawa/methods/adaptive/algorithms/rhs.h>
 #include <lawa/methods/adaptive/algorithms/rhs1d.h>
 #include <lawa/methods/adaptive/algorithms/rhs2d.h>

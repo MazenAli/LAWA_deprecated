@@ -39,27 +39,25 @@ namespace lawa {
  
 template <typename, typename> class RBModel2D;
  
-template <typename T, typename Basis, typename TruthSolver, typename Compression>
+template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
 class AdaptiveRBTruth2D{
 
         typedef T (*theta_fctptr)(const std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
         typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
         typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+        typedef flens::DiagonalMatrix<T>                                    DiagonalMatrixT;
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
-        
-        typedef CompressionWeightedPDE2D<T, Basis>                              WeightedCompression;
-        typedef IndexsetTruthSolver<T, Basis, Index2D, WeightedCompression>     IndexsetSolver;
 
     public:
 
     /* Public member functions */
         
-        AdaptiveRBTruth2D(Basis& _basis, bool _use_inner_product = false, bool _use_A_matrix = false,
-                          bool _use_F_vector = false);
+        AdaptiveRBTruth2D(Basis& _basis, Prec& _prec,
+                          bool _use_inner_product = false, bool _use_A_matrix = false);
         
-        void
-        attach_A_q(theta_fctptr theta_a_q, Operator2D<T>& A_q);
+        void 
+        attach_A_q (theta_fctptr theta_a_q, Operator2D<T>& A_q);
         
         void
         attach_A_q(Operator2D<T>& A_q);
@@ -69,16 +67,31 @@ class AdaptiveRBTruth2D{
         
         void
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
+    
+        void 
+        attach_inner_product_op(Operator2D<T>& _inner_product_op);
         
         void
         set_truthsolver(TruthSolver& _truthsolver);
         
         void
-        set_rb_model(RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression> >& _rb);
+        set_rb_model(RBModel2D<T, AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression> >& _rb);
         
-        
-        RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression> >&
+        RBModel2D<T, AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression> >&
         get_rb_model();
+        
+        
+        Coefficients<Lexicographical,T,Index2D>
+        truth_solve();
+        
+        T
+        get_prec(const Index2D& index);
+        
+        void
+        undo_prec(CoeffVector& u);
+        
+        void
+        add_new_basis_function(const CoeffVector& sol);
         
         void
         update_representors();
@@ -95,24 +108,32 @@ class AdaptiveRBTruth2D{
         void
         assemble_A_operator_matrices(IndexSet<Index2D>& indexset);
         
+        T
+        inner_product(const CoeffVector& v1, const CoeffVector& v2);
+            
     /* Public members */
         
-        Basis&                                  basis;
+        Basis&                             basis;
         
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
-        
+        Operator2D<T>*                          inner_product_op;
+            
         TruthSolver*                            solver;
+        
+        bool assembled_inner_product_matrix;
+        bool assembled_prec_vec;
+        bool assembled_A_operator_matrices;
                 
          // Wrapper class for affine structure on left hand side       
         class Operator_LHS {
                         
             private:
                 
-                AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;
+                AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;
                 
             public:
-                Operator_LHS(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth)
+                Operator_LHS(AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* _truth)
                     : thisTruth(_truth), compression(thisTruth->basis), qa(-1){}
                 
                 T
@@ -126,6 +147,11 @@ class AdaptiveRBTruth2D{
                 toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
                                     const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
 
+                void
+                 apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                       const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+                       cxxblas::Transpose trans=cxxblas::NoTrans);
+
                 Compression compression;
                 
                 int qa;
@@ -134,7 +160,7 @@ class AdaptiveRBTruth2D{
          // Wrapper class for affine structure on right hand side       
         class Operator_RHS {
             public:
-                Operator_RHS(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
+                Operator_RHS(AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
                 
                 T
                 operator()(const Index2D &lambda);
@@ -146,7 +172,7 @@ class AdaptiveRBTruth2D{
                 operator()(T tol);
             
             private:
-                AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;        
+                AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;        
         };
         
         Operator_LHS lhs_op;
@@ -158,10 +184,10 @@ class AdaptiveRBTruth2D{
 
              private:
 
-                 AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;
+                 AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;
 
              public:
-                 Operator_LHS_Representor(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth)
+                 Operator_LHS_Representor(AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* _truth)
                      : thisTruth(_truth), compression(thisTruth->basis){}
 
                  T
@@ -175,6 +201,11 @@ class AdaptiveRBTruth2D{
                  toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
                                      const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
 
+                 void
+                 apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                       const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+                       cxxblas::Transpose trans=cxxblas::NoTrans);
+
                  Compression compression;
          };
          
@@ -183,7 +214,7 @@ class AdaptiveRBTruth2D{
          // forms a^(q)               
         class Operator_RHS_BilFormRepresentor {
             public:
-                Operator_RHS_BilFormRepresentor(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
+                Operator_RHS_BilFormRepresentor(AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
                 
                 T
                 operator()(const Index2D &lambda);
@@ -201,7 +232,7 @@ class AdaptiveRBTruth2D{
                 set_current_bf(Coefficients<Lexicographical,T,Index2D>& bf);
                 
             private:
-                AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;
+                AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;
                 
                 Operator2D<T>*                              current_op;
                 Coefficients<Lexicographical,T,Index2D>*    current_bf;
@@ -212,7 +243,7 @@ class AdaptiveRBTruth2D{
          // forms f^(q)
         class Operator_RHS_FunctionalRepresentor {
             public:
-                Operator_RHS_FunctionalRepresentor(AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
+                Operator_RHS_FunctionalRepresentor(AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
                 
                 T
                 operator()(const Index2D &lambda);
@@ -227,7 +258,7 @@ class AdaptiveRBTruth2D{
                 set_current_op(AdaptiveRhs<T, Index2D>& op);
                 
             private:
-                AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression>* thisTruth;
+                AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;
                 
                 AdaptiveRhs<T, Index2D>*                  current_op;
         };
@@ -238,18 +269,50 @@ class AdaptiveRBTruth2D{
         
         bool use_inner_product_matrix;
         bool use_A_operator_matrices;
-        bool use_F_operator_vectors;
         
         SparseMatrixT   inner_product_matrix;
+        DenseVectorT    prec_vec;
         std::vector<SparseMatrixT> A_operator_matrices;
+      
+        class Operator_Residual_Representor {
+          
+          public:
+            Operator_Residual_Representor(AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* _truth,
+                                          const std::vector<T>& mu, const DenseVectorT& _u_N) 
+              : thisTruth(_truth), eval_mu(mu), u_N(_u_N){};
+          
+            T 
+            operator()(const Index2D & lambda);
+          
+            Coefficients<Lexicographical,T,Index2D>
+            operator()(const IndexSet<Index2D> &Lambda);
+
+            Coefficients<Lexicographical,T,Index2D>
+            operator()(T tol);
+          
+          private:
+            AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;
+          
+            const std::vector<T>& eval_mu;
+            const DenseVectorT& u_N;
+        };
         
+        T
+        uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu);
+            
+        T
+        uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, 
+                                    Coefficients<Lexicographical,T,Index2D>& res_repr);
+            
     private:
         
-        RBModel2D<T, AdaptiveRBTruth2D<T, Basis, TruthSolver, Compression> >*     rb;
+        RBModel2D<T, AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression> >*     rb;
         
         std::vector<CoeffVector>                F_representors; // Dim: 1 x Q_f
         std::vector<std::vector<CoeffVector> >  A_representors; // Dim: n x Q_a
-
+        
+        Prec& prec;
+        Coefficients<Lexicographical, T, Index2D> prec_data;
 };
     
 } // namespace lawa

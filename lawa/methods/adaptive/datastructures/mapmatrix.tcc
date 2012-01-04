@@ -68,9 +68,9 @@ MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::operator()(const Ind
                 prec *= tmp;
             }
         }
-
         T val = prec * a(row_index,col_index);
-        if (fabs(val) > 0) data.insert(val_type(entry,val));
+
+        if (fabs(val) > 0.) data.insert(val_type(entry,val));
         return val;
     }
 
@@ -91,7 +91,7 @@ void
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
                                 (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
                                  flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
-                                 int J)
+                                 int /*J*/)
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
 }
@@ -102,9 +102,20 @@ void
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
                                 (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
                                  flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
-                                 T tol)
+                                 T /*tol*/)
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
+}
+
+template <typename T, typename Index, typename BilinearForm, typename Compression,
+          typename Preconditioner>
+void
+MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::
+apply(const Coefficients<Lexicographical,T,Index> &u, T tol, const IndexSet<Index> Lambda,
+      Coefficients<Lexicographical,T,Index> &r)
+{
+    std::cerr << "Apply not implemented for MapMatrix." << std::endl;
+    exit(1);
 }
 /*
 template <typename T, typename Index, typename BilinearForm, typename Compression, typename Preconditioner>

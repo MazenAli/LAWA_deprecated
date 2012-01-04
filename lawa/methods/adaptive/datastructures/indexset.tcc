@@ -28,14 +28,20 @@ IndexSet<Index>::IndexSet(void)
 }
 
 template <typename Index>
+IndexSet<Index>::IndexSet(size_t n)
+:__gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >::hash_set(n)
+{
+}
+
+template <typename Index>
 IndexSet<Index>&
 IndexSet<Index>::operator=(const IndexSet<Index> &_set)
 {
     typedef typename IndexSet<Index>::const_iterator const_it;
-    erase(IndexSet<Index>::begin(), IndexSet<Index>::end());
+    this->erase(IndexSet<Index>::begin(), IndexSet<Index>::end());
     if (_set.size() > 0) {
         for (const_it lambda = _set.begin(); lambda != _set.end(); ++lambda) {
-            insert(*lambda);
+            this->insert(*lambda);
         }
     }
     return *this;
@@ -51,6 +57,17 @@ IndexSet<Index>::operator+(const IndexSet<Index> &_set) const
         ret.insert(*lambda);
     }
     return ret;
+}
+
+template <typename Index>
+IndexSet<Index> &
+IndexSet<Index>::operator+=(const IndexSet<Index> &_set)
+{
+    typedef typename IndexSet<Index>::const_iterator const_it;
+    for (const_it lambda = _set.begin(); lambda != _set.end(); ++lambda) {
+        (*this).insert(*lambda);
+    }
+    return (*this);
 }
 
 template <typename Index>
