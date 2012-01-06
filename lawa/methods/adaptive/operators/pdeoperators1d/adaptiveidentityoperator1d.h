@@ -36,29 +36,16 @@ namespace lawa {
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
 struct AdaptiveIdentityOperator1D
 {
-
-};
-
-template <typename T, FunctionSide Side, Construction Cons>
-struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
-{
-
     typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >        SparseMatrixT;
-
-    typedef Basis<T,Side,R,Cons>                                     ReallineBasis1D;
-
-    typedef CompressionPDE1D<T, ReallineBasis1D>                     Compression1D;
-
-    typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
-
-    typedef IdentityOperator1D<T, ReallineBasis1D>                   IdentityOp1D;
-
+    typedef Basis<T,Side,Domain,Cons>                                       Basis1D;
+    typedef CompressionPDE1D<T, Basis1D>                                    Compression1D;
+    typedef NoPreconditioner<T,Index1D>                                     NoPreconditioner1D;
+    typedef IdentityOperator1D<T, Basis1D>                                  IdentityOp1D;
     typedef MapMatrix<T, Index1D, IdentityOp1D,
-                     Compression1D, NoPreconditioner1D>              DataIdentity1D;
+                     Compression1D, NoPreconditioner1D>                     DataIdentityOp1D;
 
 
-    AdaptiveIdentityOperator1D(const ReallineBasis1D &_basis1d, T thresh=0.,
-                               int NumOfCols=4096, int NumOfRows=4096);
+    AdaptiveIdentityOperator1D(const Basis1D &_basis1d);
 
     T
     operator()(const Index1D &row_index, const Index1D &col_index);
@@ -70,16 +57,11 @@ struct AdaptiveIdentityOperator1D<T,Side,R,Cons>
     void
     clear();
 
-
-    const ReallineBasis1D       &basis1d;
-
+    const Basis1D               &basis1d;
     Compression1D               compression1d;
-
     const IdentityOp1D          identity_op1d;
-
     NoPreconditioner1D          prec1d;
-
-    DataIdentity1D              identity_data1d;
+    DataIdentityOp1D              data;
 
 };
 

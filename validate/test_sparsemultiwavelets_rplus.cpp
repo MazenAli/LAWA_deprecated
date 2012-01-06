@@ -63,16 +63,16 @@ int main (int argc, char *argv[]) {
             ofstream file2("sparsemulti_wavelet_rplus.dat");
             l1=basis.psi.support(j,k).l1;
             l2=basis.psi.support(j,k).l2;
-            //cout << "Support psi_(" << j << ", " << k << ") = " << basis.psi.singularSupport(j,k) << endl;
+            cout << "Support psi_(" << j << ", " << k << ") = " << basis.psi.singularSupport(j,k) << endl;
             for (T x=l1; x<=l2; x+=pow2i<T>(-9)) {
                 file2 << x << " " << basis.psi(x,j,k,deriv) << endl;
             }
             file2.close();
-         //   getchar();
+            getchar();
         }
     }
 
-
+    /*
     IndexSet<Index1D> Lambda;
     for (int k=0; k<=80; ++k) {
         Lambda.insert(Index1D(j0,k,XBSpline));
@@ -124,7 +124,7 @@ int main (int argc, char *argv[]) {
         plotfile << x << " " << U(x) << " " << ret << endl;
     }
     plotfile.close();
-
+    */
     return 0;
 }
 

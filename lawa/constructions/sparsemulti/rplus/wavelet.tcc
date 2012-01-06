@@ -34,10 +34,13 @@ Wavelet<T,Primal,RPlus,SparseMulti>::operator()(T x, int j, long k, unsigned sho
             return pow2ih<T>(2*j*deriv+j) * basis._leftScalingFactors(k) *
                    basis._leftEvaluator[k](pow2i<T>(j)*x, deriv);
         }
-        k-=(basis._numLeftParts-1);
-        int type  = (int)(k % basis._numInnerParts);
-        long shift = 2*std::ceil((T(k) / T(basis._numInnerParts)));
-        //std::cerr << "type = " << type << ", shift = " << shift << " "  << std::endl;
+        //k-=(basis._numLeftParts-1);
+        //int type  = (int)(k % basis._numInnerParts);
+        //long shift = 2*std::ceil((T(k) / T(basis._numInnerParts)));
+        k+=1;
+        int type  = (int)((k-3L) % basis._numInnerParts);
+        long shift = 2*( k/basis._numInnerParts );
+
         return pow2ih<T>(2*j*deriv+j) * basis._innerScalingFactors(type) *
                basis._innerEvaluator[type](pow2i<T>(j)*x-shift,deriv);
     }
@@ -48,16 +51,27 @@ Support<T>
 Wavelet<T,Primal,RPlus,SparseMulti>::support(int j, long k) const
 {
     if (d==4) {
+        long help=k;
         k-=1;
         // left boundary
         if (k<basis._numLeftParts) {
             return pow2i<T>(-j) * basis._leftSupport[k];
         }
-
-        k-=(basis._numLeftParts-1);
         // inner part
-        int type  = (int)(k % basis._numInnerParts);
-        long shift = 2*std::ceil((T(k) / T(basis._numInnerParts)));
+        //k-=(basis._numLeftParts-1);
+        //int type  = (int)(k % basis._numInnerParts);
+        //long shift = 2*std::ceil((T(k) / T(basis._numInnerParts)));
+        k+=1;
+        int type  = (int)((k-3L) % basis._numInnerParts);
+        long shift = 2*( k/basis._numInnerParts );
+        /*
+        help-=basis._numLeftParts;
+        int type2 = (int)(help % basis._numInnerParts);
+        long shift2 = 2*std::ceil((T(help) / T(basis._numInnerParts)));
+        if ((type != type2) || (shift != shift2)) {
+            std::cerr << k-1 <<  " (" << type << ", "<< shift << "), (" << type2 << ", " << shift2  << ")"<< std::endl;
+        }
+        */
         return pow2i<T>(-j) * (basis._innerSupport[type]+shift);
     }
 }
@@ -79,10 +93,13 @@ Wavelet<T,Primal,RPlus,SparseMulti>::singularSupport(int j, long k) const
         if (k<basis._numLeftParts) {
             return pow2i<T>(-j) * basis._leftSingularSupport[k];
         }
-        k-=(basis._numLeftParts-1);
         // inner part
-        int type  = (int)(k % basis._numInnerParts);
-        long shift = 2*std::ceil((T(k) / T(basis._numInnerParts)));
+        //k-=(basis._numLeftParts-1);
+        //int type  = (int)(k % basis._numInnerParts);
+        //long shift = 2*std::ceil((T(k) / T(basis._numInnerParts)));
+        k+=1;
+        int type  = (int)((k-3L) % basis._numInnerParts);
+        long shift = 2*( k/basis._numInnerParts );
         DenseVector<Array<T> > result = basis._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;

@@ -30,22 +30,21 @@ p2(T x) {
 
 T
 p3(T x) {
-    return exp(x);
+    return x*x*x;
 }
 
-Range<int>
+Range<long>
 getRange(const Basis1D& basis, int j, XType type);
 
 int main (int argc, char *argv[]) {
 
     cout.precision(16);
     int d=4;
-    int j0=2;
+    int j0=1;
+    int j=1;
 
     Basis1D basis(d,j0);
     basis.enforceBoundaryCondition<DirichletBC>();
-
-    int j=2;
 
     Integral1D integral(basis,basis);
 
@@ -60,8 +59,8 @@ int main (int argc, char *argv[]) {
     IntegralF1D integralp2(p2Fct,basis);
     IntegralF1D integralp3(p3Fct,basis);
 
-    Range<int> waveletrange = getRange(basis, j, XWavelet);
-    for(int k=waveletrange.firstIndex(); k<=waveletrange.lastIndex(); ++k) {
+    Range<long> waveletrange = getRange(basis, j, XWavelet);
+    for(long k=waveletrange.firstIndex(); k<=waveletrange.lastIndex(); ++k) {
         ofstream file("sparsemulti_wavelet.dat");
         cout << basis.psi.support(j,k) << endl;
         cout << basis.psi.singularSupport(j,k) << endl;
@@ -79,8 +78,8 @@ int main (int argc, char *argv[]) {
         getchar();
     }
 
-    Range<int> scalingrange = getRange(basis, j, XBSpline);
-    for (int k=scalingrange.firstIndex(); k<=scalingrange.lastIndex(); ++k) {
+    Range<long> scalingrange = getRange(basis, j, XBSpline);
+    for (long k=scalingrange.firstIndex(); k<=scalingrange.lastIndex(); ++k) {
         ofstream file("sparsemulti_scaling.dat");
 
         cout << basis.mra.phi.support(j,k) << endl;
@@ -96,7 +95,7 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
-Range<int>
+Range<long>
 getRange(const Basis1D& basis, int j, XType type)
 {
     if (type==XBSpline) {

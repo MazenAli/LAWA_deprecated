@@ -26,9 +26,16 @@ template <typename T>
 MRA<T,Primal,Interval,SparseMulti>::MRA(int _d, int j)
     : d(_d), j0((j==-1) ? 0 : j), _bc(2,0), _j(j0), _numSplines(4), phi(*this)
 {
-    assert(d>=2);
-    assert(j0>=2);
-
+    if (d!=4) {
+        std::cerr << "MRA<T,Primal,Interval,SparseMulti> not yet implemented for d=" << d << std::endl;
+        exit(1);
+    }
+    if (d==4) {
+        if (j0<1) {
+            std::cerr << "MRA<T,Primal,Interval,SparseMulti> not yet implemented for j0=" << j0 << std::endl;
+            exit(1);
+        }
+    }
     setLevel(_j);
 }
 
@@ -147,7 +154,7 @@ MRA<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _leftSingularSupport[0] = linspace(0.,1.,2);
 
             _leftScalingFactors.engine().resize(1,0);
-            _leftScalingFactors = 2.*std::sqrt(105.);
+            _leftScalingFactors = 1.*std::sqrt(105.);
 
             // inner B-splines
             _numInnerParts = 2;
@@ -164,7 +171,7 @@ MRA<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _innerSingularSupport[1] = linspace(-1.,1.,3);
 
             _innerScalingFactors.engine().resize(2,0);
-            _innerScalingFactors = std::sqrt(70./13.),std::sqrt(210.);
+            _innerScalingFactors = std::sqrt(35./26.),std::sqrt(105./2.);
 
             // right B-splines
             _numRightParts = 1;
@@ -178,7 +185,7 @@ MRA<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _rightSingularSupport[0] = linspace(-1.,0.,2);
 
             _rightScalingFactors.engine().resize(1,0);
-            _rightScalingFactors = 2.*std::sqrt(105.);
+            _rightScalingFactors = 1.*std::sqrt(105.);
 
             break;
 

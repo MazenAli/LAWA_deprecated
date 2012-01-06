@@ -254,13 +254,12 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,SparseMulti> &basi
     int  j=lambda.j;
     if (j>=JMAX) return;
     long  k=lambda.k;
-        XType xtype=lambda.xtype;
+    XType xtype=lambda.xtype;
 
     const BSpline<T,Primal,R,SparseMulti> &phi = basis.mra.phi;
     const Wavelet<T,Primal,R,SparseMulti> &psi = basis.psi;
     int numSplines = (int)phi._numSplines;
     int numWavelets = (int)psi._numSplines;
-    Support<T> max_support_refbspline = phi.max_support();
     Support<T> max_support_refwavelet = psi.max_support();
 
     //std::cout << "Index cone for " << lambda << std::endl;
@@ -275,8 +274,8 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,SparseMulti> &basi
         contractedSupp.l1 = c*supp.l1 + (1-c)*center;
         contractedSupp.l2 = c*supp.l2 + (1-c)*center;
 
-        long kMin = floor( pow2i<long double>(j)*contractedSupp.l1 - psi.max_support().l2) - 1;
-        long kMax =  ceil( pow2i<long double>(j)*contractedSupp.l2 - psi.max_support().l1) + 1;
+        long kMin = floor( pow2i<long double>(j)*contractedSupp.l1 - max_support_refwavelet.l2) - 1;
+        long kMax =  ceil( pow2i<long double>(j)*contractedSupp.l2 - max_support_refwavelet.l1) + 1;
 
         for (int k_row=kMin*numSplines; k_row<=kMax*numSplines; ++k_row) {
             //std::cerr << "  -> wavelet (" << j << ", " << k_row << "): " << psi.support(j,k_row) << " vs. " << contractedSupp << std::endl;
@@ -292,11 +291,143 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,SparseMulti> &basi
         contractedSupp.l2 = c*supp.l2 + (1-c)*center;
         long kMin, kMax;
 
-        kMin = floor( pow2i<long double>(j+1)*contractedSupp.l1 - psi.max_support().l2) / 2 - 1;
-        kMax =  ceil( pow2i<long double>(j+1)*contractedSupp.l2 - psi.max_support().l1) / 2 + 1;
+        kMin = floor( pow2i<long double>(j+1)*contractedSupp.l1 - max_support_refwavelet.l2) / 2 - 1;
+        kMax =  ceil( pow2i<long double>(j+1)*contractedSupp.l2 - max_support_refwavelet.l1) / 2 + 1;
 
         kMin = kMin*numWavelets;
         kMax = kMax*numWavelets;
+
+        for (long k_row=kMin; k_row<=kMax; ++k_row) {
+            Support<T> supp_row = psi.support(j+1,k_row);
+            //std::cerr << "  -> wavelet (" << j+1 << ", " << k_row << "): " << supp_row << " vs. " << contractedSupp << std::endl;
+            if (overlap(contractedSupp, supp_row) > 0)  {
+                ret.insert(Index1D(j+1,k_row,XWavelet));
+            }
+        }
+        //std::cerr << "index cone: loop finished." << std::endl;
+    }
+}
+
+// Security zone multi-wavelet RPlus
+template <typename T>
+void
+index_cone(const Index1D &lambda, T c, const Basis<T,Primal,RPlus,SparseMulti> &basis,
+           IndexSet<Index1D> &ret)
+{
+    int  j=lambda.j;
+    if (j>=JMAX) return;
+    long  k=lambda.k;
+    XType xtype=lambda.xtype;
+
+    const BSpline<T,Primal,RPlus,SparseMulti> &phi = basis.mra.phi;
+    const Wavelet<T,Primal,RPlus,SparseMulti> &psi = basis.psi;
+    int numSplines = (int)phi._numSplines;
+    int numWavelets = (int)psi._numSplines;
+    Support<T> max_support_refwavelet = psi.max_support();
+
+    //std::cout << "Index cone for " << lambda << std::endl;
+    if (xtype==XBSpline) {
+        long kMin = std::max(k-2*numSplines, basis.mra.rangeIL(j).firstIndex());
+        for (int k_row=kMin; k_row<=k-1; ++k_row) {
+            ret.insert(Index1D(j,k_row,xtype));
+        }
+        long kMax = k+2*numSplines;
+        for (int k_row=k+1; k_row<=kMax; ++k_row) {
+            ret.insert(Index1D(j,k_row,xtype));
+        }
+
+        Support<T> contractedSupp, supp = phi.support(j,k);
+        T center = 0.5*(supp.l1 + supp.l2);
+        contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+        contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+
+        kMin = floor( pow2i<long double>(j)*contractedSupp.l1 - max_support_refwavelet.l2) - 1;
+        kMax =  ceil( pow2i<long double>(j)*contractedSupp.l2 - max_support_refwavelet.l1) + 1;
+        kMin = std::max(kMin*numWavelets, basis.rangeJL(j).firstIndex());
+        kMax = kMax*numWavelets;
+        for (int k_row=kMin; k_row<=kMax; ++k_row) {
+            //std::cerr << "  -> wavelet (" << j << ", " << k_row << "): " << psi.support(j,k_row) << " vs. " << contractedSupp << std::endl;
+            if (overlap(contractedSupp, phi.support(j,k_row)) > 0) {
+                ret.insert(Index1D(j,k_row,XWavelet));
+            }
+        }
+    }
+    else {
+        Support<T> contractedSupp, supp = psi.support(j,k);
+        T center = 0.5*(supp.l1 + supp.l2);
+        contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+        contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+        long kMin, kMax;
+        kMin = floor( pow2i<long double>(j+1)*contractedSupp.l1 - max_support_refwavelet.l2) / 2 - 1;
+        kMax =  ceil( pow2i<long double>(j+1)*contractedSupp.l2 - max_support_refwavelet.l1) / 2 + 1;
+        kMin = std::max(kMin*numWavelets, basis.rangeJL(j).firstIndex());
+        kMax = kMax*numWavelets;
+
+        for (long k_row=kMin; k_row<=kMax; ++k_row) {
+            Support<T> supp_row = psi.support(j+1,k_row);
+            //std::cerr << "  -> wavelet (" << j+1 << ", " << k_row << "): " << supp_row << " vs. " << contractedSupp << std::endl;
+            if (overlap(contractedSupp, supp_row) > 0)  {
+                ret.insert(Index1D(j+1,k_row,XWavelet));
+            }
+        }
+        //std::cerr << "index cone: loop finished." << std::endl;
+    }
+}
+
+// Security zone multi-wavelet interval
+template <typename T>
+void
+index_cone(const Index1D &lambda, T c, const Basis<T,Primal,Interval,SparseMulti> &basis,
+           IndexSet<Index1D> &ret)
+{
+    int  j=lambda.j;
+    if (j>=JMAX) return;
+    long  k=lambda.k;
+    XType xtype=lambda.xtype;
+
+    const BSpline<T,Primal,Interval,SparseMulti> &phi = basis.mra.phi;
+    const Wavelet<T,Primal,Interval,SparseMulti> &psi = basis.psi;
+    int numSplines = (int)basis.mra._numSplines;
+    int numWavelets = (int)basis._numSplines;
+    Support<T> max_support_refwavelet = basis.max_support();
+
+    //std::cout << "Index cone for " << lambda << std::endl;
+    if (xtype==XBSpline) {
+        long kMin = std::max(k-2*numSplines, basis.mra.rangeI(j).firstIndex());
+        for (int k_row=kMin; k_row<=k-1; ++k_row) {
+            ret.insert(Index1D(j,k_row,xtype));
+        }
+        long kMax = std::min(k+2*numSplines, basis.mra.rangeI(j).lastIndex());
+        for (int k_row=k+1; k_row<=kMax; ++k_row) {
+            ret.insert(Index1D(j,k_row,xtype));
+        }
+
+        Support<T> contractedSupp, supp = phi.support(j,k);
+        T center = 0.5*(supp.l1 + supp.l2);
+        contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+        contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+
+        kMin = floor( pow2i<long double>(j)*contractedSupp.l1 - max_support_refwavelet.l2) - 1;
+        kMax =  ceil( pow2i<long double>(j)*contractedSupp.l2 - max_support_refwavelet.l1) + 1;
+        kMin = std::max(kMin*numWavelets, basis.rangeJ(j+1).firstIndex());
+        kMax = std::min(kMax*numWavelets, basis.rangeJ(j+1).lastIndex());
+        for (int k_row=kMin; k_row<=kMax; ++k_row) {
+            //std::cerr << "  -> wavelet (" << j << ", " << k_row << "): " << psi.support(j,k_row) << " vs. " << contractedSupp << std::endl;
+            if (overlap(contractedSupp, phi.support(j,k_row)) > 0) {
+                ret.insert(Index1D(j,k_row,XWavelet));
+            }
+        }
+    }
+    else {
+        Support<T> contractedSupp, supp = psi.support(j,k);
+        T center = 0.5*(supp.l1 + supp.l2);
+        contractedSupp.l1 = c*supp.l1 + (1-c)*center;
+        contractedSupp.l2 = c*supp.l2 + (1-c)*center;
+        long kMin, kMax;
+        kMin = floor( pow2i<long double>(j+1)*contractedSupp.l1 - max_support_refwavelet.l2) / 2 - 1;
+        kMax =  ceil( pow2i<long double>(j+1)*contractedSupp.l2 - max_support_refwavelet.l1) / 2 + 1;
+        kMin = std::max(kMin*numWavelets, basis.rangeJ(j+1).firstIndex());
+        kMax = std::min(kMax*numWavelets, basis.rangeJ(j+1).lastIndex());
 
         for (long k_row=kMin; k_row<=kMax; ++k_row) {
             Support<T> supp_row = psi.support(j+1,k_row);

@@ -53,7 +53,6 @@ BSpline<T,Primal,RPlus,SparseMulti>::support(int j, long k) const
         if (k<mra._numLeftParts) {
             return pow2i<T>(-j) * mra._leftSupport[0];
         }
-
         // inner part
         int type  = (int)(k % mra._numInnerParts);
         long shift = (long)std::ceil(T(k) / T(mra._numInnerParts));
@@ -68,6 +67,7 @@ BSpline<T,Primal,RPlus,SparseMulti>::max_support() const
 {
     return _max_support;
 }
+
 
 template <typename T>
 DenseVector<Array<T> >
@@ -84,9 +84,9 @@ BSpline<T,Primal,RPlus,SparseMulti>::singularSupport(int j, long k) const
         DenseVector<Array<T> > result = mra._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;
-;
     }
 }
+
 
 template <typename T>
 T
@@ -94,5 +94,6 @@ BSpline<T,Primal,RPlus,SparseMulti>::tic(int j) const
 {
     return pow2i<T>(-(j+3));
 }
+
         
 } // namespace lawa
