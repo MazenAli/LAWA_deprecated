@@ -50,7 +50,7 @@ DEBUGMODE = -g -DDEBUG -D_GLIBCXX_DEBUG_PEDANTIC=1 $(DEBUGLAWA) $(HASHTYPE) \
             -fPIC
 
 # --- release mode ----------------------
-RELEASEMODE = -O3 -DNDEBUG $(HASHTYPE)
+RELEASEMODE = -O3 -DNDEBUG $(HASHTYPE) -fPIC
 
 # --- profiling mode --------------------
 PROFILEMODE = -p -g -DNDEBUG $(HASHTYPE)

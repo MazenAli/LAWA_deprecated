@@ -57,7 +57,7 @@ solve(const IndexSet<Index> &InitialLambda, Coefficients<Lexicographical,T,Index
             iterations = CG_Solve(Lambda, A, u, f, r_norm_Lambda, linTol, 100, timeMatrixVector, assemble_matrix);
         }
         else if (strcmp(linsolvertype,"gmres")==0) {
-            iterations = GMRES_Solve(Lambda, A, u, f, r_norm_Lambda, std::min(1e-2,0.5*old_res),40, assemble_matrix);
+            iterations = GMRES_Solve(Lambda, A, u, f, r_norm_Lambda, std::min(1e-2,0.5*old_res),100, assemble_matrix);
         }
         else if (strcmp(linsolvertype,"cgls")==0) {
             iterations = CGLS_Solve(Lambda, A, u, f, r_norm_Lambda, std::min(1e-2,0.5*old_res),1000, assemble_matrix);
