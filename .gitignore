@@ -77,3 +77,7 @@ applications/new_eval_scheme/test_treecoefficients2d
 applications/unbounded_domains/s-adwav/s-adwav-realline-pde2d
 applications/unbounded_domains/validate/test_hashfunctions
 validate/test_sparsemultiwavelets_rplus
+/applications/unbounded_domains/adwav/ghs-adwav-realline-pde2d.cpp~
+/applications/unbounded_domains/adwav/rhs/._.DS_Store
+/config~
+/applications/unbounded_domains/s-adwav/s-adwav-realline-pde2d.cpp~
