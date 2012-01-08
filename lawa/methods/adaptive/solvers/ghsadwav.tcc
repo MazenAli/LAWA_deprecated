@@ -81,6 +81,9 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
                          << Error_H_energy << " " << timeApply << " " << timeMatrixVector << " "
                          << T(lengthOfResidual)/T(w_k.size())  << std::endl;
 
+        std::stringstream coefffile;
+        coefffile << "adwav_coeffs_" << w_k.size();
+        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coefffile.str().c_str());
 
 
 

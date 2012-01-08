@@ -522,7 +522,6 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
         XType type1=(*it).first.index1.xtype, type2=(*it).first.index2.xtype;
 
         //center of the support
-        std::cerr << (*it).first << std::endl;
         double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
         double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 

@@ -127,7 +127,7 @@ int main (int argc, char *argv[]) {
     int s =atoi(argv[5]);
     T   c=atof(argv[6]);
     int j0; bool w_XBSpline;
-    bool rplus = false;
+    bool rplus = true;
 
     if   (strcmp(argv[4],"-inf")==0) { j0=0;             w_XBSpline=false; }
     else                             { j0=atoi(argv[4]); w_XBSpline=true; }
@@ -317,36 +317,6 @@ int main (int argc, char *argv[]) {
                                                                     jmax, w_XBSpline, r);
 
                     if (jmax>=12 && r!=5) continue;
-                    DenseVectorT singpts(1);
-                    singpts= 1.;
-                    Function<T> f_fct(U,singpts);
-
-
-                    IntegralRPlus integral(f_fct,SparseMWRPlus_basis);
-                    integral.quadrature.setOrder(20);
-                    Coefficients<Lexicographical,T,Index1D> f_coeff,u_coeff;
-                    for (const_set1d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
-                        f_coeff[*it] = integral((*it).j,(*it).k,(*it).xtype,0);// * SparseMWRPlus_A.prec((*it));
-                        u_coeff[*it] = 0.;
-                    }
-                    cout << "Lambda = " << Lambda << endl;
-                    T res=0., tol=1e-12, timeMatrixVector=0.;
-                    CG_Solve(Lambda, SparseMWRPlus_A_L2, u_coeff, f_coeff, res, tol, 100,
-                             timeMatrixVector, 2);
-                    ofstream file("test.dat");
-                    for (T x=0.; x<=10.; x+=0.001) {
-                        T ret = 0.;
-                        for (const_coeff1d_it it=u_coeff.begin(); it!=u_coeff.end(); ++it) {
-                            if ((*it).first.xtype==XBSpline) {
-                                ret += (*it).second * SparseMWRPlus_basis.mra.phi(x,(*it).first.j,(*it).first.k,0);// * SparseMWRPlus_A.prec((*it).first);
-                            }
-                            else {
-                                ret += (*it).second * SparseMWRPlus_basis.psi(x,(*it).first.j,(*it).first.k,0);// * SparseMWRPlus_A.prec((*it).first);
-                            }
-                        }
-                        file << x << " " << U(x) << " " << ret << endl;
-                    }
-                    getchar();
 
                     int N = Lambda.size();
                     cout << "Size of Lambda: " << N << endl;
@@ -361,9 +331,8 @@ int main (int argc, char *argv[]) {
                     }
 
                     T cB=0., CB=0.;
-                    DenseMatrixT A_dense;
-                    densify(cxxblas::NoTrans,A,A_dense);
-                    cout << "A = " << A_dense << endl;
+                    //DenseMatrixT A_dense;
+                    //densify(cxxblas::NoTrans,A,A_dense);
                     //computeEV(A_dense, cB, CB);
 
                     T cB2, CB2;

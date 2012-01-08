@@ -137,7 +137,7 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _rightSingularSupport[0] = linspace(-2.0,0.0,5);
 
             _rightScalingFactors.engine().resize(1,0);
-            _rightScalingFactors = 120./std::sqrt(7841./1001.);
+            _rightScalingFactors = 60./std::sqrt(7841./1001.);
 
             break;
 
