@@ -35,27 +35,27 @@ typedef IndexSet<Index1D>::const_iterator                           const_set_it
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff_it;
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j);
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j);
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j);
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j);
 
 template <typename T, Construction Cons>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j);
 
 template <typename T, Construction Cons>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,Periodic,Cons> &basis, XType e, int j);
 
 
@@ -199,14 +199,9 @@ int main (int argc, char *argv[]) {
             cout << "Current index: " << col_index << endl;
             IndexSet<Index1D> lambdaTilde_nonzeros;
             lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, j0+J, false);
-            /*
-            cout << "[" << lambdaTilde_nonzeros.size() << "] " << endl;
-            for (const_set_it it=lambdaTilde_nonzeros.begin(); it!=lambdaTilde_nonzeros.end(); ++it) {
-                cout << basis.psi.support(j_col,k_col) << " -> "
-                     <<  basis.psi.support((*it).j,(*it).k) << endl;
-            }
-            getchar();
-            */
+            //cout << "(XBSpline, " << j0 << ", " << k_col << "): [" << lambdaTilde_nonzeros.size() << "] "
+            //     << lambdaTilde_nonzeros << endl;
+            //getchar();
 
             for (const_coeff_it it=nonzeros.begin(); it!=nonzeros.end();++it) {
                 if (lambdaTilde_nonzeros.count((*it).first)==0) {
@@ -255,7 +250,7 @@ int main (int argc, char *argv[]) {
 
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j)
 {
     T l1 = basis.generator(e).support(0,0).l1;
@@ -264,7 +259,7 @@ getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j)
 }
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j)
 {
     const BSpline<T,Orthogonal,R,Multi> &phi = basis.mra.phi;
@@ -289,7 +284,7 @@ getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j)
 }
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j)
 {
     const BSpline<T,Primal,R,SparseMulti> &phi = basis.mra.phi;
@@ -314,7 +309,7 @@ getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j)
 }
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j)
 {
     const BSpline<T,Primal,RPlus,SparseMulti> &phi = basis.mra.phi;
@@ -322,7 +317,7 @@ getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j)
 
     T l1=0., l2=1.;
     int numFunc=1;
-    int mintranslationindex = 0;
+    long mintranslationindex = 0;
     if (e==XBSpline) {
         Support<T> supp = phi.max_support();
         l1 = supp.l1;
@@ -337,12 +332,12 @@ getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j)
         mintranslationindex = 1;
     }
 
-    return _(std::max(int(pow2i<T>(j)*leftbound-numFunc),mintranslationindex),
-             int(pow2i<T>(j)*rightbound+numFunc));
+    return Range<long>((long)std::max(long(pow2i<T>(j)*leftbound-numFunc),mintranslationindex),
+             long(pow2i<T>(j)*rightbound+numFunc));
 }
 
 template <typename T, Construction Cons>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j)
 {
     if (e==XBSpline)    return basis.mra.rangeI(j);
@@ -350,7 +345,7 @@ getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j)
 }
 
 template <typename T, Construction Cons>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,Periodic,Cons> &basis, XType e, int j)
 {
     if (e==XBSpline)    return basis.mra.rangeI(j);

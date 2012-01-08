@@ -81,3 +81,7 @@ validate/test_sparsemultiwavelets_rplus
 /applications/unbounded_domains/adwav/rhs/._.DS_Store
 /config~
 /applications/unbounded_domains/s-adwav/s-adwav-realline-pde2d.cpp~
+applications/unbounded_domains/s-adwav/s_adwav_conv_interval_rplus_pde2d_SparseMW_4_4_1_-2_cx_0_cy_0_1
+applications/unbounded_domains/s-adwav/s-adwav-rplus-helmholtz1d
+applications/unbounded_domains/s-adwav/s-adwav-interval-rplus-pde2d
+applications/unbounded_domains/adwav/ghs-adwav-interval-rplus-helmholtz2d

@@ -26,9 +26,16 @@ template <typename T>
 Basis<T,Primal,Interval,SparseMulti>::Basis(int _d, int j)
     : mra(_d, j), d(_d), j0(mra.j0), _bc(2,0), _j(j0), _numSplines(4), psi(*this)
 {
-    assert(d>=2);
-    assert(j0>=2);
-
+    if (d!=4) {
+        std::cerr << "Basis<T,Primal,Interval,SparseMulti> not yet implemented for d=" << d << std::endl;
+        exit(1);
+    }
+    if (d==4) {
+        if (j0<1) {
+            std::cerr << "Basis<T,Primal,Interval,SparseMulti> not yet implemented for j0=" << j0 << std::endl;
+            exit(1);
+        }
+    }
     setLevel(_j);
 }
     
@@ -91,8 +98,8 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _leftSingularSupport[2] = linspace(0.0,2.0,5);
 
             _leftScalingFactors.engine().resize(3,0);
-            _leftScalingFactors = 15./std::sqrt(13./7.), 39./(4.*std::sqrt(11./7.)),
-                                  120./std::sqrt(7841./1001.);
+            _leftScalingFactors = 15./(2.*std::sqrt(13./7.)), 39./(8.*std::sqrt(11./7.)),
+                                  60./std::sqrt(7841./1001.);
 
             // inner wavelets
             _numInnerParts = 4;
@@ -115,8 +122,8 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _innerSingularSupport[3] = linspace(-2.0,2.0,9);
 
             _innerScalingFactors.engine().resize(4,0);
-            _innerScalingFactors = 15./std::sqrt(13./7.), 39./(4.*std::sqrt(11./7.)),
-                                   60./std::sqrt(2467613./2002.), 60./std::sqrt(7841./2002.);
+            _innerScalingFactors = 15./(2.*std::sqrt(13./7.)), 39./(8.*std::sqrt(11./7.)),
+                                   30./std::sqrt(2467613./2002.), 30./std::sqrt(7841./2002.);
 
             // right wavelets
             _numRightParts = 1;
@@ -130,7 +137,7 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _rightSingularSupport[0] = linspace(-2.0,0.0,5);
 
             _rightScalingFactors.engine().resize(1,0);
-            _rightScalingFactors = 120./std::sqrt(7841./1001.);
+            _rightScalingFactors = 60./std::sqrt(7841./1001.);
 
             break;
 

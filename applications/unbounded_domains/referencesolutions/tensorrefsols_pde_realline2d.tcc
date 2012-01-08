@@ -65,14 +65,14 @@ TensorRefSols_PDE_Realline2D<T>::setExample(int _nr, T _reaction, T _convection_
     if (nr==2) {
         sing_pts_x.engine().resize(1); sing_pts_x(1) = singpt_ex2;
         sing_pts_y.engine().resize(1); sing_pts_y(1) = singpt_ex2;
-        deltas_x.engine().resize(1,2); deltas_x(1,1) = diffusion*singpt_ex2; deltas_x(1,2) = diffusion*0.2;
-        deltas_y.engine().resize(1,2); deltas_y(1,1) = diffusion*singpt_ex2; deltas_y(1,2) = diffusion*1.;
+        deltas_x.engine().resize(1,2); deltas_x(1,1) = singpt_ex2; deltas_x(1,2) = diffusion*0.2;
+        deltas_y.engine().resize(1,2); deltas_y(1,1) = singpt_ex2; deltas_y(1,2) = diffusion*1.;
         H1_deltas_x.engine().resize(1,2); H1_deltas_x(1,1) = singpt_ex2; H1_deltas_x(1,2) = 0.2;
         H1_deltas_y.engine().resize(1,2); H1_deltas_y(1,1) = singpt_ex2; H1_deltas_y(1,2) = 1.;
     }
     if (nr==3) {
         sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
-        deltas_x.engine().resize(1,2); deltas_x(1,1) = diffusion*1./3.; deltas_x(1,2) = diffusion*4.;
+        deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = diffusion*4.;
         H1_deltas_x.engine().resize(1,2); H1_deltas_x(1,1) = 1./3.; H1_deltas_x(1,2) = 4.;
     }
     if (nr==5) {

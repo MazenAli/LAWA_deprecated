@@ -232,7 +232,6 @@ int main (int argc, char *argv[]) {
             T alpha = 0.6, omega = 0.2, gamma = 0.15, theta = 2*omega/(1+omega);
             SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
 
-
             Coefficients<Lexicographical,T,Index2D> u;
             u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                                 NumOfIterations, refsol.H1norm());

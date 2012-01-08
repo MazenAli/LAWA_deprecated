@@ -86,8 +86,8 @@ Basis<T,Primal,RPlus,SparseMulti>::enforceBoundaryCondition()
             _leftSingularSupport[2] = linspace(0.0,2.0,5);
 
             _leftScalingFactors.engine().resize(3,0);
-            _leftScalingFactors = 15./std::sqrt(13./7.), 39./(4.*std::sqrt(11./7.)),
-                                  120./std::sqrt(7841./1001.);
+            _leftScalingFactors = 15./(2.*std::sqrt(13./7.)), 39./(8.*std::sqrt(11./7.)),
+                                  60./std::sqrt(7841./1001.);
 
             // inner wavelets
             _numInnerParts = 4;
@@ -110,8 +110,8 @@ Basis<T,Primal,RPlus,SparseMulti>::enforceBoundaryCondition()
             _innerSingularSupport[3] = linspace(-2.0,2.0,9);
 
             _innerScalingFactors.engine().resize(4,0);
-            _innerScalingFactors = 15./std::sqrt(13./7.), 39./(4.*std::sqrt(11./7.)),
-                                   60./std::sqrt(2467613./2002.), 60./std::sqrt(7841./2002.);
+            _innerScalingFactors = 15./(2.*std::sqrt(13./7.)), 39./(8.*std::sqrt(11./7.)),
+                                   30./std::sqrt(2467613./2002.), 30./std::sqrt(7841./2002.);
 
             break;
 

@@ -63,7 +63,8 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
         T appr = 0.0;
         T exact= u(x);
         for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-            int j = (*it).first.j, k = (*it).first.k;
+            int j = (*it).first.j;
+            long k = (*it).first.k;
             T coeff = (*it).second, prec = P((*it).first);
             
             appr += prec * coeff * basis.generator((*it).first.xtype)(x,j,k,0);
@@ -87,7 +88,8 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
         T exact= u(x);
         T d_exact= du(x);
         for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-            int j = (*it).first.j, k = (*it).first.k;
+            int j = (*it).first.j;
+            long k = (*it).first.k;
             T coeff = (*it).second, prec = P((*it).first);
             
             appr   += prec * coeff * basis.generator((*it).first.xtype)(x,j,k,0);
@@ -111,7 +113,8 @@ w_plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
         T appr=0.;
         T exact= u(x);
         for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-            int j = (*it).first.j, k = (*it).first.k;
+            int j = (*it).first.j;
+            long k = (*it).first.k;
             T coeff = (*it).second, prec = P((*it).first);
             appr   += prec * coeff * basis.generator((*it).first.xtype)(x,j,k,0);
         }
@@ -140,8 +143,8 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
             for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
                 XType xtype_x = (*it).first.index1.xtype;
                 XType xtype_y = (*it).first.index2.xtype;
-                int j_x = (*it).first.index1.j, k_x = (*it).first.index1.k;
-                int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
+                int j_x = (*it).first.index1.j, j_y = (*it).first.index2.j;
+                long k_x = (*it).first.index1.k, k_y = (*it).first.index2.k;
 
                 T coeff = (*it).second, prec = P((*it).first);
                 
@@ -177,8 +180,8 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
             for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
                 XType xtype_x = (*it).first.index1.xtype;
                 XType xtype_y = (*it).first.index2.xtype;
-                int j_x = (*it).first.index1.j, k_x = (*it).first.index1.k;
-                int j_y = (*it).first.index2.j, k_y = (*it).first.index2.k;
+                int j_x = (*it).first.index1.j, j_y = (*it).first.index2.j;
+                long k_x = (*it).first.index1.k, k_y = (*it).first.index2.k;
 
                 T coeff = (*it).second, prec = P((*it).first);
                 
@@ -240,7 +243,7 @@ plotCoeff(const Coefficients<Lexicographical,T,Index1D > &coeff, const Basis &ba
         T ctr, fromX, toX, fromY, toY;
         T color = 0.0;
         int j       = (*it).first.j;
-        long int k  = (*it).first.k;
+        long k  = (*it).first.k;
         XType xtype = (*it).first.xtype;
 
         if (xtype==XBSpline) {
@@ -350,7 +353,7 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis &basi
         T color = 0.0;
 
         if ((*it).second.xtype==XBSpline) {
-            int k1 = ceil(pow2i<T>((*it).second.j)*a_sca - l1_sca), k2 = floor(pow2i<T>((*it).second.j)*b_sca - l2_sca);
+            long k1 = ceil(pow2i<T>((*it).second.j)*a_sca - l1_sca), k2 = floor(pow2i<T>((*it).second.j)*b_sca - l2_sca);
             int N = k2 - k1 + 1;
             fromX = a_sca + ((*it).second.k-k1)*(b_sca-a_sca)/(T)N;
             toX   = a_sca + ((*it).second.k-k1+1)*(b_sca-a_sca)/(T)N;
@@ -361,8 +364,8 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis &basi
         }
 
         else {
-            long int k1 = ceil(pow2i<T>((*it).second.j)*a_wav - l1_wav), k2 = floor(pow2i<T>((*it).second.j)*b_wav - l2_wav);
-            long int N = k2 - k1 + 1;
+            long k1 = ceil(pow2i<T>((*it).second.j)*a_wav - l1_wav), k2 = floor(pow2i<T>((*it).second.j)*b_wav - l2_wav);
+            long N = k2 - k1 + 1;
             fromX = a_wav + ((*it).second.k-k1)*(b_wav-a_wav)/(T)N;
             toX   = fromX + std::max((b_wav-a_wav)/N,0.1);  //was 0.05
 
@@ -420,7 +423,8 @@ plotCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis_x &bas
     T max_value = fabs( (*first_element).first );
     T min_x=10000., max_x=-10000., min_y=10000., max_y=-10000.;
     for (const_coeff_abs_it it = coeff.begin(); it != coeff.end(); ++it) {
-        int j1=(*it).second.index1.j, k1=(*it).second.index1.k, j2=(*it).second.index2.j, k2=(*it).second.index2.k;
+        int j1=(*it).second.index1.j, j2=(*it).second.index2.j;
+        long k1=(*it).second.index1.k, k2=(*it).second.index2.k;
         XType type1=(*it).second.index1.xtype, type2=(*it).second.index2.xtype;
         
         //center of the support
@@ -484,7 +488,8 @@ plotScatterCoeff2D(const Coefficients<AbsoluteValue,T,Index> &coeff, const Basis
     std::ofstream data(dataFilename.str().c_str());
 
     for (const_coeff_abs_it it = coeff.begin(); it != coeff.end(); ++it) {
-        int j1=(*it).second.index1.j, k1=(*it).second.index1.k, j2=(*it).second.index2.j, k2=(*it).second.index2.k;
+        int j1=(*it).second.index1.j, j2=(*it).second.index2.j;
+        long k1=(*it).second.index1.k, k2=(*it).second.index2.k;
         XType type1=(*it).second.index1.xtype, type2=(*it).second.index2.xtype;
 
         //center of the support
@@ -512,7 +517,8 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
     std::ofstream data(dataFilename.str().c_str());
 
     for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
-        int j1=(*it).first.index1.j, k1=(*it).first.index1.k, j2=(*it).first.index2.j, k2=(*it).first.index2.k;
+        int j1=(*it).first.index1.j, j2=(*it).first.index2.j;
+        long k1=(*it).first.index1.k, k2=(*it).first.index2.k;
         XType type1=(*it).first.index1.xtype, type2=(*it).first.index2.xtype;
 
         //center of the support

@@ -47,6 +47,8 @@ int main (int argc, char *argv[]) {
     Basis1D basis(d,j0);
     basis.enforceBoundaryCondition<DirichletBC>();
 
+    IntegralRPlus integral(basis,basis);
+/*
     ofstream file1("sparsemulti_bspline_rplus.dat");
     T l1=basis.mra.phi.support(j0,0).l1;
     T l2=basis.mra.phi.support(j0,7).l2;
@@ -57,22 +59,37 @@ int main (int argc, char *argv[]) {
                   << " " << basis.mra.phi(x,j0,6,deriv) << " " << basis.mra.phi(x,j0,7,deriv) << endl;
     }
     file1.close();
+*/
+
+    for (int k=0; k<=16; ++k) {
+        ofstream file1("sparsemulti_bspline_rplus.dat");
+        T l1=basis.mra.phi.support(j0,k).l1;
+        T l2=basis.mra.phi.support(j0,k).l2;
+        cout << "Support phi_(" << j0 << ", " << k << ") = " << basis.mra.phi.singularSupport(j0,k) << endl;
+        cout << "<phi, phi> = " << integral(j0,k,XBSpline,0,j0,k,XBSpline,0) << endl;
+        for (T x=l1; x<=l2; x+=pow2i<T>(-9)) {
+            file1 << x << " " << basis.mra.phi(x,j0,k,deriv) << endl;
+        }
+        file1.close();
+        getchar();
+    }
 
     for (int j=j0; j<=2; ++j) {
         for (int k=1; k<=16; ++k) {
             ofstream file2("sparsemulti_wavelet_rplus.dat");
-            l1=basis.psi.support(j,k).l1;
-            l2=basis.psi.support(j,k).l2;
-            //cout << "Support psi_(" << j << ", " << k << ") = " << basis.psi.singularSupport(j,k) << endl;
+            T l1=basis.psi.support(j,k).l1;
+            T l2=basis.psi.support(j,k).l2;
+            cout << "Support psi_(" << j << ", " << k << ") = " << basis.psi.singularSupport(j,k) << endl;
+            cout << "<psi, psi> = " << integral(j,k,XWavelet,0,j,k,XWavelet,0) << endl;
             for (T x=l1; x<=l2; x+=pow2i<T>(-9)) {
                 file2 << x << " " << basis.psi(x,j,k,deriv) << endl;
             }
             file2.close();
-         //   getchar();
+            getchar();
         }
     }
 
-
+    /*
     IndexSet<Index1D> Lambda;
     for (int k=0; k<=80; ++k) {
         Lambda.insert(Index1D(j0,k,XBSpline));
@@ -124,7 +141,7 @@ int main (int argc, char *argv[]) {
         plotfile << x << " " << U(x) << " " << ret << endl;
     }
     plotfile.close();
-
+    */
     return 0;
 }
 

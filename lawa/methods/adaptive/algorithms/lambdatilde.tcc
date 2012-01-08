@@ -459,8 +459,9 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,RPlus,SparseMulti>
 
         long kMin = floor( pow2i<long double>(j)*supp.l1 - max_support_refbspline.l2) - 1;
         long kMax =  ceil( pow2i<long double>(j)*supp.l2 - max_support_refbspline.l1) + 1;
-        kMin = std::max(kMin, basis.mra.rangeIL().firstIndex());
-        for (long k_row=kMin*numSplines; k_row<=kMax*numSplines; ++k_row) {
+        kMin = std::max(kMin*numSplines, basis.mra.rangeIL(j).firstIndex());
+        kMax = kMax*numSplines;
+        for (long k_row=kMin; k_row<=kMax; ++k_row) {
             //std::cerr << "  -> bspline (" << j << ", " << k_row << "): " << phi.support(j,k_row) << " vs. " << supp << std::endl;
             if (overlap(supp, phi.support(j,k_row)) > 0) {
                 ret.insert(Index1D(j,k_row,XBSpline));
@@ -469,8 +470,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,RPlus,SparseMulti>
 
         kMin = floor( pow2i<long double>(j)*supp.l1 - max_support_refwavelet.l2) / 2 - 1;
         kMax =  ceil( pow2i<long double>(j)*supp.l2 - max_support_refwavelet.l1) / 2 + 1;
-        kMin = kMin*numWavelets;
-        kMin = std::max(kMin, basis.rangeJL(j).firstIndex());
+        kMin = std::max(kMin*numWavelets, basis.rangeJL(j).firstIndex());
         kMax = kMax*numWavelets;
         for (long k_row=kMin; k_row<=kMax; ++k_row) {
             Support<T> supp_row = psi.support(j,k_row);
@@ -485,8 +485,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,RPlus,SparseMulti>
         if (j==jmin) {
             long kMin = floor( pow2i<long double>(jmin)*supp.l1 - max_support_refbspline.l2) - 1;
             long kMax =  ceil( pow2i<long double>(jmin)*supp.l2 - max_support_refbspline.l1) + 1;
-            kMin = kMin*numSplines;
-            kMin = std::max(kMin, basis.mra.rangeIL(j).firstIndex());
+            kMin = std::max(kMin*numSplines, basis.mra.rangeIL(j).firstIndex());
             kMax = kMax*numSplines;
             for (long k_row=kMin; k_row<=kMax; ++k_row) {
                 if (overlap(supp, phi.support(jmin,k_row)) > 0) {
@@ -499,8 +498,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,RPlus,SparseMulti>
         for (int j_row=std::max(j-1,jmin); j_row<=std::min(j+1,jmax); ++j_row) {
             long kMin = floor( pow2i<long double>(j_row)*supp.l1 - max_support_refwavelet.l2) / 2 - 1;
             long kMax =  ceil( pow2i<long double>(j_row)*supp.l2 - max_support_refwavelet.l1) / 2 + 1;
-            kMin = kMin*numWavelets;
-            kMin = std::max(kMin, basis.rangeJL(j).firstIndex());
+            kMin = std::max(kMin*numWavelets, basis.rangeJL(j_row).firstIndex());
             kMax = kMax*numWavelets;
             for (long k_row=kMin; k_row<=kMax; ++k_row) {
                 Support<T> supp_row = psi.support(j_row,k_row);
@@ -514,6 +512,85 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,RPlus,SparseMulti>
     return ret;
 }
 
+template <typename T>
+IndexSet<Index1D>
+lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Interval,SparseMulti> &basis,
+                  int /*s_tilde*/, int jmin, int jmax=100, bool update=false)
+{
+    IndexSet<Index1D> ret;
+    if (update) return ret;
+
+    jmax = std::min(jmax,JMAX);
+
+    const BSpline<T,Primal,Interval,SparseMulti> &phi = basis.mra.phi;
+    const Wavelet<T,Primal,Interval,SparseMulti> &psi = basis.psi;
+    int numSplines = (int)basis.mra._numSplines;
+    int numWavelets = (int)basis._numSplines;
+
+    int  j = lambda.j;
+    long k = lambda.k;
+    int  d = psi.d;
+
+    Support<T> max_support_refbspline = basis.mra.max_support();
+    Support<T> max_support_refwavelet = basis.max_support();
+
+    if (lambda.xtype == XBSpline) {
+        Support<T> supp = phi.support(j,k);
+
+        long kMin = floor( pow2i<long double>(j)*supp.l1 - max_support_refbspline.l2) - 1;
+        long kMax =  ceil( pow2i<long double>(j)*supp.l2 - max_support_refbspline.l1) + 1;
+        kMin = std::max(kMin*numSplines, basis.mra.rangeI(j).firstIndex());
+        kMax = std::min(kMax*numSplines, basis.mra.rangeI(j).lastIndex());
+        for (long k_row=kMin; k_row<=kMax; ++k_row) {
+            //std::cerr << "  -> bspline (" << j << ", " << k_row << "): " << phi.support(j,k_row) << " vs. " << supp << std::endl;
+            if (overlap(supp, phi.support(j,k_row)) > 0) {
+                ret.insert(Index1D(j,k_row,XBSpline));
+            }
+        }
+
+        kMin = floor( pow2i<long double>(j)*supp.l1 - max_support_refwavelet.l2) / 2 - 1;
+        kMax =  ceil( pow2i<long double>(j)*supp.l2 - max_support_refwavelet.l1) / 2 + 1;
+        kMin = std::max(kMin*numWavelets, basis.rangeJ(j).firstIndex());
+        kMax = std::min(kMax*numWavelets, basis.rangeJ(j).lastIndex());
+        for (long k_row=kMin; k_row<=kMax; ++k_row) {
+            Support<T> supp_row = psi.support(j,k_row);
+            //std::cerr << "  -> wavelet (" << j << ", " << k_row << "): " << supp_row << " vs. " << supp << std::endl;
+            if (overlap(supp, supp_row) > 0)  {
+                ret.insert(Index1D(j,k_row,XWavelet));
+            }
+        }
+    }
+    else {
+        Support<T> supp = psi.support(j,k);
+        if (j==jmin) {
+            long kMin = floor( pow2i<long double>(jmin)*supp.l1 - max_support_refbspline.l2) - 1;
+            long kMax =  ceil( pow2i<long double>(jmin)*supp.l2 - max_support_refbspline.l1) + 1;
+            kMin = std::max(kMin*numSplines, basis.mra.rangeI(j).firstIndex());
+            kMax = std::min(kMax*numSplines, basis.mra.rangeI(j).lastIndex());
+            for (long k_row=kMin; k_row<=kMax; ++k_row) {
+                if (overlap(supp, phi.support(jmin,k_row)) > 0) {
+                    ret.insert(Index1D(jmin,k_row,XBSpline));
+                }
+            }
+        }
+        // Inserting all indices corresponding to Wavelets with intersecting support using
+        // a) local compactness  b) matrix compression  c) vanishing moments
+        for (int j_row=std::max(j-1,jmin); j_row<=std::min(j+1,jmax); ++j_row) {
+            long kMin = floor( pow2i<long double>(j_row)*supp.l1 - max_support_refwavelet.l2) / 2 - 1;
+            long kMax =  ceil( pow2i<long double>(j_row)*supp.l2 - max_support_refwavelet.l1) / 2 + 1;
+            kMin = std::max(kMin*numWavelets, basis.rangeJ(j_row).firstIndex());
+            kMax = std::min(kMax*numWavelets,  basis.rangeJ(j_row).lastIndex());
+            for (long k_row=kMin; k_row<=kMax; ++k_row) {
+                Support<T> supp_row = psi.support(j_row,k_row);
+                //std::cerr << "  -> wavelet (" << j_row << ", " << k_row << "): " << supp_row << " vs. " << supp << std::endl;
+                if (overlap(supp, supp_row) > 0) {
+                    ret.insert(Index1D(j_row,k_row,XWavelet));
+                }
+            }
+        }
+    }
+    return ret;
+}
 
 template <typename T>
 IndexSet<Index1D>

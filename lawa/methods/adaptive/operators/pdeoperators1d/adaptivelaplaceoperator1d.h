@@ -36,44 +36,27 @@ namespace lawa {
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
 struct AdaptiveLaplaceOperator1D
 {
-
-};
-
-template <typename T, FunctionSide Side, Construction Cons>
-struct AdaptiveLaplaceOperator1D<T,Side,R,Cons>
-{
-    typedef Basis<T,Side,R,Cons>                                     ReallineBasis1D;
-
-    typedef CompressionPDE1D<T, ReallineBasis1D>                     Compression1D;
-
+    typedef Basis<T,Side,Domain,Cons>                                Basis1D;
+    typedef CompressionPDE1D<T, Basis1D>                             Compression1D;
     typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
-
-    typedef LaplaceOperator1D<T, ReallineBasis1D>                    LaplaceOp1D;
-
+    typedef LaplaceOperator1D<T, Basis1D>                            LaplaceOp1D;
     typedef MapMatrix<T, Index1D, LaplaceOp1D,
-                     Compression1D, NoPreconditioner1D>              DataLaplace1D;
+                     Compression1D, NoPreconditioner1D>              DataLaplaceOp1D;
 
 
-    AdaptiveLaplaceOperator1D(const ReallineBasis1D &_basis1d, T thresh=0.,
-                              int NumOfCols=4096, int NumOfRows=4096);
+    AdaptiveLaplaceOperator1D(const Basis1D &_basis1d);
 
     T
     operator()(const Index1D &row_index, const Index1D &col_index);
 
-
     void
     clear();
 
-
-    const ReallineBasis1D      &basis1d;
-
+    const Basis1D              &basis1d;
     Compression1D              compression1d;
-
     const LaplaceOp1D          laplace_op1d;
-
     NoPreconditioner1D         prec1d;
-
-    DataLaplace1D              laplace_data1d;
+    DataLaplaceOp1D            data;
 
 };
 

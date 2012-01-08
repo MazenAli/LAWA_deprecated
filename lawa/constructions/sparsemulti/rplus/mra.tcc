@@ -93,7 +93,7 @@ MRA<T,Primal,RPlus,SparseMulti>::enforceBoundaryCondition()
             _leftSingularSupport[0] = linspace(0.,1.,2);
 
             _leftScalingFactors.engine().resize(1,0);
-            _leftScalingFactors = 2.*std::sqrt(105.);
+            _leftScalingFactors = 1.*std::sqrt(105.);
 
             // inner B-splines
             _numInnerParts = 2;
@@ -110,7 +110,7 @@ MRA<T,Primal,RPlus,SparseMulti>::enforceBoundaryCondition()
             _innerSingularSupport[1] = linspace(-1.,1.,3);
 
             _innerScalingFactors.engine().resize(2,0);
-            _innerScalingFactors = std::sqrt(70./13.),std::sqrt(210.);
+            _innerScalingFactors = std::sqrt(35./26.),std::sqrt(105./2.);
 
 
             break;

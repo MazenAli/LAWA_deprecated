@@ -43,11 +43,11 @@ class Basis<_T,Primal,RPlus,SparseMulti>
 
         //--- cardinalities of left index set.
         long
-        cardJL(const int j=-1) const;
+        cardJL(const int j) const;
 
         //--- ranges of left index set.
         const flens::Range<long>
-        rangeJL(const int j=-1) const;
+        rangeJL(const int j) const;
     
         MRA<T,Primal,RPlus,SparseMulti> mra;
     

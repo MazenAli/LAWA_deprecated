@@ -64,16 +64,16 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
     typedef Basis<T,Primal,Domain2,SparseMulti>                               Basis_y;
     typedef TensorBasis2D<Adaptive,Basis_x,Basis_y>                           Basis2D;
 
-    ct_assert(   IsRealline<typename Basis2D::FirstBasisType>::value
-              && IsRealline<typename Basis2D::SecondBasisType>::value);
-
     typedef CompressionPDE1D<T, Basis_x>                                      Compression1D_x;
     typedef CompressionPDE1D<T, Basis_y>                                      Compression1D_y;
     typedef CompressionPDE2D<T, Basis2D>                                      Compression2D;
 
-    typedef AdaptiveLaplaceOperator1D<T,Primal,R,SparseMulti>                 DataLaplace1D;
-    typedef AdaptiveConvectionOperator1D<T,Primal,R,SparseMulti>              DataConvection1D;
-    typedef AdaptiveIdentityOperator1D<T,Primal,R,SparseMulti>                DataIdentity1D;
+    typedef AdaptiveLaplaceOperator1D<T,Primal,Domain1,SparseMulti>           DataLaplace1D_x;
+    typedef AdaptiveConvectionOperator1D<T,Primal,Domain1,SparseMulti>        DataConvection1D_x;
+    typedef AdaptiveIdentityOperator1D<T,Primal,Domain1,SparseMulti>          DataIdentity1D_x;
+    typedef AdaptiveLaplaceOperator1D<T,Primal,Domain2,SparseMulti>           DataLaplace1D_y;
+    typedef AdaptiveConvectionOperator1D<T,Primal,Domain2,SparseMulti>        DataConvection1D_y;
+    typedef AdaptiveIdentityOperator1D<T,Primal,Domain2,SparseMulti>          DataIdentity1D_y;
 
     AdaptivePDEOperatorOptimized2D(const Basis2D &_basis2d, T _reaction, T convection_x,
                                    T convection_y, T diffusion);
@@ -88,10 +88,6 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
     mv(const IndexSet<Index2D> &LambdaRow,
        const Coefficients<Lexicographical,T,Index2D> &x);
 
-    /*
-    Coefficients<Lexicographical,T,Index2D>
-    operator*(const Coefficients<Lexicographical,T,Index2D> &v);
-    */
     void
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
                         SparseMatrixT &A_flens, int J=-1);
@@ -125,9 +121,12 @@ struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain
     Compression1D_y            compression_1d_y;
     Compression2D              compression;
 
-    DataLaplace1D              laplace_data1d;
-    DataConvection1D           convection_data1d;
-    DataIdentity1D             identity_data1d;
+    DataLaplace1D_x            laplace_data1d_x;
+    DataConvection1D_x         convection_data1d_x;
+    DataIdentity1D_x           identity_data1d_x;
+    DataLaplace1D_y            laplace_data1d_y;
+    DataConvection1D_y         convection_data1d_y;
+    DataIdentity1D_y           identity_data1d_y;
 
     Coefficients<Lexicographical,T,Index2D> P_data;
 };

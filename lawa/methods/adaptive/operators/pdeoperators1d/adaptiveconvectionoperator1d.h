@@ -37,44 +37,26 @@ namespace lawa {
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
 struct AdaptiveConvectionOperator1D
 {
-
-};
-
-template <typename T, FunctionSide Side, Construction Cons>
-struct AdaptiveConvectionOperator1D<T,Side,R,Cons>
-{
-    typedef Basis<T,Side,R,Cons>                                     ReallineBasis1D;
-
-    typedef CompressionPDE1D<T, ReallineBasis1D>                     Compression1D;
-
+    typedef Basis<T,Side,Domain,Cons>                                Basis1D;
+    typedef CompressionPDE1D<T, Basis1D>                             Compression1D;
     typedef NoPreconditioner<T,Index1D>                              NoPreconditioner1D;
-
-    typedef ConvectionOperator1D<T, ReallineBasis1D>                 ConvectionOp1D;
-
+    typedef ConvectionOperator1D<T, Basis1D>                         ConvectionOp1D;
     typedef MapMatrix<T, Index1D, ConvectionOp1D,
-                     Compression1D, NoPreconditioner1D>              DataConvection1D;
+                     Compression1D, NoPreconditioner1D>              DataConvectionOp1D;
 
-
-    AdaptiveConvectionOperator1D(const ReallineBasis1D &_basis1d, T thresh=0.,
-                                 int NumOfCols=4096, int NumOfRows=4096);
+    AdaptiveConvectionOperator1D(const Basis1D &_basis1d);
 
     T
     operator()(const Index1D &row_index, const Index1D &col_index);
 
-
     void
     clear();
 
-
-    const ReallineBasis1D       &basis1d;
-
+    const Basis1D               &basis1d;
     Compression1D               compression1d;
-
     const ConvectionOp1D        convection_op1d;
-
     NoPreconditioner1D          prec1d;
-
-    DataConvection1D            convection_data1d;
+    DataConvectionOp1D          data;
 
 };
 

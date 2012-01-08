@@ -8,8 +8,8 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
   diffusion(_diffusion),
   cA(0.), CA(0.), kappa(0.),
   compression_1d_x(basis.first), compression_1d_y(basis.second), compression(basis),
-  laplace_data1d(basis.first, 0.), convection_data1d(basis.first,0.),
-  identity_data1d(basis.first, 0.),
+  laplace_data1d_x(basis.first), convection_data1d_x(basis.first), identity_data1d_x(basis.first),
+  laplace_data1d_y(basis.second), convection_data1d_y(basis.second), identity_data1d_y(basis.second),
   P_data()
 {
     T cA_x=0., CA_x=0., cA_y=0., CA_y = 0.;
@@ -22,6 +22,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
     if (basis.first.d==4 && basis.second.d==4) {
 
         if      (basis.first.j0==0)  {    cA_x = 0.14;  CA_x = 2.9;    }
+        else if (basis.first.j0== 1) {    cA_x = 0.14;  CA_x = 2.9;    }
         else if (basis.first.j0==-1) {    cA_x = 0.14;  CA_x = 2.9;    }
         else if (basis.first.j0==-2) {    cA_x = 0.19;  CA_x = 2.9;    }
         else if (basis.first.j0==-3) {    cA_x = 0.19;  CA_x = 2.9;    }
@@ -29,6 +30,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
         else assert(0);
 
         if      (basis.second.j0==0)  {    cA_y = 0.14;  CA_y = 2.9;    }
+        else if (basis.second.j0== 1) {    cA_y = 0.14;  CA_y = 2.9;    }
         else if (basis.second.j0==-1) {    cA_y = 0.14;  CA_y = 2.9;    }
         else if (basis.second.j0==-2) {    cA_y = 0.19;  CA_y = 2.9;    }
         else if (basis.second.j0==-3) {    cA_y = 0.19;  CA_y = 2.9;    }
@@ -46,18 +48,18 @@ T
 AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 ::operator()(const Index2D &row_index, const Index2D &col_index)
 {
-    T id_x = identity_data1d(row_index.index1,col_index.index1);
-    T id_y = identity_data1d(row_index.index2,col_index.index2);
+    T id_x = identity_data1d_x(row_index.index1,col_index.index1);
+    T id_y = identity_data1d_y(row_index.index2,col_index.index2);
 
     T dd_y=0., d_y=0.;
     if (fabs(id_x)>0) {
-        dd_y = laplace_data1d(row_index.index2,col_index.index2);
-        d_y  = convection_data1d(row_index.index2,col_index.index2);
+        dd_y = laplace_data1d_y(row_index.index2,col_index.index2);
+        d_y  = convection_data1d_y(row_index.index2,col_index.index2);
     }
     T dd_x=0., d_x=0.;
     if (fabs(id_y)>0) {
-        dd_x = laplace_data1d(row_index.index1,col_index.index1);
-        d_x  = convection_data1d(row_index.index1,col_index.index1);
+        dd_x = laplace_data1d_x(row_index.index1,col_index.index1);
+        d_x  = convection_data1d_x(row_index.index1,col_index.index1);
     }
 
     T val =   (diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x)*id_y
@@ -81,10 +83,10 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
     }
     else {
 */
-        T prec_id_x = identity_data1d(index.index1,index.index1);
-        T prec_id_y = identity_data1d(index.index2,index.index2);
-        T prec_dd_x = laplace_data1d(index.index1,index.index1);
-        T prec_dd_y = laplace_data1d(index.index2,index.index2);
+        T prec_id_x = identity_data1d_x(index.index1,index.index1);
+        T prec_id_y = identity_data1d_y(index.index2,index.index2);
+        T prec_dd_x = laplace_data1d_x(index.index1,index.index1);
+        T prec_dd_y = laplace_data1d_y(index.index2,index.index2);
         T tmp = 1./std::sqrt(fabs(   (diffusion*prec_dd_x + 0.5*reaction*prec_id_x)*prec_id_y
                                    + (diffusion*prec_dd_y + 0.5*reaction*prec_id_y)*prec_id_x ) );
 //        P_data[index] = tmp;
@@ -131,16 +133,16 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
         }
 
         for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-            T id_x = identity_data1d(*row_x,col_index.index1);
-            T d_x  = convection_data1d(*row_x,col_index.index1);
-            T dd_x = laplace_data1d(*row_x,col_index.index1);
+            T id_x = identity_data1d_x(*row_x,col_index.index1);
+            T d_x  = convection_data1d_x(*row_x,col_index.index1);
+            T dd_x = laplace_data1d_x(*row_x,col_index.index1);
             if (fabs(id_x)<1e-13 && fabs(d_x)<1e-12 && fabs(dd_x)<1e-13) continue;
             for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
             Index2D row_index(*row_x,*row_y);
                 if (LambdaRow.count(row_index)>0) {
-                    T id_y = identity_data1d(row_index.index2,col_index.index2);
-                    T d_y  = convection_data1d(row_index.index2,col_index.index2);
-                    T dd_y = laplace_data1d(row_index.index2,col_index.index2);
+                    T id_y = identity_data1d_y(row_index.index2,col_index.index2);
+                    T d_y  = convection_data1d_y(row_index.index2,col_index.index2);
+                    T dd_y = laplace_data1d_y(row_index.index2,col_index.index2);
 
 
                     T val =   (diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x)*id_y
@@ -169,10 +171,6 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
     std::cerr << "  -> toFlensSparseMatrix called with J= " << J << std::endl;
 
     int maxSizeSparsityPattern=0;
-
-    std::cerr << "  Size of DataLaplace1D : " << laplace_data1d.laplace_data1d.data.size() << std::endl;
-    std::cerr << "  Size of DataIdentity1D: " << identity_data1d.identity_data1d.data.size() << std::endl;
-
 
     std::map<Index1D,IndexSet<Index1D>,lt<Lexicographical,Index1D> > sparsitypatterns_x,
                                                                      sparsitypatterns_y;
@@ -210,9 +208,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaRowSparse_x = this->compression_1d_x.SparsityPattern((*col).index1, LambdaRow_x, 1);
             sparsitypatterns_x[(*col).index1] = LambdaRowSparse_x;
             for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                LambdaRowSparseIdentity_x[*row_x]   = identity_data1d(*row_x,col_index.index1);
-                LambdaRowSparseConvection_x[*row_x] = convection_data1d(*row_x,col_index.index1);
-                LambdaRowSparseLaplace_x[*row_x]    = laplace_data1d(*row_x,col_index.index1);
+                LambdaRowSparseIdentity_x[*row_x]   = identity_data1d_x(*row_x,col_index.index1);
+                LambdaRowSparseConvection_x[*row_x] = convection_data1d_x(*row_x,col_index.index1);
+                LambdaRowSparseLaplace_x[*row_x]    = laplace_data1d_x(*row_x,col_index.index1);
             }
             sparsitypatterns_identity_x[(*col).index1]   = LambdaRowSparseIdentity_x;
             sparsitypatterns_convection_x[(*col).index1] = LambdaRowSparseConvection_x;
@@ -229,9 +227,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaRowSparse_y = this->compression_1d_y.SparsityPattern((*col).index2, LambdaRow_y, 1);
             sparsitypatterns_y[(*col).index2] = LambdaRowSparse_y;
             for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                LambdaRowSparseIdentity_y[*row_y]   = identity_data1d(*row_y,col_index.index2);
-                LambdaRowSparseConvection_y[*row_y] = convection_data1d(*row_y,col_index.index2);
-                LambdaRowSparseLaplace_y[*row_y]    = laplace_data1d(*row_y,col_index.index2);
+                LambdaRowSparseIdentity_y[*row_y]   = identity_data1d_y(*row_y,col_index.index2);
+                LambdaRowSparseConvection_y[*row_y] = convection_data1d_y(*row_y,col_index.index2);
+                LambdaRowSparseLaplace_y[*row_y]    = laplace_data1d_y(*row_y,col_index.index2);
             }
             sparsitypatterns_identity_y[(*col).index2] = LambdaRowSparseIdentity_y;
             sparsitypatterns_convection_y[(*col).index2] = LambdaRowSparseConvection_y;
@@ -307,6 +305,8 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 ::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
         Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose trans)
 {
+    std::cerr << "v = " << v << std::endl;
+
     if (v.size()==0) return;
 
     Index1D_Coefficients1D_Hash y_v;
@@ -336,9 +336,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaRowSparse_y = lambdaTilde1d_PDE(col_index_y, basis.second, 1, std::max(col_index_y.j-1,basis.second.j0),
                                                               col_index_y.j+1, false);
             for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                T dd_y = laplace_data1d(*row_y,col_index_y);
-                T id_y = identity_data1d(*row_y,col_index_y);
-                T d_y  = convection_data1d(*row_y,col_index_y);
+                T dd_y = laplace_data1d_y(*row_y,col_index_y);
+                T id_y = identity_data1d_y(*row_y,col_index_y);
+                T d_y  = convection_data1d_y(*row_y,col_index_y);
                 T val2_y = (diffusion*dd_y + convection_y*d_y + 0.5*reaction*id_y);
 
                 for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
@@ -364,7 +364,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaRowSparse_x = lambdaTilde1d_PDE(col_index_x, basis.first, 1, std::max(col_index_x.j-1,basis.first.j0),
                                                   col_index_x.j+1, false);
             for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                T id_x = identity_data1d(*row_x,col_index_x);
+                T id_x = identity_data1d_x(*row_x,col_index_x);
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                     Index2D row_index(*row_x,(*coeff_y_it).first);
                     T val = id_x * (*coeff_y_it).second;
@@ -390,7 +390,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaRowSparse_y = lambdaTilde1d_PDE(col_index_y, basis.second, 1, std::max(col_index_y.j-1,basis.second.j0),
                                                               col_index_y.j+1, false);
             for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
-                T id_y = identity_data1d(*row_y,col_index_y);
+                T id_y = identity_data1d_y(*row_y,col_index_y);
                 T val1_y =  id_y;
 
                 for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
@@ -418,9 +418,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaRowSparse_x = lambdaTilde1d_PDE(col_index_x, basis.first, 1, std::max(col_index_x.j-1,basis.first.j0),
                                                   col_index_x.j+1, false);
             for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
-                T id_x = identity_data1d(*row_x,col_index_x);
-                T dd_x = laplace_data1d(*row_x,col_index_x);
-                T d_x  = convection_data1d(*row_x,col_index_x);
+                T id_x = identity_data1d_x(*row_x,col_index_x);
+                T dd_x = laplace_data1d_x(*row_x,col_index_x);
+                T d_x  = convection_data1d_x(*row_x,col_index_x);
                 T val_x = diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x;
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                     Index2D row_index(*row_x,(*coeff_y_it).first);
@@ -452,9 +452,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaColSparse_y = lambdaTilde1d_PDE(row_index_y, basis.second, 1, std::max(row_index_y.j-1,basis.second.j0),
                                                               row_index_y.j+1, false);
             for (const_set1d_it col_y=LambdaColSparse_y.begin(); col_y!=LambdaColSparse_y.end(); ++col_y) {
-                T dd_y = laplace_data1d(row_index_y,*col_y);
-                T id_y = identity_data1d(row_index_y,*col_y);
-                T d_y  = convection_data1d(row_index_y,*col_y);
+                T dd_y = laplace_data1d_y(row_index_y,*col_y);
+                T id_y = identity_data1d_y(row_index_y,*col_y);
+                T d_y  = convection_data1d_y(row_index_y,*col_y);
                 T val2_y = (diffusion*dd_y + convection_y*d_y + 0.5*reaction*id_y);
 
                 for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
@@ -481,7 +481,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaColSparse_x = lambdaTilde1d_PDE(row_index_x, basis.first, 1, std::max(row_index_x.j-1,basis.first.j0),
                                                   row_index_x.j+1, false);
             for (const_set1d_it col_x=LambdaColSparse_x.begin(); col_x!=LambdaColSparse_x.end(); ++col_x) {
-                T id_x = identity_data1d(row_index_x,*col_x);
+                T id_x = identity_data1d_x(row_index_x,*col_x);
                 if (!(fabs(id_x)>0)) continue;
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                     Index1D row_index_y = (*coeff_y_it).first;
@@ -510,7 +510,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaColSparse_y = lambdaTilde1d_PDE(row_index_y, basis.second, 1, std::max(row_index_y.j-1,basis.second.j0),
                                                               row_index_y.j+1, false);
             for (const_set1d_it col_y=LambdaColSparse_y.begin(); col_y!=LambdaColSparse_y.end(); ++col_y) {
-                T id_y = identity_data1d(row_index_y,*col_y);
+                T id_y = identity_data1d_y(row_index_y,*col_y);
                 T val1_y =  id_y;
 
                 for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
@@ -540,9 +540,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
             LambdaColSparse_x = lambdaTilde1d_PDE(row_index_x, basis.first, 1, std::max(row_index_x.j-1,basis.first.j0),
                                                   row_index_x.j+1, false);
             for (const_set1d_it col_x=LambdaColSparse_x.begin(); col_x!=LambdaColSparse_x.end(); ++col_x) {
-                T id_x = identity_data1d(row_index_x,*col_x);
-                T dd_x = laplace_data1d(row_index_x,*col_x);
-                T d_x  = convection_data1d(row_index_x,*col_x);
+                T id_x = identity_data1d_x(row_index_x,*col_x);
+                T dd_x = laplace_data1d_x(row_index_x,*col_x);
+                T d_x  = convection_data1d_x(row_index_x,*col_x);
                 T val_x = diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x;
                 if (!(fabs(val_x)>0)) continue;
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
@@ -566,6 +566,8 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 
     }
 
+    std::cerr << "ret = " << ret << std::endl;
+
     y_v.clear();
     I_S_v.clear();
     for (Index1D_Coefficients1D_Hash_it it=x_I_S_v.begin(); it!=x_I_S_v.end(); ++it) {
@@ -584,7 +586,6 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
         cxxblas::Transpose trans)
 {
     if (v.size()==0) return;
-
 
     IndexSet<Index1D> Lambda_x, Lambda_y;
     split(Lambda, Lambda_x, Lambda_y);
@@ -617,9 +618,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                                                               col_index_y.j+1, false);
             for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
                 if (Lambda_y.count(*row_y)==0) continue;
-                T dd_y = laplace_data1d(*row_y,col_index_y);
-                T id_y = identity_data1d(*row_y,col_index_y);
-                T d_y  = convection_data1d(*row_y,col_index_y);
+                T dd_y = laplace_data1d_y(*row_y,col_index_y);
+                T id_y = identity_data1d_y(*row_y,col_index_y);
+                T d_y  = convection_data1d_y(*row_y,col_index_y);
                 T val2_y = (diffusion*dd_y + convection_y*d_y + 0.5*reaction*id_y);
 
                 for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
@@ -646,7 +647,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                                                   col_index_x.j+1, false);
             for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
                 if (Lambda_x.count(*row_x)==0) continue;
-                T id_x = identity_data1d(*row_x,col_index_x);
+                T id_x = identity_data1d_x(*row_x,col_index_x);
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                     Index2D row_index(*row_x,(*coeff_y_it).first);
                     if (Lambda.count(row_index)==0) continue;
@@ -674,7 +675,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                                                               col_index_y.j+1, false);
             for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
                 if (Lambda_y.count(*row_y)==0) continue;
-                T id_y = identity_data1d(*row_y,col_index_y);
+                T id_y = identity_data1d_y(*row_y,col_index_y);
                 T val1_y =  id_y;
 
                 for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
@@ -684,6 +685,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                 }
             }
         }
+
         for (const_coeff2d_it col=I_S_v.begin(); col!=I_S_v.end(); ++col) {
             if (x_I_S_v.count((*col).first.index1)>0) {
                 x_I_S_v[(*col).first.index1].operator[]((*col).first.index2) = (*col).second;
@@ -703,9 +705,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                                                   col_index_x.j+1, false);
             for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
                 if (Lambda_x.count(*row_x)==0) continue;
-                T id_x = identity_data1d(*row_x,col_index_x);
-                T dd_x = laplace_data1d(*row_x,col_index_x);
-                T d_x  = convection_data1d(*row_x,col_index_x);
+                T id_x = identity_data1d_x(*row_x,col_index_x);
+                T dd_x = laplace_data1d_x(*row_x,col_index_x);
+                T d_x  = convection_data1d_x(*row_x,col_index_x);
                 T val_x = diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x;
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                     Index2D row_index(*row_x,(*coeff_y_it).first);
@@ -736,9 +738,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                                                               row_index_y.j+1, false);
             for (const_set1d_it col_y=LambdaColSparse_y.begin(); col_y!=LambdaColSparse_y.end(); ++col_y) {
                 if (Lambda_y.count(*col_y)==0) continue;
-                T dd_y = laplace_data1d(row_index_y,*col_y);
-                T id_y = identity_data1d(row_index_y,*col_y);
-                T d_y  = convection_data1d(row_index_y,*col_y);
+                T dd_y = laplace_data1d_y(row_index_y,*col_y);
+                T id_y = identity_data1d_y(row_index_y,*col_y);
+                T d_y  = convection_data1d_y(row_index_y,*col_y);
                 T val2_y = (diffusion*dd_y + convection_y*d_y + 0.5*reaction*id_y);
 
                 for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
@@ -766,7 +768,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                                                   row_index_x.j+1, false);
             for (const_set1d_it col_x=LambdaColSparse_x.begin(); col_x!=LambdaColSparse_x.end(); ++col_x) {
                 if (Lambda_x.count(*col_x)==0) continue;
-                T id_x = identity_data1d(row_index_x,*col_x);
+                T id_x = identity_data1d_x(row_index_x,*col_x);
                 if (!(fabs(id_x)>0)) continue;
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                     Index1D row_index_y = (*coeff_y_it).first;
@@ -797,7 +799,7 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                                                               row_index_y.j+1, false);
             for (const_set1d_it col_y=LambdaColSparse_y.begin(); col_y!=LambdaColSparse_y.end(); ++col_y) {
                 if (Lambda_y.count(*col_y)==0) continue;
-                T id_y = identity_data1d(row_index_y,*col_y);
+                T id_y = identity_data1d_y(row_index_y,*col_y);
                 T val1_y =  id_y;
 
                 for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
@@ -827,9 +829,9 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
                                                   row_index_x.j+1, false);
             for (const_set1d_it col_x=LambdaColSparse_x.begin(); col_x!=LambdaColSparse_x.end(); ++col_x) {
                 if (Lambda_x.count(*col_x)==0) continue;
-                T id_x = identity_data1d(row_index_x,*col_x);
-                T dd_x = laplace_data1d(row_index_x,*col_x);
-                T d_x  = convection_data1d(row_index_x,*col_x);
+                T id_x = identity_data1d_x(row_index_x,*col_x);
+                T dd_x = laplace_data1d_x(row_index_x,*col_x);
+                T d_x  = convection_data1d_x(row_index_x,*col_x);
                 T val_x = diffusion*dd_x + convection_x*d_x + 0.5*reaction*id_x;
                 if (!(fabs(val_x)>0)) continue;
                 for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {

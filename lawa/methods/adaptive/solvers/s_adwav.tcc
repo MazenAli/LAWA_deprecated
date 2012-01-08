@@ -107,6 +107,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         //Computing residual
         std::cout << "   Computing DeltaLambda..." << std::endl;
         DeltaLambda = C(LambdaThresh, contraction, basis);
+
         std::cout << "... finished." << std::endl;
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         f = F(DeltaLambda);

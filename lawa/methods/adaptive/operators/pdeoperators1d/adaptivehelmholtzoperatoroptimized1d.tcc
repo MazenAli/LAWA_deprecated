@@ -623,6 +623,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::AdaptiveHelm
         else if (basis.j0==-2) {    cA = 0.25;  CA = 2.9;    }
         else if (basis.j0==-3) {    cA = 0.25;  CA = 2.9;    }
         else if (basis.j0==-4) {    cA = 0.25;  CA = 2.9;    }
+        else if (basis.j0==-5) {    cA = 0.25;  CA = 2.9;    }
+        else if (basis.j0==-6) {    cA = 0.25;  CA = 2.9;    }
         else assert(0);
 
     }
@@ -673,8 +675,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::mv
     for (const_coeff1d_it it=v.begin(); it!=v.end(); ++it) {
         Index1D col_index = (*it).first;
         IndexSet<Index1D> lambdaTilde=lambdaTilde1d_PDE<T>(col_index, basis, 1, basis.j0);
-        //for (const_set1d_it set_it=LambdaRow.begin(); set_it!=LambdaRow.end(); ++set_it) {
-        for (const_set1d_it set_it=lambdaTilde.begin(); set_it!=lambdaTilde.end(); ++set_it) {
+        for (const_set1d_it set_it=LambdaRow.begin(); set_it!=LambdaRow.end(); ++set_it) {
+        //for (const_set1d_it set_it=lambdaTilde.begin(); set_it!=lambdaTilde.end(); ++set_it) {
             Index1D row_index = *set_it;
             if (LambdaRow.count(row_index)>0) {
                 ret[*set_it] += this->operator()(row_index,col_index) * (*it).second;
@@ -700,8 +702,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSpars
     this->compression.setParameters(LambdaRow);
     for (const_set1d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
         IndexSet<Index1D> LambdaRowSparse = this->compression.SparsityPattern(*col, LambdaRow);
-        //for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row) {
-        for (const_set1d_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
+        for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row) {
+        //for (const_set1d_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
             T val = this->operator()(*row,*col);
             if (fabs(val)>0) {
                 A_flens(row_indices[*row],col_count) = val;
