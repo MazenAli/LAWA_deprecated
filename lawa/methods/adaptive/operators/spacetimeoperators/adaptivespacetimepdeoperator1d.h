@@ -146,7 +146,7 @@ struct AdaptiveSpaceTimePDEOperator1D : public Operator2D<T> {
       
 } // namespace lawa
 
-#include <lawa/methods/adaptive/operators/adaptivespacetimepdeoperator1d.tcc>
+#include <lawa/methods/adaptive/operators/spacetimeoperators/adaptivespacetimepdeoperator1d.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMEPDEOPERATOR1D_H
  

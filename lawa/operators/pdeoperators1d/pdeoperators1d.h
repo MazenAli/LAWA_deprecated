@@ -7,3 +7,4 @@
 #include <lawa/operators/pdeoperators1d/weightedidentityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedlaplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedpdeoperator1d.h>
+#include <lawa/operators/pdeoperators1d/weightedconvectionoperator1d.h>
