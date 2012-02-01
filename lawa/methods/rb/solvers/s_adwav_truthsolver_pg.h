@@ -67,7 +67,9 @@ class S_ADWAV_TruthSolver_PG {
     
     /* Public member functions */
         
-        IndexSet<Index2D> current_basis_set;
+        // Current Basis Set
+        IndexSet<Index2D> trialbasis_set;
+        IndexSet<Index2D>& testbasis_set;
                             
     private:
     

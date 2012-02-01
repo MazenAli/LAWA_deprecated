@@ -19,7 +19,7 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     : s_adwav(_truth.trialbasis, _truth.lhs_op, _truth.rhs_op, 0.125, 0.1), 
       repr_s_adwav_F(_truth.testbasis, _truth.repr_lhs_op, _truth.repr_rhs_F_op, 0.125, 0.1),
       repr_s_adwav_A(_truth.testbasis, _truth.repr_lhs_op, _truth.repr_rhs_A_op, 0.125, 0.1),
-      solution_method(solmethod)
+      solution_method(solmethod), testbasis_set(trialbasis_set)
 {}
 
 
@@ -49,7 +49,7 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
              }       
         }
     }
-    
+        
     Timer timer;
     timer.start();
     switch (solution_method) {
@@ -70,10 +70,9 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     timer.stop();
     std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;
     
-    current_basis_set = supp(s_adwav.solutions[s_adwav.solutions.size() - 1]);
-    
-    std::cout << "So far " << s_adwav.solutions.size() << "S-adwav solutions" << std::endl;
-    
+    trialbasis_set = supp(s_adwav.solutions[s_adwav.solutions.size() - 1]);
+    std::cout << "Memory: " << s_adwav.solutions.size() << " S_adwav-solutions with " << trialbasis_set.size() << " BF" << std::endl;
+        
     return s_adwav.solutions[s_adwav.solutions.size() - 1];
 }
 
@@ -101,7 +100,10 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     timer.start();
     repr_s_adwav_F.solve_cg(InitialLambda);
     timer.stop();
-    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;        
+    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;      
+    
+    std::cout << "Memory Repr F: " << repr_s_adwav_F.solutions.size() << " S_adwav-solutions with " << supp(repr_s_adwav_F.solutions[repr_s_adwav_F.solutions.size() - 1]).size() << " BF" << std::endl;
+      
     return repr_s_adwav_F.solutions[repr_s_adwav_F.solutions.size() - 1];
 }
 
@@ -128,7 +130,10 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     timer.start();
     repr_s_adwav_A.solve_cg(InitialLambda);
     timer.stop();
-    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;    
+    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;  
+    
+    std::cout << "Memory Repr A: " << repr_s_adwav_A.solutions.size() << " S_adwav-solutions with " << supp(repr_s_adwav_A.solutions[repr_s_adwav_A.solutions.size() - 1]).size() << " BF" << std::endl;
+  
     return repr_s_adwav_A.solutions[repr_s_adwav_A.solutions.size() - 1];
 }
 

@@ -49,6 +49,7 @@ class RBModel2D {
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
 
     public:
+        typedef TruthModel      TruthModelType;
 
     /* Public member functions */
         RBModel2D();
