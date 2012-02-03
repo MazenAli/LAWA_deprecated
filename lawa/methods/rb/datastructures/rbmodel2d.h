@@ -111,7 +111,7 @@ class RBModel2D {
         
         void
         train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename = "Training.txt",
-                     SolverCall call = call_cg);
+                     SolverCall call = call_cg, bool write_during_training = false);
         
         void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
@@ -123,7 +123,7 @@ class RBModel2D {
         generate_loglin2d_trainingset(std::vector<int>& param_nbs_per_dim);
         
         void
-        write_basis_functions(const std::string& directory_name = "offline_data/bf");
+        write_basis_functions(const std::string& directory_name = "offline_data/bf", int bf_nr = -1);
         
         void
         read_basis_functions(const std::string& directory_name = "offline_data/bf");

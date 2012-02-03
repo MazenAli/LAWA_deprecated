@@ -3,8 +3,10 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <errno.h>
 #include <iomanip>
 #include <cmath>
+#include <string>
 
 namespace  lawa {
 
@@ -318,7 +320,9 @@ RBModel2D<T, TruthModel>::generate_loglin2d_trainingset(std::vector<int>& n_trai
 
 template <typename T, typename TruthModel>
 void
-RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename, SolverCall call)
+RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, 
+																			 const char* filename, SolverCall call,
+																			 bool write_during_training)
 {
     // Initial Snapshot
     set_current_param(init_param);
@@ -361,6 +365,24 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
         CoeffVector u = truth->truth_solve();
         add_to_basis(u);
         N++;
+
+				if(write_during_training){
+					std::cout << "Writing Data.... " << std::endl;
+					if(mkdir("training_offline_data", 0777) == -1)
+				  {
+						  std::cerr << "In RBModel::train_Greedy: directory training_offline_data already exists, overwriting contents." << std::endl;	
+				  }
+					std::string bf_folder = "training_offline_data/bf";
+					write_basis_functions(bf_folder, N);
+					std::string repr_folder = "training_offline_data/representors";
+					truth->write_riesz_representors(repr_folder,N);
+					if(N == 1){
+						truth->write_riesz_representors(repr_folder, 0);	
+					}
+					std::string RB_folder = "training_offline_data/RB";
+					write_RB_data(RB_folder);
+					std::cout << " ... done " << std::endl;
+				}
         
         /*
         // Scatterplot
@@ -419,13 +441,14 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
 
 template <typename T, typename TruthModel>
 void
-RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_name){
+RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_name, int bf_nr){
 
   // Make a directory to store all the data files
-  if( mkdir(directory_name.c_str(), 0777) == -1)
+  if(mkdir(directory_name.c_str(), 0777) == -1)
   {
-    std::cerr << "In RBModel::write_basis_functions, directory "
-                 << directory_name << " already exists, overwriting contents." << std::endl;
+			std::cerr << strerror(errno) << std::endl;
+		  std::cerr << "In RBModel::write_basis_functions, directory "
+	                 << directory_name << " already exists, overwriting contents." << std::endl;	
   }
   
   std::stringstream n_bf_filename;
@@ -434,11 +457,19 @@ RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_nam
   n_bf_file <<  n_bf() << std::endl;
   n_bf_file.close();
   
-  for(unsigned int i = 0; i < n_bf(); ++i){
-    std::stringstream filename;
-    filename << directory_name << "/bf_" << i+1 << ".dat";
-    saveCoeffVector2D(rb_basis_functions[i], truth->basis, filename.str().c_str());
-  }
+	if(bf_nr < 1){
+		for(unsigned int i = 0; i < n_bf(); ++i){
+	    std::stringstream filename;
+	    filename << directory_name << "/bf_" << i+1 << ".dat";
+	    saveCoeffVector2D(rb_basis_functions[i], truth->basis, filename.str().c_str());
+	  }
+	}
+	else{
+		std::cout << "Write Basis fct nr " << bf_nr << std::endl;
+	    std::stringstream filename;
+	    filename << directory_name << "/bf_" << bf_nr << ".dat";
+	    saveCoeffVector2D(rb_basis_functions[bf_nr-1], truth->basis, filename.str().c_str());
+	}
 }
 
 template <typename T, typename TruthModel>

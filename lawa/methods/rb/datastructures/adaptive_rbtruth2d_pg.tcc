@@ -335,28 +335,47 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
-AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::write_riesz_representors(const std::string& directory_name)
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::write_riesz_representors(const std::string& directory_name, int repr_nr)
 {
   // Make a directory to store all the data files
-  if( mkdir(directory_name.c_str(), 0777) == -1)
+  if((mkdir(directory_name.c_str(), 0777) == -1)&& (repr_nr < 1))
   {
     std::cerr << "In RBModel::write_RB_data, directory "
                  << directory_name << " already exists, overwriting contents." << std::endl;
   }
   
-  for(unsigned int i = 0; i < rb->Q_f(); ++i){
-    std::stringstream filename;
-    filename << directory_name << "/F_representor_" << i+1 << ".dat";
-    saveCoeffVector2D(F_representors[i], testbasis, filename.str().c_str());
-  }
+	if(repr_nr < 1){
+	  for(unsigned int i = 0; i < rb->Q_f(); ++i){
+	    std::stringstream filename;
+	    filename << directory_name << "/F_representor_" << i+1 << ".dat";
+	    saveCoeffVector2D(F_representors[i], testbasis, filename.str().c_str());
+	  }
   
-  for(unsigned int n = 0; n < rb->n_bf(); ++n){
-    for(unsigned int i = 0; i < rb->Q_a(); ++i){
-      std::stringstream filename;
-      filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".dat";
-      saveCoeffVector2D(A_representors[n][i], testbasis, filename.str().c_str()); 
-    }
-  }
+	  for(unsigned int n = 0; n < rb->n_bf(); ++n){
+	    for(unsigned int i = 0; i < rb->Q_a(); ++i){
+	      std::stringstream filename;
+	      filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".dat";
+	      saveCoeffVector2D(A_representors[n][i], testbasis, filename.str().c_str()); 
+	    }
+	  }	
+	}
+	else{
+		if(repr_nr == 0){
+			for(unsigned int i = 0; i < rb->Q_f(); ++i){
+		    std::stringstream filename;
+		    filename << directory_name << "/F_representor_" << repr_nr << ".dat";
+		    saveCoeffVector2D(F_representors[repr_nr - 1], testbasis, filename.str().c_str());
+		  }	
+		}
+		else{
+	    for(unsigned int i = 0; i < rb->Q_a(); ++i){
+	      std::stringstream filename;
+	      filename << directory_name << "/A_representor_" << i+1 << "_" << repr_nr << ".dat";
+	      saveCoeffVector2D(A_representors[repr_nr-1][i], testbasis, filename.str().c_str()); 
+	    }			
+		}
+	}
+
   
 }
 
