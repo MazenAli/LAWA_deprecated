@@ -238,6 +238,7 @@ LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T>  &u_loc_single, 
                                          CoefficientsByLevel<T>  &u_scaling,
                                          CoefficientsByLevel<T>  &u_wavelet) const
 {
+    if (u_loc_single.map.size()==0) return;
     for (typename CoefficientsByLevel<T>::iter it=u_scaling.map.begin(); it!=u_scaling.map.end(); ++it) {
         T coeff = this->decompose_(u_loc_single, j-1, (*it).first, XBSpline);
         (*it).second += coeff;
@@ -303,29 +304,43 @@ LocalRefinement<PrimalBasis>::decompose_(Coefficients<Lexicographical,T,Index1D>
 
 template <typename PrimalBasis>
 typename PrimalBasis::T
-LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T> &u_loc_single,
+LocalRefinement<PrimalBasis>::decompose_(const CoefficientsByLevel<T> &u_loc_single,
                                          const short &j, const long &k, const XType &xtype) const
 {
+    const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
+    const_coeffbylevel_it u_loc_single_ptr;
     long double val = 0.L;
     if (xtype==XWavelet) {
         if (k<=numLeftBoundaryWavelets) {
             long k_first_scaling=basis.mra.rangeI(j+1).firstIndex()-1;
             for (int i=leftM1(k).firstIndex(); i<=leftM1(k).lastIndex(); ++i) {
-                val += (long double)(u_loc_single.map[k_first_scaling+i] * leftM1(k).operator()(i));
+                u_loc_single_ptr=u_loc_single.map.find(k_first_scaling+i);
+                if (u_loc_single_ptr!=u_loc_single_end) {
+                    val += (*u_loc_single_ptr).second * leftM1(k).operator()(i);
+                }
+                //val += (long double)(u_loc_single.map[k_first_scaling+i] * leftM1(k).operator()(i));
             }
         }
         else if (k>basis.cardJ(j)-numRightBoundaryWavelets) {
             int type = basis.cardJ(j) - k + 1;
             long k_first_scaling= basis.mra.rangeI(j+1).lastIndex() - rightM1(type).length();
             for (int i=rightM1(type).firstIndex(); i<=rightM1(type).lastIndex(); ++i) {
-                val += (long double)(u_loc_single.map[k_first_scaling+i] * rightM1(type).operator()(i));
+                u_loc_single_ptr=u_loc_single.map.find(k_first_scaling+i);
+                if (u_loc_single_ptr!=u_loc_single_end) {
+                    val += (*u_loc_single_ptr).second * rightM1(type).operator()(i);
+                }
+                //val += (long double)(u_loc_single.map[k_first_scaling+i] * rightM1(type).operator()(i));
             }
         }
         else {
             long k_first_scaling= (k - numLeftBoundaryWavelets - 1)*2 + inner_wavelet_offset - 1;
             T factor = ((basis.d % 2 != 0) && (k>basis.cardJ(j)/2.)) ? -1. : 1.;
             for (int i=innerM1.firstIndex(); i<=innerM1.lastIndex(); ++i) {
-                val += (long double)(u_loc_single.map[k_first_scaling+i] * factor * innerM1(i));
+                u_loc_single_ptr=u_loc_single.map.find(k_first_scaling+i);
+                if (u_loc_single_ptr!=u_loc_single_end) {
+                    val += (*u_loc_single_ptr).second * factor * innerM1(i);
+                }
+                //val += (long double)(u_loc_single.map[k_first_scaling+i] * factor * innerM1(i));
             }
         }
     }
@@ -334,20 +349,32 @@ LocalRefinement<PrimalBasis>::decompose_(CoefficientsByLevel<T> &u_loc_single,
             int offset = basis.mra.rangeI(basis.j0).firstIndex()-1;
             long k_first_scaling= basis.mra.rangeI(j+1).firstIndex() - 1;
             for (int i=leftM0(k-offset).firstIndex(); i<=leftM0(k-offset).lastIndex(); ++i) {
-                val += (long double)(u_loc_single.map[k_first_scaling+i] * leftM0(k-offset).operator()(i));
+                u_loc_single_ptr=u_loc_single.map.find(k_first_scaling+i);
+                if (u_loc_single_ptr!=u_loc_single_end) {
+                    val += (*u_loc_single_ptr).second * leftM0(k-offset).operator()(i);
+                }
+                //val += (long double)(u_loc_single.map[k_first_scaling+i] * leftM0(k-offset).operator()(i));
             }
         }
         else if (k>=basis.mra.rangeIR(j).firstIndex()) {
             int type = basis.mra.rangeI(j).lastIndex() - k + 1;
             long k_first_scaling= basis.mra.rangeI(j+1).lastIndex() - rightM0(type).length();
             for (int i=rightM0(type).firstIndex(); i<=rightM0(type).lastIndex(); ++i) {
-                val += (long double)(u_loc_single.map[k_first_scaling+i] * rightM0(type).operator()(i));
+                u_loc_single_ptr=u_loc_single.map.find(k_first_scaling+i);
+                if (u_loc_single_ptr!=u_loc_single_end) {
+                    val += (*u_loc_single_ptr).second * rightM0(type).operator()(i);
+                }
+                //val += (long double)(u_loc_single.map[k_first_scaling+i] * rightM0(type).operator()(i));
             }
         }
         else {
             long k_first_scaling= (k - numLeftBoundaryScalings - 1)*2 + inner_scaling_offset - 1;
             for (int i=innerM0.firstIndex(); i<=innerM0.lastIndex(); ++i) {
-                val += (long double)(u_loc_single.map[k_first_scaling+i] * innerM0(i));
+                u_loc_single_ptr=u_loc_single.map.find(k_first_scaling+i);
+                if (u_loc_single_ptr!=u_loc_single_end) {
+                    val += (*u_loc_single_ptr).second * innerM0(i);
+                }
+                //val += (long double)(u_loc_single.map[k_first_scaling+i] * innerM0(i));
             }
         }
     }

@@ -54,33 +54,31 @@ MRA<T,Primal,Interval,SparseMulti>::max_support() const
     if (d==4) return Support<T>(0.,2.);
 }
 
-//--- cardinalities of whole, left, inner, right index sets. -------------------
-
 template <typename T>
-long
+int
 MRA<T,Primal,Interval,SparseMulti>::cardI(int j) const
 {
     assert(j>=j0);
-    return 2*pow2i<T>(j);
+    return 2*pow2i<int>(j);
 }
 
 template <typename T>
-long
+int
 MRA<T,Primal,Interval,SparseMulti>::cardIL(int /*j*/) const
 {
     return _numLeftParts;
 }
 
 template <typename T>
-long
+int
 MRA<T,Primal,Interval,SparseMulti>::cardII(int j) const
 {
     assert(j>=j0);
-    return 2*pow2i<T>(j)-_numLeftParts-_numRightParts;
+    return 2*pow2i<int>(j)-_numLeftParts-_numRightParts;
 }
 
 template <typename T>
-long
+int
 MRA<T,Primal,Interval,SparseMulti>::cardIR(int /*j*/) const
 {
     return _numRightParts;
@@ -89,33 +87,97 @@ MRA<T,Primal,Interval,SparseMulti>::cardIR(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets. --------------------------
 
 template <typename T>
-Range<long>
+Range<int>
 MRA<T,Primal,Interval,SparseMulti>::rangeI(int j) const
 {
     assert(j>=j0);
-    return Range<long>(0,cardI(j)-1);
+    return Range<int>(0,cardI(j)-1);
+}
+
+template <typename T>
+Range<int>
+MRA<T,Primal,Interval,SparseMulti>::rangeIL(int /*j*/) const
+{
+    return Range<int>(0,0);
+}
+
+template <typename T>
+Range<int>
+MRA<T,Primal,Interval,SparseMulti>::rangeII(int j) const
+{
+    return Range<int>(1,cardI(j)-2);
+}
+
+template <typename T>
+Range<int>
+MRA<T,Primal,Interval,SparseMulti>::rangeIR(int j) const
+{
+    return Range<int>(cardI(j)-1,cardI(j)-1);
+}
+
+
+//For adaptive schemes, we may require "long" as index type for local scaling function repr.
+template <typename T>
+long
+MRA<T,Primal,Interval,SparseMulti>::long_cardI(int j) const
+{
+    assert(j>=j0);
+    return 2*pow2i<long>(j);
+}
+
+template <typename T>
+long
+MRA<T,Primal,Interval,SparseMulti>::long_cardIL(int /*j*/) const
+{
+    return _numLeftParts;
+}
+
+template <typename T>
+long
+MRA<T,Primal,Interval,SparseMulti>::long_cardII(int j) const
+{
+    assert(j>=j0);
+    return 2*pow2i<long>(j)-_numLeftParts-_numRightParts;
+}
+
+template <typename T>
+long
+MRA<T,Primal,Interval,SparseMulti>::long_cardIR(int /*j*/) const
+{
+    return _numRightParts;
 }
 
 template <typename T>
 Range<long>
-MRA<T,Primal,Interval,SparseMulti>::rangeIL(int /*j*/) const
+MRA<T,Primal,Interval,SparseMulti>::long_rangeI(int j) const
+{
+    assert(j>=j0);
+    return Range<long>(0,long_cardI(j)-1);
+}
+
+template <typename T>
+Range<long>
+MRA<T,Primal,Interval,SparseMulti>::long_rangeIL(int /*j*/) const
 {
     return Range<long>(0,0);
 }
 
 template <typename T>
 Range<long>
-MRA<T,Primal,Interval,SparseMulti>::rangeII(int j) const
+MRA<T,Primal,Interval,SparseMulti>::long_rangeII(int j) const
 {
-    return Range<long>(1,cardI(j)-2);
+    return Range<long>(1,long_cardI(j)-2);
 }
 
 template <typename T>
 Range<long>
-MRA<T,Primal,Interval,SparseMulti>::rangeIR(int j) const
+MRA<T,Primal,Interval,SparseMulti>::long_rangeIR(int j) const
 {
-    return Range<long>(cardI(j)-1,cardI(j)-1);
+    return Range<long>(long_cardI(j)-1,long_cardI(j)-1);
 }
+
+
+
 
 template <typename T>
 int

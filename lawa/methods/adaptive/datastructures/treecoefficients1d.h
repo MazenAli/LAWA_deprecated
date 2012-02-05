@@ -33,7 +33,7 @@
 
 namespace lawa {
 
-#define COEFFBYLEVELSIZE 256
+#define COEFFBYLEVELSIZE 1024
 
 struct long_hashfunction
 {
@@ -47,6 +47,7 @@ struct long_hashfunction
 template <typename T>
 struct CoefficientsByLevel
 {
+
     #ifdef TRONE
         typedef typename std::tr1::unordered_map<long, T/*, long_hashfunction*/> TranslationIndexToValueMap;
     #else
@@ -69,6 +70,9 @@ struct CoefficientsByLevel
 
     CoefficientsByLevel<T>&
     operator+=(const CoefficientsByLevel<T> &_coeff);
+
+    void
+    setToZero();
 
     short j;
     TranslationIndexToValueMap map;
@@ -104,13 +108,28 @@ struct TreeCoefficients1D
     operator[](short j);
 
 
-    // someone can tell me how to put that into the tcc-file??
+    void
+    addTo(Coefficients<Lexicographical,T,Index1D> &v, int j0)
+    {
+        for (int l=j0-1; l<=maxTreeLevel; ++l) {
+            if (this->bylevel[l].map.size()==0) break;
+            XType xtype_row_y;
+            int j;
+            if (l==j0-1) { xtype_row_y = XBSpline; j=l+1; }
+            else         { xtype_row_y = XWavelet; j=l;  }
+            for (const_by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
+                Index1D index(j,(*it).first,xtype_row_y);
+                if (fabs((*it).second)>0) v[index] += (*it).second;
+            }
+        }
+    }
 
+    // someone can tell me how to put that into the tcc-file??
     template<typename Index, typename PrincipalIndex>
     void
     addTo_x1aligned(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v, int j0)
     {
-        for (int l=j0-1; l<=JMAX; ++l) {
+        for (int l=j0-1; l<=maxTreeLevel; ++l) {
             if (this->bylevel[l].map.size()==0) break;
             XType xtype_row_y;
             int j;
@@ -118,7 +137,7 @@ struct TreeCoefficients1D
             else         { xtype_row_y = XWavelet; j=l;  }
             for (const_by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
                 Index1D row_y(j,(*it).first,xtype_row_y);
-                if (fabs((*it).second)>0)  v[Index2D(lambda,row_y)] += (*it).second;
+                if (fabs((*it).second)>0) v[Index2D(lambda,row_y)] += (*it).second;
             }
         }
     }
@@ -127,7 +146,7 @@ struct TreeCoefficients1D
     void
     addTo_x2aligned(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v, int j0)
     {
-        for (int l=j0-1; l<=JMAX; ++l) {
+        for (int l=j0-1; l<=maxTreeLevel; ++l) {
             if (this->bylevel[l].map.size()==0) break;
             XType xtype_row_x;
             int j;
@@ -140,10 +159,23 @@ struct TreeCoefficients1D
         }
     }
 
+    void
+    setToZero();
+
+    int
+    size();
+
+    int
+    getMaxTreeLevel(int j0);
+
+    int
+    setMaxTreeLevel(int j);
+
     T
     norm(T factor);
 
     CoefficientsByLevel<T> bylevel[JMAX+1];
+    int maxTreeLevel;
 
 };
 

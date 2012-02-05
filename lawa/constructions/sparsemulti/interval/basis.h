@@ -44,31 +44,56 @@ class Basis<_T,Primal,Interval,SparseMulti>
         Support<T>
         max_support() const;
 
-        //--- cardinalities of whole, left, inner, right index set.
-        long
+        int
         cardJ(const int j) const;
-        
-        long
+
+        int
         cardJL(const int j=-1) const;
 
-        long
+        int
         cardJI(const int j) const;
 
-        long
+        int
         cardJR(const int j=-1) const;
-    
+
         //--- ranges of whole, left, inner, right index set.
-        const flens::Range<long>
+        const flens::Range<int>
         rangeJ(const int j) const;
-    
-        const flens::Range<long>
+
+        const flens::Range<int>
         rangeJL(const int j=-1) const;
 
-        const flens::Range<long>
+        const flens::Range<int>
         rangeJI(const int j) const;
 
-        const flens::Range<long>
+        const flens::Range<int>
         rangeJR(const int j=-1) const;
+
+
+        //For adaptive schemes, we require "long" as index type::
+        long
+        long_cardJ(const int j) const;
+        
+        long
+        long_cardJL(const int j=-1) const;
+
+        long
+        long_cardJI(const int j) const;
+
+        long
+        long_cardJR(const int j=-1) const;
+    
+        const flens::Range<long>
+        long_rangeJ(const int j) const;
+    
+        const flens::Range<long>
+        long_rangeJL(const int j=-1) const;
+
+        const flens::Range<long>
+        long_rangeJI(const int j) const;
+
+        const flens::Range<long>
+        long_rangeJR(const int j=-1) const;
     
         MRA<T,Primal,Interval,SparseMulti> mra;
     

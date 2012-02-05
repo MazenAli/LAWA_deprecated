@@ -34,6 +34,7 @@ struct LocalOperator2D {
 
     typedef IndexSet<Index2D>::const_iterator                                  const_set2d_it;
 
+    typedef typename Coefficients<Lexicographical,T,Index1D>::iterator         coeff1d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator   const_coeff1d_it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator   const_coeff2d_it;
 
@@ -46,9 +47,46 @@ struct LocalOperator2D {
                     const LocalOperator2 &_localoperator2);
 
     void
+    setJ(int J);
+
+    void
     evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-           Coefficients<Lexicographical,T,Index2D> &UIv,
-           Coefficients<Lexicographical,T,Index2D> &AAv) const;
+           Coefficients<Lexicographical,T,Index2D> &intermediate,
+           Coefficients<Lexicographical,T,Index2D> &LIIAv,
+           Coefficients<Lexicographical,T,Index2D> &IAUIv) const;
+
+    void
+    evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
+           Coefficients<Lexicographical,T,Index2D> &intermediate,
+           Coefficients<Lexicographical,T,Index2D> &LIIAv,
+           Coefficients<Lexicographical,T,Index2D> &IAUIv,
+           T &time_intermediate1, T &time_intermediate2,
+           T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) const;
+
+    void
+    debug_evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
+                 Coefficients<Lexicographical,T,Index2D> &intermediate,
+                 Coefficients<Lexicographical,T,Index2D> &IAUIv,
+                 Coefficients<Lexicographical,T,Index2D> &LIIAv,
+                 const Coefficients<Lexicographical,T,Index2D> &IAv_ref,
+                 const Coefficients<Lexicographical,T,Index2D> &LIIAv_ref,
+                 const Coefficients<Lexicographical,T,Index2D> &UIv_ref,
+                 const Coefficients<Lexicographical,T,Index2D> &IAUIv_ref,
+                 const Coefficients<Lexicographical,T,Index2D> &AAv_ref) const;
+
+    void
+    initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T,Index2D> &v,
+                                    const Coefficients<Lexicographical,T,Index2D> &AAv,
+                                    Coefficients<Lexicographical,T,Index2D> &IAv) const;
+
+    void
+    initializeIntermediateVectorUIv(const Coefficients<Lexicographical,T,Index2D> &v,
+                                    const Coefficients<Lexicographical,T,Index2D> &AAv,
+                                    Coefficients<Lexicographical,T,Index2D> &UIv) const;
+
+    void
+    evalLI(const Coefficients<Lexicographical,T,Index2D> &IAv,
+              Coefficients<Lexicographical,T,Index2D> &LIIAv) const;
 
     void
     evalUI(const Coefficients<Lexicographical,T,Index2D> &v,
@@ -58,6 +96,7 @@ struct LocalOperator2D {
     evalIA(const Coefficients<Lexicographical,T,Index2D> &UIv,
            Coefficients<Lexicographical,T,Index2D> &AAv) const;
 
+    int                           J;
     const Basis                   &basis;
     const LocalOperator1          &localoperator1;
     const LocalOperator2          &localoperator2;

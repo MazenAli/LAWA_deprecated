@@ -212,7 +212,7 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
                     }
                 }
             }
-            return maxIterations*CGMRES_ITER;
+            return maxIterations;
         }
         else {
             flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);

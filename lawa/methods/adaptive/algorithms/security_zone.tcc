@@ -393,11 +393,11 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,Interval,SparseMulti
 
     //std::cout << "Index cone for " << lambda << std::endl;
     if (xtype==XBSpline) {
-        long kMin = std::max(k-2*numSplines, basis.mra.rangeI(j).firstIndex());
+        long kMin = std::max(k-2*numSplines, basis.mra.long_rangeI(j).firstIndex());
         for (int k_row=kMin; k_row<=k-1; ++k_row) {
             ret.insert(Index1D(j,k_row,xtype));
         }
-        long kMax = std::min(k+2*numSplines, basis.mra.rangeI(j).lastIndex());
+        long kMax = std::min(k+2*numSplines, basis.mra.long_rangeI(j).lastIndex());
         for (int k_row=k+1; k_row<=kMax; ++k_row) {
             ret.insert(Index1D(j,k_row,xtype));
         }
@@ -409,8 +409,8 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,Interval,SparseMulti
 
         kMin = floor( pow2i<long double>(j)*contractedSupp.l1 - max_support_refwavelet.l2) - 1;
         kMax =  ceil( pow2i<long double>(j)*contractedSupp.l2 - max_support_refwavelet.l1) + 1;
-        kMin = std::max(kMin*numWavelets, basis.rangeJ(j+1).firstIndex());
-        kMax = std::min(kMax*numWavelets, basis.rangeJ(j+1).lastIndex());
+        kMin = std::max(kMin*numWavelets, basis.long_rangeJ(j+1).firstIndex());
+        kMax = std::min(kMax*numWavelets, basis.long_rangeJ(j+1).lastIndex());
         for (int k_row=kMin; k_row<=kMax; ++k_row) {
             //std::cerr << "  -> wavelet (" << j << ", " << k_row << "): " << psi.support(j,k_row) << " vs. " << contractedSupp << std::endl;
             if (overlap(contractedSupp, phi.support(j,k_row)) > 0) {
@@ -426,8 +426,8 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,Interval,SparseMulti
         long kMin, kMax;
         kMin = floor( pow2i<long double>(j+1)*contractedSupp.l1 - max_support_refwavelet.l2) / 2 - 1;
         kMax =  ceil( pow2i<long double>(j+1)*contractedSupp.l2 - max_support_refwavelet.l1) / 2 + 1;
-        kMin = std::max(kMin*numWavelets, basis.rangeJ(j+1).firstIndex());
-        kMax = std::min(kMax*numWavelets, basis.rangeJ(j+1).lastIndex());
+        kMin = std::max(kMin*numWavelets, basis.long_rangeJ(j+1).firstIndex());
+        kMax = std::min(kMax*numWavelets, basis.long_rangeJ(j+1).lastIndex());
 
         for (long k_row=kMin; k_row<=kMax; ++k_row) {
             Support<T> supp_row = psi.support(j+1,k_row);
@@ -496,25 +496,28 @@ template <typename T, typename Basis2D>
 IndexSet<Index2D>
 C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
 {
-    typedef typename IndexSet<Index2D>::const_iterator const_it_2d;
-    typedef typename IndexSet<Index1D>::const_iterator const_it;
+    typedef typename IndexSet<Index2D>::const_iterator const_set2d_it;
+    typedef typename IndexSet<Index1D>::const_iterator const_set1d_it;
 
+    const_set2d_it Lambda_end = Lambda.end();
     IndexSet<Index2D>  ret;
 
     //Security zone of Lambda should not contain indices which are already in Lambda
-    for (const_it_2d lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
+    for (const_set2d_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
         IndexSet<Index1D > C_index1, C_index2;
         C_index1 = C((*lambda).index1, c, basis.first);
         C_index2 = C((*lambda).index2, c, basis.second);
 
-        for (const_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
-            if (Lambda.count(Index2D((*it_C_index1), (*lambda).index2))==0) {
-                ret.insert(Index2D((*it_C_index1), (*lambda).index2));
+        for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+            Index2D new_index2d((*it_C_index1), (*lambda).index2);
+            if (Lambda.find(new_index2d)==Lambda_end) {
+                ret.insert(new_index2d);
             }
         }
-        for (const_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
-            if (Lambda.count(Index2D((*lambda).index1, (*it_C_index2)))==0) {
-                ret.insert(Index2D((*lambda).index1, (*it_C_index2)));
+        for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+            Index2D new_index2d((*lambda).index1, (*it_C_index2));
+            if (Lambda.find(new_index2d)==Lambda_end) {
+                ret.insert(new_index2d);
             }
         }
 /*

@@ -47,6 +47,18 @@ struct LocalOperator {
     scale_wrt_trialbasis(const TreeCoefficients1D<T> &x, TreeCoefficients1D<T> &y);
 
     void
+    computePhiPi2(int l, const CoefficientsByLevel<T> &cl, CoefficientsByLevel<T> &PhiPiCheck_vs_v,
+                  CoefficientsByLevel<T> &PhiPiCheck2_vs_v) const;
+
+    void
+    computed2(int l, const CoefficientsByLevel<T> &PsiLambdaCheck_vs_v_l,
+              const CoefficientsByLevel<T> &d,
+              CoefficientsByLevel<T> &d1, CoefficientsByLevel<T> &d2) const;
+
+    void
+    applyBilinearForm(int l, const CoefficientsByLevel<T> &d, CoefficientsByLevel<T> &PhiPiCheck_vs_v) const;
+
+    void
     evalA(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
           CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
           bool pre_apply_prec=true) const;

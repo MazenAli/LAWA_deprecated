@@ -168,17 +168,16 @@ Basis<T,Primal,Interval,SparseMulti>::max_support() const
     if (d==4) return Support<T>(-2.,2.);
 }
 
-// cardinalities of whole, left, inner, right index sets (primal).
 template <typename T>
-long
+int
 Basis<T,Primal,Interval,SparseMulti>::cardJ(int j) const
 {
     assert(j>=j0);
-    return 2*pow2i<long>(j);
+    return 2*pow2i<int>(j);
 }
 
 template <typename T>
-long
+int
 Basis<T,Primal,Interval,SparseMulti>::cardJL(int j) const
 {
     assert(j>=j0 or j==-1);
@@ -186,15 +185,15 @@ Basis<T,Primal,Interval,SparseMulti>::cardJL(int j) const
 }
 
 template <typename T>
-long
+int
 Basis<T,Primal,Interval,SparseMulti>::cardJI(int j) const
 {
     assert(j>=j0);
-    return 2*pow2i<long>(j)-_numLeftParts-_numRightParts;
+    return 2*pow2i<int>(j)-_numLeftParts-_numRightParts;
 }
 
 template <typename T>
-long
+int
 Basis<T,Primal,Interval,SparseMulti>::cardJR(int j) const
 {
     assert(j>=j0);
@@ -203,35 +202,103 @@ Basis<T,Primal,Interval,SparseMulti>::cardJR(int j) const
 
 // ranges of whole, left, inner, right index sets (primal).
 template <typename T>
-const Range<long>
+const Range<int>
 Basis<T,Primal,Interval,SparseMulti>::rangeJ(int j) const
 {
     assert(j>=j0);
-    return Range<long>(1,cardJ(j));
+    return Range<int>(1,cardJ(j));
 }
 
 template <typename T>
-const Range<long>
+const Range<int>
 Basis<T,Primal,Interval,SparseMulti>::rangeJL(int j) const
 {
     assert(j>=j0 or j==-1);
-    return Range<long>(1,cardJL(j));
+    return Range<int>(1,cardJL(j));
 }
 
 template <typename T>
-const Range<long>
+const Range<int>
 Basis<T,Primal,Interval,SparseMulti>::rangeJI(int j) const
 {
     assert(j>=j0);
-    return Range<long>(cardJL(j)+1,cardJL(j)+cardJI(j));
+    return Range<int>(cardJL(j)+1,cardJL(j)+cardJI(j));
+}
+
+template <typename T>
+const Range<int>
+Basis<T,Primal,Interval,SparseMulti>::rangeJR(int j) const
+{
+    assert(j>=j0);
+    return Range<int>(cardJL(j)+cardJI(j)+1,cardJ(j));
+}
+
+
+
+
+template <typename T>
+long
+Basis<T,Primal,Interval,SparseMulti>::long_cardJ(int j) const
+{
+    assert(j>=j0);
+    return 2*pow2i<long>(j);
+}
+
+template <typename T>
+long
+Basis<T,Primal,Interval,SparseMulti>::long_cardJL(int j) const
+{
+    assert(j>=j0 or j==-1);
+    return _numLeftParts;
+}
+
+template <typename T>
+long
+Basis<T,Primal,Interval,SparseMulti>::long_cardJI(int j) const
+{
+    assert(j>=j0);
+    return 2*pow2i<long>(j)-_numLeftParts-_numRightParts;
+}
+
+template <typename T>
+long
+Basis<T,Primal,Interval,SparseMulti>::long_cardJR(int j) const
+{
+    assert(j>=j0);
+    return _numRightParts;
+}
+
+// ranges of whole, left, inner, right index sets (primal).
+template <typename T>
+const Range<long>
+Basis<T,Primal,Interval,SparseMulti>::long_rangeJ(int j) const
+{
+    assert(j>=j0);
+    return Range<long>(1,long_cardJ(j));
 }
 
 template <typename T>
 const Range<long>
-Basis<T,Primal,Interval,SparseMulti>::rangeJR(int j) const
+Basis<T,Primal,Interval,SparseMulti>::long_rangeJL(int j) const
+{
+    assert(j>=j0 or j==-1);
+    return Range<long>(1,long_cardJL(j));
+}
+
+template <typename T>
+const Range<long>
+Basis<T,Primal,Interval,SparseMulti>::long_rangeJI(int j) const
 {
     assert(j>=j0);
-    return Range<long>(cardJL(j)+cardJI(j)+1,cardJ(j));
+    return Range<long>(long_cardJL(j)+1,long_cardJL(j)+long_cardJI(j));
+}
+
+template <typename T>
+const Range<long>
+Basis<T,Primal,Interval,SparseMulti>::long_rangeJR(int j) const
+{
+    assert(j>=j0);
+    return Range<long>(long_cardJL(j)+long_cardJI(j)+1,long_cardJ(j));
 }
 
 } // namespace lawa

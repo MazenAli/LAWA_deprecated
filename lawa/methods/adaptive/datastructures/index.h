@@ -29,7 +29,7 @@ namespace lawa {
 
 static boost::hash<long int> hash_long;
 
-#define JMINOFFSET                 10
+#define JMINOFFSET                  0
 #define JMAX                       40
 #define SIZEHASHINDEX1D         12869//196613
 #define SIZELARGEHASHINDEX1D    72869//1572869
@@ -228,7 +228,7 @@ struct index_hashfunction<Index2D>
     }
     size_t power2i[JMAX+JMINOFFSET+2];
 
-    /*
+
     inline
     size_t operator()(const Index2D& index) const
     {
@@ -241,8 +241,8 @@ struct index_hashfunction<Index2D>
         size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
         return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
     }
-    */
 
+    /*
     inline
     size_t operator()(const Index2D& index) const
     {
@@ -259,7 +259,7 @@ struct index_hashfunction<Index2D>
 
         return hash_value;
     }
-
+    */
 
 };
 

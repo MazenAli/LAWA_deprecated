@@ -43,22 +43,20 @@ typedef Basis<T,Primal,R,CDF>                                            CDF_Bas
 typedef Basis<T,Orthogonal,R,Multi>                                      MW_Basis1D;
 typedef Basis<T,Primal,R,SparseMulti>                                    SparseMW_Basis1D;
 typedef Basis<T,Primal,RPlus,SparseMulti>                                SparseMWRPlus_Basis1D;
+typedef Basis<T,Primal,Interval,SparseMulti>                             SparseMWInterval_Basis1D;
 
 //Operator definitions
 typedef AdaptiveIdentityOperator1D<T,Primal,R,CDF>                       CDF_MA_L2;
 typedef AdaptiveIdentityOperator1D<T,Orthogonal,R,Multi>                 MW_MA_L2;
 typedef AdaptiveIdentityOperator1D<T,Primal,R,SparseMulti>               SparseMW_MA_L2;
-typedef CompressionPDE1D<T,SparseMWRPlus_Basis1D>                        SparseMWRPlus_Compression1D;
-typedef NoPreconditioner<T,Index1D>                                      NoPreconditioner1D;
-typedef IdentityOperator1D<T,SparseMWRPlus_Basis1D>                      SparseMWRPlus_IdOp;
-typedef MapMatrix<T, Index1D, SparseMWRPlus_IdOp,
-                  SparseMWRPlus_Compression1D, NoPreconditioner1D>       SparseMWRPlus_MA_L2;
-//typedef AdaptiveIdentityOperator1D<T,Primal,RPlus,SparseMulti>           SparseMWRPlus_MA_L2;
+typedef AdaptiveIdentityOperator1D<T,Primal,RPlus,SparseMulti>           SparseMWRPlus_MA_L2;
+typedef AdaptiveIdentityOperator1D<T,Primal,Interval,SparseMulti>        SparseMWInterval_MA_L2;
 
-typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>             CDF_MA;
-typedef AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,R,Multi>       MW_MA;
-typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,SparseMulti>     SparseMW_MA;
-typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,RPlus,SparseMulti> SparseMWRPlus_MA;
+typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>                CDF_MA;
+typedef AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,R,Multi>          MW_MA;
+typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,SparseMulti>        SparseMW_MA;
+typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,RPlus,SparseMulti>    SparseMWRPlus_MA;
+typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Interval,SparseMulti> SparseMWInterval_MA;
 
 typedef IntegralF<Gauss,SparseMWRPlus_Basis1D>                                      IntegralRPlus;
 
@@ -104,6 +102,9 @@ LambdaForEigenvalues(const SparseMW_Basis1D &basis, int jmin, int jmax, bool w_X
 IndexSet<Index1D>
 LambdaForEigenvalues(const SparseMWRPlus_Basis1D &basis, int jmin, int jmax, bool w_XBSpline, T radius);
 
+IndexSet<Index1D>
+LambdaForEigenvalues(const SparseMWInterval_Basis1D &basis, int jmin, int jmax);
+
 void
 computelargestEV(const SparseMatrixT &A, T &CB);
 
@@ -127,12 +128,13 @@ int main (int argc, char *argv[]) {
     int s =atoi(argv[5]);
     T   c=atof(argv[6]);
     int j0; bool w_XBSpline;
-    bool rplus = true;
+    bool realline = true;
+    bool rplus    = false;
 
     if   (strcmp(argv[4],"-inf")==0) { j0=0;             w_XBSpline=false; }
     else                             { j0=atoi(argv[4]); w_XBSpline=true; }
 
-    int max_level  = 16;
+    int max_level  = 10;
     T   max_radius = 10.;
 
     std::stringstream filename;
@@ -258,7 +260,7 @@ int main (int argc, char *argv[]) {
         }
     }
     else if (strcmp(argv[1],"SparseMW")==0) {
-        if (!rplus) {
+        if (realline) {
             cout << "   SparseMW realline" << endl;
             SparseMW_Basis1D       SparseMW_basis(d,j0);
             SparseMW_MA            SparseMW_A(SparseMW_basis,c);
@@ -300,16 +302,11 @@ int main (int argc, char *argv[]) {
                 file_eigenvalues << endl;
             }
         }
-        else {
+        else if (!realline && rplus) {
             SparseMWRPlus_Basis1D       SparseMWRPlus_basis(d,j0);
             SparseMWRPlus_basis.enforceBoundaryCondition<DirichletBC>();
             SparseMWRPlus_MA            SparseMWRPlus_A(SparseMWRPlus_basis,c);
-            SparseMWRPlus_Compression1D SparseMWRPlus_compression(SparseMWRPlus_basis);
-            NoPreconditioner1D          NoPrec;
-            SparseMWRPlus_IdOp          SparseMWRPlus_idop(SparseMWRPlus_basis);
-            SparseMWRPlus_MA_L2         SparseMWRPlus_A_L2(SparseMWRPlus_idop, NoPrec, SparseMWRPlus_compression);
-
-//            SparseMWRPlus_MA_L2         SparseMWRPlus_A_L2(SparseMWRPlus_basis);
+            SparseMWRPlus_MA_L2         SparseMWRPlus_A_L2(SparseMWRPlus_basis);
             for (int jmax=std::max(0,SparseMWRPlus_basis.j0); jmax<=max_level; jmax+=1) {
                 for (T r=1.; r<=max_radius; r+=1.) {
                     IndexSet<Index1D> Lambda = LambdaForEigenvalues(SparseMWRPlus_basis,
@@ -322,11 +319,11 @@ int main (int argc, char *argv[]) {
                     cout << "Size of Lambda: " << N << endl;
                     SparseMatrixT A(N,N);
                     if (s==0) {
-                        cout << " s=0" << endl;
+                        cout << "rplus, s=0" << endl;
                         SparseMWRPlus_A_L2.toFlensSparseMatrix(Lambda, Lambda, A,-1);
                     }
                     else if (s==1) {
-                        cout << " s=1" << endl;
+                        cout << "rplus, s=1" << endl;
                         SparseMWRPlus_A.toFlensSparseMatrix(Lambda, Lambda, A);
                     }
 
@@ -347,6 +344,46 @@ int main (int argc, char *argv[]) {
                 }
                 file_eigenvalues << endl;
             }
+        }
+
+        else if (!realline && !rplus) {
+            if (j0<1) { cerr << "Minimal level too small." << endl; exit(1); }
+            SparseMWInterval_Basis1D       SparseMWInterval_basis(d,j0);
+            SparseMWInterval_basis.enforceBoundaryCondition<DirichletBC>();
+            SparseMWInterval_MA            SparseMWInterval_A(SparseMWInterval_basis,0.);
+            SparseMWInterval_MA_L2         SparseMWInterval_A_L2(SparseMWInterval_basis);
+            for (int jmax=std::max(0,SparseMWInterval_basis.j0); jmax<=max_level; jmax+=1) {
+                IndexSet<Index1D> Lambda = LambdaForEigenvalues(SparseMWInterval_basis,
+                                                                SparseMWInterval_basis.j0, jmax);
+
+                int N = Lambda.size();
+                cout << "Size of Lambda: " << N << endl;
+                SparseMatrixT A(N,N);
+                if (s==0) {
+                    cout << "interval, s=0" << endl;
+                    SparseMWInterval_A_L2.toFlensSparseMatrix(Lambda, Lambda, A,-1);
+                }
+                else if (s==1) {
+                    cout << "interval, s=1" << endl;
+                    SparseMWInterval_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                }
+
+                T cB=0., CB=0.;
+                //DenseMatrixT A_dense;
+                //densify(cxxblas::NoTrans,A,A_dense);
+                //computeEV(A_dense, cB, CB);
+
+                T cB2, CB2;
+                computesmallestEV(A,cB2);
+                computelargestEV(A,CB2);
+
+                file_eigenvalues << " " << jmax
+                                 << " " << cB << " " << cB2 << " " << CB  << " " << CB2 << endl;
+                cout             << " " << jmax
+                                 << " " << cB << " " << cB2 << " " << CB  << " " << CB2  << " " << CB2/cB2 << endl;
+
+            }
+            file_eigenvalues << endl;
         }
     }
 
@@ -518,6 +555,21 @@ LambdaForEigenvalues(const SparseMWRPlus_Basis1D &basis, int jmin, int jmax, boo
             Lambda.insert(Index1D(jmin,k,XBSpline));
             ++scaling_count;
         }
+    }
+    return Lambda;
+}
+
+IndexSet<Index1D>
+LambdaForEigenvalues(const SparseMWInterval_Basis1D &basis, int jmin, int jmax)
+{
+    IndexSet<Index1D> Lambda;
+    for (int j=jmin; j<=jmax; ++j) {
+        for (long k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
+            Lambda.insert(Index1D(j,k,XWavelet));
+        }
+    }
+    for (long k=basis.mra.rangeI(jmin).firstIndex(); k<=basis.mra.rangeI(jmin).lastIndex(); ++k) {
+        Lambda.insert(Index1D(jmin,k,XBSpline));
     }
     return Lambda;
 }

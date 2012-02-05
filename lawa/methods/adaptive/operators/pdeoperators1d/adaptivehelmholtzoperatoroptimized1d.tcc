@@ -702,8 +702,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T, Primal,Domain,SparseMulti>::toFlensSpars
     this->compression.setParameters(LambdaRow);
     for (const_set1d_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
         IndexSet<Index1D> LambdaRowSparse = this->compression.SparsityPattern(*col, LambdaRow);
-        for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row) {
-        //for (const_set1d_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
+        //for (const_set1d_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row) {
+        for (const_set1d_it row=LambdaRowSparse.begin(); row!=LambdaRowSparse.end(); ++row) {
             T val = this->operator()(*row,*col);
             if (fabs(val)>0) {
                 A_flens(row_indices[*row],col_count) = val;

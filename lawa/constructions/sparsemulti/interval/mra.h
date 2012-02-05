@@ -25,32 +25,57 @@ class MRA<_T,Primal,Interval,SparseMulti>
         Support<T>
         max_support() const;
 
-        // cardinalities of whole, left, inner, right index sets.
-        long
+        //For uniform schemes, we "int" as index type is sufficient
+        int
         cardI(int j) const;
-        
-        long
+
+        int
         cardIL(int j=1) const;
-        
-        long
+
+        int
         cardII(int j) const;
-        
-        long
+
+        int
         cardIR(int j=-1) const;
-        
-        // ranges of whole left, inner, right index sets.
-        Range<long>
+
+        Range<int>
         rangeI(int j) const;
-        
-        Range<long>
+
+        Range<int>
         rangeIL(int j=-1) const;
-        
-        Range<long>
+
+        Range<int>
         rangeII(int j) const;
-        
-        Range<long>
+
+        Range<int>
         rangeIR(int j) const;
         
+        //For adaptive schemes, we may require "long" as index type for local scaling function repr.
+        long
+        long_cardI(int j) const;
+
+        long
+        long_cardIL(int j=1) const;
+
+        long
+        long_cardII(int j) const;
+
+        long
+        long_cardIR(int j=-1) const;
+
+        Range<long>
+        long_rangeI(int j) const;
+
+        Range<long>
+        long_rangeIL(int j=-1) const;
+
+        Range<long>
+        long_rangeII(int j) const;
+
+        Range<long>
+        long_rangeIR(int j) const;
+
+
         int
         level() const;
         

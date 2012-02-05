@@ -48,7 +48,9 @@ u(T x) {
 DenseVectorT u_singPts;
 
 int main (int argc, char *argv[]) {
-
+    Timer reftime;
+    T total_time = 0.;
+    reftime.start();
     cout.precision(20);
     if (argc!=6) {
         cout << "Usage: " << argv[0] << " d d_ j0 J shift" << endl;
@@ -77,13 +79,26 @@ int main (int argc, char *argv[]) {
     ct_filename << "comptime_fast_eval1d_" << d << "_" << d_ << "_" << j0 << "_" << J << ".dat";
     ofstream ct_file(ct_filename.str().c_str());
 
-    for (int j=j0; j<=J; ++j) {
+    for (int j=J; j<=J; ++j) {
 
         cout << "**** j = " << j << " ****" << endl;
         IndexSet<Index1D> test_LambdaTree, trial_LambdaTree;
         Coefficients<Lexicographical,T,Index1D> trial_u_multi;
+        /*
         constructRandomGradedTree(trial_basis, j+shift, test_LambdaTree);
         constructRandomGradedTree(trial_basis, j, trial_LambdaTree);
+        */
+
+        for (int k=trial_basis.mra.rangeI(j0).firstIndex(); k<=trial_basis.mra.rangeI(j0).lastIndex(); ++k) {
+            trial_LambdaTree.insert(Index1D(j0,k,XBSpline));
+            test_LambdaTree.insert(Index1D(j0,k,XBSpline));
+        }
+        for (int j1=j0; j1<=j; ++j1) {
+            for (int k=trial_basis.rangeJ(j1).firstIndex(); k<=trial_basis.rangeJ(j1).lastIndex(); ++k) {
+                trial_LambdaTree.insert(Index1D(j1,k,XWavelet));
+                test_LambdaTree.insert(Index1D(j1,k,XWavelet));
+            }
+        }
 
         int N = test_LambdaTree.size()+trial_LambdaTree.size();
         computeCoefficientVector(trial_LambdaTree, trial_u_multi);
@@ -125,10 +140,13 @@ int main (int argc, char *argv[]) {
         CoefficientsByLevel<T> d1(j0,hashmap_size);
         localoperator.scale_wrt_trialbasis(c,c1);
         d1 = c1[j0-1];
+        reftime.stop();
+        total_time += reftime.elapsed();
         time.start();
         localoperator.evalA(j0, d1, c1, PhiPiCheck_vs_v, PsiLambdaCheck_vs_v);
         time.stop();
         time_EvalA = time.elapsed();
+        reftime.start();
         PsiLambdaCheck_vs_v[j0-1] = PhiPiCheck_vs_v;
         localoperator.scale_wrt_trialbasis(PsiLambdaCheck_vs_v,PsiLambdaCheck_vs_v_sca);
         PsiLambdaCheck_vs_v_sca -= EvalA_coeff;
@@ -141,16 +159,18 @@ int main (int argc, char *argv[]) {
         CoefficientsByLevel<T> d2(j0,hashmap_size);
         localoperator.scale_wrt_trialbasis(c,c2);
         d2 = c2[j0-1];
+        reftime.stop();
+        total_time += reftime.elapsed();
         time.start();
         localoperator.evalU(j0, d2, c2, U_PhiPiCheck_vs_v, U_PsiLambdaCheck_vs_v);
         time.stop();
+        reftime.start();
         T time_EvalU = time.elapsed();
         U_PsiLambdaCheck_vs_v[j0-1] = U_PhiPiCheck_vs_v;
         localoperator.scale_wrt_trialbasis(U_PsiLambdaCheck_vs_v,U_PsiLambdaCheck_vs_v_sca);
         U_PsiLambdaCheck_vs_v_sca -= EvalU_coeff;
         cout << "EvalU: error = " << U_PsiLambdaCheck_vs_v_sca.norm(2.) << endl;
         cout << "       " << N << " " << time_EvalU << endl;
-
 
         Coefficients<Lexicographical,T,Index1D> EvalL_coeff;
         EvalL_coeff = EvalA_coeff;
@@ -159,10 +179,13 @@ int main (int argc, char *argv[]) {
         CoefficientsByLevel<T> d3(j0,hashmap_size);
         localoperator.scale_wrt_trialbasis(c,c3);
         d3 = c3[j0-1];
+        reftime.stop();
+        total_time += reftime.elapsed();
         time.start();
         localoperator.evalL(j0, d3, c3, L_PsiLambdaCheck_vs_v);
         time.stop();
         T time_EvalL = time.elapsed();
+        reftime.start();
         localoperator.scale_wrt_trialbasis(L_PsiLambdaCheck_vs_v,L_PsiLambdaCheck_vs_v_sca);
         L_PsiLambdaCheck_vs_v_sca -= EvalL_coeff;
         cout << "EvalL: error = " << L_PsiLambdaCheck_vs_v_sca.norm(2.) << endl;
@@ -171,9 +194,11 @@ int main (int argc, char *argv[]) {
         ct_file << N << " " << time_EvalA << " " << time_EvalL << " "  << time_EvalU << endl;
 
         cout << endl;
+        reftime.stop();
+        total_time += reftime.elapsed();
+        cout << "  Reference time: " << total_time << endl;
     }
 }
-
 
 void
 computeCoefficientVector(const IndexSet<Index1D> &LambdaTree,

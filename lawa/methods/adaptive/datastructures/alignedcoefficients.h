@@ -70,6 +70,9 @@ struct AlignedCoefficients
     void
     align_x1(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
 
+    void
+    unalign_x1(Coefficients<Lexicographical,T,Index> &coeff);
+
     /*
      * Aligns the coefficient vector w.r.t. to the principal index assuming that
      * Index = (AlignedIndex,PrincipalIndex)

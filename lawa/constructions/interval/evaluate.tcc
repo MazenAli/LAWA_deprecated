@@ -118,7 +118,7 @@ evaluate(const Basis<typename X::ElementType,Side,Interval,Cons> &basis,
     basis.setLevel(j0);
 
     T ret = 0;
-    ret += evaluate(basis.mra,j0,coeffs(basis.mra.rangeI(j0)),x,deriv);
+    ret += evaluate(basis.mra,j0,coeffs(Range<int>((int)basis.mra.rangeI(j0).firstIndex(),(int)basis.mra.rangeI(j0).lastIndex())),x,deriv);
     Wavelet<T,Side,Interval,Cons> psi(basis);
     for (int j=j0; j<=J-1; ++j) {
         for (int k=1; k<=basis.cardJ(j); ++k) {

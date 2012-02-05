@@ -24,12 +24,12 @@ typedef double T;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::DiagonalMatrix<T>                                    DiagonalMatrixT;
-typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
+typedef flens::DenseVector<flens::Array<T> >                   DenseVectorT;
 
 ///  Typedefs for problem components:
 ///     Primal Basis over an interval, using Dijkema construction
-//typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
-typedef Basis<T, Primal, Interval, SparseMulti>                         PrimalBasis;
+typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+//typedef Basis<T, Primal, Interval, SparseMulti>                         PrimalBasis;
 
 ///     PDE-Operator in 1D, i.e. for $a(v,u) = \int(v_x \cdot u_x) \int(b(x) v \cdot u') + \int(a(x) v \cdot u)$
 typedef WeightedPDEOperator1D<T, PrimalBasis>                       PDEOp;
@@ -88,7 +88,7 @@ b_f(T x)
 T
 c_f(T x)
 {
-    return 0.;  // must be a constant function!!
+    return 1.;  // must be a constant function!!
 }
 
 /// Forcing function of the form `T f(T x)` - here a constant function
