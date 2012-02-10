@@ -39,7 +39,7 @@ template <typename T, typename Basis2D>
 
 template <typename T, typename Basis2D>
     IndexSet<Index2D>
-    C_t(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
+    C_t(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis, bool extralevel=false);
 
 template <typename T, typename Basis3D>
     IndexSet<Index3D>

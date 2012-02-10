@@ -43,8 +43,8 @@ struct LocalOperator2D {
 
     typedef AlignedCoefficients<T,Index2D,Index1D,Index1D>                     alignedCoefficients;
 
-    LocalOperator2D(const Basis &_basis, const LocalOperator1 &_localoperator1,
-                    const LocalOperator2 &_localoperator2);
+    LocalOperator2D(const Basis &_basis, LocalOperator1 &_localoperator1,
+                    LocalOperator2 &_localoperator2);
 
     void
     setJ(int J);
@@ -53,7 +53,7 @@ struct LocalOperator2D {
     evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
            Coefficients<Lexicographical,T,Index2D> &intermediate,
            Coefficients<Lexicographical,T,Index2D> &LIIAv,
-           Coefficients<Lexicographical,T,Index2D> &IAUIv) const;
+           Coefficients<Lexicographical,T,Index2D> &IAUIv) /*const*/;
 
     void
     evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
@@ -61,7 +61,7 @@ struct LocalOperator2D {
            Coefficients<Lexicographical,T,Index2D> &LIIAv,
            Coefficients<Lexicographical,T,Index2D> &IAUIv,
            T &time_intermediate1, T &time_intermediate2,
-           T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) const;
+           T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) /*const*/;
 
     void
     debug_evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
@@ -72,7 +72,7 @@ struct LocalOperator2D {
                  const Coefficients<Lexicographical,T,Index2D> &LIIAv_ref,
                  const Coefficients<Lexicographical,T,Index2D> &UIv_ref,
                  const Coefficients<Lexicographical,T,Index2D> &IAUIv_ref,
-                 const Coefficients<Lexicographical,T,Index2D> &AAv_ref) const;
+                 const Coefficients<Lexicographical,T,Index2D> &AAv_ref) /*const*/;
 
     void
     initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T,Index2D> &v,
@@ -86,20 +86,20 @@ struct LocalOperator2D {
 
     void
     evalLI(const Coefficients<Lexicographical,T,Index2D> &IAv,
-              Coefficients<Lexicographical,T,Index2D> &LIIAv) const;
+              Coefficients<Lexicographical,T,Index2D> &LIIAv) /*const*/;
 
     void
     evalUI(const Coefficients<Lexicographical,T,Index2D> &v,
-           Coefficients<Lexicographical,T,Index2D> &UIv) const;
+           Coefficients<Lexicographical,T,Index2D> &UIv) /*const*/;
 
     void
     evalIA(const Coefficients<Lexicographical,T,Index2D> &UIv,
-           Coefficients<Lexicographical,T,Index2D> &AAv) const;
+           Coefficients<Lexicographical,T,Index2D> &AAv) /*const*/;
 
     int                           J;
     const Basis                   &basis;
-    const LocalOperator1          &localoperator1;
-    const LocalOperator2          &localoperator2;
+    LocalOperator1          &localoperator1;
+    LocalOperator2          &localoperator2;
 };
 
 }   // namespace lawa

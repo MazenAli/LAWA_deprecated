@@ -305,6 +305,25 @@ struct entry_hashfunction
 template <>
 struct entry_hashfunction<Index1D>
 {
+    entry_hashfunction(void)
+    {
+        for (int i=0; i<JMAX+JMINOFFSET+2; ++i) {
+            power2i[i] = 1L << i;
+        }
+    }
+    size_t power2i[JMAX+JMINOFFSET+2];
+
+    inline
+    size_t operator()(const Entry<Index1D>& entry) const
+    {
+        size_t l1 = power2i[entry.col_index.j+entry.col_index.xtype+JMINOFFSET] + entry.col_index.k;
+        size_t l2 = power2i[entry.row_index.j+entry.row_index.xtype+JMINOFFSET] + entry.row_index.k;
+        size_t s1 = l1;
+        size_t s2 = l1+l2;
+        size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
+        return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
+    }
+    /*
     inline
     size_t operator()(const Entry<Index1D>& entry) const
     {
@@ -321,6 +340,7 @@ struct entry_hashfunction<Index1D>
 
         return hash_value;
     }
+    */
 };
 
 } //namespace lawa

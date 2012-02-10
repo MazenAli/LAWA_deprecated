@@ -4,14 +4,53 @@ template <typename TestBasis, typename TrialBasis, typename BilinearForm, typena
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::LocalOperator(const TestBasis &_test_basis, bool test_withDirichletBC,
                 const TrialBasis &_trial_basis, bool trial_withDirichletBC, const int _offset,
-                const BilinearForm &_Bil, const Preconditioner &_Prec)
+                BilinearForm &_Bil, const Preconditioner &_Prec, int _operatortype)
 : test_basis(_test_basis), trial_basis(_trial_basis),
   Bil(_Bil), Prec(_Prec),
   test_localtransform(test_basis,test_withDirichletBC),
   trial_localtransform(trial_basis,trial_withDirichletBC),
-  offset(_offset)
+  offset(_offset), ref_k(0), ref_j(0), operatortype(_operatortype)
 {
+    ref_j = trial_basis.j0 + 2;
+    ref_k = (long)trial_basis.mra.cardI(ref_j)/2;
+    U.engine().resize(test_basis.mra.cardI(ref_j),trial_basis.mra.cardI(ref_j));
 
+    int row_count=1;
+    for (int k_row=test_basis.mra.rangeI(test_basis.j0).firstIndex();
+             k_row<=test_basis.mra.rangeI(test_basis.j0).lastIndex(); ++k_row) {
+        int col_count=1;
+        for (int k_col=trial_basis.mra.rangeI(trial_basis.j0).firstIndex();
+                 k_col<=trial_basis.mra.rangeI(trial_basis.j0).lastIndex(); ++k_col) {
+            U(row_count,col_count) = Bil(XBSpline, test_basis.j0, k_row, XBSpline, trial_basis.j0, k_col);
+            ++col_count;
+        }
+        for (int j_col=trial_basis.j0; j_col<=ref_j-1; ++j_col) {
+            for (int k_col= trial_basis.rangeJ(j_col).firstIndex();
+                     k_col<=trial_basis.rangeJ(j_col).lastIndex(); ++k_col) {
+                U(row_count,col_count) = Bil(XBSpline, test_basis.j0, k_row, XWavelet, j_col, k_col);
+               ++col_count;
+            }
+        }
+        ++row_count;
+    }
+    for (int j_row=test_basis.j0; j_row<=ref_j-1; ++j_row) {
+        for (int k_row= test_basis.rangeJ(j_row).firstIndex();
+                 k_row<=test_basis.rangeJ(j_row).lastIndex(); ++k_row) {
+            int col_count=test_basis.mra.cardI(j_row)+1;
+            for (int j_col=j_row; j_col<=ref_j-1; ++j_col) {
+                for (int k_col= trial_basis.rangeJ(j_col).firstIndex();
+                         k_col<=trial_basis.rangeJ(j_col).lastIndex(); ++k_col) {
+                    U(row_count,col_count) = Bil(XWavelet, j_row, k_row, XWavelet, j_col, k_col);
+                   ++col_count;
+                }
+            }
+        ++row_count;
+        }
+    }
+
+    x.engine().resize(trial_basis.mra.cardI(ref_j));
+    y.engine().resize(test_basis.mra.cardI(ref_j));
+    //std::cerr << " U = " << U << std::endl;
 }
 
 template <typename TestBasis, typename TrialBasis, typename BilinearForm, typename Preconditioner>
@@ -35,8 +74,83 @@ LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 template <typename TestBasis, typename TrialBasis, typename BilinearForm, typename Preconditioner>
 void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
+::lowCostevalU(const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
+               CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v)
+{
+    for (int i=1; i<=trial_basis.mra.cardI(ref_j); ++i) {
+        x(i) = 0;
+    }
+    for (int i=1; i<=test_basis.mra.cardI(ref_j); ++i) {
+        y(i) = 0;
+    }
+
+    int trial_offset = 1-trial_basis.mra.rangeI(trial_basis.j0).firstIndex();
+    int test_offset  = 1-test_basis.mra.rangeI(trial_basis.j0).firstIndex();
+
+    for (const_by_level_it col=d.map.begin(); col!=d.map.end(); ++col) {
+        x((*col).first + offset) = (*col).second;
+    }
+    for (int j_col=trial_basis.j0; j_col<=c.maxTreeLevel; ++j_col) {
+        for (const_by_level_it col=c[j_col].map.begin(); col!=c[j_col].map.end(); ++col) {
+            x((*col).first + trial_basis.mra.cardI(j_col)) = (*col).second;
+        }
+    }
+    y = U*x;
+
+    for (by_level_it row=PhiPiCheck_vs_v.map.begin(); row!=PhiPiCheck_vs_v.map.end(); ++row) {
+        (*row).second += y((*row).first + test_offset);
+    }
+    for (int j_row=test_basis.j0; j_row<=PsiLambdaCheck_vs_v.maxTreeLevel; ++j_row) {
+        for (by_level_it row=PsiLambdaCheck_vs_v[j_row].map.begin(); row!=PsiLambdaCheck_vs_v[j_row].map.end(); ++row) {
+            (*row).second += y((*row).first + test_basis.mra.cardI(j_row));
+        }
+    }
+}
+
+template <typename TestBasis, typename TrialBasis, typename BilinearForm, typename Preconditioner>
+long double
+LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
+::evalMatrixEntry(int l, long k_row, long k_col) /*const*/
+{
+    /*
+    if (operatortype==0) {
+        if (l >= ref_j) {
+            if (    (    test_basis.mra.rangeII(l).firstIndex() <= k_row
+                      && k_row <= test_basis.mra.rangeII(l).lastIndex())
+                 && (    trial_basis.mra.rangeII(l).firstIndex() <= k_col
+                      && k_col <= trial_basis.mra.rangeII(l).firstIndex()  ) )
+            {
+                long shift = ref_k-k_col;
+                long k_row_shift = k_row+shift;
+                return    Bil(XBSpline, ref_j, k_row_shift, XBSpline, ref_j, ref_k);
+            }
+
+        }
+    }
+    else if (operatortype==1) {  //laplace
+        if (l >= ref_j) {
+            if (    (    test_basis.mra.rangeII(l).firstIndex() <= k_row
+                      && k_row <= test_basis.mra.rangeII(l).lastIndex())
+                 && (    trial_basis.mra.rangeII(l).firstIndex() <= k_col
+                      && k_col <= trial_basis.mra.rangeII(l).firstIndex()  ) )
+            {
+                long shift = ref_k-k_col;
+                long k_row_shift = k_row+shift;
+                return    pow2i<long double>(2.L*(l-ref_j))
+                        * Bil(XBSpline, ref_j, k_row_shift, XBSpline, ref_j, ref_k);
+            }
+
+        }
+    }
+    */
+    return Bil(XBSpline, l, k_row, XBSpline, l, k_col);
+}
+
+template <typename TestBasis, typename TrialBasis, typename BilinearForm, typename Preconditioner>
+void
+LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::computePhiPi2(int l, const CoefficientsByLevel<T> &cl, CoefficientsByLevel<T> &PhiPiCheck_vs_v,
-                CoefficientsByLevel<T> &PhiPiCheck2_vs_v) const
+                CoefficientsByLevel<T> &PhiPiCheck2_vs_v) /*const*/
 {
     if (cl.map.size()==0) return;
     if (cl.map.size()>PhiPiCheck_vs_v.map.size()) {
@@ -80,7 +194,7 @@ void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::computed2(int l, const CoefficientsByLevel<T> &PsiLambdaCheck_vs_v_l,
             const CoefficientsByLevel<T> &d, CoefficientsByLevel<T> &d1, CoefficientsByLevel<T> &d2)
-const
+/*const*/
 {
     if (PsiLambdaCheck_vs_v_l.map.size()==0) return;
     if (d.map.size()>PsiLambdaCheck_vs_v_l.map.size()) {
@@ -125,7 +239,7 @@ const
 template <typename TestBasis, typename TrialBasis, typename BilinearForm, typename Preconditioner>
 void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
-::applyBilinearForm(int l, const CoefficientsByLevel<T> &d, CoefficientsByLevel<T> &PhiPiCheck_vs_v) const
+::applyBilinearForm(int l, const CoefficientsByLevel<T> &d, CoefficientsByLevel<T> &PhiPiCheck_vs_v) /*const*/
 {
     if (d.map.size()==0 && PhiPiCheck_vs_v.map.size()==0) return;
     if (d.map.size() > PhiPiCheck_vs_v.map.size()) {
@@ -140,7 +254,8 @@ LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
             for (long k_row=k_row_first; k_row<=k_row_last; ++k_row) {
                 const_by_level_it p_entry_d = d.map.find(k_row);
                 if (p_entry_d!=p_d_end) {
-                    val += (long double)(Bil(XBSpline, l, k_col, XBSpline, l, k_row) * (*p_entry_d).second);
+                    //val += (long double)(Bil(XBSpline, l, k_col, XBSpline, l, k_row) * (*p_entry_d).second);
+                    val += evalMatrixEntry(l, k_row, k_col) * (*p_entry_d).second;
                     //val += 0.5 * (*p_entry_d).second;
                 }
             }
@@ -160,8 +275,9 @@ LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
             for (long k_row=k_row_first; k_row<=k_row_last; ++k_row) {
                 by_level_it p_PhiPiCheck_vs_v=PhiPiCheck_vs_v.map.find(k_row);
                 if (p_PhiPiCheck_vs_v!=p_PhiPiCheck_vs_v_end) {
-                    (*p_PhiPiCheck_vs_v).second
-                    += (long double)(Bil(XBSpline, l, k_col, XBSpline, l, k_row) * (*mu).second);
+                    //(*p_PhiPiCheck_vs_v).second
+                    //+= (long double)(Bil(XBSpline, l, k_col, XBSpline, l, k_row) * (*mu).second);
+                    (*p_PhiPiCheck_vs_v).second += evalMatrixEntry(l, k_row, k_col) * (*mu).second;
                     //val += 0.5 * (*mu).second;
                 }
             }
@@ -175,7 +291,7 @@ void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::evalA(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
         CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
-        bool pre_apply_prec) const
+        bool pre_apply_prec) /*const*/
 {
     //if (PhiPiCheck_vs_v.map.size()==0 && PsiLambdaCheck_vs_v[l].map.size()==0) return;
     if (d.map.size()==0 && c[l].map.size()==0) return;
@@ -255,13 +371,17 @@ void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::evalU(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
         CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
-        bool pre_apply_prec) const
+        bool pre_apply_prec) /*const*/
 {
     if (PhiPiCheck_vs_v.map.size()==0 && PsiLambdaCheck_vs_v[l].map.size()==0) return;
     if (d.map.size()==0 && c[l].map.size()==0) return;
 
-    size_t hm_size_PhiPiCheck_vs_v = PhiPiCheck_vs_v.map.size()*4;
-    size_t hm_size_d               = d.map.size()*4;
+//    if (l==trial_basis.j0 && c.maxTreeLevel<ref_j) {
+        //lowCostevalU(d, c, PhiPiCheck_vs_v, PsiLambdaCheck_vs_v);
+//    }
+
+    size_t hm_size_PhiPiCheck_vs_v = COEFFBYLEVELSIZE;//PhiPiCheck_vs_v.map.size()*4;
+    size_t hm_size_d               = COEFFBYLEVELSIZE;//d.map.size()*4;
 //    Timer time;
 //    time.start();
     CoefficientsByLevel<T> PhiPiCheck2_vs_v(l,hm_size_PhiPiCheck_vs_v);
@@ -330,7 +450,7 @@ template <typename TestBasis, typename TrialBasis, typename BilinearForm, typena
 void
 LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
 ::evalL(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
-        TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec) const
+        TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec) /*const*/
 {
     if (PsiLambdaCheck_vs_v[l].map.size()==0) return;
     if (d.map.size()==0 && c[l].map.size()==0) return;

@@ -2,8 +2,8 @@ namespace lawa {
 
 template <typename Basis, typename LocalOperator1, typename LocalOperator2>
 LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
-::LocalOperator2D(const Basis &_basis, const LocalOperator1 &_localoperator1,
-                  const LocalOperator2 &_localoperator2)
+::LocalOperator2D(const Basis &_basis, LocalOperator1 &_localoperator1,
+                  LocalOperator2 &_localoperator2)
 : J(4), basis(_basis), localoperator1(_localoperator1), localoperator2(_localoperator2)
 {
 
@@ -23,7 +23,7 @@ LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
 ::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
         Coefficients<Lexicographical,T,Index2D> &intermediate,
         Coefficients<Lexicographical,T,Index2D> &LIIAv,
-        Coefficients<Lexicographical,T,Index2D> &IAUIv) const
+        Coefficients<Lexicographical,T,Index2D> &IAUIv) /*const*/
 {
     //std::cerr << "          #LIIAv = " << LIIAv.size() << ", #IAUIv = " << IAUIv.size() << std::endl;
     Timer timer;
@@ -75,7 +75,7 @@ LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
         Coefficients<Lexicographical,T,Index2D> &LIIAv,
         Coefficients<Lexicographical,T,Index2D> &IAUIv,
         T &time_intermediate1, T &time_intermediate2,
-        T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) const
+        T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) /*const*/
 {
     Timer timer;
     timer.start();
@@ -131,7 +131,7 @@ LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
                const Coefficients<Lexicographical,T,Index2D> &LIIAv_ref,
                const Coefficients<Lexicographical,T,Index2D> &UIv_ref,
                const Coefficients<Lexicographical,T,Index2D> &IAUIv_ref,
-               const Coefficients<Lexicographical,T,Index2D> &AAv_ref) const
+               const Coefficients<Lexicographical,T,Index2D> &AAv_ref) /*const*/
 {
     Coefficients<Lexicographical,T,Index2D> diff;
     Timer time;
@@ -174,6 +174,7 @@ LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
     time.stop();
     diff = IAUIv_ref - IAUIv;
     std::cerr << "   evalIA took " << time.elapsed() << " for #UIv = " << intermediate.size() << ", diff = " << diff.norm(2.) << std::endl;
+    std::cerr << "   evalIA output size " << IAUIv.size() << std::endl;
     diff.setToZero();
 
     diff  = AAv_ref - IAUIv;
@@ -273,6 +274,7 @@ LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
     for (const_coeff2d_it it=AAv.begin(); it!=AAv.end(); ++it) {
         UIv[Index2D((*it).first.index1,dummy)] = 0.;
     }
+    //std::cerr << "      Size of P_e1 Lambda = " << UIv.size() << std::endl;
 }
 
 
@@ -280,7 +282,7 @@ template <typename Basis, typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
 ::evalLI(const Coefficients<Lexicographical,T,Index2D> &IAv,
-         Coefficients<Lexicographical,T,Index2D> &LIIAv) const
+         Coefficients<Lexicographical,T,Index2D> &LIIAv) /*const*/
 {
     size_t n1 = pow2i<int>(13);
     size_t n2 = 127;
@@ -290,8 +292,8 @@ LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
     time.start();
     alignedCoefficients x2aligned_IAv(n1,n2);
     alignedCoefficients x2aligned_LIIAv(n1,n2);
-    x2aligned_IAv.align_x2(IAv);
-    x2aligned_LIIAv.align_x2(LIIAv);
+    x2aligned_IAv.align_x2(IAv,J);
+    x2aligned_LIIAv.align_x2(LIIAv,J);
     time.stop();
     T time_x2align_v = time.elapsed();
 
@@ -357,35 +359,35 @@ template <typename Basis, typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
 ::evalUI(const Coefficients<Lexicographical,T,Index2D> &v,
-         Coefficients<Lexicographical,T,Index2D> &UIv) const
+         Coefficients<Lexicographical,T,Index2D> &UIv) /*const*/
 {
     size_t n1 = pow2i<int>(8);
     size_t n2 = 127;
     int j0 = basis.j0;
+    int offset = 7;
 
     Timer time;
     time.start();
     alignedCoefficients x2aligned_v(n1,n2);
-    x2aligned_v.align_x2(v);
+    x2aligned_v.align_x2(v,J);
     time.stop();
     T time_x2align_v = time.elapsed();
 
-    time.start();
-    Coefficients<Lexicographical,T,Index1D> tmp(n2);
+    Coefficients<Lexicographical,T,Index1D> tmp(SIZELARGEHASHINDEX1D);
     for (const_coeff2d_it it=UIv.begin(); it!=UIv.end(); ++it) {
         if (tmp.find((*it).first.index1)==tmp.end()) {
             tmp[(*it).first.index1] = 0.;
         }
     }
-    time.stop();
-    //plotCoeff<double,Basis>(tmp, basis, "Pe1_Lambda", false);
 
-    CoefficientsByLevel<T>                  Uc_PhiPiCheck(j0,n2);
-    TreeCoefficients1D<T>                   Uc_PsiLambdaCheck(n2);
-    Uc_PsiLambdaCheck = tmp;
-    Uc_PhiPiCheck = Uc_PsiLambdaCheck[j0-1];
-    T time_initial_outputset = time.elapsed();
+    CoefficientsByLevel<T>                  help_Uc_PhiPiCheck(j0,17);
+    TreeCoefficients1D<T>                   help_Uc_PsiLambdaCheck(n2);
+    help_Uc_PsiLambdaCheck = tmp;
+    help_Uc_PhiPiCheck = help_Uc_PsiLambdaCheck[j0-1];
 
+
+
+    T time_initial_outputset = 0.;
     T time_setup_tree = 0.;
     T time_mv1d = 0.;
     T time_add_aligned = 0.;
@@ -397,29 +399,84 @@ LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
                              0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0};
     int avLevels[]       = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0,
                              0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0};
+
+    Coefficients<Lexicographical,T,Index1D> test;
     for (typename alignedCoefficients::const_map_prindex_it it=x2aligned_v.map.begin();
                                                             it!=x2aligned_v.map.end(); ++it) {
         time.start();
         Index1D row_y = (*it).first;
-        TreeCoefficients1D<T> c(n2);
+        TreeCoefficients1D<T> c(127);
         c = (*it).second;
         time.stop();
         time_setup_tree += time.elapsed();
 
         int maxTreeLevel_c = c.getMaxTreeLevel(j0);
 
+
         time.start();
+        CoefficientsByLevel<T>                  Uc_PhiPiCheck(j0,17);
+        TreeCoefficients1D<T>                   Uc_PsiLambdaCheck(n2);
+        for (int k_col=basis.mra.rangeI(basis.j0).firstIndex(); k_col<=basis.mra.rangeI(basis.j0).lastIndex(); ++k_col) {
+            Uc_PhiPiCheck.map[k_col] = 0.;
+        }
+        for (int j_col=basis.j0; j_col<=maxTreeLevel_c; ++j_col) {
+            for (const_by_level_it level_it=c[j_col].map.begin(); level_it!=c[j_col].map.end(); ++level_it) {
+                long k_col_first = std::max((*level_it).first-offset, (long)basis.rangeJ(j_col).firstIndex());
+                long k_col_last  = std::min((*level_it).first+offset, (long)basis.rangeJ(j_col).lastIndex());
+                for (int k_col=k_col_first; k_col<=k_col_last; ++k_col) {
+                    if (tmp.find(Index1D(j_col,k_col,XWavelet))!=tmp.end()) {
+                        Uc_PsiLambdaCheck[j_col].map[k_col] = 0.;
+                    }
+                }
+            }
+        }
         Uc_PsiLambdaCheck.setMaxTreeLevel(maxTreeLevel_c);
-        Uc_PhiPiCheck.setToZero();
-        Uc_PsiLambdaCheck.setToZero();
         time.stop();
+        time_initial_outputset += time.elapsed();
 
         time.start();
         localoperator1.evalU(j0, c[j0-1], c, Uc_PhiPiCheck, Uc_PsiLambdaCheck);
+        Uc_PsiLambdaCheck[j0-1].map = Uc_PhiPiCheck.map;
         time.stop();
+        time_mv1d += time.elapsed();
+
+
+        /*
+        CoefficientsByLevel<T>                  Uc_PhiPiCheck2(j0,17);
+        TreeCoefficients1D<T>                   Uc_PsiLambdaCheck2(n2);
+        for (int k_col=basis.mra.rangeI(basis.j0).firstIndex(); k_col<=basis.mra.rangeI(basis.j0).lastIndex(); ++k_col) {
+            Uc_PhiPiCheck2.map[k_col] = 0.;
+        }
+        for (int j_col=basis.j0; j_col<=maxTreeLevel_c; ++j_col) {
+            for (const_by_level_it level_it=help_Uc_PsiLambdaCheck[j_col].map.begin();
+                                   level_it!=help_Uc_PsiLambdaCheck[j_col].map.end(); ++level_it) {
+                    Uc_PsiLambdaCheck2[j_col].map[(*level_it).first] = 0.;
+            }
+        }
+        Uc_PsiLambdaCheck2.setMaxTreeLevel(maxTreeLevel_c);
+        time.stop();
+        time_initial_outputset += time.elapsed();
+
+        time.start();
+        localoperator1.evalU(j0, c[j0-1], c, Uc_PhiPiCheck2, Uc_PsiLambdaCheck2);
+        Uc_PsiLambdaCheck2[j0-1].map = Uc_PhiPiCheck2.map;
+        time.stop();
+        time_mv1d += time.elapsed();
+        */
+        /*
+        Uc_PsiLambdaCheck2 -= Uc_PsiLambdaCheck;
+        T norm_diff = Uc_PsiLambdaCheck2.norm(2.);
+
+        if (norm_diff>1e-15) {
+            std::cerr << " Anchor- Index: " << row_y << ", maxTreeLevel: " << maxTreeLevel_c << std::endl;
+            std::cerr << "   Uc_PsiLambdaCheck  = " << std::endl;
+            std::cerr << Uc_PsiLambdaCheck2 << std::endl;
+        }
+        */
+
         /*
         if (row_y.xtype==XBSpline) {
-            mv1d_times[j0-1]+=time.elapsed();
+            mv1d_times[j0-1] += time.elapsed();
             numDofs[j0-1] += (*it).second.size();
             numCalls[j0-1] += 1;
             avLevels[j0-1] += maxTreeLevel_c;
@@ -427,26 +484,34 @@ LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
         else {
             mv1d_times[row_y.j] += time.elapsed();
             numDofs[row_y.j] += (*it).second.size();
-            numCalls[row_y.j] += 1;
             avLevels[row_y.j] += maxTreeLevel_c;
+            //if (row_y.j==13) test = (*it).second;
+            numCalls[row_y.j] += 1;
         }
         */
-        time_mv1d += time.elapsed();
+
 
 
         time.start();
-        Uc_PsiLambdaCheck[j0-1].map = Uc_PhiPiCheck.map;
         Uc_PsiLambdaCheck.addTo_x2aligned(row_y,UIv,j0);
         time.stop();
         time_add_aligned += time.elapsed();
     }
+
+    /*
+    if (v.size()==262472) {
+        plotCoeff<double,Basis>(tmp, basis, "Pe1_Lambda", false);
+        std::cerr << "  test = " << test << std::endl;
+        plotCoeff<double,Basis>(test, basis, "test", false, false);
+    }
+    */
     /*
     for (int i=0; i<30; ++i) {
         if (mv1d_times[i]==0) continue;
-        std::cerr << "    Overall time for level j = " << i << " : " << mv1d_times[i]
+        std::cerr << "  Average time for level j = " << i << " : " << T(mv1d_times[i])/numCalls[i]
                   << ", average number of dofs = " << T(numDofs[i])/numCalls[i]
                   << ", number of Calls = " << numCalls[i]
-                  << ", average max. Level = " << T(avLevels[i])/numCalls[i] << std::endl;
+                  << ", average Level = " << T(avLevels[i])/numCalls[i] << std::endl;
     }
     */
     /*
@@ -463,7 +528,7 @@ template <typename Basis, typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<Basis, LocalOperator1, LocalOperator2>
 ::evalIA(const Coefficients<Lexicographical,T,Index2D> &UIv,
-         Coefficients<Lexicographical,T,Index2D> &IAUIv) const
+         Coefficients<Lexicographical,T,Index2D> &IAUIv) /*const*/
 {
     size_t n1 = pow2i<int>(13);
     size_t n2 = 127/*255*/;

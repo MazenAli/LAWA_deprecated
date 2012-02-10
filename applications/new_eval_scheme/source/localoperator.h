@@ -33,6 +33,9 @@ struct LocalOperator {
 
     typedef typename TrialBasis::T T;
 
+    typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >         DenseMatrixT;
+    typedef flens::DenseVector<flens::Array<T> >                               DenseVectorT;
+
     typedef IndexSet<Index1D>::const_iterator                                  const_set1d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator   const_coeff1d_it;
     typedef typename TreeCoefficients1D<T>::const_by_level_it                  const_by_level_it;
@@ -41,41 +44,48 @@ struct LocalOperator {
     LocalOperator(const TestBasis &_test_basis,   bool test_withDirichletBC,
                   const TrialBasis &_trial_basis, bool trial_withDirichletBC,
                   const int offset,
-                  const BilinearForm &_Bil, const Preconditioner &_Prec);
+                  BilinearForm &_Bil, const Preconditioner &_Prec, int operatortype=-1);
 
     void
     scale_wrt_trialbasis(const TreeCoefficients1D<T> &x, TreeCoefficients1D<T> &y);
 
     void
+    lowCostevalU(const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
+                 CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v);
+
+    long double
+    evalMatrixEntry(int l, long k_row, long k_col) /*const*/;
+
+    void
     computePhiPi2(int l, const CoefficientsByLevel<T> &cl, CoefficientsByLevel<T> &PhiPiCheck_vs_v,
-                  CoefficientsByLevel<T> &PhiPiCheck2_vs_v) const;
+                  CoefficientsByLevel<T> &PhiPiCheck2_vs_v) /*const*/;
 
     void
     computed2(int l, const CoefficientsByLevel<T> &PsiLambdaCheck_vs_v_l,
               const CoefficientsByLevel<T> &d,
-              CoefficientsByLevel<T> &d1, CoefficientsByLevel<T> &d2) const;
+              CoefficientsByLevel<T> &d1, CoefficientsByLevel<T> &d2) /*const*/;
 
     void
-    applyBilinearForm(int l, const CoefficientsByLevel<T> &d, CoefficientsByLevel<T> &PhiPiCheck_vs_v) const;
+    applyBilinearForm(int l, const CoefficientsByLevel<T> &d, CoefficientsByLevel<T> &PhiPiCheck_vs_v) /*const*/;
 
     void
     evalA(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
           CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
-          bool pre_apply_prec=true) const;
+          bool pre_apply_prec=true) /*const*/;
 
     void
     evalU(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
           CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v,
-          bool pre_apply_prec=true) const;
+          bool pre_apply_prec=true) /*const*/;
 
     void
     evalL(int l, const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
-          TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec=true) const;
+          TreeCoefficients1D<T> &PsiLambdaCheck_vs_v, bool pre_apply_prec=true) /*const*/;
 
 
     const TestBasis                   &test_basis;
     const TrialBasis                  &trial_basis;
-    const BilinearForm                &Bil;
+    BilinearForm                      &Bil;
     const Preconditioner              &Prec;
     LocalRefinement<TestBasis>        test_localtransform;
     LocalRefinement<TrialBasis>       trial_localtransform;
@@ -83,6 +93,13 @@ struct LocalOperator {
     //Important for integration: we only into account indices within the range {k-offset,...,k+offset}.
     //This approach might fail if offset is not chosen w.r.t. the underlying bases!!
     const int                         offset;
+    int                               ref_k;
+    int                               ref_j;
+    // operatortype 0 = identity, 1 = laplace, -1 = none of them
+    int                               operatortype;
+
+    DenseMatrixT                      U;
+    DenseVectorT                      x, y;
 };
 
 }   // namespace lawa

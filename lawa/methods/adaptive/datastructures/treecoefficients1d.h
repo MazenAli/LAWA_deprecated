@@ -27,6 +27,7 @@
 #endif
 
 #include <iostream>
+#include <map>
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
@@ -47,7 +48,6 @@ struct long_hashfunction
 template <typename T>
 struct CoefficientsByLevel
 {
-
     #ifdef TRONE
         typedef typename std::tr1::unordered_map<long, T/*, long_hashfunction*/> TranslationIndexToValueMap;
     #else

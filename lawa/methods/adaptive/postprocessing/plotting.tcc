@@ -200,7 +200,7 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
 template <typename T, typename Basis>
 void
 plotCoeff(const Coefficients<Lexicographical,T,Index1D > &coeff, const Basis &basis,
-          const char* filename, bool locally_single_scale)
+          const char* filename, bool locally_single_scale, bool interval)
 {
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_it;
     std::stringstream gpsFilename;
@@ -247,16 +247,30 @@ plotCoeff(const Coefficients<Lexicographical,T,Index1D > &coeff, const Basis &ba
         XType xtype = (*it).first.xtype;
 
         if (xtype==XBSpline) {
-            fromX = basis.mra.phi.support(j,k).l1;
-            toX   = basis.mra.phi.support(j,k).l2;
+            if (!interval) {
+                fromX = basis.mra.phi.support(j,k).l1;
+                toX   = basis.mra.phi.support(j,k).l2;
+            }
+            else {
+                T h = 1./T(basis.mra.cardI(j));
+                fromX  = std::max( ( k-basis.mra.rangeI(j).firstIndex() ) * h, 0.);
+                toX    = std::min( ( k-basis.mra.rangeI(j).firstIndex() + 1 ) * h, 1.);
+            }
             fromY = j-shift-0.5;
             toY   = j-shift+0.5;
             color = fabs((*it).second) / maxCoeff;
         }
 
         else {
-            fromX = basis.psi.support(j,k).l1;
-            toX   = basis.psi.support(j,k).l2;
+            if (!interval) {
+                fromX = basis.psi.support(j,k).l1;
+                toX   = basis.psi.support(j,k).l2;
+            }
+            else {
+                T h = 1./T(basis.cardJ(j));
+                fromX  = std::max( ( k-basis.rangeJ(j).firstIndex() ) * h, 0.);
+                toX    = std::min( ( k-basis.rangeJ(j).firstIndex() + 1 ) * h, 1.);
+            }
             fromY = j-0.5;
             toY   = j+0.5;
             color = fabs((*it).second) / maxCoeff;
@@ -525,6 +539,40 @@ plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Bas
         double x = 0.5*(basis_x.generator(type1).support(j1,k1).l2 + basis_x.generator(type1).support(j1,k1).l1);
         double y = 0.5*(basis_y.generator(type2).support(j2,k2).l2 + basis_y.generator(type2).support(j2,k2).l1);
 
+        if(fabs((*it).second) > 0){
+          data << x << " " << y << " " << (*it).second << " " << -1. << std::endl;
+        }
+    }
+    data.close();
+
+}
+
+template <typename T, typename Index, typename Basis_x, typename Basis_y>
+void
+plotScatterCoeff2D_interval(const Coefficients<Lexicographical,T,Index> &coeff, const Basis_x &basis_x,
+                            const Basis_y &basis_y, const char* filename)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
+
+
+    std::stringstream dataFilename;
+    dataFilename << filename << ".dat";
+    std::ofstream data(dataFilename.str().c_str());
+
+    int offset_x = 1-basis_x.mra.rangeI(basis_x.j0).firstIndex();
+    int offset_y = 1-basis_y.mra.rangeI(basis_y.j0).firstIndex();
+    for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+        int j1=(*it).first.index1.j, j2=(*it).first.index2.j;
+        long k1=(*it).first.index1.k, k2=(*it).first.index2.k;
+        XType type1=(*it).first.index1.xtype, type2=(*it).first.index2.xtype;
+
+        T x=0., y=0.;
+        if (type1==XBSpline) {  x = T(k1+offset_x) / (basis_x.mra.cardI(j1)+1);      }
+        else {                  x = T((k1-1)*2+1) / (basis_x.mra.cardI(j1+1)+1);  }
+        if (type2==XBSpline) {  y = T(k2+offset_y) / (basis_y.mra.cardI(j2)+1);      }
+        else {                  y = T((k2-1)*2+1) / (basis_y.mra.cardI(j2+1)+1);  }
+
+        //center of the support
         if(fabs((*it).second) > 0){
           data << x << " " << y << " " << (*it).second << " " << -1. << std::endl;
         }

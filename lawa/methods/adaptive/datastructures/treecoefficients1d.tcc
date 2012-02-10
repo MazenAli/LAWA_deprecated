@@ -8,8 +8,9 @@ CoefficientsByLevel<T>::CoefficientsByLevel(void)
 
 template <typename T>
 CoefficientsByLevel<T>::CoefficientsByLevel(short _j, size_t n)
-: j(_j), map()/*map(n)*/
+: j(_j), map() /*map(n)*/
 {
+    this->set(j,n);
 }
 
 template <typename T>
@@ -17,13 +18,13 @@ void
 CoefficientsByLevel<T>::set(short _j, size_t n)
 {
     j = _j;
-    /*
+
     #ifdef TRONE
-        map.rehash(n);
+        if (n>4000) map.rehash(n);
     #else
-        map.resize(n);
+        if (n>4000) map.resize(n);
     #endif
-    */
+
 }
 
 template <typename T>
@@ -164,7 +165,7 @@ int
 TreeCoefficients1D<T>::size()
 {
     int ret = 0;
-    for (int l=0; l<=JMAX; ++l) {
+    for (int l=0; l<=maxTreeLevel; ++l) {
         ret += bylevel[l].map.size();
     }
     return ret;
@@ -179,6 +180,7 @@ TreeCoefficients1D<T>::getMaxTreeLevel(int j0)
         if(bylevel[l].map.size()==0) break;
         j=l;
     }
+    maxTreeLevel = j;
     return j;
 }
 

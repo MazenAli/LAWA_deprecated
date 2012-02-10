@@ -12,8 +12,11 @@ typedef double T;
 
 
 typedef Basis<T,Primal,Interval,Dijkema>                            PrimalBasis;
+
 //typedef HelmholtzOperator1D<T,PrimalBasis>                          BilinearForm;
 typedef IdentityOperator1D<T,PrimalBasis>                          BilinearForm;
+//typedef WeightedLaplaceOperator1D<T,Primal,Gauss>                   BilinearForm;
+
 typedef DiagonalMatrixPreconditioner1D<T,PrimalBasis,BilinearForm>  Preconditioner;
 
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;

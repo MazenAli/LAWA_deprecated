@@ -494,7 +494,7 @@ C_WO_XBSpline(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis) {
 //Security zone 2D
 template <typename T, typename Basis2D>
 IndexSet<Index2D>
-C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
+C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis, bool extralevel)
 {
     typedef typename IndexSet<Index2D>::const_iterator const_set2d_it;
     typedef typename IndexSet<Index1D>::const_iterator const_set1d_it;
@@ -502,33 +502,36 @@ C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis)
     const_set2d_it Lambda_end = Lambda.end();
     IndexSet<Index2D>  ret;
 
+
     //Security zone of Lambda should not contain indices which are already in Lambda
     for (const_set2d_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
         IndexSet<Index1D > C_index1, C_index2;
         C_index1 = C((*lambda).index1, c, basis.first);
         C_index2 = C((*lambda).index2, c, basis.second);
 
-        for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
-            Index2D new_index2d((*it_C_index1), (*lambda).index2);
-            if (Lambda.find(new_index2d)==Lambda_end) {
-                ret.insert(new_index2d);
+        if (!extralevel) {
+            for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+                Index2D new_index2d((*it_C_index1), (*lambda).index2);
+                if (Lambda.find(new_index2d)==Lambda_end) {
+                    ret.insert(new_index2d);
+                }
             }
-        }
-        for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
-            Index2D new_index2d((*lambda).index1, (*it_C_index2));
-            if (Lambda.find(new_index2d)==Lambda_end) {
-                ret.insert(new_index2d);
-            }
-        }
-/*
-        for (const_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
-            for (const_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
-                if (Lambda.count(Index2D((*it_C_index1), (*it_C_index2)))==0) {
-                    ret.insert(Index2D((*it_C_index1), (*it_C_index2)));
+            for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+                Index2D new_index2d((*lambda).index1, (*it_C_index2));
+                if (Lambda.find(new_index2d)==Lambda_end) {
+                    ret.insert(new_index2d);
                 }
             }
         }
-*/
+        else {
+            for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+                for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+                    if (Lambda.count(Index2D((*it_C_index1), (*it_C_index2)))==0) {
+                        ret.insert(Index2D((*it_C_index1), (*it_C_index2)));
+                    }
+                }
+            }
+        }
     }
     return ret;
 }

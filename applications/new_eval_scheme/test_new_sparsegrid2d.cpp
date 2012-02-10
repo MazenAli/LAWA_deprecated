@@ -17,25 +17,23 @@ typedef double T;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >   DenseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                         DenseVectorT;
 
-
 typedef Basis<T,Primal,Interval,Dijkema>                            PrimalBasis;
 typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 
-typedef HelmholtzOperator1D<T,PrimalBasis>                          HelmholtzBilinearForm;
-typedef IdentityOperator1D<T,PrimalBasis>                           IdentityBilinearForm;
+typedef AdaptiveLaplaceOperator1D<T,Primal,Interval,Dijkema>        LaplaceBilinearForm;
+typedef AdaptiveIdentityOperator1D<T,Primal,Interval,Dijkema>       IdentityBilinearForm;
 typedef HelmholtzOperator2D<T,Basis2D>                              HelmholtzBilinearForm2D;
 typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
                                        HelmholtzBilinearForm2D>     Preconditioner;
-//typedef NoPreconditioner<T,Index2D>                                 Preconditioner;
 
-typedef LocalOperator<PrimalBasis,PrimalBasis,HelmholtzBilinearForm,
-                      Preconditioner>                               LocalHelmholtzOp1D;
+typedef LocalOperator<PrimalBasis,PrimalBasis,LaplaceBilinearForm,
+                      Preconditioner>                               LocalLaplaceOp1D;
 typedef LocalOperator<PrimalBasis,PrimalBasis,IdentityBilinearForm,
                       Preconditioner>                               LocalIdentityOp1D;
-typedef LocalOperator2D<PrimalBasis,LocalHelmholtzOp1D,
-                        LocalIdentityOp1D>                          LocalHelmholtzIdentityOp2D;
+typedef LocalOperator2D<PrimalBasis,LocalLaplaceOp1D,
+                        LocalIdentityOp1D>                          LocalLaplaceIdentityOp2D;
 typedef LocalOperator2D<PrimalBasis,LocalIdentityOp1D,
-                        LocalHelmholtzOp1D>                         LocalIdentityHelmholtzOp2D;
+                        LocalLaplaceOp1D>                           LocalIdentityLaplaceOp2D;
 
 //Righthandsides definitions (separable)
 typedef SeparableRHS2D<T,Basis2D >                                  SeparableRhsIntegral2D;
@@ -52,17 +50,20 @@ typedef Coefficients<Lexicographical,T,Index2D>::iterator           coeff2d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2d_it;
 
 void
-writeIndexSetToFile(const IndexSet<Index2D> &Lambda, int example, int d, int nr);
+writeIndexSetToFile(const IndexSet<Index2D> &Lambda, int example, int d, T threshTol, int ell, int nr);
 
 void
-readIndexSetFromFile(IndexSet<Index2D> &Lambda, int example, int d, int nr);
+readIndexSetFromFile(IndexSet<Index2D> &Lambda,  int example, int d, T threshTol, int ell, int nr);
 
 void
 getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j, T gamma=0.);
 
 void
-mv(const LocalHelmholtzIdentityOp2D &localHelmholtzIdentityOp2D,
-   const LocalIdentityHelmholtzOp2D &localIdentityHelmholtzOp2D,
+extendRHSIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j);
+
+void
+mv(LocalLaplaceIdentityOp2D &localLaplaceIdentityOp2D,
+   LocalIdentityLaplaceOp2D &localIdentityLaplaceOp2D,
    Coefficients<Lexicographical,T,Index2D> &P,
    const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &v,
    Coefficients<Lexicographical,T,Index2D> &intermediate,
@@ -72,50 +73,6 @@ mv(const LocalHelmholtzIdentityOp2D &localHelmholtzIdentityOp2D,
 
 const T c = 0.;
 
-/*
-T u1(T x)   { return x*x*(1-x)*(1-x); }
-T u2(T y)   { return y*y*(1-y)*(1-y); }
-T du1(T x)  { return (2*x-6*x*x+4*x*x*x); }
-T du2(T y)  { return (2*y-6*y*y+4*y*y*y); }
-T ddu1(T x) { return (2-12*x+12*x*x); }
-T ddu2(T y) { return (2-12*y+12*y*y); }
-T H1seminorm_squared = 2*(1./630. * 2./105);
-*/
-/*
-T u1(T x)
-{
-    if (0<=x && x<1./3.) return 10*exp(x)-10.;
-    else                 return 10*exp(-0.5*(x-1.))-10.;
-}
-T u2(T y)
-{
-    if (0<=y && y<1./3.) return 10*exp(y)-10.;
-    else                 return 10*exp(-0.5*(y-1.))-10.;
-}
-T du1(T x) {
-    if (0<=x && x<1./3.) return 10*exp(x);
-    else                 return -5*exp(-0.5*(x-1.));
-}
-T du2(T y) {
-    if (0<=y && y<1./3.) return 10*exp(y);
-    else                 return -5*exp(-0.5*(y-1.));
-}
-T ddu1(T x)
-{
-    if (0<=x && x<1./3.) return 10*exp(x);
-    else                 return 2.5*exp(-0.5*(x-1.));
-}
-T ddu2(T y)
-{
-    if (0<=y && y<1./3.) return 10*exp(y);
-    else                 return 2.5*exp(-0.5*(y-1.));
-}
-T L2norm_x_sq = 50.*(11.-12.*exp(1./3.)+3.*exp(2./3.));
-T L2norm_y_sq = L2norm_x_sq;
-T H1semi_x_sq = 75.*(-1.+exp(2./3.));
-T H1semi_y_sq = H1semi_x_sq;
-T H1seminorm_squared = L2norm_x_sq*H1semi_y_sq + H1semi_x_sq*L2norm_y_sq;
-*/
 /*
 int example = 1;
 T u1(T x)
@@ -214,29 +171,25 @@ int main (int argc, char *argv[]) {
     int j0  = atoi(argv[3]);
     int J  = atoi(argv[4]);
     bool withDirichletBC=true;
-    bool adaptive=false;
+    bool adaptive=true;
+    T threshTol = 0.4;
+    T r_norm = 0.1;
     T gamma = 0.2;
+    int ell=1;
     Timer time;
 
     PrimalBasis       basis(d,d_,j0);
     if (withDirichletBC)    basis.enforceBoundaryCondition<DirichletBC>();
     Basis2D basis2d(basis,basis);
 
-    HelmholtzBilinearForm    HelmholtzBil(basis,0);
+    LaplaceBilinearForm      LaplaceBil(basis);
     IdentityBilinearForm     IdentityBil(basis);
     HelmholtzBilinearForm2D  HelmholtzBil2D(basis2d,0.);
-    Preconditioner    Prec(HelmholtzBil2D);
-    //Preconditioner    Prec;
+    Preconditioner           Prec(HelmholtzBil2D);
     int offset=5;
     if (d==2 && d_==2) {
         offset=2;
     }
-    LocalHelmholtzOp1D          localHelmholtzOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, HelmholtzBil, Prec);
-    LocalIdentityOp1D           localIdentityOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, IdentityBil, Prec);
-    LocalHelmholtzIdentityOp2D  localHelmholtzIdentityOp2D(basis,localHelmholtzOp1D,localIdentityOp1D);
-    LocalIdentityHelmholtzOp2D  localIdentityHelmholtzOp2D(basis,localIdentityOp1D,localHelmholtzOp1D);
-    localHelmholtzIdentityOp2D.setJ(9);
-    localIdentityHelmholtzOp2D.setJ(9);
 
     DenseVectorT sing_pts_x, sing_pts_y;
     DenseMatrixT no_deltas, deltas_x, deltas_y;
@@ -274,33 +227,31 @@ int main (int argc, char *argv[]) {
     Coefficients<Lexicographical,T,Index2D> IAUIv(SIZEHASHINDEX2D);
 
     IndexSet<Index2D> Lambda;
-    getSparseGridIndexSet(basis,Lambda,0);
-    //readIndexSetFromFile(Lambda,example,d,20);
-    T threshTol = 0.3;
-    T r_norm = 0.1;
-    for (int j=0; j<=27; ++j) {
-        //writeIndexSetToFile(Lambda,example,d,j);
+    getSparseGridIndexSet(basis,Lambda,0,gamma);
+    //readIndexSetFromFile(Lambda,example,d,threshTol,1,13);
+
+    LocalLaplaceOp1D            localLaplaceOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, LaplaceBil, Prec, 1);
+    LocalIdentityOp1D           localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, IdentityBil,  Prec, 0);
+    LocalLaplaceIdentityOp2D    localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
+    LocalIdentityLaplaceOp2D    localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
+    localLaplaceIdentityOp2D.setJ(9);
+    localIdentityLaplaceOp2D.setJ(9);
+
+
+    for (int iter=0; iter<=25; ++iter) {
+
+        //readIndexSetFromFile(Lambda,example,d,threshTol,1,iter);
+        //writeIndexSetToFile(Lambda,example,d,threshTol,ell,iter);
+        //Lambda.clear();
+        //getSparseGridIndexSet(basis,Lambda,iter,gamma);
+
+        if (Lambda.size()>400000) break;
         cout << endl;
-        cout << "******** Iteration " << j << endl;
+
+        cout << "******** Iteration " << iter << endl;
 
         cout << "   Current size of Lambda " << Lambda.size() << endl;
         f = F(Lambda);
-        for (coeff2d_it it=f.begin(); it!=f.end(); ++it) {
-            XType xtype1 = (*it).first.index1.xtype;
-            XType xtype2 = (*it).first.index2.xtype;
-            int  j1 = (*it).first.index2.j;
-            int  j2 = (*it).first.index2.j;
-            long k1 = (*it).first.index2.k;
-            long k2 = (*it).first.index2.k;
-            if (xtype1==XWavelet && basis.rangeJI(j1).firstIndex()<=k1
-                                 && k1<=basis.rangeJI(j1).lastIndex()) {
-                (*it).second=0.;
-            }
-            if (xtype2==XWavelet && basis.rangeJI(j2).firstIndex()<=k2
-                                 && k2<=basis.rangeJI(j2).lastIndex()) {
-                (*it).second=0.;
-            }
-        }
 
         IndexSet<Index1D> Lambda_x, Lambda_y;
         split(Lambda,Lambda_x,Lambda_y);
@@ -318,17 +269,20 @@ int main (int argc, char *argv[]) {
 
         int maxIterations = 200;
         T tol;
-        if (adaptive) tol=1e-2*r_norm;
-        else          tol=1e-6;
+        if (adaptive) tol=std::min(1e-2,1e-2*r_norm);
+        else          tol=1e-8;
 
         T alpha, beta, rNormSquare, rNormSquarePrev;
         T dummy1=0., dummy2=0.;
-
+        cerr << "   Computing preconditioner." << endl;
         for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
             if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
         }
-        mv(localHelmholtzIdentityOp2D, localIdentityHelmholtzOp2D, P,
+        cerr << "   Computing matrix vector product for initial residual." << endl;
+
+        mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
            Lambda, u, intermediate, LIIAv, IAUIv, r, dummy1, dummy2);
+
         r -= f;
         p -= r;
         rNormSquare = r*r;
@@ -342,7 +296,8 @@ int main (int argc, char *argv[]) {
             }
             T time1=0., time2=0.;
             time.start();
-            mv(localHelmholtzIdentityOp2D, localIdentityHelmholtzOp2D, P,
+            cerr << "   Computing matrix vector product for initial residual." << endl;
+            mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
                        Lambda, p, intermediate, LIIAv, IAUIv, Ap, time1, time2);
             time.stop();
             mv_time1 += time1;
@@ -363,38 +318,57 @@ int main (int argc, char *argv[]) {
             p -= r;
         }
 
-        mv(localHelmholtzIdentityOp2D, localIdentityHelmholtzOp2D, P,
+        mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
            Lambda, u, intermediate, LIIAv, IAUIv, Ap, dummy1, dummy2);
         T uAu = Ap*u;
         T fu  = f*u;
-        //T H1error =  sqrt(fabs(H1seminorm_squared - 2*fu + uAu));
-        T H1error =  sqrt(fabs(H1seminorm_squared - fu));
+        T H1error =  sqrt(fabs(H1seminorm_squared - 2*fu + uAu));
+        //T H1error =  sqrt(fabs(H1seminorm_squared - fu));
         std::cerr << "---> H1-error: " << H1error << " " << fu << endl;
 
+        /*
+        stringstream coeff_filename;
+        if (adaptive) {
+            coeff_filename << "u_adap_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << u.size();
+        }
+        else {
+            coeff_filename << "u_sg_" << example << "_" << d << "_" << gamma << "_" << ell << "_" << u.size();
+        }
+        plotScatterCoeff2D<T,Index2D,PrimalBasis,PrimalBasis>(u, basis, basis, coeff_filename.str().c_str());
+        */
 
-        IndexSet<Index2D> C_Lambda =  C(Lambda, 1., basis2d);
         IndexSet<Index2D> checkLambda = Lambda;
-        for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
-            extendMultiTree2(basis2d,(*it),offset,checkLambda);
+        IndexSet<Index2D> C_Lambda = Lambda;
+        for (int i=1; i<=ell; ++i) {
+            C_Lambda = C(C_Lambda, 1., basis2d, true);
+            for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
+                extendMultiTree2(basis2d,(*it),offset,checkLambda);
+            }
         }
-        C_Lambda =  C(checkLambda, 1., basis2d);
-        for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
-            extendMultiTree2(basis2d,(*it),offset,checkLambda);
-        }
-        cerr << "   Size of of checkLambda = " << checkLambda.size() << endl;
+        cerr << "   Residual level l = " << ell
+             << ", size of of checkLambda = " << checkLambda.size() << endl;
 
         for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
             if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
         }
 
-        f = F(checkLambda);
+        if (example==1) {
+            f = F(checkLambda);
+        }
+        else {
+            IndexSet<Index2D> LambdaBoundary;
+            extendRHSIndexSet(basis, LambdaBoundary, std::max(jmax_x,jmax_y)+2);
+            f = F(LambdaBoundary);
+        }
+        cerr << "   Extension of rhs finished." << endl;
         T time_res1=0., time_res2=0.;
-        mv(localHelmholtzIdentityOp2D, localIdentityHelmholtzOp2D, P,
+        mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
            checkLambda, u, intermediate, LIIAv, IAUIv, r, time_res1, time_res2);
+        cerr << "   Matrix vector for residual computation finished." << endl;
         r-=f;
         r_norm = r.norm(2.);
         file << Lambda.size() << " " << checkLambda.size()
-             << " " << H1error << " " << r_norm
+             << " " << fu << " " << r_norm
              << " " << mv_time1/cg_iters << " " << mv_time2/cg_iters << " " << time_res1 << " " << time_res2 << endl;
         cerr << "---> H1-error = " << H1error << ", res = " << r_norm << endl;
 
@@ -410,20 +384,22 @@ int main (int argc, char *argv[]) {
             }
         }
         else {
-            getSparseGridIndexSet(basis,Lambda,j+1,gamma);
+            getSparseGridIndexSet(basis,Lambda,iter+1,gamma);
         }
+        cerr << "   Computation of new Lambda finished." << endl;
         r.clear();
-
     }
-
+    std::cerr << "Start plot with u.size() == " << u.size() << std::endl;
+    plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.01, "sol");
+    std::cerr << "Finished plot with u.size() == " << u.size() << std::endl;
     return 0;
 }
 
 void
-writeIndexSetToFile(const IndexSet<Index2D> &Lambda, int example, int d, int nr)
+writeIndexSetToFile(const IndexSet<Index2D> &Lambda, int example, int d, T threshTol, int ell, int nr)
 {
     stringstream filename;
-    filename << "Lambda2d_" << example << "_" << d << "_" << nr << ".dat";
+    filename << "_Lambda2d_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << nr << ".dat";
     ofstream file(filename.str().c_str());
     for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
         file << *it << endl;
@@ -432,11 +408,18 @@ writeIndexSetToFile(const IndexSet<Index2D> &Lambda, int example, int d, int nr)
 }
 
 void
-readIndexSetFromFile(IndexSet<Index2D> &Lambda, int example, int d, int nr)
+readIndexSetFromFile(IndexSet<Index2D> &Lambda, int example, int d, T threshTol, int ell, int nr)
 {
     stringstream filename;
-    filename << "Lambda2d_" << example << "_" << d << "_" << nr << ".dat";
+    filename << "indexsets/Lambda2d_" << example << "_" << d << "_"
+             << threshTol << "_" << ell << "_" << nr << ".dat";
     std::ifstream infile (filename.str().c_str());
+    if (infile.is_open()) {
+        cerr << "   Indexset file is open." << endl;
+    }
+    else {
+        cerr << "   Indexset file " << filename.str().c_str()  << " is not open." << endl;
+    }
 
     std::string line;
     std::string field1, field2, field3, field4, field5, field6;
@@ -505,8 +488,10 @@ getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j
     }
     for (int i1=1; i1<=j; ++i1) {
         int j1=j0+i1-1;
-        for (int i2=1; i1+i2<=j; ++i2) {
-            if (T(i1+i2)-gamma*max(i1,i2)>(1-gamma)*j) continue;
+        for (int i2=1; i2<=j; ++i2) {
+            if (T(i1+i2)-gamma*max(i1,i2)>(1-gamma)*j) {
+                continue;
+            }
             int j2=j0+i2-1;
             for (long k1=basis.rangeJ(j1).firstIndex(); k1<=basis.rangeJ(j1).lastIndex(); ++k1) {
                 for (long k2=basis.rangeJ(j2).firstIndex(); k2<=basis.rangeJ(j2).lastIndex(); ++k2) {
@@ -521,8 +506,31 @@ getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j
 }
 
 void
-mv(const LocalHelmholtzIdentityOp2D &localHelmholtzIdentityOp2D,
-   const LocalIdentityHelmholtzOp2D &localIdentityHelmholtzOp2D,
+extendRHSIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int J)
+{
+    std::cerr << "   extendRHSIndexSet adds level up to " << J << std::endl;
+    IndexSet<Index1D> LambdaBoundary;
+    for (int k=basis.mra.rangeI(basis.j0).firstIndex(); k<=basis.mra.rangeI(basis.j0).lastIndex(); ++k) {
+        LambdaBoundary.insert(Index1D(basis.j0,k,XBSpline));
+    }
+    for (int j=basis.j0; j<=J; ++j) {
+        for (int k=basis.rangeJL(j).firstIndex(); k<=basis.rangeJL(j).lastIndex(); ++k) {
+            LambdaBoundary.insert(Index1D(j,k,XWavelet));
+        }
+        for (int k=basis.rangeJR(j).firstIndex(); k<=basis.rangeJR(j).lastIndex(); ++k) {
+            LambdaBoundary.insert(Index1D(j,k,XWavelet));
+        }
+    }
+    for (const_set1d_it it_x=LambdaBoundary.begin(); it_x!=LambdaBoundary.end(); ++it_x) {
+        for (const_set1d_it it_y=LambdaBoundary.begin(); it_y!=LambdaBoundary.end(); ++it_y) {
+            Lambda.insert(Index2D(*it_x,*it_y));
+        }
+    }
+}
+
+void
+mv(LocalLaplaceIdentityOp2D &localLaplaceIdentityOp2D,
+   LocalIdentityLaplaceOp2D &localIdentityLaplaceOp2D,
    Coefficients<Lexicographical,T,Index2D> &P,
    const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &v,
    Coefficients<Lexicographical,T,Index2D> &intermediate,
@@ -551,7 +559,7 @@ mv(const LocalHelmholtzIdentityOp2D &localHelmholtzIdentityOp2D,
         (*it).second *= P[(*it).first];
     }
     time.start();
-    localHelmholtzIdentityOp2D.evalAA(v,intermediate,LIIAv,IAUIv);
+    localLaplaceIdentityOp2D.evalAA(v,intermediate,LIIAv,IAUIv);
     time.stop();
     time1 = time.elapsed();
     //cerr << "      #LIIAv = " << LIIAv.size() << ", #IAUIv = " << IAUIv.size() << endl;
@@ -561,7 +569,7 @@ mv(const LocalHelmholtzIdentityOp2D &localHelmholtzIdentityOp2D,
     LIIAv.setToZero();
     IAUIv.setToZero();
     time.start();
-    localIdentityHelmholtzOp2D.evalAA(v,intermediate,LIIAv,IAUIv);
+    localIdentityLaplaceOp2D.evalAA(v,intermediate,LIIAv,IAUIv);
     time.stop();
     time2 = time.elapsed();
     Av += LIIAv;
@@ -612,9 +620,38 @@ for (const_set2d_it it=refinements.begin(); it!=refinements.end(); ++it) {
 }
 */
 /*
-std::cerr << "Start plot with u.size() == " << u.size() << std::endl;
-plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.05, "sol");
-std::cerr << "Finished plot with u.size() == " << u.size() << std::endl;
-cout << "Hit enter to continue" << endl;
-getchar();
+Coefficients<Lexicographical,T,Index1D> u_multi;
+for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
+    XType xtype1 = (*it).index1.xtype;
+    int j1 = (*it).index1.j;
+    long k1 = (*it).index1.k;
+    if (xtype1==XBSpline && k1==basis.mra.rangeI(basis.j0).firstIndex()) {
+        u_multi[(*it).index2] = 1.;
+    }
+}
+stringstream filename2;
+filename2 << "u_multi_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << iter << ".dat";
+plotCoeff<T,PrimalBasis>(u_multi, basis, filename2.str().c_str(), false, true);
 */
+
+/*
+if (example==2) {
+            for (coeff2d_it it=f.begin(); it!=f.end(); ++it) {
+                XType xtype1 = (*it).first.index1.xtype;
+                XType xtype2 = (*it).first.index2.xtype;
+                int  j1 = (*it).first.index2.j;
+                int  j2 = (*it).first.index2.j;
+                long k1 = (*it).first.index2.k;
+                long k2 = (*it).first.index2.k;
+                if (xtype1==XWavelet && basis.rangeJI(j1).firstIndex()<=k1
+                                     && k1<=basis.rangeJI(j1).lastIndex()) {
+                    (*it).second=0.;
+                }
+                if (xtype2==XWavelet && basis.rangeJI(j2).firstIndex()<=k2
+                                     && k2<=basis.rangeJI(j2).lastIndex()) {
+                    (*it).second=0.;
+                }
+            }
+        }
+
+ */
