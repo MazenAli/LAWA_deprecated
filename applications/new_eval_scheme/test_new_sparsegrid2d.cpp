@@ -20,20 +20,16 @@ typedef flens::DenseVector<flens::Array<T> >                         DenseVector
 typedef Basis<T,Primal,Interval,Dijkema>                            PrimalBasis;
 typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 
-typedef AdaptiveLaplaceOperator1D<T,Primal,Interval,Dijkema>        LaplaceBilinearForm;
-typedef AdaptiveIdentityOperator1D<T,Primal,Interval,Dijkema>       IdentityBilinearForm;
+typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    WeightedPDEBilinearForm;
+
 typedef HelmholtzOperator2D<T,Basis2D>                              HelmholtzBilinearForm2D;
 typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
                                        HelmholtzBilinearForm2D>     Preconditioner;
 
-typedef LocalOperator<PrimalBasis,PrimalBasis,LaplaceBilinearForm,
-                      Preconditioner>                               LocalLaplaceOp1D;
-typedef LocalOperator<PrimalBasis,PrimalBasis,IdentityBilinearForm,
-                      Preconditioner>                               LocalIdentityOp1D;
-typedef LocalOperator2D<PrimalBasis,LocalLaplaceOp1D,
-                        LocalIdentityOp1D>                          LocalLaplaceIdentityOp2D;
-typedef LocalOperator2D<PrimalBasis,LocalIdentityOp1D,
-                        LocalLaplaceOp1D>                           LocalIdentityLaplaceOp2D;
+typedef LocalOperator<PrimalBasis,PrimalBasis,WeightedPDEBilinearForm,
+                      Preconditioner>                               LocalWeightedPDEOp1D;
+typedef LocalOperator2D<PrimalBasis,LocalWeightedPDEOp1D,
+                        LocalWeightedPDEOp1D>                       LocalWeightedPDEOp2D;
 
 //Righthandsides definitions (separable)
 typedef SeparableRHS2D<T,Basis2D >                                  SeparableRhsIntegral2D;
@@ -62,19 +58,26 @@ void
 extendRHSIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j);
 
 void
-mv(LocalLaplaceIdentityOp2D &localLaplaceIdentityOp2D,
-   LocalIdentityLaplaceOp2D &localIdentityLaplaceOp2D,
+mv(LocalWeightedPDEOp2D &localLaplaceIdentityOp2D, LocalWeightedPDEOp2D &localIdentityLaplaceOp2D,
    Coefficients<Lexicographical,T,Index2D> &P,
    const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &v,
    Coefficients<Lexicographical,T,Index2D> &intermediate,
    Coefficients<Lexicographical,T,Index2D> &LIIAv, Coefficients<Lexicographical,T,Index2D> &IAUIv,
    Coefficients<Lexicographical,T,Index2D> &Av, T &time1, T &time2);
 
-
 const T c = 0.;
+
+T p1(T x)  {   return (x-0.5)*(x-0.5)+1.; /*1.;*/  }
+
+T dp1(T x) {   return 2*(x-0.5);          /*0.;*/  }
+
+T p2(T y)  {   return (y-0.5)*(y-0.5)+1.; /*1.;*/  }
+
+T dp2(T y) {   return 2*(y-0.5);         /*0.;*/  }
 
 /*
 int example = 1;
+
 T u1(T x)
 {
     if      (0<=x && x<1./3.)    return 10*exp(x)-10.;
@@ -89,16 +92,18 @@ T u2(T y)
     else                         return 10*exp(-(y-1.))-10.;
 }
 
-T du1(T x) {
-    if      (0<=x && x<1./3.)   return 10*exp(x);
-    else if (1./3<x && x<2./3.) return 20.-180.*x + 270*x*x;
-    else                        return -10*exp(-(x-1.));
+T du1(T x)
+{
+    if      (0<=x && x<1./3.)    return 10*exp(x);
+    else if (1./3<x && x<=2./3.) return 20-180.*x+270.*x*x;
+    else                         return -10*exp(-(x-1.));
 }
 
-T du2(T y) {
-    if      (0<=y && y<1./3.)   return 10*exp(y);
-    else if (1./3<y && y<2./3.) return 20.-180.*y + 270*y*y;
-    else                        return -10*exp(-(y-1.));
+T du2(T y)
+{
+    if      (0<=y && y<1./3.)    return 10*exp(y);
+    else if (1./3<y && y<=2./3.) return 20-180.*y+270.*y*y;
+    else                         return -10*exp(-(y-1.));
 }
 
 T ddu1(T x)
@@ -119,44 +124,74 @@ T L2norm_y_sq = L2norm_x_sq;
 T H1semi_x_sq = 20./3.*(-11.+15.*exp(2./3.));
 T H1semi_y_sq = H1semi_x_sq;
 T H1seminorm_squared = L2norm_x_sq*H1semi_y_sq + H1semi_x_sq*L2norm_y_sq;
+
+T p_u1(T x) {   return p1(x)*u1(x); }
+
+T f1(T x)   {   return -p1(x)*ddu1(x)-dp1(x)*du1(x); }
+
+T p_u2(T y) {   return p2(y)*u2(y); }
+
+T f2(T y)   {   return -p2(y)*ddu2(y)-dp2(y)*du2(y); }
+
+T sol(T x, T y) {   return u1(x) * u2(y); }
+*/
+/*
+int example = 2;
+
+T u1(T x)   {    return 1.; }
+
+T u2(T y)   {    return 1.; }
+
+T du1(T x)  {    return 0.; }
+
+T du2(T y)  {    return 0.; }
+
+T ddu1(T x) {    return -10.;   }
+
+T ddu2(T y) {    return -10.;   }
+
+//T H1seminorm_squared = 14.05770149526849;
+T H1seminorm_squared = 11.68737041271871;
+
+T p_u1(T x) {   return u1(x); }
+
+T f1(T x)   {   return -ddu1(x); }
+
+T p_u2(T y) {   return u2(y); }
+
+T f2(T y)   {   return -ddu2(y); }
+
+T sol(T x, T y) {   return u1(x) * u2(y); }
 */
 
-int example = 2;
-T u1(T x)
-{
-    return 1.;
-}
+int example = 3;
 
-T u2(T y)
-{
-    return 1.;
-}
+T u1(T x)   {    return x*x*(1-x)*(1-x); }
 
-T ddu1(T x)
-{
-    return -10.;
-}
+T u2(T y)   {    return y*y*(1-y)*(1-y); }
 
-T ddu2(T y)
-{
-    return -10.;
-}
+T du1(T x)  {    return 2*x*(1-x)*(1-x)-2*x*x*(1-x); }
 
-T H1seminorm_squared = 14.05770149526849;
+T du2(T y)  {    return 2*y*(1-y)*(1-y)-2*y*y*(1-y); }
+
+T ddu1(T x) {    return 2*(1-x)*(1-x) - 8*x*(1-x) + 2*x*x; }
+
+T ddu2(T y) {    return 2*(1-y)*(1-y) - 8*y*(1-y) + 2*y*y; }
 
 
-T f1(T x) {
-    return -ddu1(x) + 0.5*c* u1(x);
-}
+T H1seminorm_squared = 2.*(13./630. * 1./616.);
 
-T f2(T y) {
-    return -ddu2(y) + 0.5*c* u2(y);
-}
+T p_u1(T x) {   return p1(x)*u1(x); }
 
-T sol(T x, T y)
-{
-    return u1(x) * u2(y);
-}
+T f1(T x)   {   return -p1(x)*ddu1(x)-dp1(x)*du1(x); }
+
+T p_u2(T y) {   return p2(y)*u2(y); }
+
+T f2(T y)   {   return -p2(y)*ddu2(y)-dp2(y)*du2(y); }
+
+T sol(T x, T y) {   return u1(x) * u2(y); }
+
+
 
 int main (int argc, char *argv[]) {
 
@@ -171,7 +206,7 @@ int main (int argc, char *argv[]) {
     int j0  = atoi(argv[3]);
     int J  = atoi(argv[4]);
     bool withDirichletBC=true;
-    bool adaptive=true;
+    bool adaptive=false;
     T threshTol = 0.4;
     T r_norm = 0.1;
     T gamma = 0.2;
@@ -182,8 +217,15 @@ int main (int argc, char *argv[]) {
     if (withDirichletBC)    basis.enforceBoundaryCondition<DirichletBC>();
     Basis2D basis2d(basis,basis);
 
-    LaplaceBilinearForm      LaplaceBil(basis);
-    IdentityBilinearForm     IdentityBil(basis);
+
+    DenseVectorT p1_singPts, p2_singPts;
+    Function<T> reaction_coeff(p1, p1_singPts);
+    Function<T> convection_coeff(p1, p1_singPts);
+    Function<T> diffusion_coeff(p1, p1_singPts);
+    WeightedPDEBilinearForm       WeightedLaplaceBil( basis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
+    WeightedPDEBilinearForm       WeightedIdentityBil(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
+
+
     HelmholtzBilinearForm2D  HelmholtzBil2D(basis2d,0.);
     Preconditioner           Prec(HelmholtzBil2D);
     int offset=5;
@@ -202,8 +244,8 @@ int main (int argc, char *argv[]) {
                                        deltas_y(2,1) = 2./3.; deltas_y(2,2) = 20.+10.*exp(1./3.);
     }
 
-    SeparableFunction2D<T> SepFunc1(f1, sing_pts_x, u2, sing_pts_y);
-    SeparableFunction2D<T> SepFunc2(u1, sing_pts_x, f2, sing_pts_y);
+    SeparableFunction2D<T> SepFunc1(f1, sing_pts_x, p_u2, sing_pts_y);
+    SeparableFunction2D<T> SepFunc2(p_u1, sing_pts_x, f2, sing_pts_y);
     int order = 40;
     if (example==2) order=3*d;
 
@@ -230,15 +272,19 @@ int main (int argc, char *argv[]) {
     getSparseGridIndexSet(basis,Lambda,0,gamma);
     //readIndexSetFromFile(Lambda,example,d,threshTol,1,13);
 
-    LocalLaplaceOp1D            localLaplaceOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, LaplaceBil, Prec, 1);
-    LocalIdentityOp1D           localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, IdentityBil,  Prec, 0);
-    LocalLaplaceIdentityOp2D    localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
-    LocalIdentityLaplaceOp2D    localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
+    //LocalLaplaceOp1D            localLaplaceOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, LaplaceBil, Prec, 1);
+    //LocalIdentityOp1D           localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, IdentityBil,  Prec, 0);
+    //LocalLaplaceIdentityOp2D    localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
+    //LocalIdentityLaplaceOp2D    localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
+
+    LocalWeightedPDEOp1D          localLaplaceOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, WeightedLaplaceBil, Prec);
+    LocalWeightedPDEOp1D          localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, WeightedIdentityBil,  Prec);
+    LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
+    LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
     localLaplaceIdentityOp2D.setJ(9);
     localIdentityLaplaceOp2D.setJ(9);
 
-
-    for (int iter=0; iter<=25; ++iter) {
+    for (int iter=0; iter<=30; ++iter) {
 
         //readIndexSetFromFile(Lambda,example,d,threshTol,1,iter);
         //writeIndexSetToFile(Lambda,example,d,threshTol,ell,iter);
@@ -352,7 +398,7 @@ int main (int argc, char *argv[]) {
             if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
         }
 
-        if (example==1) {
+        if (example!=2) {
             f = F(checkLambda);
         }
         else {
@@ -364,11 +410,14 @@ int main (int argc, char *argv[]) {
         T time_res1=0., time_res2=0.;
         mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
            checkLambda, u, intermediate, LIIAv, IAUIv, r, time_res1, time_res2);
+        time_res1=0., time_res2=0.;
+        mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
+           checkLambda, u, intermediate, LIIAv, IAUIv, r, time_res1, time_res2);
         cerr << "   Matrix vector for residual computation finished." << endl;
         r-=f;
         r_norm = r.norm(2.);
         file << Lambda.size() << " " << checkLambda.size()
-             << " " << fu << " " << r_norm
+             << " " << H1error << " " << r_norm
              << " " << mv_time1/cg_iters << " " << mv_time2/cg_iters << " " << time_res1 << " " << time_res2 << endl;
         cerr << "---> H1-error = " << H1error << ", res = " << r_norm << endl;
 
@@ -390,7 +439,7 @@ int main (int argc, char *argv[]) {
         r.clear();
     }
     std::cerr << "Start plot with u.size() == " << u.size() << std::endl;
-    plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.01, "sol");
+    plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.05, "sol");
     std::cerr << "Finished plot with u.size() == " << u.size() << std::endl;
     return 0;
 }
@@ -529,8 +578,8 @@ extendRHSIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int J)
 }
 
 void
-mv(LocalLaplaceIdentityOp2D &localLaplaceIdentityOp2D,
-   LocalIdentityLaplaceOp2D &localIdentityLaplaceOp2D,
+mv(LocalWeightedPDEOp2D &localLaplaceIdentityOp2D,
+   LocalWeightedPDEOp2D &localIdentityLaplaceOp2D,
    Coefficients<Lexicographical,T,Index2D> &P,
    const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &v,
    Coefficients<Lexicographical,T,Index2D> &intermediate,
@@ -558,9 +607,11 @@ mv(LocalLaplaceIdentityOp2D &localLaplaceIdentityOp2D,
     for (coeff2d_it it=v.begin(); it!=v.end(); ++it) {
         (*it).second *= P[(*it).first];
     }
+    cout << "      First MV start." << endl;
     time.start();
     localLaplaceIdentityOp2D.evalAA(v,intermediate,LIIAv,IAUIv);
     time.stop();
+    cout << "      First MV stop." << endl;
     time1 = time.elapsed();
     //cerr << "      #LIIAv = " << LIIAv.size() << ", #IAUIv = " << IAUIv.size() << endl;
 
@@ -568,9 +619,11 @@ mv(LocalLaplaceIdentityOp2D &localLaplaceIdentityOp2D,
     Av += IAUIv;
     LIIAv.setToZero();
     IAUIv.setToZero();
+    cout << "      Second MV start." << endl;
     time.start();
     localIdentityLaplaceOp2D.evalAA(v,intermediate,LIIAv,IAUIv);
     time.stop();
+    cout << "      Second MV stop." << endl;
     time2 = time.elapsed();
     Av += LIIAv;
     Av += IAUIv;

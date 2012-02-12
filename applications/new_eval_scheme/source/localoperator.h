@@ -44,17 +44,10 @@ struct LocalOperator {
     LocalOperator(const TestBasis &_test_basis,   bool test_withDirichletBC,
                   const TrialBasis &_trial_basis, bool trial_withDirichletBC,
                   const int offset,
-                  BilinearForm &_Bil, const Preconditioner &_Prec, int operatortype=-1);
+                  BilinearForm &_Bil, const Preconditioner &_Prec);
 
     void
     scale_wrt_trialbasis(const TreeCoefficients1D<T> &x, TreeCoefficients1D<T> &y);
-
-    void
-    lowCostevalU(const CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
-                 CoefficientsByLevel<T> &PhiPiCheck_vs_v, TreeCoefficients1D<T> &PsiLambdaCheck_vs_v);
-
-    long double
-    evalMatrixEntry(int l, long k_row, long k_col) /*const*/;
 
     void
     computePhiPi2(int l, const CoefficientsByLevel<T> &cl, CoefficientsByLevel<T> &PhiPiCheck_vs_v,
@@ -93,13 +86,6 @@ struct LocalOperator {
     //Important for integration: we only into account indices within the range {k-offset,...,k+offset}.
     //This approach might fail if offset is not chosen w.r.t. the underlying bases!!
     const int                         offset;
-    int                               ref_k;
-    int                               ref_j;
-    // operatortype 0 = identity, 1 = laplace, -1 = none of them
-    int                               operatortype;
-
-    DenseMatrixT                      U;
-    DenseVectorT                      x, y;
 };
 
 }   // namespace lawa

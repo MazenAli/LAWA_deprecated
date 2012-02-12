@@ -42,10 +42,14 @@ class WeightedPDEOperator1D{
         Function<T> &reaction_f;
         Function<T> &convection_f;
         Function<T> &diffusion_f;
+        const bool reactionIsZero;
+        const bool convectionIsZero;
+        const bool diffusionIsZero;
 
         WeightedPDEOperator1D(const Basis& _basis, Function<T> &_reaction_f,
                               Function<T> &_convection_f, Function<T>& _diffusion_f,
-                              int order=10);
+                              int order=10, bool _reactionIsZero=false, bool _convectionIsZero=false,
+                              bool _diffusionIsZero=false);
 
         T
         operator()(XType xtype1, int j1, long k1,
