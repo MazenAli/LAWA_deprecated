@@ -46,7 +46,7 @@ typedef Coefficients<Lexicographical,T,Index2D>::iterator           coeff2d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2d_it;
 
 void
-writeIndexSetToFile(const IndexSet<Index2D> &Lambda, int example, int d, T threshTol, int ell, int nr);
+writeIndexSetToFile(const IndexSet<Index2D> &Lambda, const char *name, int example, int d, T threshTol, int ell, int nr);
 
 void
 readIndexSetFromFile(IndexSet<Index2D> &Lambda,  int example, int d, T threshTol, int ell, int nr);
@@ -135,7 +135,7 @@ T f2(T y)   {   return -p2(y)*ddu2(y)-dp2(y)*du2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
 */
-/*
+
 int example = 2;
 
 T u1(T x)   {    return 1.; }
@@ -162,8 +162,8 @@ T p_u2(T y) {   return u2(y); }
 T f2(T y)   {   return -ddu2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
-*/
 
+/*
 int example = 3;
 
 T u1(T x)   {    return x*x*(1-x)*(1-x); }
@@ -191,7 +191,7 @@ T f2(T y)   {   return -p2(y)*ddu2(y)-dp2(y)*du2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
 
-
+*/
 
 int main (int argc, char *argv[]) {
 
@@ -206,8 +206,8 @@ int main (int argc, char *argv[]) {
     int j0  = atoi(argv[3]);
     int J  = atoi(argv[4]);
     bool withDirichletBC=true;
-    bool adaptive=false;
-    T threshTol = 0.4;
+    bool adaptive=true;
+    T threshTol = 0.6;
     T r_norm = 0.1;
     T gamma = 0.2;
     int ell=1;
@@ -287,7 +287,7 @@ int main (int argc, char *argv[]) {
     for (int iter=0; iter<=30; ++iter) {
 
         //readIndexSetFromFile(Lambda,example,d,threshTol,1,iter);
-        //writeIndexSetToFile(Lambda,example,d,threshTol,ell,iter);
+        writeIndexSetToFile(Lambda,"Lambda",example,d,threshTol,ell,iter);
         //Lambda.clear();
         //getSparseGridIndexSet(basis,Lambda,iter,gamma);
 
@@ -372,40 +372,37 @@ int main (int argc, char *argv[]) {
         //T H1error =  sqrt(fabs(H1seminorm_squared - fu));
         std::cerr << "---> H1-error: " << H1error << " " << fu << endl;
 
-        /*
-        stringstream coeff_filename;
-        if (adaptive) {
-            coeff_filename << "u_adap_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << u.size();
-        }
-        else {
-            coeff_filename << "u_sg_" << example << "_" << d << "_" << gamma << "_" << ell << "_" << u.size();
-        }
-        plotScatterCoeff2D<T,Index2D,PrimalBasis,PrimalBasis>(u, basis, basis, coeff_filename.str().c_str());
-        */
 
         IndexSet<Index2D> checkLambda = Lambda;
-        IndexSet<Index2D> C_Lambda = Lambda;
-        for (int i=1; i<=ell; ++i) {
-            C_Lambda = C(C_Lambda, 1., basis2d, true);
-            for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
-                extendMultiTree2(basis2d,(*it),offset,checkLambda);
-            }
-        }
-        cerr << "   Residual level l = " << ell
-             << ", size of of checkLambda = " << checkLambda.size() << endl;
-
-        for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
-            if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
-        }
-
         if (example!=2) {
+            IndexSet<Index2D> C_Lambda = Lambda;
+            for (int i=1; i<=ell; ++i) {
+                C_Lambda = C(C_Lambda, 1., basis2d, true);
+                for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
+                    extendMultiTree2(basis2d,(*it),offset,checkLambda);
+                }
+            }
+            cerr << "   Residual level l = " << ell
+                 << ", size of of checkLambda = " << checkLambda.size() << endl;
             f = F(checkLambda);
         }
         else {
             IndexSet<Index2D> LambdaBoundary;
-            extendRHSIndexSet(basis, LambdaBoundary, std::max(jmax_x,jmax_y)+2);
+            extendRHSIndexSet(basis, LambdaBoundary, std::max(jmax_x,jmax_y)+1);
             f = F(LambdaBoundary);
+            IndexSet<Index2D> C_Lambda = Lambda;
+            C_Lambda += LambdaBoundary;
+            for (int i=1; i<=ell; ++i) {
+                C_Lambda = C(C_Lambda, 1., basis2d, true);
+                for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
+                    extendMultiTree2(basis2d,(*it),offset,checkLambda);
+                }
+            }
         }
+        for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
+            if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
+        }
+        writeIndexSetToFile(checkLambda,"checkLambda",example,d,threshTol,ell,iter);
         cerr << "   Extension of rhs finished." << endl;
         T time_res1=0., time_res2=0.;
         mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
@@ -439,16 +436,16 @@ int main (int argc, char *argv[]) {
         r.clear();
     }
     std::cerr << "Start plot with u.size() == " << u.size() << std::endl;
-    plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.05, "sol");
+    plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.01, "sol");
     std::cerr << "Finished plot with u.size() == " << u.size() << std::endl;
     return 0;
 }
 
 void
-writeIndexSetToFile(const IndexSet<Index2D> &Lambda, int example, int d, T threshTol, int ell, int nr)
+writeIndexSetToFile(const IndexSet<Index2D> &Lambda, const char *name, int example, int d, T threshTol, int ell, int nr)
 {
     stringstream filename;
-    filename << "_Lambda2d_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << nr << ".dat";
+    filename << name << "_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << nr << ".dat";
     ofstream file(filename.str().c_str());
     for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
         file << *it << endl;
@@ -672,6 +669,18 @@ for (const_set2d_it it=refinements.begin(); it!=refinements.end(); ++it) {
     extendMultiTree2(basis2d,(*it),offset,Lambda);
 }
 */
+
+/*
+stringstream coeff_filename;
+if (adaptive) {
+    coeff_filename << "u_adap_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << u.size();
+}
+else {
+    coeff_filename << "u_sg_" << example << "_" << d << "_" << gamma << "_" << ell << "_" << u.size();
+}
+plotScatterCoeff2D<T,Index2D,PrimalBasis,PrimalBasis>(u, basis, basis, coeff_filename.str().c_str());
+*/
+
 /*
 Coefficients<Lexicographical,T,Index1D> u_multi;
 for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
@@ -687,24 +696,3 @@ filename2 << "u_multi_" << example << "_" << d << "_" << threshTol << "_" << ell
 plotCoeff<T,PrimalBasis>(u_multi, basis, filename2.str().c_str(), false, true);
 */
 
-/*
-if (example==2) {
-            for (coeff2d_it it=f.begin(); it!=f.end(); ++it) {
-                XType xtype1 = (*it).first.index1.xtype;
-                XType xtype2 = (*it).first.index2.xtype;
-                int  j1 = (*it).first.index2.j;
-                int  j2 = (*it).first.index2.j;
-                long k1 = (*it).first.index2.k;
-                long k2 = (*it).first.index2.k;
-                if (xtype1==XWavelet && basis.rangeJI(j1).firstIndex()<=k1
-                                     && k1<=basis.rangeJI(j1).lastIndex()) {
-                    (*it).second=0.;
-                }
-                if (xtype2==XWavelet && basis.rangeJI(j2).firstIndex()<=k2
-                                     && k2<=basis.rangeJI(j2).lastIndex()) {
-                    (*it).second=0.;
-                }
-            }
-        }
-
- */
