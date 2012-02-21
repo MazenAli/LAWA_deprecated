@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    T tol = 1e-10;
+    T tol = 1e-8;
     int Nmax = 7;
     string trainingerrorfile = "Training.txt";
 

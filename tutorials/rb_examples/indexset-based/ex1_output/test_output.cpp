@@ -235,6 +235,17 @@ int main(int argc, char* argv[]) {
     bf_offline_data << argv[6] << "/bf";
     rb_model.read_basis_functions(bf_offline_data.str().c_str());
 
+    //T mu=1.;
+    //std::vector<std::vector<T> > Xi_test;
+    //vector<T> test_param;
+    //test_param.push_back(mu);
+   // Xi_test.push_back(test_param);
+    //rb_model.set_current_param(Xi_test[0]);
+   // Coeffs u = rb_model.truth->solver->truth_solve();
+    //cout << "size coeffs u : " << u.size() << endl<< endl;
+    //plot2D(basis2d,u,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter");
+
+
     cout << "=================================================================" << endl;
     cout << "=====       ONLINE : TESTS                                 ======" << endl;
     cout << "=================================================================" << endl;
@@ -246,7 +257,7 @@ int main(int argc, char* argv[]) {
 
     // Construct test set
     std::vector<std::vector<T> > Xi_test;
-    T test_min = 0.13;
+    T test_min = 1.13;
     T test_max = 1.96;
     int n_test = 29;
     T h_test = (test_max - test_min) / (n_test-1);
@@ -270,10 +281,13 @@ int main(int argc, char* argv[]) {
 
       // Reference truth solve at test parameter
       rb_model.set_current_param(Xi_test[i]);
-      Coeffs u = rb_model.truth->solver->truth_solve();
-      cout << "size coeffs u : " << u.size() << endl;
+      //Coeffs u = rb_model.truth->solver->truth_solve();
+      Coeffs u = rb_model.truth->truth_solve();
+      //cout << "u: " << u << endl;
+
       T output_u = AverageOutput.operator()(u);
       cout << "--------output operator u : " << output_u << endl;
+      plot2D(basis2d,u,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter");
 
       // RB solves for different basis sizes
       for(unsigned int n = 1; n <= rb_model.n_bf(); ++n){
@@ -282,13 +296,22 @@ int main(int argc, char* argv[]) {
         T error_bound = rb_model.residual_dual_norm(u_N, Xi_test[i]) / rb_model.alpha_LB(Xi_test[i]);
 
         Coeffs u_approx = rb_model.reconstruct_u_N(u_N, n);
+        if(n==3)
+        {
+            plot2D(basis2d,u_approx,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_approx");
+        }
         cout << "size coeffs u_approx : " << u_approx.size() << endl<< endl;
 
         T output_u_approx = AverageOutput.operator()(u_approx);
         cout << "--------output operator u_approx : " << output_u_approx << endl;
         Coeffs coeff_diff = u - u_approx;
+        if(n==3)
+        {
+            plot2D(basis2d,coeff_diff,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_diff");
+        }
+
         T err_norm = rb_model.truth->inner_product(coeff_diff, coeff_diff);
-        cout << "Differenz der Outputs: " << abs(output_u-output_u_approx) << endl;
+        cout << "err_norm coeff-diff: " << err_norm << endl;
         //representor norm neu berechnen? einlesen?
 
         cout << "   N = " << n << ": " << err_norm << " " << error_bound << endl;
