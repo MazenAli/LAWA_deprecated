@@ -257,7 +257,7 @@ int main(int argc, char* argv[]) {
 
     // Construct test set
     std::vector<std::vector<T> > Xi_test;
-    T test_min = 1.13;
+    T test_min = 0.13;
     T test_max = 1.96;
     int n_test = 29;
     T h_test = (test_max - test_min) / (n_test-1);
@@ -283,11 +283,9 @@ int main(int argc, char* argv[]) {
       rb_model.set_current_param(Xi_test[i]);
       //Coeffs u = rb_model.truth->solver->truth_solve();
       Coeffs u = rb_model.truth->truth_solve();
-      //cout << "u: " << u << endl;
 
       T output_u = AverageOutput.operator()(u);
       cout << "--------output operator u : " << output_u << endl;
-      plot2D(basis2d,u,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter");
 
       // RB solves for different basis sizes
       for(unsigned int n = 1; n <= rb_model.n_bf(); ++n){
@@ -296,7 +294,7 @@ int main(int argc, char* argv[]) {
         T error_bound = rb_model.residual_dual_norm(u_N, Xi_test[i]) / rb_model.alpha_LB(Xi_test[i]);
 
         Coeffs u_approx = rb_model.reconstruct_u_N(u_N, n);
-        if(n==3)
+        if(n==2)
         {
             plot2D(basis2d,u_approx,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_approx");
         }
@@ -305,13 +303,13 @@ int main(int argc, char* argv[]) {
         T output_u_approx = AverageOutput.operator()(u_approx);
         cout << "--------output operator u_approx : " << output_u_approx << endl;
         Coeffs coeff_diff = u - u_approx;
-        if(n==3)
+        if(n==2)
         {
             plot2D(basis2d,coeff_diff,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_diff");
         }
 
         T err_norm = rb_model.truth->inner_product(coeff_diff, coeff_diff);
-        cout << "err_norm coeff-diff: " << err_norm << endl;
+        cout << "Differenz der Outputs: " << abs(output_u-output_u_approx) << endl;
         //representor norm neu berechnen? einlesen?
 
         cout << "   N = " << n << ": " << err_norm << " " << error_bound << endl;
