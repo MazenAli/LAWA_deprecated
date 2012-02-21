@@ -285,7 +285,6 @@ int main(int argc, char* argv[]) {
       Coeffs u = rb_model.truth->truth_solve();
       //cout << "u: " << u << endl;
 
-
       T output_u = AverageOutput.operator()(u);
       cout << "--------output operator u : " << output_u << endl;
       plot2D(basis2d,u,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter");
