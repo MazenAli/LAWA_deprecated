@@ -30,9 +30,9 @@ namespace lawa {
 template<QuadratureType, typename, typename> class Integral2D;
 
 template <QuadratureType Quad, typename _Integral2D>
-class Quadrature2D
-{
-};
+    class Quadrature2D;
+//{
+//};
 
 template <typename _Integral2D>
 class Quadrature2D<SparseGridGP,_Integral2D>

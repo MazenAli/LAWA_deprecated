@@ -5,12 +5,19 @@ namespace  lawa {
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
 AdaptiveRBTruth2D_PG(TrialBasis& _trialbasis, TestBasis& _testbasis, TrialPrec& _trialprec, TestPrec& _testprec,
-                  bool _use_inner_product, bool _use_A_matrix)
+                  bool _use_inner_product, bool _use_A_matrix,
+                  bool _orthwithX, bool _useinnprodX)
     : trialbasis(_trialbasis), basis(_trialbasis), testbasis(_testbasis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
+      orth_wrt_X(_orthwithX), use_innprod_X(_useinnprodX),
       assembled_inner_product_matrix(false), assembled_prec_vec(false), assembled_A_operator_matrices(false),
       trial_prec(_trialprec), test_prec(_testprec), trial_prec_data(), test_prec_data()
-{}
+{
+    std::cout << "Truth Model: " << std::endl;
+    std::cout << "      orthogonalize with respect to X-inner product: " << orth_wrt_X << std::endl;
+    std::cout << "      use X-inner product for RB inner product     : " << use_innprod_X << std::endl << std::endl;
+    
+}
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
@@ -165,16 +172,31 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 {
     typename std::vector<CoeffVector>::iterator it;
     CoeffVector new_bf = sol;
-
     CoeffVector bf;
-    for (it = rb->rb_basis_functions.begin(); it != rb->rb_basis_functions.end(); ++it) {
-        bf = (*it);
-        new_bf = new_bf - bf * trial_inner_product(bf, sol); 
+
+    if(orth_wrt_X){
+        
+        for (it = rb->rb_basis_functions.begin(); it != rb->rb_basis_functions.end(); ++it) {
+            bf = (*it);
+            new_bf = new_bf - bf * trial_inner_product(bf, sol); 
+        }
+        
+        std::cout << "Gram - Schmidt: norm^2 = " << trial_inner_product(new_bf, new_bf) << std::endl;
+        new_bf.scale(1./std::sqrt(trial_inner_product(new_bf, new_bf)));
     }
+    else{
     
-    std::cout << "Gram - Schmidt: norm^2 = " << trial_inner_product(new_bf, new_bf) << std::endl;
-    new_bf.scale(1./std::sqrt(trial_inner_product(new_bf, new_bf)));
-    rb->rb_basis_functions.push_back(new_bf);    
+        for (it = rb->rb_basis_functions.begin(); it != rb->rb_basis_functions.end(); ++it) {
+            bf = (*it);
+            new_bf = new_bf - bf * test_inner_product(bf, sol); 
+        }
+        
+        std::cout << "Gram - Schmidt: norm^2 = " << test_inner_product(new_bf, new_bf) << std::endl;
+        new_bf.scale(1./std::sqrt(test_inner_product(new_bf, new_bf)));
+    }   
+    
+    rb->rb_basis_functions.push_back(new_bf);   
+
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
@@ -313,28 +335,47 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
-AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::write_riesz_representors(const std::string& directory_name)
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::write_riesz_representors(const std::string& directory_name, int repr_nr)
 {
   // Make a directory to store all the data files
-  if( mkdir(directory_name.c_str(), 0777) == -1)
+  if((mkdir(directory_name.c_str(), 0777) == -1)&& (repr_nr < 1))
   {
     std::cerr << "In RBModel::write_RB_data, directory "
                  << directory_name << " already exists, overwriting contents." << std::endl;
   }
   
-  for(unsigned int i = 0; i < rb->Q_f(); ++i){
-    std::stringstream filename;
-    filename << directory_name << "/F_representor_" << i+1 << ".dat";
-    saveCoeffVector2D(F_representors[i], testbasis, filename.str().c_str());
-  }
+	if(repr_nr < 1){
+	  for(unsigned int i = 0; i < rb->Q_f(); ++i){
+	    std::stringstream filename;
+	    filename << directory_name << "/F_representor_" << i+1 << ".dat";
+	    saveCoeffVector2D(F_representors[i], testbasis, filename.str().c_str());
+	  }
   
-  for(unsigned int n = 0; n < rb->n_bf(); ++n){
-    for(unsigned int i = 0; i < rb->Q_a(); ++i){
-      std::stringstream filename;
-      filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".dat";
-      saveCoeffVector2D(A_representors[n][i], testbasis, filename.str().c_str()); 
-    }
-  }
+	  for(unsigned int n = 0; n < rb->n_bf(); ++n){
+	    for(unsigned int i = 0; i < rb->Q_a(); ++i){
+	      std::stringstream filename;
+	      filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".dat";
+	      saveCoeffVector2D(A_representors[n][i], testbasis, filename.str().c_str()); 
+	    }
+	  }	
+	}
+	else{
+		if(repr_nr == 0){
+			for(unsigned int i = 0; i < rb->Q_f(); ++i){
+		    std::stringstream filename;
+		    filename << directory_name << "/F_representor_" << repr_nr << ".dat";
+		    saveCoeffVector2D(F_representors[repr_nr - 1], testbasis, filename.str().c_str());
+		  }	
+		}
+		else{
+	    for(unsigned int i = 0; i < rb->Q_a(); ++i){
+	      std::stringstream filename;
+	      filename << directory_name << "/A_representor_" << i+1 << "_" << repr_nr << ".dat";
+	      saveCoeffVector2D(A_representors[repr_nr-1][i], testbasis, filename.str().c_str()); 
+	    }			
+		}
+	}
+
   
 }
 
@@ -368,6 +409,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
                 val += (long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
+                //std::cout << "(u_v)_i = " << (long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second) << std::endl;
             }
         }
         
@@ -375,6 +417,53 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 
     return (T)(val);
 }
+
+/* // Version with sorted values to avoid cancellation
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+T
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::trial_inner_product(const CoeffVector& v1, const CoeffVector& v2)
+{
+    long double sorted_val = 0.;
+    
+    if(use_inner_product_matrix && assembled_inner_product_matrix){
+        // Assumption here: both vectors and the matrix have the same indexset
+        
+        assert(v1.size() == v2.size());
+        typename CoeffVector::const_iterator it1, it2;
+        
+        // Build dense vectors
+        DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
+        int index_count = 1;
+        for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
+            v1_dense(index_count) = (*it1).second;
+            v2_dense(index_count) = (*it2).second;
+            
+        }
+        
+        DenseVectorT I_v2 = trial_inner_product_matrix * v2_dense;
+        sorted_val = v1_dense * I_v2;
+    }
+    else{
+        
+        std::vector<long double> val_vec;
+        val_vec.reserve(v1.size() * v2.size());
+        typename CoeffVector::const_iterator it1, it2;
+        for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
+            for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
+                val_vec.push_back((long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second));
+            }
+        }
+        
+        sort(val_vec.begin(), val_vec.end(), lt_obj);
+        std::vector<long double>::const_reverse_iterator it;
+        for(it = val_vec.rbegin(); it != val_vec.rend(); ++it){
+            sorted_val += (*it);
+        }
+        
+    }
+    
+    return (T)(sorted_val);   
+}*/
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 T
@@ -402,22 +491,81 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     }
     else{
         typename CoeffVector::const_iterator it1, it2;
-        
+        int count = 0;
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
                 val += (long double)((*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
+                count++;
             }
         }
+        std::cout << "Test inner product: " << count << " inner product evaluations " << std::endl;
         
     }
     return (T)(val);   
 }
+    
+/* // Version with sorted values to avoid cancellation
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+T
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::test_inner_product(const CoeffVector& v1, const CoeffVector& v2)
+{
+    long double val = 0;
+    long double sorted_val = 0;
+
+    if(use_inner_product_matrix && assembled_inner_product_matrix){
+        // Assumption here: both vectors and the matrix have the same indexset
+        
+        assert(v1.size() == v2.size());
+        typename CoeffVector::const_iterator it1, it2;
+        
+        // Build dense vectors
+        DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
+        int index_count = 1;
+        for (it1 = v1.begin(), it2 = v2.begin(); it1 != v1.end(); ++it1, ++it2, ++index_count) {
+            v1_dense(index_count) = (*it1).second;
+            v2_dense(index_count) = (*it2).second;
+            
+        }
+        
+        DenseVectorT I_v2 = test_inner_product_matrix * v2_dense;
+        val = v1_dense * I_v2;
+        sorted_val = val;
+    }
+    else{
+        typename CoeffVector::const_iterator it1, it2;
+        std::vector<long double> val_vec;
+        val_vec.reserve(v1.size() * v2.size());
+        
+        for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
+            for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
+                val += (long double)((*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
+                val_vec.push_back((long double)((*it1).second * (*test_inner_product_op)((*it1).first, (*it2).first) * (*it2).second));
+            }
+        }
+        
+        sort(val_vec.begin(), val_vec.end(), lt_obj);
+        std::vector<long double>::const_reverse_iterator it;
+        for(it = val_vec.rbegin(); it != val_vec.rend(); ++it){
+            sorted_val += (*it);
+        }
+        
+        
+    }
+    return (T)(sorted_val);   
+}
+*/
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 T
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::inner_product(const CoeffVector& v1, const CoeffVector& v2)
 {
-    return trial_inner_product(v1, v2);
+    if(use_innprod_X){
+        return trial_inner_product(v1, v2);
+    }
+    else
+    {
+        return test_inner_product(v1, v2);        
+    }
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
@@ -618,9 +766,12 @@ T
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::Operator_RHS::operator()(const Index2D &lambda)
 {
     T val = 0;
+    //std::cout << " =================================== " << lambda << " ============================= " << std::endl;
     for (unsigned int i = 0; i < thisTruth->F_operators.size(); ++i) {
         val += (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param()) 
              * (*thisTruth->F_operators[i])(lambda);
+        //std::cout << "Theta_f = " << (*thisTruth->rb->theta_f[i])(thisTruth->rb->get_current_param()) << ", F() = " << (*thisTruth->F_operators[i])(lambda)
+        //<< "     -> val = " << val << std::endl;
     }
     
     return thisTruth->get_test_prec(lambda) * val;

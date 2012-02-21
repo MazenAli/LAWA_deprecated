@@ -71,6 +71,12 @@ int
 GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u, 
             const Coefficients<Lexicographical,T,Index > &f, T &res, T tol = 10e-6,
             bool useOptimizedAssembling=false, int maxIterations = 1000);
+            
+template <typename T, typename Index, typename MA>
+int
+GMRESM_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
+             const Coefficients<Lexicographical,T,Index > &f, T &residual, T tol=10e-6,
+             bool useOptimizedAssembling=false, int maxIterations=1000, int m=20);
 
 template <typename T, typename Index, typename MA>
 int
