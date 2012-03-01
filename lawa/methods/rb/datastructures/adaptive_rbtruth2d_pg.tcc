@@ -363,8 +363,8 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 		if(repr_nr == 0){
 			for(unsigned int i = 0; i < rb->Q_f(); ++i){
 		    std::stringstream filename;
-		    filename << directory_name << "/F_representor_" << repr_nr << ".dat";
-		    saveCoeffVector2D(F_representors[repr_nr - 1], testbasis, filename.str().c_str());
+		    filename << directory_name << "/F_representor_" << i+1 << ".dat";
+		    saveCoeffVector2D(F_representors[i], testbasis, filename.str().c_str());
 		  }	
 		}
 		else{

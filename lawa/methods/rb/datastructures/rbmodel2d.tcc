@@ -337,7 +337,8 @@ template <typename T, typename TruthModel>
 void
 RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, 
 																			 const char* filename, SolverCall call,
-																			 bool write_during_training)
+																			 bool write_during_training,
+                                                                             const char* foldername)
 {
     // Initial Snapshot
     set_current_param(init_param);
@@ -383,18 +384,21 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
 
 				if(write_during_training){
 					std::cout << "Writing Data.... " << std::endl;
-					if(mkdir("training_offline_data", 0777) == -1)
+					if(mkdir(foldername, 0777) == -1)
 				  {
-						  std::cerr << "In RBModel::train_Greedy: directory training_offline_data already exists, overwriting contents." << std::endl;	
+						  std::cerr << "In RBModel::train_Greedy: directory " << foldername << " already exists, overwriting contents." << std::endl;	
 				  }
-					std::string bf_folder = "training_offline_data/bf";
+					std::string bf_folder = foldername;
+                    bf_folder = bf_folder + "/bf";
 					write_basis_functions(bf_folder, N);
-					std::string repr_folder = "training_offline_data/representors";
+					std::string repr_folder = foldername;
+                    repr_folder = repr_folder + "/representors";
 					truth->write_riesz_representors(repr_folder,N);
 					if(N == 1){
 						truth->write_riesz_representors(repr_folder, 0);	
 					}
-					std::string RB_folder = "training_offline_data/RB";
+					std::string RB_folder = foldername;
+                    RB_folder = RB_folder + "/RB";
 					write_RB_data(RB_folder);
 					std::cout << " ... done " << std::endl;
 				}
