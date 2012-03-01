@@ -299,14 +299,14 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::write_riesz_represe
           for(unsigned int i = 0; i < rb->Q_f(); ++i){
               std::stringstream filename;
               filename << directory_name << "/F_representor_" << i+1 << ".dat";
-              saveCoeffVector2D(F_representors[repr_nr - 1], testbasis, filename.str().c_str());
+              saveCoeffVector2D(F_representors[i], basis, filename.str().c_str());
           }	
       }
       else{
           for(unsigned int i = 0; i < rb->Q_a(); ++i){
               std::stringstream filename;
               filename << directory_name << "/A_representor_" << i+1 << "_" << repr_nr << ".dat";
-              saveCoeffVector2D(A_representors[repr_nr-1][i], testbasis, filename.str().c_str()); 
+              saveCoeffVector2D(A_representors[repr_nr-1][i], basis, filename.str().c_str()); 
           }			
       }
   }
