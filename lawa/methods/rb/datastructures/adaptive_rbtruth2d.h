@@ -69,10 +69,10 @@ class AdaptiveRBTruth2D{
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
 
         void
-        attach_Output_q(theta_fctptr theta_output_q, AdaptiveRhs<T, Index2D>& Output_q);
+        attach_output_q(theta_fctptr theta_output_q, AdaptiveRhs<T, Index2D>& output_q);
 
         void
-        attach_Output_q(AdaptiveRhs<T, Index2D>& Output_q);
+        attach_output_q(AdaptiveRhs<T, Index2D>& output_q);
     
         void 
         attach_inner_product_op(Operator2D<T>& _inner_product_op);

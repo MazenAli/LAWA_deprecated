@@ -215,12 +215,12 @@ int main(int argc, char* argv[]) {
     singpts_output_y = 0., 0.7, 0.8, 1.;
     SeparableFunction2D<T> sep_output_function(output_x, singpts_output_x, output_y, singpts_output_y);
     SeparableRHS2D<T, Basis2D> sep_output_rhs(basis2d, sep_output_function, noDeltas, noDeltas, 4);
-    AdaptRHS Output_RHS(sep_output_rhs, noprec);
-    Output AverageOutput(basis2d, 0.7,0.8,0.7,0.8, Output_RHS);
+    AdaptRHS output_rhs(sep_output_rhs, noprec);
+    Output average_output(basis2d, 0.7,0.8,0.7,0.8, output_rhs);
 
-    rb_model.truth->attach_Output_q(theta_output_1, Output_RHS);
+    rb_model.truth->attach_output_q(theta_output_1, output_rhs);
 
-    cout << "Q_Output = " << rb_model.Q_output() << endl;
+    cout << "Q_output = " << rb_model.Q_output() << endl;
 
 
     /* Truth Solver: on fixed indexset */

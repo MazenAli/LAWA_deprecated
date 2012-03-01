@@ -211,12 +211,12 @@ int main(int argc, char* argv[]) {
     singpts_output_y = 0., 0.7, 0.8, 1.;
     SeparableFunction2D<T> sep_output_function(output_x, singpts_output_x, output_y, singpts_output_y);
     SeparableRHS2D<T, Basis2D> sep_output_rhs(basis2d, sep_output_function, noDeltas, noDeltas, 4);
-    AdaptRHS Output_RHS(sep_output_rhs, noprec);
-    Output AverageOutput(basis2d, 0.7,0.8,0.7,0.8, Output_RHS);
+    AdaptRHS output_rhs(sep_output_rhs, noprec);
+    Output average_output(basis2d, 0.7,0.8,0.7,0.8, output_rhs);
 
-    rb_model.truth->attach_Output_q(theta_output_1, Output_RHS);
+    rb_model.truth->attach_output_q(theta_output_1, output_rhs);
 
-    cout << "Q_Output = " << rb_model.Q_output() << endl;
+    cout << "Q_output = " << rb_model.Q_output() << endl;
 
     /* Truth Solver: on fixed indexset */
     IndexSet<Index2D> basisset;
@@ -283,8 +283,9 @@ int main(int argc, char* argv[]) {
       rb_model.set_current_param(Xi_test[i]);
       //Coeffs u = rb_model.truth->solver->truth_solve();
       Coeffs u = rb_model.truth->truth_solve();
+      plot2D(basis2d,u,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter");
 
-      T output_u = AverageOutput.operator()(u);
+      T output_u = average_output(u);
       cout << "--------output operator u : " << output_u << endl;
 
       // RB solves for different basis sizes
@@ -300,7 +301,7 @@ int main(int argc, char* argv[]) {
         }
         cout << "size coeffs u_approx : " << u_approx.size() << endl<< endl;
 
-        T output_u_approx = AverageOutput.operator()(u_approx);
+        T output_u_approx = average_output(u_approx);
         cout << "--------output operator u_approx : " << output_u_approx << endl;
         Coeffs coeff_diff = u - u_approx;
         if(n==2)

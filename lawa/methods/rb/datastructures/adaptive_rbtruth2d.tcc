@@ -44,17 +44,17 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_F_q(Adaptive
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
 void
-AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_Output_q(theta_fctptr theta_output_q, AdaptiveRhs<T, Index2D>& Output_q)
+AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_output_q(theta_fctptr theta_output_q, AdaptiveRhs<T, Index2D>& output_q)
 {
     rb->theta_output.push_back(theta_output_q);
-    output_operators.push_back(&Output_q);
+    output_operators.push_back(&output_q);
 }
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
 void
-AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_Output_q(AdaptiveRhs<T, Index2D>& Output_q)
+AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_output_q(AdaptiveRhs<T, Index2D>& output_q)
 {
-    output_operators.push_back(&Output_q);
+    output_operators.push_back(&output_q);
 }
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
