@@ -100,7 +100,7 @@ class AdaptiveRBTruth2D{
         update_representor_norms();
         
         void
-        write_riesz_representors(const std::string& directory_name = "offline_data/representors");
+        write_riesz_representors(const std::string& directory_name = "offline_data/representors", int repr_nr = -1);
         
         void
         assemble_inner_product_matrix(IndexSet<Index2D>& indexset);

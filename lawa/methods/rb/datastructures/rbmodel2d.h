@@ -111,7 +111,7 @@ class RBModel2D {
         
         void
         train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename = "Training.txt",
-                     SolverCall call = call_cg, bool write_during_training = false);
+                     SolverCall call = call_cg, bool write_during_training = false, const char* foldername="training_adaptive");
         
         void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
