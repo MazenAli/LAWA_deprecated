@@ -1,7 +1,7 @@
 #include <iostream>
 #include <lawa/lawa.h>
-#include <applications/new_eval_scheme/loc_single_scale_transforms.h>
-#include <applications/new_eval_scheme/localrefinement.h>
+#include <applications/new_eval_scheme/source/loc_single_scale_transforms.h>
+#include <lawa/methods/adaptive/algorithms/localrefinement.h>
 
 using namespace std;
 using namespace lawa;

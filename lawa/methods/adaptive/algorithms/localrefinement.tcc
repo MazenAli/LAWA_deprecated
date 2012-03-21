@@ -77,6 +77,50 @@ LocalRefinement<PrimalBasis>::LocalRefinement(const PrimalBasis &_basis, bool wi
 
 template <typename PrimalBasis>
 void
+LocalRefinement<PrimalBasis>::computeLocalScaleRepr
+                              (const Coefficients<Lexicographical,T,Index1D> &u_multi,
+                               Coefficients<Lexicographical,T,Index1D> &u_loc_single)
+{
+    int j=basis.j0;
+    TreeCoefficients1D<T> u_multi_tree(255);
+    u_multi_tree = u_multi;
+    int offset = 5; //todo: ADOPT!!!
+    int jmax = u_multi_tree.getMaxTreeLevel(basis.j0);
+    std::cerr << "   Maximum tree level = " << jmax << std::endl;
+
+    for (int j=basis.j0; j<=jmax; ++j) {
+        std::cerr << "  j = " << j << std::endl;
+
+        for (const_coeffbylevel_it it=u_multi_tree[j-1].map.begin();
+                                   it!=u_multi_tree[j-1].map.end(); ++it) {
+            bool has_neighbor=false;
+            long k_first = std::max((long)basis.mra.rangeI(j).firstIndex(), (*it).first-offset);
+            long k_last  = std::min((long)basis.mra.rangeI(j).lastIndex(),  (*it).first+offset);
+            for (long k=k_first; k<=k_last; ++k) {
+                if (   u_multi_tree[j].map.find(k)!=u_multi_tree[j].map.end()
+                    && overlap(basis.mra.phi.support(j,k), basis.psi.support(j,k)) > 0 ) {
+                    has_neighbor = true;
+                    break;
+                }
+            }
+            if (!has_neighbor) {
+                u_multi_tree[j-1].map.erase((*it).first);
+                u_loc_single[Index1D(j,(*it).first,XBSpline)] = (*it).second;
+            }
+        }
+
+        CoefficientsByLevel<T> u_loc_single_jP1, dummy;
+        this->reconstruct(u_multi_tree[j-1], u_multi_tree[j], j, u_loc_single_jP1);
+        u_multi_tree[j] = u_loc_single_jP1;
+    }
+    for (const_coeffbylevel_it it=u_multi_tree[jmax].map.begin();
+                                       it!=u_multi_tree[jmax].map.end(); ++it) {
+        u_loc_single[Index1D(jmax+1,(*it).first,XBSpline)] = (*it).second;
+    }
+}
+
+template <typename PrimalBasis>
+void
 LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
                                           Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1) const
 {

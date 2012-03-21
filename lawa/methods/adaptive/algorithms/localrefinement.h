@@ -39,6 +39,10 @@ class LocalRefinement
 
         LocalRefinement(const PrimalBasis &_basis, bool withDirichletBC);
 
+        void
+        computeLocalScaleRepr(const Coefficients<Lexicographical,T,Index1D> &u_multi,
+                              Coefficients<Lexicographical,T,Index1D> &u_loc_single);
+
         /*
          * Expects a vector u_multi_j of wavelets _and_ scaling functions on level j.
          * Computes the _local_ representation in terms of scaling functions.

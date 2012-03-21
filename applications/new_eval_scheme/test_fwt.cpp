@@ -1,6 +1,6 @@
 #include <iostream>
 #include <lawa/lawa.h>
-#include <applications/new_eval_scheme/localrefinement.h>
+#include <lawa/methods/adaptive/algorithms/localrefinement.h>
 
 using namespace std;
 using namespace lawa;
@@ -30,7 +30,6 @@ int main (int argc, char *argv[]) {
         basis.enforceBoundaryCondition<DirichletBC>();
         dual_basis.enforceBoundaryCondition<DirichletBC>();
     }
-
 
     DenseVectorT c(basis.mra.rangeI(J));
     for (int i=basis.mra.rangeI(j0).firstIndex(); i<=basis.mra.rangeI(j0).lastIndex(); ++i) {

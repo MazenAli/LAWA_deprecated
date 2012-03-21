@@ -219,6 +219,7 @@ struct index_hashfunction<Index1D>
 template <>
 struct index_hashfunction<Index2D>
 {
+    /*
     // performs better without storing 2^l values... why??
     index_hashfunction(void)
     {
@@ -241,8 +242,8 @@ struct index_hashfunction<Index2D>
         size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
         return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
     }
+    */
 
-    /*
     inline
     size_t operator()(const Index2D& index) const
     {
@@ -259,7 +260,6 @@ struct index_hashfunction<Index2D>
 
         return hash_value;
     }
-    */
 
 };
 

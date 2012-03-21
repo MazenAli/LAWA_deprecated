@@ -87,11 +87,11 @@ int main (int argc, char *argv[]) {
         cout << "**** j = " << j << " ****" << endl;
         IndexSet<Index1D> test_LambdaTree, trial_LambdaTree;
         Coefficients<Lexicographical,T,Index1D> trial_u_multi;
-        /*
+
         constructRandomGradedTree(trial_basis, j+shift, test_LambdaTree);
         constructRandomGradedTree(trial_basis, j, trial_LambdaTree);
-        */
 
+        /*
         for (int k=trial_basis.mra.rangeI(j0).firstIndex(); k<=trial_basis.mra.rangeI(j0).lastIndex(); ++k) {
             trial_LambdaTree.insert(Index1D(j0,k,XBSpline));
             test_LambdaTree.insert(Index1D(j0,k,XBSpline));
@@ -102,7 +102,7 @@ int main (int argc, char *argv[]) {
                 test_LambdaTree.insert(Index1D(j1,k,XWavelet));
             }
         }
-
+        */
         int N = test_LambdaTree.size()+trial_LambdaTree.size();
         computeCoefficientVector(trial_LambdaTree, trial_u_multi);
 
@@ -138,7 +138,7 @@ int main (int argc, char *argv[]) {
         }
 
         Coefficients<Lexicographical,T,Index1D> EvalA_coeff;
-        //computeEvalARef(Bil, Prec, trial_u_multi, test_LambdaTree, EvalA_coeff);
+        computeEvalARef(Bil, Prec, trial_u_multi, test_LambdaTree, EvalA_coeff);
         TreeCoefficients1D<T>  c1(hashmap_size);
         CoefficientsByLevel<T> d1(j0,hashmap_size);
         localoperator.scale_wrt_trialbasis(c,c1);
@@ -157,7 +157,7 @@ int main (int argc, char *argv[]) {
         cout << "       " << N << " " << time_EvalA << endl;
 
         Coefficients<Lexicographical,T,Index1D> EvalU_coeff;
-        //computeEvalURef(Bil, Prec, trial_u_multi, test_LambdaTree, EvalU_coeff);
+        computeEvalURef(Bil, Prec, trial_u_multi, test_LambdaTree, EvalU_coeff);
         TreeCoefficients1D<T>  c2(hashmap_size);
         CoefficientsByLevel<T> d2(j0,hashmap_size);
         localoperator.scale_wrt_trialbasis(c,c2);
