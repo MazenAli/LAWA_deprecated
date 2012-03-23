@@ -35,11 +35,11 @@ template <typename T>
 // Computation of a security zone for 2d-tensor basis
 template <typename T, typename Basis2D>
     IndexSet<Index2D>
-    C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
+    C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis, bool extralevel=false);
 
 template <typename T, typename Basis2D>
     IndexSet<Index2D>
-    C_t(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis, bool extralevel=false);
+    C_t(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
 
 template <typename T, typename Basis3D>
     IndexSet<Index3D>

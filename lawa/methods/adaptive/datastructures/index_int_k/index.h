@@ -88,7 +88,7 @@ struct lt
 };
 
 //Bitmask implementation
-template<> 
+template<>
 struct lt<Lexicographical, Index1D>
 {
     bool operator()(const Index1D &left, const Index1D &right) const;

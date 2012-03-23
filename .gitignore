@@ -80,3 +80,4 @@ applications/unbounded_domains/s-adwav/s-adwav-interval-rplus-pde2d
 applications/unbounded_domains/adwav/ghs-adwav-interval-rplus-helmholtz2d
 applications/new_eval_scheme/test_new_sparsegrid2d
 applications/new_eval_scheme/test_multi_to_single2
+tutorials/examples/plot_wavelets

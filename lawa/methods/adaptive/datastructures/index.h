@@ -87,7 +87,10 @@ struct lt
 {
 };
 
-//Bitmask implementation
+/*
+ * Compare (lt) operators.
+ */
+
 template<>
 struct lt<Lexicographical, Index1D>
 {
@@ -113,19 +116,42 @@ struct lt<Lexicographical, Index1D>
 template <>
 struct lt<Lexicographical, Index2D>
 {
-    bool operator()(const Index2D &left, const Index2D &right) const;
+    inline
+    bool operator()(const Index2D &left, const Index2D &right) const
+    {
+        if         ((left.index1.xtype==XBSpline)&&(right.index1.xtype==XWavelet)) {
+            return true;
+        }
+        else if ((left.index1.xtype==XWavelet)&&(right.index1.xtype==XBSpline)) {
+            return false;
+        }
+        else if ((left.index2.xtype==XBSpline)&&(right.index2.xtype==XWavelet)) {
+            return true;
+        }
+        else if ((left.index2.xtype==XWavelet)&&(right.index2.xtype==XBSpline)) {
+            return false;
+        }
+        else if (left.index1.j!=right.index1.j) {
+            return (left.index1.j<right.index1.j);
+        }
+        else if (left.index1.k!=right.index1.k) {
+            return (left.index1.k<right.index1.k);
+        }
+        else if (left.index2.j!=right.index2.j) {
+            return (left.index2.j<right.index2.j);
+        }
+        else {
+            return (left.index2.k<right.index2.k);
+        }
+    }
 
-    bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const;
+    //bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const;
 };
 
 
-template <>
-struct lt<Lexicographical, Index3D>
-{
-    bool operator()(const Index3D &left, const Index3D &right) const;
-
-    bool operator()(const Entry<Index3D> &left, const Entry<Index3D> &right) const;
-};
+/*
+ * Equal functions.
+ */
 
 template <typename Index>
 struct index_eqfunction
@@ -186,6 +212,45 @@ struct index_eqfunction<Index2D>
 
     }
 };
+
+template <typename Index>
+struct entry_eqfunction
+{
+};
+
+template <>
+struct entry_eqfunction<Index1D>
+{
+    inline
+    bool operator()(const Entry<Index1D>& leftentry, const Entry<Index1D>& rightentry) const
+    {
+        if (leftentry.col_index.k!=rightentry.col_index.k) return false;
+        else {
+            if (leftentry.row_index.k!=rightentry.row_index.k) return false;
+            else {
+                if (leftentry.col_index.j!=rightentry.col_index.j) return false;
+                else {
+                    if (leftentry.row_index.j!=rightentry.row_index.j) return false;
+                    else {
+                        if (leftentry.col_index.xtype!=rightentry.col_index.xtype) return false;
+                        else return (leftentry.row_index.xtype==rightentry.row_index.xtype);
+                    }
+                }
+            }
+        }
+
+        /*
+        return (leftentry.col_index.k     == rightentry.col_index.k     && leftentry.row_index.k     == rightentry.row_index.k &&
+                leftentry.col_index.j     == rightentry.col_index.j     && leftentry.row_index.j     == rightentry.row_index.j &&
+                leftentry.col_index.xtype == rightentry.col_index.xtype && leftentry.row_index.xtype == rightentry.row_index.xtype);
+        */
+    }
+};
+
+
+/*
+ * Hash functions.
+ */
 
 template <typename Index>
 struct index_hashfunction
@@ -261,40 +326,6 @@ struct index_hashfunction<Index2D>
         return hash_value;
     }
 
-};
-
-template <typename Index>
-struct entry_eqfunction
-{
-};
-
-template <>
-struct entry_eqfunction<Index1D>
-{
-    inline
-    bool operator()(const Entry<Index1D>& leftentry, const Entry<Index1D>& rightentry) const
-    {
-        if (leftentry.col_index.k!=rightentry.col_index.k) return false;
-        else {
-            if (leftentry.row_index.k!=rightentry.row_index.k) return false;
-            else {
-                if (leftentry.col_index.j!=rightentry.col_index.j) return false;
-                else {
-                    if (leftentry.row_index.j!=rightentry.row_index.j) return false;
-                    else {
-                        if (leftentry.col_index.xtype!=rightentry.col_index.xtype) return false;
-                        else return (leftentry.row_index.xtype==rightentry.row_index.xtype);
-                    }
-                }
-            }
-        }
-
-        /*
-        return (leftentry.col_index.k     == rightentry.col_index.k     && leftentry.row_index.k     == rightentry.row_index.k &&
-                leftentry.col_index.j     == rightentry.col_index.j     && leftentry.row_index.j     == rightentry.row_index.j &&
-                leftentry.col_index.xtype == rightentry.col_index.xtype && leftentry.row_index.xtype == rightentry.row_index.xtype);
-        */
-    }
 };
 
 template <typename Index>

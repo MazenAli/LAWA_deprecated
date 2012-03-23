@@ -108,7 +108,7 @@ lt<Lexicographical, Index1D>::operator()(const Index1D &left, const Index1D &rig
     return left.val < right.val;
 }
 
-bool 
+bool
 lt<Lexicographical, Index1D>::operator()(const Entry<Index1D> &left, const Entry<Index1D> &right) const
 {
     // sort Operator row-wise
@@ -116,7 +116,7 @@ lt<Lexicographical, Index1D>::operator()(const Entry<Index1D> &left, const Entry
     else                                           return left.col_index.val < right.col_index.val;
 }
 
-bool 
+bool
 lt<Lexicographical, Index2D>::operator()(const Index2D &left, const Index2D &right) const
 {
     if (left.index1.val != right.index1.val) return left.index1.val < right.index1.val;
@@ -219,7 +219,6 @@ entry_hashfunction<Index1D>::operator()(const Entry<Index1D>& entry) const
     boost::hash_combine(seed, entry.col_index.val);
     boost::hash_combine(seed, entry.row_index.val);
     return seed;
-//    return (3*index.index1.val + 7*index.index2.val) % 999331;
 }
 
 

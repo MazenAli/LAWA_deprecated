@@ -32,7 +32,7 @@ namespace lawa {
 template <typename T>
 MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
     : d(_d), mu(d&1),
-      min_j0(iceil(log2(2*d))),
+      min_j0(iceil<int>(log2(2*d))),
       j0((j==-1) ? min_j0 : j), phiR(d),
       l1((mu-d)/2), l2((mu+d)/2),
       _bc(2,0), _j(j0), phi(*this)

@@ -31,7 +31,7 @@ namespace lawa {
 template <typename T>
 MRA<T,Dual,Interval,Primbs>::MRA(int _d, int _d_, int j)
     : d(_d), d_(_d_), mu(d&1),
-      min_j0(iceil(log(d+2*d_-3)/log(2))+1),
+      min_j0(iceil<int>(log(d+2*d_-3)/log(2))+1),
       j0((j==-1) ? min_j0 : j), phi_R(d,d_), phi_(),
       _bc(2,0), _j(j0)
 {
@@ -384,14 +384,14 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_1(int d, int d_)
     b.engine().changeIndexBase(1); a.engine().changeIndexBase(1);
 
     for (int l=d/2+d_-1; l<=d/2+3*d_+d-5; ++l) {
-        int gu = std::max(0,iceil((d/2+d_-3-l)/2.));
+        int gu = std::max(0,iceil<int>((d/2+d_-3-l)/2.));
         int go = std::min(2*d_+d-4, (d+d/2+3*d_-5-l)/2);
         for (int n=gu; n<=go; ++n) {
-            M1(l+iceil(d/2.),d+d_-2) += a(l+2*n-d/2-d_+4);
+            M1(l+iceil<int>(d/2.),d+d_-2) += a(l+2*n-d/2-d_+4);
         }
         for (int k=1; k<=d_-1; ++k) {
             for (int n=gu; n<=go; ++n) {
-                M1(l+iceil(d/2.),d+d_-2-k) += powii(n,k)*a(l+2*n-d/2-d_+4);
+                M1(l+iceil<int>(d/2.),d+d_-2-k) += powii(n,k)*a(l+2*n-d/2-d_+4);
             }
         }
     }

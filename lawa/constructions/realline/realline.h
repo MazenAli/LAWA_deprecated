@@ -19,7 +19,9 @@
 
 #include <lawa/constructions/realline/cascade.h>
 #include <lawa/constructions/realline/dual/dual.h>
+#include <lawa/constructions/realline/multi/multi.h>
 #include <lawa/constructions/realline/primal/primal.h>
 #include <lawa/constructions/realline/refinementmatrix.h>
+#include <lawa/constructions/realline/sparsemulti/sparsemulti.h>
 #include <lawa/constructions/realline/subdivision.h>
 

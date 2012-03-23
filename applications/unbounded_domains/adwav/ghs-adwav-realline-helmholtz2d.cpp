@@ -140,6 +140,7 @@ int main (int argc, char *argv[]) {
         MW_Basis2D MW_basis2d(MW_basis_x,MW_basis_y);
         MW_MA      MW_A(MW_basis2d,1.);
         MW_Prec    MW_P(MW_A);
+        int assemble_matrix = 2;    //assemble matrix, use operator internal method
 
         if (example==1 || example==2 || example==3) {
 
@@ -157,7 +158,7 @@ int main (int argc, char *argv[]) {
             MW_SumOfSeparableRhs MW_F(MW_rhsintegral2d,MW_P);
             MW_F.readIndexSets(rhsfilename.str().c_str());
 
-            MW_GHS_ADWAV_SOLVER_SumofSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,true);
+            MW_GHS_ADWAV_SOLVER_SumofSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,assemble_matrix);
 
 
             Coefficients<Lexicographical,T,Index2D> u;
@@ -173,7 +174,7 @@ int main (int argc, char *argv[]) {
             MW_NonSeparableRhs2D           MW_F(MW_rhsintegral2d,MW_P);
             MW_F.readIndexSets(rhsfilename.str().c_str());
 
-            MW_GHS_ADWAV_SOLVER_NonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,true);
+            MW_GHS_ADWAV_SOLVER_NonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,assemble_matrix);
 
             Coefficients<Lexicographical,T,Index2D> u;
             u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
@@ -197,7 +198,7 @@ int main (int argc, char *argv[]) {
                 MW_SumOfNonSeparableRhs2D         MW_F(MW_rhsintegral2d,MW_P);
                 MW_F.readIndexSets(rhsfilename.str().c_str());
 
-                MW_GHS_ADWAV_SOLVER_SumNonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,true);
+                MW_GHS_ADWAV_SOLVER_SumNonSeparableRhs MW_ghs_adwav_solver(MW_A,MW_F,true,assemble_matrix);
 
                 Coefficients<Lexicographical,T,Index2D> u;
                 u = MW_ghs_adwav_solver.SOLVE(MW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
@@ -211,7 +212,7 @@ int main (int argc, char *argv[]) {
         SparseMW_Basis2D SparseMW_basis2d(SparseMW_basis_x,SparseMW_basis_y);
         SparseMW_MA      SparseMW_A(SparseMW_basis2d,1.);
         SparseMW_Prec    SparseMW_P(SparseMW_A);
-
+        int assemble_matrix = 0;    //compute matrix vector product solely on index set
         if (example==1 || example==2 || example==3) {
 
             TensorRefSols_PDE_Realline2D<T> refsol;
@@ -228,7 +229,7 @@ int main (int argc, char *argv[]) {
             SparseMW_SumOfSeparableRhs           SparseMW_F(SparseMW_rhsintegral2d,SparseMW_P);
             SparseMW_F.readIndexSets(rhsfilename.str().c_str());
 
-            SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,true,false);
+            SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,true,assemble_matrix);
             T alpha = 0.6, omega = 0.2, gamma = 0.15, theta = 2*omega/(1+omega);
             SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
 

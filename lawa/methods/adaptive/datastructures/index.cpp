@@ -89,37 +89,5 @@ std::ostream& operator<<(std::ostream &s, const Index3D &_i)
     return s;
 }
 
-//Bitmask implementation
-
-
-bool
-lt<Lexicographical, Index2D>::operator()(const Index2D &left, const Index2D &right) const
-{
-    if         ((left.index1.xtype==XBSpline)&&(right.index1.xtype==XWavelet)) {
-        return true;
-    }
-    else if ((left.index1.xtype==XWavelet)&&(right.index1.xtype==XBSpline)) {
-        return false;
-    }
-    else if ((left.index2.xtype==XBSpline)&&(right.index2.xtype==XWavelet)) {
-        return true;
-    }
-    else if ((left.index2.xtype==XWavelet)&&(right.index2.xtype==XBSpline)) {
-        return false;
-    }
-    else if (left.index1.j!=right.index1.j) {
-        return (left.index1.j<right.index1.j);
-    }
-    else if (left.index1.k!=right.index1.k) {
-        return (left.index1.k<right.index1.k);
-    }
-    else if (left.index2.j!=right.index2.j) {
-        return (left.index2.j<right.index2.j);
-    }
-    else {
-        return (left.index2.k<right.index2.k);
-    }
-}
-
 
 } //namespace lawa
