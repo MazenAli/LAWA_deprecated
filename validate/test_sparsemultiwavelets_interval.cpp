@@ -21,12 +21,18 @@ typedef flens::DiagonalMatrix<T>                                    DiagonalMatr
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 ///  Typedefs for problem components:
+
 ///     Special Multiwavelet Basis over an interval
 typedef Basis<T,Primal,Interval,SparseMulti> SparseMWBasis;
 
 ///     IdentityOperator in 1D, i.e. for $a(v,u) = \cdot \int(v \cdot u)$
-typedef IdentityOperator1D<T, SparseMWBasis>                              IdentityOp;
+typedef IdentityOperator1D<T,SparseMWBasis>                           IdentityOp;
 
+///     LaplaceOperator in 1D, i.e. for $a(v,u) = \int(v_x \cdot u_x)$
+typedef LaplaceOperator1D<T,SparseMWBasis>                            LaplaceOp;
+
+///     ConvectionOperator in 1D, i.e. for $a(v,u) = \int(v \cdot u_x)$
+typedef ConvectionOperator1D<T,SparseMWBasis>                         ConvectionOp;
 
 T
 p0(T x) {   return 1.; }
@@ -86,6 +92,8 @@ int main (int argc, char *argv[]) {
 
     /// Operator initialization
     IdentityOp   identity_op(basis);
+    LaplaceOp    laplace_op(basis);
+    ConvectionOp convection_op(basis);
 
     DenseVectorT singPts;
     Function<T> p0_Fct(p0,singPts);
@@ -108,7 +116,16 @@ int main (int argc, char *argv[]) {
                     cout << "identity: (" << j0 << ", " << k_row << "), ("
                          << j_col << ", " << k_col << "): " << identity_val << endl;
                 }
-
+                T laplace_val = laplace_op(XBSpline,j0,k_row,XWavelet,j_col,k_col);
+                if (fabs(laplace_val)>1e-13 && j_col-j0>=1) {
+                    cout << "laplace: (" << j0 << ", " << k_row << "), ("
+                         << j_col << ", " << k_col << "): " << laplace_val << endl;
+                }
+                T convection_val = convection_op(XBSpline,j0,k_row,XWavelet,j_col,k_col);
+                if (fabs(convection_val)>1e-13 && j_col-j0>=1) {
+                    cout << "convection: (" << j0 << ", " << k_row << "), ("
+                         << j_col << ", " << k_col << "): " << convection_val << endl;
+                }
             }
         }
     }
@@ -150,6 +167,16 @@ int main (int argc, char *argv[]) {
                     if (fabs(identity_val)>1e-13 && fabs(j_row-j_col)>1) {
                         cout << "identity: (" << j_row << ", " << k_row << "), ("
                              << j_col << ", " << k_col << "): " << identity_val << endl;
+                    }
+                    T laplace_val = laplace_op(XWavelet,j_row,k_row,XWavelet,j_col,k_col);
+                    if (fabs(laplace_val)>1e-13 && fabs(j_row-j_col)>1) {
+                        cout << "laplace: (" << j_row << ", " << k_row << "), ("
+                             << j_col << ", " << k_col << "): " << laplace_val << endl;
+                    }
+                    T convection_val = convection_op(XWavelet,j_row,k_row,XWavelet,j_col,k_col);
+                    if (fabs(convection_val)>1e-13 && fabs(j_row-j_col)>1) {
+                        cout << "convection: (" << j_row << ", " << k_row << "), ("
+                             << j_col << ", " << k_col << "): " << convection_val << endl;
                     }
                 }
             }

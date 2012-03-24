@@ -24,7 +24,7 @@ typedef double T;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::DiagonalMatrix<T>                                    DiagonalMatrixT;
-typedef flens::DenseVector<flens::Array<T> >                   DenseVectorT;
+typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 ///  Typedefs for problem components:
 ///     Primal Basis over an interval, using Dijkema construction
@@ -69,30 +69,24 @@ u_xx_f(T x)
 T
 a_f(T x)
 {
-    return 1.;
-    //return 1+exp(x);
+    //return 1.;
+    return 1+exp(x);
 }
 
 /// Non-constant convection term
 T
 b_f(T x)
 {
-    return 0.;
-    /*
-    if (x<=0.4) {
-        return 1.;
-    }
-    else {
-        return -1.;
-    }
-    */
+    return 1+exp(x);
+    //return 0.;
 }
 
 /// constant diffusion term
 T
 c_f(T x)
 {
-    return 1.;  // must be a constant function!!
+    return 1.;  // For this example, this term needs to be constant in order to get a simple
+                // representation for the rhs (see below).
 }
 
 /// Forcing function of the form `T f(T x)` - here a constant function
@@ -144,22 +138,6 @@ H1errorU(const DenseVectorT u, const PrimalBasis& basis, const int j, long doubl
     H1error*= deltaX;
     L2error = std::sqrt(L2error);
     H1error = std::sqrt(H1error);
-    /*
-    L2error = 0.;
-    H1error = 0.;
-    for(double x = 0; x <= 1.; x += deltaX) {
-        T diff_u   = u_f(x)   - evaluate(basis,j, u, x, 0);
-        T diff_u_x = u_x_f(x) - evaluate(basis,j, u, x, 1);
-        L2error += diff_u*diff_u;
-        H1seminormerror += diff_u_x*diff_u_x;
-    }
-    H1error = L2error + H1seminormerror;
-    L2error *= deltaX;
-    L2error = std::sqrt(L2error);
-    H1error *= deltaX;
-    H1error = std::sqrt(H1error);
-    */
-
 }
 
 int main(int argc, char*argv[])
@@ -175,17 +153,17 @@ int main(int argc, char*argv[])
     int J = atoi(argv[4]);
 
     /// Basis initialization, using Dirichlet boundary conditions
-    //PrimalBasis basis(d, d_, j0);
-    PrimalBasis basis(d, j0);
+    //PrimalBasis basis(d, d_, j0); // For biorthogonal wavelet bases
+    PrimalBasis basis(d, j0);       // For L2_orthonormal and special MW bases
     basis.enforceBoundaryCondition<DirichletBC>();
 
     /// Operator initialization
-    DenseVectorT a_singPts, c_singPts;
-    DenseVectorT b_singPts(1); b_singPts = 0.5;
+    int order = 20; // quadrature order
+    DenseVectorT a_singPts, b_singPts, c_singPts;
     Function<T> a(a_f, a_singPts);
     Function<T> b(b_f, b_singPts);
     Function<T> c(c_f, c_singPts);
-    PDEOp       op(basis, a, b, c);
+    PDEOp       op(basis, a, b, c, order);
     Prec        p(op);
 
     /// Righthandside initialization
@@ -234,11 +212,11 @@ int main(int argc, char*argv[])
         DenseVectorT u(basis.mra.rangeI(j));
 
         /// Solve problem using pgmres
-        cout << pcg(P, A, u, f, 1e-16) << " pgmres iterations" << endl;
+        cout << pgmres(P, A, u, f, 1e-8) << " pgmres iterations" << endl;
 
         /// Compute errors
         long double L2error=0.L, H1error=0.L;
-        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-22));
+        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-18));
         file << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
         cout << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
 
