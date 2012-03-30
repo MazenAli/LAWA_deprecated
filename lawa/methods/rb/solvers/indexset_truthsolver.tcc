@@ -85,20 +85,11 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
   
     T res;
     int its;
-    switch(solution_method){
-      case call_cg:
-      std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
-        std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
-        break;
-      case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
-        std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
-        break;
-      default: 
-        std::cerr << "Method not implemented yet " << std::endl;
-        break;
-    }
+
+    std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
+    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
+
     timer1.stop();
     std::cout << "Done F Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
   }
@@ -131,35 +122,18 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
       
       T residual;
       int its;
-      switch(solution_method){
-        case call_cg:
-          std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::pcg(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
-          res= Ax-rhs;
-          residual = std::sqrt(res*res);
-          row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count) / truth_model->get_prec((*row)) ;
-          }
-          std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
-          break;
-        case call_gmres:
-          std::cout << "  Start PGMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::pgmres(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
-          res= Ax-rhs;
-          residual = std::sqrt(res*res);
-          row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count) / truth_model->get_prec((*row));
-          }
-          std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;
-          break;
-        default: 
-          std::cerr << "Method not implemented yet " << std::endl;
-          break;
+
+      std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
+      its = lawa::pcg(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+      Ax = truth_model->inner_product_matrix*x;
+      res= Ax-rhs;
+      residual = std::sqrt(res*res);
+      row_count = 1;
+      for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+          u[*row] = x(row_count) / truth_model->get_prec((*row)) ;
       }
+      std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
+
       timer1.stop();
       std::cout << std::endl << "  Done F Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
       
@@ -194,20 +168,11 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
 
     T res;
     int its;
-    switch(solution_method){
-      case call_cg:
-        std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
-        std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
-        break;
-      case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
-        std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
-        break;
-      default: 
-        std::cerr << "Method not implemented yet " << std::endl;
-        break;
-    }
+
+    std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
+    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
+
     timer1.stop();
     std::cout << "Done A Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;    
   }
@@ -242,35 +207,18 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
       
       T residual;
       int its;
-      switch(solution_method){
-        case call_cg:
-          std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::pcg(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
-          res= Ax-rhs;
-          residual = std::sqrt(res*res);
-          row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count) / truth_model->get_prec((*row));
-          }
-          std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
-          break;
-        case call_gmres:
-          std::cout << "  Start PGMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::pgmres(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
-          res= Ax-rhs;
-          residual = std::sqrt(res*res);
-          row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count) / truth_model->get_prec((*row));
-          }
-          std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;          
-          break;
-        default: 
-          std::cerr << "Method not implemented yet " << std::endl;
-          break;
+
+      std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
+      its = lawa::pcg(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+      Ax = truth_model->inner_product_matrix*x;
+      res= Ax-rhs;
+      residual = std::sqrt(res*res);
+      row_count = 1;
+      for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+          u[*row] = x(row_count) / truth_model->get_prec((*row));
       }
+      std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
+      
       timer1.stop();
       std::cout << std::endl << "  Done A Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
       
@@ -307,20 +255,10 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
 
     T res;
     int its;
-    switch(solution_method){
-      case call_cg:
-        std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
-        std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
-        break;
-      case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
-        std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
-        break;
-      default: 
-        std::cerr << "Method not implemented yet " << std::endl;
-        break;
-    }
+    std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
+    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
+
     timer1.stop();
     std::cout << "Done Residual Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;    
   }
@@ -355,35 +293,18 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
       
       T residual;
       int its;
-      switch(solution_method){
-        case call_cg:
-          std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::pcg(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
-          res= Ax-rhs;
-          residual = std::sqrt(res*res);
-          row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count) / truth_model->get_prec((*row));
-          }
-          std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
-          break;
-        case call_gmres:
-          std::cout << "  Start PGMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-          its = lawa::pgmres(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
-          res= Ax-rhs;
-          residual = std::sqrt(res*res);
-          row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count) / truth_model->get_prec((*row));
-          }
-          std::cout << "  PGMRES iterations: " << its << ", residual = " << residual << std::endl;          
-          break;
-        default: 
-          std::cerr << "Method not implemented yet " << std::endl;
-          break;
+
+      std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
+      its = lawa::pcg(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+      Ax = truth_model->inner_product_matrix*x;
+      res= Ax-rhs;
+      residual = std::sqrt(res*res);
+      row_count = 1;
+      for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+          u[*row] = x(row_count) / truth_model->get_prec((*row));
       }
+      std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
+
       timer1.stop();
       std::cout << std::endl << "  Done Residual Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
       
