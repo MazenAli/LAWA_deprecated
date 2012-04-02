@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
     cout << "Testset: " << endl;
     for(int i = 0; i < n_test; ++i){
       vector<T> test_param;
-      test_param.push_back(test_mu_min + test_h * i);
+      test_param.push_back(test_min + test_h * i);
       Xi_test.push_back(test_param);
       cout << Xi_test[i][0] << endl;
     }
@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
       // Reference truth solve at test parameter
       rb_model.set_current_param(Xi_test[i]);
       Coeffs u = rb_model.truth->truth_solve();
-      
+      plot2D(basis2d,u,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_1");
       // RB solves for different basis sizes
       for(unsigned int n = 1; n <= rb_model.n_bf(); ++n){
 
@@ -155,10 +155,10 @@ int main(int argc, char* argv[]) {
         
         Coeffs u_approx = rb_model.reconstruct_u_N(u_N, n);
         //**************************************************************************
-/*        if(n==1)
+        if(n==1)
         {
             plot2D(basis2d,u_approx,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_approx_1");
-        }*/
+        }
         //****************************************************************************
         Coeffs coeff_diff = u - u_approx;
         T err_norm = rb_model.truth->inner_product(coeff_diff, coeff_diff);
