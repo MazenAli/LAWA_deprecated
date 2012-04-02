@@ -7,42 +7,11 @@
 //Erweiterung (und Veränderung) des indexset_rb_test.cpp
 
 #include <iostream>
+#include <iomanip>
 #include <lawa/lawa.h>
+#include "problem_output.h"
 #include <lawa/methods/rb/postprocessing/plotting.h>
 #include <lawa/methods/rb/outputs/averageoutput.h>
-
-using namespace std;
-using namespace lawa;
-
-typedef double T;
-
-
-// Basis definitions
-typedef Basis<T,Primal,Interval,Dijkema>                    IntervalBasis;
-typedef TensorBasis2D<Adaptive,IntervalBasis,IntervalBasis> Basis2D;
-
-// Operator Definitions
-typedef WeightedHelmholtzOperator2D<T, Basis2D>                          WeightedLaplaceOp2D;
-typedef H1NormPreconditioner2D<T, Basis2D>                               DiagPrec2D;
-typedef NoPreconditioner<T, Index2D>                                     NoPrec2D;
-typedef WeightedAdaptiveHelmholtzOperator2D<T, Basis2D, NoPrec2D>        WeightedAdaptHHOp2D;
-typedef AdaptiveHelmholtzOperator2D<T, Basis2D, NoPrec2D>                AdaptHHOp2D;
-typedef RHS<T,Index2D, SeparableRHS2D<T, Basis2D>, NoPrec2D>             AdaptRHS;
-typedef AverageOutput2D<T, Index2D, Basis2D>							 Output;
-
-// Algorithm Definition
-    // Class for calling the truth solver for snapshot calculations
-typedef CompressionWeightedPDE2D<T, Basis2D>                             		 Compression;
-typedef IndexsetTruthSolver<T, Basis2D, DiagPrec2D, Index2D, Compression>   	 IndexsetSolver;
-    // Class containing all \calN-dependent data and functions
-typedef AdaptiveRBTruth2D<T, Basis2D, DiagPrec2D,IndexsetSolver, Compression>     RBTruth;
-    // Class containing only N-dependent data and functions
-typedef RBModel2D<T, RBTruth>                                           		  RBModel;
-
-// Data type definitions
-typedef Coefficients<Lexicographical,T,Index2D>                       Coeffs;
-typedef flens::DenseVector<flens::Array<T> >                          DenseVectorT;
-typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    FullColMatrixT;
 
 
 /* Example: Thermal block mit Testfeld
@@ -56,83 +25,8 @@ typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    FullColMat
  *                  omega_test = (0.7,0.7) x (0.8,0.8)
  */
 
-T
-weight_Omega_x_1(T x)
-{
-    return (x <= 0.5) ? 1 : 0;
-}
 
-T
-weight_Omega_x_2(T x)
-{
-    return (x >= 0.5) ? 1 : 0;
-}
 
-T
-weight_Omega_y(T y)
-{
-    return 1;
-}
-
-T
-weight_Omega_output(T output)
-{
-	return 1;
-}
-
-T
-theta_a_1(const std::vector<T>& mu)
-{
-    return mu[0];
-}
-
-T
-theta_a_2(const std::vector<T>&)
-{
-    return 1;
-}
-
-T
-weight_Forcing_x(T x)
-{
-    return (x >= 0.4) && (x <= 0.6) ? 1 : 0;
-}
-
-T
-weight_Forcing_y(T y)
-{
-    return (y >= 0.45) && (y <= 0.55) ? 1 : 0;
-}
-
-T
-output_x(T x)
-{
-	return (x >= 0.7) && (x<= 0.8) ? 1 : 0 ;
-}
-
-T
-output_y(T y)
-{
-	return (y >= 0.7) && (y<= 0.8) ? 1 : 0 ;
-}
-
-T
-theta_f_1(const std::vector<T>&)
-{
-    return 1.;
-}
-
-T
-theta_output_1(const std::vector<T>&)
-{
-    return 1.;
-}
-
-T
-plot_dummy_fct(T x, T y)
-{
-    return 0;
-}
 
 int main(int argc, char* argv[]) {
 
@@ -295,7 +189,7 @@ int main(int argc, char* argv[]) {
         T error_bound = rb_model.residual_dual_norm(u_N, Xi_test[i]) / rb_model.alpha_LB(Xi_test[i]);
 
         Coeffs u_approx = rb_model.reconstruct_u_N(u_N, n);
-        if(n==2)
+        if(n==1)
         {
             plot2D(basis2d,u_approx,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_approx");
         }
@@ -304,7 +198,7 @@ int main(int argc, char* argv[]) {
         T output_u_approx = average_output(u_approx);
         cout << "--------output operator u_approx : " << output_u_approx << endl;
         Coeffs coeff_diff = u - u_approx;
-        if(n==2)
+        if(n==1)
         {
             plot2D(basis2d,coeff_diff,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_diff");
         }
