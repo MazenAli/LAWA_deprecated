@@ -117,7 +117,32 @@ BSpline<T,Orthogonal,Interval,Multi>::tic(int j) const
     //return pow2i<T>(-(j+3));
     return initialticsize*pow2i<T>(-j);
 }
-        
+
+template <typename T>
+DenseVector<Array<long double> > *
+BSpline<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k, long &shift, long &offset) const
+{
+    // left boundary
+    if (k<mra._numLeftParts) {
+        offset = mra.leftOffsets[k];
+        shift  = 0L;
+        return &(mra.leftRefCoeffs[k]);
+    }
+    // inner part
+    if (k<mra.cardIL()+mra.cardII(j)) {
+        int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
+        shift = (long)iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
+        offset = mra.innerOffsets[type];
+        return &(mra.innerRefCoeffs[type]);
+    }
+    // right part
+    int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
+    shift = pow2i<long>(j)-1;
+    offset = mra.rightOffsets[type];
+    return &(mra.rightRefCoeffs[type]);
+}
+
+
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_MULTI_INTERVAL_BSPLINE_TCC

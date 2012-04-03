@@ -39,7 +39,6 @@ T
 Wavelet<T,Orthogonal,Interval,Multi>::operator()(T x, int j, long k, unsigned short deriv) const
 {
     k -= 1;
-    
     // left boundary
     if (k<basis._numLeftParts) {
         //std::cerr << " Left boundary: k = " << k << std::endl;
@@ -123,7 +122,34 @@ Wavelet<T,Orthogonal,Interval,Multi>::tic(int j) const
     //return pow2i<T>(-(j+4));
     return initialticsize*pow2i<T>(-j);
 }
-    
+
+template <typename T>
+DenseVector<Array<long double> > *
+Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k, long &shift, long &offset) const
+{
+    k -= 1;
+    // left boundary
+    if (k<basis._numLeftParts) {
+        offset = basis.leftOffsets[k];
+        shift  = 0L;
+        return &(basis.leftRefCoeffs[k]);
+    }
+
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        int type  = (int)((k-basis._numLeftParts) % basis._numInnerParts);
+        shift = (long)lawa::iceil<T>((k+1.-basis._numLeftParts)/(double)basis._numInnerParts);
+        offset = basis.innerOffsets[type];
+        return &(basis.innerRefCoeffs[type]);
+    }
+
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis._numRightParts + 1));
+    shift = (long)pow2i<long>(j)-1;
+    offset = basis.rightOffsets[type];
+    return &(basis.rightRefCoeffs[type]);
+}
+
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_MULTI_WAVELET_TCC

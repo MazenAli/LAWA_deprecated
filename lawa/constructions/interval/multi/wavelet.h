@@ -54,6 +54,9 @@ class Wavelet<_T,Orthogonal,Interval,Multi>
         T
         tic(int j) const;
         
+        DenseVector<Array<long double> > *
+        getRefinement(int j, long k, long &shift, long &offset) const;
+
         const Basis<T,Orthogonal,Interval,Multi> &basis;
         const int d;
         const int vanishingMoments;

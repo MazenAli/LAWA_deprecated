@@ -18,6 +18,8 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
     
     switch (d) {
         case 2:
+            addRefLevel = 3;   // Level that is added to the level of the refinement functions
+            //left part
             _numLeftParts = 2;
             _leftEvaluator = new Evaluator[2];
             _leftEvaluator[0] = _linear_wavelet_left_evaluator0;
@@ -33,6 +35,24 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
             _leftSingularSupport[1].engine().resize(9,0);
             _leftSingularSupport[1] = 0., 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.;
 
+            leftRefCoeffs = new DenseVector<Array<long double> >[2];
+            leftRefCoeffs[0].engine().resize(7,0);
+            leftRefCoeffs[0] =  3.33475836931829630962L,  -1.75789096554035096452L, -0.468007564634539555940L,
+                                0.352232501259116508276L,  0.146763542191298545115L,-0.0587054168765194180459L,
+                               -0.0293527084382597090230L;
+            leftRefCoeffs[1].engine().resize(7,0);
+            leftRefCoeffs[1] = 0.070434492127653410776L, -0.57636722071689952648L, 0.63902359667133578870L,
+                               1.8144442102770181916L,   -3.3141657015669395328L,  1.0881335364360585036L,
+                               0.27849708677177316454L;
+
+            leftRefCoeffs[0] *= -std::pow(2.L,-1.5L); // valued multiplied by (-1)... difference to mathematica?
+            leftRefCoeffs[1] *= std::pow(2.L,-1.5L);
+
+            leftOffsets = new long[2];
+            leftOffsets[0] =  2;
+            leftOffsets[1] =  2;
+
+            //inner part
             _numInnerParts = 3;
             _innerEvaluator = new Evaluator[3];
             _innerEvaluator[0] = _linear_wavelet_inner_evaluator0;
@@ -52,6 +72,34 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
             _innerSingularSupport[2].engine().resize(13,0);
             _innerSingularSupport[2] = -1., -0.75, -0.5, -0.375, -0.25, -0.125, 0., 0.125, 0.25, 0.375, 0.5, 0.75, 1.;
 
+
+            innerRefCoeffs = new DenseVector<Array<long double> >[3];
+            innerRefCoeffs[0].engine().resize(7,0);
+            innerRefCoeffs[0] =  0.0704344921276534107756L, -0.576367220716899526482L, 0.639023596671335788701L,
+                                 1.81444421027701819162L,   -3.31416570156693953276L,  1.08813353643605850361L,
+                                 0.278497086771773164537L;
+            innerRefCoeffs[1].engine().resize(15,0);
+            innerRefCoeffs[1] = -0.0624170162041586273949L, -0.124834032408317254790L,  0.312085081020793136974L,
+                                 0.749004194449903528739L,   0.121355651311707938338L, -1.50496515109302569038L,
+                                -0.724655526773638313573L,   0.L,                       2.70859400988290668974L,
+                                -1.42781347611197973525L,   -0.380130236065090770011L,  0.286094144563627797955L,
+                                 0.119205893568178249148L,  -0.0476823574272712996592L,-0.0238411787136356498296L;
+            innerRefCoeffs[2].engine().resize(15,0);
+            innerRefCoeffs[2] = -0.0614538064570225674674L, -0.122907612914045134935L, 0.307269032285112837337L,
+                                 0.737445677484270809608L,   0.242390522570959039273L,-2.21918643896707489002L,
+                                 0.0308223293141810753687L,  2.17124059336723766167L, -1.95533103707150536639L,
+                                 0.870385464299548463831L,   0.168829286778896578467L,-0.145289152020478720063L,
+                                -0.0605371466751994666929L,  0.0242148586700797866771L,0.0121074293350398933386L;
+            innerRefCoeffs[0] *= std::pow(2.L,-1.5L);
+            innerRefCoeffs[1] *= std::pow(2.L,-1.5L);
+            innerRefCoeffs[2] *= std::pow(2.L,-1.5L);
+
+            innerOffsets = new long[3];
+            innerOffsets[0] =  2;
+            innerOffsets[1] = -6;
+            innerOffsets[2] = -6;
+
+            //right part
             _numRightParts = 1;
             _rightEvaluator = new Evaluator[1];
             _rightEvaluator[0] = _linear_wavelet_right_evaluator0;
@@ -62,6 +110,16 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
             _rightSingularSupport = new DenseVector<Array<T> >[1];
             _rightSingularSupport[0].engine().resize(7,0);
             _rightSingularSupport[0] = 0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.;
+
+            rightRefCoeffs = new DenseVector<Array<long double> >[1];
+            rightRefCoeffs[0].engine().resize(7,0);
+            rightRefCoeffs[0] = -0.107000114803417747921L, -0.214000229606835495841L, 0.535000574017088739604L,
+                                 1.28400137764101297505L,   0.208037317578970289244L,-2.57992857933775636329L,
+                                -1.24226099344595652887L;
+            rightRefCoeffs[0] *= -std::pow(2.L,-1.5L);
+
+            rightOffsets = new long[1];
+            rightOffsets[0] =  2;
             break;
         
         case 3:

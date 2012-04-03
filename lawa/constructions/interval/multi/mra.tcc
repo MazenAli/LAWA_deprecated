@@ -17,6 +17,8 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
     
     switch (d) {
         case 2: 
+            addRefLevel = 3;   // Level that is added to the level of the refinement functions
+            //left part
             _numLeftParts = 2;
             _leftEvaluator = new Evaluator[2];
             _leftEvaluator[0] = _linear_bspline_inner_evaluator0;
@@ -32,6 +34,23 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
             _leftSingularSupport[1].engine().resize(5,0);
             _leftSingularSupport[1] = 0., 0.25, 0.5, 0.75, 1.;
             
+            leftRefCoeffs = new DenseVector<Array<long double> >[2];
+            leftRefCoeffs[0].engine().resize(7,0);
+            leftRefCoeffs[0] = std::sqrt(3.L)/4.L, std::sqrt(3.L)/2.L, 3.L*std::sqrt(3.L)/4.L, std::sqrt(3.L),
+                                3.L*std::sqrt(3.L)/4.L, std::sqrt(3.L)/2.L, std::sqrt(3.L)/4.L;
+            leftRefCoeffs[1].engine().resize(7,0);
+            leftRefCoeffs[1] = 1.18287246392374320953L, 2.36574492784748641906L,  0.598998255802600981345L,
+                              -1.16774841624228445637L,-0.793622991842981724074L,-0.419497567443678991773L,
+                              -0.209748783721839495887L;
+
+            leftRefCoeffs[0] *= std::pow(2.L,-1.5L);
+            leftRefCoeffs[1] *= std::pow(2.L,-1.5L);
+
+            leftOffsets = new long[2];
+            leftOffsets[0] =  2;
+            leftOffsets[1] =  2;
+
+            //inner part
             _numInnerParts = 3;
             _innerEvaluator = new Evaluator[3];
             _innerEvaluator[0] = _linear_bspline_inner_evaluator0;
@@ -51,10 +70,38 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
             _innerSingularSupport[2].engine().resize(9,0);
             _innerSingularSupport[2] = -1., -0.75, -0.5, -0.25, 0., 0.25, 0.5, 0.75, 1.;
             
+            innerRefCoeffs = new DenseVector<Array<long double> >[3];
+            innerRefCoeffs[0].engine().resize(7,0);
+            innerRefCoeffs[0] = std::sqrt(3.L)/4.L, std::sqrt(3.L)/2.L, 3.L*std::sqrt(3.L)/4.L, std::sqrt(3.L),
+                                3.L*std::sqrt(3.L)/4.L, std::sqrt(3.L)/2.L, std::sqrt(3.L)/4.L;
+            innerRefCoeffs[1].engine().resize(7,0);
+            innerRefCoeffs[1] = 1.18287246392374320953L, 2.36574492784748641906L,  0.598998255802600981345L,
+                               -1.16774841624228445637L,-0.793622991842981724074L,-0.419497567443678991773L,
+                               -0.209748783721839495887L;
+            innerRefCoeffs[2].engine().resize(15,0);
+            innerRefCoeffs[2] = 0.0614538064570225674674L, 0.122907612914045134935L, -0.307269032285112837337L,
+                               -0.737445677484270809608L,  0.00342470325713123059652L,0.744295083998533270801L,
+                                1.45776783868288546623L,   2.17124059336723766167L,   0.795716716554323318981L,
+                               -0.579807160258591023705L, -0.217259004119056151821L,  0.145289152020478720063L,
+                                0.0605371466751994666929L,-0.0242148586700797866771L,-0.0121074293350398933386L;
+            innerRefCoeffs[0] *= std::pow(2.L,-1.5L);
+            innerRefCoeffs[1] *= std::pow(2.L,-1.5L);
+            innerRefCoeffs[2] *= std::pow(2.L,-1.5L);
+
+            innerOffsets = new long[3];
+            innerOffsets[0] =  2;
+            innerOffsets[1] =  2;
+            innerOffsets[2] = -6;
+
+
+            //right part
             _numRightParts = 0;
             _rightEvaluator = new Evaluator[0];
             _rightSupport = new Support<T>[0];
             _rightSingularSupport = new DenseVector<Array<T> >[0];
+
+            rightRefCoeffs = new DenseVector<Array<long double> >[0];
+            rightOffsets   = new long[0];
             break;
             
         case 3:
@@ -224,6 +271,12 @@ MRA<T,Orthogonal,Interval,Multi>::~MRA()
     delete[] _leftSingularSupport;
     delete[] _innerSingularSupport;
     delete[] _rightSingularSupport;
+    delete[] leftRefCoeffs,
+    delete[] innerRefCoeffs,
+    delete[] rightRefCoeffs;
+    delete[] leftOffsets,
+    delete[] innerOffsets,
+    delete[] rightOffsets;
 }
 
 //--- cardinalities of whole, left, inner, right index sets. -------------------

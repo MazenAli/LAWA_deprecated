@@ -91,6 +91,8 @@ class Basis<_T,Orthogonal,Interval,Multi>
     
         const int d;
         const int j0;          // minimal used(!) level.
+
+        Wavelet<T,Orthogonal,Interval,Multi> psi;
     
     private:
         DenseVector<Array<int> > _bc;  // the boundary conditions
@@ -117,7 +119,18 @@ class Basis<_T,Orthogonal,Interval,Multi>
                                *_rightSingularSupport;
         
     public:
-        Wavelet<T,Orthogonal,Interval,Multi> psi;
+        // Refinement coefficients for representation in B-splines, only d \in \{2,3\} so far,
+        // because d=4 for multiwavelets requires cubic Hermite B-splines which are not used
+        // in the biorthogonal construction
+        DenseVector<Array<long double> > *leftRefCoeffs,
+                                         *innerRefCoeffs,
+                                         *rightRefCoeffs;
+
+        long *leftOffsets,
+             *innerOffsets,
+             *rightOffsets;
+
+        int addRefLevel;
 };
 
 } // namespace lawa

@@ -55,6 +55,9 @@ class BSpline<_T,Orthogonal,Interval,Multi>
         T
         tic(int j) const;
 
+        DenseVector<Array<long double> > *
+        getRefinement(int j, long k, long &shift, long &offset) const;
+
         const MRA<T,Orthogonal,Interval,Multi> &mra;
         const unsigned int d;
         T initialticsize;
