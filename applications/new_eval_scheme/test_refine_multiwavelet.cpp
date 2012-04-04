@@ -24,35 +24,50 @@ typedef double T;
 typedef flens::DenseVector<flens::Array<long double> >              DenseVectorLD;
 
 ///  Typedefs for problem components:
-///     Primal Basis over an interval, using Dijkema construction
-typedef Basis<T, Primal, Interval, Dijkema>                         RefinementBasis;
+///     Multiwavelet basis over an interval
 typedef Basis<T, Orthogonal, Interval, Multi>                       MultiWaveletBasis;
+typedef Basis<T, Orthogonal, Interval, Multi>::RefinementBasis      MultiRefinementBasis;
 
-typedef Integral<Gauss,RefinementBasis,RefinementBasis>             RefinementIntegral;
 typedef Integral<Gauss,MultiWaveletBasis,MultiWaveletBasis>         MultiWaveletIntegral;
+typedef Integral<Gauss,MultiRefinementBasis,MultiRefinementBasis>   MultiRefinementIntegral;
 
 int main(int argc, char*argv[])
 {
     /// wavelet basis parameters:
-    int d = 2;
+    int d = 3;
     int j0 = 3;
     if (d==3) { j0 = 3; }
-    int J = 2;
+    int J = 3;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    RefinementBasis   refinebasis(d, d, j0);  // For biorthogonal wavelet bases
-    refinebasis.enforceBoundaryCondition<DirichletBC>();
     MultiWaveletBasis multibasis(d, 0);     // For L2_orthonormal and special MW bases
     multibasis.enforceBoundaryCondition<DirichletBC>();
 
-    /// Test refinement of inner multi scaling functions
+    for (int j=1; j<=J; ++j) {
+        cout << "j = " << j << ": " << multibasis.refinementbasis.mra.cardI(j) << " " << multibasis.refinementbasis.mra.rangeI(j) << endl;
+        for (int k= multibasis.refinementbasis.mra.rangeI(j).firstIndex();
+                 k<=multibasis.refinementbasis.mra.rangeI(j).lastIndex(); ++k) {
+            cout << "  k = " << k  << " "
+                 << multibasis.refinementbasis.generator(XBSpline).support(j,k) << " "
+                 << multibasis.refinementbasis.generator(XBSpline).singularSupport(j,k) << endl;
+            ofstream plotfile_scaling("refinement_interval.txt");
+            for (T x=0.; x<=1.; x+=pow2i<T>(-6-j)) {
+                plotfile_scaling << x << " " << multibasis.refinementbasis.generator(XBSpline).operator()(x,j,k,0) << endl;
+            }
+            plotfile_scaling.close();
+            getchar();
+        }
+    }
 
+
+    /// Test refinement of inner multi scaling functions
+    /*
     DenseVectorLD *refCoeffs;
     int addRefLevel = multibasis.mra.addRefLevel;
     int factor   = pow2i<int>(addRefLevel);
 
+
     for (int j=0; j<=J; ++j) {
-        /*
         for (int k=multibasis.mra.rangeI(j).firstIndex(); k<=multibasis.mra.rangeI(j).lastIndex(); ++k) {
             ofstream plotfile_scaling("refinement_interval_multiscaling.txt");
 
@@ -65,7 +80,7 @@ int main(int argc, char*argv[])
                 T refinement_value = 0.;
                 for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
                     refinement_value +=   (*refCoeffs).operator()(i)
-                                        * refinebasis.generator(XBSpline).operator()(x,j+addRefLevel,i+factor*shift+offset,0);
+                                        * multibasis.refinementbasis.generator(XBSpline).operator()(x,j+addRefLevel,i+factor*shift+offset,0);
                 }
                 plotfile_scaling << x << " " << reference_value << " " << refinement_value << endl;
             }
@@ -73,7 +88,8 @@ int main(int argc, char*argv[])
             cout << "Please hit enter." << endl;
             getchar();
         }
-        */
+    }
+    for (int j=0; j<=J; ++j) {
         for (int k=multibasis.rangeJ(j).firstIndex(); k<=multibasis.rangeJ(j).lastIndex(); ++k) {
             ofstream plotfile_wavelet("refinement_interval_multiwavelet.txt");
 
@@ -86,7 +102,7 @@ int main(int argc, char*argv[])
                 T refinement_value = 0.;
                 for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
                     refinement_value +=   (*refCoeffs).operator()(i)
-                                        * refinebasis.generator(XBSpline).operator()(x,j+addRefLevel,i+factor*shift+offset,0);
+                                        * multibasis.refinementbasis.generator(XBSpline).operator()(x,j+addRefLevel,i+factor*shift+offset,0);
                 }
                 plotfile_wavelet << x << " " << reference_value << " " << refinement_value << endl;
             }
@@ -96,7 +112,7 @@ int main(int argc, char*argv[])
         }
     }
 
-
+    */
     /*
     RefinementIntegral   refinement_integral(refinebasis,refinebasis);
     MultiWaveletIntegral multi_integral(multibasis,multibasis);

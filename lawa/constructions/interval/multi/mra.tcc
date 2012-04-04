@@ -15,6 +15,128 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
     assert(d>=2);
     assert(j0>=0);
     
+    /* L_2 orthonormal multiwavelet bases without Dirichlet boundary conditions are not
+     * implemented yet. They require __different__ boundary adapted wavelets and scaling functions.
+     */
+
+    _numLeftParts = 0;
+    _numRightParts = 0;
+
+    this->enforceBoundaryCondition<DirichletBC>();
+
+    setLevel(_j);
+}
+
+template <typename T>
+MRA<T,Orthogonal,Interval,Multi>::~MRA()
+{
+    delete[] _leftEvaluator;
+    delete[] _innerEvaluator;
+    delete[] _rightEvaluator;
+    delete[] _leftSupport;
+    delete[] _innerSupport;
+    delete[] _rightSupport;
+    delete[] _leftSingularSupport;
+    delete[] _innerSingularSupport;
+    delete[] _rightSingularSupport;
+    delete[] leftRefCoeffs,
+    delete[] innerRefCoeffs,
+    delete[] rightRefCoeffs;
+    delete[] leftOffsets,
+    delete[] innerOffsets,
+    delete[] rightOffsets;
+}
+
+//--- cardinalities of whole, left, inner, right index sets. -------------------
+
+template <typename T>
+int
+MRA<T,Orthogonal,Interval,Multi>::cardI(int j) const
+{
+    assert(j>=j0);
+    return _numLeftParts + (pow2i<int>(j)-1)*_numInnerParts + _numRightParts;
+}
+
+template <typename T>
+int
+MRA<T,Orthogonal,Interval,Multi>::cardIL(int /*j*/) const
+{
+    return _numLeftParts;
+}
+
+template <typename T>
+int
+MRA<T,Orthogonal,Interval,Multi>::cardII(int j) const
+{
+    assert(j>=j0);
+    return (pow2i<int>(j)-1)*_numInnerParts;
+}
+
+template <typename T>
+int
+MRA<T,Orthogonal,Interval,Multi>::cardIR(int /*j*/) const
+{
+    return _numRightParts;
+}
+
+//--- ranges of whole, left, inner, right index sets. --------------------------
+
+template <typename T>
+Range<int>
+MRA<T,Orthogonal,Interval,Multi>::rangeI(int j) const
+{
+    assert(j>=j0);
+    return Range<int>(0,cardI(j)-1);
+}
+
+template <typename T>
+Range<int>
+MRA<T,Orthogonal,Interval,Multi>::rangeIL(int /*j*/) const
+{
+    return Range<int>(0,cardIL() - 1);
+}
+
+template <typename T>
+Range<int>
+MRA<T,Orthogonal,Interval,Multi>::rangeII(int j) const
+{
+    assert(j>=j0);
+    return Range<int>(cardIL(), cardIL()+cardII(j)-1);
+}
+
+template <typename T>
+Range<int>
+MRA<T,Orthogonal,Interval,Multi>::rangeIR(int j) const
+{
+    assert(j>=j0);
+    return Range<int>(cardIL()+cardII(j),cardI(j)-1);
+}
+
+template <typename T>
+int
+MRA<T,Orthogonal,Interval,Multi>::level() const
+{
+    return _j;
+}
+
+template <typename T>
+void
+MRA<T,Orthogonal,Interval,Multi>::setLevel(int j) const
+{
+    assert(j>=j0);
+    _j = j;
+}
+
+template <typename T>
+template <BoundaryCondition BC>
+void
+MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
+{
+    assert(BC==DirichletBC);
+
+    _bc(0) = DirichletBC;
+    _bc(1) = DirichletBC;
+
     switch (d) {
         case 2: 
             addRefLevel = 3;   // Level that is added to the level of the refinement functions
@@ -47,8 +169,8 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
             leftRefCoeffs[1] *= std::pow(2.L,-1.5L);
 
             leftOffsets = new long[2];
-            leftOffsets[0] =  2;
-            leftOffsets[1] =  2;
+            leftOffsets[0] =  0;
+            leftOffsets[1] =  0;
 
             //inner part
             _numInnerParts = 3;
@@ -89,9 +211,9 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
             innerRefCoeffs[2] *= std::pow(2.L,-1.5L);
 
             innerOffsets = new long[3];
-            innerOffsets[0] =  2;
-            innerOffsets[1] =  2;
-            innerOffsets[2] = -6;
+            innerOffsets[0] =  0;
+            innerOffsets[1] =  0;
+            innerOffsets[2] = -8;
 
 
             //right part
@@ -250,146 +372,6 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
                               " for d = " << d << ". Stopping." << std::endl;
             exit(-1);
     }
-    
-    // without boundary conditions no need for left/right adaption.
-    // code above just preparing Dirichlet boundary conditions.
-    _numLeftParts = 0;
-    _numRightParts = 0;
-
-    setLevel(_j);
-}
-
-template <typename T>
-MRA<T,Orthogonal,Interval,Multi>::~MRA()
-{
-    delete[] _leftEvaluator;
-    delete[] _innerEvaluator;
-    delete[] _rightEvaluator;
-    delete[] _leftSupport;
-    delete[] _innerSupport;
-    delete[] _rightSupport;
-    delete[] _leftSingularSupport;
-    delete[] _innerSingularSupport;
-    delete[] _rightSingularSupport;
-    delete[] leftRefCoeffs,
-    delete[] innerRefCoeffs,
-    delete[] rightRefCoeffs;
-    delete[] leftOffsets,
-    delete[] innerOffsets,
-    delete[] rightOffsets;
-}
-
-//--- cardinalities of whole, left, inner, right index sets. -------------------
-
-template <typename T>
-int
-MRA<T,Orthogonal,Interval,Multi>::cardI(int j) const
-{
-    assert(j>=j0);
-    return _numLeftParts + (pow2i<int>(j)-1)*_numInnerParts + _numRightParts;
-}
-
-template <typename T>
-int
-MRA<T,Orthogonal,Interval,Multi>::cardIL(int /*j*/) const
-{
-    return _numLeftParts;
-}
-
-template <typename T>
-int
-MRA<T,Orthogonal,Interval,Multi>::cardII(int j) const
-{
-    assert(j>=j0);
-    return (pow2i<int>(j)-1)*_numInnerParts;
-}
-
-template <typename T>
-int
-MRA<T,Orthogonal,Interval,Multi>::cardIR(int /*j*/) const
-{
-    return _numRightParts;
-}
-
-//--- ranges of whole, left, inner, right index sets. --------------------------
-
-template <typename T>
-Range<int>
-MRA<T,Orthogonal,Interval,Multi>::rangeI(int j) const
-{
-    assert(j>=j0);
-    return Range<int>(0,cardI(j)-1);
-}
-
-template <typename T>
-Range<int>
-MRA<T,Orthogonal,Interval,Multi>::rangeIL(int /*j*/) const
-{
-    return Range<int>(0,cardIL() - 1);
-}
-
-template <typename T>
-Range<int>
-MRA<T,Orthogonal,Interval,Multi>::rangeII(int j) const
-{
-    assert(j>=j0);
-    return Range<int>(cardIL(), cardIL()+cardII(j)-1);
-}
-
-template <typename T>
-Range<int>
-MRA<T,Orthogonal,Interval,Multi>::rangeIR(int j) const
-{
-    assert(j>=j0);
-    return Range<int>(cardIL()+cardII(j),cardI(j)-1);
-}
-
-template <typename T>
-int
-MRA<T,Orthogonal,Interval,Multi>::level() const
-{
-    return _j;
-}
-
-template <typename T>
-void
-MRA<T,Orthogonal,Interval,Multi>::setLevel(int j) const
-{
-    assert(j>=j0);
-    _j = j;
-}
-
-template <typename T>
-template <BoundaryCondition BC>
-void
-MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
-{
-    assert(BC==DirichletBC);
-
-    _bc(0) = DirichletBC;
-    _bc(1) = DirichletBC;
-    
-    switch (d) {
-        case 2: 
-            // left B-splines 
-            _numLeftParts = 2;
-            _numRightParts = 0;
-            break;
-            
-        case 3:
-            _numLeftParts = 5;
-            _numRightParts = 1;
-            break;
-            
-        case 4:
-            _numLeftParts = 5;
-            _numRightParts = 1;
-            break;
-
-        default: std::cerr << "Boundary conditions not yet realized"
-            " for d = " << d << ". Stopping." << std::endl;
-            exit(-1);
-    }    
 }
 
 } // namespace lawa

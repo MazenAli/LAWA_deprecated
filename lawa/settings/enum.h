@@ -52,6 +52,7 @@ enum Construction {
     Primbs,
     Dijkema,
     Multi,
+    MultiRefinement,
     SparseMulti
 };
 

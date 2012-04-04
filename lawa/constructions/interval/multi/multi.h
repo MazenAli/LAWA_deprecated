@@ -24,6 +24,9 @@
 #include <lawa/constructions/interval/multi/basis.h>
 #include <lawa/constructions/interval/multi/bspline.h>
 #include <lawa/constructions/interval/multi/mra.h>
+#include <lawa/constructions/interval/multi/refinementbasis.h>
+#include <lawa/constructions/interval/multi/refinementbspline.h>
+#include <lawa/constructions/interval/multi/refinementmra.h>
 #include <lawa/constructions/interval/multi/wavelet.h>
 
 #include <lawa/constructions/interval/multi/_linear_evaluator.h>

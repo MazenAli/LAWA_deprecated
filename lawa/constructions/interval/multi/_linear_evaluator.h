@@ -55,6 +55,10 @@ template <typename T>
     T
     _linear_wavelet_right_evaluator0(T x, unsigned short deriv);
 
+template <typename T>
+    T
+    _linear_refinement_inner_evaluator0(T x, unsigned short deriv);
+
 } // namespace lawa
 
 #include <lawa/constructions/interval/multi/_linear_evaluator.tcc>

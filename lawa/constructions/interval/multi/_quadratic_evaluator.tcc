@@ -1440,6 +1440,95 @@ _quadratic_wavelet_right_evaluator1(T x, unsigned short deriv){
     return value;
 }
 
+
+template <typename T>
+T
+_quadratic_refinement_inner_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 1.){
+            value = 0.5*x*x;
+        } else if(1. <= x && x < 2.){
+            value = -3./2. + x*(3. - x);
+        } else if(2. <= x && x < 3.){
+            value = 4.5 + x*(-3. + 0.5*x);
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 1.){
+            value = x;
+        } else if(1. <= x && x < 2.){
+            value = 3. - 2.*x;
+        } else if(2. <= x && x < 3.){
+            value = -2. + x;
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+template <typename T>
+T
+_quadratic_refinement_left_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 1.){
+            value = x*(2. - 3./2.*x);
+        } else if(1. <= x && x < 2.){
+            value = 2. + x*(-2. + 0.5*x);
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 1.){
+            value = 2 - 3.*x;
+        } else if(1. <= x && x < 2.){
+            value = -2. + x;
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+template <typename T>
+T
+_quadratic_refinement_right_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 1.){
+            value = 0.5*x*x;
+        } else if(1. <= x && x < 2.){
+            value = -2. + x*(4. - 3./2.*x);
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 1.){
+            value = x;
+        } else if(1. <= x && x < 2.){
+            value = 4 - 3.*x;
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_MULTI__QUADRATIC_EVALUATOR_TCC

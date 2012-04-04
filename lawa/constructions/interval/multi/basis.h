@@ -39,9 +39,10 @@ class Basis<_T,Orthogonal,Interval,Multi>
         static const DomainType Domain = Interval;
         static const Construction Cons = Multi;
         
-        typedef BasisFunction<T,Orthogonal,Interval,Multi> BasisFunctionType;
-        typedef BSpline<T,Orthogonal,Interval,Multi> BSplineType;
-        typedef Wavelet<T,Orthogonal,Interval,Multi> WaveletType;
+        typedef Basis<T,Orthogonal,Interval,MultiRefinement> RefinementBasis;
+        typedef BasisFunction<T,Orthogonal,Interval,Multi>   BasisFunctionType;
+        typedef BSpline<T,Orthogonal,Interval,Multi>         BSplineType;
+        typedef Wavelet<T,Orthogonal,Interval,Multi>         WaveletType;
 
         Basis(const int d, const int j=-1);
     
@@ -88,11 +89,13 @@ class Basis<_T,Orthogonal,Interval,Multi>
         rangeJR(const int j=-1) const;
     
         MRA<T,Orthogonal,Interval,Multi> mra;
-    
+
         const int d;
         const int j0;          // minimal used(!) level.
 
         Wavelet<T,Orthogonal,Interval,Multi> psi;
+
+        Basis<T,Orthogonal,Interval,MultiRefinement> refinementbasis;
     
     private:
         DenseVector<Array<int> > _bc;  // the boundary conditions
@@ -129,8 +132,6 @@ class Basis<_T,Orthogonal,Interval,Multi>
         long *leftOffsets,
              *innerOffsets,
              *rightOffsets;
-
-        int addRefLevel;
 };
 
 } // namespace lawa

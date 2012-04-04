@@ -12,13 +12,61 @@ namespace lawa {
 
 template <typename T>
 Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
-    : mra(_d, j), d(_d), j0(mra.j0), _bc(2,0), _j(j0), psi(*this)
+    : mra(_d, j), d(_d), j0(mra.j0), _bc(2,0), _j(j0), psi(*this), refinementbasis(d)
 {
     assert(d>=2);
     
+    /* L_2 orthonormal multiwavelet bases without Dirichlet boundary conditions are not
+     * implemented yet. They require __different__ boundary adapted wavelets and scaling functions.
+     */
+
+    _numLeftParts = 0;
+    _numRightParts = 0;
+
+    this->enforceBoundaryCondition<DirichletBC>();
+
+    setLevel(_j);
+}
+
+template <typename T>
+Basis<T,Orthogonal,Interval,Multi>::~Basis()
+{
+    delete[] _leftEvaluator;
+    delete[] _innerEvaluator;
+    delete[] _rightEvaluator;
+    delete[] _leftSupport;
+    delete[] _innerSupport;
+    delete[] _rightSupport;
+    delete[] _leftSingularSupport;
+    delete[] _innerSingularSupport;
+    delete[] _rightSingularSupport;
+}
+
+template <typename T>
+int
+Basis<T,Orthogonal,Interval,Multi>::level() const
+{
+    return _j;
+}
+
+template <typename T>
+void
+Basis<T,Orthogonal,Interval,Multi>::setLevel(int j) const
+{
+    assert(j>=j0);
+    _j = j;
+}
+
+template <typename T>
+template <BoundaryCondition BC>
+void
+Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
+{
+    assert(BC==DirichletBC);
+    _bc = 1,1;
+
     switch (d) {
         case 2:
-            addRefLevel = 3;   // Level that is added to the level of the refinement functions
             //left part
             _numLeftParts = 2;
             _leftEvaluator = new Evaluator[2];
@@ -49,8 +97,8 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
             leftRefCoeffs[1] *= std::pow(2.L,-1.5L);
 
             leftOffsets = new long[2];
-            leftOffsets[0] =  2;
-            leftOffsets[1] =  2;
+            leftOffsets[0] =  0;
+            leftOffsets[1] =  0;
 
             //inner part
             _numInnerParts = 3;
@@ -95,9 +143,9 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
             innerRefCoeffs[2] *= std::pow(2.L,-1.5L);
 
             innerOffsets = new long[3];
-            innerOffsets[0] =  2;
-            innerOffsets[1] = -6;
-            innerOffsets[2] = -6;
+            innerOffsets[0] =  0;
+            innerOffsets[1] = -8;
+            innerOffsets[2] = -8;
 
             //right part
             _numRightParts = 1;
@@ -119,7 +167,7 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
             rightRefCoeffs[0] *= -std::pow(2.L,-1.5L);
 
             rightOffsets = new long[1];
-            rightOffsets[0] =  2;
+            rightOffsets[0] =  0;
             break;
         
         case 3:
@@ -270,70 +318,7 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
             exit(-1);
     }
     
-    _numLeftParts = 0;
-    _numRightParts = 0;
-
-    setLevel(_j);
-}
-    
-template <typename T>
-Basis<T,Orthogonal,Interval,Multi>::~Basis()
-{
-    delete[] _leftEvaluator;
-    delete[] _innerEvaluator;
-    delete[] _rightEvaluator;
-    delete[] _leftSupport;
-    delete[] _innerSupport;
-    delete[] _rightSupport;
-    delete[] _leftSingularSupport;
-    delete[] _innerSingularSupport;
-    delete[] _rightSingularSupport;
-}
-
-template <typename T>
-int
-Basis<T,Orthogonal,Interval,Multi>::level() const
-{
-    return _j;
-}
-
-template <typename T>
-void
-Basis<T,Orthogonal,Interval,Multi>::setLevel(int j) const
-{
-    assert(j>=j0);
-    _j = j;
-}
-
-template <typename T>
-template <BoundaryCondition BC>
-void
-Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
-{
-    assert(BC==DirichletBC);
-    _bc = 1,1;
-    
-    switch (d) {
-        case 2:
-            _numLeftParts = 2;
-            _numRightParts = 1;
-            break;
-        
-        case 3:
-            _numLeftParts = 4;
-            _numRightParts = 2;
-            break;
-            
-        case 4:            
-            _numLeftParts = 4;
-            _numRightParts = 2;
-            break;
-            
-        default: std::cerr << "Boundary conditions not realized yet "
-            " for d = " << d << ". Stopping." << std::endl;
-            exit(-1);
-    }
-    
+    refinementbasis.enforceBoundaryCondition<BC>();
     mra.enforceBoundaryCondition<BC>();
 }
 

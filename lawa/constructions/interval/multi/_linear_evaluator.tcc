@@ -389,7 +389,6 @@ _linear_wavelet_left_evaluator0(T x, unsigned short deriv){
     return value;
 }
 
-
 template <typename T>
 T
 _linear_wavelet_right_evaluator0(T x, unsigned short deriv){
@@ -434,6 +433,34 @@ _linear_wavelet_right_evaluator0(T x, unsigned short deriv){
     return value;
 }
 
+
+template <typename T>
+T
+_linear_refinement_inner_evaluator0(T x, unsigned short deriv){
+
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 1.){
+            value = x;
+        } else if(1. <= x && x < 2.){
+            value = 2.-x;
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 1.){
+            value = 1.;
+        } else if(1. <= x && x < 2.){
+            value = -1.;
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_MULTI__LINEAR_EVALUATOR_TCC
