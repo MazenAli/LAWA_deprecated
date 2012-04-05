@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
     cout << "Testset: " << endl;
     for(int i = 0; i < n_test; ++i){
       vector<T> test_param;
-      test_param.push_back(test_min + test_h * i);
+      test_param.push_back(test_mu_min + test_h * i);
       Xi_test.push_back(test_param);
       cout << Xi_test[i][0] << endl;
     }

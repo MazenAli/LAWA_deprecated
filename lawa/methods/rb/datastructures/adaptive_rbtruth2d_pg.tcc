@@ -54,7 +54,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
-attach_inner_product_op(Operator2D<T>& _trial_inner_product_op, Operator2D<T>& _test_inner_product_op)
+attach_inner_product_op(AdaptiveOperator2D<T>& _trial_inner_product_op, AdaptiveOperator2D<T>& _test_inner_product_op)
 {
     trial_inner_product_op = &_trial_inner_product_op;
     test_inner_product_op = &_test_inner_product_op;
@@ -405,13 +405,16 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     }
     else{
 
-        typename CoeffVector::const_iterator it1, it2;
+        /*typename CoeffVector::const_iterator it1, it2;
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
                 val += (long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second);
                 //std::cout << "(u_v)_i = " << (long double)((*it1).second * (*trial_inner_product_op)((*it1).first, (*it2).first) * (*it2).second) << std::endl;
             }
-        }
+        }*/
+        
+      CoeffVector tmp = (*trial_inner_product_op).mv(supp(v1), v2);
+      val = v1 * tmp;
         
     }
 
@@ -490,7 +493,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
         val = v1_dense * I_v2;
     }
     else{
-        typename CoeffVector::const_iterator it1, it2;
+        /*typename CoeffVector::const_iterator it1, it2;
         int count = 0;
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
@@ -499,6 +502,10 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
             }
         }
         std::cout << "Test inner product: " << count << " inner product evaluations " << std::endl;
+        */
+        
+        CoeffVector tmp = (*test_inner_product_op).mv(supp(v1), v2);
+        val = v1 * tmp;
         
     }
     return (T)(val);   

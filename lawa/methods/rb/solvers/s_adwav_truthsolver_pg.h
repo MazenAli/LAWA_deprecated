@@ -53,17 +53,20 @@ class S_ADWAV_TruthSolver_PG {
         void
         set_parameters(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
                       int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
-                      int _MaxSizeLambda = 400, T _resStopTol = 0.1);
+                      int _MaxSizeLambda = 400, T _resStopTol = 0.1,
+                      std::vector<int> _Jmaxvec = std::vector<int>(0));
         
         void
         set_parameters_repr_F(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
                             int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
-                            int _MaxSizeLambda = 400, T _resStopTol = 0.1);
+                            int _MaxSizeLambda = 400, T _resStopTol = 0.1,
+                            std::vector<int> _Jmaxvec = std::vector<int>(0));
 
         void
         set_parameters_repr_A(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
                             int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
-                            int _MaxSizeLambda = 400, T _resStopTol = 0.1);
+                            int _MaxSizeLambda = 400, T _resStopTol = 0.1,
+                            std::vector<int> _Jmaxvec = std::vector<int>(0));
     
     /* Public member functions */
         
@@ -100,11 +103,14 @@ class S_ADWAV_TruthSolver_PG {
         struct Sadwav_parameters{
             
             Sadwav_parameters(){};
-            Sadwav_parameters(T _c, T _tT, T _lT, T _rT, int N, int mI, T e, int mL, T rST);
+            Sadwav_parameters(T _c, T _tT, T _lT, T _rT, 
+                              int N, int mI, T e, int mL, T rST,
+                              std::vector<int> _Jmaxvec);
             
             T contraction, threshTol, linTol, resTol;
             int NumOfIts, MaxItsPerThreshTol, MaxSizeLambda;
             T eps, resStopTol;
+            std::vector<int> Jmaxvec;
         };
         
         Sadwav_parameters params, params_repr_F, params_repr_A;

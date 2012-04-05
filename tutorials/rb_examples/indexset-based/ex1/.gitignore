@@ -3,3 +3,6 @@ test
 online
 *.txt
 offline_data/*
+u_N_*.dat
+u_N_*.pdf
+*.zip

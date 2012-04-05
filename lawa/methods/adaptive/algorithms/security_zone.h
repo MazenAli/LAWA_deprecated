@@ -14,11 +14,24 @@ template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
     IndexSet<Index1D>
     C(const Index1D &lambda, T c, const Basis<T,Side,Domain,Cons> &basis);
+    
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+    IndexSet<Index1D>
+    C(const IndexSet<Index1D> &Lambda, T c, const Basis<T,Side,Domain,Cons> &basis, const int Jmax);
+    
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+    IndexSet<Index1D>
+    C(const Index1D &lambda, T c, const Basis<T,Side,Domain,Cons> &basis, const int Jmax);
 
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
     void
     index_cone(const Index1D &lambda, T c, const Basis<T,Side,Domain,Cons> &basis,
                IndexSet<Index1D> &ret);
+
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+    void
+    index_cone(const Index1D &lambda, T c, const Basis<T,Side,Domain,Cons> &basis,
+               IndexSet<Index1D> &ret, const int Jmax);
 
 
 // Special case: no bound for lower levels.
@@ -36,6 +49,11 @@ template <typename T>
 template <typename T, typename Basis2D>
     IndexSet<Index2D>
     C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
+    
+    // Security Zone does not include levels higher than J1_max, J2_max
+template <typename T, typename Basis2D>
+    IndexSet<Index2D>
+    C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis, const int J1_max, const int J2_max );
 
 template <typename T, typename Basis2D>
     IndexSet<Index2D>

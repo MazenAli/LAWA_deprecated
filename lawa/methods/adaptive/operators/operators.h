@@ -1,3 +1,4 @@
+#include <lawa/methods/adaptive/operators/adaptiveoperator2d.h>
 #include <lawa/methods/adaptive/operators/adaptivehelmholtzoperator2d.h>
 #include <lawa/methods/adaptive/operators/adaptivehelmholtzoperatoroptimized1d.h>
 #include <lawa/methods/adaptive/operators/adaptivehelmholtzoperatoroptimized2d.h>

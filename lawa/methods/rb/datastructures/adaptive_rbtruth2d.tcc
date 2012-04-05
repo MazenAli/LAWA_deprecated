@@ -59,7 +59,7 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_output_q(Ada
 
 template <typename T, typename Basis, typename Prec, typename TruthSolver, typename Compression>
 void
-AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_inner_product_op(Operator2D<T>& _inner_product_op)
+AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::attach_inner_product_op(AdaptiveOperator2D<T>& _inner_product_op)
 {
     inner_product_op = &_inner_product_op;
 }
@@ -411,12 +411,15 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::inner_product(const
         val = v1_dense * I_v2;
     }
     else{
-        typename CoeffVector::const_iterator it1, it2;
+        /*typename CoeffVector::const_iterator it1, it2;
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
                 val += (*it1).second * (*inner_product_op)((*it1).first, (*it2).first) * (*it2).second;
             }
-        }
+        }*/
+        
+        CoeffVector tmp = (*inner_product_op).mv(supp(v1), v2);
+        val = v1 * tmp;
     }
     return val;   
 }

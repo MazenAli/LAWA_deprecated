@@ -146,8 +146,7 @@ void
 AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::toFlensSparseMatrix(
                                                          const IndexSet<Index2D>& LambdaRow,
                                                          const IndexSet<Index2D>& LambdaCol,
-                                                         SparseMatrixT &A_flens, T eps,
-                                                         bool useLinearIndex)
+                                                         SparseMatrixT &A_flens, T eps)
 {
     //toFlensSparseMatrix<T,Index2D,AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner> >(*this,LambdaRow,LambdaCol,A_flens);
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
@@ -162,7 +161,6 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::clear()
     data_laplace_y.clear();
     data_identity_y.clear();
 }
-
 
 }   // namespace lawa
 

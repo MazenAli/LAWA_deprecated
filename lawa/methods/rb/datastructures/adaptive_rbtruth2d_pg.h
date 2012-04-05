@@ -74,7 +74,7 @@ class AdaptiveRBTruth2D_PG{
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
         
         void 
-        attach_inner_product_op(Operator2D<T>& _trial_inner_product_op, Operator2D<T>& _test_inner_product_op);
+        attach_inner_product_op(AdaptiveOperator2D<T>& _trial_inner_product_op, AdaptiveOperator2D<T>& _test_inner_product_op);
         
         void
         set_truthsolver(TruthSolver& _truthsolver);
@@ -135,8 +135,8 @@ class AdaptiveRBTruth2D_PG{
         
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
-        Operator2D<T>*                          trial_inner_product_op;
-        Operator2D<T>*                          test_inner_product_op;
+        AdaptiveOperator2D<T>*                          trial_inner_product_op;
+        AdaptiveOperator2D<T>*                          test_inner_product_op;
             
         TruthSolver*                            solver;
         
