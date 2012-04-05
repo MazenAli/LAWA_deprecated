@@ -75,8 +75,8 @@ const int    n_train = 30;
 const double Greedy_tol = 1e-10;
 const int    Nmax = 7;
 
-const double test_min = 0.13;
-const double test_max = 0.96;
+const double test_mu_min = 0.13;
+const double test_mu_max = 0.96;
 const int    n_test = 29;
 const double test_h = (mu_max - mu_min)/(n_test-1);
 
