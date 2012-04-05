@@ -25,11 +25,17 @@ template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _contraction,
                                  T start_threshTol, T start_linTol, T start_resTol,
                                  int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda,
-                                  T _resStopTol)
+                                  T _resStopTol, std::vector<int> _Jmaxvec)
     : basis(_basis), A(_A), F(_F), contraction(_contraction), threshTol(start_threshTol), linTol(start_linTol),
       resTol(start_resTol), NumOfIterations(_NumOfIterations), MaxItsPerThreshTol(_MaxItsPerThreshTol), eps(_eps),
-      MaxSizeLambda(_MaxSizeLambda), resStopTol(_resStopTol)
+      MaxSizeLambda(_MaxSizeLambda), resStopTol(_resStopTol), Jmaxvec(_Jmaxvec)
 {
+    if(Jmaxvec.size() == 0){
+        Jmaxvec.push_back(INT_MAX);
+        Jmaxvec.push_back(INT_MAX);
+        Jmaxvec.push_back(INT_MAX);
+    }
+    
     solutions.resize(NumOfIterations);
     residuals.resize(NumOfIterations);
     times.resize(NumOfIterations);
@@ -259,7 +265,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
 
         timer.start();
         //Computing residual
-        DeltaLambda = C(LambdaThresh, contraction, basis);
+        DeltaLambda = C(LambdaThresh, contraction, basis, Jmaxvec[0], Jmaxvec[1]);            
+
         //std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         f = F(DeltaLambda);
         //std::cout << "   ...finished" << std::endl;
@@ -462,7 +469,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         //std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
 
         //Computing residual
-        DeltaLambda = C(LambdaThresh, contraction, basis);
+        DeltaLambda = C(LambdaThresh, contraction, basis, Jmaxvec[0], Jmaxvec[1]);            
+
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
 
         timer.stop();
@@ -569,7 +577,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda
         //std::cout << "    Current minimal level: " << current_jmin << ", current maximal level: " << current_jmax << std::endl;
         
         //Computing residual
-        DeltaLambda = C(LambdaThresh, contraction, basis);
+        DeltaLambda = C(LambdaThresh, contraction, basis, Jmaxvec[0], Jmaxvec[1]);            
+
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         
         timer.stop();
@@ -729,7 +738,7 @@ void
 S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol, T _linTol, 
                                               T _resTol, int _NumOfIterations, 
                                               int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, 
-                                              T _resStopTol)
+                                              T _resStopTol, std::vector<int> _Jmaxvec)
 {
     contraction = _contraction;
     threshTol = start_threshTol;
@@ -740,6 +749,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::set_parameters(T _contraction, T start_threshTol,
     eps = _eps;
     MaxSizeLambda = _MaxSizeLambda;
     resStopTol = _resStopTol;
+    Jmaxvec = _Jmaxvec;
+    if(Jmaxvec.size() == 0){
+        Jmaxvec.push_back(INT_MAX);
+        Jmaxvec.push_back(INT_MAX);
+        Jmaxvec.push_back(INT_MAX);
+    }
     
     solutions.resize(NumOfIterations);
     residuals.resize(NumOfIterations);
@@ -752,7 +767,7 @@ template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T& _linTol, T& _resTol, 
                                               int& _NumOfIterations, int& _MaxItsPerThreshTol, T& _eps, 
-                                              int& _MaxSizeLambda, T& _resStopTol)
+                                              int& _MaxSizeLambda, T& _resStopTol, std::vector<int>& _Jmaxvec)
 {
     _contraction = contraction;
     _threshTol = threshTol;
@@ -762,7 +777,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T&
     _MaxItsPerThreshTol = MaxItsPerThreshTol;
     _eps = eps;
     _MaxSizeLambda = MaxSizeLambda;
-    _resStopTol = _resStopTol;
+    _resStopTol = resStopTol;
+    _Jmaxvec = Jmaxvec;
 }
 
 }    //namespace lawa
