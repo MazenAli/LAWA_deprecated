@@ -14,27 +14,16 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
 {
     assert(d>=2);
     assert(j0>=1);
+    if (j0<1) {
+        std::cerr << "MRA<T,Orthogonal,Interval,MultiRefinement>: "
+                  << "d = " << d << " needs to be larger than 1. Stopping." << std::endl;
+        exit(1);
+    }
 
-    switch (d) {
-        case 2:
-            if (j0<1) {
-                std::cerr << "MRA<T,Orthogonal,Interval,MultiRefinement>: "
-                          << "d needs to be larger than 2. Stopping." << std::endl;
-                exit(1);
-            }
-            break;
-        case 3:
-            if (j0<1) {
-                std::cerr << "MRA<T,Orthogonal,Interval,MultiRefinement>: "
-                          << "d needs to be larger than 1. Stopping." << std::endl;
-                exit(1);
-            }
-            break;
-
-        default:
-            std::cerr << "MRA<T,Orthogonal,Interval,MultiRefinement>: not yet implemented for "
-                      << "order d = " << d << ". Stopping."<< std::endl;
-            exit(1);
+    if (j0<1) {
+        std::cerr << "MRA<T,Orthogonal,Interval,MultiRefinement>: "
+                  << "j0 = " << j0 << " needs to be larger than 0. Stopping." << std::endl;
+        exit(1);
     }
 
     /* L_2 orthonormal multiwavelet bases without Dirichlet boundary conditions are not
@@ -158,11 +147,6 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
     switch (d) {
         case 2:
 
-            if (j0<1) {
-                std::cerr << "BSpline<T,Orthogonal,Interval,MultiRefinement>: j0=" << j0 << " needs "
-                          << "to be larger than 0. Stopping." << std::endl;
-                exit(1);
-            }
             //left part
             _numLeftParts = 0;
             _leftEvaluator = new Evaluator[0];
@@ -189,11 +173,6 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
 
         case 3:
 
-            if (j0<1) {
-                std::cerr << "BSpline<T,Orthogonal,Interval,MultiRefinement>: j0=" << j0 << " needs "
-                          << "to be larger than 0. Stopping." << std::endl;
-                exit(1);
-            }
             //left part
             _numLeftParts = 1;
             _leftEvaluator = new Evaluator[1];
@@ -223,6 +202,44 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _rightSingularSupport = new DenseVector<Array<T> >[1];
             _rightSingularSupport[0].engine().resize(3,0);
             _rightSingularSupport[0] = 0., 1., 2.;
+
+            break;
+
+        case 4:
+
+            //left part
+            _numLeftParts = 1;
+            _leftEvaluator = new Evaluator[1];
+            _leftEvaluator[0] = _cubic_refinement_left_evaluator0;
+            _leftSupport = new Support<T>[1];
+            _leftSupport[0] = Support<T>(0.,1.);
+            _leftSingularSupport = new DenseVector<Array<T> >[1];
+            _leftSingularSupport[0].engine().resize(2,0);
+            _leftSingularSupport[0] = 0., 1.;
+
+            //inner part
+            _numInnerParts = 2;
+            _innerEvaluator = new Evaluator[2];
+            _innerEvaluator[0] = _cubic_refinement_inner_evaluator0;
+            _innerEvaluator[1] = _cubic_refinement_inner_evaluator1;
+            _innerSupport = new Support<T>[2];
+            _innerSupport[0] = Support<T>(0.,2.);
+            _innerSupport[1] = Support<T>(0.,2.);
+            _innerSingularSupport = new DenseVector<Array<T> >[2];
+            _innerSingularSupport[0].engine().resize(3,0);
+            _innerSingularSupport[0] = 0., 1., 2.;
+            _innerSingularSupport[1].engine().resize(3,0);
+            _innerSingularSupport[1] = 0., 1., 2.;
+
+            //right part
+            _numRightParts = 1;
+            _rightEvaluator = new Evaluator[1];
+            _rightEvaluator[0] = _cubic_refinement_right_evaluator0;
+            _rightSupport = new Support<T>[1];
+            _rightSupport[0] = Support<T>(1.,2.);
+            _rightSingularSupport = new DenseVector<Array<T> >[1];
+            _rightSingularSupport[0].engine().resize(2,0);
+            _rightSingularSupport[0] = 1., 2.;
 
             break;
 

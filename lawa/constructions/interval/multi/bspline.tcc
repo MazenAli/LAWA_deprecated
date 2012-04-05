@@ -120,26 +120,27 @@ BSpline<T,Orthogonal,Interval,Multi>::tic(int j) const
 
 template <typename T>
 DenseVector<Array<long double> > *
-BSpline<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k, long &shift, long &offset) const
+BSpline<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
+                                                    int &refinement_j, long &refinement_k_first) const
 {
+    refinement_j = j + mra._addRefinementLevel;
     // left boundary
     if (k<mra._numLeftParts) {
-        offset = mra.leftOffsets[k];
-        shift  = 0L;
-        return &(mra.leftRefCoeffs[k]);
+        refinement_k_first = mra._leftOffsets[k];
+        return &(mra._leftRefCoeffs[k]);
     }
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
-        shift = (long)iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
-        offset = mra.innerOffsets[type];
-        return &(mra.innerRefCoeffs[type]);
+        long shift = (long)iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
+        refinement_k_first = pow2i<long>(mra._addRefinementLevel)*shift+mra._innerOffsets[type];
+        return &(mra._innerRefCoeffs[type]);
     }
     // right part
     int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
-    shift = pow2i<long>(j)-1;
-    offset = mra.rightOffsets[type];
-    return &(mra.rightRefCoeffs[type]);
+    long shift = pow2i<long>(j)-1;
+    refinement_k_first = pow2i<long>(mra._addRefinementLevel)*shift+mra._rightOffsets[type];
+    return &(mra._rightRefCoeffs[type]);
 }
 
 

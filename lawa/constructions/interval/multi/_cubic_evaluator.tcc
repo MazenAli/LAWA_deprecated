@@ -922,6 +922,222 @@ _cubic_wavelet_right_evaluator1(T x, unsigned short deriv){
     return value;
 }
 
+
+template <typename T>
+T
+_cubic_refinement_inner_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 1.){
+            value = x*x*(3. - 5./2.*x);
+        } else if(1. <= x && x < 2.){
+            T tmp = (2. - x);
+            value = 1./2.*tmp*tmp*tmp;
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 1.){
+            value = x*(6. - 15./2.*x);
+        } else if(1. <= x && x < 2.){
+            T tmp = (2. - x);
+            value = -3./2.*tmp*tmp;
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+template <typename T>
+T
+_cubic_refinement_inner_evaluator1(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 1.){
+            value = 1./2.*x*x*x;
+        } else if(1. <= x && x < 2.){
+            value = -8. + x*(18. +x*(-12. + 5./2.*x));
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 1.){
+            value = 3./2.*x*x;
+        } else if(1. <= x && x < 2.){
+            value = 18. + x*(-24. + 15./2.*x);
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+template <typename T>
+T
+_cubic_refinement_left_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 1.){
+            value = x*(3. + x*(-6. + 3.*x));
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 1.){
+            value = 3. + x*(-12. + 9.*x);
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+template <typename T>
+T
+_cubic_refinement_right_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(1. <= x && x < 2.){
+            value = 6. + x*(-15 + x*(12. - 3.*x));
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(1. <= x && x < 2.){
+            value = -15. + x*(24. - 9.*x);
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+
+/*
+template <typename T>
+T
+_cubic_refinement_inner_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 2.){
+            value = x*x*(3./4. -5./16.*x);
+        } else if(2. <= x && x < 4.){
+            T tmp = (2. - 1./2.*x);
+            value = 1./2.*tmp*tmp*tmp;
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 2.){
+            value = x*(3./2. - 15./16.*x);
+        } else if(2. <= x && x < 4.){
+            T tmp = (2. - 1./2.*x);
+            value = -3./4.*tmp*tmp;
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+template <typename T>
+T
+_cubic_refinement_inner_evaluator1(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 2.){
+            value = 1./16.*x*x*x;
+        } else if(2. <= x && x < 4.){
+            value = -8. + x*(9. +x*(-3. + 5./16.*x));
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 2.){
+            value = 3./16.*x*x;
+        } else if(2. <= x && x < 4.){
+            value = 9. + x*(-6. + 15./16.*x);
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+template <typename T>
+T
+_cubic_refinement_left_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 2.){
+            value = x*(3./2. + x*(-3./2. + 3./8.*x));
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 2.){
+            value = 3./2. + x*(-3. + 9./8.*x);
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+
+template <typename T>
+T
+_cubic_refinement_right_evaluator0(T x, unsigned short deriv)
+{
+    T value = 0.0;
+
+    if(deriv == 0){
+        if(0. <= x && x < 2.){
+            value = 6. + x*(-15./2. + x*(3. - 3./8.*x));
+        } else {
+            value = 0.0;
+        }
+    } else if (deriv == 1){
+        if(0. <= x && x < 2.){
+            value = -15./2. + x*(6. - 9./8.*x);
+        } else {
+            value = 0.0;
+        }
+    } else {
+        value = 0.0;
+    }
+    return value;
+}
+*/
+
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_MULTI__CUBIC_EVALUATOR_TCC

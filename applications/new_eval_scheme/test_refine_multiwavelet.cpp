@@ -33,6 +33,7 @@ typedef Integral<Gauss,MultiRefinementBasis,MultiRefinementBasis>   MultiRefinem
 
 int main(int argc, char*argv[])
 {
+
     /// wavelet basis parameters:
     int d = 3;
     int j0 = 3;
@@ -43,6 +44,7 @@ int main(int argc, char*argv[])
     MultiWaveletBasis multibasis(d, 0);     // For L2_orthonormal and special MW bases
     multibasis.enforceBoundaryCondition<DirichletBC>();
 
+/*
     for (int j=1; j<=J; ++j) {
         cout << "j = " << j << ": " << multibasis.refinementbasis.mra.cardI(j) << " " << multibasis.refinementbasis.mra.rangeI(j) << endl;
         for (int k= multibasis.refinementbasis.mra.rangeI(j).firstIndex();
@@ -58,29 +60,27 @@ int main(int argc, char*argv[])
             getchar();
         }
     }
-
+*/
 
     /// Test refinement of inner multi scaling functions
-    /*
-    DenseVectorLD *refCoeffs;
-    int addRefLevel = multibasis.mra.addRefLevel;
-    int factor   = pow2i<int>(addRefLevel);
 
+    DenseVectorLD *refCoeffs;
 
     for (int j=0; j<=J; ++j) {
         for (int k=multibasis.mra.rangeI(j).firstIndex(); k<=multibasis.mra.rangeI(j).lastIndex(); ++k) {
             ofstream plotfile_scaling("refinement_interval_multiscaling.txt");
 
-            long shift = 0L;
-            long offset = 0L;
-            refCoeffs = multibasis.mra.phi.getRefinement(j,k,shift,offset);
-            cout << "j = " << j << ", k = " << k << ", shift = " << shift << ", offset = " << offset << endl;
-            for (T x=0.; x<=1.; x+=pow2i<T>(-6-j)) {
+            int refinement_j = 0;
+            long refinement_k_first = 0L;
+            refCoeffs = multibasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first);
+            cout << "j = " << j << ", k = " << k << ", refinement_j = "
+                           << refinement_j << ", refinement_k_first = " << refinement_k_first << endl;
+            for (T x=0.; x<=1.; x+=pow2i<T>(-8-j)) {
                 T reference_value = multibasis.generator(XBSpline)(x,j,k,0);
                 T refinement_value = 0.;
                 for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
                     refinement_value +=   (*refCoeffs).operator()(i)
-                                        * multibasis.refinementbasis.generator(XBSpline).operator()(x,j+addRefLevel,i+factor*shift+offset,0);
+                                        * multibasis.refinementbasis.generator(XBSpline).operator()(x,refinement_j,refinement_k_first+i,0);
                 }
                 plotfile_scaling << x << " " << reference_value << " " << refinement_value << endl;
             }
@@ -89,30 +89,36 @@ int main(int argc, char*argv[])
             getchar();
         }
     }
+/*
     for (int j=0; j<=J; ++j) {
         for (int k=multibasis.rangeJ(j).firstIndex(); k<=multibasis.rangeJ(j).lastIndex(); ++k) {
             ofstream plotfile_wavelet("refinement_interval_multiwavelet.txt");
 
-            long shift = 0L;
-            long offset = 0L;
-            refCoeffs = multibasis.psi.getRefinement(j,k,shift,offset);
-            cout << "j = " << j << ", k = " << k << ", shift = " << shift << ", offset = " << offset << endl;
+            int refinement_j = 0;
+            long refinement_k_first = 0L;
+            refCoeffs = multibasis.psi.getRefinement(j,k,refinement_j,refinement_k_first);
+            cout << "j = " << j << ", k = " << k << ", refinement_j = " << refinement_j
+                 << ", refinement_k_first = " << refinement_k_first << endl;
             for (T x=0.; x<=1.; x+=pow2i<T>(-6-j)) {
                 T reference_value = multibasis.generator(XWavelet)(x,j,k,0);
+                T d_reference_value = multibasis.generator(XWavelet)(x,j,k,1);
                 T refinement_value = 0.;
+                T d_refinement_value = 0.;
                 for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
                     refinement_value +=   (*refCoeffs).operator()(i)
-                                        * multibasis.refinementbasis.generator(XBSpline).operator()(x,j+addRefLevel,i+factor*shift+offset,0);
+                                        * multibasis.refinementbasis.generator(XBSpline).operator()(x,refinement_j,refinement_k_first+i,0);
+                    d_refinement_value +=   (*refCoeffs).operator()(i)
+                                        * multibasis.refinementbasis.generator(XBSpline).operator()(x,refinement_j,refinement_k_first+i,1);
                 }
-                plotfile_wavelet << x << " " << reference_value << " " << refinement_value << endl;
+                plotfile_wavelet << x << " " << reference_value << " " << refinement_value
+                                      << " " << d_reference_value << " " << d_refinement_value << endl;
             }
             plotfile_wavelet.close();
             cout << "Please hit enter." << endl;
             getchar();
         }
     }
-
-    */
+*/
     /*
     RefinementIntegral   refinement_integral(refinebasis,refinebasis);
     MultiWaveletIntegral multi_integral(multibasis,multibasis);

@@ -49,7 +49,7 @@ BSpline<T,Orthogonal,Interval,MultiRefinement>::operator()(T x, int j, long k, u
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
-        long shift = iceil<T>(T(k-mra._numLeftParts)/mra._numInnerParts);
+        long shift = (k-mra._numLeftParts)/mra._numInnerParts;
         return pow2ih<T>(2*j*deriv+j) *
                mra._innerEvaluator[type](pow2i<T>(j)*x-shift,deriv);
     }
@@ -72,7 +72,7 @@ BSpline<T,Orthogonal,Interval,MultiRefinement>::support(int j, long k) const
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
-        long shift = iceil<T>(T(k-mra._numLeftParts)/mra._numInnerParts);
+        long shift = (k-mra._numLeftParts)/mra._numInnerParts;
         return pow2i<T>(-j) * (mra._innerSupport[type]+shift);
     }
 
@@ -94,7 +94,7 @@ BSpline<T,Orthogonal,Interval,MultiRefinement>::singularSupport(int j, long k) c
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
-        long shift = iceil<T>(T(k-mra._numLeftParts)/mra._numInnerParts);
+        long shift = (k-mra._numLeftParts)/mra._numInnerParts;
         DenseVector<Array<T> > result = mra._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;

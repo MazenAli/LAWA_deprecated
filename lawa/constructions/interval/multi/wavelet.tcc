@@ -125,29 +125,30 @@ Wavelet<T,Orthogonal,Interval,Multi>::tic(int j) const
 
 template <typename T>
 DenseVector<Array<long double> > *
-Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k, long &shift, long &offset) const
+Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
+                                                    int &refinement_j, long &refinement_k_first) const
 {
     k -= 1;
+    refinement_j = j + basis._addRefinementLevel;
     // left boundary
     if (k<basis._numLeftParts) {
-        offset = basis.leftOffsets[k];
-        shift  = 0L;
-        return &(basis.leftRefCoeffs[k]);
+        refinement_k_first = basis._leftOffsets[k];
+        return &(basis._leftRefCoeffs[k]);
     }
 
     // inner part
     if (k<basis.cardJL(j)+basis.cardJI(j)) {
         int type  = (int)((k-basis._numLeftParts) % basis._numInnerParts);
-        shift = (long)lawa::iceil<T>((k+1.-basis._numLeftParts)/(double)basis._numInnerParts);
-        offset = basis.innerOffsets[type];
-        return &(basis.innerRefCoeffs[type]);
+        long shift = (long)lawa::iceil<T>((k+1.-basis._numLeftParts)/(double)basis._numInnerParts);
+        refinement_k_first = pow2i<long>(basis._addRefinementLevel)*shift+basis._innerOffsets[type];
+        return &(basis._innerRefCoeffs[type]);
     }
 
     // right part
     int type  = (int)(k+1 - (basis.cardJ(j) - basis._numRightParts + 1));
-    shift = (long)pow2i<long>(j)-1;
-    offset = basis.rightOffsets[type];
-    return &(basis.rightRefCoeffs[type]);
+    long shift = (long)pow2i<long>(j)-1;
+    refinement_k_first = pow2i<long>(basis._addRefinementLevel)*shift+basis._rightOffsets[type];
+    return &(basis._rightRefCoeffs[type]);
 }
 
 } // namespace lawa

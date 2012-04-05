@@ -108,19 +108,18 @@ class MRA<_T,Orthogonal,Interval,Multi>
                                *_innerSingularSupport, 
                                *_rightSingularSupport;
 
-    public:
         // Refinement coefficients for representation in B-splines, only d \in \{2,3\} so far,
         // because d=4 for multiwavelets requires cubic Hermite B-splines which are not used
         // in the biorthogonal construction
-        DenseVector<Array<long double> > *leftRefCoeffs,
-                                         *innerRefCoeffs,
-                                         *rightRefCoeffs;
+        DenseVector<Array<long double> > *_leftRefCoeffs,
+                                         *_innerRefCoeffs,
+                                         *_rightRefCoeffs;
 
-        long *leftOffsets,
-             *innerOffsets,
-             *rightOffsets;
+        long *_leftOffsets,
+             *_innerOffsets,
+             *_rightOffsets;
 
-        int addRefLevel;
+        int _addRefinementLevel;
 };
     
 } // namespace lawa

@@ -95,6 +95,23 @@ template <typename T>
     T
     _cubic_wavelet_right_evaluator1(T x, unsigned short deriv);
     
+
+template <typename T>
+    T
+    _cubic_refinement_inner_evaluator0(T x, unsigned short deriv);
+
+template <typename T>
+    T
+    _cubic_refinement_inner_evaluator1(T x, unsigned short deriv);
+
+template <typename T>
+    T
+    _cubic_refinement_left_evaluator0(T x, unsigned short deriv);
+
+template <typename T>
+    T
+    _cubic_refinement_right_evaluator0(T x, unsigned short deriv);
+
 } // namespace lawa
 
 #include <lawa/constructions/interval/multi/_cubic_evaluator.tcc>
