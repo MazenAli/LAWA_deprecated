@@ -47,7 +47,7 @@ namespace lawa {
  *      InitialCondition:   operator for initial condition, can be NoInitialCondition
  */
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-struct AdaptiveSpaceTimePDEOperator1D : public Operator2D<T> {
+struct AdaptiveSpaceTimePDEOperator1D : public AdaptiveOperator2D<T> {
     
     typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
 

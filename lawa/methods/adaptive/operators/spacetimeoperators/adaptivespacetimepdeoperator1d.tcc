@@ -1,6 +1,7 @@
 #include <iostream>
 #include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <lawa/methods/adaptive/datastructures/matrixoperations.h>
 
 namespace lawa {
 
@@ -136,10 +137,7 @@ Coefficients<Lexicographical,T,Index2D>
 AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
 mv(const IndexSet<Index2D> &LambdaRow, const Coefficients<Lexicographical,T,Index2D> &x)
 {
-    std::cerr << "AdaptiveSpaceTimePDEOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::"
-              << "mv not implemented." << std::endl;
-    assert(0);
-    exit(1);
+  return lawa::mv(LambdaRow, *this, x);
 }
 
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>

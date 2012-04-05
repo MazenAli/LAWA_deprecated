@@ -35,7 +35,7 @@
 namespace lawa {
 
 template <typename T, typename Basis2D, typename Preconditioner>
-struct AdaptiveHelmholtzOperator2D : public Operator2D<T>
+struct AdaptiveHelmholtzOperator2D : public AdaptiveOperator2D<T>
 {
     typedef typename Basis2D::FirstBasisType  Basis_x;
     typedef typename Basis2D::SecondBasisType Basis_y;
@@ -86,7 +86,7 @@ struct AdaptiveHelmholtzOperator2D : public Operator2D<T>
 
     void
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                        SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
+                        SparseMatrixT &A_flens, T eps);
 
     void
     clear();
