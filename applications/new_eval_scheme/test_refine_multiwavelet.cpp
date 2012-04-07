@@ -33,9 +33,8 @@ typedef Integral<Gauss,MultiRefinementBasis,MultiRefinementBasis>   MultiRefinem
 
 int main(int argc, char*argv[])
 {
-
     /// wavelet basis parameters:
-    int d = 3;
+    int d = 4;
     int j0 = 3;
     if (d==3) { j0 = 3; }
     int J = 3;
