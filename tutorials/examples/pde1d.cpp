@@ -216,7 +216,7 @@ int main(int argc, char*argv[])
 
         /// Compute errors
         long double L2error=0.L, H1error=0.L;
-        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-18));
+        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-22));
         file << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
         cout << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
 

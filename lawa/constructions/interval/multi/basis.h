@@ -133,7 +133,8 @@ class Basis<_T,Orthogonal,Interval,Multi>
              *_innerOffsets,
              *_rightOffsets;
 
-        int  _addRefinementLevel;
+        int _addRefinementLevel;    //B-splines for refinement are needed on higher levels
+        int _shiftFactor;           //Needed since we have multiple B-spline generators for refinement.
 
 };
 

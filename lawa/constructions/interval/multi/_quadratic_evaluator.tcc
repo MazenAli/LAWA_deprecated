@@ -1463,7 +1463,7 @@ _quadratic_refinement_inner_evaluator0(T x, unsigned short deriv)
         } else if(1. <= x && x < 2.){
             value = 3. - 2.*x;
         } else if(2. <= x && x < 3.){
-            value = -2. + x;
+            value = -3. + x;
         } else {
             value = 0.0;
         }

@@ -135,19 +135,19 @@ Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
         refinement_k_first = basis._leftOffsets[k];
         return &(basis._leftRefCoeffs[k]);
     }
-
     // inner part
     if (k<basis.cardJL(j)+basis.cardJI(j)) {
         int type  = (int)((k-basis._numLeftParts) % basis._numInnerParts);
         long shift = (long)lawa::iceil<T>((k+1.-basis._numLeftParts)/(double)basis._numInnerParts);
-        refinement_k_first = pow2i<long>(basis._addRefinementLevel)*shift+basis._innerOffsets[type];
+        //refinement_k_first = pow2i<long>(basis._addRefinementLevel)*shift+basis._innerOffsets[type];
+        refinement_k_first = basis._shiftFactor*shift+basis._innerOffsets[type];
         return &(basis._innerRefCoeffs[type]);
     }
-
     // right part
     int type  = (int)(k+1 - (basis.cardJ(j) - basis._numRightParts + 1));
     long shift = (long)pow2i<long>(j)-1;
-    refinement_k_first = pow2i<long>(basis._addRefinementLevel)*shift+basis._rightOffsets[type];
+    //refinement_k_first = pow2i<long>(basis._addRefinementLevel)*shift+basis._rightOffsets[type];
+    refinement_k_first = basis._shiftFactor*shift+basis._rightOffsets[type];
     return &(basis._rightRefCoeffs[type]);
 }
 

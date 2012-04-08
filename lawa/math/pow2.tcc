@@ -47,9 +47,9 @@ template <typename T>
 T
 pow2ih(int expo)
 {
-    return (expo&1) ? (expo>0) ? std::ldexp(sqrt(2.), expo/2)
-                               : std::ldexp(1./sqrt(2.), expo/2)
-                    : std::ldexp(1., expo/2);
+    return (expo&1) ? (expo>0) ? std::ldexp(sqrt(T(2.)), expo/2)
+                               : std::ldexp(T(1.)/sqrt(T(2.)), expo/2)
+                    : std::ldexp(T(1.), expo/2);
 }
 
 } // namespace lawa

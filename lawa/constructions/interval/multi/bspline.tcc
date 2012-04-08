@@ -44,7 +44,6 @@ BSpline<T,Orthogonal,Interval,Multi>::operator()(T x, int j, long k, unsigned sh
     if (k<mra._numLeftParts) {
         return pow2ih<T>(2*j*deriv+j) * mra._leftEvaluator[k](pow2i<T>(j)*x, deriv);
     }
-    
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
@@ -52,11 +51,9 @@ BSpline<T,Orthogonal,Interval,Multi>::operator()(T x, int j, long k, unsigned sh
         return pow2ih<T>(2*j*deriv+j) * 
                mra._innerEvaluator[type](pow2i<T>(j)*x-shift,deriv);
     }
-    
     // right part
     int type  = (int)(k+1 - (mra.cardI(j) - mra._numRightParts + 1));
     long shift = pow2i<long>(j)-1;
-    //long shift = iceil<T>((k+1. - mra._numLeftParts)/mra._numInnerParts);
     return pow2ih<T>(2*j*deriv+j) * mra._rightEvaluator[type](pow2i<T>(j)*x-shift, deriv);
 }
     
@@ -68,18 +65,15 @@ BSpline<T,Orthogonal,Interval,Multi>::support(int j, long k) const
     if (k<mra._numLeftParts) {
         return pow2i<T>(-j) * mra._leftSupport[k];
     }
-    
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
         long shift = iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
         return pow2i<T>(-j) * (mra._innerSupport[type]+shift);
     }
-    
     // right part
     int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
     long shift = pow2i<long>(j)-1;
-    //long shift = iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
     return pow2i<T>(-j) * (mra._rightSupport[type]+shift);
 }
 
@@ -91,7 +85,6 @@ BSpline<T,Orthogonal,Interval,Multi>::singularSupport(int j, long k) const
     if (k<mra._numLeftParts) {
         return pow2i<T>(-j) * mra._leftSingularSupport[k];
     }
-    
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
@@ -100,11 +93,9 @@ BSpline<T,Orthogonal,Interval,Multi>::singularSupport(int j, long k) const
         result += shift;
         return pow2i<T>(-j) * result;
     }
-    
     // right part
     int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
     long shift = pow2i<long>(j)-1;
-    //long shift = iceil<T>((k+1. - mra._numLeftParts)/mra._numInnerParts);
     DenseVector<Array<T> > result = mra._rightSingularSupport[type];
     result += shift;
     return pow2i<T>(-j) * result;
@@ -133,13 +124,13 @@ BSpline<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
         long shift = (long)iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
-        refinement_k_first = pow2i<long>(mra._addRefinementLevel)*shift+mra._innerOffsets[type];
+        refinement_k_first = mra._shiftFactor*shift+mra._innerOffsets[type];
         return &(mra._innerRefCoeffs[type]);
     }
     // right part
     int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
     long shift = pow2i<long>(j)-1;
-    refinement_k_first = pow2i<long>(mra._addRefinementLevel)*shift+mra._rightOffsets[type];
+    refinement_k_first = mra._shiftFactor*shift+mra._rightOffsets[type];
     return &(mra._rightRefCoeffs[type]);
 }
 
