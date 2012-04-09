@@ -228,6 +228,9 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             break;
             
         case 3:
+            std::cerr.precision(21);
+            std::cerr  << "Test: long double sqrt: " << sqrt(15.L/23.L) << " " << std::sqrt(15.L/23.L) << std::endl;
+            std::cerr  << "Test: double sqrt:      "       << sqrt(15./23.)   << " " << std::sqrt(15./23.) << std::endl;
             _addRefinementLevel = 4;
             _shiftFactor        = 16;
             // left part
