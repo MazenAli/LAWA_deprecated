@@ -53,6 +53,9 @@ struct Wavelet<_T,Primal,Interval,_Cons>
     T
     tic(int j) const;
 
+    DenseVector<Array<long double> > *
+    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
+
     const Basis<T,Primal,Interval,Cons> &basis;
 };
 

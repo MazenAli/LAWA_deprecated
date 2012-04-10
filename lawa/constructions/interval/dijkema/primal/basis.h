@@ -36,6 +36,7 @@ class Basis<_T,Primal,Interval,Dijkema>
         static const DomainType Domain = Interval;
         static const Construction Cons = Dijkema;
 
+        typedef Basis<T,Primal,Interval,Dijkema>         RefinementBasis;
         typedef BasisFunction<T,Primal,Interval,Dijkema> BasisFunctionType;
         typedef BSpline<T,Primal,Interval,Dijkema> BSplineType;
         typedef Wavelet<T,Primal,Interval,Dijkema> WaveletType;
@@ -97,8 +98,22 @@ class Basis<_T,Primal,Interval,Dijkema>
 
         mutable int _j;                // the current level.
 
+        friend class Wavelet<T,Primal,Interval,Dijkema>;
+
+        DenseVector<Array<long double> > *_leftRefCoeffs,
+                                         *_innerRefCoeffs,
+                                         *_rightRefCoeffs;
+        long *_leftOffsets,
+             *_innerOffsets,
+             *_rightOffsets;
+
+
+
+
     public:
         Wavelet<T,Primal,Interval,Dijkema> psi;
+
+        Basis<T,Primal,Interval,Dijkema> &refinementbasis;
 };
 
 } // namespace lawa

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <lawa/lawa.h>
-#include <applications/new_eval_scheme/localrefinement.h>
+#include <lawa/methods/adaptive/algorithms/localrefinement.h>
 
 using namespace std;
 using namespace lawa;
@@ -23,7 +23,7 @@ int main (int argc, char *argv[]) {
     int j0 = atoi(argv[3]);
     int J  = atoi(argv[4]);
     bool withDirichletBC = atoi(argv[5]);
-
+    cout.precision(18);
     int j = J;
 
     PrimalBasis basis(d,d_,j0);
@@ -42,7 +42,8 @@ int main (int argc, char *argv[]) {
         getchar();
     }
     */
-
+    cout << "Number of left Basis parts:  " << basis.cardJL(j0) << endl;
+    cout << "Number of right Basis parts: " << basis.cardJR(j0) << endl;
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(basis.mra,basis.mra_,Mj1,Mj1_);
     cout << "Refinement matrix without boundary conditions:" << endl;
@@ -50,9 +51,16 @@ int main (int argc, char *argv[]) {
     cout << "Scaling range: " << basis.mra.rangeI(j0+1) << endl;
     cout << "Refinement matrix M1 = " << Mj1 << endl;
     GeMatrix<FullStorage<T,ColMajor> > t_Mj1;
-    copy(cxxblas::Trans, Mj1, t_Mj1);
-    cout << "Transposed Refinement matrix M1^T = " << t_Mj1 << endl;
+    //copy(cxxblas::Trans, Mj1, t_Mj1);
+    //cout << "Transposed Refinement matrix M1^T = " << t_Mj1 << endl;
 
+    cout << basis.mra.M0.rightband << endl;
+    cout << "Number of left MRA parts:  " << basis.mra.cardIL(j0) << endl;
+    cout << "Number of right MRA parts: " << basis.mra.cardIR(j0) << endl;
+    for (int i=0; i<basis.mra.M0.left.length(); ++i) {
+        int pos = basis.mra.M0.left.firstIndex()+i;
+        cout << "Left part nr. " << i << " : " <<  basis.mra.M0.left(pos) << endl;
+    }
     return 0;
 }
 

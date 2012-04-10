@@ -104,6 +104,15 @@ class MRA<_T,Primal,Interval,Primbs>
 
         mutable int _j;                // the current level.
 
+        friend class BSpline<T,Primal,Interval,Dijkema>;
+
+        DenseVector<Array<long double> > *_leftRefCoeffs,
+                                         *_innerRefCoeffs,
+                                         *_rightRefCoeffs;
+        long *_leftOffsets,
+             *_innerOffsets,
+             *_rightOffsets;
+
     public:
         BSpline<T,Primal,Interval,Primbs> phi;
 

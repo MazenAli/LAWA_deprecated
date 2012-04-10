@@ -146,7 +146,7 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
     _numRightParts = 0;
     switch (d) {
         case 2:
-
+            _shiftFactor = 2;
             //left part
             _numLeftParts = 0;
             _leftEvaluator = new Evaluator[0];
@@ -172,7 +172,7 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             break;
 
         case 3:
-
+            _shiftFactor = 2;
             //left part
             _numLeftParts = 1;
             _leftEvaluator = new Evaluator[1];
@@ -182,6 +182,13 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _leftSingularSupport = new DenseVector<Array<T> >[1];
             _leftSingularSupport[0].engine().resize(3,0);
             _leftSingularSupport[0] = 0., 1., 2.;
+
+            _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+            _leftRefCoeffs[0].engine().resize(3,0);
+            _leftRefCoeffs[0] = 0.5L, 0.75L, 0.25L;
+            _leftRefCoeffs[0] *= std::pow(2.L,-0.5L);
+            _leftOffsets = new long[1];
+            _leftOffsets[0] =  0;
 
             //inner part
             _numInnerParts = 1;
@@ -193,6 +200,13 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _innerSingularSupport[0].engine().resize(4,0);
             _innerSingularSupport[0] = 0., 1., 2., 3.;
 
+            _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+            _innerRefCoeffs[0].engine().resize(4,0);
+            _innerRefCoeffs[0] = 0.25L, 0.75L, 0.75L, 0.25L;
+            _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
+            _innerOffsets = new long[1];
+            _innerOffsets[0] =  1;
+
             //right part
             _numRightParts = 1;
             _rightEvaluator = new Evaluator[1];
@@ -203,10 +217,17 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _rightSingularSupport[0].engine().resize(3,0);
             _rightSingularSupport[0] = 0., 1., 2.;
 
+            _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+            _rightRefCoeffs[0].engine().resize(3,0);
+            _rightRefCoeffs[0] = 0.25L, 0.75L, 0.5L;
+            _rightRefCoeffs[0] *= std::pow(2.L,-0.5L);
+            _rightOffsets = new long[1];
+            _rightOffsets[0] =  1;
+
             break;
 
         case 4:
-
+            _shiftFactor = 4;
             //left part
             _numLeftParts = 1;
             _leftEvaluator = new Evaluator[1];
@@ -216,6 +237,12 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _leftSingularSupport = new DenseVector<Array<T> >[1];
             _leftSingularSupport[0].engine().resize(2,0);
             _leftSingularSupport[0] = 0., 1.;
+            _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+            _leftRefCoeffs[0].engine().resize(3,0);
+            _leftRefCoeffs[0] = 0.5L, 0.5L, 0.25L;
+            _leftRefCoeffs[0] *= std::pow(2.L,-0.5L);
+            _leftOffsets = new long[1];
+            _leftOffsets[0] =  0;
 
             //inner part
             _numInnerParts = 2;
@@ -230,6 +257,16 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _innerSingularSupport[0] = 0., 1., 2.;
             _innerSingularSupport[1].engine().resize(3,0);
             _innerSingularSupport[1] = 0., 1., 2.;
+            _innerRefCoeffs = new DenseVector<Array<long double> >[2];
+            _innerRefCoeffs[0].engine().resize(5,0);
+            _innerRefCoeffs[0] = 0.25L, 0.625L, 0.75L, 0.25L, 0.125L;
+            _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
+            _innerRefCoeffs[1].engine().resize(5,0);
+            _innerRefCoeffs[1] = 0.125L, 0.25L, 0.75L, 0.625L, 0.25L;
+            _innerRefCoeffs[1] *= std::pow(2.L,-0.5L);
+            _innerOffsets = new long[2];
+            _innerOffsets[0] =  1;
+            _innerOffsets[1] =  2;
 
             //right part
             _numRightParts = 1;
@@ -240,6 +277,12 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _rightSingularSupport = new DenseVector<Array<T> >[1];
             _rightSingularSupport[0].engine().resize(2,0);
             _rightSingularSupport[0] = 1., 2.;
+            _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+            _rightRefCoeffs[0].engine().resize(3,0);
+            _rightRefCoeffs[0] = 0.25L, 0.5L, 0.5L;
+            _rightRefCoeffs[0] *= std::pow(2.L,-0.5L);
+            _rightOffsets = new long[1];
+            _rightOffsets[0] =  5;
 
             break;
 

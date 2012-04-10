@@ -116,6 +116,30 @@ BSpline<T,Orthogonal,Interval,MultiRefinement>::tic(int j) const
     return initialticsize*pow2i<T>(-j);
 }
 
+template <typename T>
+DenseVector<Array<long double> > *
+BSpline<T,Orthogonal,Interval,MultiRefinement>::
+getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+{
+    refinement_j = j + 1;
+    // left boundary
+    if (k<mra._numLeftParts) {
+        refinement_k_first = mra._leftOffsets[k];
+        return &(mra._leftRefCoeffs[k]);
+    }
+    // inner part
+    if (k<mra.cardIL()+mra.cardII(j)) {
+        int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
+        long shift = (k-mra._numLeftParts)/mra._numInnerParts;
+        refinement_k_first = mra._shiftFactor*shift+mra._innerOffsets[type];
+        return &(mra._innerRefCoeffs[type]);
+    }
+    // right part
+    int type  = (int)(k+1 - (mra.cardI(j) - mra._numRightParts + 1));
+    long shift = pow2i<long>(j)-2;
+    refinement_k_first = mra._shiftFactor*shift+mra._rightOffsets[type];
+    return &(mra._rightRefCoeffs[type]);
+}
 
 } // namespace lawa
 

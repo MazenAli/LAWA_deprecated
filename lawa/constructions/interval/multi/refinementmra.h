@@ -108,6 +108,15 @@ class MRA<_T,Orthogonal,Interval,MultiRefinement>
                                *_innerSingularSupport,
                                *_rightSingularSupport;
 
+        // Refinement coefficients for representation in B-splines on a higher level
+        DenseVector<Array<long double> > *_leftRefCoeffs,
+                                         *_innerRefCoeffs,
+                                         *_rightRefCoeffs;
+        long *_leftOffsets,
+             *_innerOffsets,
+             *_rightOffsets;
+        int _shiftFactor;
+
 };
 
 } // namespace lawa
