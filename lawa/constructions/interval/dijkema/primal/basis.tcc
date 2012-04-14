@@ -42,7 +42,7 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
         _leftRefCoeffs[0] =  1.2374368670764579, -0.3535533905932737, -0.1767766952966368;
         _leftRefCoeffs[1].engine().resize(5,0);
         _leftRefCoeffs[1] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
-        _leftOffsets = new long[1];
+        _leftOffsets = new long[2];
         _leftOffsets[0] =  2;
         _leftOffsets[1] =  2;
 
@@ -59,9 +59,9 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
         _rightRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _rightRefCoeffs[1].engine().resize(3,0);
         _rightRefCoeffs[1] =  -0.1767766952966368, -0.3535533905932737, 1.2374368670764579;
-        _rightOffsets = new long[1];
+        _rightOffsets = new long[2];
         _rightOffsets[0] =  - 2;
-        _rightOffsets[1] =  - 2;
+        _rightOffsets[1] =    0;
     }
 }
 
@@ -107,7 +107,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _leftRefCoeffs[0] =  1.2374368670764579, -0.3535533905932737, -0.1767766952966368;
         _leftRefCoeffs[1].engine().resize(5,0);
         _leftRefCoeffs[1] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
-        _leftOffsets = new long[1];
+        _leftOffsets = new long[2];
         _leftOffsets[0] =  2;
         _leftOffsets[1] =  2;
 
@@ -124,9 +124,9 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _rightRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _rightRefCoeffs[1].engine().resize(3,0);
         _rightRefCoeffs[1] =  -0.1767766952966368, -0.3535533905932737, 1.2374368670764579;
-        _rightOffsets = new long[1];
+        _rightOffsets = new long[2];
         _rightOffsets[0] =  - 2;
-        _rightOffsets[1] =  - 2;
+        _rightOffsets[1] =    0;
     }
     else if (d==3 && d_==3) {
         // left part

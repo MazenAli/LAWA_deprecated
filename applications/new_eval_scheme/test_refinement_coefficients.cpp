@@ -1,6 +1,3 @@
-/// First we simply include the general LAWA header `lawa/lawa.h` for simplicity, thus having
-/// all LAWA features available.
-/// All LAWA features reside in the namespace lawa, so we introduce the `namespace lawa` globally.
 #include <iostream>
 #include <fstream>
 #include <lawa/lawa.h>
@@ -26,33 +23,30 @@ typedef Integral<Gauss,RefinementBasis,RefinementBasis>             MultiRefinem
 int main(int argc, char*argv[])
 {
     cout.precision(20);
+    if (argc!=4) {
+        cout << "Usage: " << argv[0] << " d j0 J" << endl;
+        return 0;
+    }
     /// wavelet basis parameters:
-    int d = 3;
-    int j0 = 3;
-    int J = j0+1;
-    DenseVectorLD *refCoeffs;
+    int d  = atoi(argv[1]);
+    int j0 = atoi(argv[2]);
+    int J  = atoi(argv[3]);
     int deriv = 0;
 
+    /// refinement coefficient vector
+    DenseVectorLD *refCoeffs;
+
+
     /// Basis initialization, using Dirichlet boundary conditions
-    //PrimalBasis multibasis(d, 0);     // For L2_orthonormal and special MW bases
+    //PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
     PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
     basis.enforceBoundaryCondition<DirichletBC>();
-    cout << basis.mra.rangeI(j0) << endl;
     RefinementBasis& refinementbasis = basis.refinementbasis;
 
-/*
-    /// Check precision of some generators
-    long double OneDivSqrt2 = 0.707106781186547524401L;
-    cout << 1./std::sqrt(2.L)-OneDivSqrt2 << " " << std::pow(2.L,-0.5L)-OneDivSqrt2
-         << " " << pow2ih<long double>(-1)-OneDivSqrt2 << " " << pow2ih<double>(-1)-OneDivSqrt2 << endl;
-    cout << 2.L/3.L << " " << _quadratic_refinement_left_evaluator0<long double>(2.L/3.L,0) << endl;
-    cout << 2.L/9.L << " " << _quadratic_refinement_left_evaluator0<long double>(4.L/3.L,0) << endl << endl;
-    cout << 4.L/9.L << " " << _cubic_refinement_left_evaluator0<long double>(1.L/3.L,0) << endl;
-    cout << 2.L/9.L << " " << _cubic_refinement_right_evaluator0<long double>(4.L/3.L,0) << endl << endl;
-*/
-/*
     /// Test refinement of B-splines
-    for (int j=1; j<=J; ++j) {
+    cout << " *******************************************" << endl;
+    cout << " ******** Refinement of B-splines **********" << endl;
+    for (int j=refinementbasis.mra.j0; j<=refinementbasis.mra.j0+2; ++j) {
         cout << "j = " << j << ": " << refinementbasis.mra.cardI(j) << " " << refinementbasis.mra.rangeI(j) << endl;
         for (int k= refinementbasis.mra.rangeI(j).firstIndex(); k<=refinementbasis.mra.rangeI(j).lastIndex(); ++k) {
             cout << "  k = " << k  << " " << refinementbasis.generator(XBSpline).support(j,k) << " "
@@ -83,9 +77,11 @@ int main(int argc, char*argv[])
             getchar();
         }
     }
-*/
-    /// Test refinement of inner multi scaling functions
+    cout << " *******************************************" << endl << endl;
 
+    /// Test refinement of multiscaling functions
+    cout << " *******************************************" << endl;
+    cout << " ******* Refinement of multiscalings *******" << endl;
     for (int j=j0; j<=J; ++j) {
         for (int k=basis.mra.rangeI(j).firstIndex(); k<=basis.mra.rangeI(j).lastIndex(); ++k) {
             ofstream plotfile_scaling("refinement_interval_multiscaling.txt");
@@ -96,6 +92,7 @@ int main(int argc, char*argv[])
             refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first);
             cout << "j = " << j << ", k = " << k << ", refinement_j = "
                            << refinement_j << ", refinement_k_first = " << refinement_k_first << endl;
+            cout << refinementbasis.mra.rangeI(refinement_j) << endl;
             for (T x=0.; x<=1.; x+=pow2i<T>(-8-j)) {
                 T reference_value = basis.generator(XBSpline)(x,j,k,deriv);
                 T refinement_value = 0.;
@@ -119,8 +116,11 @@ int main(int argc, char*argv[])
             getchar();
         }
     }
+    cout << " *******************************************" << endl << endl;
 
-
+    /// Test refinement of multiwavelets
+    cout << " *******************************************" << endl;
+    cout << " ******* Refinement of multiwavelets *******" << endl;
     for (int j=j0; j<=J; ++j) {
         for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
             ofstream plotfile_wavelet("refinement_interval_multiwavelet.txt");
@@ -129,12 +129,17 @@ int main(int argc, char*argv[])
             int refinement_j = 0;
             long refinement_k_first = 0L;
             refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first);
+            long refinement_k_last  = 0L;
+            basis.psi.getRefinementNeighbors(j,k,refinement_j,refinement_k_first,refinement_k_last);
             cout << "j = " << j << ", k = " << k << ", refinement_j = " << refinement_j
                  << ", refinement_k_first = " << refinement_k_first << endl;
+            cout << "Refinement range: [" << refinement_k_first << ", " << refinement_k_first+(*refCoeffs).lastIndex() << "]" << endl;
+            cout << "                  [" << refinement_k_first << ", " << refinement_k_last << "]" << endl;
             for (T x=0.L; x<=1.L; x+=pow2i<long double>(-8-j)) {
                 T reference_value = basis.generator(XWavelet)(x,j,k,deriv);
                 T refinement_value = 0.L;
                 for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
+
                     refinement_value +=   (T)(*refCoeffs).operator()(i)
                                         * refinementbasis.generator(XBSpline).operator()(x,refinement_j,refinement_k_first+i,deriv);
                 }
@@ -148,6 +153,44 @@ int main(int argc, char*argv[])
             cout << "Relative error: " << rel_error << ", x_rel_crit = " << x_rel_crit << endl;
             cout << "Absolute error: " << abs_error << ", x_abs_crit = " << x_abs_crit << endl;
             cout << "Please hit enter." << endl;
+            getchar();
+        }
+    }
+
+
+    /// Check for refined neighbors: Given a b-spline, we need to determine the wavelets whose
+    /// supports intersect the one of the b-spline. Concerning the levels: suppose that j indicates
+    /// the level of $\psi_{j,k}$. Then we reconstruct $\psi_{j,k}$ by b-splines on j_refinement+1.
+    /// Note: the level j_refinement corresponds to the level of b-splines required for the refinement
+    /// of a multiscaling function $\phi_{j,k}$.
+    for (int refinement_j=j0+4; refinement_j<=J+4; ++refinement_j) {
+        for (int refinement_k =refinementbasis.mra.rangeI(refinement_j).firstIndex();
+                 refinement_k<=refinementbasis.mra.rangeI(refinement_j).lastIndex(); ++refinement_k) {
+            int j=0;
+            long k_first=0L, k_last=0L;
+            cout << "(" << refinement_j << "," << refinement_k << "): " << endl;
+            basis.psi.getRefinedNeighbors(refinement_j, refinement_k, j, k_first, k_last);
+            cout << "(" << refinement_j << "," << refinement_k << "): "
+                             << j << " , [" << k_first << "," << k_last << "], "
+                             << basis.rangeJ(j) << endl;;
+
+            for (long k=basis.rangeJ(j).firstIndex(); k<k_first; ++k) {
+                if (overlap(refinementbasis.mra.phi.support(refinement_j,refinement_k),
+                            basis.psi.support(j,k))>0) {
+                    cout << "Error: k=" << k << " in " << basis.rangeJ(j) << " is missing."
+                         << refinementbasis.mra.phi.support(refinement_j,refinement_k)
+                         << " " << basis.psi.support(j,k) << endl;
+                }
+            }
+            for (long k=k_last+1; k<basis.rangeJ(j).lastIndex(); ++k) {
+                if (overlap(refinementbasis.mra.phi.support(refinement_j,refinement_k),
+                            basis.psi.support(j,k))>0) {
+                    cout << "Error: k=" << k << " in " << basis.rangeJ(j) << " is missing."
+                         << refinementbasis.mra.phi.support(refinement_j,refinement_k)
+                         << " " << basis.psi.support(j,k) << endl;
+                }
+            }
+            cout << endl;
             getchar();
         }
     }
@@ -190,3 +233,16 @@ int main(int argc, char*argv[])
     */
     return 0;
 }
+
+
+/*
+    /// Check precision of some generators
+    long double OneDivSqrt2 = 0.707106781186547524401L;
+    cout << 1./std::sqrt(2.L)-OneDivSqrt2 << " " << std::pow(2.L,-0.5L)-OneDivSqrt2
+         << " " << pow2ih<long double>(-1)-OneDivSqrt2 << " " << pow2ih<double>(-1)-OneDivSqrt2 << endl;
+    cout << 2.L/3.L << " " << _quadratic_refinement_left_evaluator0<long double>(2.L/3.L,0) << endl;
+    cout << 2.L/9.L << " " << _quadratic_refinement_left_evaluator0<long double>(4.L/3.L,0) << endl << endl;
+    cout << 4.L/9.L << " " << _cubic_refinement_left_evaluator0<long double>(1.L/3.L,0) << endl;
+    cout << 2.L/9.L << " " << _cubic_refinement_right_evaluator0<long double>(4.L/3.L,0) << endl << endl;
+*/
+

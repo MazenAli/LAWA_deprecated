@@ -127,15 +127,78 @@ Wavelet<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j,
         if (basis.d % 2 != 0 && k+1>basis.cardJ(j)/2.) type = 1;
         long shift = k+1L;
         refinement_k_first = 2*shift+basis._innerOffsets[type];
-        std::cerr << "shift = " << shift << ", " << basis._innerOffsets[type] << std::endl;
         return &(basis._innerRefCoeffs[type]);
     }
     // right part
     int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
     long shift = pow2i<long>(j)-1;
-    std::cerr << "type = " << type << ", shift = " << shift << ", " << basis._rightOffsets[type] << std::endl;
     refinement_k_first = 2*shift+basis._rightOffsets[type];
     return &(basis._rightRefCoeffs[type]);
+}
+
+
+template <typename T, Construction Cons>
+void
+Wavelet<T,Primal,Interval,Cons>::getRefinementNeighbors(int j, long k, int &refinement_j,
+                                                        long &refinement_k_first,
+                                                        long &refinement_k_last) const
+{
+    k -= 1;
+    refinement_j = j + 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        refinement_k_first = basis._leftOffsets[k];
+        refinement_k_last  = refinement_k_first + basis._leftRefCoeffs[k].lastIndex();
+        return;
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        int type = 0;
+        if (basis.d % 2 != 0 && k+1>basis.cardJ(j)/2.) type = 1;
+        long shift = k+1L;
+        refinement_k_first = 2*shift+basis._innerOffsets[type];
+        refinement_k_last  = refinement_k_first + basis._innerRefCoeffs[type].lastIndex();
+        return;
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    long shift = pow2i<long>(j)-1;
+    refinement_k_first = 2*shift+basis._rightOffsets[type];
+    refinement_k_last  = refinement_k_first + basis._rightRefCoeffs[type].lastIndex();
+    return;
+}
+
+template <typename T, Construction Cons>
+void
+Wavelet<T,Primal,Interval,Cons>::getRefinedNeighbors(int refinement_j, long refinement_k,
+                                                     int &j, long &k_first, long &k_last) const
+{
+    j = refinement_j;
+    Support<T> supp = basis.refinementbasis.mra.phi.support(refinement_j,refinement_k);
+    T a = supp.l1, b = supp.l2;
+
+    if (a==0.L) {
+        k_first = 1;
+        k_last = basis.cardJL(j) + basis.d/2;
+        k_last  = std::min(k_last, (long)basis.rangeJR(j).lastIndex());
+        return;
+    }
+    if (0<a && b<1.L) {
+        k_first  = refinement_k - 2*(basis.d+basis.d_)/2;
+        k_last   = refinement_k + 2*(basis.d+basis.d_)/2;
+
+        long k_first_min = basis.rangeJL(j).firstIndex();
+        long k_last_max  = basis.rangeJR(j).lastIndex();
+        if (k_first < k_first_min) k_first = k_first_min;
+        if (k_last  > k_last_max)  k_last  = k_last_max;
+        return;
+    }
+    k_last   = basis.rangeJ(j).lastIndex();
+    k_first  = k_last - (basis.cardJR(j) + basis.d/2) + 1;
+    k_first  = std::max(1L, k_first);
+
+
+    return;
 }
 
 } // namespace lawa

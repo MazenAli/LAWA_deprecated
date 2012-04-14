@@ -82,3 +82,6 @@ applications/new_eval_scheme/test_new_sparsegrid2d
 applications/new_eval_scheme/test_multi_to_single2
 tutorials/examples/plot_wavelets
 applications/new_eval_scheme/test_refine_multiwavelet
+applications/new_eval_scheme/getDijkemaRefinements
+tutorials/examples/test_fwt
+applications/new_eval_scheme/test_refinement_coefficients

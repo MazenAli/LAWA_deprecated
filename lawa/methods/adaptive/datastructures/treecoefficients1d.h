@@ -179,6 +179,16 @@ struct TreeCoefficients1D
 
 };
 
+template<typename T, typename Basis>
+void
+fromTreeCofficientsToCofficients(const Basis &basis, const TreeCoefficients1D<T> &tree_v,
+                                 Coefficients<Lexicographical,T,Index1D> &v);
+
+template<typename T, typename Basis>
+void
+fromCofficientsToTreeCofficients(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> &v,
+                                 TreeCoefficients1D<T> &tree_v);
+
 template<typename T, typename ScalingOperator>
 void
 scale(const TreeCoefficients1D<T> &x, const ScalingOperator &D, TreeCoefficients1D<T> y);

@@ -10,7 +10,7 @@ namespace lawa {
 
 template <typename T>
 MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
-    : d(_d), j0((j==-1) ? 1 : j), _bc(2,0), _j(j0), phi(*this)
+    : d(_d), j0((j<=0) ? 1 : j), _bc(2,0), _j(j0), phi(*this)
 {
     assert(d>=2);
     assert(j0>=1);
@@ -152,6 +152,8 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _leftEvaluator = new Evaluator[0];
             _leftSupport = new Support<T>[0];
             _leftSingularSupport = new DenseVector<Array<T> >[0];
+            _leftRefCoeffs = new DenseVector<Array<long double> >[0];
+            _leftOffsets = new long[0];
 
             //inner part
             _numInnerParts = 1;
@@ -162,12 +164,20 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _innerSingularSupport = new DenseVector<Array<T> >[1];
             _innerSingularSupport[0].engine().resize(3,0);
             _innerSingularSupport[0] = 0., 1., 2.;
+            _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+            _innerRefCoeffs[0].engine().resize(3,0);
+            _innerRefCoeffs[0] = 0.5L, 1.L, 0.5L;
+            _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
+            _innerOffsets = new long[1];
+            _innerOffsets[0] =  0;
 
             //right part
             _numRightParts = 0;
             _rightEvaluator = new Evaluator[0];
             _rightSupport = new Support<T>[0];
             _rightSingularSupport = new DenseVector<Array<T> >[0];
+            _rightRefCoeffs = new DenseVector<Array<long double> >[0];
+            _rightOffsets = new long[0];
 
             break;
 

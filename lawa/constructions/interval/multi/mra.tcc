@@ -139,8 +139,8 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
 
     switch (d) {
         case 2: 
-            _addRefinementLevel = 3;
-            _shiftFactor        = 8;
+            _addRefinementLevel = 2;
+            _shiftFactor        = 4;
             //left part
             _numLeftParts = 2;
             _leftEvaluator = new Evaluator[2];
@@ -158,16 +158,13 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftSingularSupport[1] = 0., 0.25, 0.5, 0.75, 1.;
             
             _leftRefCoeffs = new DenseVector<Array<long double> >[2];
-            _leftRefCoeffs[0].engine().resize(7,0);
-            _leftRefCoeffs[0] = std::sqrt(3.L)/4.L, std::sqrt(3.L)/2.L, 3.L*std::sqrt(3.L)/4.L, std::sqrt(3.L),
-                                3.L*std::sqrt(3.L)/4.L, std::sqrt(3.L)/2.L, std::sqrt(3.L)/4.L;
-            _leftRefCoeffs[1].engine().resize(7,0);
-            _leftRefCoeffs[1] = 1.18287246392374320953L, 2.36574492784748641906L,  0.598998255802600981345L,
-                               -1.16774841624228445637L,-0.793622991842981724074L,-0.419497567443678991773L,
-                               -0.209748783721839495887L;
+            _leftRefCoeffs[0].engine().resize(3,0);
+            _leftRefCoeffs[0] = std::sqrt(3.L)/2.L, std::sqrt(3.L), std::sqrt(3.L)/2.L;
+            _leftRefCoeffs[1].engine().resize(3,0);
+            _leftRefCoeffs[1] = 2.36574492784748641906L, -1.16774841624228445637L, -0.419497567443678991773L;
 
-            _leftRefCoeffs[0] *= std::pow(2.L,-1.5L);
-            _leftRefCoeffs[1] *= std::pow(2.L,-1.5L);
+            _leftRefCoeffs[0] *= 0.5L;
+            _leftRefCoeffs[1] *= 0.5L;
 
             _leftOffsets = new long[2];
             _leftOffsets[0] =  0;
@@ -194,27 +191,22 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerSingularSupport[2] = -1., -0.75, -0.5, -0.25, 0., 0.25, 0.5, 0.75, 1.;
             
             _innerRefCoeffs = new DenseVector<Array<long double> >[3];
-            _innerRefCoeffs[0].engine().resize(7,0);
-            _innerRefCoeffs[0] = std::sqrt(3.L)/4.L, std::sqrt(3.L)/2.L, 3.L*std::sqrt(3.L)/4.L, std::sqrt(3.L),
-                                 3.L*std::sqrt(3.L)/4.L, std::sqrt(3.L)/2.L, std::sqrt(3.L)/4.L;
-            _innerRefCoeffs[1].engine().resize(7,0);
-            _innerRefCoeffs[1] = 1.18287246392374320953L, 2.36574492784748641906L,  0.598998255802600981345L,
-                                -1.16774841624228445637L,-0.793622991842981724074L,-0.419497567443678991773L,
-                                -0.209748783721839495887L;
-            _innerRefCoeffs[2].engine().resize(15,0);
-            _innerRefCoeffs[2] = 0.0614538064570225674674L, 0.122907612914045134935L, -0.307269032285112837337L,
-                                -0.737445677484270809608L,  0.00342470325713123059652L,0.744295083998533270801L,
-                                 1.45776783868288546623L,   2.17124059336723766167L,   0.795716716554323318981L,
-                                -0.579807160258591023705L, -0.217259004119056151821L,  0.145289152020478720063L,
-                                 0.0605371466751994666929L,-0.0242148586700797866771L,-0.0121074293350398933386L;
-            _innerRefCoeffs[0] *= std::pow(2.L,-1.5L);
-            _innerRefCoeffs[1] *= std::pow(2.L,-1.5L);
-            _innerRefCoeffs[2] *= std::pow(2.L,-1.5L);
+            _innerRefCoeffs[0].engine().resize(3,0);
+            _innerRefCoeffs[0] = std::sqrt(3.L)/2.L, std::sqrt(3.L), std::sqrt(3.L)/2.L;
+            _innerRefCoeffs[1].engine().resize(3,0);
+            _innerRefCoeffs[1] = 2.36574492784748641906L, -1.16774841624228445637L, -0.419497567443678991773L;
+            _innerRefCoeffs[2].engine().resize(7,0);
+            _innerRefCoeffs[2] = 0.122907612914045134935L,-0.737445677484270809608L, 0.744295083998533270801L,
+                                 2.17124059336723766167L, -0.579807160258591023705L, 0.145289152020478720063L,
+                                -0.0242148586700797866771L;
+            _innerRefCoeffs[0] *= 0.5L;
+            _innerRefCoeffs[1] *= 0.5L;
+            _innerRefCoeffs[2] *= 0.5;
 
             _innerOffsets = new long[3];
             _innerOffsets[0] =  0;
             _innerOffsets[1] =  0;
-            _innerOffsets[2] = -8;
+            _innerOffsets[2] = -4;
 
 
             //right part
@@ -228,11 +220,8 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             break;
             
         case 3:
-            std::cerr.precision(21);
-            std::cerr  << "Test: long double sqrt: " << sqrt(15.L/23.L) << " " << std::sqrt(15.L/23.L) << std::endl;
-            std::cerr  << "Test: double sqrt:      "       << sqrt(15./23.)   << " " << std::sqrt(15./23.) << std::endl;
-            _addRefinementLevel = 4;
-            _shiftFactor        = 16;
+            _addRefinementLevel = 3;
+            _shiftFactor        = 8;
             // left part
             _numLeftParts = 5;
             _leftEvaluator = new Evaluator[5];
@@ -262,43 +251,33 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftSingularSupport[4] = 0., 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.;
             
             _leftRefCoeffs = new DenseVector<Array<long double> >[5];
-            _leftRefCoeffs[0].engine().resize(15,0);
-            _leftRefCoeffs[0] = 2.77558956193024219676L,   3.67300496713590613974L,   -0.0833433463132503678485L,
-                               -1.47079192837994049721L,  -0.489340779064164248338L,   0.151888883239167896553L,
-                                0.452897058530055937466L,  0.363426562786862621589L,  -0.116522603990412051079L,
-                               -0.249549942216945434749L, -0.0356554518927375294224L,  0.0528542605272888999890L,
-                                0.0159791950431338534850L,-0.00184375327420775232520L,-0.000614584424735917441733L;
+            _leftRefCoeffs[0].engine().resize(7,0);
+            _leftRefCoeffs[0] = 5.55117912386048439353L,  -1.96151750303782862164L,  0.00138479559372387609709L,
+                                0.603401146175499957922L, -0.356497187379049387413L, 0.0712917932693664232410L,
+                               -0.00245833769894366976693L;
 
-            _leftRefCoeffs[1].engine().resize(14,0);
-            _leftRefCoeffs[1] =                                std::sqrt(15.L/23.L)/8.L,      3.L*std::sqrt(15.L/23.L)/8.L,
-                                3.L*std::sqrt(15.L/23.L)/4.L,  5.L*std::sqrt(15.L/23.L)/4.L, 13.L*std::sqrt(15.L/23.L)/8.L,
-                                15.L*std::sqrt(15.L/23.L)/8.L, 2.L*std::sqrt(15.L/23.L),      2.L*std::sqrt(15.L/23.L),
-                                15.L*std::sqrt(15.L/23.L)/8.L, 13.L*std::sqrt(15.L/23.L)/8.L, 5.L*std::sqrt(15.L/23.L)/4.L,
-                                3.L*std::sqrt(15.L/23.L)/4.L,   3.L*std::sqrt(15.L/23.L)/8.L,  std::sqrt(15.L/23.L)/8.L;
-            _leftRefCoeffs[2].engine().resize(14,0);
-            _leftRefCoeffs[2] =                               std::sqrt(3.L/2.L)/8.L,      3.L*std::sqrt(3.L/2.L)/8.L,
-                                3.L*std::sqrt(3.L/2.L)/4.L,    5.L*std::sqrt(3.L/2.L)/4.L, 11.L*std::sqrt(3.L/2.L)/8.L,
-                                9.L*std::sqrt(3.L/2.L)/8.L,    std::sqrt(3.L/2.L)/2.L,     -std::sqrt(3.L/2.L)/2.L,
-                               -9.L*std::sqrt(3.L/2.L)/8.L,  -11.L*std::sqrt(3.L/2.L)/8.L, -5.L*std::sqrt(3.L/2.L)/4.L,
-                               -3.L*std::sqrt(3.L/2.L)/4.L,   -3.L*std::sqrt(3.L/2.L)/8.L, -std::sqrt(3.L/2.L)/8.L;
-            _leftRefCoeffs[3].engine().resize(14,0);
-            _leftRefCoeffs[3] =                            -0.332393938165673687760L, -0.997181814497021063281L,
-                                -0.744859766979522940260L,  0.424572204386820681302L,  1.03539618631663272869L,
-                                 1.08761217880991320190L,  -0.0576061348438659365911L,-2.40025875464470468679L,
-                                -2.01847826299989214450L,   1.08773534009057169028L,   2.13430245341876368304L,
-                                 1.12122307698468383379L,   0.461012541575732931874L,  0.153670847191910977291L;
-            _leftRefCoeffs[4].engine().resize(14,0);
-            _leftRefCoeffs[4] =                            0.838469877914651010490L, 2.51540963374395303147L,
-                                 2.48010213568224167250L,  0.732547383729516933594L,-0.430808624435014424685L,
-                                -1.00996588881135240233L, -1.12451901112483996881L, -0.774467991375477124119L,
-                                -0.179411286436128735718L, 0.660651103693205196395L, 0.888673578186661588696L,
-                                 0.504656137044240441187L, 0.234485562354772400574L, 0.0781618541182574668581L;
+            _leftRefCoeffs[1].engine().resize(6,0);
+            _leftRefCoeffs[1] =                               std::sqrt(15.L/23.L)/2.L, 3.L*std::sqrt(15.L/23.L)/2.L,
+                                2.L*std::sqrt(15.L/23.L), 2.L*std::sqrt(15.L/23.L),     3.L*std::sqrt(15.L/23.L)/2.L,
+                                std::sqrt(15.L/23.L)/2.L;
+            _leftRefCoeffs[2].engine().resize(6,0);
+            _leftRefCoeffs[2] =                               std::sqrt(3.L/2.L)/2.L, 3.L*std::sqrt(3.L/2.L)/2.L,
+                                std::sqrt(3.L/2.L),         -std::sqrt(3.L/2.L),    -3.L*std::sqrt(3.L/2.L)/2.L,
+                               -std::sqrt(3.L/2.L)/2.L;
+            _leftRefCoeffs[3].engine().resize(6,0);
+            _leftRefCoeffs[3] =                           -1.32957575266269475104L, 1.00928819006999249208L,
+                                1.11372017505655343851L,  -3.57158506454512406189L, 2.64084214163580360767L,
+                                0.614683388767643909165L;
+            _leftRefCoeffs[4].engine().resize(6,0);
+            _leftRefCoeffs[4] =                            3.35387951165860404196L, -0.141229992246845435862L,
+                               -1.29954452099952139115L,  -0.599442481500795701774L, 1.08068229875787216245L,
+                                0.312647416473029867432L;
 
-            _leftRefCoeffs[0] *= 1./4.;
-            _leftRefCoeffs[1] *= 1./4.;
-            _leftRefCoeffs[2] *= 1./4.;
-            _leftRefCoeffs[3] *= 1./4.;
-            _leftRefCoeffs[4] *= 1./4.;
+            _leftRefCoeffs[0] *= std::pow(2.L,-1.5L);;
+            _leftRefCoeffs[1] *= std::pow(2.L,-1.5L);;
+            _leftRefCoeffs[2] *= std::pow(2.L,-1.5L);;
+            _leftRefCoeffs[3] *= std::pow(2.L,-1.5L);;
+            _leftRefCoeffs[4] *= std::pow(2.L,-1.5L);;
 
             _leftOffsets = new long[5];
             _leftOffsets[0] =  0;
@@ -340,69 +319,49 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerSingularSupport[5] = -1., -0.875, -0.75, -0.625, -0.5, -0.375, -0.25, -0.125, 0., 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.;
             
             _innerRefCoeffs = new DenseVector<Array<long double> >[6];
-            _innerRefCoeffs[0].engine().resize(14,0);
-            _innerRefCoeffs[0] =                                std::sqrt(15.L/23.L)/8.L,      3.L*std::sqrt(15.L/23.L)/8.L,
-                                3.L*std::sqrt(15.L/23.L)/4.L,  5.L*std::sqrt(15.L/23.L)/4.L, 13.L*std::sqrt(15.L/23.L)/8.L,
-                                15.L*std::sqrt(15.L/23.L)/8.L, 2.L*std::sqrt(15.L/23.L),      2.L*std::sqrt(15.L/23.L),
-                                15.L*std::sqrt(15.L/23.L)/8.L, 13.L*std::sqrt(15.L/23.L)/8.L, 5.L*std::sqrt(15.L/23.L)/4.L,
-                                3.L*std::sqrt(15.L/23.L)/4.L,   3.L*std::sqrt(15.L/23.L)/8.L,  std::sqrt(15.L/23.L)/8.L;
-            _innerRefCoeffs[1].engine().resize(14,0);
-            _innerRefCoeffs[1] =                               std::sqrt(3.L/2.L)/8.L,      3.L*std::sqrt(3.L/2.L)/8.L,
-                                3.L*std::sqrt(3.L/2.L)/4.L,    5.L*std::sqrt(3.L/2.L)/4.L, 11.L*std::sqrt(3.L/2.L)/8.L,
-                                9.L*std::sqrt(3.L/2.L)/8.L,    std::sqrt(3.L/2.L)/2.L,     -std::sqrt(3.L/2.L)/2.L,
-                               -9.L*std::sqrt(3.L/2.L)/8.L,  -11.L*std::sqrt(3.L/2.L)/8.L, -5.L*std::sqrt(3.L/2.L)/4.L,
-                               -3.L*std::sqrt(3.L/2.L)/4.L,   -3.L*std::sqrt(3.L/2.L)/8.L, -std::sqrt(3.L/2.L)/8.L;
-            _innerRefCoeffs[2].engine().resize(14,0);
-            _innerRefCoeffs[2] =                            -0.332393938165673687760L, -0.997181814497021063281L,
-                                -0.744859766979522940260L,  0.424572204386820681302L,  1.03539618631663272869L,
-                                 1.08761217880991320190L,  -0.0576061348438659365911L,-2.40025875464470468679L,
-                                -2.01847826299989214450L,   1.08773534009057169028L,   2.13430245341876368304L,
-                                 1.12122307698468383379L,   0.461012541575732931874L,  0.153670847191910977291L;
-            _innerRefCoeffs[3].engine().resize(14,0);
-            _innerRefCoeffs[3] =                            0.838469877914651010490L, 2.51540963374395303147L,
-                                 2.48010213568224167250L,  0.732547383729516933594L,-0.430808624435014424685L,
-                                -1.00996588881135240233L, -1.12451901112483996881L, -0.774467991375477124119L,
-                                -0.179411286436128735718L, 0.660651103693205196395L, 0.888673578186661588696L,
-                                 0.504656137044240441187L, 0.234485562354772400574L, 0.0781618541182574668581L;
-            _innerRefCoeffs[4].engine().resize(30,0);
-            _innerRefCoeffs[4] =                            -0.000165406021810583376759L, -0.000496218065431750130278L,
-                                 0.00430055656707516779575L, 0.0142249178757101704013L,   -0.0114624015416162576727L,
-                                -0.0727614016849041164263L,  0.0171630150476521257524L,    0.258310848656052468863L,
-                                 0.0152955719508160591168L, -0.711882815068057103487L,    -0.529179295295501489882L,
-                                 0.563406131268482899932L,   1.35382282375063298855L,      1.84207078215094877596L,
-                                 2.08619476135110666967L,    2.08619476135110666967L,      1.36578081909284101533L,
-                                -0.0750470654236902933617L, -0.596541180622123190517L,    -0.198701526502457676138L,
-                                 0.0619651257344936689596L,  0.185458776088730844777L,     0.148893195108488394035L,
-                                -0.0477316172062336832674L, -0.102231624769408571263L,    -0.0146068275810362699521L,
-                                 0.0216524060959559460387L,  0.00654607626156807670939L,  -0.000755316491719393466468L,
-                                -0.000251772163906464488823L;
-            _innerRefCoeffs[5].engine().resize(30,0);
-            _innerRefCoeffs[5] =                            -0.000283664923476537439325L, -0.000850994770429612317975L,
-                                 0.00737528801038997342245L, 0.0243951834189822197819L,   -0.0193931972654295178838L,
-                                -0.123989854042845239575L,   0.0225600888380068930052L,    0.420256631377126879856L,
-                                 0.0371928736795071963364L, -1.12663118425485215755L,     -0.743609405969671787787L,
-                                 1.18625820853504830564L,    1.97753686765674477913L,      1.63022657139541763269L,
-                                 0.241243363313507468257L,  -2.18941275658898571417L,     -2.24598257866242380416L,
-                                 0.0715338970931931983074L,  0.922542031340612031086L,     0.307041824079832694177L,
-                                -0.0954392429482901993493L, -0.284901169743756649494L,    -0.228652170031853087923L,
-                                 0.0733077561874204853640L,  0.157002617751345860609L,     0.0224324146599230378133L,
-                                -0.0332528540704982769681L, -0.0100531884399180837345L,    0.00115998328152900966168L,
-                                 0.000386661093843003220559L;
+            _innerRefCoeffs[0].engine().resize(6,0);
+            _innerRefCoeffs[0] =                               std::sqrt(15.L/23.L)/2.L, 3.L*std::sqrt(15.L/23.L)/2.L,
+                                 2.L*std::sqrt(15.L/23.L), 2.L*std::sqrt(15.L/23.L),     3.L*std::sqrt(15.L/23.L)/2.L,
+                                     std::sqrt(15.L/23.L)/2.L;
+            _innerRefCoeffs[1].engine().resize(6,0);
+            _innerRefCoeffs[1] =                               std::sqrt(3.L/2.L)/2.L, 3.L*std::sqrt(3.L/2.L)/2.L,
+                                  std::sqrt(3.L/2.L),         -std::sqrt(3.L/2.L),    -3.L*std::sqrt(3.L/2.L)/2.L,
+                                  -std::sqrt(3.L/2.L)/2.L;
+            _innerRefCoeffs[2].engine().resize(6,0);
+            _innerRefCoeffs[2] =                           -1.32957575266269475104L, 1.00928819006999249208L,
+                                 1.11372017505655343851L,  -3.57158506454512406189L, 2.64084214163580360767L,
+                                 0.614683388767643909165L;
+            _innerRefCoeffs[3].engine().resize(6,0);
+            _innerRefCoeffs[3] =                            3.35387951165860404196L, -0.141229992246845435862L,
+                                -1.29954452099952139115L,  -0.599442481500795701774L, 1.08068229875787216245L,
+                                 0.312647416473029867432L;
+            _innerRefCoeffs[4].engine().resize(14,0);
+            _innerRefCoeffs[4] =                           -0.000661624087242333507038L, 0.0191870985300276717041L,
+                                -0.103410901756548045803L,  0.378884765460252640419L,   -1.07547200857749368479L,
+                                 1.10969884455047509484L,   2.08619476135110666967L,     2.08619476135110666967L,
+                                -0.795461007681955947706L,  0.000218300557375081050850L, 0.247205601265849432686L,
+                                -0.146044023363594721918L,  0.0292055710131498807034L,  -0.00100708865562585795529L;
+            _innerRefCoeffs[5].engine().resize(14,0);
+            _innerRefCoeffs[5] =                           -0.00113465969390614975730L,  0.0329051311232783429617L,
+                                -0.176288182431553100420L,  0.619104902646686873282L,   -1.70854321322203183450L,
+                                 2.15119201578740835235L,   1.45657142326475405947L,    -3.40474081654023230539L,
+                                 1.23029213497100169954L,  -0.000708279550556974276803L,-0.379632133141489874567L,
+                                 0.224287719297057272008L, -0.0448526868857883735848L,   0.00154664437537201288224L;
 
-            _innerRefCoeffs[0] *= 1./4.;
-            _innerRefCoeffs[1] *= 1./4.;
-            _innerRefCoeffs[2] *= 1./4.;
-            _innerRefCoeffs[3] *= 1./4.;
-            _innerRefCoeffs[4] *= 1./4.;
-            _innerRefCoeffs[5] *= 1./4.;
+            _innerRefCoeffs[0] *= std::pow(2.L,-1.5L);
+            _innerRefCoeffs[1] *= std::pow(2.L,-1.5L);
+            _innerRefCoeffs[2] *= std::pow(2.L,-1.5L);
+            _innerRefCoeffs[3] *= std::pow(2.L,-1.5L);
+            _innerRefCoeffs[4] *= std::pow(2.L,-1.5L);
+            _innerRefCoeffs[5] *= std::pow(2.L,-1.5L);
 
             _innerOffsets = new long[6];
             _innerOffsets[0] =  1;
             _innerOffsets[1] =  1;
             _innerOffsets[2] =  1;
             _innerOffsets[3] =  1;
-            _innerOffsets[4] =  -15;
-            _innerOffsets[5] =  -15;
+            _innerOffsets[4] =  -7;
+            _innerOffsets[5] =  -7;
 
             //right part
             _numRightParts = 1;
@@ -417,15 +376,12 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightSingularSupport[0] = 0., 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.;
 
             _rightRefCoeffs = new DenseVector<Array<long double> >[1];
-            _rightRefCoeffs[0].engine().resize(15,0);
-            _rightRefCoeffs[0] =                              0.000356243812979612832443L, 0.00106873143893883849733L,
-                                 -0.00926233913746993364353L,-0.0306369679162467035901L,   0.0244262189964241542035L,
-                                  0.155927221600542639737L,  -0.0301796994676454198032L,  -0.533894544208140024418L,
-                                 -0.0437631453678852296085L,  1.44021449705311896463L,     0.977922237313959628446L,
-                                 -1.43063992458536323815L,   -2.57602127024098433054L,    -2.45822179965290364872L,
-                                 -1.19966103217943165391L;
+            _rightRefCoeffs[0].engine().resize(7,0);
+            _rightRefCoeffs[0] =                              0.00142497525191845132977L, -0.0413242823056350885634L,
+                                  0.221677722902601882504L,  -0.785751966578387326726L,    2.18220331826362106174L,
+                                 -2.63492100553502467145L,   -2.39932206435886330782L;
 
-            _rightRefCoeffs[0] *= 1./4.;
+            _rightRefCoeffs[0] *= std::pow(2.L,-1.5L);
 
             _rightOffsets = new long[1];
             _rightOffsets[0] =  1;
@@ -433,8 +389,8 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             break;
             
         case 4:
-            _addRefinementLevel = 3;
-            _shiftFactor        = 16;
+            _addRefinementLevel = 2;
+            _shiftFactor        = 8;
             // left part
             _numLeftParts = 5;
             _leftEvaluator = new Evaluator[5];
@@ -464,43 +420,32 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftSingularSupport[4] = 0., 0.25, 0.5, 0.75, 1.;
             
             _leftRefCoeffs = new DenseVector<Array<long double> >[5];
-            _leftRefCoeffs[0].engine().resize(15,0);
-            _leftRefCoeffs[0] = 3.76863114996493552912L,   3.36754837867067127962L,  0.766447517773244603049L,
-                               -1.43357057182991782402L,  -1.09204954513563947602L, -0.355540173180040112528,
-                                0.685615414829134115676L,  0.990261630882708980391L,-0.395669966031110666710L,
-                               -0.392401566529538302500L, -0.0886658623423510628939L,0.211801442343263812503L,
-                                0.0146654661656142101536L,-0.0136428973979955426785,-0.0209756304808026477553L;
-            _leftRefCoeffs[1].engine().resize(14,0);
-            _leftRefCoeffs[1] =                                 std::sqrt(35.L/13.L)/16.L,    std::sqrt(35.L/13.L)/4.L,
-                                3.L*std::sqrt(35.L/13.L)/8.L,   5.L*std::sqrt(35.L/13.L)/8.L, 3.L*std::sqrt(35.L/13.L)/4.L,
-                                15.L*std::sqrt(35.L/13.L)/16.L, std::sqrt(35.L/13.L),         std::sqrt(35.L/13.L),
-                                15.L*std::sqrt(35.L/13.L)/16.L, 3.L*std::sqrt(35.L/13.L)/4.L, 5.L*std::sqrt(35.L/13.L)/8.L,
-                                3.L*std::sqrt(35.L/13.L)/8.L,   std::sqrt(35.L/13.L)/4.L,     std::sqrt(35.L/13.L)/16.L;
-            _leftRefCoeffs[2].engine().resize(14,0);
-            _leftRefCoeffs[2] =                                 std::sqrt(35.L/3.L)/16.L,     7.L*std::sqrt(35.L/3.L)/32.L,
-                                5.L*std::sqrt(35.L/3.L)/16.L,   7.L*std::sqrt(35.L/3.L)/16.L, 5.L*std::sqrt(105.L)/32.L,
-                                std::sqrt(105.L)/8.L,           std::sqrt(35.L/3.L)/4.L,      -std::sqrt(35.L/3.L)/4.L,
-                               -std::sqrt(105.L)/8.L,          -5.L*std::sqrt(105.L)/32.L,    -7.L*std::sqrt(35.L/3.L)/16.L,
-                               -5.L*std::sqrt(35.L/3.L)/16.L,  -7.L*std::sqrt(35.L/3.L)/32.L,  -std::sqrt(35.L/3.L)/16.L;
-            _leftRefCoeffs[3].engine().resize(14,0);
-            _leftRefCoeffs[3] =                            -0.302421521614531478730L, -0.665582653110302263978L,
-                                -0.726322262991541570495L,  0.240405383941627118357L,  0.997129634691035658496L,
-                                 1.27972477954287774958L,   0.805595673645311300528L, -3.15109010600941996738L,
-                                -2.10249455061195875089L,   0.679077967723437897629L,  2.41205493066137332965L,
-                                 1.19289478116853892382L,   0.742276067189799892140L,  0.145828676605530430228L;
+            _leftRefCoeffs[0].engine().resize(7,0);
+            _leftRefCoeffs[0] =  7.53726229992987105824L,  -1.60433108517705699801L, -0.921289031788500302018L,
+                                 1.68322742933961880394L,  -1.08863576448802049026L,  0.310369430432088613678L,
+                                -0.0839025219232105910212L;
+            _leftRefCoeffs[1].engine().resize(6,0);
+            _leftRefCoeffs[1] =                                std::sqrt(35.L/13.L)/4.L, 3.L*std::sqrt(35.L/13.L)/4.L,
+                                   std::sqrt(35.L/13.L),       std::sqrt(35.L/13.L),     3.L*std::sqrt(35.L/13.L)/4.L,
+                                   std::sqrt(35.L/13.L)/4.L;
+            _leftRefCoeffs[2].engine().resize(6,0);
+            _leftRefCoeffs[2] =                                std::sqrt(35.L/3.L)/4.L,   std::sqrt(35.L/3.L)/2.L,
+                                   std::sqrt(35.L/3.L)/2.L,    -std::sqrt(35.L/3.L)/2.L,  -std::sqrt(35.L/3.L)/2.L,
+                                  -std::sqrt(35.L/3.L)/4.L;
+            _leftRefCoeffs[3].engine().resize(6,0);
+            _leftRefCoeffs[3] =                            -1.20968608645812591492L,   0.723769207408211462783L,
+                                 2.78393856347267693448L,  -5.12943299583678560134L,   3.02163500540779053256L,
+                                 0.583314706422121720912L;
+            _leftRefCoeffs[4].engine().resize(6,0);
+            _leftRefCoeffs[4] =                             3.23422528793847648562L,   0.295496503819005929826L,
+                                 -2.64548042111713192471L,  0.336105140833428426303L,  0.872145478151140075300L,
+                                  0.546845047769619692603L;
 
-            _leftRefCoeffs[4].engine().resize(14,0);
-            _leftRefCoeffs[4] =                             0.808556321984619121404L,  2.05832786793892354474L,
-                                 2.49954309190860884667L,   1.03017869984887356877L,  -0.0724066294000947143344L,
-                                -1.53753799463927741720L,  -1.90008403062949183696L,  -0.409291249654211661451L,
-                                 0.0974170299190362946755,  0.697472840024022115214L,  0.790820370555759979626L,
-                                 0.628170155364999788278L,  0.450796339624904817290L,  0.136711261942404923151L;
-
-            _leftRefCoeffs[0] *= std::pow(2.L,-1.5L);
-            _leftRefCoeffs[1] *= std::pow(2.L,-1.5L);
-            _leftRefCoeffs[2] *= std::pow(2.L,-1.5L);
-            _leftRefCoeffs[3] *= std::pow(2.L,-1.5L);
-            _leftRefCoeffs[4] *= std::pow(2.L,-1.5L);
+            _leftRefCoeffs[0] *= 0.5L;
+            _leftRefCoeffs[1] *= 0.5L;
+            _leftRefCoeffs[2] *= 0.5L;
+            _leftRefCoeffs[3] *= 0.5L;
+            _leftRefCoeffs[4] *= 0.5L;
 
             _leftOffsets = new long[5];
             _leftOffsets[0] =  0;
@@ -542,69 +487,49 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerSingularSupport[5] = -1., -0.75, -0.5, -0.25, 0., 0.25, 0.5, 0.75, 1.;
             
             _innerRefCoeffs = new DenseVector<Array<long double> >[6];
-            _innerRefCoeffs[0].engine().resize(14,0);
-            _innerRefCoeffs[0] =                                std::sqrt(35.L/13.L)/16.L,    std::sqrt(35.L/13.L)/4.L,
-                                3.L*std::sqrt(35.L/13.L)/8.L,   5.L*std::sqrt(35.L/13.L)/8.L, 3.L*std::sqrt(35.L/13.L)/4.L,
-                                15.L*std::sqrt(35.L/13.L)/16.L, std::sqrt(35.L/13.L),         std::sqrt(35.L/13.L),
-                                15.L*std::sqrt(35.L/13.L)/16.L, 3.L*std::sqrt(35.L/13.L)/4.L, 5.L*std::sqrt(35.L/13.L)/8.L,
-                                3.L*std::sqrt(35.L/13.L)/8.L,   std::sqrt(35.L/13.L)/4.L,     std::sqrt(35.L/13.L)/16.L;
-            _innerRefCoeffs[1].engine().resize(14,0);
-            _innerRefCoeffs[1] =                                std::sqrt(35.L/3.L)/16.L,     7.L*std::sqrt(35.L/3.L)/32.L,
-                                5.L*std::sqrt(35.L/3.L)/16.L,   7.L*std::sqrt(35.L/3.L)/16.L, 5.L*std::sqrt(105.L)/32.L,
-                                std::sqrt(105.L)/8.L,           std::sqrt(35.L/3.L)/4.L,      -std::sqrt(35.L/3.L)/4.L,
-                               -std::sqrt(105.L)/8.L,          -5.L*std::sqrt(105.L)/32.L,    -7.L*std::sqrt(35.L/3.L)/16.L,
-                               -5.L*std::sqrt(35.L/3.L)/16.L,  -7.L*std::sqrt(35.L/3.L)/32.L,  -std::sqrt(35.L/3.L)/16.L;
-            _innerRefCoeffs[2].engine().resize(14,0);
-            _innerRefCoeffs[2] =                           -0.302421521614531478730L, -0.665582653110302263978L,
-                                -0.726322262991541570495L,  0.240405383941627118357L,  0.997129634691035658496L,
-                                 1.27972477954287774958L,   0.805595673645311300528L, -3.15109010600941996738L,
-                                -2.10249455061195875089L,   0.679077967723437897629L,  2.41205493066137332965L,
-                                 1.19289478116853892382L,   0.742276067189799892140L,  0.145828676605530430228L;
-            _innerRefCoeffs[3].engine().resize(14,0);
-            _innerRefCoeffs[3] =                            0.808556321984619121404L,  2.05832786793892354474L,
-                                 2.49954309190860884667L,   1.03017869984887356877L,  -0.0724066294000947143344L,
-                                -1.53753799463927741720L,  -1.90008403062949183696L,  -0.409291249654211661451L,
-                                 0.0974170299190362946755,  0.697472840024022115214L,  0.790820370555759979626L,
-                                 0.628170155364999788278L,  0.450796339624904817290L,  0.136711261942404923151L;
-            _innerRefCoeffs[4].engine().resize(30,0);
-            _innerRefCoeffs[4] =                             -0.00189357736094622116574L, -0.000924002862257805194409L,
-                                  0.00193914899737683194266L, 0.0209660658797002651539L,  -0.0249229370136695609370L,
-                                 -0.0298870930472640416595L,  0.0110377538125113037088L,   0.377320069707415422757L,
-                                 -0.0276720250220508564681,  -0.629695488185687232244L,   -0.826726856619857328796L,
-                                  0.371398364456231520947L,   0.975518440044313251928L,    1.88422728595145450146L,
-                                  2.18881605627051402000L,    2.18881605627051402000L,     1.48667834164878365481L,
-                                  0.107608285036963349673L,  -0.569324056953126590266L,   -0.468502566426564889245L,
-                                 -0.154870693208322964760L,   0.295831218090823180784L,    0.432901256171727401841L,
-                                 -0.172524593851061710852L,  -0.171211996156551966231L,   -0.0387366123552652207576L,
-                                  0.0924261737515117800952L,  0.00640107737779169233014L, -0.00595232901337124172302L,
-                                 -0.00915286770226708788809L;
-            _innerRefCoeffs[5].engine().resize(30,0);
-            _innerRefCoeffs[5] =                             -0.00458185366800709826072L, -0.00252764932818175953027L,
-                                  0.00410840867965067746090L, 0.0489800553830088184684L,  -0.0442534336702871562639L,
-                                 -0.0775706635833213593699L, -0.0176544044430595877436L,   0.639816235034529538699L,
-                                 -0.0333623975899440517440L, -0.998614863775432469793L,   -1.29068869733644729740L,
-                                  0.891201138394976880388L,   1.75218504540186239067L,     1.94523259508078625016L,
-                                  1.27729623775282459937L,   -2.65649498385513986714L,    -2.22595226507714693795L,
-                                 -0.433921144099515452364L,   0.927567258100123104032L,    0.717558770178741146358L,
-                                  0.234353774581023129548L,  -0.451034603371199917605L,   -0.653217985725704947949L,
-                                  0.260859979325765040244L,   0.258740619228342917548L,    0.0584800172318872731671L,
-                                 -0.139661224667146248517L,  -0.00967078682212185627582L,  0.00899571461403665682329L,
-                                  0.0138311080250975849612L;
+            _innerRefCoeffs[0].engine().resize(6,0);
+            _innerRefCoeffs[0] =                               std::sqrt(35.L/13.L)/4.L, 3.L*std::sqrt(35.L/13.L)/4.L,
+                                   std::sqrt(35.L/13.L),       std::sqrt(35.L/13.L),     3.L*std::sqrt(35.L/13.L)/4.L,
+                                   std::sqrt(35.L/13.L)/4.L;
+            _innerRefCoeffs[1].engine().resize(6,0);
+            _innerRefCoeffs[1] =                                std::sqrt(35.L/3.L)/4.L,   std::sqrt(35.L/3.L)/2.L,
+                                   std::sqrt(35.L/3.L)/2.L,    -std::sqrt(35.L/3.L)/2.L,  -std::sqrt(35.L/3.L)/2.L,
+                                  -std::sqrt(35.L/3.L)/4.L;
+            _innerRefCoeffs[2].engine().resize(6,0);
+            _innerRefCoeffs[2] =                           -1.20968608645812591492L,   0.723769207408211462783L,
+                                 2.78393856347267693448L,  -5.12943299583678560134L,   3.02163500540779053256L,
+                                 0.583314706422121720912L;
+            _innerRefCoeffs[3].engine().resize(6,0);
+            _innerRefCoeffs[3] =                            3.23422528793847648562L,   0.295496503819005929826L,
+                                 -2.64548042111713192471L,  0.336105140833428426303L,  0.872145478151140075300L,
+                                  0.546845047769619692603L;
+            _innerRefCoeffs[4].engine().resize(14,0);
+            _innerRefCoeffs[4] =                            -0.00757430944378488466295L,  0.0304795243208619817595L,
+                                 -0.172103404134940755815L,  0.560461227654867482281L,   -1.42578946715790175367L,
+                                  0.970460974994275945818L,  2.18881605627051402000L,     2.18881605627051402000L,
+                                 -0.619734802216407440776L, -0.418091821163284038735L,    0.735614181183121958188L,
+                                 -0.475237518862456267198L,  0.135438721938371823978L,   -0.0366114708090683515524L;
+            _innerRefCoeffs[5].engine().resize(14,0);
+            _innerRefCoeffs[5] =                            -0.0183274146720283930429L,   0.0714158787346878889722L,
+                                 -0.346389724181854150965L,  0.968551554773324101920L,   -2.38163361520215938629L,
+                                  1.98214605626068896928L,   3.24419184855680683262L,    -4.62339059465912210039L,
+                                  1.03257150206081408287L,   0.612554526218050167521L,   -1.11025696825143994205L,
+                                  0.717898961851500034340L, -0.204656443589658444638L,    0.0553244321003903398448L;
 
-            _innerRefCoeffs[0] *= std::pow(2.L,-1.5L);
-            _innerRefCoeffs[1] *= std::pow(2.L,-1.5L);
-            _innerRefCoeffs[2] *= std::pow(2.L,-1.5L);
-            _innerRefCoeffs[3] *= std::pow(2.L,-1.5L);
-            _innerRefCoeffs[4] *= std::pow(2.L,-1.5L);
-            _innerRefCoeffs[5] *= std::pow(2.L,-1.5L);
+            _innerRefCoeffs[0] *= 0.5L;
+            _innerRefCoeffs[1] *= 0.5L;
+            _innerRefCoeffs[2] *= 0.5L;
+            _innerRefCoeffs[3] *= 0.5L;
+            _innerRefCoeffs[4] *= 0.5L;
+            _innerRefCoeffs[5] *= 0.5L;
 
             _innerOffsets = new long[6];
             _innerOffsets[0] =  1;
             _innerOffsets[1] =  1;
             _innerOffsets[2] =  1;
             _innerOffsets[3] =  1;
-            _innerOffsets[4] = -15;
-            _innerOffsets[5] = -15;
+            _innerOffsets[4] = -7;
+            _innerOffsets[5] = -7;
 
             // right parts
             _numRightParts = 1;
@@ -619,15 +544,12 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightSingularSupport[0] = 0., 0.25, 0.5, 0.75, 1.;
 
             _rightRefCoeffs = new DenseVector<Array<long double> >[1];
-            _rightRefCoeffs[0].engine().resize(15,0);
-            _rightRefCoeffs[0] =                               0.00569482865190608187791L, 0.00309984804971735370543L,
-                                 -0.00518996120437745634495L, -0.0611285128283810240581L,  0.0573015033417888213176L,
-                                  0.0956610654582549398431L,   0.0155906114045512129930L, -0.834349821114946643624L,
-                                  0.0462769012741372266902L,   1.31636906534781576483L,    1.70583450703241043265L,
-                                 -1.10875104830504423392L,    -2.26490344011501998534L,   -2.79204487543155284495L,
-                                 -2.16303391893810995315L;
+            _rightRefCoeffs[0].engine().resize(7,0);
+            _rightRefCoeffs[0] =                              0.0227793146076243275116L,  -0.0890977886403828079147L,
+                                  0.440560827664300141301L,  -1.25932003737469557193L,     3.11312728470113776594L,
+                                 -2.51604382597377156721L,   -4.32606783787621990630L;
 
-            _rightRefCoeffs[0] *= std::pow(2.L,-1.5L);
+            _rightRefCoeffs[0] *= 0.5L;
 
             _rightOffsets = new long[1];
             _rightOffsets[0] =  1;

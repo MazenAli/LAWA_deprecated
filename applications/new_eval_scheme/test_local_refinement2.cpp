@@ -1,6 +1,6 @@
 #include <iostream>
 #include <lawa/lawa.h>
-#include <applications/new_eval_scheme/localrefinement.h>
+#include <lawa/methods/adaptive/algorithms/localrefinement.h>
 
 #define DERIV 0
 
