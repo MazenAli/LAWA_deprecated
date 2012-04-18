@@ -84,6 +84,16 @@ TreeCoefficients1D<T>::TreeCoefficients1D(size_t n)
 
 template <typename T>
 TreeCoefficients1D<T>&
+TreeCoefficients1D<T>::operator=(const TreeCoefficients1D<T> &_coeff)
+{
+    for (int l=0; l<=maxTreeLevel; ++l) {
+        this->bylevel[l] = _coeff.bylevel[l];
+    }
+    return *this;
+}
+
+template <typename T>
+TreeCoefficients1D<T>&
 TreeCoefficients1D<T>::operator=(const Coefficients<Lexicographical,T,Index1D> &_coeff)
 {
     for (const_coeff1d_it it=_coeff.begin(); it!=_coeff.end(); ++it) {
@@ -239,10 +249,10 @@ fromCofficientsToTreeCofficients(const Basis &basis, const Coefficients<Lexicogr
         XType xtype = (*it).first.xtype;
         if (xtype==XBSpline) {
             assert(j==basis.j0);
-            v_tree.bylevel[0].map.insert(val_type(k, (*it).second));
+            v_tree.bylevel[0].map.operator[](k) =  (*it).second;
         }
         else {
-            v_tree.bylevel[j-basis.j0+1].map.insert(val_type(k, (*it).second));
+            v_tree.bylevel[j-basis.j0+1].map.operator[](k) = (*it).second;
         }
     }
 }

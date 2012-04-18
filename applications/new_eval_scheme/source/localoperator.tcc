@@ -102,6 +102,27 @@ LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
         }
     }
     else {
+        const_by_level_it p_PsiLambdaCheck_vs_v_l_end = PsiLambdaCheck_vs_v_l.map.end();
+        for (const_by_level_it mu=d.map.begin(); mu!=d.map.end(); ++mu) {
+            long k_col = (*mu).first;
+            long k_row_first = std::max(k_col-offset, (long)test_basis.rangeJ(l).firstIndex());
+            long k_row_last  = std::min(k_col+offset, (long)test_basis.rangeJ(l).lastIndex());
+
+            for (long k_row=k_row_first; k_row<=k_row_last; ++k_row) {
+                if (overlap(test_basis.mra.phi.support(l,k_col), trial_basis.psi.support(l,k_row) ) >0 ) {
+                    const_by_level_it p_PsiLambdaCheck_vs_v_l = PsiLambdaCheck_vs_v_l.map.find(k_row);
+                    if (p_PsiLambdaCheck_vs_v_l!=p_PsiLambdaCheck_vs_v_l_end) {
+                        d2.map[k_col] = (*mu).second;
+                        d1.map.erase(k_col);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    /*
+     * Here seems to be an error...
+    else {
         const_by_level_it p_d_end = d.map.end();
         for (const_by_level_it mu=d.map.begin(); mu!=d.map.end(); ++mu) {
             long k_col = (*mu).first;
@@ -120,6 +141,7 @@ LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
             }
         }
     }
+    */
 }
 
 template <typename TestBasis, typename TrialBasis, typename BilinearForm, typename Preconditioner>

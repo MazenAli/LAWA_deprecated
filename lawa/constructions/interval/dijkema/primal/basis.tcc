@@ -18,6 +18,7 @@
  */
 
 #include <cassert>
+#include <lawa/aux/compiletime_assert.h>
 #include <lawa/constructions/interval/initial_stable_completion.h>
 
 namespace lawa {
@@ -249,6 +250,101 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
     assert(j>=min_j0);
     return _(pow2i<T>(j)-(d+d_-3),pow2i<T>(j));
 }
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::getBSplineNeighborsForWavelet
+                                  (int j_wavelet, long k_wavelet, const SecondBasis &secondbasis,
+                                   int &j_bspline, long &k_bspline_first, long &k_bspline_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+
+    j_bspline = j_wavelet;
+    Support<T> supp = psi.support(j_wavelet,k_wavelet);
+    T a = supp.l1, b = supp.l2;
+    if (a==0.) {
+        k_bspline_first = mra.rangeI(j_bspline).firstIndex();
+        k_bspline_last =  k_bspline_first+ mra.cardIL(j_bspline) + d + 2;
+        k_bspline_last  = std::min(k_bspline_last, (long)mra.rangeIR(j_bspline).lastIndex());
+        return;
+    }
+    if (0.<a && b<1.) {
+        k_bspline_first = std::max((long)mra.rangeIL(j_bspline).firstIndex(), k_wavelet - (d+d_) + 1);
+        k_bspline_last  = std::min((long)mra.rangeIR(j_bspline).lastIndex(),  k_wavelet + (d+d_) - 1);
+        return;
+    }
+    k_bspline_last   = mra.rangeI(j_bspline).lastIndex();
+    k_bspline_first  = k_bspline_last - (mra.cardIR(j_bspline) + d + 2);
+    k_bspline_first  = std::max((long)mra.rangeIL(j_bspline).firstIndex(), k_bspline_first);
+}
+
+template <typename T>
+template <typename SecondRefinementBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::
+getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
+                              const SecondRefinementBasis &secondrefinementbasis,
+                              int &j_wavelet, long &k_wavelet_first, long &k_wavelet_last) const
+{
+    ct_assert(SecondRefinementBasis::Side==Primal and SecondRefinementBasis::Domain==Interval
+               and SecondRefinementBasis::Cons==Dijkema);
+    j_wavelet = j_bspline;
+    Support<T> supp = refinementbasis.mra.phi.support(j_bspline,k_bspline);
+    T a = supp.l1, b = supp.l2;
+
+    if (a==0.L) {
+        k_wavelet_first = 1;
+        k_wavelet_last = k_wavelet_first + cardJL(j_wavelet) + d/2;
+        k_wavelet_last  = std::min(k_wavelet_last, (long)rangeJR(j_wavelet).lastIndex());
+        return;
+    }
+    if (0<a && b<1.L) {
+        k_wavelet_first  = std::max((long)rangeJL(j_wavelet).firstIndex(), k_bspline - (d+d_) + 1);
+        k_wavelet_last   = std::min((long)rangeJR(j_wavelet).lastIndex(),  k_bspline + (d+d_) - 1);
+        return;
+    }
+    k_wavelet_last   = rangeJ(j_wavelet).lastIndex();
+    k_wavelet_first  = k_wavelet_last - (cardJR(j_wavelet) + d/2) + 1;
+    k_wavelet_first  = std::max(1L, k_wavelet_first);
+
+
+    return;
+}
+
+
+template <typename T>
+template <typename SecondRefinementBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::
+getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
+                              const SecondRefinementBasis &secondrefinementbasis,
+                              int &j_bspline2, long &k_bspline2_first, long &k_bspline2_last) const
+{
+    ct_assert(SecondRefinementBasis::Side==Primal and SecondRefinementBasis::Domain==Interval
+              and SecondRefinementBasis::Cons==Dijkema);
+    //if (flens::IsSame<Basis<T,Primal,Interval,Dijkema>, SecondRefinementBasis>::value)
+
+    j_bspline2 = j_bspline1;
+    Support<T> supp = mra.phi.support(j_bspline1,k_bspline1);
+    T a = supp.l1, b = supp.l2;
+    if (a==0.L) {
+        k_bspline2_first = (long)mra.rangeI(j_bspline2).firstIndex();
+        k_bspline2_last  = std::min(k_bspline1 + d, (long)mra.rangeI(j_bspline2).lastIndex());
+        return;
+    }
+    if (b<1.L) {
+        k_bspline2_first = std::max(k_bspline1-d+1, (long)mra.rangeI(j_bspline2).firstIndex());
+        k_bspline2_last  = std::min(k_bspline1+d-1, (long)mra.rangeI(j_bspline2).lastIndex());
+        return;
+    }
+    k_bspline2_first = std::max((long)mra.rangeI(j_bspline2).firstIndex(),k_bspline1 - d);
+    k_bspline2_last  = (long)mra.rangeI(j_bspline2).lastIndex();
+
+    return;
+}
+
 
 } // namespace lawa
 

@@ -73,6 +73,13 @@ BSpline<T,Primal,Interval,Cons>::tic(int j) const
 }
 
 template <typename T, Construction Cons>
+int
+BSpline<T,Primal,Interval,Cons>::getRefinementLevel(int j) const
+{
+    return j + 1;
+}
+
+template <typename T, Construction Cons>
 DenseVector<Array<long double> > *
 BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
 {
@@ -92,7 +99,6 @@ BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j,
     //int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
     int type  = (mra.rangeI(j).lastIndex()-k);
     long shift = pow2i<long>(j)-1;
-    std::cout << "type = " << type << ", " << mra.cardIR(j) << std::endl;
     refinement_k_first =2*shift+mra._rightOffsets[type];
     return &(mra._rightRefCoeffs[type]);
 }

@@ -223,8 +223,14 @@ plotCoeff(const Coefficients<Lexicographical,T,Index1D > &coeff, const Basis &ba
         J  = std::max(J, j);
         if ((*it).first.xtype == XBSpline) {
             maxCoeff = std::max(maxCoeff, fabs((*it).second));
-            left  = std::min(left, basis.mra.phi.support(j,k).l1);
-            right = std::max(right, basis.mra.phi.support(j,k).l2);
+            if (locally_single_scale) {
+                left  = std::min(left,  basis.refinementbasis.mra.phi.support(j,k).l1);
+                right = std::max(right, basis.refinementbasis.mra.phi.support(j,k).l2);
+            }
+            else {
+                left  = std::min(left,  basis.mra.phi.support(j,k).l1);
+                right = std::max(right, basis.mra.phi.support(j,k).l2);
+            }
         }
         else {
             maxCoeff = std::max(maxCoeff, fabs((*it).second));
@@ -252,9 +258,16 @@ plotCoeff(const Coefficients<Lexicographical,T,Index1D > &coeff, const Basis &ba
                 toX   = basis.mra.phi.support(j,k).l2;
             }
             else {
-                T h = 1./T(basis.mra.cardI(j));
-                fromX  = std::max( ( k-basis.mra.rangeI(j).firstIndex() ) * h, 0.);
-                toX    = std::min( ( k-basis.mra.rangeI(j).firstIndex() + 1 ) * h, 1.);
+                if (locally_single_scale) {
+                    T h = 1./T(basis.refinementbasis.mra.cardI(j));
+                    fromX  = std::max( ( k-basis.refinementbasis.mra.rangeI(j).firstIndex() ) * h, 0.);
+                    toX    = std::min( ( k-basis.refinementbasis.mra.rangeI(j).firstIndex() + 1 ) * h, 1.);
+                }
+                else {
+                    T h = 1./T(basis.mra.cardI(j));
+                    fromX  = std::max( ( k-basis.mra.rangeI(j).firstIndex() ) * h, 0.);
+                    toX    = std::min( ( k-basis.mra.rangeI(j).firstIndex() + 1 ) * h, 1.);
+                }
             }
             fromY = j-shift-0.5;
             toY   = j-shift+0.5;

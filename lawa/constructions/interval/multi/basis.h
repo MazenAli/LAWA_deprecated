@@ -93,11 +93,32 @@ class Basis<_T,Orthogonal,Interval,Multi>
         const int d;
         const int j0;          // minimal used(!) level.
 
+        unsigned int _numLeftParts,
+                     _numInnerParts,
+                     _numRightParts;
+
+        int _addRefinementLevel;    //B-splines for refinement are needed on higher levels
+        int _shiftFactor;           //Needed since we have multiple B-spline generators for refinement.
+
         Wavelet<T,Orthogonal,Interval,Multi> psi;
 
         Basis<T,Orthogonal,Interval,MultiRefinement> refinementbasis;
 
-    
+        /// Returns the range of refinement B-splines from SecondRefinementBasis whose supports
+        /// intersect the support of a given wavelet with level j_wavelet and translation index
+        /// k_wavelet from the current Basis. This is required for tree-based algorithms.
+        /// The level j_bspline of the B-splines is chosen s.t. there is "no scale difference", i.e.,
+        /// if we refine both wavelets and refinement B-splines, the corresponding refinements should
+        /// live on the same scale.
+        template <typename SecondRefinementBasis>
+            void
+            getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
+                                          const SecondRefinementBasis &secondrefinementbasis,
+                                          int &j_bspline, long &k_bspline_first,
+                                          long &k_bspline_last) const;
+
+
+
     private:
         DenseVector<Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
@@ -109,9 +130,7 @@ class Basis<_T,Orthogonal,Interval,Multi>
         
         friend class Wavelet<T,Orthogonal,Interval,Multi>;
 
-        unsigned int _numLeftParts, 
-                     _numInnerParts, 
-                     _numRightParts;
+
         Evaluator *_leftEvaluator, 
                   *_innerEvaluator, 
                   *_rightEvaluator;
@@ -133,8 +152,6 @@ class Basis<_T,Orthogonal,Interval,Multi>
              *_innerOffsets,
              *_rightOffsets;
 
-        int _addRefinementLevel;    //B-splines for refinement are needed on higher levels
-        int _shiftFactor;           //Needed since we have multiple B-spline generators for refinement.
 
 };
 

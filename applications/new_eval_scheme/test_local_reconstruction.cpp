@@ -1,6 +1,6 @@
-/* TEST LOCAL REFINEMENT
+/* TEST LOCAL RECONSTRUCTION
  *
- *  This examples calculates the local single transformation for wavelet interval bases. We consider
+ *  This examples calculates the local single reconstruction for wavelet interval bases. We consider
  *  Dijkema wavelet as well as L2-orthonormal multiwavelets.
  *
  */
@@ -17,6 +17,7 @@ using namespace lawa;
 ///  Typedefs for Flens data types:
 typedef double T;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
+typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 
 ///  Typedefs for problem components:
 ///  Wavelet basis over an interval
@@ -25,6 +26,7 @@ typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 ///  Wavelet integrals
+typedef Integral<Gauss,RefinementBasis,RefinementBasis>             IntegralRefinentBasis;
 typedef IntegralF<Gauss,PrimalBasis>                                IntegralFBasis;
 
 typedef CoefficientsByLevel<T>::const_it                            const_coeffbylevel_it;
@@ -79,7 +81,7 @@ int main(int argc, char*argv[])
     CoefficientsByLevel<T> u_bspline1;
     int refinement_j_bspline = 0;
     if (PrimalBasis::Cons==Multi) {
-        LocalRefine.reconstructMultiScaling(u_scaling1, j, u_bspline1, refinement_j_bspline);
+        LocalRefine.reconstructOnlyMultiScaling(u_scaling1, j, u_bspline1, refinement_j_bspline);
     }
     else {
         refinement_j_bspline = j;
@@ -90,7 +92,11 @@ int main(int argc, char*argv[])
     /// wavelet coefficient vector.
     CoefficientsByLevel<T> u_loc_single1;
     int refinement_j = 0;
+    Timer time;
+    time.start();
     LocalRefine.reconstruct(u_bspline1, refinement_j_bspline, u_wavelet1, j, u_loc_single1, refinement_j);
+    time.stop();
+    cout << "Local reconstruction took: " << time.elapsed() << endl;
 
     ofstream plotfile("test.txt");
     plotfile.precision(16);
@@ -132,10 +138,13 @@ int main(int argc, char*argv[])
 
     /// The vector u contains the multilevel representation of a coefficient vector. We transform
     /// it to the local single scale representation.
+    time.start();
     LocalRefine.reconstruct(u, j0, u_loc_single);
+    time.stop();
+    cout << "Local reconstruction took " << time.elapsed() << endl;
 
     /// We plot the result. Note that the function f is only approximated if L2-orthonormal multi
-    // wavelets are used!!
+    /// wavelets are used!!
     ofstream plotfile2("test2.txt");
     plotfile2.precision(16);
     T max_error1=0.L, max_error2=0.L;
@@ -155,7 +164,9 @@ int main(int argc, char*argv[])
     }
     plotfile2.close();
     cout << u.size() << " " << max_error1 << " " << max_error2 << endl;
-    plotCoeff(u, basis, "coeff_multi_scale", true, false);
+
+    /// Finally, we visualize the corresponding index sets.
+    plotCoeff(u, basis, "coeff_multi_scale", false, true);
     plotCoeff(u_loc_single, basis, "coeff_local_single_scale", true, true);
 
     return 0;
@@ -164,7 +175,7 @@ int main(int argc, char*argv[])
 void
 constructRandomTree(const PrimalBasis &basis, int J, TreeCoefficients1D<T> &LambdaTree)
 {
-
+    /*
     for (int k=basis.mra.rangeI(basis.j0).firstIndex(); k<=basis.mra.rangeI(basis.j0).lastIndex(); ++k) {
         LambdaTree[0].map.operator[](k) = 0.;
     }
@@ -173,8 +184,7 @@ constructRandomTree(const PrimalBasis &basis, int J, TreeCoefficients1D<T> &Lamb
             LambdaTree.bylevel[j-basis.j0+1].map.operator[](k) = 0.;
         }
     }
-
-    /*
+    */
     for (int k=basis.mra.rangeI(basis.j0).firstIndex(); k<=basis.mra.rangeI(basis.j0).lastIndex(); ++k) {
         LambdaTree[0].map.operator[](k) = 0.;
     }
@@ -199,5 +209,26 @@ constructRandomTree(const PrimalBasis &basis, int J, TreeCoefficients1D<T> &Lamb
             }
         }
     }
-    */
+
 }
+
+/*
+ * IntegralRefinentBasis integral_refinement(refinementbasis,refinementbasis);
+    int N = refinementbasis.mra.cardI(j);
+    DenseMatrixT A(N,N);
+    int offset = refinementbasis.mra.rangeI(j).firstIndex()-1;
+    for (int k_row=refinementbasis.mra.rangeI(j).firstIndex(); k_row<=refinementbasis.mra.rangeI(j).lastIndex(); ++k_row) {
+        for (int k_col=refinementbasis.mra.rangeI(j).firstIndex(); k_col<=refinementbasis.mra.rangeI(j).lastIndex(); ++k_col) {
+            A(k_row-offset,k_col-offset) = integral_refinement(j,k_row,XBSpline,1, j,k_col,XBSpline,1);
+        }
+    }
+    DenseVector<Array<T> > wr(N), wi(N);
+    DenseMatrixT vl,vr;
+    ev(false, false, A, wr, wi, vl, vr);
+    T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());
+    for (int i=1; i<=wr.lastIndex(); ++i) {
+        cB = std::min(cB,wr(i));
+        CB = std::max(CB,wr(i));
+    }
+    cout << "Eigenvalues for A_" << j <<", kappa = " << CB/cB << ", cA = " << cB << ", CA = " << CB << endl;
+ */

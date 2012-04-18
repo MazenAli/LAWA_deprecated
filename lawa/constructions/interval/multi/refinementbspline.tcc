@@ -141,6 +141,13 @@ getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
     return &(mra._rightRefCoeffs[type]);
 }
 
+template <typename T>
+int
+BSpline<T,Orthogonal,Interval,MultiRefinement>::getRefinementLevel(int j) const
+{
+    return j + 1;
+}
+
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_MULTI_INTERVAL_REFINEMENTBSPLINE_TCC

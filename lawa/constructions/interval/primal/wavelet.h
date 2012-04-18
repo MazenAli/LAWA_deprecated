@@ -56,16 +56,13 @@ struct Wavelet<_T,Primal,Interval,_Cons>
     DenseVector<Array<long double> > *
     getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
 
+    int
+    getRefinementLevel(int j) const;
+
     // returns the range of B-splines required for the refinement of $\psi_{j,k}$
     void
     getRefinementNeighbors(int j, long k, int &refinement_j, long &refinement_k_first,
                            long &refinement_k_last) const;
-
-    // returns the range of wavelets whose refinement involves the refinement B-spline
-    // $\phi_{refinement_j,refinement_k}$
-    void
-    getRefinedNeighbors(int refinement_j, long refinement_k, int &j, long &k_first,
-                        long &k_last) const;
 
     const Basis<T,Primal,Interval,Cons> &basis;
 };

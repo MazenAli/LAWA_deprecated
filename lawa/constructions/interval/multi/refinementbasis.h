@@ -60,6 +60,33 @@ class Basis<_T,Orthogonal,Interval,MultiRefinement>
         const BasisFunctionType &
         generator(XType xtype) const;
 
+
+        /// Returns the range of refinement B-splines from SecondRefinementBasis whose supports
+        /// intersect the support of a given B-spline with level j_bspline1 and translation index
+        /// k_bspline1 from the current Basis. This is required for tree-based algorithms.
+        /// The level j_bspline1 of the B-splines is chosen s.t. there is "no scale difference", i.e.,
+        /// if we refine both (possibly different) types of B-splines, the corresponding refinements
+        /// should live on the same scale.
+        template <typename SecondRefinementBasis>
+            void
+            getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
+                                          const SecondRefinementBasis &secondrefinementbasis,
+                                          int &j_wavelet, long &k_bspline2_first,
+                                          long &k_bspline2_last) const;
+
+        /// Returns the range of wavelets from SecondBasis whose supports intersect the support
+        /// of a refinement B-spline with level j_bspline and translation index k_bspline
+        /// from the current RefinementBasis. This is required for tree-based algorithms.
+        /// The level j_wavelet of the wavelets is chosen s.t. there is "no scale difference", i.e.,
+        /// if we refine both wavelets and refinement B-splines, the corresponding refinements should
+        /// live on the same scale.
+        template <typename SecondBasis>
+            void
+            getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
+                                          const SecondBasis &basis,
+                                          int &j_wavelet, long &k_wavelet_first,
+                                          long &k_wavelet_last) const;
+
         MRA<T,Orthogonal,Interval,MultiRefinement> mra;
 
         const int d;

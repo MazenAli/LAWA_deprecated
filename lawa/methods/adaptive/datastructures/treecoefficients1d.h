@@ -93,6 +93,9 @@ struct TreeCoefficients1D
     TreeCoefficients1D(size_t n);
 
     TreeCoefficients1D<T>&
+    operator=(const TreeCoefficients1D<T> &_coeff);
+
+    TreeCoefficients1D<T>&
     operator=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
 
     TreeCoefficients1D<T>&

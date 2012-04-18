@@ -152,74 +152,10 @@ Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
 }
 
 template <typename T>
-void
-Wavelet<T,Orthogonal,Interval,Multi>::getRefinementNeighbors(int j, long k, int &refinement_j,
-                                                             long &refinement_k_first,
-                                                             long &refinement_k_last) const
+int
+Wavelet<T,Orthogonal,Interval,Multi>::getRefinementLevel(int j) const
 {
-    k -= 1;
-    refinement_j = j + basis._addRefinementLevel;
-    // left boundary
-    if (k<basis._numLeftParts) {
-        refinement_k_first = basis._leftOffsets[k];
-        refinement_k_last  = refinement_k_first + basis._leftRefCoeffs[k].lastIndex();
-        return;
-    }
-    // inner part
-    if (k<basis.cardJL(j)+basis.cardJI(j)) {
-        int type  = (int)((k-basis._numLeftParts) % basis._numInnerParts);
-        long shift = (long)lawa::iceil<T>((k+1.-basis._numLeftParts)/(double)basis._numInnerParts);
-        refinement_k_first = basis._shiftFactor*shift+basis._innerOffsets[type];
-        refinement_k_last  = refinement_k_first + basis._innerRefCoeffs[type].lastIndex();
-        return;
-    }
-    // right part
-    int type  = (int)(k+1 - (basis.cardJ(j) - basis._numRightParts + 1));
-    long shift = (long)pow2i<long>(j)-1;
-    refinement_k_first = basis._shiftFactor*shift+basis._rightOffsets[type];
-    refinement_k_last  = refinement_k_first + basis._rightRefCoeffs[type].lastIndex();
-    return;
-}
-
-template <typename T>
-void
-Wavelet<T,Orthogonal,Interval,Multi>::getRefinedNeighbors(int refinement_j, long refinement_k,
-                                                          int &j, long &k_first, long &k_last) const
-{
-    j = refinement_j - basis._addRefinementLevel+1;
-    Support<T> supp = basis.refinementbasis.mra.phi.support(refinement_j,refinement_k);
-    T a = supp.l1, b = supp.l2;
-
-    if (a==0.L) {
-        k_first = 1;
-        k_last = basis._numLeftParts + basis._numInnerParts;
-        k_last  = std::min(k_last, (long)basis.rangeJR(j).lastIndex());
-        return;
-    }
-    if (0<a && b<1.L) {
-        long k_tilde = (long)std::floor(pow2i<T>(j)*a);
-        k_tilde += 1;
-        T tmp = k_tilde*pow2i<T>(-j);
-        if (a<tmp && tmp<b) {
-            k_first  = (k_tilde-2)*basis._numInnerParts;
-            k_last   = (k_tilde+2)*basis._numInnerParts;
-        }
-        else {
-            k_first  = (k_tilde-2)*basis._numInnerParts;
-            k_last   = (k_tilde+1)*basis._numInnerParts;
-        }
-        long k_first_min = basis.rangeJL(j).firstIndex();
-        long k_last_max  = basis.rangeJR(j).lastIndex();
-        if (k_first < k_first_min) k_first = k_first_min;
-        if (k_last  > k_last_max)  k_last  = k_last_max;
-        return;
-    }
-    k_last   = basis.rangeJ(j).lastIndex();
-    k_first  = k_last - (basis._numRightParts + basis._numInnerParts) + 1;
-    k_first  = std::max(1L, k_first);
-
-
-    return;
+    return j + basis._addRefinementLevel;
 }
 
 } // namespace lawa

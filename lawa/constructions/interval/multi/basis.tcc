@@ -693,6 +693,29 @@ Basis<T,Orthogonal,Interval,Multi>::rangeJR(int j) const
     return Range<int>(cardJL()+cardJI(j)+1,cardJ(j));
 }
 
+template <typename T>
+template <typename SecondRefinementBasis>
+void
+Basis<T,Orthogonal,Interval,Multi>
+::getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
+                                const SecondRefinementBasis &secondrefinementbasis,
+                                int &j_bspline, long &k_bspline_first, long &k_bspline_last) const
+{
+    ct_assert(SecondRefinementBasis::Side==Orthogonal and SecondRefinementBasis::Domain==Interval
+              and SecondRefinementBasis::Cons==MultiRefinement);
+    j_bspline = j_wavelet + _addRefinementLevel - 1;
+    Support<T> supp = psi.support(j_wavelet,k_wavelet);
+    T h = 1.L/(T)(refinementbasis.mra.cardI(j_bspline)-1);
+    k_bspline_first = std::floor(supp.l1/h) - refinementbasis.mra._numLeftParts;
+    k_bspline_first = std::max(k_bspline_first,(long)refinementbasis.mra.rangeI(j_bspline).firstIndex());
+    k_bspline_last  = std::ceil(supp.l2/h) + refinementbasis.mra._numRightParts;
+    k_bspline_last = std::min(k_bspline_last,(long)refinementbasis.mra.rangeI(j_bspline).lastIndex());
+    //std::cerr << "(" << j_wavelet << "," << k_wavelet << "): " << std::endl;
+    //std::cerr << "   "  << supp << " " << refinementbasis.mra.phi.support(j_bspline,k_bspline_first)
+    //          << " " << refinementbasis.mra.phi.support(j_bspline,k_bspline_last) << std::endl;
+}
+
+
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_MULTI_BASIS_TCC

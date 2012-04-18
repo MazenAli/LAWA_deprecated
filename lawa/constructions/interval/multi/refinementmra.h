@@ -92,6 +92,7 @@ class MRA<_T,Orthogonal,Interval,MultiRefinement>
         mutable int _j;                // the current level.
 
         friend class BSpline<T,Orthogonal,Interval,MultiRefinement>;
+        friend class Basis<T,Orthogonal,Interval,Multi>;
 
         typedef T (*Evaluator)(T x, unsigned short deriv);
 

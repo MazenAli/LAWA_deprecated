@@ -134,6 +134,12 @@ BSpline<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
     return &(mra._rightRefCoeffs[type]);
 }
 
+template <typename T>
+int
+BSpline<T,Orthogonal,Interval,Multi>::getRefinementLevel(int j) const
+{
+    return j + mra._addRefinementLevel;
+}
 
 } // namespace lawa
 

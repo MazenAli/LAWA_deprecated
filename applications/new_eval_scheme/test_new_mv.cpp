@@ -13,8 +13,8 @@ typedef double T;
 
 typedef Basis<T,Primal,Interval,Dijkema>                            PrimalBasis;
 
-//typedef HelmholtzOperator1D<T,PrimalBasis>                          BilinearForm;
-typedef IdentityOperator1D<T,PrimalBasis>                          BilinearForm;
+typedef HelmholtzOperator1D<T,PrimalBasis>                          BilinearForm;
+//typedef IdentityOperator1D<T,PrimalBasis>                          BilinearForm;
 //typedef WeightedLaplaceOperator1D<T,Primal,Gauss>                   BilinearForm;
 
 typedef DiagonalMatrixPreconditioner1D<T,PrimalBasis,BilinearForm>  Preconditioner;
@@ -69,14 +69,15 @@ int main (int argc, char *argv[]) {
     T time_EvalA, time_EvalL, time_EvalU;
 
     PrimalBasis     trial_basis(d,d_,j0);
-    //BilinearForm    Bil(trial_basis,0.);
-    BilinearForm    Bil(trial_basis);
+    trial_basis.enforceBoundaryCondition<DirichletBC>();
+    BilinearForm    Bil(trial_basis,1.);
+    //BilinearForm    Bil(trial_basis);
     Preconditioner  Prec(Bil);
     int offset=5;
     if (d==2 && d_==2) {
         offset=2;
     }
-    LocalOperator<PrimalBasis,PrimalBasis, BilinearForm, Preconditioner> localoperator(trial_basis, false, trial_basis, false, offset, Bil, Prec);
+    LocalOperator<PrimalBasis,PrimalBasis, BilinearForm, Preconditioner> localoperator(trial_basis, true, trial_basis, true, offset, Bil, Prec);
 
     stringstream ct_filename;
     ct_filename << "comptime_fast_eval1d_" << d << "_" << d_ << "_" << j0 << "_" << J << ".dat";
