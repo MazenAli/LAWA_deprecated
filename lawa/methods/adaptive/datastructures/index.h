@@ -35,6 +35,7 @@ static boost::hash<long int> hash_long;
 #define SIZELARGEHASHINDEX1D    72869//1572869
 #define SIZEHASHINDEX2D       6291469//1572869
 #define SIZELARGEHASHINDEX2D  6291469
+#define SIZELARGEHASHINDEX3D  6291469
 
 
 struct Index1D
@@ -213,6 +214,40 @@ struct index_eqfunction<Index2D>
     }
 };
 
+template <>
+struct index_eqfunction<Index3D>
+{
+    inline
+    bool operator()(const Index3D& leftindex, const Index3D& rightindex) const
+    {
+        if (leftindex.index1.k != rightindex.index1.k) return false;
+        if (leftindex.index2.k != rightindex.index2.k) return false;
+        if (leftindex.index3.k != rightindex.index3.k) return false;
+
+        int leftval1 = leftindex.index1.xtype;
+        leftval1 = (((leftval1 << 16) | (unsigned short) leftindex.index1.j));
+        int rightval1 = rightindex.index1.xtype;
+        rightval1 = (((rightval1 << 16) | (unsigned short) rightindex.index1.j));
+        if (leftval1 != rightval1) return false;
+
+        int leftval2 = leftindex.index2.xtype;
+        leftval2 = (((leftval2 << 16) | (unsigned short) leftindex.index2.j));
+        int rightval2 = rightindex.index2.xtype;
+        rightval2 = (((rightval2 << 16) | (unsigned short) rightindex.index2.j));
+        if (leftval2 != rightval2) return false;
+
+        int leftval3 = leftindex.index3.xtype;
+        leftval3 = (((leftval3 << 16) | (unsigned short) leftindex.index3.j));
+        int rightval3 = rightindex.index3.xtype;
+        rightval3 = (((rightval3 << 16) | (unsigned short) rightindex.index3.j));
+        return (leftval3==rightval3);
+    }
+
+    //return (leftindex.index1.k == rightindex.index1.k && leftindex.index2.k == rightindex.index2.k && leftindex.index3.k == rightindex.index3.k &&
+    //        leftindex.index1.j == rightindex.index1.j && leftindex.index2.j == rightindex.index2.j && leftindex.index3.j == rightindex.index3.j &&
+    //        leftindex.index1.xtype == rightindex.index1.xtype && leftindex.index2.xtype == rightindex.index2.xtype  && leftindex.index3.xtype == rightindex.index3.xtype);
+};
+
 template <typename Index>
 struct entry_eqfunction
 {
@@ -284,7 +319,7 @@ struct index_hashfunction<Index1D>
 template <>
 struct index_hashfunction<Index2D>
 {
-    /*
+
     // performs better without storing 2^l values... why??
     index_hashfunction(void)
     {
@@ -307,8 +342,8 @@ struct index_hashfunction<Index2D>
         size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
         return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
     }
-    */
 
+    /*
     inline
     size_t operator()(const Index2D& index) const
     {
@@ -325,7 +360,38 @@ struct index_hashfunction<Index2D>
 
         return hash_value;
     }
+    */
+};
 
+template <>
+struct index_hashfunction<Index3D>
+{
+
+    // performs better without storing 2^l values... why??
+    index_hashfunction(void)
+    {
+        for (int i=0; i<JMAX+JMINOFFSET+2; ++i) {
+            power2i[i] = 1L << i;
+        }
+    }
+    size_t power2i[JMAX+JMINOFFSET+2];
+
+
+    inline
+    size_t operator()(const Index3D& index) const
+    {
+        //size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
+        //size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
+        size_t l1 = power2i[index.index1.j+index.index1.xtype] + index.index1.k;
+        size_t l2 = power2i[index.index2.j+index.index2.xtype] + index.index2.k;
+        size_t l3 = power2i[index.index3.j+index.index3.xtype] + index.index3.k;
+        size_t s1 = l1;
+        size_t s2 = l1+l2;
+        size_t s3 = l1+l2+l3;
+        size_t P=SIZELARGEHASHINDEX2D, TwoP=2*SIZELARGEHASHINDEX2D, SixP=6*SIZELARGEHASHINDEX2D;
+        return (   ( ( ((s3+2)%SixP)*((s3+1)%SixP)*(s3%SixP) )%SixP )/6
+                 + ( ( ((s2+1)%TwoP)*(s2%TwoP) ) % TwoP )/2 + s1%P ) % P;
+    }
 };
 
 template <typename Index>
