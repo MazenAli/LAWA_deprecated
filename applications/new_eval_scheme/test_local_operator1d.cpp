@@ -13,20 +13,22 @@ using namespace lawa;
 /// Several typedefs for notational convenience.
 
 ///  Typedefs for Flens data types:
-typedef double T;
+typedef long double T;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 
 ///  Typedefs for problem components:
 
 ///  Wavelet basis over an interval
-//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+//typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 ///  Underlying bilinear form
 typedef HelmholtzOperator1D<T,PrimalBasis>                          BilinearForm;
 typedef HelmholtzOperator1D<T,RefinementBasis>                      RefinementBilinearForm;
+//typedef IdentityOperator1D<T,PrimalBasis>                           BilinearForm;
+//typedef IdentityOperator1D<T, RefinementBasis>                      RefinementBilinearForm;
 
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
@@ -66,84 +68,97 @@ int main(int argc, char*argv[])
     int J    = atoi(argv[3]);
     int seed = atoi(argv[4]);
 
-
     Timer time;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    //PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
-    PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
+    PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
+    //PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
     basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis &refinementbasis = basis.refinementbasis;
 
     BilinearForm              Bil(basis,1.);
     RefinementBilinearForm    RefinementBil(refinementbasis,1.);
+    //BilinearForm              Bil(basis);
+    //RefinementBilinearForm    RefinementBil(refinementbasis);
 
     LocOp1D localOperator1D(basis,basis,RefinementBil);
 
-    TreeCoefficients1D<T> v_tree(COEFFBYLEVELSIZE), Av_tree(COEFFBYLEVELSIZE),
-                          Uv_tree(COEFFBYLEVELSIZE), Lv_tree(COEFFBYLEVELSIZE);
-    TreeCoefficients1D<T> Av_ref_tree(COEFFBYLEVELSIZE), Uv_ref_tree(COEFFBYLEVELSIZE),
-                          Lv_ref_tree(COEFFBYLEVELSIZE);
-    constructRandomTree(basis, J, true, v_tree, seed);
-    constructRandomTree(basis, J+1, false, Av_tree, seed+37);
-    Av_ref_tree = Av_tree;
-    Uv_tree     = Av_tree;
-    Uv_ref_tree = Av_tree;
-    Lv_tree     = Av_tree;
-    Lv_ref_tree = Av_tree;
+    stringstream ct_filename;
+    ct_filename << "comptime_locOp1d_" << d << "_" << j0 << "_" << J << ".dat";
+    ofstream ct_file(ct_filename.str().c_str());
 
 
+    for (int j=j0; j<=J; ++j) {
+        T time_evalA = 0., time_evalU = 0., time_evalL = 0.;
+        TreeCoefficients1D<T> v_tree(389), Av_tree(389),
+                              Uv_tree(COEFFBYLEVELSIZE), Lv_tree(COEFFBYLEVELSIZE);
+        TreeCoefficients1D<T> Av_ref_tree(COEFFBYLEVELSIZE), Uv_ref_tree(COEFFBYLEVELSIZE),
+                              Lv_ref_tree(COEFFBYLEVELSIZE);
+        constructRandomTree(basis, j, true, v_tree, seed);
+        constructRandomTree(basis, j, false, Av_tree, seed+37);
+        Av_ref_tree = Av_tree;
+        Uv_tree     = Av_tree;
+        Uv_ref_tree = Av_tree;
+        Lv_tree     = Av_tree;
+        Lv_ref_tree = Av_tree;
 
-    cout << " ********* Testing evalA **********" << endl;
-    cout << "N = " << Av_tree.size() + v_tree.size() << endl;
-    time.start();
-    computeEvalARef(Bil, basis, v_tree, Av_ref_tree);
-    time.stop();
-    cout << "Elapsed time for EvalARef: " << time.elapsed() << endl;
-    time.start();
-    localOperator1D.eval(v_tree, Av_tree,"A");
-    time.stop();
-    cout << "Elapsed time for evalA: " << time.elapsed() << endl;
-    //cout << "v_tree = " << v_tree << endl;
-    //cout << "Av_tree_ref = " << Av_ref_tree << endl;
-    //cout << "Av_tree = " << Av_tree << endl;
-    Av_ref_tree -= Av_tree;
-    cout << "Error norm: " << Av_ref_tree.norm(2.) << endl;
-    cout << " **********************************" << endl << endl;
+        cout << " ********* Testing evalA **********" << endl;
+        int N = Av_tree.size() + v_tree.size();
+        cout << "N = " << N << endl;
+        time.start();
+        computeEvalARef(Bil, basis, v_tree, Av_ref_tree);
+        time.stop();
+        cout << "Elapsed time for EvalARef: " << time.elapsed() << endl;
+        time.start();
+        localOperator1D.eval(v_tree, Av_tree,"A");
+        time.stop();
+        time_evalA = time.elapsed();
+        cout << "Elapsed time for evalA: " << time_evalA << endl;
+        //cout << "v_tree = " << v_tree << endl;
+        //cout << "Av_tree_ref = " << Av_ref_tree << endl;
+        //cout << "Av_tree = " << Av_tree << endl;
+        Av_ref_tree -= Av_tree;
+        //cout << "diff = " << Av_ref_tree << endl;
+        cout << "Error norm: " << Av_ref_tree.norm(2.) << endl;
+        cout << " **********************************" << endl << endl;
 
+        cout << " ********* Testing evalU **********" << endl;
+        cout << "N = " << Uv_tree.size() + v_tree.size() << endl;
+        time.start();
+        computeEvalURef(Bil, basis, v_tree, Uv_ref_tree);
+        time.stop();
+        time.start();
+        localOperator1D.eval(v_tree, Uv_tree,"U");
+        time.stop();
+        time_evalU = time.elapsed();
+        cout << "Elapsed time for evalU: " << time_evalU << endl;
+        //cout << "v_tree = " << v_tree << endl;
+        //cout << "Uv_tree_ref = " << Uv_ref_tree << endl;
+        //cout << "Uv_tree = " << Uv_tree << endl;
+        Uv_ref_tree -= Uv_tree;
+        cout << "Error norm: " << Uv_ref_tree.norm(2.) << endl;
+        cout << " **********************************" << endl << endl;
 
-    cout << " ********* Testing evalU **********" << endl;
-    cout << "N = " << Uv_tree.size() + v_tree.size() << endl;
-    time.start();
-    computeEvalURef(Bil, basis, v_tree, Uv_ref_tree);
-    time.stop();
-    time.start();
-    localOperator1D.eval(v_tree, Uv_tree,"U");
-    time.stop();
-    cout << "Elapsed time for evalU: " << time.elapsed() << endl;
-    //cout << "v_tree = " << v_tree << endl;
-    //cout << "Uv_tree_ref = " << Uv_ref_tree << endl;
-    //cout << "Uv_tree = " << Uv_tree << endl;
-    Uv_ref_tree -= Uv_tree;
-    cout << "Error norm: " << Uv_ref_tree.norm(2.) << endl;
-    cout << " **********************************" << endl << endl;
+        cout << " ********* Testing evalL **********" << endl;
+        cout << "N = " << Lv_tree.size() + v_tree.size() << endl;
+        time.start();
+        computeEvalLRef(Bil, basis, v_tree, Lv_ref_tree);
+        time.stop();
+        time.start();
+        localOperator1D.eval(v_tree, Lv_tree,"L");
+        time.stop();
+        time_evalL = time.elapsed();
+        cout << "Elapsed time for evalL: " << time_evalL << endl;
+        //cout << "v_tree = " << v_tree << endl;
+        //cout << "Uv_tree_ref = " << Uv_ref_tree << endl;
+        //cout << "Uv_tree = " << Uv_tree << endl;
+        Lv_ref_tree -= Lv_tree;
+        cout << "Error norm: " << Lv_ref_tree.norm(2.) << endl;
+        cout << " **********************************" << endl << endl;
 
-    cout << " ********* Testing evalL **********" << endl;
-    cout << "N = " << Lv_tree.size() + v_tree.size() << endl;
-    time.start();
-    computeEvalLRef(Bil, basis, v_tree, Lv_ref_tree);
-    time.stop();
-    time.start();
-    localOperator1D.eval(v_tree, Lv_tree,"L");
-    time.stop();
-    cout << "Elapsed time for evalL: " << time.elapsed() << endl;
-    //cout << "v_tree = " << v_tree << endl;
-    //cout << "Uv_tree_ref = " << Uv_ref_tree << endl;
-    //cout << "Uv_tree = " << Uv_tree << endl;
-    Lv_ref_tree -= Lv_tree;
-    cout << "Error norm: " << Lv_ref_tree.norm(2.) << endl;
-    cout << " **********************************" << endl << endl;
-
+        ct_file << N << " " << time_evalA << " " << time_evalU << " " << time_evalL << endl;
+    }
+    ct_file.close();
     return 0;
 }
 
@@ -171,9 +186,11 @@ constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
     }
     for (int j=basis.j0; j<=J; ++j) {
         val = withRandomValues ? ((T)rand() / RAND_MAX) : 0.;
+        //int random_k1 = basis.rangeJ(j).firstIndex();
         int random_k1 = rand() % basis.cardJ(j) + 1;
         LambdaTree[j-basis.j0+1].map.operator[](random_k1) = val;
         val = withRandomValues ? ((T)rand() / RAND_MAX) : 0.;
+        //int random_k2 = basis.rangeJ(j).lastIndex();
         int random_k2 = rand() % basis.cardJ(j) + 1;
         LambdaTree[j-basis.j0+1].map.operator[](random_k2) = val;
     }
@@ -204,8 +221,9 @@ computeEvalARef(const BilinearForm &Bil, const PrimalBasis &basis,
     fromTreeCofficientsToCofficients(basis, Av_tree, Av);
 
     for (coeff1d_it row=Av.begin(); row!=Av.end(); ++row) {
-        long double val = 0.L;
+        T val = 0.L;
         for (const_coeff1d_it col=v.begin(); col!=v.end(); ++col) {
+            //if ((*row).first.xtype==(*col).first.xtype && (*row).first.j == (*col).first.j && (*row).first.k == (*col).first.k)
             val +=  Bil((*row).first,(*col).first) * (*col).second;
         }
         (*row).second = val;

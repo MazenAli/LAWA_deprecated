@@ -62,6 +62,10 @@ class LocalOperator1D {
                CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck);
 
         void
+        _evalA_nonRecursive(CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
+                            CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck);
+
+        void
         _evalU(int l, CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
                CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck);
 

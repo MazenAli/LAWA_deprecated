@@ -42,9 +42,10 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
         PhiPiCheck = PsiLambdaCheck[0];
     }
 
-    if (strcmp(mode,"A")==0)        this->_evalA(0, d, PsiLambdaHat, PhiPiCheck, PsiLambdaCheck);
-    else if (strcmp(mode,"U")==0)   this->_evalU(0, d, PsiLambdaHat, PhiPiCheck, PsiLambdaCheck);
-    else if (strcmp(mode,"L")==0)   this->_evalL(0, d, PsiLambdaHat, PsiLambdaCheck);
+    if (strcmp(mode,"A")==0)                this->_evalA(0, d, PsiLambdaHat, PhiPiCheck, PsiLambdaCheck);
+    //else if (strcmp(mode,"A_nonRec")==0)    this->_evalA_nonRecursive(d, PsiLambdaHat, PhiPiCheck, PsiLambdaCheck);
+    else if (strcmp(mode,"U")==0)           this->_evalU(0, d, PsiLambdaHat, PhiPiCheck, PsiLambdaCheck);
+    else if (strcmp(mode,"L")==0)           this->_evalL(0, d, PsiLambdaHat, PsiLambdaCheck);
     else {
         std::cerr << "LocalOperator1D<TestBasis, TrialBasis, BilinearForm>: Unknow mode"
                   << mode << ". Exit." << std::endl;
@@ -66,15 +67,18 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
 ::_evalA(int l, CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
         CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck)
 {
+    Timer time;
     int shifted_l = l+1; // by convention v[0] contains scaling / B-spline indices.
     if (d.map.size()==0 && c[shifted_l].map.size()==0) return;
+    if (PhiPiCheck.map.size()==0 && PsiLambdaCheck[shifted_l].map.size()==0) return;
 
     int j_bspline_test =  l + testRefinementLevelOffset;
     int j_bspline_trial = l + trialRefinementLevelOffset;
     int j_wavelet_test =  l + testBasis.j0;
     int j_wavelet_trial = l + trialBasis.j0;
 
-    size_t hm_size = l > 7 ? COEFFBYLEVELSIZE : 255;
+    //size_t hm_size = l > 7 ? 193 : COEFFBYLEVELSIZE;
+    size_t hm_size = COEFFBYLEVELSIZE;
 
     // Splitting of B-spline index set $\check{\Phi}$.
     CoefficientsByLevel<T> PhiPiCheck2(l,hm_size);
@@ -88,18 +92,28 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                                 PhiPiunderlineCheck, j_refinement_test);
 
     //Compute a(\check{Phi}|_{\check{Pi}^{(1)}} , \hat{\Phi}|_{\hat{Pi}}) d
+    time.start();
     _applyBilinearForm(l, d, PhiPiCheck);
+    time.stop();
+    std::cerr << "l = " << l << " : apply Bil 1 took " << time.elapsed() << std::endl;
 
     // Splitting of B-spline coefficient vector $d$.
+    time.start();
     CoefficientsByLevel<T> d2(l,hm_size);
     _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
+    time.stop();
+    std::cerr << "l = " << l << " : splitting of d took " << time.elapsed() << std::endl;
 
     // Compute underline d
-    CoefficientsByLevel<T> underline_d(l+1,hm_size);
+    time.start();
+    CoefficientsByLevel<T> underline_d(l+1,4*hm_size);
     int j_refinement_trial = 0;
     trialLocalRefine.reconstruct(d2,           j_bspline_trial,
                                  c[shifted_l], j_wavelet_trial,
                                  underline_d,  j_refinement_trial);
+    time.stop();
+    std::cerr << "l = " << l << " : trialLocalRefine.reconstruct took " << time.elapsed()
+              << ", output size: " << underline_d.map.size() << std::endl;
 
     //Recursive call of eval
     this->_evalA(l+1, underline_d, c, PhiPiunderlineCheck, PsiLambdaCheck);
@@ -375,5 +389,82 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
 }
 
 
+/*
+template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+void
+LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
+::_evalA_nonRecursive(CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
+                      CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck)
+{
+    int lmax = 0;
+    TreeCoefficients1D<T> PhiPiCheck1(COEFFBYLEVELSIZE);
+    TreeCoefficients1D<T> PhiPiCheck2(COEFFBYLEVELSIZE);
+    for (int l=0; l<=100; ++l) {
+        //std::cout << "******* l = " << l <<  " *********" << std::endl;
+        int shifted_l = l+1; // by convention v[0] contains scaling / B-spline indices.
+
+        if (d.map.size()==0 && c[shifted_l].map.size()==0) break;
+
+        int j_bspline_test =  l + testRefinementLevelOffset;
+        int j_bspline_trial = l + trialRefinementLevelOffset;
+        int j_wavelet_test =  l + testBasis.j0;
+        int j_wavelet_trial = l + trialBasis.j0;
+
+        size_t hm_size = l > 7 ? COEFFBYLEVELSIZE : 255;
+
+        // Splitting of B-spline index set $\check{\Phi}$.
+        _splitPhiPi(l, c[shifted_l], PhiPiCheck, PhiPiCheck2[l]);
+        PhiPiCheck1[l] = PhiPiCheck;
+        //std::cout << " PhiPiCheck1[l] = " << PhiPiCheck1[l] << std::endl;
+        //std::cout << " PhiPiCheck2[l] = " << PhiPiCheck2[l] << std::endl;
+
+        // Compute underlinePiCheck
+        int j_refinement_test = 0;
+        PhiPiCheck.map.clear();
+        testLocalRefine.reconstruct(PhiPiCheck2[l],             j_bspline_test,
+                                    PsiLambdaCheck[shifted_l],  j_wavelet_test,
+                                    PhiPiCheck,                 j_refinement_test);
+
+        //Compute a(\check{Phi}|_{\check{Pi}^{(1)}} , \hat{\Phi}|_{\hat{Pi}}) d
+        _applyBilinearForm(l, d, PhiPiCheck1[l]);
+
+        // Splitting of B-spline coefficient vector $d$.
+        CoefficientsByLevel<T> d2(l,hm_size);
+        _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
+        //std::cout << " d1  = " << d << std::endl;
+        //std::cout << " d2  = " << d2 << std::endl;
+
+        //Compute a(\check{Phi}|_{\check{Pi}^{(2)}} , \hat{\Phi}|_{\hat{Pi}^{(1)}}) d^{(1)}
+        _applyBilinearForm(l, d, PhiPiCheck2[l]);
+
+        // Compute underline d
+        d.map.clear();
+        d.set(l+1,hm_size);
+        int j_refinement_trial = 0;
+        trialLocalRefine.reconstruct(d2,           j_bspline_trial,
+                                     c[shifted_l], j_wavelet_trial,
+                                     d,            j_refinement_trial);
+
+        ++lmax;
+    }
+    //std::cout << std::endl << std::endl;
+    //std::cout << "  Going back again..." << std::endl;
+    for (int l=lmax+1; l>=1; --l) {
+        std::cout << "******* l = " << l <<  " *********" << std::endl;
+        int j_bspline_test =  l + testRefinementLevelOffset - 1;
+        int j_wavelet_test =  l + testBasis.j0 - 1;
+
+        //std::cout << "PhiPiCheck1[l] = " << PhiPiCheck1[l] << std::endl;
+        testLocalRefine.decompose_(PhiPiCheck1[l],
+                                   PhiPiCheck2[l-1],            j_bspline_test,
+                                   PsiLambdaCheck[l], j_wavelet_test);
+        //std::cout << "PhiPiCheck2[l-1]         = " << PhiPiCheck2[l-1] << std::endl;
+        //std::cout << "PsiLambdaCheck[l-1]    = " << PsiLambdaCheck[l] << std::endl;
+
+        PhiPiCheck1[l-1] += PhiPiCheck2[l-1];
+    }
+    PhiPiCheck = PhiPiCheck1[0];
+}
+*/
 
 }   // namespace lawa
