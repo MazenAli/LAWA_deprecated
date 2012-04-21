@@ -26,7 +26,9 @@ LocalRefinement2<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,
     int imax = u_tree.getMaxTreeLevel(0);
     for (int i=0; i<imax; ++i) {
         int  j_refinement = j_bspline + i;
-        for (const_coeffbylevel_it it=u_tree[i].map.begin(); it!=u_tree[i].map.end(); ++it) {
+	CoefficientsByLevel<T> help;
+	help = u_tree[i];
+        for (const_coeffbylevel_it it=help.map.begin(); it!=help.map.end(); ++it) {
             long k_refinement = (*it).first;
             int test_j_wavelet = 0;
             long k_first = 0L, k_last = 0L;
