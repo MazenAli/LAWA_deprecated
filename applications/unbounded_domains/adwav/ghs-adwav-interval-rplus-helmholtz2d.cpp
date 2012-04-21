@@ -116,7 +116,8 @@ int main (int argc, char *argv[]) {
     SparseMW_SumOfSeparableRhs           SparseMW_F(SparseMW_rhsintegral2d,SparseMW_P);
     SparseMW_F.readIndexSets(rhsfilename.str().c_str());
 
-    SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,true,false);
+    int assemble_matrix = 0;    //compute matrix vector soley on indexset
+    SparseMW_GHS_ADWAV_SOLVER_SumofSeparableRhs SparseMW_ghs_adwav_solver(SparseMW_A,SparseMW_F,true,assemble_matrix);
     T alpha = 0.6, omega = 0.2, gamma = 0.15, theta = 2*omega/(1+omega);
     SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
 

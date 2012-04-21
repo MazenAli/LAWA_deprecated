@@ -50,6 +50,9 @@ struct AdaptiveIdentityOperator1D
     T
     operator()(const Index1D &row_index, const Index1D &col_index);
 
+    T
+    operator()(XType xtype_row, int j_row, long k_row, XType xtype_col, int j_col, long k_col);
+
     void
     toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
                         SparseMatrixT &A_flens, int J=-1, bool useLinearIndex=false);

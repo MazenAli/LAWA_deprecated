@@ -33,7 +33,7 @@ MRA<T,Dual,Interval,Dijkema>::MRA(int _d, int _d_, int j)
     : d(_d), d_(_d_), mu(d&1),
       l1((mu-d)/2), l2((mu+d)/2),
       l1_(l1-d_+1), l2_(l2+d_-1),
-      min_j0(iceil(log2(-2*l1_-1+mu))),
+      min_j0(iceil<int>(log2(-2*l1_-1+mu))),
       j0((j==-1) ? min_j0 : j),
       phi_(*this),
       phi_R(_d,_d_),

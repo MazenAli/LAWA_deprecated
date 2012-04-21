@@ -300,7 +300,7 @@ mv(Transpose transA, typename X::ElementType alpha,
         // central band (up to middle)
         int iy = A.leftband.firstIndex()-A.firstRow();
         int n = A.leftband.length();
-        int middle = iceil(x.length()/2.);
+        int middle = iceil<int>(x.length()/2.);
         for (int c=A.left.lastIndex()+1; c<=middle; ++c, iy+=2, ++ix) {
             cxxblas::axpy(n,
                           x(ix),

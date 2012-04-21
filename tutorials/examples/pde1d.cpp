@@ -29,7 +29,8 @@ typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT
 ///  Typedefs for problem components:
 ///     Primal Basis over an interval, using Dijkema construction
 //typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
-typedef Basis<T, Primal, Interval, SparseMulti>                         PrimalBasis;
+//typedef Basis<T, Primal, Interval, SparseMulti>                         PrimalBasis;
+typedef Basis<T, Orthogonal, Interval, Multi>                         PrimalBasis;
 
 ///     PDE-Operator in 1D, i.e. for $a(v,u) = \int(v_x \cdot u_x) \int(b(x) v \cdot u') + \int(a(x) v \cdot u)$
 typedef WeightedPDEOperator1D<T, PrimalBasis>                       PDEOp;
@@ -46,18 +47,21 @@ typedef RHSWithPeaks1D<T, PrimalBasis>                              Rhs;
 T
 u_f(T x)
 {
+    //return x*(x-1);
     return x*(x-1)*std::exp(x);
 }
 
 T
 u_x_f(T x)
 {
+    //return 2*x-1;
     return (x*x+x-1.)*std::exp(x);
 }
 
 T
 u_xx_f(T x)
 {
+    //return 2;
     return (x*x+3*x)*std::exp(x);
 }
 
@@ -65,30 +69,24 @@ u_xx_f(T x)
 T
 a_f(T x)
 {
-    return 1.;
-    //return 1+exp(x);
+    //return 1.;
+    return 1+exp(x);
 }
 
 /// Non-constant convection term
 T
 b_f(T x)
 {
-    return 0.;
-    /*
-    if (x<=0.4) {
-        return 1.;
-    }
-    else {
-        return -1.;
-    }
-    */
+    return 1+exp(x);
+    //return 0.;
 }
 
 /// constant diffusion term
 T
 c_f(T x)
 {
-    return 0.;  // must be a constant function!!
+    return 1.;  // For this example, this term needs to be constant in order to get a simple
+                // representation for the rhs (see below).
 }
 
 /// Forcing function of the form `T f(T x)` - here a constant function
@@ -106,7 +104,8 @@ printU(const DenseVectorT u, const PrimalBasis& basis, const int J,
 {
     ofstream file(filename);
     for(double x = 0; x <= 1.; x += deltaX){
-        file << x << " " << u_f(x) << " " << evaluate(basis,J, u, x, 0) << endl;
+        file << x << " " << u_f(x) << " " << u_x_f(x)
+                   << " " << evaluate(basis,J, u, x, 0) << " " << evaluate(basis,J, u, x, 1) << endl;
     }
     file.close();
 }
@@ -114,25 +113,31 @@ printU(const DenseVectorT u, const PrimalBasis& basis, const int J,
 /// Auxiliary function to print solution values, generates `.txt`-file with
 /// columns: `x u(x)`
 void
-H1errorU(const DenseVectorT u, const PrimalBasis& basis, const int j, T &L2error, T &H1error,
+H1errorU(const DenseVectorT u, const PrimalBasis& basis, const int j, long double &L2error, long double &H1error,
          const double deltaX=1./128.)
 {
     L2error = 0.;
     H1error = 0.;
-    T H1seminormerror = 0.;
-    for(double x = 0; x <= 1.; x += deltaX) {
-        T diff_u   = u_f(x)   - evaluate(basis,j, u, x, 0);
-        T diff_u_x = u_x_f(x) - evaluate(basis,j, u, x, 1);
+    long double H1seminormerror = 0.;
+    long double diff_u     = u_f(0.)     - evaluate(basis,j, u, 0., 0);
+    long double diff_u_x   = u_x_f(0.)   - evaluate(basis,j, u, 0., 1);
+    L2error         += 0.5*diff_u*diff_u;
+    H1seminormerror += 0.5*diff_u_x*diff_u_x;
+    for(double x = deltaX; x <= 1.-deltaX; x += deltaX) {
+        diff_u   = u_f(x)   - evaluate(basis,j, u, x, 0);
+        diff_u_x = u_x_f(x) - evaluate(basis,j, u, x, 1);
         L2error += diff_u*diff_u;
         H1seminormerror += diff_u_x*diff_u_x;
     }
+    diff_u     = u_f(1.)     - evaluate(basis,j, u, 1., 0);
+    diff_u_x   = u_x_f(1.)   - evaluate(basis,j, u, 1., 1);
+    L2error         += 0.5*diff_u*diff_u;
+    H1seminormerror += 0.5*diff_u_x*diff_u_x;
     H1error = L2error + H1seminormerror;
-    L2error *= deltaX;
+    L2error*= deltaX;
+    H1error*= deltaX;
     L2error = std::sqrt(L2error);
-    H1error *= deltaX;
     H1error = std::sqrt(H1error);
-
-
 }
 
 int main(int argc, char*argv[])
@@ -147,19 +152,18 @@ int main(int argc, char*argv[])
     int j0 = atoi(argv[3]);
     int J = atoi(argv[4]);
 
-
     /// Basis initialization, using Dirichlet boundary conditions
-    //PrimalBasis basis(d, d_, j0);
-    PrimalBasis basis(d, j0);
+    //PrimalBasis basis(d, d_, j0); // For biorthogonal wavelet bases
+    PrimalBasis basis(d, j0);       // For L2_orthonormal and special MW bases
     basis.enforceBoundaryCondition<DirichletBC>();
 
     /// Operator initialization
-    DenseVectorT a_singPts, c_singPts;
-    DenseVectorT b_singPts(1); b_singPts = 0.5;
+    int order = 20; // quadrature order
+    DenseVectorT a_singPts, b_singPts, c_singPts;
     Function<T> a(a_f, a_singPts);
     Function<T> b(b_f, b_singPts);
     Function<T> c(c_f, c_singPts);
-    PDEOp       op(basis, a, b, c);
+    PDEOp       op(basis, a, b, c, order);
     Prec        p(op);
 
     /// Righthandside initialization
@@ -182,7 +186,6 @@ int main(int argc, char*argv[])
         densify(cxxblas::NoTrans,A,A_dense);
         int N = A_dense.numRows();
 
-
         for (int i=1; i<=N; ++i) {
             for (int j=1; j<=N; ++j) {
                 A_dense(i,j) *= P._diag(i)*P._diag(j);
@@ -203,21 +206,23 @@ int main(int argc, char*argv[])
 
         spy(A,"A");
 
-        getchar();
+        //getchar();
 
         /// Initialize empty solution vector
         DenseVectorT u(basis.mra.rangeI(j));
 
         /// Solve problem using pgmres
-        cout << pgmres(P, A, u, f) << " pgmres iterations" << endl;
+        cout << pgmres(P, A, u, f, 1e-8) << " pgmres iterations" << endl;
 
         /// Compute errors
-        T L2error=0, H1error=0.;
-        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-8));
+        long double L2error=0.L, H1error=0.L;
+        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-22));
         file << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
+        cout << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
 
         /// Print solution to file "u.txt"
-        printU(u, basis, j, "u.txt");
+        printU(u, basis, j, "u.txt", pow2i<T>(-j-10));
+        std::cerr << "Loop finished." << std::endl;
     }
     file.close();
     return 0;

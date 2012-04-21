@@ -72,6 +72,37 @@ BSpline<T,Primal,Interval,Cons>::tic(int j) const
     return pow2i<T>(-j);
 }
 
+template <typename T, Construction Cons>
+int
+BSpline<T,Primal,Interval,Cons>::getRefinementLevel(int j) const
+{
+    return j + 1;
+}
+
+template <typename T, Construction Cons>
+DenseVector<Array<long double> > *
+BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+{
+    refinement_j = j + 1;
+    // left boundary
+    if (k<mra.rangeII(j).firstIndex()) {
+        int type  = k % mra.cardIL(j);
+        refinement_k_first = mra._leftOffsets[type];
+        return &(mra._leftRefCoeffs[type]);
+    }
+    // inner part
+    if (k<=mra.rangeII(j).lastIndex()) {
+        refinement_k_first = 2*k+mra._innerOffsets[0];
+        return &(mra._innerRefCoeffs[0]);
+    }
+    // right part
+    //int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
+    int type  = (mra.rangeI(j).lastIndex()-k);
+    long shift = pow2i<long>(j)-1;
+    refinement_k_first =2*shift+mra._rightOffsets[type];
+    return &(mra._rightRefCoeffs[type]);
+}
+
 //--- evaluate B-spline --------------------------------------------------------
 
 template <typename T>

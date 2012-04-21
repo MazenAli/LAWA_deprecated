@@ -112,7 +112,6 @@ int main (int argc, char *argv[]) {
     time.stop();
     cout << "Tensor sparse grid matrix vector multiplication finished in " << time.elapsed() << endl;
 
-
     Coefficients<Lexicographical,T,Index2D> sg_PAx_coeffs;
     sg_A.toCoefficients(PAx2, sg_PAx_coeffs);
     row_count=1;

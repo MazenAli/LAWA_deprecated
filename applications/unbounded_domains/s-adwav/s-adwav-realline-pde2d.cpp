@@ -72,7 +72,7 @@ int main (int argc, char *argv[]) {
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
-    T reaction=1., convection_x=0., convection_y=0., diffusion=1.;
+    T reaction=1., convection_x=5., convection_y=5., diffusion=1.;
     T contraction = 0.125;
     T threshTol = 0.4;
     T cgTol = 0.1*threshTol;//1e-12;

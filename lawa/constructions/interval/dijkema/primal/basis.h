@@ -36,6 +36,7 @@ class Basis<_T,Primal,Interval,Dijkema>
         static const DomainType Domain = Interval;
         static const Construction Cons = Dijkema;
 
+        typedef Basis<T,Primal,Interval,Dijkema>         RefinementBasis;
         typedef BasisFunction<T,Primal,Interval,Dijkema> BasisFunctionType;
         typedef BSpline<T,Primal,Interval,Dijkema> BSplineType;
         typedef Wavelet<T,Primal,Interval,Dijkema> WaveletType;
@@ -81,6 +82,45 @@ class Basis<_T,Primal,Interval,Dijkema>
         const Range<int>
         rangeJR(int j=-1) const;
 
+        /// Returns the range of wavelets from SecondBasis whose supports intersect the support
+        /// of a refinement B-spline with level j_bspline and translation index k_bspline
+        /// from the current RefinementBasis. This is required for tree-based algorithms.
+        /// The level j_wavelet of the wavelets is chosen s.t. there is "no scale difference", i.e.,
+        /// if we refine both wavelets and refinement B-splines, the corresponding refinements should
+        /// live on the same scale.
+        template <typename SecondBasis>
+            void
+            getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
+                                          const SecondBasis &secondbasis,
+                                          int &j_wavelet, long &k_wavelet_first,
+                                          long &k_wavelet_last) const;
+
+        /// Returns the range of refinement B-splines from SecondRefinementBasis whose supports
+        /// intersect the support of a given wavelet with level j_wavelet and translation index
+        /// k_wavelet from the current Basis. This is required for tree-based algorithms.
+        /// The level j_bspline of the B-splines is chosen s.t. there is "no scale difference", i.e.,
+        /// if we refine both wavelets and refinement B-splines, the corresponding refinements should
+        /// live on the same scale.
+        template <typename SecondRefinementBasis>
+            void
+            getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
+                                          const SecondRefinementBasis &secondrefinementbasis,
+                                          int &j_bspline, long &k_bspline_first,
+                                          long &k_bspline_last) const;
+
+        /// Returns the range of refinement B-splines from SecondRefinementBasis whose supports
+        /// intersect the support of a given B-spline with level j_bspline1 and translation index
+        /// k_bspline1 from the current Basis. This is required for tree-based algorithms.
+        /// The level j_bspline1 of the B-splines is chosen s.t. there is "no scale difference", i.e.,
+        /// if we refine both (possibly different) types of B-splines, the corresponding refinements
+        /// should live on the same scale.
+        template <typename SecondRefinementBasis>
+            void
+            getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
+                                          const SecondRefinementBasis &secondrefinementbasis,
+                                          int &j_bspline2,
+                                          long &k_bspline2_first, long &k_bspline2_last) const;
+
         MRA<T,Primal,Interval,Dijkema> mra;
         MRA<T,Dual,Interval,Dijkema>  mra_;
 
@@ -97,8 +137,22 @@ class Basis<_T,Primal,Interval,Dijkema>
 
         mutable int _j;                // the current level.
 
+        friend class Wavelet<T,Primal,Interval,Dijkema>;
+
+        DenseVector<Array<long double> > *_leftRefCoeffs,
+                                         *_innerRefCoeffs,
+                                         *_rightRefCoeffs;
+        long *_leftOffsets,
+             *_innerOffsets,
+             *_rightOffsets;
+
+
+
+
     public:
         Wavelet<T,Primal,Interval,Dijkema> psi;
+
+        Basis<T,Primal,Interval,Dijkema> &refinementbasis;
 };
 
 } // namespace lawa

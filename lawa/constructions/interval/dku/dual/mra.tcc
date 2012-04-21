@@ -34,7 +34,7 @@ MRA<T,Dual,Interval,DKU>::MRA(int _d, int _d_, int j)
       l1_(l1-d_+1), l2_(l2+d_-1),
       l_(l2_), q_(l_+mu-1),
       l(l_-(d_-d)), q(l+mu-1),
-      min_j0(iceil(log2(l_+l2_-1)+1)),
+      min_j0(iceil<int>(log2(l_+l2_-1)+1)),
       j0(std::max(j,min_j0)),
       _bc(2,0), _j(j0)
 {
@@ -209,7 +209,7 @@ MRA<T,Dual,Interval,DKU>::_beta()
     for (int r=0; r<d_; ++r) {
         for (int m=_Beta.firstRow(); m<=_Beta.lastRow(); ++m) {
             T tmp = 0.;
-            for (int q=iceil((m-l2_)/2.); q<l_; ++q) {
+            for (int q=iceil<int>((m-l2_)/2.); q<l_; ++q) {
                 tmp += _Alpha(q,r) * phi_.a_(m-2*q);
             }
             _Beta(m,r) = factor * tmp;

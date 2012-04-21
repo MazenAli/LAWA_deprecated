@@ -32,7 +32,7 @@ namespace lawa {
 template <typename T>
 MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
     : d(_d), mu(d&1),
-      min_j0(iceil(log2(2*d))),
+      min_j0(iceil<int>(log2(2*d))),
       j0((j==-1) ? min_j0 : j), phiR(d),
       l1((mu-d)/2), l2((mu+d)/2),
       _bc(2,0), _j(j0), phi(*this)
@@ -42,6 +42,58 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
     
     _calcM0();
     setLevel(_j);
+
+    if (d==2) {
+        // left part
+        _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+        _leftRefCoeffs[0].engine().resize(2,0);
+        _leftRefCoeffs[0] =  1.L/(std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L));
+        _leftOffsets = new long[1];
+        _leftOffsets[0] = 1;
+
+        // inner part
+        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs[0].engine().resize(3,0);
+        _innerRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
+        _innerOffsets = new long[1];
+        _innerOffsets[0] =  -2;
+
+        // inner part
+        _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+        _rightRefCoeffs[0].engine().resize(2,0);
+        _rightRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/(std::sqrt(2.L));
+        _rightOffsets = new long[1];
+        _rightOffsets[0] = 2;
+    }
+
+    else if (d==3) {
+        // left part
+        _leftRefCoeffs = new DenseVector<Array<long double> >[2];
+        _leftRefCoeffs[0].engine().resize(3,0);
+        _leftRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+        _leftRefCoeffs[1].engine().resize(2,0);
+        _leftRefCoeffs[1] =  1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
+        _leftOffsets = new long[1];
+        _leftOffsets[0] =  2;
+        _leftOffsets[1] =  1;
+
+        // inner part
+        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs[0].engine().resize(4,0);
+        _innerRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+        _innerOffsets = new long[1];
+        _innerOffsets[0] =  -3;
+
+        // inner part
+        _rightRefCoeffs = new DenseVector<Array<long double> >[2];
+        _rightRefCoeffs[0].engine().resize(2,0);
+        _rightRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L);
+        _rightRefCoeffs[1].engine().resize(3,0);
+        _rightRefCoeffs[1] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L));
+        _rightOffsets = new long[2];
+        _rightOffsets[0] =  3;
+        _rightOffsets[1] =  1;
+    }
 }
 
 template <typename T>
@@ -140,6 +192,47 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
     _bc(0) = DirichletBC;
     _bc(1) = DirichletBC;
     _calcM0();
+
+    // Refinement coefficients only in double prec. available due to missing support of higher
+    // precision in blas routines.
+    if (d==2) {
+        // left part
+        _leftRefCoeffs = new DenseVector<Array<long double> >[0];
+        _leftOffsets = new long[0];
+
+        // inner part
+        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs[0].engine().resize(3,0);
+        _innerRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
+        _innerOffsets = new long[1];
+        _innerOffsets[0] =  -2;
+
+        // inner part
+        _rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        _rightOffsets = new long[0];
+    }
+    else if (d==3) {
+        // left part
+        _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+        _leftRefCoeffs[0].engine().resize(3,0);
+        _leftRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+        _leftOffsets = new long[1];
+        _leftOffsets[0] =  2;
+
+        // inner part
+        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs[0].engine().resize(4,0);
+        _innerRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+        _innerOffsets = new long[1];
+        _innerOffsets[0] =  -3;
+
+        // inner part
+        _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+        _rightRefCoeffs[0].engine().resize(3,0);
+        _rightRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L));
+        _rightOffsets = new long[1];
+        _rightOffsets[0] =  1;
+    }
 }
 
 template <typename T>

@@ -255,6 +255,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
             }
         }
     }
+    A_flens.finalize();
 }
 
 template <typename T, DomainType Domain1, DomainType Domain2>

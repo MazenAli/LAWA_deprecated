@@ -305,8 +305,6 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
 ::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
         Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose trans)
 {
-    std::cerr << "v = " << v << std::endl;
-
     if (v.size()==0) return;
 
     Index1D_Coefficients1D_Hash y_v;
@@ -565,8 +563,6 @@ AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,Spars
         //          << ", quotient(output vs. input) = " << T(ret.size())/T(v.size()) << std::endl;
 
     }
-
-    std::cerr << "ret = " << ret << std::endl;
 
     y_v.clear();
     I_S_v.clear();

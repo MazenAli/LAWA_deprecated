@@ -26,4 +26,15 @@ AdaptiveLaplaceOperator1D<T,Side,Domain,Cons>::operator()(const Index1D &row_ind
     }
 }
 
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+T
+AdaptiveLaplaceOperator1D<T,Side,Domain,Cons>::
+operator()(XType xtype_row, int j_row, long k_row, XType xtype_col, int j_col, long k_col)
+{
+    Index1D row_index(j_row,k_row,xtype_row);
+    Index1D col_index(j_col,k_col,xtype_col);
+    //return laplace_op1d(xtype_row,j_row,k_row,xtype_col,j_col,k_col);
+    return this->operator()(row_index,col_index);
+}
+
 }   // namespace lawa

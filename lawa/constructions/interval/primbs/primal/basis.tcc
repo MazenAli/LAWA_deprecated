@@ -80,7 +80,7 @@ Basis<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
                              pow2i<T>(j+1)-d+1);
             A.diag(0) = 1.;
             if (i-2*ifloor(i/2.)==1) {
-                for (int k=iceil(1/2.-(i+1)/4.); k<=ifloor(pow2i<T>(j)-d/2.-(i+1)/4.); ++k) {
+                for (int k=iceil<int>(1/2.-(i+1)/4.); k<=ifloor(pow2i<T>(j)-d/2.-(i+1)/4.); ++k) {
                     A((i+1)/2.+2*k,(i+1)/2.+2*k+1) = -x(ifloor(i/2.)+1) / x(ifloor(i/2.)+2);
                 }
                 tmp = x;
@@ -88,7 +88,7 @@ Basis<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
                 blas::mm(NoTrans,NoTrans,1.,A,H,0.,Tmp);
                 H = Tmp;
             } else if (i-2*ifloor(i/2.)==0) {
-                for (int k=iceil(1/2.-i/4.); k<=ifloor(pow2i<T>(j)-d/2.-i/4.); ++k) {
+                for (int k=iceil<int>(1/2.-i/4.); k<=ifloor(pow2i<T>(j)-d/2.-i/4.); ++k) {
                     A(pow2i<T>(j+1)-d+2-i/2.-2*k,pow2i<T>(j+1)-d+1-i/2.-2*k) = -x(d-i/2.+2)/x(d-i/2.+1);
                 }
                 tmp = x;
@@ -115,7 +115,7 @@ Basis<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
 
         FullColMatrix F(pow2i<T>(j+1)-d+1,pow2i<T>(j)-d+1);
         for (int k=1; k<=pow2i<T>(j)-d+1; ++k) {
-            F(iceil(d/2.)+2*k-2,k) = 1;
+            F(iceil<int>(d/2.)+2*k-2,k) = 1;
         }
 
         FullColMatrix Fj(pow2i<T>(j+1)+d-3,pow2i<T>(j));
@@ -125,7 +125,7 @@ Basis<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         }
         for (int n=1; n<=pow2i<T>(j+1)-d+1; ++n) {
             for (int m=1; m<=pow2i<T>(j)-d+1; ++m) {
-                Fj(d-2+n,iceil(d/2.)-1+m) = F(n,m);
+                Fj(d-2+n,iceil<int>(d/2.)-1+m) = F(n,m);
             }
         }
 
@@ -314,7 +314,7 @@ Basis<T,Primal,Interval,Primbs>::_calcM1()
         FullColMatrix A(pow2i<T>(min_j0+1)-d+1,pow2i<T>(min_j0+1)-d+1);
         A.diag(0) = 1.;
         if (i-2*ifloor(i/2.)==1) {
-            for (int k=iceil(1/2.-(i+1)/4.); k<=ifloor(pow2i<T>(min_j0)-d/2.-(i+1)/4.); ++k) {
+            for (int k=iceil<int>(1/2.-(i+1)/4.); k<=ifloor(pow2i<T>(min_j0)-d/2.-(i+1)/4.); ++k) {
                 A((i+1)/2.+2*k,(i+1)/2.+2*k+1) = -x(ifloor(i/2.)+1) / x(ifloor(i/2.)+2);
             }
             tmp = x;
@@ -322,7 +322,7 @@ Basis<T,Primal,Interval,Primbs>::_calcM1()
             blas::mm(NoTrans,NoTrans,1.,A,H,0.,Tmp);
             H = Tmp;
         } else if (i-2*ifloor(i/2.)==0) {
-            for (int k=iceil(1/2.-i/4.); k<=ifloor(pow2i<T>(min_j0)-d/2.-i/4.); ++k) {
+            for (int k=iceil<int>(1/2.-i/4.); k<=ifloor(pow2i<T>(min_j0)-d/2.-i/4.); ++k) {
                 A(pow2i<T>(min_j0+1)-d+2-i/2.-2*k,pow2i<T>(min_j0+1)-d+1-i/2.-2*k) = -x(d-i/2.+2)/x(d-i/2.+1);
             }
             tmp = x;
@@ -348,11 +348,11 @@ Basis<T,Primal,Interval,Primbs>::_calcM1()
 
     FullColMatrix F(pow2i<T>(min_j0+1)-d+1,pow2i<T>(min_j0)-d+1);
     for (int k=1; k<=pow2i<T>(min_j0)-d+1; ++k) {
-        F(iceil(d/2.)+2*k-2,k) = 1;
+        F(iceil<int>(d/2.)+2*k-2,k) = 1;
     }
 
     FullColMatrix Fj(pow2i<T>(min_j0+1)+d-1,pow2i<T>(min_j0));
-    for (int k=1; k<=iceil((d-1)/2.); ++k) {
+    for (int k=1; k<=iceil<int>((d-1)/2.); ++k) {
         Fj(d-1+k,k) =1;
         Fj(pow2i<T>(min_j0+1)+1-k,pow2i<T>(min_j0)+1-k) = 1;
     }

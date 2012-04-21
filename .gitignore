@@ -85,7 +85,13 @@ applications/unbounded_domains/s-adwav/s_adwav_conv_interval_rplus_pde2d_SparseM
 applications/unbounded_domains/s-adwav/s-adwav-rplus-helmholtz1d
 applications/unbounded_domains/s-adwav/s-adwav-interval-rplus-pde2d
 applications/unbounded_domains/adwav/ghs-adwav-interval-rplus-helmholtz2d
-/tutorials/examples/A.gps
-/tutorials/examples/pde1d.cpp~
-/applications/unbounded_domains/parameters/execfile~
-/applications/unbounded_domains/parameters/execfile
+applications/new_eval_scheme/test_new_sparsegrid2d
+applications/new_eval_scheme/test_multi_to_single2
+tutorials/examples/plot_wavelets
+applications/new_eval_scheme/test_refine_multiwavelet
+applications/new_eval_scheme/getDijkemaRefinements
+tutorials/examples/test_fwt
+applications/new_eval_scheme/test_refinement_coefficients
+applications/new_eval_scheme/test_local_decomposition
+applications/new_eval_scheme/test_local_operator1d
+applications/new_eval_scheme/test_local_reconstruction

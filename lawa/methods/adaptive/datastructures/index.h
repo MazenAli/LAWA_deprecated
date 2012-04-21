@@ -29,12 +29,13 @@ namespace lawa {
 
 static boost::hash<long int> hash_long;
 
-#define JMINOFFSET                 10
+#define JMINOFFSET                  0
 #define JMAX                       40
 #define SIZEHASHINDEX1D         12869//196613
 #define SIZELARGEHASHINDEX1D    72869//1572869
 #define SIZEHASHINDEX2D       6291469//1572869
 #define SIZELARGEHASHINDEX2D  6291469
+#define SIZELARGEHASHINDEX3D  6291469
 
 
 struct Index1D
@@ -87,7 +88,10 @@ struct lt
 {
 };
 
-//Bitmask implementation
+/*
+ * Compare (lt) operators.
+ */
+
 template<>
 struct lt<Lexicographical, Index1D>
 {
@@ -113,19 +117,42 @@ struct lt<Lexicographical, Index1D>
 template <>
 struct lt<Lexicographical, Index2D>
 {
-    bool operator()(const Index2D &left, const Index2D &right) const;
+    inline
+    bool operator()(const Index2D &left, const Index2D &right) const
+    {
+        if         ((left.index1.xtype==XBSpline)&&(right.index1.xtype==XWavelet)) {
+            return true;
+        }
+        else if ((left.index1.xtype==XWavelet)&&(right.index1.xtype==XBSpline)) {
+            return false;
+        }
+        else if ((left.index2.xtype==XBSpline)&&(right.index2.xtype==XWavelet)) {
+            return true;
+        }
+        else if ((left.index2.xtype==XWavelet)&&(right.index2.xtype==XBSpline)) {
+            return false;
+        }
+        else if (left.index1.j!=right.index1.j) {
+            return (left.index1.j<right.index1.j);
+        }
+        else if (left.index1.k!=right.index1.k) {
+            return (left.index1.k<right.index1.k);
+        }
+        else if (left.index2.j!=right.index2.j) {
+            return (left.index2.j<right.index2.j);
+        }
+        else {
+            return (left.index2.k<right.index2.k);
+        }
+    }
 
-    bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const;
+    //bool operator()(const Entry<Index2D> &left, const Entry<Index2D> &right) const;
 };
 
 
-template <>
-struct lt<Lexicographical, Index3D>
-{
-    bool operator()(const Index3D &left, const Index3D &right) const;
-
-    bool operator()(const Entry<Index3D> &left, const Entry<Index3D> &right) const;
-};
+/*
+ * Equal functions.
+ */
 
 template <typename Index>
 struct index_eqfunction
@@ -187,80 +214,38 @@ struct index_eqfunction<Index2D>
     }
 };
 
-template <typename Index>
-struct index_hashfunction
-{
-};
-
 template <>
-struct index_hashfunction<Index1D>
+struct index_eqfunction<Index3D>
 {
     inline
-    size_t operator()(const Index1D& index) const
+    bool operator()(const Index3D& leftindex, const Index3D& rightindex) const
     {
-        // Note: hash_values is taken mod "length of hashtable" automatically!!
-        long pow2ij = (1L << (index.j+JMINOFFSET+index.xtype));
-        size_t hash_value = (pow2ij + index.k);
+        if (leftindex.index1.k != rightindex.index1.k) return false;
+        if (leftindex.index2.k != rightindex.index2.k) return false;
+        if (leftindex.index3.k != rightindex.index3.k) return false;
 
-        return hash_value;
+        int leftval1 = leftindex.index1.xtype;
+        leftval1 = (((leftval1 << 16) | (unsigned short) leftindex.index1.j));
+        int rightval1 = rightindex.index1.xtype;
+        rightval1 = (((rightval1 << 16) | (unsigned short) rightindex.index1.j));
+        if (leftval1 != rightval1) return false;
 
-        /*
-        int val = index.xtype;
-        val = (((val << 16) | (unsigned short) index.j));
+        int leftval2 = leftindex.index2.xtype;
+        leftval2 = (((leftval2 << 16) | (unsigned short) leftindex.index2.j));
+        int rightval2 = rightindex.index2.xtype;
+        rightval2 = (((rightval2 << 16) | (unsigned short) rightindex.index2.j));
+        if (leftval2 != rightval2) return false;
 
-        std::size_t hash_value = 0;
-        boost::hash_combine(hash_value, val);
-        boost::hash_combine(hash_value, index.k);
-        return hash_value;
-        */
-    }
-};
-
-template <>
-struct index_hashfunction<Index2D>
-{
-    // performs better without storing 2^l values... why??
-    index_hashfunction(void)
-    {
-        for (int i=0; i<JMAX+JMINOFFSET+2; ++i) {
-            power2i[i] = 1L << i;
-        }
-    }
-    size_t power2i[JMAX+JMINOFFSET+2];
-
-    /*
-    inline
-    size_t operator()(const Index2D& index) const
-    {
-        //size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
-        //size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
-        size_t l1 = power2i[index.index1.j+index.index1.xtype+JMINOFFSET] + index.index1.k;
-        size_t l2 = power2i[index.index2.j+index.index2.xtype+JMINOFFSET] + index.index2.k;
-        size_t s1 = l1;
-        size_t s2 = l1+l2;
-        size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
-        return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
-    }
-    */
-
-    inline
-    size_t operator()(const Index2D& index) const
-    {
-        int val1 = index.index1.xtype;
-        int val2 = index.index2.xtype;
-        val1 = (((val1 << 16) | (unsigned short) index.index1.j));
-        val2 = (((val2 << 16) | (unsigned short) index.index2.j));
-
-        std::size_t hash_value = 0;
-        boost::hash_combine(hash_value, val1);
-        boost::hash_combine(hash_value, val2);
-        boost::hash_combine(hash_value, index.index1.k);
-        boost::hash_combine(hash_value, index.index2.k);
-
-        return hash_value;
+        int leftval3 = leftindex.index3.xtype;
+        leftval3 = (((leftval3 << 16) | (unsigned short) leftindex.index3.j));
+        int rightval3 = rightindex.index3.xtype;
+        rightval3 = (((rightval3 << 16) | (unsigned short) rightindex.index3.j));
+        return (leftval3==rightval3);
     }
 
-
+    //return (leftindex.index1.k == rightindex.index1.k && leftindex.index2.k == rightindex.index2.k && leftindex.index3.k == rightindex.index3.k &&
+    //        leftindex.index1.j == rightindex.index1.j && leftindex.index2.j == rightindex.index2.j && leftindex.index3.j == rightindex.index3.j &&
+    //        leftindex.index1.xtype == rightindex.index1.xtype && leftindex.index2.xtype == rightindex.index2.xtype  && leftindex.index3.xtype == rightindex.index3.xtype);
 };
 
 template <typename Index>
@@ -297,6 +282,118 @@ struct entry_eqfunction<Index1D>
     }
 };
 
+
+/*
+ * Hash functions.
+ */
+
+template <typename Index>
+struct index_hashfunction
+{
+};
+
+template <>
+struct index_hashfunction<Index1D>
+{
+    inline
+    size_t operator()(const Index1D& index) const
+    {
+        // Note: hash_values is taken mod "length of hashtable" automatically!!
+        long pow2ij = (1L << (index.j+JMINOFFSET+index.xtype));
+        size_t hash_value = (pow2ij + index.k);
+
+        return hash_value;
+
+        /*
+        int val = index.xtype;
+        val = (((val << 16) | (unsigned short) index.j));
+
+        std::size_t hash_value = 0;
+        boost::hash_combine(hash_value, val);
+        boost::hash_combine(hash_value, index.k);
+        return hash_value;
+        */
+    }
+};
+
+template <>
+struct index_hashfunction<Index2D>
+{
+
+    // performs better without storing 2^l values... why??
+    index_hashfunction(void)
+    {
+        for (int i=0; i<JMAX+JMINOFFSET+2; ++i) {
+            power2i[i] = 1L << i;
+        }
+    }
+    size_t power2i[JMAX+JMINOFFSET+2];
+
+
+    inline
+    size_t operator()(const Index2D& index) const
+    {
+        //size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
+        //size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
+        size_t l1 = power2i[index.index1.j+index.index1.xtype+JMINOFFSET] + index.index1.k;
+        size_t l2 = power2i[index.index2.j+index.index2.xtype+JMINOFFSET] + index.index2.k;
+        size_t s1 = l1;
+        size_t s2 = l1+l2;
+        size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
+        return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
+    }
+
+    /*
+    inline
+    size_t operator()(const Index2D& index) const
+    {
+        int val1 = index.index1.xtype;
+        int val2 = index.index2.xtype;
+        val1 = (((val1 << 16) | (unsigned short) index.index1.j));
+        val2 = (((val2 << 16) | (unsigned short) index.index2.j));
+
+        std::size_t hash_value = 0;
+        boost::hash_combine(hash_value, val1);
+        boost::hash_combine(hash_value, val2);
+        boost::hash_combine(hash_value, index.index1.k);
+        boost::hash_combine(hash_value, index.index2.k);
+
+        return hash_value;
+    }
+    */
+};
+
+template <>
+struct index_hashfunction<Index3D>
+{
+
+    // performs better without storing 2^l values... why??
+    index_hashfunction(void)
+    {
+        for (int i=0; i<JMAX+JMINOFFSET+2; ++i) {
+            power2i[i] = 1L << i;
+        }
+    }
+    size_t power2i[JMAX+JMINOFFSET+2];
+
+
+    inline
+    size_t operator()(const Index3D& index) const
+    {
+        //size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
+        //size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
+        size_t l1 = power2i[index.index1.j+index.index1.xtype] + index.index1.k;
+        size_t l2 = power2i[index.index2.j+index.index2.xtype] + index.index2.k;
+        size_t l3 = power2i[index.index3.j+index.index3.xtype] + index.index3.k;
+        size_t s1 = l1;
+        size_t s2 = l1+l2;
+        size_t s3 = l1+l2+l3;
+        size_t P=SIZELARGEHASHINDEX2D, TwoP=2*SIZELARGEHASHINDEX2D, SixP=6*SIZELARGEHASHINDEX2D;
+        return (   ( ( ((s3+2)%SixP)*((s3+1)%SixP)*(s3%SixP) )%SixP )/6
+                 + ( ( ((s2+1)%TwoP)*(s2%TwoP) ) % TwoP )/2 + s1%P ) % P;
+    }
+};
+
 template <typename Index>
 struct entry_hashfunction
 {
@@ -305,6 +402,25 @@ struct entry_hashfunction
 template <>
 struct entry_hashfunction<Index1D>
 {
+    entry_hashfunction(void)
+    {
+        for (int i=0; i<JMAX+JMINOFFSET+2; ++i) {
+            power2i[i] = 1L << i;
+        }
+    }
+    size_t power2i[JMAX+JMINOFFSET+2];
+
+    inline
+    size_t operator()(const Entry<Index1D>& entry) const
+    {
+        size_t l1 = power2i[entry.col_index.j+entry.col_index.xtype+JMINOFFSET] + entry.col_index.k;
+        size_t l2 = power2i[entry.row_index.j+entry.row_index.xtype+JMINOFFSET] + entry.row_index.k;
+        size_t s1 = l1;
+        size_t s2 = l1+l2;
+        size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
+        return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
+    }
+    /*
     inline
     size_t operator()(const Entry<Index1D>& entry) const
     {
@@ -321,6 +437,7 @@ struct entry_hashfunction<Index1D>
 
         return hash_value;
     }
+    */
 };
 
 } //namespace lawa

@@ -65,7 +65,8 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
 template <typename T, typename Basis>
 void
 plotCoeff(const Coefficients<Lexicographical,T,Index1D > &coeff,
-          const Basis &basis, const char* filename, bool locally_single_scale=false);
+          const Basis &basis, const char* filename, bool locally_single_scale=false,
+          bool interval=false);
 
 template <typename T, typename Basis>
 void
@@ -84,6 +85,12 @@ template <typename T, typename Index, typename Basis_x, typename Basis_y>
 void
 plotScatterCoeff2D(const Coefficients<Lexicographical,T,Index> &coeff, const Basis_x &basis_x,
                    const Basis_y &basis_y, const char* filename);
+
+template <typename T, typename Index, typename Basis_x, typename Basis_y>
+void
+plotScatterCoeff2D_interval(const Coefficients<Lexicographical,T,Index> &coeff,
+                            const Basis_x &basis_x, const Basis_y &basis_y,
+                            const char* filename);
 
 
 }  // namespace lawa

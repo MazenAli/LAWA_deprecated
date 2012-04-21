@@ -32,11 +32,16 @@ class LocalRefinement
     typedef typename PrimalBasis::T T;
     typedef IndexSet<Index1D>::const_iterator                                  const_set1d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator   const_coeff1d_it;
+    typedef typename CoefficientsByLevel<T>::const_it                          const_coeffbylevel_it;
 
     public:
 
 
         LocalRefinement(const PrimalBasis &_basis, bool withDirichletBC);
+
+        void
+        computeLocalScaleRepr(const Coefficients<Lexicographical,T,Index1D> &u_multi,
+                              Coefficients<Lexicographical,T,Index1D> &u_loc_single);
 
         /*
          * Expects a vector u_multi_j of wavelets _and_ scaling functions on level j.
@@ -90,7 +95,7 @@ class LocalRefinement
                    const short &j, const long &k, const XType &xtype) const;
 
         T
-        decompose_(CoefficientsByLevel<T> &u_loc_single,
+        decompose_(const CoefficientsByLevel<T> &u_loc_single,
                    const short &j, const long &k, const XType &xtype) const;
 
 

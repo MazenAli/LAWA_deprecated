@@ -110,5 +110,69 @@ Wavelet<T,Primal,Interval,Cons>::tic(int j) const
     return pow2i<T>(-j-1);
 }
 
+template <typename T, Construction Cons>
+DenseVector<Array<long double> > *
+Wavelet<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+{
+    k -= 1;
+    refinement_j = j + 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        refinement_k_first = basis._leftOffsets[k];
+        return &(basis._leftRefCoeffs[k]);
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        int type = 0;
+        if (basis.d % 2 != 0 && k+1>basis.cardJ(j)/2.) type = 1;
+        long shift = k+1L;
+        refinement_k_first = 2*shift+basis._innerOffsets[type];
+        return &(basis._innerRefCoeffs[type]);
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    long shift = pow2i<long>(j)-1;
+    refinement_k_first = 2*shift+basis._rightOffsets[type];
+    return &(basis._rightRefCoeffs[type]);
+}
+
+template <typename T, Construction Cons>
+int
+Wavelet<T,Primal,Interval,Cons>::getRefinementLevel(int j) const
+{
+    return j + 1;
+}
+
+template <typename T, Construction Cons>
+void
+Wavelet<T,Primal,Interval,Cons>::getRefinementNeighbors(int j, long k, int &refinement_j,
+                                                        long &refinement_k_first,
+                                                        long &refinement_k_last) const
+{
+    k -= 1;
+    refinement_j = j + 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        refinement_k_first = basis._leftOffsets[k];
+        refinement_k_last  = refinement_k_first + basis._leftRefCoeffs[k].lastIndex();
+        return;
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        int type = 0;
+        if (basis.d % 2 != 0 && k+1>basis.cardJ(j)/2.) type = 1;
+        long shift = k+1L;
+        refinement_k_first = 2*shift+basis._innerOffsets[type];
+        refinement_k_last  = refinement_k_first + basis._innerRefCoeffs[type].lastIndex();
+        return;
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    long shift = pow2i<long>(j)-1;
+    refinement_k_first = 2*shift+basis._rightOffsets[type];
+    refinement_k_last  = refinement_k_first + basis._rightRefCoeffs[type].lastIndex();
+    return;
+}
+
 } // namespace lawa
 

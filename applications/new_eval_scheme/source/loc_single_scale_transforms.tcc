@@ -8,10 +8,17 @@ constructRandomGradedTree(const PrimalBasis &basis, int J, IndexSet<Index1D> &La
     typedef IndexSet<Index1D>::const_iterator                           const_set1d_it;
     typedef std::map<int, IndexSet<Index1D> >                           IndexSetByLevels;
 
-
+    /*
     for (int k=basis.mra.rangeI(basis.j0).firstIndex(); k<=basis.mra.rangeI(basis.j0).lastIndex(); ++k) {
         LambdaTree.insert(Index1D(basis.j0,k,XBSpline));
     }
+    for (int j=basis.j0; j<=J; ++j) {
+        for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
+            LambdaTree.insert(Index1D(j,k,XWavelet));
+        }
+    }
+    */
+
     for (int j=basis.j0; j<=J; ++j) {
         int random_k1 = rand() % basis.cardJ(j) + 1;
         LambdaTree.insert(Index1D(j,random_k1,XWavelet));
@@ -53,14 +60,6 @@ constructRandomGradedTree(const PrimalBasis &basis, int J, IndexSet<Index1D> &La
         //std::cout << "j = " << j << std::endl;
         for (const_set1d_it it=LambdaByLevels[j].begin(); it!=LambdaByLevels[j].end(); ++it) {
             LambdaTree.insert(*it);
-            /*
-            if ((*it).xtype == XWavelet) {
-                std::cout << "   " << *it << " " << basis.psi.support((*it).j,(*it).k) << std::endl;
-            }
-            else {
-                std::cout << "   " << *it << " " << basis.mra.phi.support((*it).j,(*it).k) << std::endl;
-            }
-            */
         }
     }
 
