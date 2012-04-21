@@ -101,7 +101,7 @@ int main (int argc, char *argv[]) {
     if (d==2 && d_==2) {
         offset=2;
     }
-    LocalOp1D_x localoperator_x(basis, withDirichletBC, basis, withDirichletBC, offset, Bil_x, Prec, true);
+    LocalOp1D_x localoperator_x(basis, withDirichletBC, basis, withDirichletBC, offset, Bil_x, Prec);
     LocalOp1D_y localoperator_y(basis, withDirichletBC, basis, withDirichletBC, offset, Bil_y, Prec);
     LocalOp2D   localop2d(basis,localoperator_x,localoperator_y);
 
