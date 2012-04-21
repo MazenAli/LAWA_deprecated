@@ -30,7 +30,7 @@ LocalRefinement2<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,
             long k_refinement = (*it).first;
             j_wavelet = 0;
             long k_first = 0L, k_last = 0L;
-            basis.getWaveletNeighborsForBSpline(j_refinement,k_refinement, j_wavelet, k_first, k_last);
+            refinementbasis.getWaveletNeighborsForBSpline(j_refinement,k_refinement, basis, j_wavelet, k_first, k_last);
 
             bool has_neighbor=false;
             for (long k=k_first; k<=k_last; ++k) {
