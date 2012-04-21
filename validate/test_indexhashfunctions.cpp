@@ -129,7 +129,6 @@ int main (int argc, char *argv[]) {
             }
         }
     }
-    cout << "Finished. Size of v = " << v.size() << endl;
     getchar();
 
     return 0;
