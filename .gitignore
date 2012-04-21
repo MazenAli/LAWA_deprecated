@@ -85,3 +85,7 @@ applications/unbounded_domains/s-adwav/s_adwav_conv_interval_rplus_pde2d_SparseM
 applications/unbounded_domains/s-adwav/s-adwav-rplus-helmholtz1d
 applications/unbounded_domains/s-adwav/s-adwav-interval-rplus-pde2d
 applications/unbounded_domains/adwav/ghs-adwav-interval-rplus-helmholtz2d
+/tutorials/examples/A.gps
+/tutorials/examples/pde1d.cpp~
+/applications/unbounded_domains/parameters/execfile~
+/applications/unbounded_domains/parameters/execfile
