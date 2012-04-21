@@ -25,13 +25,13 @@ LocalRefinement2<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,
 
     int imax = u_tree.getMaxTreeLevel(0);
     for (int i=0; i<imax; ++i) {
+        int  j_refinement = j_bspline + i;
         for (const_coeffbylevel_it it=u_tree[i].map.begin(); it!=u_tree[i].map.end(); ++it) {
-            int  j_refinement = j_bspline + i;
             long k_refinement = (*it).first;
-            j_wavelet = 0;
+            int test_j_wavelet = 0;
             long k_first = 0L, k_last = 0L;
-            refinementbasis.getWaveletNeighborsForBSpline(j_refinement,k_refinement, basis, j_wavelet, k_first, k_last);
-
+            refinementbasis.getWaveletNeighborsForBSpline(j_refinement,k_refinement, basis, test_j_wavelet, k_first, k_last);
+            assert(test_j_wavelet==j_wavelet+i);
             bool has_neighbor=false;
             for (long k=k_first; k<=k_last; ++k) {
                 if (   u_tree[i+1].map.find(k)!=u_tree[i+1].map.end()) {
@@ -46,8 +46,9 @@ LocalRefinement2<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,
         }
 
         CoefficientsByLevel<T> u_loc_single_jP1;
-        int j_refinement = 0;
-        this->reconstruct(u_tree[i], j_bspline+i, u_tree[i+1], j_wavelet+i, u_loc_single_jP1, j_refinement);
+        int test_j_refinement = 0;
+        this->reconstruct(u_tree[i], j_bspline+i, u_tree[i+1], j_wavelet+i, u_loc_single_jP1, test_j_refinement);
+        assert(test_j_refinement==j_refinement+1);
         u_tree[i+1] = u_loc_single_jP1;
     }
     for (const_coeffbylevel_it it=u_tree[imax].map.begin(); it!=u_tree[imax].map.end(); ++it) {
