@@ -121,6 +121,26 @@ class Basis<_T,Primal,Interval,Dijkema>
                                           int &j_bspline2,
                                           long &k_bspline2_first, long &k_bspline2_last) const;
 
+        class PoissonOperator1D {
+            public:
+                PoissonOperator1D(int _d,
+                                  const Basis<_T,Primal,Interval,Dijkema> &_refinementbasis);
+
+                T
+                operator()(XType xtype1, int j1, long k1, XType xtype2, int j2, long k2);
+
+            private:
+                int d;
+                const Basis<_T,Primal,Interval,Dijkema> &refinementbasis;
+
+                DenseVector<Array<long double> > outer_values;
+                DenseVector<Array<long double> > inner_values;
+        };
+
+        typedef PoissonOperator1D PoissonOp1D;
+
+        PoissonOp1D poissonOp1D;
+
         MRA<T,Primal,Interval,Dijkema> mra;
         MRA<T,Dual,Interval,Dijkema>  mra_;
 

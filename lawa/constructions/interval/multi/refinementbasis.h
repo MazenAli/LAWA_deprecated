@@ -87,12 +87,31 @@ class Basis<_T,Orthogonal,Interval,MultiRefinement>
                                           int &j_wavelet, long &k_wavelet_first,
                                           long &k_wavelet_last) const;
 
+        class PoissonOperator1D {
+            public:
+                PoissonOperator1D(int _d,
+                                  const Basis<_T,Orthogonal,Interval,MultiRefinement> &_refinementbasis);
+
+                T
+                operator()(XType xtype1, int j1, long k1, XType xtype2, int j2, long k2);
+
+            private:
+                int d;
+                const Basis<_T,Orthogonal,Interval,MultiRefinement> &refinementbasis;
+
+                DenseVector<Array<long double> > outer_values;
+                DenseVector<Array<long double> > inner_values1;
+                DenseVector<Array<long double> > inner_values2;
+        };
+
+        typedef PoissonOperator1D PoissonOp1D;
+
+        PoissonOp1D poissonOp1D;
+
         MRA<T,Orthogonal,Interval,MultiRefinement> mra;
 
         const int d;
         const int j0;          // minimal used(!) level.
-
-    private:
 
         mutable int _j;                // the current level.
 

@@ -12,7 +12,7 @@ namespace lawa {
 
 template <typename T>
 Basis<T,Orthogonal,Interval,MultiRefinement>::Basis(int _d, int j)
-    : mra(_d, j), d(_d), j0(mra.j0), _j(j0)
+    : mra(_d, j), d(_d), j0(mra.j0), _j(j0), poissonOp1D(_d, *this)
 {
     assert(d>=2);
     setLevel(_j);
@@ -134,6 +134,85 @@ Basis<T,Orthogonal,Interval,MultiRefinement>
     k_wavelet_first  = k_wavelet_last - (secondbasis._numRightParts + secondbasis._numInnerParts) + 1;
     k_wavelet_first  = std::max(1L, k_wavelet_first);
     return;
+}
+
+template <typename T>
+Basis<T,Orthogonal,Interval,MultiRefinement>::PoissonOperator1D::
+PoissonOperator1D(int _d, const Basis<T,Orthogonal,Interval,MultiRefinement> &_refinementbasis)
+ : d(_d), refinementbasis(_refinementbasis)
+{
+
+
+    switch (d) {
+        case 2:
+            inner_values1.engine().resize(2,0);
+            inner_values1 = 2., -1.;
+            break;
+        case 3:
+            outer_values.engine().resize(3,0);
+            outer_values = 4.L/3.L, -1.L/6.L, -1.L/6.L;
+            inner_values1.engine().resize(3,0);
+            inner_values1 = 1.L, -1.L/3.L, -1.L/6.L;
+            break;
+        case 4:
+            outer_values.engine().resize(4,0);
+            outer_values = 6.L/5.L, 0.L, -3.L/10.L, 0.L;
+            inner_values1.engine().resize(4,0);
+            inner_values1 = 6.L/5.L, 0.L, -3.L/8.L, -3.L/40.L;
+            inner_values2.engine().resize(4,0);
+            inner_values2 = 6.L/5.L, -3.L/8.L, -3.L/8.L, 0.L;
+            break;
+        default:
+            std::cerr << "Basis<T,Orthogonal,Interval,MultiRefinement>::PoissonOperator1D "
+                      << "not yet implemented for d=" << d << std::endl;
+            exit(1);
+    }
+}
+
+template <typename T>
+T
+Basis<T,Orthogonal,Interval,MultiRefinement>::PoissonOperator1D::
+operator()(XType xtype1, int j1, long k1, XType xtype2, int j2, long k2)
+{
+    assert(j1==j2);
+    if (d==2) {
+        long k_diff = std::abs(k1 - k2);
+        if (k_diff>1) return 0.L;
+        return  pow2i<T>(2*j1)*inner_values1(k_diff);
+    }
+    else if (d==3) {
+        long k_diff = std::abs(k1 - k2);
+        if (k_diff>2) return 0.L;
+
+        int firstIndex =  refinementbasis.mra.rangeI(j1).firstIndex();
+        int lastIndex  =  refinementbasis.mra.rangeI(j1).lastIndex();
+        if (k1==firstIndex || k1==lastIndex || k2 == firstIndex || k2 == lastIndex) {
+            return pow2i<T>(2*j1)*outer_values(k_diff);
+        }
+        else {
+            return pow2i<T>(2*j1)*inner_values1(k_diff);
+        }
+    }
+    else if (d==4) {
+        long k_diff = std::abs(k1 - k2);
+        if (k_diff>3) return 0.L;
+
+        int firstIndex =  refinementbasis.mra.rangeI(j1).firstIndex();
+        int lastIndex  =  refinementbasis.mra.rangeI(j1).lastIndex();
+        if (k1==firstIndex || k1==lastIndex || k2 == firstIndex || k2 == lastIndex) {
+            return pow2i<T>(2*j1)*outer_values(k_diff);
+        }
+        else {
+            if (std::max(k1,k2)%2==0)  return pow2i<T>(2*j1)*inner_values1(k_diff);
+            else                       return pow2i<T>(2*j1)*inner_values2(k_diff);
+        }
+    }
+    else {
+        std::cerr << "Basis<T,Orthogonal,Interval,MultiRefinement>::PoissonOperator1D::operator() "
+                  << "not yet implemented for d=" << d << std::endl;
+        exit(1);
+        return 0.;
+    }
 }
 
 } // namespace lawa

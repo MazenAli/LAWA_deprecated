@@ -13,22 +13,21 @@ using namespace lawa;
 /// Several typedefs for notational convenience.
 
 ///  Typedefs for Flens data types:
-typedef long double T;
+typedef double T;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 
 ///  Typedefs for problem components:
 
 ///  Wavelet basis over an interval
-typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-//typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 ///  Underlying bilinear form
 typedef HelmholtzOperator1D<T,PrimalBasis>                          BilinearForm;
-typedef HelmholtzOperator1D<T,RefinementBasis>                      RefinementBilinearForm;
-//typedef IdentityOperator1D<T,PrimalBasis>                           BilinearForm;
-//typedef IdentityOperator1D<T, RefinementBasis>                      RefinementBilinearForm;
+typedef RefinementBasis::PoissonOp1D                                RefinementBilinearForm;
+typedef HelmholtzOperator1D<T,RefinementBasis>                      RefinementBilinearFormTest;
 
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
@@ -71,17 +70,31 @@ int main(int argc, char*argv[])
     Timer time;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
-    //PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
+    //PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
+    PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
     basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis &refinementbasis = basis.refinementbasis;
 
-    BilinearForm              Bil(basis,1.);
-    RefinementBilinearForm    RefinementBil(refinementbasis,1.);
-    //BilinearForm              Bil(basis);
-    //RefinementBilinearForm    RefinementBil(refinementbasis);
+    BilinearForm                Bil(basis,0.);
+    RefinementBilinearFormTest  RefinementBilTest(refinementbasis,0.);
 
-    LocOp1D localOperator1D(basis,basis,RefinementBil);
+    //LocOp1D localOperator1D(basis,basis,RefinementBil);
+    LocOp1D localOperator1D(basis,basis,refinementbasis.poissonOp1D);
+
+    /*
+    int j=j0+4;
+    for (int k1=refinementbasis.mra.rangeI(j).firstIndex(); k1<=refinementbasis.mra.rangeI(j).lastIndex(); ++k1) {
+        for (int k2=refinementbasis.mra.rangeI(j).firstIndex(); k2<=refinementbasis.mra.rangeI(j).lastIndex(); ++k2) {
+            if (abs(k1-k2)>9) continue;
+            T val1 = RefinementBil(XBSpline, j, k1, XBSpline, j, k2);
+            T val2 = refinementbasis.poissonOp1D(XBSpline, j, k1, XBSpline, j, k2);
+            if (fabs(val1-val2)>1e-14) {
+                cout << "[" << j << ", (" << k1 << "," << k2 << ")]: " << val1 << " " << val2
+                << " " << pow2i<T>(j) << endl;
+            }
+        }
+    }
+    */
 
     stringstream ct_filename;
     ct_filename << "comptime_locOp1d_" << d << "_" << j0 << "_" << J << ".dat";
@@ -255,6 +268,7 @@ computeEvalURef(const BilinearForm &Bil, const PrimalBasis &basis,
 
 void
 computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
+
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Lv_tree)
 {
     Coefficients<Lexicographical,T,Index1D> v, Lv;
@@ -274,3 +288,4 @@ computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
     }
     fromCofficientsToTreeCofficients(basis, Lv, Lv_tree);
 }
+

@@ -27,7 +27,8 @@ template <typename T>
 Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
     : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
-      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1), psi(*this), refinementbasis(*this)
+      min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1), psi(*this), refinementbasis(*this),
+      poissonOp1D(_d,*this)
 {
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
@@ -345,6 +346,63 @@ getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
     return;
 }
 
+template <typename T>
+Basis<T,Primal,Interval,Dijkema>::PoissonOperator1D::
+PoissonOperator1D(int _d, const Basis<T,Primal,Interval,Dijkema> &_refinementbasis)
+ : d(_d), refinementbasis(_refinementbasis)
+{
+
+
+    switch (d) {
+        case 2:
+            inner_values.engine().resize(2,0);
+            inner_values = 2., -1.;
+            break;
+        case 3:
+            outer_values.engine().resize(3,0);
+            outer_values = 4.L/3.L, -1.L/6.L, -1.L/6.L;
+            inner_values.engine().resize(3,0);
+            inner_values = 1.L, -1.L/3.L, -1.L/6.L;
+            break;
+        default:
+            std::cerr << "Basis<T,Primal,Interval,Dijkema>::PoissonOperator1D "
+                      << "not yet implemented for d=" << d << std::endl;
+    }
+}
+
+template <typename T>
+T
+Basis<T,Primal,Interval,Dijkema>::PoissonOperator1D::
+operator()(XType xtype1, int j1, long k1, XType xtype2, int j2, long k2)
+{
+    assert(j1==j2);
+    assert(_bc(0) == 1);
+    assert(_bc(1) == 1);
+    if (d==2) {
+        long k_diff = std::abs(k1 - k2);
+        if (k_diff>1) return 0.L;
+        return  pow2i<T>(2*j1)*inner_values(k_diff);
+    }
+    else if (d==3) {
+        long k_diff = std::abs(k1 - k2);
+        if (k_diff>2) return 0.L;
+
+        int firstIndex =  refinementbasis.mra.rangeI(j1).firstIndex();
+        int lastIndex  =  refinementbasis.mra.rangeI(j1).lastIndex();
+        if (k1==firstIndex || k1==lastIndex || k2 == firstIndex || k2 == lastIndex) {
+            return pow2i<T>(2*j1)*outer_values(k_diff);
+        }
+        else {
+            return pow2i<T>(2*j1)*inner_values(k_diff);
+        }
+    }
+    else {
+        std::cerr << "Basis<T,Primal,Interval,Dijkema>::PoissonOperator1D::operator() "
+                  << "not yet implemented for d=" << d << std::endl;
+        exit(1);
+        return 0.;
+    }
+}
 
 } // namespace lawa
 
