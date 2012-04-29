@@ -715,6 +715,79 @@ Basis<T,Orthogonal,Interval,Multi>
     //          << " " << refinementbasis.mra.phi.support(j_bspline,k_bspline_last) << std::endl;
 }
 
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Orthogonal,Interval,Multi>
+::getScalingNeighborsForWavelet(int j_wavelet, long k_wavelet,
+                                const SecondBasis &secondbasis,
+                                int &j_scaling, long &k_scaling_first, long &k_scaling_last) const
+{
+    ct_assert(SecondBasis::Side==Orthogonal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Multi);
+    j_scaling = j_wavelet;
+    long k_tilde = (k_wavelet / _numInnerParts + 1) * mra._numInnerParts;
+    k_scaling_first = k_tilde - 2* mra._numInnerParts - 2;
+    k_scaling_first = std::max(k_scaling_first, (long)mra.rangeI(j_scaling).firstIndex());
+    k_scaling_last  = k_tilde + 2* mra._numInnerParts + 2;
+    k_scaling_last  = std::min(k_scaling_last, (long)mra.rangeI(j_scaling).lastIndex());
+    return;
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Orthogonal,Interval,Multi>
+::getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
+                                const SecondBasis &secondbasis,
+                                int &j_scaling2, long &k_scaling_first, long &k_scaling_last) const
+{
+    ct_assert(SecondBasis::Side==Orthogonal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Multi);
+    j_scaling2 = j_scaling1;
+    k_scaling_first = k_scaling1 - 2* mra._numInnerParts;
+    k_scaling_first = std::max(k_scaling_first, (long)mra.rangeI(j_scaling2).firstIndex());
+    k_scaling_last  = k_scaling1 + 2* mra._numInnerParts;
+    k_scaling_last  = std::min(k_scaling_last, (long)mra.rangeI(j_scaling2).lastIndex());
+    return;
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Orthogonal,Interval,Multi>
+::getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1, const SecondBasis &secondbasis,
+                                int &j_wavelet2, long &k_wavelet_first, long &k_wavelet_last) const
+{
+    ct_assert(SecondBasis::Side==Orthogonal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Multi);
+    j_wavelet2 = j_wavelet1;
+    long k_tilde = k_wavelet1;
+    k_wavelet_first = k_tilde - 2*_numInnerParts;
+    k_wavelet_first = std::max(k_wavelet_first, (long)rangeJ(j_wavelet2).firstIndex());
+    k_wavelet_last  = k_tilde + 2*_numInnerParts;
+    k_wavelet_last  = std::min(k_wavelet_last,  (long)rangeJ(j_wavelet2).lastIndex());
+    return;
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Orthogonal,Interval,Multi>
+::getLowerWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                     const SecondBasis &secondbasis,
+                                     int &j_wavelet2, long &k_wavelet_first, long &k_wavelet_last) const
+{
+    ct_assert(SecondBasis::Side==Orthogonal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Multi);
+    j_wavelet2 = j_wavelet1-1;
+    long k_tilde = k_wavelet1 / 2;
+    k_wavelet_first = k_tilde - 2*_numInnerParts;
+    k_wavelet_first = std::max(k_wavelet_first, (long)rangeJ(j_wavelet2).firstIndex());
+    k_wavelet_last  = k_tilde + 2*_numInnerParts;
+    k_wavelet_last  = std::min(k_wavelet_last,  (long)rangeJ(j_wavelet2).lastIndex());
+    return;
+}
 
 } // namespace lawa
 

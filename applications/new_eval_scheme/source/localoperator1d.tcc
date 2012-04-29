@@ -92,28 +92,27 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                                 PhiPiunderlineCheck, j_refinement_test);
 
     //Compute a(\check{Phi}|_{\check{Pi}^{(1)}} , \hat{\Phi}|_{\hat{Pi}}) d
-    time.start();
+    //time.start();
     _applyBilinearForm(l, d, PhiPiCheck);
-    time.stop();
-    std::cerr << "l = " << l << " : apply Bil 1 took " << time.elapsed() << std::endl;
+    //time.stop();
 
     // Splitting of B-spline coefficient vector $d$.
-    time.start();
+    //time.start();
     CoefficientsByLevel<T> d2(l,hm_size);
     _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
-    time.stop();
-    std::cerr << "l = " << l << " : splitting of d took " << time.elapsed() << std::endl;
+    //time.stop();
+    //std::cerr << "l = " << l << " : splitting of d took " << time.elapsed() << std::endl;
 
     // Compute underline d
-    time.start();
+    //time.start();
     CoefficientsByLevel<T> underline_d(l+1,4*hm_size);
     int j_refinement_trial = 0;
     trialLocalRefine.reconstruct(d2,           j_bspline_trial,
                                  c[shifted_l], j_wavelet_trial,
                                  underline_d,  j_refinement_trial);
-    time.stop();
-    std::cerr << "l = " << l << " : trialLocalRefine.reconstruct took " << time.elapsed()
-              << ", output size: " << underline_d.map.size() << std::endl;
+    //time.stop();
+    //std::cerr << "l = " << l << " : trialLocalRefine.reconstruct took " << time.elapsed()
+    //          << ", output size: " << underline_d.map.size() << std::endl;
 
     //Recursive call of eval
     this->_evalA(l+1, underline_d, c, PhiPiunderlineCheck, PsiLambdaCheck);

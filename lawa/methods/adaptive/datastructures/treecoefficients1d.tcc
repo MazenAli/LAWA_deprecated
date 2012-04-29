@@ -72,8 +72,8 @@ std::ostream& operator<<(std::ostream &s, const CoefficientsByLevel<T> &_coeff_b
 
 
 template <typename T>
-TreeCoefficients1D<T>::TreeCoefficients1D(size_t n)
-: maxTreeLevel(JMAX)
+TreeCoefficients1D<T>::TreeCoefficients1D(size_t n, int basis_j0)
+: offset(basis_j0-1), maxTreeLevel(JMAX)
 {
     for (int l=0; l<=JMAX; ++l) {
         CoefficientsByLevel<T> tmp;
@@ -86,6 +86,7 @@ template <typename T>
 TreeCoefficients1D<T>&
 TreeCoefficients1D<T>::operator=(const TreeCoefficients1D<T> &_coeff)
 {
+    assert(offset=_coeff.offset);
     for (int l=0; l<=maxTreeLevel; ++l) {
         this->bylevel[l] = _coeff.bylevel[l];
     }
@@ -101,10 +102,10 @@ TreeCoefficients1D<T>::operator=(const Coefficients<Lexicographical,T,Index1D> &
         long  k     = (*it).first.k;
         XType xtype = (*it).first.xtype;
         if (xtype==XBSpline) {
-            this->bylevel[j-1].map.insert(val_type(k, (*it).second));
+            this->bylevel[j-1-offset].map.insert(val_type(k, (*it).second));
         }
         else {
-            this->bylevel[j].map.insert(val_type(k, (*it).second));
+            this->bylevel[j-offset].map.insert(val_type(k, (*it).second));
         }
     }
     return *this;
@@ -120,10 +121,10 @@ TreeCoefficients1D<T>::operator-=(const Coefficients<Lexicographical,T,Index1D> 
         XType xtype = (*it).first.xtype;
 
         if (xtype==XBSpline) {
-            this->bylevel[j-1].map[k] -= (*it).second;
+            this->bylevel[j-1-offset].map[k] -= (*it).second;
         }
         else {
-            this->bylevel[j].map[k] -= (*it).second;
+            this->bylevel[j-offset].map[k] -= (*it).second;
         }
     }
     return *this;
@@ -133,6 +134,7 @@ template <typename T>
 TreeCoefficients1D<T>&
 TreeCoefficients1D<T>::operator-=(const TreeCoefficients1D<T> &_coeff)
 {
+    assert(offset=_coeff.offset);
     for (int l=0; l<=maxTreeLevel; ++l) {
         if (_coeff.bylevel[l].map.size()!=0) {
             for (const_by_level_it it=_coeff.bylevel[l].map.begin(); it!=_coeff.bylevel[l].map.end(); ++it) {
@@ -145,16 +147,18 @@ TreeCoefficients1D<T>::operator-=(const TreeCoefficients1D<T> &_coeff)
 
 template <typename T>
 const CoefficientsByLevel<T>&
-TreeCoefficients1D<T>::operator[](short j) const
+TreeCoefficients1D<T>::operator[](short i) const
 {
-    return this->bylevel[(unsigned int)j];
+    // no offset here: i might be a level, then offset = 0. Or i is just the i-th stage and the
+    // method calling this routine is supposed to know how work with the result vector.
+    return this->bylevel[(unsigned int)i];
 }
 
 template <typename T>
 CoefficientsByLevel<T>&
-TreeCoefficients1D<T>::operator[](short j)
+TreeCoefficients1D<T>::operator[](short i)
 {
-    return this->bylevel[(unsigned int)j];
+    return this->bylevel[(unsigned int)i];
 }
 
 template <typename T>
@@ -186,7 +190,7 @@ int
 TreeCoefficients1D<T>::getMaxTreeLevel(int j0)
 {
     int j=0;
-    for (int l=j0-1; l<=JMAX; ++l) {
+    for (int l=j0-1-offset; l<=JMAX; ++l) {
         if(bylevel[l].map.size()==0) break;
         j=l;
     }
@@ -219,26 +223,26 @@ TreeCoefficients1D<T>::norm(T factor)
 
 template<typename T, typename Basis>
 void
-fromTreeCofficientsToCofficients(const Basis &basis, const TreeCoefficients1D<T> &tree_v,
+fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
                                  Coefficients<Lexicographical,T,Index1D> &v)
 {
     for (typename CoefficientsByLevel<T>::const_it it= tree_v.bylevel[0].map.begin();
                                           it!=tree_v.bylevel[0].map.end(); ++it) {
-        v[Index1D(basis.j0,(*it).first,XBSpline)] = (*it).second;
+        v[Index1D(tree_v.offset+1,(*it).first,XBSpline)] = (*it).second;
     }
     for (int i=1; i<=JMAX; ++i) {
         if (tree_v.bylevel[i].map.size()==0) break;
         for (typename CoefficientsByLevel<T>::const_it it= tree_v.bylevel[i].map.begin();
                                               it!=tree_v.bylevel[i].map.end(); ++it) {
-            v[Index1D(basis.j0+i-1,(*it).first,XWavelet)] = (*it).second;
+            v[Index1D(tree_v.offset+i,(*it).first,XWavelet)] = (*it).second;
         }
     }
 }
 
 template<typename T, typename Basis>
 void
-fromCofficientsToTreeCofficients(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> &v,
-                                 TreeCoefficients1D<T> &v_tree)
+fromCofficientsToTreeCofficients(const Coefficients<Lexicographical,T,Index1D> &v,
+                                 TreeCoefficients1D<T> &tree_v)
 {
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator    const_coeff1d_it;
     typedef typename CoefficientsByLevel<T>::val_type                           val_type;
@@ -248,11 +252,11 @@ fromCofficientsToTreeCofficients(const Basis &basis, const Coefficients<Lexicogr
         long  k     = (*it).first.k;
         XType xtype = (*it).first.xtype;
         if (xtype==XBSpline) {
-            assert(j==basis.j0);
-            v_tree.bylevel[0].map.operator[](k) =  (*it).second;
+            assert(j==tree_v.offset+1);
+            tree_v.bylevel[0].map.operator[](k) =  (*it).second;
         }
         else {
-            v_tree.bylevel[j-basis.j0+1].map.operator[](k) = (*it).second;
+            tree_v.bylevel[j-tree_v.offset].map.operator[](k) = (*it).second;
         }
     }
 }

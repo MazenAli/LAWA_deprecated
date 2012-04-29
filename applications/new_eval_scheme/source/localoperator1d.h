@@ -33,6 +33,8 @@ class LocalOperator1D {
 
     public:
         typedef typename TrialBasis::T T;
+        typedef TrialBasis                           TrialWaveletBasis;
+        typedef TestBasis                            TestWaveletBasis;
         typedef typename TrialBasis::RefinementBasis TrialRefinementBasis;
         typedef typename TestBasis::RefinementBasis  TestRefinementBasis;
 

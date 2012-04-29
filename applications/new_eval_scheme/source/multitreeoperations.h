@@ -29,6 +29,10 @@ namespace lawa {
 
 template <typename Index, typename Basis>
 void
+extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambda);
+
+template <typename Index, typename Basis>
+void
 extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
 
 

@@ -33,6 +33,18 @@ void
 test_getBSplineNeighborsForWavelet(const PrimalBasis &basis, const RefinementBasis &refinementbasis);
 
 void
+test_getScalingNeighborsForWavelet(const PrimalBasis &basis);
+
+void
+test_getScalingNeighborsForScaling(const PrimalBasis &basis);
+
+void
+test_getWaveletNeighborsForWavelet(const PrimalBasis &basis);
+
+void
+test_getLowerWaveletNeighborsForWavelet(const PrimalBasis &basis);
+
+void
 test_getWaveletNeighborsForBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis);
 
 void
@@ -83,20 +95,28 @@ int main(int argc, char*argv[])
     /// we can represent __both__ the B-splines on level j_bspline as well as the wavelets on level
     /// j by B-splines on level j_bspline+1 __without__ producing overhead.
 
-    test_getBSplineNeighborsForWavelet(basis, refinementbasis);
+    //test_getBSplineNeighborsForWavelet(basis, refinementbasis);
+
+    //test_getScalingNeighborsForWavelet(basis);
+
+    //test_getScalingNeighborsForScaling(basis);
+
+    //test_getWaveletNeighborsForWavelet(basis);
+
+    test_getLowerWaveletNeighborsForWavelet(basis);
 
     /// Check for wavelet neighbors: Given a B-spline, we need to determine the wavelets whose
     /// supports intersect the one of the B-spline. Concerning the levels: suppose that j indicates
     /// the level of $\varphi_{j,k}$. For multilevel algorithms we require that j_wavelet is such
     /// that $\psi_{j_wavelet,k}$ can be reconstructed by B-splines on level $j+1$.
 
-    test_getWaveletNeighborsForBSpline(basis, refinementbasis);
+    //test_getWaveletNeighborsForBSpline(basis, refinementbasis);
 
     /// Check for B-spline neighbors: Given a B-spline, we need to determine the B-splines whose
     /// supports intersect the one of the B-spline. Here, both sides are assumed to be on the same
     /// level.
 
-    test_getBSplineNeighborsForBSpline(basis, refinementbasis);
+    //test_getBSplineNeighborsForBSpline(basis, refinementbasis);
 
 
     return 0;
@@ -250,6 +270,162 @@ test_getBSplineNeighborsForWavelet(const PrimalBasis &basis, const RefinementBas
                             basis.psi.support(j_wavelet,k_wavelet))>0) {
                     cout << "Error: k=" << k_bspline << " in " << refinementbasis.mra.rangeI(j_bspline) << " is missing."
                          << refinementbasis.mra.phi.support(j_bspline,k_bspline)
+                         << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
+                }
+            }
+            cout << endl;
+            getchar();
+        }
+    }
+    cout << " ************************************************" << endl << endl;
+}
+
+void
+test_getScalingNeighborsForWavelet(const PrimalBasis &basis)
+{
+    cout << " ******** Scaling neighbors for Wavelet **********" << endl;
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+6; ++j_wavelet) {
+        for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
+                  k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
+            int j_scaling=0;
+            long k_scaling_first=0L, k_scaling_last=0L;
+            basis.getScalingNeighborsForWavelet(j_wavelet, k_wavelet, basis,
+                                                j_scaling, k_scaling_first, k_scaling_last);
+            cout << "Wavelet (" << j_wavelet << "," << k_wavelet << "): "
+                                << j_scaling << " , [" << k_scaling_first << "," << k_scaling_last << "], "
+                                << basis.mra.rangeI(j_scaling) << endl;
+            for (long k_scaling=basis.mra.rangeI(j_scaling).firstIndex();
+                      k_scaling<k_scaling_first; ++k_scaling) {
+                if (overlap(basis.mra.phi.support(j_scaling,k_scaling),
+                            basis.psi.support(j_wavelet,k_wavelet))>0) {
+                    cout << "Error: k=" << k_scaling << " in " << basis.mra.rangeI(j_scaling) << " is missing."
+                         << basis.mra.phi.support(j_scaling,k_scaling)
+                         << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
+                }
+            }
+            for (long k_scaling=k_scaling_last+1;
+                      k_scaling<=basis.mra.rangeI(j_scaling).lastIndex(); ++k_scaling) {
+                if (overlap(basis.mra.phi.support(j_scaling,k_scaling),
+                            basis.psi.support(j_wavelet,k_wavelet))>0) {
+                    cout << "Error: k=" << k_scaling << " in " << basis.mra.rangeI(j_scaling) << " is missing."
+                         << basis.mra.phi.support(j_scaling,k_scaling)
+                         << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
+                }
+            }
+            cout << endl;
+            getchar();
+        }
+    }
+    cout << " ************************************************" << endl << endl;
+}
+
+void
+test_getScalingNeighborsForScaling(const PrimalBasis &basis)
+{
+    cout << " ******** Scaling neighbors for Scaling **********" << endl;
+    for (int j_scaling1=basis.j0; j_scaling1<basis.j0+6; ++j_scaling1) {
+        for (long k_scaling1= basis.mra.rangeI(j_scaling1).firstIndex();
+                  k_scaling1<=basis.mra.rangeI(j_scaling1).lastIndex(); ++k_scaling1) {
+            int j_scaling2=0;
+            long k_scaling_first=0L, k_scaling_last=0L;
+            basis.getScalingNeighborsForScaling(j_scaling1, k_scaling1, basis,
+                                                j_scaling2, k_scaling_first, k_scaling_last);
+            cout << "Scaling (" << j_scaling1 << "," << k_scaling1 << "): "
+                                << j_scaling2 << " , [" << k_scaling_first << "," << k_scaling_last << "], "
+                                << basis.mra.rangeI(j_scaling2) << endl;
+            for (long k_scaling2=basis.mra.rangeI(j_scaling2).firstIndex();
+                      k_scaling2<k_scaling_first; ++k_scaling2) {
+                if (overlap(basis.mra.phi.support(j_scaling2,k_scaling2),
+                            basis.mra.phi.support(j_scaling1,k_scaling1))>0) {
+                    cout << "Error: k=" << k_scaling2 << " in " << basis.mra.rangeI(j_scaling2) << " is missing."
+                         << basis.mra.phi.support(j_scaling2,k_scaling2)
+                         << " " << basis.mra.phi.support(j_scaling1,k_scaling1) << endl;
+                }
+            }
+            for (long k_scaling2=k_scaling_last+1;
+                      k_scaling2<=basis.mra.rangeI(j_scaling2).lastIndex(); ++k_scaling2) {
+                if (overlap(basis.mra.phi.support(j_scaling2,k_scaling2),
+                            basis.mra.phi.support(j_scaling1,k_scaling1))>0) {
+                    cout << "Error: k=" << k_scaling2 << " in " << basis.mra.rangeI(j_scaling2) << " is missing."
+                         << basis.mra.phi.support(j_scaling2,k_scaling2)
+                         << " " << basis.mra.phi.support(j_scaling1,k_scaling1) << endl;
+                }
+            }
+            cout << endl;
+            getchar();
+        }
+    }
+    cout << " ************************************************" << endl << endl;
+}
+
+void
+test_getWaveletNeighborsForWavelet(const PrimalBasis &basis)
+{
+    cout << " ******** Wavelet neighbors for Wavelet **********" << endl;
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+6; ++j_wavelet) {
+        for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
+                  k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
+            int j_wavelet2=0;
+            long k_wavelet_first=0L, k_wavelet_last=0L;
+            basis.getWaveletNeighborsForWavelet(j_wavelet, k_wavelet, basis,
+                                                j_wavelet2, k_wavelet_first, k_wavelet_last);
+            cout << "Wavelet (" << j_wavelet << "," << k_wavelet << "): "
+                                << j_wavelet2 << " , [" << k_wavelet_first << "," << k_wavelet_last << "], "
+                                << basis.rangeJ(j_wavelet2) << endl;
+            for (long k_wavelet2=basis.rangeJ(j_wavelet2).firstIndex();
+                      k_wavelet2<k_wavelet_first; ++k_wavelet2) {
+                if (overlap(basis.psi.support(j_wavelet,k_wavelet),
+                            basis.psi.support(j_wavelet2,k_wavelet2))>0) {
+                    cout << "Error: k=" << k_wavelet2 << " in " << basis.rangeJ(j_wavelet2) << " is missing."
+                         << basis.psi.support(j_wavelet2,k_wavelet2)
+                         << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
+                }
+            }
+            for (long k_wavelet2=k_wavelet_last+1;
+                      k_wavelet2<=basis.rangeJ(j_wavelet2).lastIndex(); ++k_wavelet2) {
+                if (overlap(basis.psi.support(j_wavelet2,k_wavelet2),
+                            basis.psi.support(j_wavelet,k_wavelet))>0) {
+                    cout << "Error: k=" << k_wavelet2 << " in " << basis.rangeJ(j_wavelet2) << " is missing."
+                         << basis.psi.support(j_wavelet2,k_wavelet2)
+                         << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
+                }
+            }
+            cout << endl;
+            getchar();
+        }
+    }
+    cout << " ************************************************" << endl << endl;
+}
+
+void
+test_getLowerWaveletNeighborsForWavelet(const PrimalBasis &basis)
+{
+    cout << " ******** Lower wavelet neighbors for Wavelet **********" << endl;
+    for (int j_wavelet=basis.j0+1; j_wavelet<basis.j0+6; ++j_wavelet) {
+        for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
+                  k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
+            int j_wavelet2=0;
+            long k_wavelet_first=0L, k_wavelet_last=0L;
+            basis.getLowerWaveletNeighborsForWavelet(j_wavelet, k_wavelet, basis,
+                                                j_wavelet2, k_wavelet_first, k_wavelet_last);
+            cout << "Wavelet (" << j_wavelet << "," << k_wavelet << "): "
+                                << j_wavelet2 << " , [" << k_wavelet_first << "," << k_wavelet_last << "], "
+                                << basis.rangeJ(j_wavelet2) << endl;
+            for (long k_wavelet2=basis.rangeJ(j_wavelet2).firstIndex();
+                      k_wavelet2<k_wavelet_first; ++k_wavelet2) {
+                if (overlap(basis.psi.support(j_wavelet,k_wavelet),
+                            basis.psi.support(j_wavelet2,k_wavelet2))>0) {
+                    cout << "Error: k=" << k_wavelet2 << " in " << basis.rangeJ(j_wavelet2) << " is missing."
+                         << basis.psi.support(j_wavelet2,k_wavelet2)
+                         << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
+                }
+            }
+            for (long k_wavelet2=k_wavelet_last+1;
+                      k_wavelet2<=basis.rangeJ(j_wavelet2).lastIndex(); ++k_wavelet2) {
+                if (overlap(basis.psi.support(j_wavelet2,k_wavelet2),
+                            basis.psi.support(j_wavelet,k_wavelet))>0) {
+                    cout << "Error: k=" << k_wavelet2 << " in " << basis.rangeJ(j_wavelet2) << " is missing."
+                         << basis.psi.support(j_wavelet2,k_wavelet2)
                          << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
                 }
             }

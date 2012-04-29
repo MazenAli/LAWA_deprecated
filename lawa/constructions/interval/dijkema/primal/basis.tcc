@@ -28,7 +28,7 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
     : mra(_d, j), mra_(_d, _d_, j),
       d(_d), d_(_d_), mu(d&1),
       min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1), psi(*this), refinementbasis(*this),
-      poissonOp1D(_d,*this)
+      LaplaceOp1D(_d,*this), IdentityOp1D(_d,*this)
 {
     GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
@@ -314,7 +314,6 @@ getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
     return;
 }
 
-
 template <typename T>
 template <typename SecondRefinementBasis>
 void
@@ -347,12 +346,101 @@ getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
 }
 
 template <typename T>
-Basis<T,Primal,Interval,Dijkema>::PoissonOperator1D::
-PoissonOperator1D(int _d, const Basis<T,Primal,Interval,Dijkema> &_refinementbasis)
+template <typename SecondBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::getScalingNeighborsForWavelet
+                                  (int j_wavelet, long k_wavelet, const SecondBasis &secondbasis,
+                                   int &j_scaling, long &k_scaling_first, long &k_scaling_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+    this->getBSplineNeighborsForWavelet(j_wavelet,k_wavelet,secondbasis,
+                                        j_scaling,k_scaling_first,k_scaling_last);
+
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::getScalingNeighborsForScaling
+                                  (int j_scaling1, long k_scaling1, const SecondBasis &secondbasis,
+                                   int &j_scaling2, long &k_scaling_first, long &k_scaling_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+    this->getBSplineNeighborsForBSpline(j_scaling1,k_scaling1,secondbasis,
+                                        j_scaling2,k_scaling_first,k_scaling_last);
+
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                                                const SecondBasis &secondbasis,
+                                                                int &j_wavelet2, long &k_wavelet_first,
+                                                                long &k_wavelet_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+    //if (flens::IsSame<Basis<T,Primal,Interval,Dijkema>, SecondRefinementBasis>::value)
+
+    j_wavelet2 = j_wavelet1;
+    Support<T> supp = psi.support(j_wavelet1,k_wavelet1);
+    T a = supp.l1, b = supp.l2;
+    if (a==0.L) {
+        k_wavelet_first = (long)rangeJ(j_wavelet2).firstIndex();
+        k_wavelet_last  = std::min(k_wavelet1 + 2*d, (long)rangeJ(j_wavelet2).lastIndex());
+        return;
+    }
+    if (b<1.L) {
+        k_wavelet_first = std::max(k_wavelet1-2*d+1, (long)rangeJ(j_wavelet2).firstIndex());
+        k_wavelet_last  = std::min(k_wavelet1+2*d-1, (long)rangeJ(j_wavelet2).lastIndex());
+        return;
+    }
+    k_wavelet_first = std::max((long)rangeJ(j_wavelet2).firstIndex(),k_wavelet1 - 2*d);
+    k_wavelet_last  = (long)rangeJ(j_wavelet2).lastIndex();
+
+    return;
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::getLowerWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                                                     const SecondBasis &secondbasis,
+                                                                     int &j_wavelet2, long &k_wavelet_first,
+                                                                     long &k_wavelet_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+    //if (flens::IsSame<Basis<T,Primal,Interval,Dijkema>, SecondRefinementBasis>::value)
+
+    j_wavelet2 = j_wavelet1-1;
+    Support<T> supp = psi.support(j_wavelet1,k_wavelet1);
+    T a = supp.l1, b = supp.l2;
+    long k_tilde = k_wavelet1/2;
+    if (a==0.L) {
+        k_wavelet_first = (long)rangeJ(j_wavelet2).firstIndex();
+        k_wavelet_last  = std::min(k_tilde + 2*d, (long)rangeJ(j_wavelet2).lastIndex());
+        return;
+    }
+    if (b<1.L) {
+        k_wavelet_first = std::max(k_tilde-2*d+1, (long)rangeJ(j_wavelet2).firstIndex());
+        k_wavelet_last  = std::min(k_tilde+2*d-1, (long)rangeJ(j_wavelet2).lastIndex());
+        return;
+    }
+    k_wavelet_first = std::max((long)rangeJ(j_wavelet2).firstIndex(),k_tilde - 2*d);
+    k_wavelet_last  = (long)rangeJ(j_wavelet2).lastIndex();
+
+    return;
+}
+
+template <typename T>
+Basis<T,Primal,Interval,Dijkema>::LaplaceOperator1D::
+LaplaceOperator1D(int _d, const Basis<T,Primal,Interval,Dijkema> &_refinementbasis)
  : d(_d), refinementbasis(_refinementbasis)
 {
-
-
     switch (d) {
         case 2:
             inner_values.engine().resize(2,0);
@@ -365,19 +453,20 @@ PoissonOperator1D(int _d, const Basis<T,Primal,Interval,Dijkema> &_refinementbas
             inner_values = 1.L, -1.L/3.L, -1.L/6.L;
             break;
         default:
-            std::cerr << "Basis<T,Primal,Interval,Dijkema>::PoissonOperator1D "
+            std::cerr << "Basis<T,Primal,Interval,Dijkema>::LaplaceOperator1D "
                       << "not yet implemented for d=" << d << std::endl;
     }
 }
 
 template <typename T>
 T
-Basis<T,Primal,Interval,Dijkema>::PoissonOperator1D::
+Basis<T,Primal,Interval,Dijkema>::LaplaceOperator1D::
 operator()(XType xtype1, int j1, long k1, XType xtype2, int j2, long k2)
 {
     assert(j1==j2);
-    assert(_bc(0) == 1);
-    assert(_bc(1) == 1);
+    assert(refinementbasis._bc(0) == 1);
+    assert(refinementbasis._bc(1) == 1);
+
     if (d==2) {
         long k_diff = std::abs(k1 - k2);
         if (k_diff>1) return 0.L;
@@ -398,6 +487,62 @@ operator()(XType xtype1, int j1, long k1, XType xtype2, int j2, long k2)
     }
     else {
         std::cerr << "Basis<T,Primal,Interval,Dijkema>::PoissonOperator1D::operator() "
+                  << "not yet implemented for d=" << d << std::endl;
+        exit(1);
+        return 0.;
+    }
+}
+
+template <typename T>
+Basis<T,Primal,Interval,Dijkema>::IdentityOperator1D::
+IdentityOperator1D(int _d, const Basis<T,Primal,Interval,Dijkema> &_refinementbasis)
+ : d(_d), refinementbasis(_refinementbasis)
+{
+    switch (d) {
+        case 2:
+            inner_values.engine().resize(2,0);
+            inner_values = 2.L/3.L, 1.L/6.L;
+            break;
+        case 3:
+            outer_values.engine().resize(3,0);
+            outer_values = 1.L/3.L, 5.L/24.L, 1.L/120.L;
+            inner_values.engine().resize(3,0);
+            inner_values = 11.L/20.L, 13.L/60.L, 1.L/120.L;
+            break;
+        default:
+            std::cerr << "Basis<T,Primal,Interval,Dijkema>::IdentityOperator1D "
+                      << "not yet implemented for d=" << d << std::endl;
+    }
+}
+
+template <typename T>
+T
+Basis<T,Primal,Interval,Dijkema>::IdentityOperator1D::
+operator()(XType xtype1, int j1, long k1, XType xtype2, int j2, long k2)
+{
+    assert(j1==j2);
+    assert(refinementbasis._bc(0) == 1);
+    assert(refinementbasis._bc(1) == 1);
+    if (d==2) {
+        long k_diff = std::abs(k1 - k2);
+        if (k_diff>1) return 0.L;
+        return  inner_values(k_diff);
+    }
+    else if (d==3) {
+        long k_diff = std::abs(k1 - k2);
+        if (k_diff>2) return 0.L;
+
+        int firstIndex =  refinementbasis.mra.rangeI(j1).firstIndex();
+        int lastIndex  =  refinementbasis.mra.rangeI(j1).lastIndex();
+        if (k1==firstIndex || k1==lastIndex || k2 == firstIndex || k2 == lastIndex) {
+            return outer_values(k_diff);
+        }
+        else {
+            return inner_values(k_diff);
+        }
+    }
+    else {
+        std::cerr << "Basis<T,Primal,Interval,Dijkema>::IdentityOperator1D::operator() "
                   << "not yet implemented for d=" << d << std::endl;
         exit(1);
         return 0.;

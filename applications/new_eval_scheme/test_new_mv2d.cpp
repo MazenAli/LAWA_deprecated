@@ -87,8 +87,8 @@ int main (int argc, char *argv[]) {
     int J  = atoi(argv[4]);
     int numOfIter=27;
     bool withDirichletBC=true;
-    bool useSparseGrid=false;
-    bool calcRefSol=false;
+    bool useSparseGrid=true;
+    bool calcRefSol=true;
 
     PrimalBasis       basis(d,d_,j0);
     if (withDirichletBC)    basis.enforceBoundaryCondition<DirichletBC>();

@@ -3,7 +3,9 @@
 #include <applications/new_eval_scheme/source/loc_single_scale_transforms.h>
 #include <applications/new_eval_scheme/source/new_eval.h>
 #include <applications/new_eval_scheme/source/localoperator.h>
+#include <applications/new_eval_scheme/source/localoperator1d.h>
 #include <applications/new_eval_scheme/source/localoperator2d.h>
+#include <applications/new_eval_scheme/source/localoperator2d_new.h>
 #include <applications/new_eval_scheme/source/multitreeoperations.h>
 #include <lawa/methods/adaptive/datastructures/alignedindexset.h>
 #include <lawa/methods/adaptive/datastructures/alignedcoefficients.h>
@@ -26,10 +28,14 @@ typedef HelmholtzOperator2D<T,Basis2D>                              HelmholtzBil
 typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
                                        HelmholtzBilinearForm2D>     Preconditioner;
 
-typedef LocalOperator<PrimalBasis,PrimalBasis,WeightedPDEBilinearForm,
-                      Preconditioner>                               LocalWeightedPDEOp1D;
-typedef LocalOperator2D<PrimalBasis,LocalWeightedPDEOp1D,
-                        LocalWeightedPDEOp1D>                       LocalWeightedPDEOp2D;
+//typedef LocalOperator<PrimalBasis,PrimalBasis,WeightedPDEBilinearForm,
+//                      Preconditioner>                               LocalWeightedPDEOp1D;
+//typedef LocalOperator2D<PrimalBasis,LocalWeightedPDEOp1D,
+//                        LocalWeightedPDEOp1D>                       LocalWeightedPDEOp2D;
+typedef LocalOperator1D<PrimalBasis,PrimalBasis,
+                        WeightedPDEBilinearForm>                    LocalWeightedPDEOp1D;
+typedef LocalOperator2DNew<LocalWeightedPDEOp1D,
+                           LocalWeightedPDEOp1D>                    LocalWeightedPDEOp2D;
 
 //Righthandsides definitions (separable)
 typedef SeparableRHS2D<T,Basis2D >                                  SeparableRhsIntegral2D;
@@ -277,10 +283,14 @@ int main (int argc, char *argv[]) {
     //LocalLaplaceIdentityOp2D    localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
     //LocalIdentityLaplaceOp2D    localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
 
-    LocalWeightedPDEOp1D          localLaplaceOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, WeightedLaplaceBil, Prec);
-    LocalWeightedPDEOp1D          localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, WeightedIdentityBil,  Prec);
-    LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
-    LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
+    //LocalWeightedPDEOp1D          localLaplaceOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, WeightedLaplaceBil, Prec);
+    //LocalWeightedPDEOp1D          localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, WeightedIdentityBil,  Prec);
+    //LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
+    //LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
+    LocalWeightedPDEOp1D          localLaplaceOp1D( basis, basis, WeightedLaplaceBil);
+    LocalWeightedPDEOp1D          localIdentityOp1D(basis, basis, WeightedIdentityBil);
+    LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(localLaplaceOp1D,localIdentityOp1D);
+    LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(localIdentityOp1D,localLaplaceOp1D);
     localLaplaceIdentityOp2D.setJ(9);
     localIdentityLaplaceOp2D.setJ(9);
 

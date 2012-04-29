@@ -121,9 +121,55 @@ class Basis<_T,Primal,Interval,Dijkema>
                                           int &j_bspline2,
                                           long &k_bspline2_first, long &k_bspline2_last) const;
 
-        class PoissonOperator1D {
+        /// Returns the range of (multi-)scaling functions from SecondBasis whose supports
+        /// intersect the support of a given wavelet with level j_wavelet and translation index
+        /// k_wavelet from the current Basis. This is required for tree-based algorithms.
+        /// The level j_scaling of the scaling is chosen s.t. there is "no scale difference", i.e.,
+        /// if we refine both wavelets and scaling function, the corresponding refinements should
+        /// live on the same scale.
+        template <typename SecondBasis>
+            void
+            getScalingNeighborsForWavelet(int j_wavelet, long k_wavelet,
+                                          const SecondBasis &secondbasis,
+                                          int &j_scaling, long &k_scaling_first,
+                                          long &k_scaling_last) const;
+
+        /// Returns the range of (multi-)scaling functions from SecondBasis whose supports
+        /// intersect the support of a given (multi-)scaling with level j_scaling and translation index
+        /// k_scaling from the current Basis. This is required for tree-based algorithms.
+        /// The level j_scaling2 of the scaling is chosen s.t. j_scaling2=j_scaling1
+        template <typename SecondBasis>
+            void
+            getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
+                                          const SecondBasis &secondbasis,
+                                          int &j_scaling2, long &k_scaling_first,
+                                          long &k_scaling_last) const;
+
+        /// Returns the range of (multi-)wavelets functions from SecondBasis whose supports
+        /// intersect the support of a given wavelet with level j_wavelet and translation index
+        /// k_wavelet from the current Basis. This is required for tree-based algorithms.
+        /// The level j_wavelet2 of the wavelet is chosen s.t. j_wavelet2 = j_wavelet.
+        template <typename SecondBasis>
+            void
+            getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                          const SecondBasis &secondbasis,
+                                          int &j_wavelet2, long &k_wavelet_first,
+                                          long &k_wavelet_last) const;
+
+        /// Returns the range of (multi-)wavelets functions from SecondBasis whose supports
+        /// intersect the support of a given wavelet with level j_wavelet and translation index
+        /// k_wavelet from the current Basis. This is required for tree-based algorithms.
+        /// The level j_wavelet2 of the wavelet is chosen s.t. j_wavelet2 = j_wavelet-1.
+        template <typename SecondBasis>
+            void
+            getLowerWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                               const SecondBasis &secondbasis,
+                                               int &j_wavelet2, long &k_wavelet_first,
+                                               long &k_wavelet_last) const;
+
+        class LaplaceOperator1D {
             public:
-                PoissonOperator1D(int _d,
+                LaplaceOperator1D(int _d,
                                   const Basis<_T,Primal,Interval,Dijkema> &_refinementbasis);
 
                 T
@@ -137,9 +183,24 @@ class Basis<_T,Primal,Interval,Dijkema>
                 DenseVector<Array<long double> > inner_values;
         };
 
-        typedef PoissonOperator1D PoissonOp1D;
+        class IdentityOperator1D {
+            public:
+                IdentityOperator1D(int _d,
+                                   const Basis<_T,Primal,Interval,Dijkema> &_refinementbasis);
 
-        PoissonOp1D poissonOp1D;
+                T
+                operator()(XType xtype1, int j1, long k1, XType xtype2, int j2, long k2);
+
+            private:
+                int d;
+                const Basis<_T,Primal,Interval,Dijkema> &refinementbasis;
+
+                DenseVector<Array<long double> > outer_values;
+                DenseVector<Array<long double> > inner_values;
+        };
+
+        LaplaceOperator1D LaplaceOp1D;
+        IdentityOperator1D IdentityOp1D;
 
         MRA<T,Primal,Interval,Dijkema> mra;
         MRA<T,Dual,Interval,Dijkema>  mra_;
