@@ -255,9 +255,9 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 template <typename T>
 template <typename SecondBasis>
 void
-Basis<T,Primal,Interval,Dijkema>::getBSplineNeighborsForWavelet
-                                  (int j_wavelet, long k_wavelet, const SecondBasis &secondbasis,
-                                   int &j_bspline, long &k_bspline_first, long &k_bspline_last) const
+Basis<T,Primal,Interval,Dijkema>::
+getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet, const SecondBasis &secondbasis,
+                              int &j_bspline, long &k_bspline_first, long &k_bspline_last) const
 {
     ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
               and SecondBasis::Cons==Dijkema);
@@ -431,6 +431,38 @@ Basis<T,Primal,Interval,Dijkema>::getLowerWaveletNeighborsForWavelet(int j_wavel
         return;
     }
     k_wavelet_first = std::max((long)rangeJ(j_wavelet2).firstIndex(),k_tilde - 2*d);
+    k_wavelet_last  = (long)rangeJ(j_wavelet2).lastIndex();
+
+    return;
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                                                     const SecondBasis &secondbasis,
+                                                                     int &j_wavelet2, long &k_wavelet_first,
+                                                                     long &k_wavelet_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+    //if (flens::IsSame<Basis<T,Primal,Interval,Dijkema>, SecondRefinementBasis>::value)
+
+    j_wavelet2 = j_wavelet1+1;
+    Support<T> supp = psi.support(j_wavelet1,k_wavelet1);
+    T a = supp.l1, b = supp.l2;
+    long k_tilde = k_wavelet1*2;
+    if (a==0.L) {
+        k_wavelet_first = (long)rangeJ(j_wavelet2).firstIndex();
+        k_wavelet_last  = std::min(k_tilde + 3*d, (long)rangeJ(j_wavelet2).lastIndex());
+        return;
+    }
+    if (b<1.L) {
+        k_wavelet_first = std::max(k_tilde-2*d-1, (long)rangeJ(j_wavelet2).firstIndex());
+        k_wavelet_last  = std::min(k_tilde+2*d+1, (long)rangeJ(j_wavelet2).lastIndex());
+        return;
+    }
+    k_wavelet_first = std::max((long)rangeJ(j_wavelet2).firstIndex(),k_tilde - 3*d);
     k_wavelet_last  = (long)rangeJ(j_wavelet2).lastIndex();
 
     return;

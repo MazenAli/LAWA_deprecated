@@ -63,7 +63,7 @@ template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditio
 Coefficients<Lexicographical,T,Index>
 RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(const IndexSet<Index> &Lambda)
 {
-    typedef typename IndexSet<Index>::iterator const_set_it;
+    typedef typename IndexSet<Index>::const_iterator const_set_it;
     Coefficients<Lexicographical,T,Index> ret;
     for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
         T tmp = RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(*lambda);

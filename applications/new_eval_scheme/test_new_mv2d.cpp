@@ -147,8 +147,7 @@ int main (int argc, char *argv[]) {
             */
         }
         else {
-            T threshTol = 0.4;
-            T r_norm = 0.1;
+            T threshTol = 0.6;
             T gamma = 0.2;
             int ell=1;
             int example = 2;

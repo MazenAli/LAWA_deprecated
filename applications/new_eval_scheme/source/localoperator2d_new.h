@@ -38,6 +38,7 @@ struct LocalOperator2DNew {
     typedef typename LocalOperator2::TestWaveletBasis                          TestBasis_x2;
 
 
+    typedef IndexSet<Index1D>::const_iterator                                  const_set1d_it;
     typedef IndexSet<Index2D>::const_iterator                                  const_set2d_it;
 
     typedef typename Coefficients<Lexicographical,T,Index1D>::iterator         coeff1d_it;
@@ -48,11 +49,17 @@ struct LocalOperator2DNew {
     typedef typename TreeCoefficients1D<T>::by_level_it                        by_level_it;
 
     typedef AlignedCoefficients<T,Index2D,Index1D,Index1D>                     alignedCoefficients;
+    //typedef AlignedCoefficients2<T,Index2D,Index1D,Index1D>                    alignedCoefficients2;
 
     LocalOperator2DNew(LocalOperator1 &_localoperator1, LocalOperator2 &_localoperator2);
 
     void
     setJ(int J);
+
+    void
+    evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
+           Coefficients<Lexicographical,T,Index2D> &auxiliary,
+           Coefficients<Lexicographical,T,Index2D> &AAv) /*const*/;
 
     void
     evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
@@ -66,7 +73,7 @@ struct LocalOperator2DNew {
            Coefficients<Lexicographical,T,Index2D> &LIIAv,
            Coefficients<Lexicographical,T,Index2D> &IAUIv,
            T &time_intermediate1, T &time_intermediate2,
-           T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) /*const*/;
+           T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv);
 
     void
     debug_evalAA(const Coefficients<Lexicographical,T,Index2D> &v,

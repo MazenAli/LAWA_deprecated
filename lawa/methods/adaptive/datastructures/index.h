@@ -33,7 +33,7 @@ static boost::hash<long int> hash_long;
 #define JMAX                       40
 #define SIZEHASHINDEX1D         12869//196613
 #define SIZELARGEHASHINDEX1D    72869//1572869
-#define SIZEHASHINDEX2D       6291469//1572869
+#define SIZEHASHINDEX2D       6291469
 #define SIZELARGEHASHINDEX2D  6291469
 #define SIZELARGEHASHINDEX3D  6291469
 

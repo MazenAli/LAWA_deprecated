@@ -77,8 +77,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     int j_wavelet_test =  l + testBasis.j0;
     int j_wavelet_trial = l + trialBasis.j0;
 
-    //size_t hm_size = l > 7 ? 193 : COEFFBYLEVELSIZE;
-    size_t hm_size = COEFFBYLEVELSIZE;
+    size_t hm_size = 2*COEFFBYLEVELSIZE;
 
     // Splitting of B-spline index set $\check{\Phi}$.
     CoefficientsByLevel<T> PhiPiCheck2(l,hm_size);
@@ -144,7 +143,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     int j_wavelet_test =  l + testBasis.j0;
     int j_wavelet_trial = l + trialBasis.j0;
 
-    size_t hm_size = l > 7 ? COEFFBYLEVELSIZE : 255;
+    size_t hm_size = 2*COEFFBYLEVELSIZE;
 
     // Splitting of B-spline index set $\check{\Phi}$.
     CoefficientsByLevel<T> PhiPiCheck2(l,hm_size);
@@ -196,7 +195,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     int j_wavelet_test =  l + testBasis.j0;
     int j_wavelet_trial = l + trialBasis.j0;
 
-    size_t hm_size = l > 7 ? COEFFBYLEVELSIZE : 255;
+    size_t hm_size = 2*COEFFBYLEVELSIZE;
 
     // Compute underlinePiCheck
     int j_refinement_test = 0;
@@ -356,7 +355,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     }
 
     else {
-        const_by_level_it p_PhiPiCheck_end = PhiPiCheck.map.end();
+        //const_by_level_it p_PhiPiCheck_end = PhiPiCheck.map.end();
         int j_bspline2 = l + trialRefinementLevelOffset;
         int j_bspline1=0;
         long k_bspline1_first=0L, k_bspline1_last=0L;
@@ -368,7 +367,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                                 testRefinementBasis, j_bspline1, k_bspline1_first, k_bspline1_last);
             for (long k_bspline1=k_bspline1_first; k_bspline1<=k_bspline1_last; ++k_bspline1) {
                 by_level_it p_PhiPiCheck=PhiPiCheck.map.find(k_bspline1);
-                if (p_PhiPiCheck!=p_PhiPiCheck_end) {
+                if (p_PhiPiCheck!=PhiPiCheck.map.end()) {
                     (*p_PhiPiCheck).second
                     += (long double)(Bil(XBSpline, j_bspline1, k_bspline1,
                                          XBSpline, j_bspline2, k_bspline2) * (*mu).second);

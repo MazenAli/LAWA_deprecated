@@ -21,8 +21,11 @@
 #define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H 1
 
 #include <utility>
-#include <ext/hash_map>
-//#include <tr1/unordered_map>
+#ifdef TRONE
+    #include <tr1/unordered_map>
+#else
+    #include <ext/hash_map>
+#endif
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/preconditioners/nopreconditioner.h>
@@ -37,8 +40,13 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 struct MapMatrix
 {
     //typedef typename std::map<Entry<Index>,T,lt<Lexicographical,Index > > EntryMap;
-    typedef typename __gnu_cxx::hash_map<Entry<Index>, T, entry_hashfunction<Index>, entry_eqfunction<Index> > EntryMap;
-    //typedef typename std::tr1::unordered_map<Entry<Index>, T, entry_hashfunction<Index>, entry_eqfunction<Index> > EntryMap;
+#ifdef TRONE
+    typedef typename std::tr1::unordered_map<Entry<Index>, T, entry_hashfunction<Index>,
+                                                             entry_eqfunction<Index> > EntryMap;
+#else
+    typedef typename __gnu_cxx::hash_map<Entry<Index>, T, entry_hashfunction<Index>,
+                                                             entry_eqfunction<Index> > EntryMap;
+#endif
     typedef typename EntryMap::value_type val_type;
     EntryMap data;
 

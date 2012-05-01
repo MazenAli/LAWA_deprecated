@@ -45,6 +45,9 @@ void
 test_getLowerWaveletNeighborsForWavelet(const PrimalBasis &basis);
 
 void
+test_getHigherWaveletNeighborsForWavelet(const PrimalBasis &basis);
+
+void
 test_getWaveletNeighborsForBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis);
 
 void
@@ -103,7 +106,9 @@ int main(int argc, char*argv[])
 
     //test_getWaveletNeighborsForWavelet(basis);
 
-    test_getLowerWaveletNeighborsForWavelet(basis);
+    //test_getLowerWaveletNeighborsForWavelet(basis);
+
+    test_getHigherWaveletNeighborsForWavelet(basis);
 
     /// Check for wavelet neighbors: Given a B-spline, we need to determine the wavelets whose
     /// supports intersect the one of the B-spline. Concerning the levels: suppose that j indicates
@@ -407,6 +412,45 @@ test_getLowerWaveletNeighborsForWavelet(const PrimalBasis &basis)
             int j_wavelet2=0;
             long k_wavelet_first=0L, k_wavelet_last=0L;
             basis.getLowerWaveletNeighborsForWavelet(j_wavelet, k_wavelet, basis,
+                                                j_wavelet2, k_wavelet_first, k_wavelet_last);
+            cout << "Wavelet (" << j_wavelet << "," << k_wavelet << "): "
+                                << j_wavelet2 << " , [" << k_wavelet_first << "," << k_wavelet_last << "], "
+                                << basis.rangeJ(j_wavelet2) << endl;
+            for (long k_wavelet2=basis.rangeJ(j_wavelet2).firstIndex();
+                      k_wavelet2<k_wavelet_first; ++k_wavelet2) {
+                if (overlap(basis.psi.support(j_wavelet,k_wavelet),
+                            basis.psi.support(j_wavelet2,k_wavelet2))>0) {
+                    cout << "Error: k=" << k_wavelet2 << " in " << basis.rangeJ(j_wavelet2) << " is missing."
+                         << basis.psi.support(j_wavelet2,k_wavelet2)
+                         << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
+                }
+            }
+            for (long k_wavelet2=k_wavelet_last+1;
+                      k_wavelet2<=basis.rangeJ(j_wavelet2).lastIndex(); ++k_wavelet2) {
+                if (overlap(basis.psi.support(j_wavelet2,k_wavelet2),
+                            basis.psi.support(j_wavelet,k_wavelet))>0) {
+                    cout << "Error: k=" << k_wavelet2 << " in " << basis.rangeJ(j_wavelet2) << " is missing."
+                         << basis.psi.support(j_wavelet2,k_wavelet2)
+                         << " " << basis.psi.support(j_wavelet,k_wavelet) << endl;
+                }
+            }
+            cout << endl;
+            getchar();
+        }
+    }
+    cout << " ************************************************" << endl << endl;
+}
+
+void
+test_getHigherWaveletNeighborsForWavelet(const PrimalBasis &basis)
+{
+    cout << " ******** Higher wavelet neighbors for Wavelet **********" << endl;
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+6; ++j_wavelet) {
+        for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
+                  k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
+            int j_wavelet2=0;
+            long k_wavelet_first=0L, k_wavelet_last=0L;
+            basis.getHigherWaveletNeighborsForWavelet(j_wavelet, k_wavelet, basis,
                                                 j_wavelet2, k_wavelet_first, k_wavelet_last);
             cout << "Wavelet (" << j_wavelet << "," << k_wavelet << "): "
                                 << j_wavelet2 << " , [" << k_wavelet_first << "," << k_wavelet_last << "], "

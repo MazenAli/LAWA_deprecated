@@ -20,8 +20,12 @@
 #ifndef  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_COEFFICIENTS_H
 #define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_COEFFICIENTS_H 1
 
-#include <map>
-#include <ext/hash_map>
+#ifdef TRONE
+    #include <tr1/unordered_map>
+#else
+    #include <ext/hash_map>
+#endif
+
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 
@@ -37,21 +41,38 @@ struct Coefficients
  * ********************************************************************************************** */
 
 template <typename T, typename Index>
-//struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
+#ifdef TRONE
+struct Coefficients<Lexicographical,T,Index> : public std::tr1::unordered_map<Index, T,
+                                                                       index_hashfunction<Index>,
+                                                                       index_eqfunction<Index> >
+#else
 struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index, T,
-                                                                   index_hashfunction<Index>,
-                                                                   index_eqfunction<Index> >
+                                                                       index_hashfunction<Index>,
+                                                                       index_eqfunction<Index> >
+#endif
 {
-    //using std::map<Index,T,lt<Lexicographical,Index> >::insert;
-    //using std::map<Index,T,lt<Lexicographical,Index> >::erase;
-    //using __gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map;
 
-    Coefficients(void);
+    Coefficients(void); //required in rhs.h
 
+    #ifdef TRONE
     Coefficients(size_t n)
-       :__gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map(n) {
+     :std::tr1::unordered_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::unordered_map(n)
+     {
 
-    };         //required in rhs.h
+     }
+    void
+    Rehash(size_t n) { this->rehash(n); }
+    #else
+    Coefficients(size_t n)
+    :__gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map(n) {
+
+    };
+    void
+    Rehash(size_t n) { this->resize(n); }
+    #endif
+
+
+
 
     Coefficients<Lexicographical,T,Index>&
     operator=(const Coefficients<Lexicographical,T,Index> &_coeff);
@@ -185,4 +206,9 @@ std::ostream& operator<< (std::ostream &s, const Coefficients<AbsoluteValue,T,In
 #include <lawa/methods/adaptive/datastructures/coefficients.tcc>
 
 #endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_COEFFICIENTS_H
+
+//struct Coefficients<Lexicographical,T,Index> : std::map<Index,T,lt<Lexicographical,Index> >
+//using std::map<Index,T,lt<Lexicographical,Index> >::insert;
+//using std::map<Index,T,lt<Lexicographical,Index> >::erase;
+//using __gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map;
 

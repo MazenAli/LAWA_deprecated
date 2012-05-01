@@ -170,7 +170,7 @@ LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
     }
 
     else {
-        const_by_level_it p_PhiPiCheck_vs_v_end = PhiPiCheck_vs_v.map.end();
+        //const_by_level_it p_PhiPiCheck_vs_v_end = PhiPiCheck_vs_v.map.end();
         long leftrangebound =  (long)test_basis.mra.rangeI(l).firstIndex();
         long rightrangebound = (long)test_basis.mra.rangeI(l).lastIndex();
         for (const_by_level_it mu=d.map.begin(); mu!=d.map.end(); ++mu) {
@@ -180,7 +180,7 @@ LocalOperator<TestBasis, TrialBasis, BilinearForm, Preconditioner>
             long k_row_last  = std::min(k_col+offset, rightrangebound);
             for (long k_row=k_row_first; k_row<=k_row_last; ++k_row) {
                 by_level_it p_PhiPiCheck_vs_v=PhiPiCheck_vs_v.map.find(k_row);
-                if (p_PhiPiCheck_vs_v!=p_PhiPiCheck_vs_v_end) {
+                if (p_PhiPiCheck_vs_v!=PhiPiCheck_vs_v.map.end()) {
                     (*p_PhiPiCheck_vs_v).second
                     += (long double)(Bil(XBSpline, l, k_col, XBSpline, l, k_row) * (*mu).second);
                 }

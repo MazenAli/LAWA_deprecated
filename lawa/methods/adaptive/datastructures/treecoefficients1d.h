@@ -36,22 +36,13 @@ namespace lawa {
 
 #define COEFFBYLEVELSIZE 1024
 
-struct long_hashfunction
-{
-    inline
-    size_t operator()(const long &k) const
-    {
-        return k % COEFFBYLEVELSIZE;
-    }
-};
-
 template <typename T>
 struct CoefficientsByLevel
 {
     #ifdef TRONE
-        typedef typename std::tr1::unordered_map<long, T/*, long_hashfunction*/> TranslationIndexToValueMap;
+        typedef typename std::tr1::unordered_map<long, T> TranslationIndexToValueMap;
     #else
-        typedef typename __gnu_cxx::hash_map<long, T, long_hashfunction> TranslationIndexToValueMap;
+        typedef typename __gnu_cxx::hash_map<long, T> TranslationIndexToValueMap;
     #endif
 
     typedef typename TranslationIndexToValueMap::const_iterator const_it;
@@ -169,8 +160,12 @@ struct TreeCoefficients1D
     int
     size();
 
+    // deprecated. delete as soon as possible.
     int
-    getMaxTreeLevel(int j0=0);
+    getMaxTreeLevel(int j0);
+
+    int
+    getMaxTreeLevel();
 
     int
     setMaxTreeLevel(int j);

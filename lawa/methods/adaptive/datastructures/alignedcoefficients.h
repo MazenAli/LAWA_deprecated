@@ -70,18 +70,12 @@ struct AlignedCoefficients
     void
     align_x1(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
 
-    void
-    unalign_x1(Coefficients<Lexicographical,T,Index> &coeff);
-
     /*
      * Aligns the coefficient vector w.r.t. to the principal index assuming that
      * Index = (AlignedIndex,PrincipalIndex)
      */
     void
     align_x2(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
-
-
-
 
     IndexToCoefficientsMap map;
 
@@ -92,6 +86,29 @@ struct AlignedCoefficients
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
 std::ostream& operator<< (std::ostream &s,
                           const AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex> &alignedcoeff);
+
+/*
+template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
+struct AlignedCoefficients2
+{
+    typedef Coefficients<Lexicographical,int,PrincipalIndex>    PrincipalIndexMap;
+    typedef typename std::list<const AlignedIndex* >            AlignedIndices;
+    typedef typename std::vector<AlignedIndices>                PrincipalIndexToAlignedIndices;
+
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator   const_coeff_index_it;
+    typedef typename PrincipalIndexMap::const_iterator                       const_coeff_prinindex_it;
+
+
+    AlignedCoefficients2(void);
+
+    void
+    align_x1(const Coefficients<Lexicographical,T,Index> &coeff);
+
+    PrincipalIndexMap               principalIndices;
+    PrincipalIndexToAlignedIndices  principalIndexToAlignedIndices;
+
+};
+*/
 
 }   // namespace lawa
 

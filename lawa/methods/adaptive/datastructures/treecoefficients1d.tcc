@@ -190,7 +190,21 @@ int
 TreeCoefficients1D<T>::getMaxTreeLevel(int j0)
 {
     int j=0;
-    for (int l=j0-1-offset; l<=JMAX; ++l) {
+    for (int l=j0-1; l<=JMAX; ++l) {
+        assert(l>=0);
+        if(bylevel[l].map.size()==0) break;
+        j=l;
+    }
+    maxTreeLevel = j;
+    return j;
+}
+
+template <typename T>
+int
+TreeCoefficients1D<T>::getMaxTreeLevel()
+{
+    int j=0;
+    for (int l=0; l<=JMAX; ++l) {
         if(bylevel[l].map.size()==0) break;
         j=l;
     }

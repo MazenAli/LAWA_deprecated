@@ -167,6 +167,17 @@ class Basis<_T,Primal,Interval,Dijkema>
                                                int &j_wavelet2, long &k_wavelet_first,
                                                long &k_wavelet_last) const;
 
+        /// Returns the range of (multi-)wavelets functions from SecondBasis whose supports
+        /// intersect the support of a given wavelet with level j_wavelet and translation index
+        /// k_wavelet from the current Basis. This is required for tree-based algorithms.
+        /// The level j_wavelet2 of the wavelet is chosen s.t. j_wavelet2 = j_wavelet+1.
+        template <typename SecondBasis>
+            void
+            getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                               const SecondBasis &secondbasis,
+                                               int &j_wavelet2, long &k_wavelet_first,
+                                               long &k_wavelet_last) const;
+
         class LaplaceOperator1D {
             public:
                 LaplaceOperator1D(int _d,

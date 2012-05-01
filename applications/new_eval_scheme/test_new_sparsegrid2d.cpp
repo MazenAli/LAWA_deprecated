@@ -6,6 +6,7 @@
 #include <applications/new_eval_scheme/source/localoperator1d.h>
 #include <applications/new_eval_scheme/source/localoperator2d.h>
 #include <applications/new_eval_scheme/source/localoperator2d_new.h>
+#include <applications/new_eval_scheme/source/compoundlocaloperator.h>
 #include <applications/new_eval_scheme/source/multitreeoperations.h>
 #include <lawa/methods/adaptive/datastructures/alignedindexset.h>
 #include <lawa/methods/adaptive/datastructures/alignedcoefficients.h>
@@ -287,17 +288,19 @@ int main (int argc, char *argv[]) {
     //LocalWeightedPDEOp1D          localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, WeightedIdentityBil,  Prec);
     //LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
     //LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
+
     LocalWeightedPDEOp1D          localLaplaceOp1D( basis, basis, WeightedLaplaceBil);
     LocalWeightedPDEOp1D          localIdentityOp1D(basis, basis, WeightedIdentityBil);
     LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(localLaplaceOp1D,localIdentityOp1D);
     LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(localIdentityOp1D,localLaplaceOp1D);
+
     localLaplaceIdentityOp2D.setJ(9);
     localIdentityLaplaceOp2D.setJ(9);
 
     for (int iter=0; iter<=30; ++iter) {
 
         //readIndexSetFromFile(Lambda,example,d,threshTol,1,iter);
-        writeIndexSetToFile(Lambda,"Lambda",example,d,threshTol,ell,iter);
+        //writeIndexSetToFile(Lambda,"Lambda",example,d,threshTol,ell,iter);
         //Lambda.clear();
         //getSparseGridIndexSet(basis,Lambda,iter,gamma);
 
@@ -345,7 +348,9 @@ int main (int argc, char *argv[]) {
 
         int cg_iters=0;
         T mv_time1=0., mv_time2=0.;
+
         for (cg_iters=0; cg_iters<maxIterations; ++cg_iters) {
+
             if (sqrt(rNormSquare)<=tol) {
                 cerr << "      CG stopped with error " << sqrt(rNormSquare) << endl;
                 break;
@@ -412,7 +417,7 @@ int main (int argc, char *argv[]) {
         for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
             if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
         }
-        writeIndexSetToFile(checkLambda,"checkLambda",example,d,threshTol,ell,iter);
+        //writeIndexSetToFile(checkLambda,"checkLambda",example,d,threshTol,ell,iter);
         cerr << "   Extension of rhs finished." << endl;
         T time_res1=0., time_res2=0.;
         mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
