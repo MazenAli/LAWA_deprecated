@@ -26,13 +26,7 @@
     #include <ext/hash_map>
 #endif
 
-#include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/methods/adaptive/datastructures/indexset.h>
-#include <lawa/constructions/basis.h>
-#include <lawa/constructions/bspline.h>
-#include <lawa/settings/enum.h>
-#include <lawa/constructions/mra.h>
-#include <lawa/constructions/wavelet.h>
+#include <lawa/methods/adaptive/datastructures/datastructures.h>
 
 namespace lawa {
 

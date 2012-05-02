@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef  APPLICATIONS_NEWEVALSCHEME_MULTITREEOPERATIONS_H
-#define  APPLICATIONS_NEWEVALSCHEME_MULTITREEOPERATIONS_H 1
+#ifndef  LAWA_METHODS_ADAPTIVE_ALGORITHMS_MULTITREEOPERATIONS_H
+#define  LAWA_METHODS_ADAPTIVE_ALGORITHMS_MULTITREEOPERATIONS_H 1
 
 #include <boost/functional/hash.hpp>
 
@@ -38,6 +38,6 @@ extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, Ind
 
 }
 
-#include <applications/new_eval_scheme/source/multitreeoperations.tcc>
+#include <lawa/methods/adaptive/algorithms/multitreeoperations.tcc>
 
-#endif // APPLICATIONS_NEWEVALSCHEME_MULTITREEOPERATIONS_H
+#endif // LAWA_METHODS_ADAPTIVE_ALGORITHMS_MULTITREEOPERATIONS_H

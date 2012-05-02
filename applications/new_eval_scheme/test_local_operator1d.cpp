@@ -5,7 +5,6 @@
 #include <iostream>
 #include <fstream>
 #include <lawa/lawa.h>
-#include <applications/new_eval_scheme/source/localoperator1d.h>
 
 using namespace std;
 using namespace lawa;
@@ -104,10 +103,11 @@ int main(int argc, char*argv[])
 
     for (int j=j0; j<=J; ++j) {
         T time_evalA = 0., time_evalU = 0., time_evalL = 0.;
-        TreeCoefficients1D<T> v_tree(389), Av_tree(389),
-                              Uv_tree(COEFFBYLEVELSIZE), Lv_tree(COEFFBYLEVELSIZE);
-        TreeCoefficients1D<T> Av_ref_tree(COEFFBYLEVELSIZE), Uv_ref_tree(COEFFBYLEVELSIZE),
-                              Lv_ref_tree(COEFFBYLEVELSIZE);
+        TreeCoefficients1D<T> v_tree(389,basis.j0), Av_tree(389,basis.j0),
+                              Uv_tree(COEFFBYLEVELSIZE,basis.j0), Lv_tree(COEFFBYLEVELSIZE,basis.j0);
+        TreeCoefficients1D<T> Av_ref_tree(COEFFBYLEVELSIZE,basis.j0),
+                              Uv_ref_tree(COEFFBYLEVELSIZE,basis.j0),
+                              Lv_ref_tree(COEFFBYLEVELSIZE,basis.j0);
         constructRandomTree(basis, j, true, v_tree, seed);
         constructRandomTree(basis, j+1, false, Av_tree, seed+37);
         Av_ref_tree = Av_tree;
@@ -229,8 +229,8 @@ computeEvalARef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Av_tree)
 {
     Coefficients<Lexicographical,T,Index1D> v, Av;
-    fromTreeCofficientsToCofficients(basis, v_tree, v);
-    fromTreeCofficientsToCofficients(basis, Av_tree, Av);
+    fromTreeCofficientsToCofficients(v_tree, v);
+    fromTreeCofficientsToCofficients(Av_tree, Av);
 
     if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
          && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
@@ -253,8 +253,7 @@ computeEvalARef(const BilinearForm &Bil, const PrimalBasis &basis,
             (*row).second = val;
         }
     }
-
-    fromCofficientsToTreeCofficients(basis, Av, Av_tree);
+    fromCofficientsToTreeCofficients(Av, Av_tree);
 }
 
 void
@@ -262,8 +261,8 @@ computeEvalURef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Uv_tree)
 {
     Coefficients<Lexicographical,T,Index1D> v, Uv;
-    fromTreeCofficientsToCofficients(basis, v_tree, v);
-    fromTreeCofficientsToCofficients(basis, Uv_tree, Uv);
+    fromTreeCofficientsToCofficients(v_tree, v);
+    fromTreeCofficientsToCofficients(Uv_tree, Uv);
 
     if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
              && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
@@ -290,7 +289,7 @@ computeEvalURef(const BilinearForm &Bil, const PrimalBasis &basis,
             (*row).second = val;
         }
     }
-    fromCofficientsToTreeCofficients(basis, Uv, Uv_tree);
+    fromCofficientsToTreeCofficients(Uv, Uv_tree);
 }
 
 void
@@ -299,8 +298,8 @@ computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Lv_tree)
 {
     Coefficients<Lexicographical,T,Index1D> v, Lv;
-    fromTreeCofficientsToCofficients(basis, v_tree, v);
-    fromTreeCofficientsToCofficients(basis, Lv_tree, Lv);
+    fromTreeCofficientsToCofficients(v_tree, v);
+    fromTreeCofficientsToCofficients(Lv_tree, Lv);
 
     if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
                  && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
@@ -319,6 +318,6 @@ computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
             (*row).second = val;
         }
     }
-    fromCofficientsToTreeCofficients(basis, Lv, Lv_tree);
+    fromCofficientsToTreeCofficients(Lv, Lv_tree);
 }
 

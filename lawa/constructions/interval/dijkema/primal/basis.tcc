@@ -252,34 +252,7 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
     return _(pow2i<T>(j)-(d+d_-3),pow2i<T>(j));
 }
 
-template <typename T>
-template <typename SecondBasis>
-void
-Basis<T,Primal,Interval,Dijkema>::
-getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet, const SecondBasis &secondbasis,
-                              int &j_bspline, long &k_bspline_first, long &k_bspline_last) const
-{
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
-              and SecondBasis::Cons==Dijkema);
 
-    j_bspline = j_wavelet;
-    Support<T> supp = psi.support(j_wavelet,k_wavelet);
-    T a = supp.l1, b = supp.l2;
-    if (a==0.) {
-        k_bspline_first = mra.rangeI(j_bspline).firstIndex();
-        k_bspline_last =  k_bspline_first+ mra.cardIL(j_bspline) + d + 2;
-        k_bspline_last  = std::min(k_bspline_last, (long)mra.rangeIR(j_bspline).lastIndex());
-        return;
-    }
-    if (0.<a && b<1.) {
-        k_bspline_first = std::max((long)mra.rangeIL(j_bspline).firstIndex(), k_wavelet - (d+d_) + 1);
-        k_bspline_last  = std::min((long)mra.rangeIR(j_bspline).lastIndex(),  k_wavelet + (d+d_) - 1);
-        return;
-    }
-    k_bspline_last   = mra.rangeI(j_bspline).lastIndex();
-    k_bspline_first  = k_bspline_last - (mra.cardIR(j_bspline) + d + 2);
-    k_bspline_first  = std::max((long)mra.rangeIL(j_bspline).firstIndex(), k_bspline_first);
-}
 
 template <typename T>
 template <typename SecondRefinementBasis>
@@ -348,6 +321,63 @@ getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
 template <typename T>
 template <typename SecondBasis>
 void
+Basis<T,Primal,Interval,Dijkema>::
+getScalingNeighborsForScaling(int j_scaling1, long k_scaling1, const SecondBasis &secondbasis,
+                              int &j_scaling2, long &k_scaling_first, long &k_scaling_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+    this->getBSplineNeighborsForBSpline(j_scaling1,k_scaling1,secondbasis,
+                                        j_scaling2,k_scaling_first,k_scaling_last);
+
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::
+getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1, const SecondBasis &secondbasis,
+                              int &j_wavelet, long &k_wavelet_first, long &k_wavelet_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+    this->getWaveletNeighborsForBSpline(j_scaling1,k_scaling1,secondbasis,
+                                        j_wavelet,k_wavelet_first,k_wavelet_last);
+
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
+Basis<T,Primal,Interval,Dijkema>::
+getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet, const SecondBasis &secondbasis,
+                              int &j_bspline, long &k_bspline_first, long &k_bspline_last) const
+{
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
+
+    j_bspline = j_wavelet;
+    Support<T> supp = psi.support(j_wavelet,k_wavelet);
+    T a = supp.l1, b = supp.l2;
+    if (a==0.) {
+        k_bspline_first = mra.rangeI(j_bspline).firstIndex();
+        k_bspline_last =  k_bspline_first+ mra.cardIL(j_bspline) + d + 2;
+        k_bspline_last  = std::min(k_bspline_last, (long)mra.rangeIR(j_bspline).lastIndex());
+        return;
+    }
+    if (0.<a && b<1.) {
+        k_bspline_first = std::max((long)mra.rangeIL(j_bspline).firstIndex(), k_wavelet - (d+d_) + 1);
+        k_bspline_last  = std::min((long)mra.rangeIR(j_bspline).lastIndex(),  k_wavelet + (d+d_) - 1);
+        return;
+    }
+    k_bspline_last   = mra.rangeI(j_bspline).lastIndex();
+    k_bspline_first  = k_bspline_last - (mra.cardIR(j_bspline) + d + 2);
+    k_bspline_first  = std::max((long)mra.rangeIL(j_bspline).firstIndex(), k_bspline_first);
+}
+
+template <typename T>
+template <typename SecondBasis>
+void
 Basis<T,Primal,Interval,Dijkema>::getScalingNeighborsForWavelet
                                   (int j_wavelet, long k_wavelet, const SecondBasis &secondbasis,
                                    int &j_scaling, long &k_scaling_first, long &k_scaling_last) const
@@ -356,20 +386,6 @@ Basis<T,Primal,Interval,Dijkema>::getScalingNeighborsForWavelet
               and SecondBasis::Cons==Dijkema);
     this->getBSplineNeighborsForWavelet(j_wavelet,k_wavelet,secondbasis,
                                         j_scaling,k_scaling_first,k_scaling_last);
-
-}
-
-template <typename T>
-template <typename SecondBasis>
-void
-Basis<T,Primal,Interval,Dijkema>::getScalingNeighborsForScaling
-                                  (int j_scaling1, long k_scaling1, const SecondBasis &secondbasis,
-                                   int &j_scaling2, long &k_scaling_first, long &k_scaling_last) const
-{
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
-              and SecondBasis::Cons==Dijkema);
-    this->getBSplineNeighborsForBSpline(j_scaling1,k_scaling1,secondbasis,
-                                        j_scaling2,k_scaling_first,k_scaling_last);
 
 }
 

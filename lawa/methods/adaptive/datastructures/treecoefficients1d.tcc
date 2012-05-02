@@ -113,6 +113,24 @@ TreeCoefficients1D<T>::operator=(const Coefficients<Lexicographical,T,Index1D> &
 
 template <typename T>
 TreeCoefficients1D<T>&
+TreeCoefficients1D<T>::operator=(const std::list<const Index1D* > &_coeff)
+{
+    for (const_indexlist_it it=_coeff.begin(); it!=_coeff.end(); ++it) {
+        short j     = (*(*it)).j;
+        long  k     = (*(*it)).k;
+        XType xtype = (*(*it)).xtype;
+        if (xtype==XBSpline) {
+            this->bylevel[j-1-offset].map.insert(val_type(k, (T)0));
+        }
+        else {
+            this->bylevel[j-offset].map.insert(val_type(k, (T)0));
+        }
+    }
+    return *this;
+}
+
+template <typename T>
+TreeCoefficients1D<T>&
 TreeCoefficients1D<T>::operator-=(const Coefficients<Lexicographical,T,Index1D> &_coeff)
 {
     for (const_coeff1d_it it=_coeff.begin(); it!=_coeff.end(); ++it) {
@@ -235,7 +253,7 @@ TreeCoefficients1D<T>::norm(T factor)
 }
 
 
-template<typename T, typename Basis>
+template<typename T>
 void
 fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
                                  Coefficients<Lexicographical,T,Index1D> &v)
@@ -253,7 +271,7 @@ fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
     }
 }
 
-template<typename T, typename Basis>
+template<typename T>
 void
 fromCofficientsToTreeCofficients(const Coefficients<Lexicographical,T,Index1D> &v,
                                  TreeCoefficients1D<T> &tree_v)

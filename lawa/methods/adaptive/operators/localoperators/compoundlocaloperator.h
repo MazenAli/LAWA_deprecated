@@ -17,12 +17,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef APPLICATIONS_NEWEVALSCHEME_COMPOUNDLOCALOPERATOR_H
-#define APPLICATIONS_NEWEVALSCHEME_COMPOUNDLOCALOPERATOR_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_COMPOUNDLOCALOPERATOR_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_COMPOUNDLOCALOPERATOR_H 1
 
-#include <lawa/flensforlawa.h>
-#include <lawa/constructions/basis.h>
-#include <lawa/methods/adaptive/algorithms/localrefinement2.h>
+#include <lawa/methods/adaptive/datastructures/datastructures.h>
 
 namespace lawa {
 
@@ -57,6 +55,6 @@ class CompoundLocalOperator {
 
 }   // namespace lawa
 
-#include <applications/new_eval_scheme/source/compoundlocaloperator.tcc>
+#include <lawa/methods/adaptive/operators/localoperators/compoundlocaloperator.tcc>
 
-#endif // APPLICATIONS_NEWEVALSCHEME_COMPOUNDLOCALOPERATOR_H
+#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_COMPOUNDLOCALOPERATOR_H

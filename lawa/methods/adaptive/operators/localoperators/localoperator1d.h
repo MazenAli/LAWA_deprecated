@@ -17,14 +17,12 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR1D_H
-#define APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR1D_H 1
-
-#define DERIV 0
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_LOCALOPERATOR1D_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_LOCALOPERATOR1D_H 1
 
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
-#include <lawa/methods/adaptive/algorithms/localrefinement2.h>
+#include <lawa/methods/adaptive/algorithms/localrefinement.h>
 
 namespace lawa {
 
@@ -49,8 +47,8 @@ class LocalOperator1D {
         const TestRefinementBasis         &testRefinementBasis;
         const TrialRefinementBasis        &trialRefinementBasis;
         BilinearForm                      &Bil;
-        LocalRefinement2<TestBasis>       testLocalRefine;
-        LocalRefinement2<TrialBasis>      trialLocalRefine;
+        LocalRefinement<TestBasis>        testLocalRefine;
+        LocalRefinement<TrialBasis>       trialLocalRefine;
         int                               testRefinementLevelOffset;
         int                               trialRefinementLevelOffset;
 
@@ -91,6 +89,6 @@ class LocalOperator1D {
 
 }   // namespace lawa
 
-#include <applications/new_eval_scheme/source/localoperator1d.tcc>
+#include <lawa/methods/adaptive/operators/localoperators/localoperator1d.tcc>
 
-#endif // APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR1D_H
+#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_LOCALOPERATOR1D_H

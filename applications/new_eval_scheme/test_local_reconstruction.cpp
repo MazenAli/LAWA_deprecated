@@ -21,8 +21,8 @@ typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT
 
 ///  Typedefs for problem components:
 ///  Wavelet basis over an interval
-typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-//typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 ///  Wavelet integrals
@@ -53,8 +53,8 @@ int main(int argc, char*argv[])
     int J  = atoi(argv[3]);
 
     /// Basis initialization, using Dirichlet boundary conditions
-    PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
-    //PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
+    //PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
+    PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
     basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis &refinementbasis = basis.refinementbasis;
 
@@ -65,7 +65,7 @@ int main(int argc, char*argv[])
     integralf.quadrature.setOrder(40);
 
     /// Local refinement initialization
-    LocalRefinement2<PrimalBasis> LocalRefine(basis);
+    LocalRefinement<PrimalBasis> LocalRefine(basis);
 
     /// Computing a vector of (multi-)scaling coefficients and a vector of (multi-)wavelet coefficients
     CoefficientsByLevel<T> u_scaling1, u_wavelet1;
@@ -126,10 +126,10 @@ int main(int argc, char*argv[])
 
     /// We construct a random tree on which we test the transformation to a local scaling function
     /// representation
-    TreeCoefficients1D<T> u_tree(4096);
+    TreeCoefficients1D<T> u_tree(4096,basis.j0);
     Coefficients<Lexicographical,T,Index1D> u, u_loc_single;
     constructRandomTree(basis, J, u_tree);
-    fromTreeCofficientsToCofficients(basis,u_tree,u);
+    fromTreeCofficientsToCofficients(u_tree,u);
     IndexSet<Index1D> supp_u;
     supp_u = supp(u);
     for (const_set1d_it it=supp_u.begin(); it!=supp_u.end(); ++it) {

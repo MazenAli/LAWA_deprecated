@@ -1,16 +1,5 @@
 #include <iostream>
 #include <lawa/lawa.h>
-#include <applications/new_eval_scheme/source/loc_single_scale_transforms.h>
-#include <applications/new_eval_scheme/source/new_eval.h>
-#include <applications/new_eval_scheme/source/localoperator.h>
-#include <applications/new_eval_scheme/source/localoperator1d.h>
-#include <applications/new_eval_scheme/source/localoperator2d.h>
-#include <applications/new_eval_scheme/source/localoperator2d_new.h>
-#include <applications/new_eval_scheme/source/compoundlocaloperator.h>
-#include <applications/new_eval_scheme/source/multitreeoperations.h>
-#include <lawa/methods/adaptive/datastructures/alignedindexset.h>
-#include <lawa/methods/adaptive/datastructures/alignedcoefficients.h>
-#include <lawa/methods/adaptive/datastructures/treecoefficients1d.h>
 
 using namespace std;
 using namespace lawa;
@@ -29,14 +18,10 @@ typedef HelmholtzOperator2D<T,Basis2D>                              HelmholtzBil
 typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
                                        HelmholtzBilinearForm2D>     Preconditioner;
 
-//typedef LocalOperator<PrimalBasis,PrimalBasis,WeightedPDEBilinearForm,
-//                      Preconditioner>                               LocalWeightedPDEOp1D;
-//typedef LocalOperator2D<PrimalBasis,LocalWeightedPDEOp1D,
-//                        LocalWeightedPDEOp1D>                       LocalWeightedPDEOp2D;
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
                         WeightedPDEBilinearForm>                    LocalWeightedPDEOp1D;
-typedef LocalOperator2DNew<LocalWeightedPDEOp1D,
-                           LocalWeightedPDEOp1D>                    LocalWeightedPDEOp2D;
+typedef LocalOperator2D<LocalWeightedPDEOp1D,
+                        LocalWeightedPDEOp1D>                       LocalWeightedPDEOp2D;
 
 //Righthandsides definitions (separable)
 typedef SeparableRHS2D<T,Basis2D >                                  SeparableRhsIntegral2D;
@@ -63,6 +48,10 @@ getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j
 
 void
 extendRHSIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j);
+
+void
+simpleExtendMultiTree(const Basis2D &basis, const Index2D &index2d, IndexSet<Index2D> &Lambda);
+
 
 void
 mv(LocalWeightedPDEOp2D &localLaplaceIdentityOp2D, LocalWeightedPDEOp2D &localIdentityLaplaceOp2D,
@@ -212,7 +201,6 @@ int main (int argc, char *argv[]) {
     int d_  = atoi(argv[2]);
     int j0  = atoi(argv[3]);
     int J  = atoi(argv[4]);
-    bool withDirichletBC=true;
     bool adaptive=true;
     T threshTol = 0.6;
     T r_norm = 0.1;
@@ -220,11 +208,12 @@ int main (int argc, char *argv[]) {
     int ell=1;
     Timer time;
 
+    /// Basis initialization
     PrimalBasis       basis(d,d_,j0);
-    if (withDirichletBC)    basis.enforceBoundaryCondition<DirichletBC>();
+    basis.enforceBoundaryCondition<DirichletBC>();
     Basis2D basis2d(basis,basis);
 
-
+    /// Initialization of operator with weighted coefficients
     DenseVectorT p1_singPts, p2_singPts;
     Function<T> reaction_coeff(p1, p1_singPts);
     Function<T> convection_coeff(p1, p1_singPts);
@@ -232,14 +221,19 @@ int main (int argc, char *argv[]) {
     WeightedPDEBilinearForm       WeightedLaplaceBil( basis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
     WeightedPDEBilinearForm       WeightedIdentityBil(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
 
+    /// Initialization of local operator
+    LocalWeightedPDEOp1D          localLaplaceOp1D( basis, basis, WeightedLaplaceBil);
+    LocalWeightedPDEOp1D          localIdentityOp1D(basis, basis, WeightedIdentityBil);
+    LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(localLaplaceOp1D,localIdentityOp1D);
+    LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(localIdentityOp1D,localLaplaceOp1D);
+    localLaplaceIdentityOp2D.setJ(9);
+    localIdentityLaplaceOp2D.setJ(9);
 
+    /// Initialization of preconditioner
     HelmholtzBilinearForm2D  HelmholtzBil2D(basis2d,0.);
     Preconditioner           Prec(HelmholtzBil2D);
-    int offset=5;
-    if (d==2 && d_==2) {
-        offset=2;
-    }
 
+    /// Initialization of rhs
     DenseVectorT sing_pts_x, sing_pts_y;
     DenseMatrixT no_deltas, deltas_x, deltas_y;
     if (example==1) {
@@ -250,7 +244,6 @@ int main (int argc, char *argv[]) {
         deltas_y.engine().resize(2,2); deltas_y(1,1) = 1./3.; deltas_y(1,2) = 10.+10.*exp(1./3.);
                                        deltas_y(2,1) = 2./3.; deltas_y(2,2) = 20.+10.*exp(1./3.);
     }
-
     SeparableFunction2D<T> SepFunc1(f1, sing_pts_x, p_u2, sing_pts_y);
     SeparableFunction2D<T> SepFunc2(p_u1, sing_pts_x, f2, sing_pts_y);
     int order = 40;
@@ -261,9 +254,7 @@ int main (int argc, char *argv[]) {
     SumOfSeparableRhsIntegral2D rhsintegral2d(rhsintegral_x,rhsintegral_y);
     SumOfSeparableRhs           F(rhsintegral2d,Prec);
 
-    ofstream file("sparsegridconv.txt");
-    file.precision(16);
-
+    /// Initialization of hash map vectors
     Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
     Coefficients<Lexicographical,T,Index2D> f(SIZEHASHINDEX2D);
     Coefficients<Lexicographical,T,Index2D> r(SIZEHASHINDEX2D),
@@ -279,30 +270,18 @@ int main (int argc, char *argv[]) {
     getSparseGridIndexSet(basis,Lambda,0,gamma);
     //readIndexSetFromFile(Lambda,example,d,threshTol,1,13);
 
-    //LocalLaplaceOp1D            localLaplaceOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, LaplaceBil, Prec, 1);
-    //LocalIdentityOp1D           localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, IdentityBil,  Prec, 0);
-    //LocalLaplaceIdentityOp2D    localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
-    //LocalIdentityLaplaceOp2D    localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
 
-    //LocalWeightedPDEOp1D          localLaplaceOp1D(basis, withDirichletBC, basis, withDirichletBC, offset, WeightedLaplaceBil, Prec);
-    //LocalWeightedPDEOp1D          localIdentityOp1D(basis,  withDirichletBC, basis, withDirichletBC, offset, WeightedIdentityBil,  Prec);
-    //LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(basis,localLaplaceOp1D,localIdentityOp1D);
-    //LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(basis,localIdentityOp1D,localLaplaceOp1D);
 
-    LocalWeightedPDEOp1D          localLaplaceOp1D( basis, basis, WeightedLaplaceBil);
-    LocalWeightedPDEOp1D          localIdentityOp1D(basis, basis, WeightedIdentityBil);
-    LocalWeightedPDEOp2D          localLaplaceIdentityOp2D(localLaplaceOp1D,localIdentityOp1D);
-    LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(localIdentityOp1D,localLaplaceOp1D);
+    stringstream filename;
+    filename << "multitree_awgm2d_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << ".txt";
+    ofstream file(filename.str().c_str());
+    file.precision(16);
 
-    localLaplaceIdentityOp2D.setJ(9);
-    localIdentityLaplaceOp2D.setJ(9);
 
     for (int iter=0; iter<=30; ++iter) {
 
         //readIndexSetFromFile(Lambda,example,d,threshTol,1,iter);
         //writeIndexSetToFile(Lambda,"Lambda",example,d,threshTol,ell,iter);
-        //Lambda.clear();
-        //getSparseGridIndexSet(basis,Lambda,iter,gamma);
 
         if (Lambda.size()>400000) break;
         cout << endl;
@@ -394,7 +373,7 @@ int main (int argc, char *argv[]) {
             for (int i=1; i<=ell; ++i) {
                 C_Lambda = C(C_Lambda, 1., basis2d, true);
                 for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
-                    extendMultiTree2(basis2d,(*it),offset,checkLambda);
+                    simpleExtendMultiTree(basis2d,(*it),checkLambda);
                 }
             }
             cerr << "   Residual level l = " << ell
@@ -410,7 +389,7 @@ int main (int argc, char *argv[]) {
             for (int i=1; i<=ell; ++i) {
                 C_Lambda = C(C_Lambda, 1., basis2d, true);
                 for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
-                    extendMultiTree2(basis2d,(*it),offset,checkLambda);
+                    simpleExtendMultiTree(basis2d,(*it),checkLambda);
                 }
             }
         }
@@ -441,7 +420,7 @@ int main (int argc, char *argv[]) {
             }
             r = THRESH(r,threshTol*r.norm(2.));
             for (const_coeff2d_it it=r.begin(); it!=r.end(); ++it) {
-                extendMultiTree2(basis2d,(*it).first,offset,Lambda);
+                simpleExtendMultiTree(basis2d,(*it).first,Lambda);
             }
         }
         else {
@@ -585,6 +564,67 @@ extendRHSIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int J)
     for (const_set1d_it it_x=LambdaBoundary.begin(); it_x!=LambdaBoundary.end(); ++it_x) {
         for (const_set1d_it it_y=LambdaBoundary.begin(); it_y!=LambdaBoundary.end(); ++it_y) {
             Lambda.insert(Index2D(*it_x,*it_y));
+        }
+    }
+}
+
+void
+simpleExtendMultiTree(const Basis2D &basis, const Index2D &index2d, IndexSet<Index2D> &Lambda)
+{
+    int offset = 7;
+
+    int j0_x = basis.first.j0;
+    int j0_y = basis.second.j0;
+
+    if (Lambda.find(index2d)!=Lambda.end()) {   return;                 }
+    else                                    {   Lambda.insert(index2d); }
+
+    Index1D index_x = index2d.index1;
+    Index1D index_y = index2d.index2;
+
+    Support<T> supp_x = basis.first.generator(index_x.xtype).support(index_x.j,index_x.k);
+    //check x-direction
+    if (index_x.j==j0_x) {
+        for (long k=basis.first.mra.rangeI(j0_x).firstIndex(); k<=basis.first.mra.rangeI(j0_x).lastIndex(); ++k) {
+            Support<T> new_supp_x = basis.first.generator(XBSpline).support(j0_x,k);
+            if (overlap(supp_x,new_supp_x)>0) {
+                Index2D new_index2d(Index1D(j0_x,k,XBSpline),index_y);
+                if (Lambda.find(new_index2d)==Lambda.end()) simpleExtendMultiTree(basis,new_index2d,Lambda);
+            }
+        }
+    }
+    else {
+        long k_first = std::max((long)basis.first.rangeJ(index_x.j-1).firstIndex(),index_x.k/2 - offset);
+        long k_last  = std::min((long)basis.first.rangeJ(index_x.j-1).lastIndex(),index_x.k/2 + offset);
+        for (long k=k_first; k<=k_last; ++k) {
+            Support<T> new_supp_x = basis.first.generator(XWavelet).support(index_x.j-1,k);
+            if (overlap(supp_x,new_supp_x)>0) {
+                Index2D new_index2d(Index1D(index_x.j-1,k,XWavelet),index_y);
+                if (Lambda.find(new_index2d)==Lambda.end()) simpleExtendMultiTree(basis,new_index2d,Lambda);
+            }
+        }
+    }
+
+    Support<T> supp_y = basis.second.generator(index_y.xtype).support(index_y.j,index_y.k);
+    //check y-direction
+    if (index_y.j==j0_y) {
+        for (long k=basis.second.mra.rangeI(j0_y).firstIndex(); k<=basis.second.mra.rangeI(j0_y).lastIndex(); ++k) {
+            Support<T> new_supp_y = basis.second.generator(XBSpline).support(j0_y,k);
+            if (overlap(supp_y,new_supp_y)>0) {
+                Index2D new_index2d(index_x,Index1D(j0_y,k,XBSpline));
+                if (Lambda.find(new_index2d)==Lambda.end()) simpleExtendMultiTree(basis,new_index2d,Lambda);
+            }
+        }
+    }
+    else {
+        long k_first = std::max((long)basis.second.rangeJ(index_y.j-1).firstIndex(),index_y.k/2 - offset);
+        long k_last  = std::min((long)basis.second.rangeJ(index_y.j-1).lastIndex(),index_y.k/2 + offset);
+        for (long k=k_first; k<=k_last; ++k) {
+            Support<T> new_supp_y = basis.second.generator(XWavelet).support(index_y.j-1,k);
+            if (overlap(supp_y,new_supp_y)>0) {
+                Index2D new_index2d(index_x,Index1D(index_y.j-1,k,XWavelet));
+                if (Lambda.find(new_index2d)==Lambda.end()) simpleExtendMultiTree(basis,new_index2d,Lambda);
+            }
         }
     }
 }

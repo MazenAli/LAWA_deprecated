@@ -30,92 +30,81 @@ template <typename PrimalBasis>
 class LocalRefinement
 {
     typedef typename PrimalBasis::T T;
+
+    typedef typename PrimalBasis::RefinementBasis                              RefinementBasis;
+
+    typedef flens::DenseVector<flens::Array<long double> >                     DenseVectorLD;
+
     typedef IndexSet<Index1D>::const_iterator                                  const_set1d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator   const_coeff1d_it;
     typedef typename CoefficientsByLevel<T>::const_it                          const_coeffbylevel_it;
+    typedef typename CoefficientsByLevel<T>::iter                              coeffbylevel_it;
 
     public:
 
 
-        LocalRefinement(const PrimalBasis &_basis, bool withDirichletBC);
+        LocalRefinement(const PrimalBasis &_basis);
 
-        void
-        computeLocalScaleRepr(const Coefficients<Lexicographical,T,Index1D> &u_multi,
-                              Coefficients<Lexicographical,T,Index1D> &u_loc_single);
+        const PrimalBasis     &basis;
+        const RefinementBasis &refinementbasis;
 
-        /*
-         * Expects a vector u_multi_j of wavelets _and_ scaling functions on level j.
-         * Computes the _local_ representation in terms of scaling functions.
-         * _Adds_ the coefficients to a vector _u_loc_single_jP1 .
-         */
+        // Computes the common local refinement of a scaling coefficient vector (including
+        // multiscaling!!) and a multilevel wavelet coefficient vector (including multiwavelets!!).
         void
-        reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j,
-                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1) const;
-
-        void
-        reconstruct(const Coefficients<Lexicographical,T,Index1D> &u_multi_j, int j,
-                    Coefficients<Lexicographical,T,Index1D> &u_loc_single_jP1) const;
-
-        void
-        reconstruct(const CoefficientsByLevel<T> &u_scaling, const CoefficientsByLevel<T> &u_wavelet,
-                    int j, CoefficientsByLevel<T> &u_loc_single_jP1) const;
-
-        /*
-         * Expects an coefficient entry (wavelets or scaling function) and computes the _local_ refinement.
-         * Result is _added_ to u_loc_single_jP1
-         */
-        void
-        reconstruct(const short &j, const long &k, const XType &xtype, T coeff,
+        reconstruct(const Coefficients<Lexicographical,T,Index1D> &u, int j_scaling,
                     Coefficients<Lexicographical,T,Index1D> &u_loc_single) const;
 
+        // Computes the common local refinement of a b-spline vector (not multiscaling!!) and a
+        // wavelet (including multi-wavelets!!).
         void
-        reconstruct(const short &j, const long &k, const XType &xtype, T coeff,
-                    CoefficientsByLevel<T> &u_loc_single) const;
+        reconstruct(const CoefficientsByLevel<T> &u_bspline, int j_bspline,
+                    const CoefficientsByLevel<T> &u_wavelet, int j_wavelet,
+                    CoefficientsByLevel<T> &u_loc_single,    int &j_refinement) const;
 
-        /*
-         * Expects a vector <Phi_{j+1},v> (u_loc_single) with scaling functions on level j+1.
-         * Computes the _local_ representation
-         *  | |  M_{j,0}^T |                   |
-         *  | |  M_{j,1}^T | < \Phi_{j+1},v>   |_{\Lambda}
-         *  and _adds_ it to the result vector
-         */
+        //Computes the local refinement of a multiscaling representation
         void
-        decompose_(Coefficients<Lexicographical,T,Index1D> &u_loc_single,
-                   const IndexSet<Index1D> &Lambda,
-                   Coefficients<Lexicographical,T,Index1D> &u_loc_single_jM1,
-                   Coefficients<Lexicographical,T,Index1D> &u_multi) const;
-
-        void
-        decompose_(CoefficientsByLevel<T>  &u_loc_single, int j,
-                   CoefficientsByLevel<T>  &u_scaling,
-                   CoefficientsByLevel<T>  &u_wavelet) const;
-
-        T
-        decompose_(Coefficients<Lexicographical,T,Index1D> &u_loc_single,
-                   const short &j, const long &k, const XType &xtype) const;
-
-        T
-        decompose_(const CoefficientsByLevel<T> &u_loc_single,
-                   const short &j, const long &k, const XType &xtype) const;
-
-
-
-        /*
-         * "Graphical test" if refinement is correct.
-         */
-        void
-        test_reconstruct(int j, long k, XType xtype) const;
-
-        const PrimalBasis &basis;
+        reconstructOnlyMultiScaling(const CoefficientsByLevel<T> &u_scaling, int j,
+                                    CoefficientsByLevel<T> &u_loc_single, int &j_refinement) const;
 
     private:
-        int numLeftBoundaryScalings, numRightBoundaryScalings;
-        int numLeftBoundaryWavelets, numRightBoundaryWavelets;
-        int inner_scaling_offset, inner_wavelet_offset;
-        DenseVector<Array<DenseVector<Array<T> > > > leftM0, rightM0;
-        DenseVector<Array<T> > innerM0;
-        DenseVector<Array<DenseVector<Array<T> > > > leftM1, rightM1;
-        DenseVector<Array<T> > innerM1;
+        //Computes the local refinement of a B-spline (not multiscaling!!)
+        void
+        reconstructBSpline(int j, long k, T coeff, CoefficientsByLevel<T> &u_loc_single,
+                           int &j_refinement) const;
+
+        //Computes the local refinement of a Wavelet (also multiwavelet!!)
+        void
+        reconstructWavelet(int j, long k, T coeff, CoefficientsByLevel<T> &u_loc_single,
+                           int &j_refinement) const;
+
+    public:
+        void
+        decompose_(const CoefficientsByLevel<T>  &u_loc_single,
+                   CoefficientsByLevel<T>  &u_bspline, int j_bspline,
+                   CoefficientsByLevel<T>  &u_wavelet, int j_wavelet) const;
+
+        void
+        decompose_OnlyMultiScaling(const CoefficientsByLevel<T>  &u_loc_single,
+                                   CoefficientsByLevel<T>  &u_scaling, int j_scaling) const;
+
+    private:
+        // Computes $M^{\lambda;j,0}^T C where $\lambda$ corresponds to a (multi)-scaling
+        // index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and $\Phi_{j+1}$ corresponds
+        // to a (local) refinement B-spline vector.
+        T
+        decompose_Scaling(const CoefficientsByLevel<T> &u_loc_single, int j, long k) const;
+
+        // Computes $M^{\lambda;j,0}^T C where $\lambda$ corresponds to a (refinement)-bspline
+        // index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and $\Phi_{j+1}$ corresponds
+        // to a (local) refinement B-spline vector.
+        T
+        decompose_BSpline(const CoefficientsByLevel<T> &u_loc_single, int j, long k) const;
+
+        // Computes $M^{\lambda;j,1}^T C where $\lambda$ corresponds to a
+        // (multi)-wavelet index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and
+        // $\Phi_{j+1}$ corresponds to a (local) refinement B-spline vector.
+        T
+        decompose_Wavelet(const CoefficientsByLevel<T> &u_loc_single, int j, long k) const;
 };
 
 

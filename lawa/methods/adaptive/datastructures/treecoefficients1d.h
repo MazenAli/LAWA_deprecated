@@ -27,7 +27,7 @@
 #endif
 
 #include <iostream>
-#include <map>
+#include <list>
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
@@ -80,6 +80,7 @@ struct TreeCoefficients1D
     typedef typename CoefficientsByLevel<T>::const_it                           const_by_level_it;
     typedef typename CoefficientsByLevel<T>::iter                               by_level_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator    const_coeff1d_it;
+    typedef typename std::list<const Index1D*>::const_iterator                  const_indexlist_it;
 
     TreeCoefficients1D(size_t n, int basis_j0=1);
 
@@ -88,6 +89,9 @@ struct TreeCoefficients1D
 
     TreeCoefficients1D<T>&
     operator=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
+
+    TreeCoefficients1D<T>&
+    operator=(const std::list<const Index1D* > &_coeff);
 
     TreeCoefficients1D<T>&
     operator-=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
@@ -179,14 +183,14 @@ struct TreeCoefficients1D
 
 };
 
-template<typename T, typename Basis>
+template<typename T>
 void
-fromTreeCofficientsToCofficients(const Basis &basis, const TreeCoefficients1D<T> &tree_v,
+fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
                                  Coefficients<Lexicographical,T,Index1D> &v);
 
-template<typename T, typename Basis>
+template<typename T>
 void
-fromCofficientsToTreeCofficients(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> &v,
+fromCofficientsToTreeCofficients(const Coefficients<Lexicographical,T,Index1D> &v,
                                  TreeCoefficients1D<T> &tree_v);
 
 template<typename T, typename ScalingOperator>

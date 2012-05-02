@@ -1,8 +1,8 @@
 namespace lawa {
 
 template <typename LocalOperator1, typename LocalOperator2>
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
-::LocalOperator2DNew(LocalOperator1 &_localoperator1, LocalOperator2 &_localoperator2)
+LocalOperator2D<LocalOperator1, LocalOperator2>
+::LocalOperator2D(LocalOperator1 &_localoperator1, LocalOperator2 &_localoperator2)
 : localoperator1(_localoperator1), localoperator2(_localoperator2),
   trialBasis_x1(_localoperator1.trialBasis), testBasis_x1(_localoperator1.testBasis),
   trialBasis_x2(_localoperator2.trialBasis), testBasis_x2(_localoperator2.testBasis),
@@ -15,7 +15,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::setJ(int _J)
 {
     J = _J;
@@ -23,7 +23,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
          Coefficients<Lexicographical,T,Index2D> &auxiliary,
          Coefficients<Lexicographical,T,Index2D> &AAv) /*const*/
@@ -54,7 +54,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
          Coefficients<Lexicographical,T,Index2D> &intermediate,
          Coefficients<Lexicographical,T,Index2D> &IAUIv,
@@ -78,7 +78,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
          Coefficients<Lexicographical,T,Index2D> &intermediate,
          Coefficients<Lexicographical,T,Index2D> &IAUIv,
@@ -126,7 +126,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::debug_evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
                Coefficients<Lexicographical,T,Index2D> &intermediate,
                Coefficients<Lexicographical,T,Index2D> &IAUIv,
@@ -199,7 +199,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T,Index2D> &v,
                                   const Coefficients<Lexicographical,T,Index2D> &LIIAv,
                                   Coefficients<Lexicographical,T,Index2D> &IAv) const
@@ -249,7 +249,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
         else {
             int j_col_x = 0;
             long k_col_x_first = 0, k_col_x_last = 0;
-            trialBasis_x1.getWaveletNeighborsForBSpline(j_row_x, k_row_x, testBasis_x1,
+            trialBasis_x1.getWaveletNeighborsForScaling(j_row_x, k_row_x, testBasis_x1,
                                                         j_col_x,k_col_x_first,k_col_x_last);
             assert(j_row_x == j_col_x);
             Support<T> supp_row_x = trialBasis_x1.mra.phi.support(j_row_x,k_row_x);
@@ -274,7 +274,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::initializeIntermediateVectorUIv(const Coefficients<Lexicographical,T,Index2D> &v,
                                   const Coefficients<Lexicographical,T,Index2D> &IAUIv,
                                   Coefficients<Lexicographical,T,Index1D> &Pe1_UIv) const
@@ -286,7 +286,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalIA(const Coefficients<Lexicographical,T,Index2D> &z,
          Coefficients<Lexicographical,T,Index2D> &IAz) /*const*/
 {
@@ -297,8 +297,10 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
     time.start();
     AlignedCoefficients<T,Index2D,Index1D,Index1D> x1aligned_z(n1,n2);
     AlignedCoefficients<T,Index2D,Index1D,Index1D> x1aligned_IAz(n1,n2);
+    //AlignedCoefficients2<T,Index2D,Index1D,Index1D> x1aligned_IAz2;
     x1aligned_z.align_x1(z,J);
     x1aligned_IAz.align_x1(IAz,J);
+    //x1aligned_IAz2.align_x1(IAz);
     time.stop();
     T time_x1align_v = time.elapsed();
 
@@ -312,13 +314,23 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
         Index1D row_x = (*it).first;
         TreeCoefficients1D<T> PsiLambdaHat_x2(n2,trialBasis_x2.j0);
         PsiLambdaHat_x2 = (*it).second;
+        TreeCoefficients1D<T> PsiLambdaCheck_x2(n2,testBasis_x2.j0);
+
+        /*
+        typename alignedCoefficients2::const_coeff_prinindex_it col_x1=x1aligned_IAz2.principalIndices.find((*it).first);
+        if (col_x1==x1aligned_IAz2.principalIndices.end()) {
+            continue;
+        }
+        int pos = (*col_x1).second;
+        PsiLambdaCheck_x2 = x1aligned_IAz2.principalIndexToAlignedIndices[pos];
+        */
+        if ( x1aligned_IAz.map.find((*it).first)==x1aligned_IAz.map.end() ) continue;
+        PsiLambdaCheck_x2 = x1aligned_IAz.map[(*it).first];
         time.stop();
         time_setup_tree += time.elapsed();
 
-        TreeCoefficients1D<T> PsiLambdaCheck_x2(n2,testBasis_x2.j0);
 
         time.start();
-        PsiLambdaCheck_x2 = x1aligned_IAz.map[(*it).first];
         localoperator2.eval(PsiLambdaHat_x2, PsiLambdaCheck_x2, "A");
         time.stop();
         time_mv1d += time.elapsed();
@@ -341,7 +353,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalLI(const Coefficients<Lexicographical,T,Index2D> &z,
          Coefficients<Lexicographical,T,Index2D> &LIz) /*const*/
 {
@@ -399,7 +411,7 @@ LocalOperator2DNew<LocalOperator1, LocalOperator2>
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
-LocalOperator2DNew<LocalOperator1, LocalOperator2>
+LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalUI(const Coefficients<Lexicographical,T,Index2D> &z,
          const Coefficients<Lexicographical,T,Index1D> &Pe1_UIz,
          Coefficients<Lexicographical,T,Index2D> &UIz) /*const*/

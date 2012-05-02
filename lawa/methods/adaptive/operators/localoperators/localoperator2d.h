@@ -17,18 +17,18 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR2DNEW_H
-#define APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR2DNEW_H 1
+#ifndef APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR2D_H
+#define APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR2D_H 1
 
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
-#include <applications/new_eval_scheme/source/localoperator.h>
+#include <lawa/methods/adaptive/operators/localoperators/localoperator1d.h>
 
 namespace lawa {
 
 template <typename LocalOperator1, typename LocalOperator2>
-struct LocalOperator2DNew {
+struct LocalOperator2D {
 
     typedef typename LocalOperator1::T T;
 
@@ -51,7 +51,7 @@ struct LocalOperator2DNew {
     typedef AlignedCoefficients<T,Index2D,Index1D,Index1D>                     alignedCoefficients;
     //typedef AlignedCoefficients2<T,Index2D,Index1D,Index1D>                    alignedCoefficients2;
 
-    LocalOperator2DNew(LocalOperator1 &_localoperator1, LocalOperator2 &_localoperator2);
+    LocalOperator2D(LocalOperator1 &_localoperator1, LocalOperator2 &_localoperator2);
 
     void
     setJ(int J);
@@ -123,6 +123,6 @@ struct LocalOperator2DNew {
 
 }   // namespace lawa
 
-#include <applications/new_eval_scheme/source/localoperator2d_new.tcc>
+#include <lawa/methods/adaptive/operators/localoperators/localoperator2d.tcc>
 
 #endif  // APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR2DNEW_H

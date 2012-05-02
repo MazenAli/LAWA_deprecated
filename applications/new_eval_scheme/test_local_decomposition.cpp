@@ -61,7 +61,7 @@ int main(int argc, char*argv[])
     integralf_refinementbasis.quadrature.setOrder(30);
 
     /// Local refinement initialization
-    LocalRefinement2<PrimalBasis> LocalRefine(basis);
+    LocalRefinement<PrimalBasis> LocalRefine(basis);
 
     /// Computing a vector of refinement B-spline coefficients
     CoefficientsByLevel<T> f_loc_single;

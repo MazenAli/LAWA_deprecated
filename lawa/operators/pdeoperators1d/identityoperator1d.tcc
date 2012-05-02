@@ -18,6 +18,7 @@ template <typename T, typename Basis>
 T
 IdentityOperator1D<T, Basis>::operator()(const Index1D &row_index, const Index1D &col_index) const
 {
+    //std::cerr << "IdentityOperator called for " << row_index << ", " << col_index << std::endl;
     return IdentityOperator1D<T, Basis>::operator()(row_index.xtype, row_index.j, row_index.k,
                                                     col_index.xtype, col_index.j, col_index.k);
 }
