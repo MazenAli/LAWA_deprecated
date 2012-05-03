@@ -26,15 +26,63 @@
     #include <ext/hash_map>
 #endif
 
+#include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 
 namespace lawa {
 
+template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex,
+          CoordinateDirection X>
+struct AlignedCoefficients
+{
+    #ifdef TRONE
+        typedef typename std::tr1::unordered_map<PrincipalIndex,
+                                                 Coefficients<Lexicographical,T,AlignedIndex>,
+                                                 index_hashfunction<PrincipalIndex>,
+                                                 index_eqfunction<PrincipalIndex> >
+                         IndexToCoefficientsMap;
+    #else
+        typedef typename __gnu_cxx::hash_map<PrincipalIndex,
+                                             Coefficients<Lexicographical,T,AlignedIndex>,
+                                             index_hashfunction<PrincipalIndex>,
+                                             index_eqfunction<PrincipalIndex> >
+                         IndexToCoefficientsMap;
+    #endif
+
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator        const_coeff_index_it;
+    typedef typename IndexToCoefficientsMap::const_iterator                       const_map_prindex_it;
+    typedef typename IndexToCoefficientsMap::iterator                             map_prinindex_it;
+
+    typedef typename Coefficients<Lexicographical,T,AlignedIndex>::const_iterator const_coeff_aligindex_it;
+    typedef typename Coefficients<Lexicographical,T,AlignedIndex>::iterator       coeff_aligindex_it;
+
+    AlignedCoefficients(void);
+
+    AlignedCoefficients(size_t n1, size_t n2);
+
+    /// Case 1: PrincipalIndex = Index1D, AlignedIndex = Index"(n-1)"D -> Index = Index"n"D
+    ///         Let now Index = (\lambda_1,...,\lambda_n). Then the principal index and the
+    ///         aligned index are determined by CoordX. E.g. when CoordX=XTwo, we get
+    ///         principal index = \lambda_2, aligned index = (\lambda_1,\lambda_3,...,\lambda_n)
+    /// Case 2: PrincipalIndex = Index"n-1"D, AlignedIndex = Index1D -> Index = Index"n"D
+    ///         Let now Index = (\lambda_1,...,\lambda_n). Then the principal index and the
+    ///         aligned index are determined by CoordX. E.g. when CoordX=XTwo, we get
+    ///         principal index = (\lambda_1,\lambda_3,...,\lambda_n), aligned index = \lambda_2
+
+    void
+    align(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
+
+    IndexToCoefficientsMap map;
+
+    size_t n1, n2;
+
+};
+
+/*
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
 struct AlignedCoefficients
 {
     #ifdef TRONE
-//        typedef typename std::map<PrincipalIndex,Coefficients<Lexicographical,T,AlignedIndex>,lt<Lexicographical,PrincipalIndex> > IndexToCoefficientsMap;
         typedef typename std::tr1::unordered_map<PrincipalIndex,Coefficients<Lexicographical,T,AlignedIndex>,
                                                  index_hashfunction<PrincipalIndex>,
                                                  index_eqfunction<PrincipalIndex> >
@@ -57,29 +105,25 @@ struct AlignedCoefficients
 
     AlignedCoefficients(size_t n1, size_t n2);
 
-    /*
-     * Aligns the coefficient vector w.r.t. to the principal index assuming that
-     * Index = (PrincipalIndex,AlignedIndex)
-     */
+    /// Aligns the coefficient vector w.r.t. to the principal index assuming that
+    /// Index = (PrincipalIndex,AlignedIndex)
     void
     align_x1(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
 
-    /*
-     * Aligns the coefficient vector w.r.t. to the principal index assuming that
-     * Index = (AlignedIndex,PrincipalIndex)
-     */
+    /// Aligns the coefficient vector w.r.t. to the principal index assuming that
+    /// Index = (AlignedIndex,PrincipalIndex)
     void
     align_x2(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
 
     IndexToCoefficientsMap map;
 
     size_t n1, n2;
-
 };
 
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
 std::ostream& operator<< (std::ostream &s,
                           const AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex> &alignedcoeff);
+*/
 
 /*
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>

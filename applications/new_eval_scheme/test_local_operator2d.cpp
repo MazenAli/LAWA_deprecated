@@ -101,6 +101,13 @@ int main (int argc, char *argv[]) {
     bool useSparseGrid=true;
     bool calcRefSol=true;
 
+    Index2D index2d(Index1D(3,4,XWavelet),Index1D(4,5,XBSpline));
+    Index1D prinIndex, aligIndex;
+    Project<Index2D,Index1D,Index1D,XOne> projectX1;
+    Project<Index2D,Index1D,Index1D,XTwo> projectX2;
+    projectX1(index2d,prinIndex,aligIndex);
+    cout << "Project along x1: " << prinIndex << " " << aligIndex << endl;
+
     /// Basis initialization, using Dirichlet boundary conditions
     PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
     //PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
@@ -141,8 +148,8 @@ int main (int argc, char *argv[]) {
             getSparseGridIndexSet(basis,Lambda2,j,0.2);
 
             cout << "#checkLambda  = " << checkLambda.size() << endl;
-            Index1D index1_x(j0+j+2,25,XWavelet);
-            Index1D index1_y(j0+j+2,12,XWavelet);
+            Index1D index1_x(j0+j+4,5,XWavelet);
+            Index1D index1_y(j0+j+4,2,XWavelet);
             Index2D new_index1(index1_x,index1_y);
             extendMultiTree( basis2d,new_index1,checkLambda);
             extendMultiTree2(basis2d,new_index1,20,checkLambda2);
@@ -150,8 +157,8 @@ int main (int argc, char *argv[]) {
             cout<< "#checkLambda2 = " << checkLambda2.size() << endl;
 
             cout << "#Lambda  = " << Lambda.size() << endl;
-            Index1D index2_x(j0+j+2,25,XWavelet);
-            Index1D index2_y(j0+j+2,12,XWavelet);
+            Index1D index2_x(j0+j+4,7,XWavelet);
+            Index1D index2_y(j0+j+4,3,XWavelet);
             Index2D new_index2(index2_x,index2_y);
             extendMultiTree( basis2d,new_index2,Lambda);
             extendMultiTree2(basis2d,new_index2,20,Lambda2);

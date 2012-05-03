@@ -208,8 +208,8 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     size_t n1 = hashTableLargeLength;
     size_t n2 = hashTableSmallLength;
 
-    alignedCoefficients x1aligned_LIIAv(n1,n2);
-    x1aligned_LIIAv.align_x1(LIIAv,J);
+    XOneAlignedCoefficients x1aligned_LIIAv(n1,n2);
+    x1aligned_LIIAv.align(LIIAv,J);
 
 
 
@@ -237,7 +237,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
             for (long k_col_x=k_col_x_first; k_col_x<=k_col_x_last; ++k_col_x) {
                 if (overlap(supp_row_x,testBasis_x1.psi.support(j_col_x,k_col_x))>0) {
                     Index1D col_x(j_col_x,k_col_x,XWavelet);
-                    typename alignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
+                    typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
                     if (it!=x1aligned_LIIAv.map.end()) {
                         for (const_coeff1d_it row_y=(*it).second.begin(); row_y!=(*it).second.end(); ++row_y) {
                             Lambda_y.insert((*row_y).first);
@@ -256,7 +256,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
             for (long k_col_x=k_col_x_first; k_col_x<=k_col_x_last; ++k_col_x) {
                 if (overlap(supp_row_x,testBasis_x1.psi.support(j_col_x,k_col_x))>0) {
                     Index1D col_x(j_col_x,k_col_x,XWavelet);
-                    typename alignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
+                    typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
                     if (it!=x1aligned_LIIAv.map.end()) {
                         for (const_coeff1d_it row_y=(*it).second.begin(); row_y!=(*it).second.end(); ++row_y) {
                             Lambda_y.insert((*row_y).first);
@@ -295,11 +295,11 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
     Timer time;
     time.start();
-    AlignedCoefficients<T,Index2D,Index1D,Index1D> x1aligned_z(n1,n2);
-    AlignedCoefficients<T,Index2D,Index1D,Index1D> x1aligned_IAz(n1,n2);
+    XOneAlignedCoefficients x1aligned_z(n1,n2);
+    XOneAlignedCoefficients x1aligned_IAz(n1,n2);
+    x1aligned_z.align(z,J);
+    x1aligned_IAz.align(IAz,J);
     //AlignedCoefficients2<T,Index2D,Index1D,Index1D> x1aligned_IAz2;
-    x1aligned_z.align_x1(z,J);
-    x1aligned_IAz.align_x1(IAz,J);
     //x1aligned_IAz2.align_x1(IAz);
     time.stop();
     T time_x1align_v = time.elapsed();
@@ -308,7 +308,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     T time_mv1d = 0.;
     T time_add_aligned = 0.;
 
-    for (typename alignedCoefficients::const_map_prindex_it it=x1aligned_z.map.begin();
+    for (typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_z.map.begin();
                                                             it!=x1aligned_z.map.end(); ++it) {
         time.start();
         Index1D row_x = (*it).first;
@@ -362,10 +362,10 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
     Timer time;
     time.start();
-    alignedCoefficients x2aligned_z(n1,n2);
-    alignedCoefficients x2aligned_LIz(n1,n2);
-    x2aligned_z.align_x2(z,J);
-    x2aligned_LIz.align_x2(LIz,J);
+    XTwoAlignedCoefficients x2aligned_z(n1,n2);
+    XTwoAlignedCoefficients x2aligned_LIz(n1,n2);
+    x2aligned_z.align(z,J);
+    x2aligned_LIz.align(LIz,J);
     time.stop();
     T time_x2align_v = time.elapsed();
 
@@ -373,7 +373,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     T time_mv1d = 0.;
     T time_add_aligned = 0.;
 
-    for (typename alignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
+    for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
                                                             it!=x2aligned_z.map.end(); ++it) {
         time.start();
         Index1D row_y = (*it).first;
@@ -421,8 +421,8 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
     Timer time;
     time.start();
-    alignedCoefficients x2aligned_z(n1,n2);
-    x2aligned_z.align_x2(z,J);
+    XTwoAlignedCoefficients x2aligned_z(n1,n2);
+    x2aligned_z.align(z,J);
     time.stop();
     T time_x2align_z = time.elapsed();
 
@@ -432,7 +432,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     T time_add_aligned = 0.;
 
 
-    for (typename alignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
+    for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
                                                             it!=x2aligned_z.map.end(); ++it) {
         time.start();
         Index1D row_y = (*it).first;

@@ -44,8 +44,6 @@ typedef IndexSet<Index2D>::const_iterator                           const_set2d_
 typedef Coefficients<Lexicographical,T,Index2D>::iterator           coeff2d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2d_it;
 
-typedef AlignedCoefficients<T,Index2D,Index1D,Index1D>              alignedCoefficients;
-
 void
 getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j, T gamma=0.);
 
@@ -149,7 +147,7 @@ int main (int argc, char *argv[]) {
         int ell=1;
         int example = 2;
         readIndexSetFromFile(Lambda,"Lambda",example,d,threshTol,ell,j);
-        readIndexSetFromFile(checkLambda,"Lambda",example,d,threshTol,ell,j);
+        readIndexSetFromFile(checkLambda,"checkLambda",example,d,threshTol,ell,j);
         cout << "Size of Lambda:      " << Lambda.size() << endl;
         cout << "Size of checkLambda: " << checkLambda.size() << endl;
         if (Lambda.size()==0) return 0;

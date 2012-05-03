@@ -103,6 +103,41 @@ BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j,
     return &(mra._rightRefCoeffs[type]);
 }
 
+template <typename T, Construction Cons>
+T
+BSpline<T,Primal,Interval,Cons>::getL2Norm(int j, long k) const
+{
+    if (k<mra.rangeII(j).firstIndex()) {
+        int type  = k % mra.cardIL(j);
+        return mra._leftL2Norms[type];
+    }
+    // inner part
+    if (k<=mra.rangeII(j).lastIndex()) {
+        return mra._innerL2Norms[0];
+    }
+    // right part
+    int type  = (mra.rangeI(j).lastIndex()-k);
+    return mra._rightL2Norms[type];
+}
+
+template <typename T, Construction Cons>
+T
+BSpline<T,Primal,Interval,Cons>::getH1SemiNorm(int j, long k) const
+{
+    long double pow2ij = (long double)(1L << j);
+    if (k<mra.rangeII(j).firstIndex()) {
+        int type  = k % mra.cardIL(j);
+        return pow2ij*mra._leftH1SemiNorms[type];
+    }
+    // inner part
+    if (k<=mra.rangeII(j).lastIndex()) {
+        return pow2ij*mra._innerH1SemiNorms[0];
+    }
+    // right part
+    int type  = (mra.rangeI(j).lastIndex()-k);
+    return pow2ij*mra._rightH1SemiNorms[type];
+}
+
 //--- evaluate B-spline --------------------------------------------------------
 
 template <typename T>

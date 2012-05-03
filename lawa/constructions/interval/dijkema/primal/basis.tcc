@@ -68,6 +68,23 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
 }
 
 template <typename T>
+Basis<T,Primal,Interval,Dijkema>::~Basis()
+{
+    delete[] _leftRefCoeffs,
+    delete[] _innerRefCoeffs,
+    delete[] _rightRefCoeffs;
+    delete[] _leftOffsets,
+    delete[] _innerOffsets,
+    delete[] _rightOffsets;
+    delete[] _leftL2Norms;
+    delete[] _innerL2Norms;
+    delete[] _rightL2Norms;
+    delete[] _leftH1SemiNorms;
+    delete[] _innerH1SemiNorms;
+    delete[] _rightH1SemiNorms;
+}
+
+template <typename T>
 int
 Basis<T,Primal,Interval,Dijkema>::level() const
 {
@@ -112,6 +129,10 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _leftOffsets = new long[2];
         _leftOffsets[0] =  2;
         _leftOffsets[1] =  2;
+        _leftL2Norms = new long double[2];
+        _leftL2Norms[0] =  1.L;   _leftL2Norms[1] =  std::sqrt(0.75L);
+        _leftH1SemiNorms  = new long double[2];
+        _leftH1SemiNorms[0] =  std::sqrt(16.5L);   _leftH1SemiNorms[1] =  std::sqrt(16.5L);
 
         // inner part
         _innerRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -119,6 +140,10 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _innerRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _innerOffsets = new long[1];
         _innerOffsets[0] =  -2;
+        _innerL2Norms = new long double[1];
+        _innerL2Norms[0] =  std::sqrt(0.75L);
+        _innerH1SemiNorms  = new long double[1];
+        _innerH1SemiNorms[0] =  std::sqrt(16.5L);
 
         // inner part
         _rightRefCoeffs = new DenseVector<Array<long double> >[2];
@@ -129,6 +154,10 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _rightOffsets = new long[2];
         _rightOffsets[0] =  - 2;
         _rightOffsets[1] =    0;
+        _rightL2Norms = new long double[2];
+        _rightL2Norms[0] =  std::sqrt(0.75L);   _rightL2Norms[1] =  1.L;
+        _rightH1SemiNorms  = new long double[2];
+        _rightH1SemiNorms[0] =  std::sqrt(16.5L); _rightH1SemiNorms[1] =  std::sqrt(16.5L);
     }
     else if (d==3 && d_==3) {
         // left part
@@ -146,6 +175,17 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _leftOffsets[1] =  2;
         _leftOffsets[2] =  3;
         _leftOffsets[3] =  5;
+        _leftL2Norms = new long double[4];
+        _leftL2Norms[0] =  std::sqrt(0.18306923631658L);
+        _leftL2Norms[1] =  std::sqrt(0.4182530928956412L);
+        _leftL2Norms[2] =  std::sqrt(0.419921875L);
+        _leftL2Norms[3] =  std::sqrt(0.419921875L);
+        _leftH1SemiNorms  = new long double[4];
+        _leftH1SemiNorms[0] =  std::sqrt(283.1110396147645929L/64.L);
+        _leftH1SemiNorms[1] =  std::sqrt(357.10493898574242166L/64.L);
+        _leftH1SemiNorms[2] =  std::sqrt(362.5L/64.L);
+        _leftH1SemiNorms[3] =  std::sqrt(362.5L/64.L);
+
 
         // inner part
         _innerRefCoeffs = new DenseVector<Array<long double> >[2];
@@ -156,6 +196,10 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _innerOffsets = new long[2];
         _innerOffsets[0] =  -3;
         _innerOffsets[1] =  -3;
+        _innerL2Norms = new long double[1];
+        _innerL2Norms[0] =  std::sqrt(0.419921875L);
+        _innerH1SemiNorms  = new long double[1];
+        _innerH1SemiNorms[0] =  std::sqrt(362.5L/64.L);
 
         // inner part
         _rightRefCoeffs = new DenseVector<Array<long double> >[4];
@@ -172,6 +216,16 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _rightOffsets[1] =  - 5;
         _rightOffsets[2] =  - 3;
         _rightOffsets[3] =  - 3;
+        _rightL2Norms = new long double[4];
+        _rightL2Norms[0] =  std::sqrt(0.419921875L);
+        _rightL2Norms[1] =  std::sqrt(0.419921875L);
+        _rightL2Norms[2] =  std::sqrt(0.4182530928956412L);
+        _rightL2Norms[3] =  std::sqrt(0.18306923631658L);
+        _rightH1SemiNorms  = new long double[4];
+        _rightH1SemiNorms[0] =  std::sqrt(362.5L/64.L);
+        _rightH1SemiNorms[1] =  std::sqrt(362.5L/64.L);
+        _rightH1SemiNorms[2] =  std::sqrt(357.10493898574242166L/64.L);
+        _rightH1SemiNorms[3] =  std::sqrt(283.1110396147645929L/64.L);
     }
 }
 

@@ -19,6 +19,25 @@
 
 namespace lawa {
 
+// dim(Index) = dim(Index1) + dim(Index2)
+template <typename Index>
+struct
+Project<Index,Index1D,Index1D,XOne>{
+    inline
+    const void operator()(const Index &index, Index1D &prinIndex, Index1D &aligIndex) const
+    { prinIndex = index.index1; aligIndex = index.index2; return;  }
+};
+
+template <typename Index>
+struct
+Project<Index,Index1D,Index1D,XTwo>{
+    inline
+    const void operator()(const Index &index, Index1D &prinIndex, Index1D &aligIndex) const
+    { prinIndex = index.index2; aligIndex = index.index1; return;  }
+};
+
+
+
 template <typename Index>
 Entry<Index>::Entry(const Index &_index1, const Index &_index2)
 : row_index(_index1), col_index(_index2)

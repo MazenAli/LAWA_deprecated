@@ -158,6 +158,35 @@ Wavelet<T,Orthogonal,Interval,Multi>::getRefinementLevel(int j) const
     return j + basis._addRefinementLevel;
 }
 
+template <typename T>
+T
+Wavelet<T,Orthogonal,Interval,Multi>::getL2Norm(int j, long k) const
+{
+    return 1.;
+}
+
+template <typename T>
+T
+Wavelet<T,Orthogonal,Interval,Multi>::getH1SemiNorm(int j, long k) const
+{
+    long double pow2ij = (long double)(1L << j);
+    k -= 1;
+    // left boundary
+    if (k<basis._numLeftParts) {
+        return pow2ij * basis._leftH1SemiNorms[k];
+    }
+
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        int type  = (int)((k-basis._numLeftParts) % basis._numInnerParts);
+        return pow2ij * basis._innerH1SemiNorms[type];
+    }
+
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis._numRightParts + 1));
+    return pow2ij * basis._rightH1SemiNorms[type];
+}
+
 } // namespace lawa
 
 #endif // LAWA_CONSTRUCTIONS_INTERVAL_MULTI_WAVELET_TCC

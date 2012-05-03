@@ -87,6 +87,13 @@ enum SolverCall {
     call_cg, call_gmres, call_cgls
 };
 
+enum CoordinateDirection {
+    XOne,
+    XTwo,
+    XThree,
+    XFour
+};
+
 } // namespace lawa
 
 #endif // LAWA_SETTINGS_ENUM_H

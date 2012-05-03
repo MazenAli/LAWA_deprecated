@@ -99,6 +99,18 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
 template <typename T>
 MRA<T,Primal,Interval,Primbs>::~MRA()
 {
+    delete[] _leftRefCoeffs,
+    delete[] _innerRefCoeffs,
+    delete[] _rightRefCoeffs;
+    delete[] _leftOffsets,
+    delete[] _innerOffsets,
+    delete[] _rightOffsets;
+    delete[] _leftL2Norms;
+    delete[] _innerL2Norms;
+    delete[] _rightL2Norms;
+    delete[] _leftH1SemiNorms;
+    delete[] _innerH1SemiNorms;
+    delete[] _rightH1SemiNorms;
 }
 
 //--- cardinalities of whole, left, inner, right index sets. -------------------
@@ -199,6 +211,8 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         // left part
         _leftRefCoeffs = new DenseVector<Array<long double> >[0];
         _leftOffsets = new long[0];
+        _leftL2Norms = new long double[0];
+        _leftH1SemiNorms  = new long double[0];
 
         // inner part
         _innerRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -206,10 +220,16 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         _innerRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
         _innerOffsets = new long[1];
         _innerOffsets[0] =  -2;
+        _innerL2Norms = new long double[1];
+        _innerL2Norms[0] =  std::sqrt(2.L/3.L);
+        _innerH1SemiNorms  = new long double[1];
+        _innerH1SemiNorms[0] =  std::sqrt(2.L);
 
         // inner part
         _rightRefCoeffs = new DenseVector<Array<long double> >[0];
         _rightOffsets = new long[0];
+        _rightL2Norms = new long double[0];
+        _rightH1SemiNorms  = new long double[0];
     }
     else if (d==3) {
         // left part
@@ -218,6 +238,10 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         _leftRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
         _leftOffsets = new long[1];
         _leftOffsets[0] =  2;
+        _leftL2Norms = new long double[1];
+        _leftL2Norms[0] = std::sqrt(1.L/3.L);
+        _leftH1SemiNorms  = new long double[1];
+        _leftH1SemiNorms[0] = std::sqrt(4.L/3.L);
 
         // inner part
         _innerRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -225,6 +249,10 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         _innerRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
         _innerOffsets = new long[1];
         _innerOffsets[0] =  -3;
+        _innerL2Norms = new long double[1];
+        _innerL2Norms[0] = std::sqrt(0.55L);
+        _innerH1SemiNorms  = new long double[1];
+        _innerH1SemiNorms[0] = 1.L;//std::sqrt(0.25L);
 
         // inner part
         _rightRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -232,6 +260,11 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         _rightRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L));
         _rightOffsets = new long[1];
         _rightOffsets[0] =  1;
+        _rightL2Norms = new long double[1];
+        _rightL2Norms[0] = std::sqrt(1.L/3.L);
+        _rightH1SemiNorms  = new long double[1];
+        _rightH1SemiNorms[0] = std::sqrt(4.L/3.L);
+
     }
 }
 

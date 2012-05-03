@@ -45,6 +45,9 @@ MRA<T,Orthogonal,Interval,Multi>::~MRA()
     delete[] _leftOffsets,
     delete[] _innerOffsets,
     delete[] _rightOffsets;
+    delete[] _leftH1SemiNorms;
+    delete[] _innerH1SemiNorms;
+    delete[] _rightH1SemiNorms;
 }
 
 //--- cardinalities of whole, left, inner, right index sets. -------------------
@@ -170,6 +173,10 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[0] =  0;
             _leftOffsets[1] =  0;
 
+            _leftH1SemiNorms = new long double[2];
+            _leftH1SemiNorms[0] = std::sqrt(12.L);
+            _leftH1SemiNorms[1] = std::sqrt(75.2727272727272727273L);
+
             //inner part
             _numInnerParts = 3;
             _innerEvaluator = new Evaluator[3];
@@ -208,6 +215,11 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[1] =  0;
             _innerOffsets[2] = -4;
 
+            _innerH1SemiNorms = new long double[3];
+            _innerH1SemiNorms[0] = std::sqrt(12.L);
+            _innerH1SemiNorms[1] = std::sqrt(75.2727272727272727273L);;
+            _innerH1SemiNorms[2] = std::sqrt(52.4415584415584415584L);
+
 
             //right part
             _numRightParts = 0;
@@ -217,6 +229,7 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
 
             _rightRefCoeffs = new DenseVector<Array<long double> >[0];
             _rightOffsets   = new long[0];
+            _rightH1SemiNorms = new long double[0];
             break;
             
         case 3:
@@ -285,6 +298,13 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[2] =  1;
             _leftOffsets[3] =  1;
             _leftOffsets[4] =  1;
+
+            _leftH1SemiNorms = new long double[5];
+            _leftH1SemiNorms[0] =  0;
+            _leftH1SemiNorms[1] =  0;
+            _leftH1SemiNorms[2] =  0;
+            _leftH1SemiNorms[3] =  0;
+            _leftH1SemiNorms[4] =  0;
 
             // inner part
             _numInnerParts = 6;
@@ -363,6 +383,14 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[4] =  -7;
             _innerOffsets[5] =  -7;
 
+            _innerH1SemiNorms = new long double[6];
+            _innerH1SemiNorms[0] =  0;
+            _innerH1SemiNorms[1] =  0;
+            _innerH1SemiNorms[2] =  0;
+            _innerH1SemiNorms[3] =  0;
+            _innerH1SemiNorms[4] =  0;
+            _innerH1SemiNorms[5] =  0;
+
             //right part
             _numRightParts = 1;
             _rightEvaluator = new Evaluator[1];
@@ -385,6 +413,9 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
 
             _rightOffsets = new long[1];
             _rightOffsets[0] =  1;
+
+            _rightH1SemiNorms = new long double[1];
+            _rightH1SemiNorms[0] =  0;
 
             break;
             
@@ -453,6 +484,13 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[2] =  1;
             _leftOffsets[3] =  1;
             _leftOffsets[4] =  1;
+
+            _leftH1SemiNorms = new long double[5];
+            _leftH1SemiNorms[0] =  0;
+            _leftH1SemiNorms[1] =  0;
+            _leftH1SemiNorms[2] =  0;
+            _leftH1SemiNorms[3] =  0;
+            _leftH1SemiNorms[4] =  0;
 
             // inner part
             _numInnerParts = 6;
@@ -531,6 +569,14 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[4] = -7;
             _innerOffsets[5] = -7;
 
+            _innerH1SemiNorms = new long double[6];
+            _innerH1SemiNorms[0] =  0;
+            _innerH1SemiNorms[1] =  0;
+            _innerH1SemiNorms[2] =  0;
+            _innerH1SemiNorms[3] =  0;
+            _innerH1SemiNorms[4] =  0;
+            _innerH1SemiNorms[5] =  0;
+
             // right parts
             _numRightParts = 1;
             _rightEvaluator = new Evaluator[1];
@@ -553,6 +599,9 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
 
             _rightOffsets = new long[1];
             _rightOffsets[0] =  1;
+
+            _rightH1SemiNorms = new long double[1];
+            _rightH1SemiNorms[0] =  0;
 
             break;
             

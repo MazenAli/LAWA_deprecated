@@ -48,8 +48,8 @@ struct LocalOperator2D {
     typedef typename TreeCoefficients1D<T>::const_by_level_it                  const_by_level_it;
     typedef typename TreeCoefficients1D<T>::by_level_it                        by_level_it;
 
-    typedef AlignedCoefficients<T,Index2D,Index1D,Index1D>                     alignedCoefficients;
-    //typedef AlignedCoefficients2<T,Index2D,Index1D,Index1D>                    alignedCoefficients2;
+    typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XOne>             XOneAlignedCoefficients;
+    typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XTwo>             XTwoAlignedCoefficients;
 
     LocalOperator2D(LocalOperator1 &_localoperator1, LocalOperator2 &_localoperator2);
 

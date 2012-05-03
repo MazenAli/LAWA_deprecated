@@ -60,6 +60,12 @@ class Wavelet<_T,Orthogonal,Interval,Multi>
         int
         getRefinementLevel(int j) const;
 
+        T
+        getL2Norm(int j, long k) const;
+
+        T
+        getH1SemiNorm(int j, long k) const;
+
         const Basis<T,Orthogonal,Interval,Multi> &basis;
         const int d;
         const int vanishingMoments;

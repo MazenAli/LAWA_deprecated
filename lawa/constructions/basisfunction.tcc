@@ -35,5 +35,21 @@ BasisFunction<T,Side,Domain,Cons>::tic(int /*j*/) const
     return 0.;
 }
 
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+T
+BasisFunction<T,Side,Domain,Cons>::getL2Norm(int j, long k) const
+{
+    assert(0);
+    return 0.;
+}
+
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+T
+BasisFunction<T,Side,Domain,Cons>::getH1SemiNorm(int j, long k) const
+{
+    assert(0);
+    return 0.;
+}
+
 } // namespace lawa
 

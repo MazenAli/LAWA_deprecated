@@ -174,5 +174,42 @@ Wavelet<T,Primal,Interval,Cons>::getRefinementNeighbors(int j, long k, int &refi
     return;
 }
 
+template <typename T, Construction Cons>
+T
+Wavelet<T,Primal,Interval,Cons>::getL2Norm(int j, long k) const
+{
+    k -= 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        return basis._leftL2Norms[k];
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        return basis._innerL2Norms[0];
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    return basis._rightL2Norms[type];
+}
+
+template <typename T, Construction Cons>
+T
+Wavelet<T,Primal,Interval,Cons>::getH1SemiNorm(int j, long k) const
+{
+    T pow2ij = (T)(1L << j);
+    k -= 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        return pow2ij*basis._leftH1SemiNorms[k];
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        return pow2ij*basis._innerH1SemiNorms[0];
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    return pow2ij*basis._rightH1SemiNorms[type];
+}
+
 } // namespace lawa
 

@@ -131,7 +131,7 @@ T f2(T y)   {   return -p2(y)*ddu2(y)-dp2(y)*du2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
 */
-
+/*
 int example = 2;
 
 T u1(T x)   {    return 1.; }
@@ -158,8 +158,8 @@ T p_u2(T y) {   return u2(y); }
 T f2(T y)   {   return -ddu2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
+*/
 
-/*
 int example = 3;
 
 T u1(T x)   {    return x*x*(1-x)*(1-x); }
@@ -187,7 +187,7 @@ T f2(T y)   {   return -p2(y)*ddu2(y)-dp2(y)*du2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
 
-*/
+
 
 int main (int argc, char *argv[]) {
 
@@ -278,7 +278,7 @@ int main (int argc, char *argv[]) {
     file.precision(16);
 
 
-    for (int iter=0; iter<=30; ++iter) {
+    for (int iter=0; iter<=10; ++iter) {
 
         //readIndexSetFromFile(Lambda,example,d,threshTol,1,iter);
         //writeIndexSetToFile(Lambda,"Lambda",example,d,threshTol,ell,iter);
@@ -368,6 +368,7 @@ int main (int argc, char *argv[]) {
 
 
         IndexSet<Index2D> checkLambda = Lambda;
+        Timer time;
         if (example!=2) {
             IndexSet<Index2D> C_Lambda = Lambda;
             for (int i=1; i<=ell; ++i) {
@@ -388,14 +389,23 @@ int main (int argc, char *argv[]) {
             C_Lambda += LambdaBoundary;
             for (int i=1; i<=ell; ++i) {
                 C_Lambda = C(C_Lambda, 1., basis2d, true);
+                cout << "#Lambda + #C_Lambda = " << Lambda.size() + C_Lambda.size() << endl;
+                time.start();
                 for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
                     simpleExtendMultiTree(basis2d,(*it),checkLambda);
                 }
+                cout << "#checkLambda = " << checkLambda.size() << endl;
+                time.stop();
+                cout << "   Elapsed time for multi-tree completion: " << time.elapsed() << endl;
             }
         }
+        time.start();
         for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
             if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
         }
+        time.stop();
+        cout << "   Elapsed time for preconditioner: " << time.elapsed() << endl;
+
         //writeIndexSetToFile(checkLambda,"checkLambda",example,d,threshTol,ell,iter);
         cerr << "   Extension of rhs finished." << endl;
         T time_res1=0., time_res2=0.;
@@ -430,7 +440,7 @@ int main (int argc, char *argv[]) {
         r.clear();
     }
     std::cerr << "Start plot with u.size() == " << u.size() << std::endl;
-    plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.01, "sol");
+    plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.1, "sol");
     std::cerr << "Finished plot with u.size() == " << u.size() << std::endl;
     return 0;
 }
@@ -627,6 +637,7 @@ simpleExtendMultiTree(const Basis2D &basis, const Index2D &index2d, IndexSet<Ind
             }
         }
     }
+    return;
 }
 
 void

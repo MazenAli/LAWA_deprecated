@@ -1,5 +1,52 @@
 namespace lawa {
 
+template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex,
+          CoordinateDirection CoordX>
+AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex,CoordX>::
+AlignedCoefficients(void)
+: map(), n1(0), n2(0)
+{
+
+}
+
+template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex,
+          CoordinateDirection CoordX>
+AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex,CoordX>::
+AlignedCoefficients(size_t _n1,size_t _n2)
+: map(_n1), n1(_n1), n2(_n2)
+{
+
+}
+
+template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex,
+          CoordinateDirection CoordX>
+void
+AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex,CoordX>
+::align(const Coefficients<Lexicographical,T,Index> &coeff, short J)
+{
+    Project<Index,PrincipalIndex,AlignedIndex,CoordX> projectX;
+    for (const_coeff_index_it it=coeff.begin(); it!=coeff.end(); ++it) {
+        PrincipalIndex prinIndex;
+        AlignedIndex   aligIndex;
+        projectX((*it).first,prinIndex,aligIndex);
+        map_prinindex_it p_prinindex=map.find(prinIndex);
+        if (p_prinindex!=map.end()) {
+            (*p_prinindex).second.operator[](aligIndex) = (*it).second;
+        }
+        else {
+            size_t tmp = std::max((size_t)pow2i<long>(J-prinIndex.levelSum()+2),n2);
+            Coefficients<Lexicographical,T,PrincipalIndex> coeff_x2;
+            map[prinIndex] = coeff_x2;
+            map_prinindex_it p_prinindex=map.find(prinIndex);
+            (*p_prinindex).second.Rehash(tmp);
+            (*p_prinindex).second.operator[](aligIndex) = (*it).second;
+        }
+    }
+    //std::cerr << "AlignedCoefficients: " << map.size() << " " << map.bucket_count() << std::endl;
+}
+
+
+/*
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
 AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex>::AlignedCoefficients(void)
 : map(), n1(0), n2(0)
@@ -9,7 +56,7 @@ AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex>::AlignedCoefficients(vo
 
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
 AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex>::AlignedCoefficients(size_t _n1, size_t _n2)
-: /*map()*/ map(_n1), n1(_n1), n2(_n2)
+: map(_n1), n1(_n1), n2(_n2)
 {
 
 }
@@ -76,6 +123,7 @@ std::ostream& operator<< (std::ostream &s,
     }
     return s << std::endl;
 }
+*/
 
 /*
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>

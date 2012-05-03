@@ -116,6 +116,8 @@ class MRA<_T,Orthogonal,Interval,Multi>
                                          *_innerRefCoeffs,
                                          *_rightRefCoeffs;
 
+        long double *_leftH1SemiNorms, *_innerH1SemiNorms, *_rightH1SemiNorms;
+
         long *_leftOffsets,
              *_innerOffsets,
              *_rightOffsets;

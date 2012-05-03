@@ -46,6 +46,9 @@ Basis<T,Orthogonal,Interval,Multi>::~Basis()
     delete[] _leftOffsets,
     delete[] _innerOffsets,
     delete[] _rightOffsets;
+    delete[] _leftH1SemiNorms;
+    delete[] _innerH1SemiNorms;
+    delete[] _rightH1SemiNorms;
 }
 
 template <typename T>
@@ -108,6 +111,10 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[0] =  0;
             _leftOffsets[1] =  0;
 
+            _leftH1SemiNorms = new long double[2];
+            _leftH1SemiNorms[0] =  0;
+            _leftH1SemiNorms[1] =  0;
+
             //inner part
             _numInnerParts = 3;
             _innerEvaluator = new Evaluator[3];
@@ -155,6 +162,11 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[1] = -8;
             _innerOffsets[2] = -8;
 
+            _innerH1SemiNorms = new long double[3];
+            _innerH1SemiNorms[0] =  0;
+            _innerH1SemiNorms[1] =  0;
+            _innerH1SemiNorms[2] =  0;
+
             //right part
             _numRightParts = 1;
             _rightEvaluator = new Evaluator[1];
@@ -176,6 +188,9 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
 
             _rightOffsets = new long[1];
             _rightOffsets[0] =  0;
+
+            _rightH1SemiNorms = new long double[1];
+            _rightH1SemiNorms[0] =  0;
             break;
         
         case 3:
@@ -241,6 +256,12 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[1] =  0;
             _leftOffsets[2] =  1;
             _leftOffsets[3] =  1;
+
+            _leftH1SemiNorms = new long double[4];
+            _leftH1SemiNorms[0] =  0;
+            _leftH1SemiNorms[1] =  0;
+            _leftH1SemiNorms[2] =  0;
+            _leftH1SemiNorms[3] =  0;
 
 
             //inner part
@@ -352,6 +373,14 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[4] =  -15;
             _innerOffsets[5] =  -15;
 
+            _innerH1SemiNorms = new long double[6];
+            _innerH1SemiNorms[0] =  0;
+            _innerH1SemiNorms[1] =  0;
+            _innerH1SemiNorms[2] =  0;
+            _innerH1SemiNorms[3] =  0;
+            _innerH1SemiNorms[4] =  0;
+            _innerH1SemiNorms[5] =  0;
+
 
             //right part
             _numRightParts = 2;
@@ -391,6 +420,10 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightOffsets = new long[2];
             _rightOffsets[0] =  1;
             _rightOffsets[1] =  1;
+
+            _rightH1SemiNorms = new long double[2];
+            _rightH1SemiNorms[0] =  0;
+            _rightH1SemiNorms[1] =  0;
 
             break;
             
@@ -457,6 +490,12 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[1] =  0;
             _leftOffsets[2] =  1;
             _leftOffsets[3] =  1;
+
+            _leftH1SemiNorms = new long double[4];
+            _leftH1SemiNorms[0] =  0;
+            _leftH1SemiNorms[1] =  0;
+            _leftH1SemiNorms[2] =  0;
+            _leftH1SemiNorms[3] =  0;
 
             // inner part
             _numInnerParts = 6;
@@ -567,6 +606,14 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[4] =  -15;
             _innerOffsets[5] =  -15;
 
+            _innerH1SemiNorms = new long double[6];
+            _innerH1SemiNorms[0] =  0;
+            _innerH1SemiNorms[1] =  0;
+            _innerH1SemiNorms[2] =  0;
+            _innerH1SemiNorms[3] =  0;
+            _innerH1SemiNorms[4] =  0;
+            _innerH1SemiNorms[5] =  0;
+
             //right part
             _numRightParts = 2;
             _rightEvaluator = new Evaluator[2];
@@ -605,6 +652,10 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightOffsets = new long[2];
             _rightOffsets[0] =  1;
             _rightOffsets[1] =  1;
+
+            _rightH1SemiNorms = new long double[2];
+            _rightH1SemiNorms[0] =  0;
+            _rightH1SemiNorms[1] =  0;
             break;
             
         default: std::cerr << "Wavelet<T,Orthogonal,Interval,Multi> not yet realized"

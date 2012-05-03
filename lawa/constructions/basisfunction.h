@@ -45,6 +45,12 @@ struct BasisFunction
 
     virtual T
     tic(int j) const;
+
+    virtual T
+    getL2Norm(int j, long k) const;
+
+    virtual T
+    getH1SemiNorm(int j, long k) const;
 };
 
 } // namespace lawa

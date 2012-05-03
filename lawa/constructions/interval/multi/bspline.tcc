@@ -63,16 +63,19 @@ BSpline<T,Orthogonal,Interval,Multi>::support(int j, long k) const
 {
     // left boundary
     if (k<mra._numLeftParts) {
+        std::cerr << "left, type = " << k << std::endl;
         return pow2i<T>(-j) * mra._leftSupport[k];
     }
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
+        std::cerr << "inner, type = " << type << std::endl;
         long shift = iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
         return pow2i<T>(-j) * (mra._innerSupport[type]+shift);
     }
     // right part
     int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
+    std::cerr << "right, type = " << type << std::endl;
     long shift = pow2i<long>(j)-1;
     return pow2i<T>(-j) * (mra._rightSupport[type]+shift);
 }
@@ -139,6 +142,31 @@ int
 BSpline<T,Orthogonal,Interval,Multi>::getRefinementLevel(int j) const
 {
     return j + mra._addRefinementLevel;
+}
+
+template <typename T>
+T
+BSpline<T,Orthogonal,Interval,Multi>::getL2Norm(int j, long k) const
+{
+    return 1.;
+}
+
+template <typename T>
+T
+BSpline<T,Orthogonal,Interval,Multi>::getH1SemiNorm(int j, long k) const
+{
+    long double pow2ij = (long double)(1L << j);
+    if (k<mra._numLeftParts) {
+        return pow2ij * mra._leftH1SemiNorms[k];
+    }
+    // inner part
+    if (k<mra.cardIL()+mra.cardII(j)) {
+        int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
+        return pow2ij * mra._innerH1SemiNorms[type];
+    }
+    // right part
+    int type  = (int)(k+1 - (mra.cardI(j) - mra._numRightParts + 1));
+    return pow2ij * mra._rightH1SemiNorms[type];
 }
 
 } // namespace lawa

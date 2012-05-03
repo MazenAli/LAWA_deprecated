@@ -64,6 +64,12 @@ struct Wavelet<_T,Primal,Interval,_Cons>
     getRefinementNeighbors(int j, long k, int &refinement_j, long &refinement_k_first,
                            long &refinement_k_last) const;
 
+    T
+    getL2Norm(int j, long k) const;
+
+    T
+    getH1SemiNorm(int j, long k) const;
+
     const Basis<T,Primal,Interval,Cons> &basis;
 };
 

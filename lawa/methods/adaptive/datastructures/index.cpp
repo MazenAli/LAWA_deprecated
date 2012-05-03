@@ -41,6 +41,12 @@ Index1D::~Index1D(void)
 {
 }
 
+short
+Index1D::levelSum(void)
+{
+    return this->j;
+}
+
 
 std::ostream& operator<<(std::ostream &s, const Index1D &_i)
 {
@@ -67,6 +73,12 @@ Index2D::~Index2D(void)
 {
 }
 
+short
+Index2D::levelSum(void)
+{
+    return this->index1.j+this->index2.j;
+}
+
 std::ostream& operator<<(std::ostream &s, const Index2D &_i)
 {
     s << _i.index1 << "," << _i.index2;
@@ -81,6 +93,12 @@ Index3D::Index3D(const Index1D &_index1, const Index1D &_index2, const Index1D &
 
 Index3D::~Index3D(void)
 {
+}
+
+short
+Index3D::levelSum(void)
+{
+    return this->index1.j+this->index2.j+this->index3.j;
 }
 
 std::ostream& operator<<(std::ostream &s, const Index3D &_i)

@@ -59,6 +59,12 @@ struct BSpline<_T,Primal,Interval,_Cons>
     int
     getRefinementLevel(int j) const;
 
+    T
+    getL2Norm(int j, long k) const;
+
+    T
+    getH1SemiNorm(int j, long k) const;
+
     const MRA<T,Primal,Interval,Cons> &mra;
 };
 

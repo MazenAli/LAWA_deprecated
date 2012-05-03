@@ -61,6 +61,12 @@ class BSpline<_T,Orthogonal,Interval,Multi>
         int
         getRefinementLevel(int j) const;
 
+        T
+        getL2Norm(int j, long k) const;
+
+        T
+        getH1SemiNorm(int j, long k) const;
+
         const MRA<T,Orthogonal,Interval,Multi> &mra;
         const unsigned int d;
         T initialticsize;
