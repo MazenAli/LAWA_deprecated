@@ -12,25 +12,58 @@ template <typename T>
 MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
     : d(_d), j0((j<=0) ? 1 : j), _bc(2,0), _j(j0), phi(*this)
 {
-    assert(d>=2);
-    assert(j0>=1);
-    if (j0<1) {
+    assert(d>=1);
+    assert(d==1 || j0>=1);
+    if (d>1 && j0<1) {
         std::cerr << "MRA<T,Orthogonal,Interval,MultiRefinement>: "
                   << "d = " << d << " needs to be larger than 1. Stopping." << std::endl;
-        exit(1);
-    }
-
-    if (j0<1) {
-        std::cerr << "MRA<T,Orthogonal,Interval,MultiRefinement>: "
-                  << "j0 = " << j0 << " needs to be larger than 0. Stopping." << std::endl;
         exit(1);
     }
 
     /* L_2 orthonormal multiwavelet bases without Dirichlet boundary conditions are not
      * implemented yet. They require __different__ boundary adapted wavelets and scaling functions.
      */
+    if (d==1) {
+        _shiftFactor        = 2;
+        //left part
+        _numLeftParts = 0;
+        _leftEvaluator = new Evaluator[0];
+        _leftSupport = new Support<T>[0];
+        _leftSingularSupport = new DenseVector<Array<T> >[0];
+        _leftRefCoeffs = new DenseVector<Array<long double> >[0];
+        _leftOffsets = new long[0];
 
-    this->enforceBoundaryCondition<DirichletBC>();
+        //inner part
+        _numInnerParts = 1;
+        _innerEvaluator = new Evaluator[1];
+        _innerEvaluator[0] = _constant_bspline_inner_evaluator0;
+
+        _innerSupport = new Support<T>[1];
+        _innerSupport[0] = Support<T>(0.,1.);
+
+        _innerSingularSupport = new DenseVector<Array<T> >[1];
+        _innerSingularSupport[0].engine().resize(2,0);
+        _innerSingularSupport[0] = 0., 1.;
+
+        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs[0].engine().resize(2,0);
+        _innerRefCoeffs[0] = 1.L, 1.L;
+        _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
+
+        _innerOffsets = new long[1];
+        _innerOffsets[0] =  0;
+
+        //right part
+        _numRightParts = 0;
+        _rightEvaluator = new Evaluator[0];
+        _rightSupport = new Support<T>[0];
+        _rightSingularSupport = new DenseVector<Array<T> >[0];
+        _rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        _rightOffsets   = new long[0];
+    }
+    else {
+        this->enforceBoundaryCondition<DirichletBC>();
+    }
 
     setLevel(_j);
 }
@@ -55,10 +88,11 @@ template <typename T>
 int
 MRA<T,Orthogonal,Interval,MultiRefinement>::cardI(int j) const
 {
-    assert(j>=j0);
+    assert(d==1 || j>=j0);
     // This is different to the corresponding multiscaling functions!!!
     // Case differentiation needed since piecewise linear cannot be smooth at the dyadic grid points
-    if (d==2) return pow2i<int>(j)-1;
+    if (d==1) return pow2i<int>(j);
+    else if (d==2) return pow2i<int>(j)-1;
     else      return pow2i<int>(j)*(d-2);
 }
 
@@ -73,7 +107,7 @@ template <typename T>
 int
 MRA<T,Orthogonal,Interval,MultiRefinement>::cardII(int j) const
 {
-    assert(j>=j0);
+    assert(d==1 || j>=j0);
     return cardI(j) - _numLeftParts - _numRightParts;
 }
 
@@ -90,7 +124,7 @@ template <typename T>
 Range<int>
 MRA<T,Orthogonal,Interval,MultiRefinement>::rangeI(int j) const
 {
-    assert(j>=j0);
+    assert(d==1 || j>=j0);
     return Range<int>(0,cardI(j)-1);
 }
 
@@ -105,7 +139,7 @@ template <typename T>
 Range<int>
 MRA<T,Orthogonal,Interval,MultiRefinement>::rangeII(int j) const
 {
-    assert(j>=j0);
+    assert(d==1 || j>=j0);
     return Range<int>(cardIL(), cardIL()+cardII(j)-1);
 }
 
@@ -113,7 +147,7 @@ template <typename T>
 Range<int>
 MRA<T,Orthogonal,Interval,MultiRefinement>::rangeIR(int j) const
 {
-    assert(j>=j0);
+    assert(d==1 || j>=j0);
     return Range<int>(cardIL()+cardII(j),cardI(j)-1);
 }
 
@@ -128,7 +162,7 @@ template <typename T>
 void
 MRA<T,Orthogonal,Interval,MultiRefinement>::setLevel(int j) const
 {
-    assert(j>=j0);
+    assert(d==1 || j>=j0);
     _j = j;
 }
 

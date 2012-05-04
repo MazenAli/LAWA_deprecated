@@ -42,14 +42,14 @@ p3(T x) {   return x*x*x; }
 int main()
 {
     /// wavelet basis parameters:
-    int d = 2;          // d-wavelets
+    int d = 1;          // d-wavelets
     int j0 = 0;         // minimal level
-    int J = 4;         // maximal level
+    int J = 3;         // maximal level
     cout.precision(16);
 
     /// Basis initialization, using Dirichlet boundary conditions
     MWBasis basis(d,j0);
-    basis.enforceBoundaryCondition<DirichletBC>();
+    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
 
     /// Check for correct dimension of single and multi scale spaces
     int dim_Vj = basis.mra.cardI(j0);
@@ -61,7 +61,6 @@ int main()
                  << ", dim(single scale space) ) " << basis.mra.cardI(j+1) << endl;
         }
     }
-
     /// Plot multi-scaling function and multi-wavelets
     ofstream plotfile_scaling("interval_multiscaling.txt");
     for (T x=0.; x<=2.; x+=pow2i<T>(-12)) {
@@ -72,7 +71,7 @@ int main()
         plotfile_scaling << endl;
     }
     ofstream plotfile_wavelet("interval_multiwavelet.txt");
-    for (T x=0.; x<=1.; x+=pow2i<T>(-7)) {
+    for (T x=0.; x<=1.; x+=pow2i<T>(-12)) {
         plotfile_wavelet << x;
         for (int j=j0; j<=J-1; ++j) {
             for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
@@ -81,6 +80,7 @@ int main()
         }
         plotfile_wavelet << endl;
     }
+
 
     /// Operator and Integral initialization
     IdentityOp   identity_op(basis);
@@ -114,7 +114,9 @@ int main()
                 }
             }
         }
+
     }
+    cout << identity_A_dense << endl;
 
     /// Assembler: Check for vanishing moments
     for (int j=j0; j<=J-1; ++j) {

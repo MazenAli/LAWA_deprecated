@@ -37,21 +37,22 @@ int main (int argc, char *argv[]) {
     int j0 = atoi(argv[3]);
     int J = atoi(argv[4]);
 
-    cout << std::sqrt(0.1L) << " " << 0.31622776601*0.31622776601<< endl;
     //Basis1D basis(d,d_,j0);
     Basis1D basis(d,j0);
-    basis.enforceBoundaryCondition<DirichletBC>();
+    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
 
     IntegralBasis1DvsBasis1D integral(basis,basis);
 
     Range<int> scalingrange = getRange(basis, j0, XBSpline);
     /// Plot scaling function and wavelets
+
     ofstream plotfile_scaling("scaling.txt");
     for (T x=0.; x<=1.; x+=pow2i<T>(-12)) {
         plotfile_scaling << x;
         for (int k=scalingrange.firstIndex(); k<=scalingrange.lastIndex(); ++k) {
             plotfile_scaling << " " << basis.generator(XBSpline)(x,j0,k,0);
             if (x==0.) {
+                cout << "supp phi_{"<< j0 << "," << k << "} = " << basis.generator(XBSpline).support(j0,k) << endl;
                 cout << "||phi_{" << j0 << "," << k << "}||^2_L2 = "
                      << basis.generator(XBSpline).getL2Norm(j0,k) << " "
                      << std::sqrt(integral(j0,k,XBSpline,0, j0,k,XBSpline,0)) << endl;
@@ -71,6 +72,7 @@ int main (int argc, char *argv[]) {
             for (int k=waveletrange.firstIndex(); k<=waveletrange.lastIndex(); ++k) {
                 plotfile_wavelet << " " << basis.generator(XWavelet)(x,j,k,0);
                 if (x==0.) {
+                    cout << "supp psi_{"<< j << "," << k << "} = " << basis.generator(XWavelet).support(j,k) << endl;
                     cout << "||psi_{" << j << "," << k << "}||^2_L2 = "
                          << basis.generator(XWavelet).getL2Norm(j,k) << " "
                          << std::sqrt(integral(j,k,XWavelet,0, j,k,XWavelet,0)) << endl;
@@ -82,7 +84,6 @@ int main (int argc, char *argv[]) {
         }
         plotfile_wavelet << endl;
     }
-
     return 0;
 }
 

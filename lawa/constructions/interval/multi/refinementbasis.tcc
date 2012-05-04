@@ -4,6 +4,7 @@
 #include <cassert>
 #include <lawa/math/linspace.h>
 #include <lawa/math/pow2.h>
+#include <lawa/constructions/interval/multi/_constant_evaluator.h>
 #include <lawa/constructions/interval/multi/_linear_evaluator.h>
 #include <lawa/constructions/interval/multi/_quadratic_evaluator.h>
 #include <lawa/constructions/interval/multi/_cubic_evaluator.h>
@@ -14,10 +15,11 @@ template <typename T>
 Basis<T,Orthogonal,Interval,MultiRefinement>::Basis(int _d, int j)
     : mra(_d, j), d(_d), j0(mra.j0), _j(j0), LaplaceOp1D(_d, *this), IdentityOp1D(_d, *this)
 {
-    assert(d>=2);
+    assert(d>=1);
     setLevel(_j);
-
-    this->enforceBoundaryCondition<DirichletBC>();
+    if (d>1) {
+        this->enforceBoundaryCondition<DirichletBC>();
+    }
 }
 
 template <typename T>
@@ -142,6 +144,10 @@ LaplaceOperator1D(int _d, const Basis<T,Orthogonal,Interval,MultiRefinement> &_r
  : d(_d), refinementbasis(_refinementbasis)
 {
     switch (d) {
+        case 1:
+            std::cerr << "Basis<T,Orthogonal,Interval,MultiRefinement>::LaplaceOperator1D "
+            << " will not work d=" << d << std::endl;
+            break;
         case 2:
             inner_values1.engine().resize(2,0);
             inner_values1 = 2., -1.;
@@ -219,6 +225,10 @@ IdentityOperator1D(int _d, const Basis<T,Orthogonal,Interval,MultiRefinement> &_
  : d(_d), refinementbasis(_refinementbasis)
 {
     switch (d) {
+        case 1:
+            inner_values1.engine().resize(2,0);
+            inner_values1 = 0.L, 0.L;
+            break;
         case 2:
             inner_values1.engine().resize(2,0);
             inner_values1 = 2.L/3.L, 1.L/6.L;

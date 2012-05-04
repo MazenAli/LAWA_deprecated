@@ -50,6 +50,10 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _leftRefCoeffs[0] =  1.L/(std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L));
         _leftOffsets = new long[1];
         _leftOffsets[0] = 1;
+        _leftL2Norms = new long double[1];
+        _leftL2Norms[0] =  0.;
+        _leftH1SemiNorms = new long double[1];
+        _leftH1SemiNorms[0] =  0.;
 
         // inner part
         _innerRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -57,6 +61,10 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _innerRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
         _innerOffsets = new long[1];
         _innerOffsets[0] =  -2;
+        _innerL2Norms = new long double[1];
+        _innerL2Norms[0] =  0.;
+        _innerH1SemiNorms = new long double[1];
+        _innerH1SemiNorms[0] =  0.;
 
         // inner part
         _rightRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -64,6 +72,10 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _rightRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/(std::sqrt(2.L));
         _rightOffsets = new long[1];
         _rightOffsets[0] = 2;
+        _rightL2Norms = new long double[1];
+        _rightL2Norms[0] =  0.;
+        _rightH1SemiNorms = new long double[2];
+        _rightH1SemiNorms[0] =  0.;
     }
 
     else if (d==3) {
@@ -76,6 +88,12 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _leftOffsets = new long[1];
         _leftOffsets[0] =  2;
         _leftOffsets[1] =  1;
+        _leftL2Norms = new long double[2];
+        _leftL2Norms[0] =  0.;
+        _leftL2Norms[1] =  0.;
+        _leftH1SemiNorms = new long double[2];
+        _leftH1SemiNorms[0] =  0.;
+        _leftH1SemiNorms[1] =  0.;
 
         // inner part
         _innerRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -83,6 +101,10 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _innerRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
         _innerOffsets = new long[1];
         _innerOffsets[0] =  -3;
+        _innerL2Norms = new long double[1];
+        _innerL2Norms[0] =  0.;
+        _innerH1SemiNorms = new long double[1];
+        _innerH1SemiNorms[0] =  0.;
 
         // inner part
         _rightRefCoeffs = new DenseVector<Array<long double> >[2];
@@ -93,6 +115,12 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _rightOffsets = new long[2];
         _rightOffsets[0] =  3;
         _rightOffsets[1] =  1;
+        _rightL2Norms = new long double[2];
+        _rightL2Norms[0] =  0.;
+        _rightL2Norms[1] =  0.;
+        _rightH1SemiNorms = new long double[2];
+        _rightH1SemiNorms[0] =  0.;
+        _rightH1SemiNorms[1] =  0.;
     }
 }
 

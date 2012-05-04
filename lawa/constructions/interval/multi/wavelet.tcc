@@ -11,6 +11,9 @@ Wavelet<T,Orthogonal,Interval,Multi>::Wavelet(const Basis<T,Orthogonal,Interval,
     : basis(_basis), d(_basis.d), vanishingMoments(_basis.d)
 {
     switch (d) {
+        case 1:
+            initialticsize = pow2i<T>(-1);
+            break;
         case 2:
             initialticsize = pow2i<T>(-3);
             break;
@@ -23,9 +26,9 @@ Wavelet<T,Orthogonal,Interval,Multi>::Wavelet(const Basis<T,Orthogonal,Interval,
             initialticsize = pow2i<T>(-4);
             break;
 
-        default: std::cerr << "BSpline<T,Orthogonal,Interval,Multi> not yet realized"
-                    " for d = " << d << ". Stopping." << std::endl;
-                    exit(-1);
+        default: std::cerr << "Wavelet<T,Orthogonal,Interval,Multi> not yet realized"
+                    " for d = " << d << ". Stopping..." << std::endl;
+                    exit(1);
     }
 }
     

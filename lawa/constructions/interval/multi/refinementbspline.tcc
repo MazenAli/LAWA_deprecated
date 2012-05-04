@@ -13,6 +13,9 @@ BSpline<T,Orthogonal,Interval,MultiRefinement>
     : mra(_mra), d(_mra.d), initialticsize(pow2i<T>(-3))
 {
     switch (d) {
+        case 1:
+            initialticsize = 1.;
+            break;
         case 2:
             initialticsize = 1.;
             break;

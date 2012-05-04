@@ -18,12 +18,12 @@ LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,I
     int j_wavelet = j_scaling;
 
     CoefficientsByLevel<T> u_bspline;
-    if (PrimalBasis::Cons==Multi) {
+    if (PrimalBasis::Cons==Multi && basis.d>1) {
         this->reconstructOnlyMultiScaling(u_tree.bylevel[0], j_scaling, u_bspline, j_bspline);
         u_tree.bylevel[0] = u_bspline;
     }
 
-    int imax = u_tree.getMaxTreeLevel(0);
+    int imax = u_tree.getMaxTreeLevel();
     for (int i=0; i<imax; ++i) {
         int  j_refinement = j_bspline + i;
 	CoefficientsByLevel<T> help;
@@ -75,6 +75,7 @@ LocalRefinement<PrimalBasis>::reconstruct(const CoefficientsByLevel<T> &u_bsplin
     for (typename CoefficientsByLevel<T>::const_it it=u_wavelet.map.begin(); it!=u_wavelet.map.end(); ++it) {
         this->reconstructWavelet(j_wavelet, (*it).first, (*it).second, u_loc_single, j2_refinement);
     }
+    std::cerr << j_bspline << " " << j_wavelet << " : " << j1_refinement << " " << j2_refinement << std::endl;
     assert(j1_refinement==j2_refinement);
     j_refinement = j2_refinement;
 }

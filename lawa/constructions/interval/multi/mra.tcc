@@ -12,7 +12,7 @@ template <typename T>
 MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
     : d(_d), j0((j==-1) ? 0 : j), _bc(2,0), _j(j0), phi(*this)
 {
-    assert(d>=2);
+    assert(d>=1);
     assert(j0>=0);
     
     /* L_2 orthonormal multiwavelet bases without Dirichlet boundary conditions are not
@@ -22,7 +22,68 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
     _numLeftParts = 0;
     _numRightParts = 0;
 
-    this->enforceBoundaryCondition<DirichletBC>();
+    if (d==1) {
+        _addRefinementLevel = 1;
+        _shiftFactor        = 2;
+        //left part
+        _numLeftParts = 1;
+        _leftEvaluator = new Evaluator[1];
+        _leftEvaluator[0] = _constant_bspline_inner_evaluator0;
+
+        _leftSupport = new Support<T>[1];
+        _leftSupport[0] = Support<T>(0.,1.);
+
+        _leftSingularSupport = new DenseVector<Array<T> >[1];
+        _leftSingularSupport[0].engine().resize(2,0);
+        _leftSingularSupport[0] = 0., 1.;
+
+        _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+        _leftRefCoeffs[0].engine().resize(2,0);
+        _leftRefCoeffs[0] = 1.L, 1.L;
+
+        _leftRefCoeffs[0] *= std::pow(2.L,-0.5L);
+        _leftRefCoeffs[1] *= std::pow(2.L,-0.5L);
+
+        _leftOffsets = new long[1];
+        _leftOffsets[0] =  0;
+
+        _leftH1SemiNorms = new long double[0];
+
+        //inner part
+        _numInnerParts = 1;
+        _innerEvaluator = new Evaluator[1];
+        _innerEvaluator[0] = _constant_bspline_inner_evaluator0;
+
+        _innerSupport = new Support<T>[1];
+        _innerSupport[0] = Support<T>(0.,1.);
+
+        _innerSingularSupport = new DenseVector<Array<T> >[1];
+        _innerSingularSupport[0].engine().resize(2,0);
+        _innerSingularSupport[0] = 0., 1.;
+
+        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs[0].engine().resize(2,0);
+        _innerRefCoeffs[0] = 1.L, 1.L;
+        _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
+
+        _innerOffsets = new long[1];
+        _innerOffsets[0] =  0;
+
+        _innerH1SemiNorms = new long double[0];
+
+
+        //right part
+        _numRightParts = 0;
+        _rightEvaluator = new Evaluator[0];
+        _rightSupport = new Support<T>[0];
+        _rightSingularSupport = new DenseVector<Array<T> >[0];
+        _rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        _rightOffsets   = new long[0];
+        _rightH1SemiNorms = new long double[0];
+    }
+    else {
+        this->enforceBoundaryCondition<DirichletBC>();
+    }
 
     setLevel(_j);
 }
@@ -300,11 +361,11 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[4] =  1;
 
             _leftH1SemiNorms = new long double[5];
-            _leftH1SemiNorms[0] =  0;
-            _leftH1SemiNorms[1] =  0;
-            _leftH1SemiNorms[2] =  0;
-            _leftH1SemiNorms[3] =  0;
-            _leftH1SemiNorms[4] =  0;
+            _leftH1SemiNorms[0] =  std::sqrt(396.800602767473266279L);
+            _leftH1SemiNorms[1] =  std::sqrt(13.9130434782608695652L);
+            _leftH1SemiNorms[2] =  8.L;
+            _leftH1SemiNorms[3] =  std::sqrt(268.675020609247651090L);
+            _leftH1SemiNorms[4] =  std::sqrt(131.345247650197830689L);
 
             // inner part
             _numInnerParts = 6;
@@ -384,12 +445,12 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[5] =  -7;
 
             _innerH1SemiNorms = new long double[6];
-            _innerH1SemiNorms[0] =  0;
-            _innerH1SemiNorms[1] =  0;
-            _innerH1SemiNorms[2] =  0;
-            _innerH1SemiNorms[3] =  0;
-            _innerH1SemiNorms[4] =  0;
-            _innerH1SemiNorms[5] =  0;
+            _innerH1SemiNorms[0] =  std::sqrt(13.9130434782608695652L);
+            _innerH1SemiNorms[1] =  8.L;
+            _innerH1SemiNorms[2] =  std::sqrt(268.675020609247651090L);
+            _innerH1SemiNorms[3] =  std::sqrt(131.345247650197830689L);
+            _innerH1SemiNorms[4] =  std::sqrt(81.2723006501163910509L);
+            _innerH1SemiNorms[5] =  std::sqrt(263.708111955787835019L);
 
             //right part
             _numRightParts = 1;
@@ -415,7 +476,7 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightOffsets[0] =  1;
 
             _rightH1SemiNorms = new long double[1];
-            _rightH1SemiNorms[0] =  0;
+            _rightH1SemiNorms[0] =  std::sqrt(191.384235481065676847L);
 
             break;
             
@@ -486,11 +547,12 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[4] =  1;
 
             _leftH1SemiNorms = new long double[5];
-            _leftH1SemiNorms[0] =  0;
-            _leftH1SemiNorms[1] =  0;
-            _leftH1SemiNorms[2] =  0;
-            _leftH1SemiNorms[3] =  0;
-            _leftH1SemiNorms[4] =  0;
+            _leftH1SemiNorms[0] =  std::sqrt(333.522181798281871759L);
+            _leftH1SemiNorms[1] =  std::sqrt(12.9230769230769230769L);
+            _leftH1SemiNorms[2] =  std::sqrt(56.L);
+            _leftH1SemiNorms[3] =  std::sqrt(259.228164412374246759L);
+            _leftH1SemiNorms[4] =  std::sqrt(123.272155615509401277L);
+
 
             // inner part
             _numInnerParts = 6;
@@ -570,12 +632,12 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[5] = -7;
 
             _innerH1SemiNorms = new long double[6];
-            _innerH1SemiNorms[0] =  0;
-            _innerH1SemiNorms[1] =  0;
-            _innerH1SemiNorms[2] =  0;
-            _innerH1SemiNorms[3] =  0;
-            _innerH1SemiNorms[4] =  0;
-            _innerH1SemiNorms[5] =  0;
+            _innerH1SemiNorms[0] =  std::sqrt(12.9230769230769230769L);
+            _innerH1SemiNorms[1] =  std::sqrt(56.L);
+            _innerH1SemiNorms[2] =  std::sqrt(259.228164412374246759L);
+            _innerH1SemiNorms[3] =  std::sqrt(123.272155615509401277L);
+            _innerH1SemiNorms[4] =  std::sqrt(79.7761595473175714506L);
+            _innerH1SemiNorms[5] =  std::sqrt(258.536491525265347505L);
 
             // right parts
             _numRightParts = 1;
@@ -601,11 +663,11 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightOffsets[0] =  1;
 
             _rightH1SemiNorms = new long double[1];
-            _rightH1SemiNorms[0] =  0;
+            _rightH1SemiNorms[0] =  std::sqrt(206.218396977329657205L);
 
             break;
             
-        default: std::cerr << "BSpline<T,Orthogonal,Interval,Multi> not yet realized"
+        default: std::cerr << "BC for MRA<T,Orthogonal,Interval,Multi> not yet realized"
                               " for d = " << d << ". Stopping." << std::endl;
             exit(-1);
     }

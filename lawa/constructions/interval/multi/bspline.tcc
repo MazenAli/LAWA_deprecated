@@ -12,6 +12,9 @@ BSpline<T,Orthogonal,Interval,Multi>::BSpline(const MRA<T,Orthogonal,Interval,Mu
     : mra(_mra), d(_mra.d), initialticsize(pow2i<T>(-3))
 {
     switch (d) {
+        case 1:
+            initialticsize = 1.;
+            break;
         case 2:
             initialticsize = pow2i<T>(-2);
             break;
@@ -63,19 +66,16 @@ BSpline<T,Orthogonal,Interval,Multi>::support(int j, long k) const
 {
     // left boundary
     if (k<mra._numLeftParts) {
-        std::cerr << "left, type = " << k << std::endl;
         return pow2i<T>(-j) * mra._leftSupport[k];
     }
     // inner part
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
-        std::cerr << "inner, type = " << type << std::endl;
         long shift = iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
         return pow2i<T>(-j) * (mra._innerSupport[type]+shift);
     }
     // right part
     int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
-    std::cerr << "right, type = " << type << std::endl;
     long shift = pow2i<long>(j)-1;
     return pow2i<T>(-j) * (mra._rightSupport[type]+shift);
 }

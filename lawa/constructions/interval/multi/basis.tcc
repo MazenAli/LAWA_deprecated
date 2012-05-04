@@ -4,6 +4,7 @@
 #include <cassert>
 #include <lawa/math/linspace.h>
 #include <lawa/math/pow2.h>
+#include <lawa/constructions/interval/multi/_constant_evaluator.h>
 #include <lawa/constructions/interval/multi/_linear_evaluator.h>
 #include <lawa/constructions/interval/multi/_quadratic_evaluator.h>
 #include <lawa/constructions/interval/multi/_cubic_evaluator.h>
@@ -14,7 +15,7 @@ template <typename T>
 Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
     : mra(_d, j), d(_d), j0(mra.j0), _bc(2,0), _j(j0), psi(*this), refinementbasis(d)
 {
-    assert(d>=2);
+    assert(d>=1);
     
     /* L_2 orthonormal multiwavelet bases without Dirichlet boundary conditions are not
      * implemented yet. They require __different__ boundary adapted wavelets and scaling functions.
@@ -23,7 +24,66 @@ Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
     _numLeftParts = 0;
     _numRightParts = 0;
 
-    this->enforceBoundaryCondition<DirichletBC>();
+    if (d==1) {
+        _addRefinementLevel = 1;
+        _shiftFactor        = 2;
+        //left part
+        _numLeftParts = 1;
+        _leftEvaluator = new Evaluator[1];
+        _leftEvaluator[0] = _constant_wavelet_inner_evaluator0;
+
+        _leftSupport = new Support<T>[1];
+        _leftSupport[0] = Support<T>(0.,1.);
+
+        _leftSingularSupport = new DenseVector<Array<T> >[1];
+        _leftSingularSupport[0].engine().resize(3,0);
+        _leftSingularSupport[0] = 0., 0.5, 1.;
+
+        _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+        _leftRefCoeffs[0].engine().resize(2,0);
+        _leftRefCoeffs[0] =  1.L, -1.L;
+
+        _leftRefCoeffs[0] *= std::pow(2.L,-0.5L); // valued multiplied by (-1)... difference to mathematica?
+
+        _leftOffsets = new long[1];
+        _leftOffsets[0] =  0;
+
+        _leftH1SemiNorms = new long double[0];
+
+        //inner part
+        _numInnerParts = 1;
+        _innerEvaluator = new Evaluator[1];
+        _innerEvaluator[0] = _constant_wavelet_inner_evaluator0;
+
+        _innerSupport = new Support<T>[1];
+        _innerSupport[0] = Support<T>(0.,1.);
+
+        _innerSingularSupport = new DenseVector<Array<T> >[1];
+        _innerSingularSupport[0].engine().resize(3,0);
+        _innerSingularSupport[0] = 0., 0.5, 1.;
+
+        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs[0].engine().resize(2,0);
+        _innerRefCoeffs[0] =  1.L, -1.L;
+        _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
+
+        _innerOffsets = new long[1];
+        _innerOffsets[0] =  0;
+
+        _innerH1SemiNorms = new long double[0];
+
+        //right part
+        _numRightParts = 0;
+        _rightEvaluator = new Evaluator[0];
+        _rightSupport = new Support<T>[0];
+        _rightSingularSupport = new DenseVector<Array<T> >[0];
+        _rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        _rightOffsets = new long[0];
+        _rightH1SemiNorms = new long double[0];
+    }
+    else {
+        this->enforceBoundaryCondition<DirichletBC>();
+    }
 
     setLevel(_j);
 }
@@ -112,8 +172,8 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[1] =  0;
 
             _leftH1SemiNorms = new long double[2];
-            _leftH1SemiNorms[0] =  0;
-            _leftH1SemiNorms[1] =  0;
+            _leftH1SemiNorms[0] =  std::sqrt(315.827533859762919478L);
+            _leftH1SemiNorms[1] =  std::sqrt(397.584415584415584416L);;
 
             //inner part
             _numInnerParts = 3;
@@ -163,9 +223,9 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[2] = -8;
 
             _innerH1SemiNorms = new long double[3];
-            _innerH1SemiNorms[0] =  0;
-            _innerH1SemiNorms[1] =  0;
-            _innerH1SemiNorms[2] =  0;
+            _innerH1SemiNorms[0] =  std::sqrt(397.584415584415584416L);
+            _innerH1SemiNorms[1] =  std::sqrt(244.857142857142857143L);
+            _innerH1SemiNorms[2] =  std::sqrt(335.558441558441558442L);
 
             //right part
             _numRightParts = 1;
@@ -190,7 +250,7 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightOffsets[0] =  0;
 
             _rightH1SemiNorms = new long double[1];
-            _rightH1SemiNorms[0] =  0;
+            _rightH1SemiNorms[0] =  std::sqrt(107.263375231146171431L);
             break;
         
         case 3:
@@ -258,10 +318,10 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[3] =  1;
 
             _leftH1SemiNorms = new long double[4];
-            _leftH1SemiNorms[0] =  0;
-            _leftH1SemiNorms[1] =  0;
-            _leftH1SemiNorms[2] =  0;
-            _leftH1SemiNorms[3] =  0;
+            _leftH1SemiNorms[0] =  std::sqrt(1689.1831469636316641L);
+            _leftH1SemiNorms[1] =  std::sqrt(815.437862271242019281L);
+            _leftH1SemiNorms[2] =  std::sqrt(3770.6381231418184814L/4.L);
+            _leftH1SemiNorms[3] =  std::sqrt(4878.5702463923893863L/4.L);
 
 
             //inner part
@@ -374,12 +434,12 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[5] =  -15;
 
             _innerH1SemiNorms = new long double[6];
-            _innerH1SemiNorms[0] =  0;
-            _innerH1SemiNorms[1] =  0;
-            _innerH1SemiNorms[2] =  0;
-            _innerH1SemiNorms[3] =  0;
-            _innerH1SemiNorms[4] =  0;
-            _innerH1SemiNorms[5] =  0;
+            _innerH1SemiNorms[0] =  std::sqrt(3770.6381231418184814L/4.L);
+            _innerH1SemiNorms[1] =  std::sqrt(4878.5702463923893863L/4.L);
+            _innerH1SemiNorms[2] =  std::sqrt(964.220175873625172424L);
+            _innerH1SemiNorms[3] =  std::sqrt(3157.160763755615507L/4.L);
+            _innerH1SemiNorms[4] =  std::sqrt(676.111507842511107508L);
+            _innerH1SemiNorms[5] =  std::sqrt(1168.47210336668191741L);
 
 
             //right part
@@ -422,8 +482,8 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightOffsets[1] =  1;
 
             _rightH1SemiNorms = new long double[2];
-            _rightH1SemiNorms[0] =  0;
-            _rightH1SemiNorms[1] =  0;
+            _rightH1SemiNorms[0] =  std::sqrt(872.85470590556468096L);
+            _rightH1SemiNorms[1] =  std::sqrt(950.23153980918785971L);
 
             break;
             
@@ -492,10 +552,10 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _leftOffsets[3] =  1;
 
             _leftH1SemiNorms = new long double[4];
-            _leftH1SemiNorms[0] =  0;
-            _leftH1SemiNorms[1] =  0;
-            _leftH1SemiNorms[2] =  0;
-            _leftH1SemiNorms[3] =  0;
+            _leftH1SemiNorms[0] =  std::sqrt(5472.168230418815658L/4.L);
+            _leftH1SemiNorms[1] =  std::sqrt(3658.4430353007925789L/4.L);
+            _leftH1SemiNorms[2] =  std::sqrt(3581.1787249033985872L/4.L);
+            _leftH1SemiNorms[3] =  std::sqrt(4745.4284412264144235L/4.L);
 
             // inner part
             _numInnerParts = 6;
@@ -607,12 +667,12 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _innerOffsets[5] =  -15;
 
             _innerH1SemiNorms = new long double[6];
-            _innerH1SemiNorms[0] =  0;
-            _innerH1SemiNorms[1] =  0;
-            _innerH1SemiNorms[2] =  0;
-            _innerH1SemiNorms[3] =  0;
-            _innerH1SemiNorms[4] =  0;
-            _innerH1SemiNorms[5] =  0;
+            _innerH1SemiNorms[0] =  std::sqrt(3581.1787249033985863L/4.L);
+            _innerH1SemiNorms[1] =  std::sqrt(4745.4284412264144244L/4.L);
+            _innerH1SemiNorms[2] =  std::sqrt(3551.9683102854048364L/4.L);
+            _innerH1SemiNorms[3] =  std::sqrt(3470.3742489363095669L/4.L);
+            _innerH1SemiNorms[4] =  std::sqrt(2382.5255297084867072L/4.L);
+            _innerH1SemiNorms[5] =  std::sqrt(4381.1340895992035858L/4.L);
 
             //right part
             _numRightParts = 2;
@@ -654,11 +714,11 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             _rightOffsets[1] =  1;
 
             _rightH1SemiNorms = new long double[2];
-            _rightH1SemiNorms[0] =  0;
-            _rightH1SemiNorms[1] =  0;
+            _rightH1SemiNorms[0] =  std::sqrt(3577.8921753706540727L/4.L);
+            _rightH1SemiNorms[1] =  std::sqrt(3494.6338698754857046L/4.L);
             break;
             
-        default: std::cerr << "Wavelet<T,Orthogonal,Interval,Multi> not yet realized"
+        default: std::cerr << "BC for Wavelet<T,Orthogonal,Interval,Multi> not yet realized"
             " for d = " << d << ". Stopping." << std::endl;
             exit(-1);
     }

@@ -8,7 +8,7 @@ using namespace lawa;
 /// Several typedefs for notational convenience.
 
 ///  Typedefs for Flens data types:
-typedef double T;
+typedef long double T;
 typedef flens::DenseVector<flens::Array<long double> >              DenseVectorLD;
 
 ///  Typedefs for problem components:
@@ -57,7 +57,6 @@ void
 test_getHigherWaveletNeighborsForWavelet(const PrimalBasis &basis);
 
 
-
 void
 test_precisionOfGenerators();
 
@@ -77,7 +76,7 @@ int main(int argc, char*argv[])
     /// Basis initialization, using Dirichlet boundary conditions
     PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
     //PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
-    basis.enforceBoundaryCondition<DirichletBC>();
+    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis& refinementbasis = basis.refinementbasis;
 
     /// Test refinement of B-splines
@@ -92,7 +91,6 @@ int main(int argc, char*argv[])
     /// Test refinement of multiwavelets: We check the refinement of wavelets in terms of B-splines.
 
     //test_refinementOfWavelet(basis, refinementbasis, deriv);
-
 
     /// Check for B-spline neighbors: Given a B-spline, we need to determine the B-splines whose
     /// supports intersect the one of the B-spline. Here, both sides are assumed to be on the same
@@ -134,6 +132,7 @@ int main(int argc, char*argv[])
 
     return 0;
 }
+
 
 void
 test_refinementOfBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis, int deriv)
@@ -230,6 +229,8 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
             int refinement_j = 0;
             long refinement_k_first = 0L;
             refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first);
+            cout << "j = " << j << ", k = " << k << ", refinement_j = "
+                 << refinement_j << ", refinement_k_first = " << refinement_k_first << endl;
             for (T x=0.L; x<=1.L; x+=pow2i<long double>(-8-j)) {
                 T reference_value = basis.generator(XWavelet)(x,j,k,deriv);
                 T refinement_value = 0.L;
@@ -300,7 +301,7 @@ void
 test_getWaveletNeighborsForBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis)
 {
     cout << " ******** Wavelet neighbors for BSpline **********" << endl;
-    for (int refinement_j=refinementbasis.j0+4; refinement_j<=refinementbasis.j0+4; ++refinement_j) {
+    for (int refinement_j=refinementbasis.j0+4; refinement_j<=refinementbasis.j0+5; ++refinement_j) {
         for (int refinement_k =refinementbasis.mra.rangeI(refinement_j).firstIndex();
                  refinement_k<=refinementbasis.mra.rangeI(refinement_j).lastIndex(); ++refinement_k) {
             int j=0;

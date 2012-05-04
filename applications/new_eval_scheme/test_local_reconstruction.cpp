@@ -21,8 +21,8 @@ typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT
 
 ///  Typedefs for problem components:
 ///  Wavelet basis over an interval
-//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+//typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 ///  Wavelet integrals
@@ -53,9 +53,9 @@ int main(int argc, char*argv[])
     int J  = atoi(argv[3]);
 
     /// Basis initialization, using Dirichlet boundary conditions
-    //PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
-    PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
-    basis.enforceBoundaryCondition<DirichletBC>();
+    PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
+    //PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
+    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis &refinementbasis = basis.refinementbasis;
 
     /// Integral initialization
@@ -80,7 +80,7 @@ int main(int argc, char*argv[])
     /// (refinement basis).
     CoefficientsByLevel<T> u_bspline1;
     int refinement_j_bspline = 0;
-    if (PrimalBasis::Cons==Multi) {
+    if (PrimalBasis::Cons==Multi && d>1) {
         LocalRefine.reconstructOnlyMultiScaling(u_scaling1, j, u_bspline1, refinement_j_bspline);
     }
     else {
@@ -148,7 +148,7 @@ int main(int argc, char*argv[])
     ofstream plotfile2("test2.txt");
     plotfile2.precision(16);
     T max_error1=0.L, max_error2=0.L;
-    for (T x=0.; x<=1.; x+=pow2i<T>(-6-J)) {
+    for (T x=0.; x<1.; x+=pow2i<T>(-6-J)) {
         T val1=0.L, val2=0.L;
         for (const_coeff1d_it it=u.begin(); it!=u.end(); ++it) {
             val1 += (*it).second *
@@ -185,6 +185,7 @@ constructRandomTree(const PrimalBasis &basis, int J, TreeCoefficients1D<T> &Lamb
         }
     }
     */
+
     for (int k=basis.mra.rangeI(basis.j0).firstIndex(); k<=basis.mra.rangeI(basis.j0).lastIndex(); ++k) {
         LambdaTree[0].map.operator[](k) = 0.;
     }
@@ -209,7 +210,6 @@ constructRandomTree(const PrimalBasis &basis, int J, TreeCoefficients1D<T> &Lamb
             }
         }
     }
-
 }
 
 /*
