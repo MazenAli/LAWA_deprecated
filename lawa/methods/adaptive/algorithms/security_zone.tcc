@@ -189,7 +189,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,CDF> &basis, Index
     }
 }
 
-// Security zone multi-wavelet realline
+// Security zone orthonormal multi-wavelet realline
 template <typename T>
 void
 index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,R,Multi> &basis,
@@ -245,7 +245,58 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,R,Multi> &basis,
     }
 }
 
-// Security zone multi-wavelet realline
+// Security zone orthonormal multi-wavelet realline
+template <typename T>
+void
+index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,Interval,Multi> &basis,
+           IndexSet<Index1D> &ret)
+{
+    int j=lambda.j, k=lambda.k;
+    XType xtype=lambda.xtype;
+
+    const BSpline<T,Orthogonal,Interval,Multi> &phi = basis.mra.phi;
+    const Wavelet<T,Orthogonal,Interval,Multi> &psi = basis.psi;
+
+    if (xtype==XBSpline) {
+        Support<T> supp = phi.support(j,k);
+        int j_scaling = 0;
+        long k_scaling_first = 0, k_scaling_last = 0;
+        basis.getScalingNeighborsForScaling(j, k, basis,
+                                            j_scaling, k_scaling_first, k_scaling_last);
+
+        for (int k_scaling = k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
+            if (overlap(supp, phi.support(j_scaling,k_scaling))>0) {
+                ret.insert(Index1D(j_scaling,k_scaling,XBSpline));
+            }
+        }
+
+        int j_wavelet = 0;
+        long k_wavelet_first = 0, k_wavelet_last = 0;
+        basis.getWaveletNeighborsForScaling(j, k, basis,
+                                            j_wavelet, k_wavelet_first, k_wavelet_last);
+        assert(j_wavelet==j);
+        for (int k_wavelet = k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+            if (overlap(supp, psi.support(j_wavelet,k_wavelet))>0) {
+                ret.insert(Index1D(j_wavelet,k_wavelet,XWavelet));
+            }
+        }
+    }
+    else {
+        Support<T> supp = psi.support(j,k);
+        int j_wavelet = 0;
+        long k_wavelet_first = 0, k_wavelet_last = 0;
+        basis.getHigherWaveletNeighborsForWavelet(j, k, basis,
+                                                  j_wavelet, k_wavelet_first, k_wavelet_last);
+        assert(j_wavelet==j+1);
+        for (int k_wavelet = k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+            if (overlap(supp, psi.support(j_wavelet,k_wavelet))>0) {
+                ret.insert(Index1D(j_wavelet,k_wavelet,XWavelet));
+            }
+        }
+    }
+}
+
+// Security zone special multi-wavelet realline
 template <typename T>
 void
 index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,SparseMulti> &basis,
@@ -308,7 +359,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,R,SparseMulti> &basi
     }
 }
 
-// Security zone multi-wavelet RPlus
+// Security zone special multi-wavelet RPlus
 template <typename T>
 void
 index_cone(const Index1D &lambda, T c, const Basis<T,Primal,RPlus,SparseMulti> &basis,
@@ -374,7 +425,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,RPlus,SparseMulti> &
     }
 }
 
-// Security zone multi-wavelet interval
+// Security zone special multi-wavelet interval
 template <typename T>
 void
 index_cone(const Index1D &lambda, T c, const Basis<T,Primal,Interval,SparseMulti> &basis,

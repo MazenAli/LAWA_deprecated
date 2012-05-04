@@ -135,6 +135,7 @@ plot2D(const Basis2D &basis, const Coefficients<Lexicographical,T,Index2D> coeff
     std::stringstream PlotFileName;
     PlotFileName << filename << ".dat";
     std::ofstream plotfile(PlotFileName.str().c_str());
+    plotfile.precision(16);
 
     for (T x=a1; x<=b1; x+=h) {
         for (T y=a2; y<=b2; y+=h) {

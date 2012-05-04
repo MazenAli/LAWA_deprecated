@@ -10,9 +10,11 @@ typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >   DenseMatrix
 typedef flens::DenseVector<flens::Array<T> >                         DenseVectorT;
 
 typedef Basis<T,Primal,Interval,Dijkema>                            PrimalBasis;
+//typedef Basis<T,Orthogonal,Interval,Multi>                            PrimalBasis;
 typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 
 typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    WeightedPDEBilinearForm;
+//typedef AdaptiveWeightedPDEOperator1D<T,Orthogonal,Interval,MultiRefinement>    WeightedPDEBilinearForm;
 
 typedef HelmholtzOperator2D<T,Basis2D>                              HelmholtzBilinearForm2D;
 typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
@@ -63,9 +65,9 @@ mv(LocalWeightedPDEOp2D &localLaplaceIdentityOp2D, LocalWeightedPDEOp2D &localId
 
 const T c = 0.;
 
-T p1(T x)  {   return (x-0.5)*(x-0.5)+1.; /*1.;*/  }
+T p1(T x)  {   return (x-0.5)*(x-0.5)+1.;/* 1.;*/  }
 
-T dp1(T x) {   return 2*(x-0.5);          /*0.;*/  }
+T dp1(T x) {   return 2*(x-0.5);         /* 0.;*/  }
 
 T p2(T y)  {   return (y-0.5)*(y-0.5)+1.; /*1.;*/  }
 
@@ -131,7 +133,7 @@ T f2(T y)   {   return -p2(y)*ddu2(y)-dp2(y)*du2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
 */
-/*
+
 int example = 2;
 
 T u1(T x)   {    return 1.; }
@@ -158,8 +160,8 @@ T p_u2(T y) {   return u2(y); }
 T f2(T y)   {   return -ddu2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
-*/
 
+/*
 int example = 3;
 
 T u1(T x)   {    return x*x*(1-x)*(1-x); }
@@ -186,11 +188,10 @@ T p_u2(T y) {   return p2(y)*u2(y); }
 T f2(T y)   {   return -p2(y)*ddu2(y)-dp2(y)*du2(y); }
 
 T sol(T x, T y) {   return u1(x) * u2(y); }
-
+*/
 
 
 int main (int argc, char *argv[]) {
-
 
     cout.precision(20);
     if (argc!=5) {
@@ -210,6 +211,7 @@ int main (int argc, char *argv[]) {
 
     /// Basis initialization
     PrimalBasis       basis(d,d_,j0);
+    //PrimalBasis       basis(d,j0);
     basis.enforceBoundaryCondition<DirichletBC>();
     Basis2D basis2d(basis,basis);
 
@@ -218,8 +220,8 @@ int main (int argc, char *argv[]) {
     Function<T> reaction_coeff(p1, p1_singPts);
     Function<T> convection_coeff(p1, p1_singPts);
     Function<T> diffusion_coeff(p1, p1_singPts);
-    WeightedPDEBilinearForm       WeightedLaplaceBil( basis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
-    WeightedPDEBilinearForm       WeightedIdentityBil(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
+    WeightedPDEBilinearForm       WeightedLaplaceBil( basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
+    WeightedPDEBilinearForm       WeightedIdentityBil(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
 
     /// Initialization of local operator
     LocalWeightedPDEOp1D          localLaplaceOp1D( basis, basis, WeightedLaplaceBil);
@@ -277,8 +279,7 @@ int main (int argc, char *argv[]) {
     ofstream file(filename.str().c_str());
     file.precision(16);
 
-
-    for (int iter=0; iter<=10; ++iter) {
+    for (int iter=0; iter<=100; ++iter) {
 
         //readIndexSetFromFile(Lambda,example,d,threshTol,1,iter);
         //writeIndexSetToFile(Lambda,"Lambda",example,d,threshTol,ell,iter);
@@ -307,7 +308,7 @@ int main (int argc, char *argv[]) {
 
         int maxIterations = 200;
         T tol;
-        if (adaptive) tol=std::min(1e-2,1e-2*r_norm);
+        if (adaptive) tol=std::min((T)1e-2,1e-2*r_norm);
         else          tol=1e-8;
 
         T alpha, beta, rNormSquare, rNormSquarePrev;
@@ -362,17 +363,24 @@ int main (int argc, char *argv[]) {
            Lambda, u, intermediate, LIIAv, IAUIv, Ap, dummy1, dummy2);
         T uAu = Ap*u;
         T fu  = f*u;
-        T H1error =  sqrt(fabs(H1seminorm_squared - 2*fu + uAu));
+        T H1error =  sqrt(fabs(H1seminorm_squared - uAu));
         //T H1error =  sqrt(fabs(H1seminorm_squared - fu));
-        std::cerr << "---> H1-error: " << H1error << " " << fu << endl;
+        cerr.precision(20);
+        std::cerr << "---> H1-error: " << H1error << ": " << H1seminorm_squared << " " << fu  << " " << uAu << endl;
+        cerr.precision(6);
 
+        stringstream plotfilename;
+        plotfilename << "multitree_awgm2d_Linfty_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << iter;
+        std::cerr << "Start plot with u.size() == " << u.size() << std::endl;
+        plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0.3, 0.7, 0.3, 0.7, 0.1, plotfilename.str().c_str());
+        std::cerr << "Finished plot with u.size() == " << u.size() << std::endl;
 
         IndexSet<Index2D> checkLambda = Lambda;
         Timer time;
         if (example!=2) {
             IndexSet<Index2D> C_Lambda = Lambda;
             for (int i=1; i<=ell; ++i) {
-                C_Lambda = C(C_Lambda, 1., basis2d, true);
+                C_Lambda = C(C_Lambda, (T)1., basis2d, true);
                 for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
                     simpleExtendMultiTree(basis2d,(*it),checkLambda);
                 }
@@ -388,7 +396,7 @@ int main (int argc, char *argv[]) {
             IndexSet<Index2D> C_Lambda = Lambda;
             C_Lambda += LambdaBoundary;
             for (int i=1; i<=ell; ++i) {
-                C_Lambda = C(C_Lambda, 1., basis2d, true);
+                C_Lambda = C(C_Lambda, (T)1., basis2d, true);
                 cout << "#Lambda + #C_Lambda = " << Lambda.size() + C_Lambda.size() << endl;
                 time.start();
                 for (const_set2d_it it=C_Lambda.begin(); it!=C_Lambda.end(); ++it) {
@@ -425,7 +433,7 @@ int main (int argc, char *argv[]) {
         if (adaptive) {
             T P_Lambda_r_norm_square = 0.;
             for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
-                P_Lambda_r_norm_square += std::pow(r[(*it)],2.);
+                P_Lambda_r_norm_square += std::pow(r[(*it)],(T)2.);
                 r.erase((*it));
             }
             r = THRESH(r,threshTol*r.norm(2.));
@@ -439,9 +447,7 @@ int main (int argc, char *argv[]) {
         cerr << "   Computation of new Lambda finished." << endl;
         r.clear();
     }
-    std::cerr << "Start plot with u.size() == " << u.size() << std::endl;
-    plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.1, "sol");
-    std::cerr << "Finished plot with u.size() == " << u.size() << std::endl;
+
     return 0;
 }
 

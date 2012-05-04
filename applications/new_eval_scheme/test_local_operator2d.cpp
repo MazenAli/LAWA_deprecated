@@ -47,8 +47,6 @@ typedef IndexSet<Index2D>::const_iterator                           const_set2d_
 typedef Coefficients<Lexicographical,T,Index2D>::iterator           coeff2d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2d_it;
 
-typedef AlignedCoefficients<T,Index2D,Index1D,Index1D>              alignedCoefficients;
-
 void
 getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j, T gamma=0.);
 
