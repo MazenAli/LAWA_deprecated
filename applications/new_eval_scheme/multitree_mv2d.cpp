@@ -24,7 +24,6 @@ typedef PrimalBasis::RefinementBasis                                RefinementBa
 
 typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 
-
 ///  Underlying bilinear form
 typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    BilinearForm_x;
 typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    RefinementBilinearForm_x;
@@ -153,15 +152,14 @@ int main (int argc, char *argv[]) {
         if (Lambda.size()==0) return 0;
 
         Coefficients<Lexicographical,T,Index2D> v(SIZEHASHINDEX2D);
-        Coefficients<Lexicographical,T,Index2D> intermediate(SIZEHASHINDEX2D);
-        Coefficients<Lexicographical,T,Index2D> LIIAv(SIZEHASHINDEX2D);
-        Coefficients<Lexicographical,T,Index2D> IAUIv(SIZEHASHINDEX2D);
 
 
         getRandomCoefficientVector(Lambda,v);
 
         if (calcRefSol) {
             T time_evalAA1 = 0.;
+            Coefficients<Lexicographical,T,Index2D> LIIAv(SIZEHASHINDEX2D);
+            Coefficients<Lexicographical,T,Index2D> IAUIv(SIZEHASHINDEX2D);
             Coefficients<Lexicographical,T,Index2D> IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref;
             IndexSet<Index1D> checkLambda_x;
             for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
@@ -225,26 +223,29 @@ int main (int argc, char *argv[]) {
             cout << "Reference calculation finished." << endl;
             cout << "New scheme started..." << endl;
             time.start();
-            localop2d.debug_evalAA(v, intermediate, LIIAv, IAUIv, IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref);
+            localop2d.debug_evalAA(v, LIIAv, IAUIv, IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref);
             time.stop();
             time_evalAA1 = time.elapsed();
             cout << "New scheme finished." << endl;
         }
         else {
+            Coefficients<Lexicographical,T,Index2D> auxiliary(SIZEHASHINDEX2D);
+            Coefficients<Lexicographical,T,Index2D> AAv(SIZEHASHINDEX2D);
+
             for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
-                LIIAv[*it] = 0.;
-                IAUIv[*it] = 0.;
+                auxiliary[*it] = 0.;
+                AAv[*it] = 0.;
             }
             N = v.size() + checkLambda.size();
             cout << "**** New scheme started ****" << endl;
             cout << "   #v = " << Lambda.size() << endl;
 
-            localop2d.evalAA(v,intermediate, LIIAv, IAUIv, time_intermediate1, time_intermediate2,
+            localop2d.evalAA(v, auxiliary, AAv, time_intermediate1, time_intermediate2,
                              time_IAv1, time_IAv2, time_LIv, time_UIv);
 
-            LIIAv.setToZero(); IAUIv.setToZero(); intermediate.setToZero();
+            auxiliary.setToZero(); AAv.setToZero();
             time.start();
-            localop2d.evalAA(v,intermediate, LIIAv, IAUIv, time_intermediate1, time_intermediate2,
+            localop2d.evalAA(v, auxiliary, AAv, time_intermediate1, time_intermediate2,
                                          time_IAv1, time_IAv2, time_LIv, time_UIv);
             time.stop();
             time_evalAA1 = time.elapsed();

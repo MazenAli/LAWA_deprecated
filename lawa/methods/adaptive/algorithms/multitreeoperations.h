@@ -20,13 +20,25 @@
 #ifndef  LAWA_METHODS_ADAPTIVE_ALGORITHMS_MULTITREEOPERATIONS_H
 #define  LAWA_METHODS_ADAPTIVE_ALGORITHMS_MULTITREEOPERATIONS_H 1
 
-#include <boost/functional/hash.hpp>
 
-#include <lawa/settings/enum.h>
 #include <iostream>
+#include <lawa/constructions/constructions.h>
+#include <lawa/methods/adaptive/datastructures/datastructures.h>
 
 namespace lawa {
 
+template <typename T, typename Basis>
+void
+extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
+                Coefficients<Lexicographical,T,Index2D>  &C_v);
+
+template <typename T, typename Basis>
+void
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v);
+
+
+/*
 template <typename Index, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambda);
@@ -34,7 +46,7 @@ extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambd
 template <typename Index, typename Basis>
 void
 extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
-
+*/
 
 }
 

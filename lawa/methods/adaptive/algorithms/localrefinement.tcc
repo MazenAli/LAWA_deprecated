@@ -75,7 +75,6 @@ LocalRefinement<PrimalBasis>::reconstruct(const CoefficientsByLevel<T> &u_bsplin
     for (typename CoefficientsByLevel<T>::const_it it=u_wavelet.map.begin(); it!=u_wavelet.map.end(); ++it) {
         this->reconstructWavelet(j_wavelet, (*it).first, (*it).second, u_loc_single, j2_refinement);
     }
-    std::cerr << j_bspline << " " << j_wavelet << " : " << j1_refinement << " " << j2_refinement << std::endl;
     assert(j1_refinement==j2_refinement);
     j_refinement = j2_refinement;
 }

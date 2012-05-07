@@ -137,6 +137,7 @@ int main (int argc, char *argv[]) {
     for (int j=0; j<=numOfIter; ++j) {
 
         IndexSet<Index2D> checkLambda, Lambda;
+        Coefficients<Lexicographical,T,Index2D> test;
 
         if (useSparseGrid) {
             IndexSet<Index2D> checkLambda2, Lambda2;
@@ -145,14 +146,17 @@ int main (int argc, char *argv[]) {
             getSparseGridIndexSet(basis,Lambda,j,0.2);
             getSparseGridIndexSet(basis,Lambda2,j,0.2);
 
-            cout << "#checkLambda  = " << checkLambda.size() << endl;
+            FillWithZeros(checkLambda,test);
+            cout << "#checkLambda  = " << checkLambda.size() << ", " << test.size() << endl;
             Index1D index1_x(j0+j+4,5,XWavelet);
             Index1D index1_y(j0+j+4,2,XWavelet);
             Index2D new_index1(index1_x,index1_y);
+            completeMultiTree(basis2d,new_index1,test);
             extendMultiTree( basis2d,new_index1,checkLambda);
             extendMultiTree2(basis2d,new_index1,20,checkLambda2);
             cout<< "#checkLambda1 = " << checkLambda.size() << endl;
             cout<< "#checkLambda2 = " << checkLambda2.size() << endl;
+            cout<< "#test =         " << test.size() << endl;
 
             cout << "#Lambda  = " << Lambda.size() << endl;
             Index1D index2_x(j0+j+4,7,XWavelet);

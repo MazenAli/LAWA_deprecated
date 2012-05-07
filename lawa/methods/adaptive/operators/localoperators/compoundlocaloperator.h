@@ -31,24 +31,33 @@ class CompoundLocalOperator {
 
     public:
         typedef typename FirstLocalOperator::T T;
+        typedef typename Coefficients<Lexicographical,T,Index>::iterator coeff_it;
 
-        CompoundLocalOperator(const FirstLocalOperator  &_firstLocalOp,
-                              const SecondLocalOperator &_secondLocalOp);
+        CompoundLocalOperator(FirstLocalOperator  &_firstLocalOp,
+                              SecondLocalOperator &_secondLocalOp,
+                              size_t hashMapSize=SIZEHASHINDEX2D);
 
-        CompoundLocalOperator(const FirstLocalOperator  &_firstLocalOp,
-                              const SecondLocalOperator &_secondLocalOp,
-                              const ThirdLocalOperator  &_thirdLocalOp);
+        CompoundLocalOperator(FirstLocalOperator  &_firstLocalOp,
+                              SecondLocalOperator &_secondLocalOp,
+                              ThirdLocalOperator  &_thirdLocalOp,
+                              size_t hashMapSize=SIZEHASHINDEX2D);
 
         void
         eval(const Coefficients<Lexicographical,T,Index> &v,
-             Coefficients<Lexicographical,T,Index> &auxiliary,
              Coefficients<Lexicographical,T,Index> &Av);
 
+        template <typename Preconditioner>
+        void
+        eval(Coefficients<Lexicographical,T,Index> &v,
+             Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P);
+
         int                               numOfLocalOp;
-        const FirstLocalOperator          &firstLocalOp;
-        const SecondLocalOperator         &secondLocalOp;
-        const ThirdLocalOperator          &thirdLocalOp;
-        const FourthLocalOperator         &fourthLocalOp;
+        FirstLocalOperator          &firstLocalOp;
+        SecondLocalOperator         &secondLocalOp;
+        ThirdLocalOperator          &thirdLocalOp;
+        FourthLocalOperator         &fourthLocalOp;
+
+        Coefficients<Lexicographical,T,Index> auxiliary;
 
 
 };

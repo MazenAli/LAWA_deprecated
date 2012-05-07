@@ -16,14 +16,14 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    WeightedPDEBilinearForm;
 //typedef AdaptiveWeightedPDEOperator1D<T,Orthogonal,Interval,MultiRefinement>    WeightedPDEBilinearForm;
 
-typedef HelmholtzOperator2D<T,Basis2D>                              HelmholtzBilinearForm2D;
-typedef DiagonalMatrixPreconditioner2D<T,Basis2D,
-                                       HelmholtzBilinearForm2D>     Preconditioner;
+typedef OptimizedH1Preconditioner2D<T,Basis2D>                      Preconditioner;
 
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
                         WeightedPDEBilinearForm>                    LocalWeightedPDEOp1D;
 typedef LocalOperator2D<LocalWeightedPDEOp1D,
                         LocalWeightedPDEOp1D>                       LocalWeightedPDEOp2D;
+typedef CompoundLocalOperator<Index2D, LocalWeightedPDEOp2D,
+                              LocalWeightedPDEOp2D>                 CompoundLocalOperator2D;
 
 //Righthandsides definitions (separable)
 typedef SeparableRHS2D<T,Basis2D >                                  SeparableRhsIntegral2D;
@@ -56,14 +56,10 @@ simpleExtendMultiTree(const Basis2D &basis, const Index2D &index2d, IndexSet<Ind
 
 
 void
-mv(LocalWeightedPDEOp2D &localLaplaceIdentityOp2D, LocalWeightedPDEOp2D &localIdentityLaplaceOp2D,
+mv(CompoundLocalOperator2D &localOperator2D,
    Coefficients<Lexicographical,T,Index2D> &P,
    const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &v,
-   Coefficients<Lexicographical,T,Index2D> &intermediate,
-   Coefficients<Lexicographical,T,Index2D> &LIIAv, Coefficients<Lexicographical,T,Index2D> &IAUIv,
-   Coefficients<Lexicographical,T,Index2D> &Av, T &time1, T &time2);
-
-const T c = 0.;
+   Coefficients<Lexicographical,T,Index2D> &Av, T &time);
 
 T p1(T x)  {   return (x-0.5)*(x-0.5)+1.;/* 1.;*/  }
 
@@ -230,10 +226,12 @@ int main (int argc, char *argv[]) {
     LocalWeightedPDEOp2D          localIdentityLaplaceOp2D(localIdentityOp1D,localLaplaceOp1D);
     localLaplaceIdentityOp2D.setJ(9);
     localIdentityLaplaceOp2D.setJ(9);
+    CompoundLocalOperator2D       localOperator2D(localLaplaceIdentityOp2D,localIdentityLaplaceOp2D);
 
     /// Initialization of preconditioner
-    HelmholtzBilinearForm2D  HelmholtzBil2D(basis2d,0.);
-    Preconditioner           Prec(HelmholtzBil2D);
+    //HelmholtzBilinearForm2D  HelmholtzBil2D(basis2d,0.);
+    //Preconditioner           Prec(HelmholtzBil2D);
+    Preconditioner           Prec(basis2d,1.,1.,0.);
 
     /// Initialization of rhs
     DenseVectorT sing_pts_x, sing_pts_y;
@@ -264,15 +262,9 @@ int main (int argc, char *argv[]) {
                                             Ap(SIZEHASHINDEX2D);
     Coefficients<Lexicographical,T,Index2D> P(SIZEHASHINDEX2D);
 
-    Coefficients<Lexicographical,T,Index2D> intermediate(SIZEHASHINDEX2D);
-    Coefficients<Lexicographical,T,Index2D> LIIAv(SIZEHASHINDEX2D);
-    Coefficients<Lexicographical,T,Index2D> IAUIv(SIZEHASHINDEX2D);
-
     IndexSet<Index2D> Lambda;
     getSparseGridIndexSet(basis,Lambda,0,gamma);
     //readIndexSetFromFile(Lambda,example,d,threshTol,1,13);
-
-
 
     stringstream filename;
     filename << "multitree_awgm2d_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << ".txt";
@@ -312,22 +304,21 @@ int main (int argc, char *argv[]) {
         else          tol=1e-8;
 
         T alpha, beta, rNormSquare, rNormSquarePrev;
-        T dummy1=0., dummy2=0.;
+        T dummy=0.;
         cerr << "   Computing preconditioner." << endl;
         for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
             if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
         }
         cerr << "   Computing matrix vector product for initial residual." << endl;
 
-        mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
-           Lambda, u, intermediate, LIIAv, IAUIv, r, dummy1, dummy2);
+        mv(localOperator2D, P, Lambda, u, r, dummy);
 
         r -= f;
         p -= r;
         rNormSquare = r*r;
 
         int cg_iters=0;
-        T mv_time1=0., mv_time2=0.;
+        T mv_time=0.;
 
         for (cg_iters=0; cg_iters<maxIterations; ++cg_iters) {
 
@@ -335,15 +326,9 @@ int main (int argc, char *argv[]) {
                 cerr << "      CG stopped with error " << sqrt(rNormSquare) << endl;
                 break;
             }
-            T time1=0., time2=0.;
-            time.start();
-            cerr << "   Computing matrix vector product for initial residual." << endl;
-            mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
-                       Lambda, p, intermediate, LIIAv, IAUIv, Ap, time1, time2);
-            time.stop();
-            mv_time1 += time1;
-            mv_time2 += time2;
-            T time_mv = time.elapsed();
+            T time=0.;
+            mv(localOperator2D, P, Lambda, p, Ap, time);
+            mv_time += time;
 
             T pAp = p * Ap;
             alpha = rNormSquare/pAp;
@@ -352,19 +337,16 @@ int main (int argc, char *argv[]) {
 
             rNormSquarePrev = rNormSquare;
             rNormSquare = r*r;
-            time.stop();
             cerr << "      Current error in cg: " << std::sqrt(rNormSquare) << endl;
             beta = rNormSquare/rNormSquarePrev;
             p *= beta;
             p -= r;
         }
 
-        mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
-           Lambda, u, intermediate, LIIAv, IAUIv, Ap, dummy1, dummy2);
+        mv(localOperator2D, P, Lambda, u, Ap, dummy);
         T uAu = Ap*u;
         T fu  = f*u;
-        T H1error =  sqrt(fabs(H1seminorm_squared - uAu));
-        //T H1error =  sqrt(fabs(H1seminorm_squared - fu));
+        T H1error =  sqrt(fabs(H1seminorm_squared - 2*fu + uAu));
         cerr.precision(20);
         std::cerr << "---> H1-error: " << H1error << ": " << H1seminorm_squared << " " << fu  << " " << uAu << endl;
         cerr.precision(6);
@@ -416,18 +398,16 @@ int main (int argc, char *argv[]) {
 
         //writeIndexSetToFile(checkLambda,"checkLambda",example,d,threshTol,ell,iter);
         cerr << "   Extension of rhs finished." << endl;
-        T time_res1=0., time_res2=0.;
-        mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
-           checkLambda, u, intermediate, LIIAv, IAUIv, r, time_res1, time_res2);
-        time_res1=0., time_res2=0.;
-        mv(localLaplaceIdentityOp2D, localIdentityLaplaceOp2D, P,
-           checkLambda, u, intermediate, LIIAv, IAUIv, r, time_res1, time_res2);
+        T time_res;
+        mv(localOperator2D, P, checkLambda, u, r, time_res);
+        time_res=0.;
+        mv(localOperator2D, P, checkLambda, u, r, time_res);
+
         cerr << "   Matrix vector for residual computation finished." << endl;
         r-=f;
         r_norm = r.norm(2.);
         file << Lambda.size() << " " << checkLambda.size()
-             << " " << H1error << " " << r_norm
-             << " " << mv_time1/cg_iters << " " << mv_time2/cg_iters << " " << time_res1 << " " << time_res2 << endl;
+             << " " << H1error << " " << r_norm << " " << mv_time/cg_iters << " " << time_res << endl;
         cerr << "---> H1-error = " << H1error << ", res = " << r_norm << endl;
 
         if (adaptive) {
@@ -647,66 +627,25 @@ simpleExtendMultiTree(const Basis2D &basis, const Index2D &index2d, IndexSet<Ind
 }
 
 void
-mv(LocalWeightedPDEOp2D &localLaplaceIdentityOp2D,
-   LocalWeightedPDEOp2D &localIdentityLaplaceOp2D,
+mv(CompoundLocalOperator2D &localOperator2D,
    Coefficients<Lexicographical,T,Index2D> &P,
    const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &v,
-   Coefficients<Lexicographical,T,Index2D> &intermediate,
-   Coefficients<Lexicographical,T,Index2D> &LIIAv, Coefficients<Lexicographical,T,Index2D> &IAUIv,
-   Coefficients<Lexicographical,T,Index2D> &Av, T &time1, T &time2)
+   Coefficients<Lexicographical,T,Index2D> &Av, T &time)
 {
-    //cerr << "      #v = " << v.size() << ", #Av = " << Lambda.size() << endl;
-    Timer time;
-    intermediate.setToZero();
-    LIIAv.setToZero();
-    FillWithZeros(Lambda,LIIAv);
-    IAUIv.setToZero();
-    FillWithZeros(Lambda,IAUIv);
+    Timer timer;
     Av.setToZero();
+    FillWithZeros(Lambda,Av);
 
-    if (LIIAv.size()!=Lambda.size()) {
-        LIIAv.clear();
-        FillWithZeros(Lambda,LIIAv);
-    }
-    if (IAUIv.size()!=Lambda.size()) {
-        IAUIv.clear();
-        FillWithZeros(Lambda,IAUIv);
-    }
 
-    for (coeff2d_it it=v.begin(); it!=v.end(); ++it) {
-        (*it).second *= P[(*it).first];
-    }
-    cout << "      First MV start." << endl;
-    time.start();
-    localLaplaceIdentityOp2D.evalAA(v,intermediate,LIIAv,IAUIv);
-    time.stop();
-    cout << "      First MV stop." << endl;
-    time1 = time.elapsed();
-    //cerr << "      #LIIAv = " << LIIAv.size() << ", #IAUIv = " << IAUIv.size() << endl;
+    cout << "      MV start." << endl;
+    timer.start();
+    localOperator2D.eval(v,Av,P);
+    timer.stop();
+    cout << "      MV stop." << endl;
+    time = timer.elapsed();
 
-    Av += LIIAv;
-    Av += IAUIv;
-    LIIAv.setToZero();
-    IAUIv.setToZero();
-    cout << "      Second MV start." << endl;
-    time.start();
-    localIdentityLaplaceOp2D.evalAA(v,intermediate,LIIAv,IAUIv);
-    time.stop();
-    cout << "      Second MV stop." << endl;
-    time2 = time.elapsed();
-    Av += LIIAv;
-    Av += IAUIv;
-    //cerr << "      #LIIAv = " << LIIAv.size() << ", #IAUIv = " << IAUIv.size() << endl;
-    LIIAv.setToZero();
-    IAUIv.setToZero();
-    for (coeff2d_it it=Av.begin(); it!=Av.end(); ++it) {
-        (*it).second *= P[(*it).first];
-    }
-    for (coeff2d_it it=v.begin(); it!=v.end(); ++it) {
-        (*it).second *= 1./P[(*it).first];
-    }
-    std::cerr << "      MV: dof = " << Av.size() << ", time1 = " << time1
-              << ", time2 = " << time2 << std::endl;
+
+    std::cerr << "      MV: dof = " << Av.size() << ", time = " << time  << std::endl;
 }
 
 /*

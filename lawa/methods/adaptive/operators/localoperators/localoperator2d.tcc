@@ -24,14 +24,13 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
-::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-         Coefficients<Lexicographical,T,Index2D> &auxiliary,
-         Coefficients<Lexicographical,T,Index2D> &AAv) /*const*/
+::eval(const Coefficients<Lexicographical,T,Index2D> &v,
+       Coefficients<Lexicographical,T,Index2D> &auxiliary,
+       Coefficients<Lexicographical,T,Index2D> &AAv)
 {
-    auxiliary.setToZero();
-
     Coefficients<Lexicographical,T,Index2D> intermediate(std::min((size_t)4*auxiliary.size(),
-                                                                  SIZELARGEHASHINDEX1D));
+                                                                  (size_t)SIZELARGEHASHINDEX1D));
+
     Coefficients<Lexicographical,T,Index1D> Pe1_UIv(SIZELARGEHASHINDEX1D);
 
     initializeIntermediateVectorIAv(v, auxiliary, intermediate);
@@ -52,14 +51,17 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     AAv += auxiliary;
 }
 
+/*
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-         Coefficients<Lexicographical,T,Index2D> &intermediate,
          Coefficients<Lexicographical,T,Index2D> &IAUIv,
-         Coefficients<Lexicographical,T,Index2D> &LIIAv) /*const*/
+         Coefficients<Lexicographical,T,Index2D> &LIIAv)
 {
+    Coefficients<Lexicographical,T,Index2D> intermediate(std::min((size_t)4*IAUIv.size(),
+                                                         SIZELARGEHASHINDEX2D));
+
     initializeIntermediateVectorIAv(v, LIIAv, intermediate);
 
     evalIA(v, intermediate);
@@ -75,20 +77,26 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
     evalIA(intermediate, IAUIv);
 }
+*/
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-         Coefficients<Lexicographical,T,Index2D> &intermediate,
-         Coefficients<Lexicographical,T,Index2D> &IAUIv,
-         Coefficients<Lexicographical,T,Index2D> &LIIAv,
+         Coefficients<Lexicographical,T,Index2D> &auxiliary,
+         Coefficients<Lexicographical,T,Index2D> &AAv,
          T &time_intermediate1, T &time_intermediate2,
          T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) /*const*/
 {
+    std::cerr << v.size() << " " << auxiliary.size() << " " << AAv.size() << std::endl;
+    Coefficients<Lexicographical,T,Index2D> intermediate(std::min((size_t)4*AAv.size(),
+                                                                  (size_t)SIZELARGEHASHINDEX2D));
+
+    Coefficients<Lexicographical,T,Index1D> Pe1_UIv(SIZELARGEHASHINDEX1D);
+
     Timer time;
     time.start();
-    initializeIntermediateVectorIAv(v, LIIAv, intermediate);
+    initializeIntermediateVectorIAv(v, AAv, intermediate);
     time.stop();
     time_intermediate1 = time.elapsed();
 
@@ -98,16 +106,16 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     time_IAv1 = time.elapsed();
 
     time.start();
-    evalLI(intermediate, LIIAv);
+    evalLI(intermediate, auxiliary);
     time.stop();
     time_LIv = time.elapsed();
 
+    AAv += auxiliary;
+    auxiliary.setToZero();
     intermediate.clear();
 
-
-    Coefficients<Lexicographical,T,Index1D> Pe1_UIv(SIZELARGEHASHINDEX1D);
     time.start();
-    initializeIntermediateVectorUIv(v, IAUIv, Pe1_UIv);
+    initializeIntermediateVectorUIv(v, AAv, Pe1_UIv);
     time.stop();
     time_intermediate2 = time.elapsed();
 
@@ -117,18 +125,16 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     time_UIv = time.elapsed();
 
     time.start();
-    evalIA(intermediate, IAUIv);
+    evalIA(intermediate, auxiliary);
     time.stop();
     time_IAv2 = time.elapsed();
+    AAv += auxiliary;
 }
-
-
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::debug_evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-               Coefficients<Lexicographical,T,Index2D> &intermediate,
                Coefficients<Lexicographical,T,Index2D> &IAUIv,
                Coefficients<Lexicographical,T,Index2D> &LIIAv,
                const Coefficients<Lexicographical,T,Index2D> &IAv_ref,
@@ -137,6 +143,10 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
                const Coefficients<Lexicographical,T,Index2D> &IAUIv_ref,
                const Coefficients<Lexicographical,T,Index2D> &AAv_ref) /*const*/
 {
+
+    Coefficients<Lexicographical,T,Index2D> intermediate(std::min((size_t)4*IAUIv.size(),
+                                                                  (size_t)SIZELARGEHASHINDEX2D));
+
     Coefficients<Lexicographical,T,Index2D> diff;
     Timer time;
 

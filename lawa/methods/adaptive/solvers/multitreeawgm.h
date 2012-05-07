@@ -26,7 +26,7 @@
 
 namespace lawa {
 
-template <typename Index, typename LocalOperator, typename RHS, typename Preconditioner>
+template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
 struct MultiTreeAWGM {
 
     typedef typename LocalOperator::T T;
@@ -35,19 +35,21 @@ struct MultiTreeAWGM {
     typedef typename Coefficients<Lexicographical,T,Index>::iterator          coeff_it;
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator    const_coeff_it;
 
-    MultiTreeAWGM(LocalOperator &_A, RHS &_F, Preconditioner &_P);
+    MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_Prec);
 
     void
     setParameters(T _alpha, T _gamma);
 
     void
-    solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename, int NumOfIterations=100, T EnergyNorm=0.);
+    cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename, int NumOfIterations=100, T EnergyNorm=0.);
 
+    const Basis      &basis;
     LocalOperator    &A;
     RHS              &F;
-    Preconditioner   &P;
+    Preconditioner   &Prec;
     T                alpha, gamma;
     T                eps;
+    size_t           hashMapSize;
 };
 
 

@@ -57,27 +57,25 @@ struct LocalOperator2D {
     setJ(int J);
 
     void
+    eval(const Coefficients<Lexicographical,T,Index2D> &v,
+         Coefficients<Lexicographical,T,Index2D> &auxiliary,
+         Coefficients<Lexicographical,T,Index2D> &AAv);
+    /*
+    void
+    evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
+           Coefficients<Lexicographical,T,Index2D> &LIIAv,
+           Coefficients<Lexicographical,T,Index2D> &IAUIv);
+    */
+
+    void
     evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
            Coefficients<Lexicographical,T,Index2D> &auxiliary,
-           Coefficients<Lexicographical,T,Index2D> &AAv) /*const*/;
-
-    void
-    evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-           Coefficients<Lexicographical,T,Index2D> &intermediate,
-           Coefficients<Lexicographical,T,Index2D> &LIIAv,
-           Coefficients<Lexicographical,T,Index2D> &IAUIv) /*const*/;
-
-    void
-    evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-           Coefficients<Lexicographical,T,Index2D> &intermediate,
-           Coefficients<Lexicographical,T,Index2D> &LIIAv,
-           Coefficients<Lexicographical,T,Index2D> &IAUIv,
+           Coefficients<Lexicographical,T,Index2D> &AAv,
            T &time_intermediate1, T &time_intermediate2,
            T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv);
 
     void
     debug_evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-                 Coefficients<Lexicographical,T,Index2D> &intermediate,
                  Coefficients<Lexicographical,T,Index2D> &IAUIv,
                  Coefficients<Lexicographical,T,Index2D> &LIIAv,
                  const Coefficients<Lexicographical,T,Index2D> &IAv_ref,
@@ -119,6 +117,7 @@ struct LocalOperator2D {
     int                     J;
     size_t                  hashTableLargeLength;
     size_t                  hashTableSmallLength;
+
 };
 
 }   // namespace lawa
