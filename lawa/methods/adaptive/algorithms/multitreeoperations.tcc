@@ -5,19 +5,19 @@ void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
                 Coefficients<Lexicographical,T,Index2D>  &C_v)
 {
-    typedef typename Coefficients<Lexicographical,T,Index2D>::const_coeff_iterator const_coeff2d_it;
-    typedef IndexSet<Index1D>::const_iterator                                      const_set1d_it;
+    typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff2d_it;
+    typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
 
-    C_v = v;
     for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
+        C_v[(*it).first] = (T)0.;
         IndexSet<Index1D > C_index1, C_index2;
-        C_index1 = C((*it).index1, 1., basis.first);
-        C_index2 = C((*it).index2, 1., basis.second);
+        C_index1 = C((*it).first.index1, (T)1., basis.first);
+        C_index2 = C((*it).first.index2, (T)1., basis.second);
         for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
             for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
                 Index2D newindex((*it_C_index1), (*it_C_index2));
-                if (C_v.find(newindex)!=C_v.end()) {
-                    completeMultiTree(newindex,C_v);
+                if (C_v.find(newindex)==C_v.end()) {
+                    completeMultiTree(basis,newindex,C_v);
                 }
             }
         }
@@ -34,7 +34,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
     int j0y = basis.second.j0;
 
     if (v.find(index2d)!=v.end())  return;
-    else                                v[index2d] = 0.;
+    else                            v[index2d] = 0.;
 
 
     Index1D index_x = index2d.index1;
@@ -105,6 +105,48 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
         }
     }
 }
+
+template <typename T, typename Basis>
+void
+getSparseGridVector(const Basis &basis, Coefficients<Lexicographical,T,Index2D> &v, int j, T gamma)
+{
+    int j0_x = basis.first.j0;
+    int j0_y = basis.second.j0;
+    for (long k1=basis.first.mra.rangeI(j0_x).firstIndex(); k1<=basis.first.mra.rangeI(j0_x).lastIndex(); ++k1) {
+        for (long k2=basis.second.mra.rangeI(j0_y).firstIndex(); k2<=basis.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
+            Index1D row(j0_x,k1,XBSpline);
+            Index1D col(j0_x,k2,XBSpline);
+            v[Index2D(row,col)] = 0.;
+        }
+        for (int i2=1; i2<=j; ++i2) {
+            int j2=j0_y+i2-1;
+            for (long k2=basis.second.rangeJ(j2).firstIndex(); k2<=basis.second.rangeJ(j2).lastIndex(); ++k2) {
+                Index1D row(j0_x,k1,XBSpline);
+                Index1D col(j2,k2,XWavelet);
+                v[Index2D(row,col)] = 0.;
+                v[Index2D(col,row)] = 0.;
+            }
+        }
+    }
+    for (int i1=1; i1<=j; ++i1) {
+        int j1=j0_x+i1-1;
+        for (int i2=1; i2<=j; ++i2) {
+            if (T(i1+i2)-gamma*std::max(i1,i2)>(1-gamma)*j) {
+                continue;
+            }
+            int j2=j0_y+i2-1;
+            for (long k1=basis.first.rangeJ(j1).firstIndex(); k1<=basis.first.rangeJ(j1).lastIndex(); ++k1) {
+                for (long k2=basis.second.rangeJ(j2).firstIndex(); k2<=basis.second.rangeJ(j2).lastIndex(); ++k2) {
+                    Index1D row(j1,k1,XWavelet);
+                    Index1D col(j2,k2,XWavelet);
+                    v[Index2D(row,col)] = 0.;
+                }
+            }
+        }
+    }
+    return;
+}
+
 
 /*
 

@@ -80,7 +80,11 @@ std::ostream& operator<<(std::ostream &s, const Index3D &_Index);
 
 template <typename Index, typename PrincipalIndex, typename AlignedIndex, CoordinateDirection CoordX>
 struct
-Project{ };
+Split{ };
+
+template <typename Index, typename PrincipalIndex, typename AlignedIndex, CoordinateDirection CoordX>
+struct
+Join{ };
 
 
 template <typename Index>

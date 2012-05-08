@@ -89,9 +89,13 @@ enum SolverCall {
 
 enum CoordinateDirection {
     XOne,
+    NotXOne,
     XTwo,
+    NotXTwo,
     XThree,
-    XFour
+    NotXThree,
+    XFour,
+    NotXFour
 };
 
 } // namespace lawa

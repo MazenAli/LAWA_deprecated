@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR2D_H
-#define APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR2D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_LOCALOPERATOR2D_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_LOCALOPERATOR2D_H 1
 
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
@@ -60,22 +60,16 @@ struct LocalOperator2D {
     eval(const Coefficients<Lexicographical,T,Index2D> &v,
          Coefficients<Lexicographical,T,Index2D> &auxiliary,
          Coefficients<Lexicographical,T,Index2D> &AAv);
-    /*
-    void
-    evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-           Coefficients<Lexicographical,T,Index2D> &LIIAv,
-           Coefficients<Lexicographical,T,Index2D> &IAUIv);
-    */
 
     void
-    evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-           Coefficients<Lexicographical,T,Index2D> &auxiliary,
-           Coefficients<Lexicographical,T,Index2D> &AAv,
-           T &time_intermediate1, T &time_intermediate2,
-           T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv);
+    eval(const Coefficients<Lexicographical,T,Index2D> &v,
+          Coefficients<Lexicographical,T,Index2D> &auxiliary,
+          Coefficients<Lexicographical,T,Index2D> &AAv,
+          T &time_intermediate1, T &time_intermediate2,
+          T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv);
 
     void
-    debug_evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
+    debug_eval(const Coefficients<Lexicographical,T,Index2D> &v,
                  Coefficients<Lexicographical,T,Index2D> &IAUIv,
                  Coefficients<Lexicographical,T,Index2D> &LIIAv,
                  const Coefficients<Lexicographical,T,Index2D> &IAv_ref,
@@ -124,4 +118,4 @@ struct LocalOperator2D {
 
 #include <lawa/methods/adaptive/operators/localoperators/localoperator2d.tcc>
 
-#endif  // APPLICATIONS_NEWEVALSCHEME_LOCALOPERATOR2DNEW_H
+#endif  // LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_LOCALOPERATOR2D_H

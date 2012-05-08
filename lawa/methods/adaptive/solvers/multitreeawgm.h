@@ -41,7 +41,8 @@ struct MultiTreeAWGM {
     setParameters(T _alpha, T _gamma);
 
     void
-    cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename, int NumOfIterations=100, T EnergyNorm=0.);
+    cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
+             int NumOfIterations=100, T EnergyNorm=0.);
 
     const Basis      &basis;
     LocalOperator    &A;

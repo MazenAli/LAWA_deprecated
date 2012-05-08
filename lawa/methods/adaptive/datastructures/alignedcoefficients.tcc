@@ -24,11 +24,11 @@ void
 AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex,CoordX>
 ::align(const Coefficients<Lexicographical,T,Index> &coeff, short J)
 {
-    Project<Index,PrincipalIndex,AlignedIndex,CoordX> projectX;
+    Split<Index,PrincipalIndex,AlignedIndex,CoordX> split;
     for (const_coeff_index_it it=coeff.begin(); it!=coeff.end(); ++it) {
         PrincipalIndex prinIndex;
         AlignedIndex   aligIndex;
-        projectX((*it).first,prinIndex,aligIndex);
+        split((*it).first,prinIndex,aligIndex);
         map_prinindex_it p_prinindex=map.find(prinIndex);
         if (p_prinindex!=map.end()) {
             (*p_prinindex).second.operator[](aligIndex) = (*it).second;

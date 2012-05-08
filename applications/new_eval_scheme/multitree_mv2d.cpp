@@ -223,7 +223,7 @@ int main (int argc, char *argv[]) {
             cout << "Reference calculation finished." << endl;
             cout << "New scheme started..." << endl;
             time.start();
-            localop2d.debug_evalAA(v, LIIAv, IAUIv, IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref);
+            localop2d.debug_eval(v, LIIAv, IAUIv, IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref);
             time.stop();
             time_evalAA1 = time.elapsed();
             cout << "New scheme finished." << endl;
@@ -240,13 +240,13 @@ int main (int argc, char *argv[]) {
             cout << "**** New scheme started ****" << endl;
             cout << "   #v = " << Lambda.size() << endl;
 
-            localop2d.evalAA(v, auxiliary, AAv, time_intermediate1, time_intermediate2,
-                             time_IAv1, time_IAv2, time_LIv, time_UIv);
+            localop2d.eval(v, auxiliary, AAv, time_intermediate1, time_intermediate2,
+                           time_IAv1, time_IAv2, time_LIv, time_UIv);
 
             auxiliary.setToZero(); AAv.setToZero();
             time.start();
-            localop2d.evalAA(v, auxiliary, AAv, time_intermediate1, time_intermediate2,
-                                         time_IAv1, time_IAv2, time_LIv, time_UIv);
+            localop2d.eval(v, auxiliary, AAv, time_intermediate1, time_intermediate2,
+                           time_IAv1, time_IAv2, time_LIv, time_UIv);
             time.stop();
             time_evalAA1 = time.elapsed();
             cout << "   N = " << N << ", time = " << time_evalAA1 << " -> ratio new / old = "
@@ -259,6 +259,8 @@ int main (int argc, char *argv[]) {
                                << " " << time_IAv1/time_IAv1_old << " " << time_IAv2/time_IAv2_old
                                << " " << time_LIv/time_LIv_old << " " << time_UIv/time_UIv_old << endl;
             cout << "**** New scheme finished ****" << endl << endl;
+            // Attention: For large output sets, computation times are not exactly linear since
+            // hash maps are too small.
             N_old = N;
             time_intermediate1_old=time_intermediate1; time_intermediate2_old=time_intermediate2;
             time_IAv1_old=time_IAv1; time_IAv2_old=time_IAv2; time_LIv_old=time_LIv;
@@ -268,6 +270,7 @@ int main (int argc, char *argv[]) {
         old_N = v.size();
         old_time = time_evalAA1;
     }
+
 
     return 0;
 }

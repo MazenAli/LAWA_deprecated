@@ -82,7 +82,7 @@ struct TreeCoefficients1D
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator    const_coeff1d_it;
     typedef typename std::list<const Index1D*>::const_iterator                  const_indexlist_it;
 
-    TreeCoefficients1D(size_t n, int basis_j0=1);
+    TreeCoefficients1D(size_t n, int basis_j0);
 
     TreeCoefficients1D<T>&
     operator=(const TreeCoefficients1D<T> &_coeff);
@@ -105,68 +105,15 @@ struct TreeCoefficients1D
     CoefficientsByLevel<T>&
     operator[](short j);
 
-    /*
+    template<typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
     void
-    addTo(Coefficients<Lexicographical,T,Index1D> &v, int j0)
-    {
-        for (int l=j0-1; l<=maxTreeLevel; ++l) {
-            if (this->bylevel[l].map.size()==0) break;
-            XType xtype_row_y;
-            int j;
-            if (l==j0-1) { xtype_row_y = XBSpline; j=l+1; }
-            else         { xtype_row_y = XWavelet; j=l;  }
-            for (const_by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
-                Index1D index(j,(*it).first,xtype_row_y);
-                if (fabs((*it).second)>0) v[index] += (*it).second;
-            }
-        }
-    }
-    */
-
-    // someone can tell me how to put that into the tcc-file??
-    template<typename Index, typename PrincipalIndex>
-    void
-    addTo_x1aligned(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v, int j0)
-    {
-        for (int l=j0-1-offset; l<=maxTreeLevel; ++l) {
-            if (this->bylevel[l].map.size()==0) continue;
-            XType xtype_row_y;
-            int j;
-            if (l==j0-1-offset) { xtype_row_y = XBSpline; j=offset+l+1; }
-            else                { xtype_row_y = XWavelet; j=offset+l;  }
-            for (const_by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
-                Index1D row_y(j,(*it).first,xtype_row_y);
-                if (fabs((*it).second)>0) v[Index2D(lambda,row_y)] += (*it).second;
-            }
-        }
-    }
-
-    template<typename Index, typename PrincipalIndex>
-    void
-    addTo_x2aligned(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v, int j0)
-    {
-        for (int l=j0-1-offset; l<=maxTreeLevel; ++l) {
-            if (this->bylevel[l].map.size()==0) continue;
-            XType xtype_row_x;
-            int j;
-            if (l==j0-1-offset) { xtype_row_x = XBSpline; j=offset+l+1; }
-            else                { xtype_row_x = XWavelet; j=offset+l;  }
-            for (const_by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
-                Index1D row_x(j,(*it).first,xtype_row_x);
-                if (fabs((*it).second)>0)  v[Index2D(row_x,lambda)] += (*it).second;
-            }
-        }
-    }
+    addTo(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v);
 
     void
     setToZero();
 
     int
     size();
-
-    // deprecated. delete as soon as possible.
-    int
-    getMaxTreeLevel(int j0);
 
     int
     getMaxTreeLevel();

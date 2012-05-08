@@ -99,3 +99,4 @@ validate/test_indexhashfunctions
 applications/new_eval_scheme/test_local_operator2d
 applications/new_eval_scheme/multitree_mv2d
 applications/new_eval_scheme/multitree_awgm2d
+applications/new_eval_scheme/multitree_awgm2d_new

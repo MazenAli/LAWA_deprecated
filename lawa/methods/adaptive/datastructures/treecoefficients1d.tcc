@@ -86,7 +86,7 @@ template <typename T>
 TreeCoefficients1D<T>&
 TreeCoefficients1D<T>::operator=(const TreeCoefficients1D<T> &_coeff)
 {
-    assert(offset=_coeff.offset);
+    offset=_coeff.offset;
     for (int l=0; l<=maxTreeLevel; ++l) {
         this->bylevel[l] = _coeff.bylevel[l];
     }
@@ -180,6 +180,27 @@ TreeCoefficients1D<T>::operator[](short i)
 }
 
 template <typename T>
+template<typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
+void
+TreeCoefficients1D<T>::addTo(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v)
+{
+    Join<Index,PrincipalIndex,Index1D,CoordX> join;
+    for (int l=0; l<=maxTreeLevel; ++l) {
+        if (this->bylevel[l].map.size()==0) continue;
+        XType xtype_row_y;
+        int j;
+        if (l==0) { xtype_row_y = XBSpline; j=offset+l+1; }
+        else      { xtype_row_y = XWavelet; j=offset+l;  }
+        for (const_by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
+            Index index;
+            Index1D aligIndex(j,(*it).first,xtype_row_y);
+            join(lambda,aligIndex,index);
+            if (fabs((*it).second)>0) v[index] += (*it).second;
+        }
+    }
+}
+
+template <typename T>
 void
 TreeCoefficients1D<T>::setToZero()
 {
@@ -201,20 +222,6 @@ TreeCoefficients1D<T>::size()
         ret += bylevel[l].map.size();
     }
     return ret;
-}
-
-template <typename T>
-int
-TreeCoefficients1D<T>::getMaxTreeLevel(int j0)
-{
-    int j=0;
-    for (int l=j0-1; l<=JMAX; ++l) {
-        assert(l>=0);
-        if(bylevel[l].map.size()==0) break;
-        j=l;
-    }
-    maxTreeLevel = j;
-    return j;
 }
 
 template <typename T>

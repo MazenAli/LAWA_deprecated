@@ -37,6 +37,9 @@ void
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v);
 
+template <typename T, typename Basis>
+void
+getSparseGridVector(const Basis &basis, Coefficients<Lexicographical,T,Index2D> &v, int j, T gamma);
 
 /*
 template <typename Index, typename Basis>

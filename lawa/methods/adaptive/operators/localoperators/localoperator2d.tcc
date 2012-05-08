@@ -28,9 +28,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
        Coefficients<Lexicographical,T,Index2D> &auxiliary,
        Coefficients<Lexicographical,T,Index2D> &AAv)
 {
-    Coefficients<Lexicographical,T,Index2D> intermediate(std::min((size_t)4*auxiliary.size(),
-                                                                  (size_t)SIZELARGEHASHINDEX1D));
-
+    Coefficients<Lexicographical,T,Index2D> intermediate((size_t)SIZELARGEHASHINDEX2D);
     Coefficients<Lexicographical,T,Index1D> Pe1_UIv(SIZELARGEHASHINDEX1D);
 
     initializeIntermediateVectorIAv(v, auxiliary, intermediate);
@@ -51,46 +49,16 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     AAv += auxiliary;
 }
 
-/*
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
-::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-         Coefficients<Lexicographical,T,Index2D> &IAUIv,
-         Coefficients<Lexicographical,T,Index2D> &LIIAv)
+::eval(const Coefficients<Lexicographical,T,Index2D> &v,
+       Coefficients<Lexicographical,T,Index2D> &auxiliary,
+       Coefficients<Lexicographical,T,Index2D> &AAv,
+       T &time_intermediate1, T &time_intermediate2,
+       T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) /*const*/
 {
-    Coefficients<Lexicographical,T,Index2D> intermediate(std::min((size_t)4*IAUIv.size(),
-                                                         SIZELARGEHASHINDEX2D));
-
-    initializeIntermediateVectorIAv(v, LIIAv, intermediate);
-
-    evalIA(v, intermediate);
-
-    evalLI(intermediate, LIIAv);
-
-    intermediate.clear();
-
-    Coefficients<Lexicographical,T,Index1D> Pe1_UIv(SIZELARGEHASHINDEX1D);
-    initializeIntermediateVectorUIv(v, IAUIv, Pe1_UIv);
-
-    evalUI(v, Pe1_UIv, intermediate);
-
-    evalIA(intermediate, IAUIv);
-}
-*/
-
-template <typename LocalOperator1, typename LocalOperator2>
-void
-LocalOperator2D<LocalOperator1, LocalOperator2>
-::evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-         Coefficients<Lexicographical,T,Index2D> &auxiliary,
-         Coefficients<Lexicographical,T,Index2D> &AAv,
-         T &time_intermediate1, T &time_intermediate2,
-         T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) /*const*/
-{
-    std::cerr << v.size() << " " << auxiliary.size() << " " << AAv.size() << std::endl;
-    Coefficients<Lexicographical,T,Index2D> intermediate(std::min((size_t)4*AAv.size(),
-                                                                  (size_t)SIZELARGEHASHINDEX2D));
+    Coefficients<Lexicographical,T,Index2D> intermediate((size_t)SIZELARGEHASHINDEX2D);
 
     Coefficients<Lexicographical,T,Index1D> Pe1_UIv(SIZELARGEHASHINDEX1D);
 
@@ -134,14 +102,14 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
-::debug_evalAA(const Coefficients<Lexicographical,T,Index2D> &v,
-               Coefficients<Lexicographical,T,Index2D> &IAUIv,
-               Coefficients<Lexicographical,T,Index2D> &LIIAv,
-               const Coefficients<Lexicographical,T,Index2D> &IAv_ref,
-               const Coefficients<Lexicographical,T,Index2D> &LIIAv_ref,
-               const Coefficients<Lexicographical,T,Index2D> &UIv_ref,
-               const Coefficients<Lexicographical,T,Index2D> &IAUIv_ref,
-               const Coefficients<Lexicographical,T,Index2D> &AAv_ref) /*const*/
+::debug_eval(const Coefficients<Lexicographical,T,Index2D> &v,
+             Coefficients<Lexicographical,T,Index2D> &IAUIv,
+             Coefficients<Lexicographical,T,Index2D> &LIIAv,
+             const Coefficients<Lexicographical,T,Index2D> &IAv_ref,
+             const Coefficients<Lexicographical,T,Index2D> &LIIAv_ref,
+             const Coefficients<Lexicographical,T,Index2D> &UIv_ref,
+             const Coefficients<Lexicographical,T,Index2D> &IAUIv_ref,
+             const Coefficients<Lexicographical,T,Index2D> &AAv_ref) /*const*/
 {
 
     Coefficients<Lexicographical,T,Index2D> intermediate(std::min((size_t)4*IAUIv.size(),
@@ -309,8 +277,6 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     XOneAlignedCoefficients x1aligned_IAz(n1,n2);
     x1aligned_z.align(z,J);
     x1aligned_IAz.align(IAz,J);
-    //AlignedCoefficients2<T,Index2D,Index1D,Index1D> x1aligned_IAz2;
-    //x1aligned_IAz2.align_x1(IAz);
     time.stop();
     T time_x1align_v = time.elapsed();
 
@@ -326,14 +292,6 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         PsiLambdaHat_x2 = (*it).second;
         TreeCoefficients1D<T> PsiLambdaCheck_x2(n2,testBasis_x2.j0);
 
-        /*
-        typename alignedCoefficients2::const_coeff_prinindex_it col_x1=x1aligned_IAz2.principalIndices.find((*it).first);
-        if (col_x1==x1aligned_IAz2.principalIndices.end()) {
-            continue;
-        }
-        int pos = (*col_x1).second;
-        PsiLambdaCheck_x2 = x1aligned_IAz2.principalIndexToAlignedIndices[pos];
-        */
         if ( x1aligned_IAz.map.find((*it).first)==x1aligned_IAz.map.end() ) continue;
         PsiLambdaCheck_x2 = x1aligned_IAz.map[(*it).first];
         time.stop();
@@ -347,7 +305,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
 
         time.start();
-        PsiLambdaCheck_x2.addTo_x1aligned(row_x,IAz,testBasis_x2.j0);
+        PsiLambdaCheck_x2.template addTo<Index2D,Index1D,XOne>(row_x,IAz);
         time.stop();
         time_add_aligned += time.elapsed();
     }
@@ -404,7 +362,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         time_mv1d += time.elapsed();
 
         time.start();
-        PsiLambdaCheck_x1.addTo_x2aligned(row_y,LIz,testBasis_x1.j0);
+        PsiLambdaCheck_x1.template addTo<Index2D,Index1D,XTwo>(row_y,LIz);
         time.stop();
         time_add_aligned += time.elapsed();
 
@@ -505,7 +463,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
 
         time.start();
-        PsiLambdaCheck_x1.addTo_x2aligned(row_y,UIz,testBasis_x1.j0);
+        PsiLambdaCheck_x1.template addTo<Index2D,Index1D,XTwo>(row_y,UIz);
         time.stop();
         time_add_aligned += time.elapsed();
     }

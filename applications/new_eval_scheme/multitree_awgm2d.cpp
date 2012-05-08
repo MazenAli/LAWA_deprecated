@@ -61,13 +61,13 @@ mv(CompoundLocalOperator2D &localOperator2D,
    const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &v,
    Coefficients<Lexicographical,T,Index2D> &Av, T &time);
 
-T p1(T x)  {   return (x-0.5)*(x-0.5)+1.;/* 1.;*/  }
+T p1(T x)  {   return (x-0.5)*(x-0.5)+1.; /*1.;*/  }
 
-T dp1(T x) {   return 2*(x-0.5);         /* 0.;*/  }
+T dp1(T x) {   return 2*(x-0.5);          /*0.;*/  }
 
 T p2(T y)  {   return (y-0.5)*(y-0.5)+1.; /*1.;*/  }
 
-T dp2(T y) {   return 2*(y-0.5);         /*0.;*/  }
+T dp2(T y) {   return 2*(y-0.5);          /*0.;*/  }
 
 /*
 int example = 1;
@@ -310,9 +310,7 @@ int main (int argc, char *argv[]) {
             if (P.find((*it))==P.end()) P[(*it)] = Prec(*it);
         }
         cerr << "   Computing matrix vector product for initial residual." << endl;
-
         mv(localOperator2D, P, Lambda, u, r, dummy);
-
         r -= f;
         p -= r;
         rNormSquare = r*r;
@@ -329,7 +327,6 @@ int main (int argc, char *argv[]) {
             T time=0.;
             mv(localOperator2D, P, Lambda, p, Ap, time);
             mv_time += time;
-
             T pAp = p * Ap;
             alpha = rNormSquare/pAp;
             u += alpha*p;

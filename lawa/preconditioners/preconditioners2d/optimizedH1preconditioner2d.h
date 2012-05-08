@@ -39,6 +39,9 @@ class OptimizedH1Preconditioner2D
         T
         operator()(const Index2D &index) const;
 
+        T
+        operator[](const Index2D &index) const;
+
     private:
         typedef typename Basis2D::FirstBasisType Basis_x;
         typedef typename Basis2D::SecondBasisType Basis_y;

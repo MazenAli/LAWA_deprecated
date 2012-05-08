@@ -34,4 +34,12 @@ OptimizedH1Preconditioner2D<T,Basis2D>::operator()(const Index2D &index) const
                             index.index2.xtype,index.index2.j,index.index2.k);
 }
 
+template <typename T, typename Basis2D>
+T
+OptimizedH1Preconditioner2D<T,Basis2D>::operator[](const Index2D &index) const
+{
+    return this->operator()(index.index1.xtype,index.index1.j,index.index1.k,
+                            index.index2.xtype,index.index2.j,index.index2.k);
+}
+
 }   // namespace lawa
