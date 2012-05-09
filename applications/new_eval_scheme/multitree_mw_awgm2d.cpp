@@ -9,7 +9,6 @@ typedef long double T;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >   DenseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                         DenseVectorT;
 
-//typedef Basis<T,Primal,Interval,Dijkema>                            PrimalBasis;
 typedef Basis<T,Orthogonal,Interval,Multi>                            PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
@@ -17,19 +16,19 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 typedef OptimizedH1Preconditioner2D<T,Basis2D>                      Preconditioner;
 
 ///  Underlying bilinear form
-typedef RefinementBasis::IdentityOperator1D                         RefinementIdentityOp1D;
 typedef RefinementBasis::LaplaceOperator1D                          RefinementLaplaceOp1D;
 
+///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
-                        RefinementIdentityOp1D>                     LocalIdentityOp1D;
-typedef LocalOperator1D<PrimalBasis,PrimalBasis,
-                        RefinementLaplaceOp1D>                      LocalLaplaceOp1D;
-typedef LocalOperator2D<LocalIdentityOp1D,
-                        LocalLaplaceOp1D>                           LocalIdentityLaplaceOp2D;
-typedef LocalOperator2D<LocalLaplaceOp1D,
-                        LocalIdentityOp1D>                          LocalLaplaceIdentityOp2D;
-typedef CompoundLocalOperator<Index2D, LocalIdentityLaplaceOp2D,
-                              LocalLaplaceIdentityOp2D>             CompoundLocalOperator2D;
+                        RefinementLaplaceOp1D>                      LocalOp1D;
+
+typedef UniDirectionalLocalOperator<Index2D,XOne,LocalOp1D,
+                                            NotXOne,Index1D>        UniDirectionalLocalOpXOne2D;
+typedef UniDirectionalLocalOperator<Index2D,XTwo,LocalOp1D,
+                                            NotXTwo,Index1D>        UniDirectionalLocalOpXTwo2D;
+
+typedef CompoundLocalOperator<Index2D, UniDirectionalLocalOpXOne2D,
+                              UniDirectionalLocalOpXTwo2D>          CompoundLocalOperator2D;
 
 //Righthandsides definitions (separable)
 typedef SeparableRHS2D<T,Basis2D >                                  SeparableRhsIntegral2D;
@@ -57,7 +56,6 @@ T ddu1(T x) {    return 2*(1-x)*(1-x) - 8*x*(1-x) + 2*x*x; }
 
 T ddu2(T y) {    return 2*(1-y)*(1-y) - 8*y*(1-y) + 2*y*y; }
 
-
 long double EnergyErrorSquared = 2.*(1.L/630.L * 2.L/105.L);
 
 T f1(T x)   {   return -ddu1(x); }
@@ -69,14 +67,13 @@ T sol(T x, T y) {   return u1(x) * u2(y); }
 int main (int argc, char *argv[]) {
 
     cout.precision(20);
-    if (argc!=5) {
-        cout << "Usage: " << argv[0] << " d d_ j0 J" << endl;
+    if (argc!=4) {
+        cout << "Usage: " << argv[0] << " d j0 J" << endl;
         return 0;
     }
     int d   = atoi(argv[1]);
-    int d_  = atoi(argv[2]);
-    int j0  = atoi(argv[3]);
-    int J  = atoi(argv[4]);
+    int j0  = atoi(argv[2]);
+    int J  = atoi(argv[3]);
     T alpha = 0.7;
     T gamma = 0.005;
     T eps   = 1e-5;
@@ -91,13 +88,10 @@ int main (int argc, char *argv[]) {
 
 
     /// Operator initialization
-    LocalIdentityOp1D           localIdentityOp1D(basis,basis,refinementbasis.IdentityOp1D);
-    LocalLaplaceOp1D            localLaplaceOp1D(basis,basis,refinementbasis.LaplaceOp1D);
-    LocalIdentityLaplaceOp2D    localIdentityLaplaceOp2d(localIdentityOp1D,localLaplaceOp1D);
-    LocalLaplaceIdentityOp2D    localLaplaceIdentityOp2d(localLaplaceOp1D,localIdentityOp1D);
-    localIdentityLaplaceOp2d.setJ(9);
-    localLaplaceIdentityOp2d.setJ(9);
-    CompoundLocalOperator2D     localOp2D(localIdentityLaplaceOp2d,localLaplaceIdentityOp2d);
+    LocalOp1D                    localOp1D(basis,basis,refinementbasis.LaplaceOp1D);
+    UniDirectionalLocalOpXOne2D  uniDirectionalOpXOne2D(localOp1D);
+    UniDirectionalLocalOpXTwo2D  uniDirectionalOpXTwo2D(localOp1D);
+    CompoundLocalOperator2D      localOp2D(uniDirectionalOpXOne2D,uniDirectionalOpXTwo2D);
 
     /// Initialization of preconditioner
     Preconditioner  Prec(basis2d,1.,1.,0.);

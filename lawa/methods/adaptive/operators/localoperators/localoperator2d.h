@@ -58,15 +58,13 @@ struct LocalOperator2D {
 
     void
     eval(const Coefficients<Lexicographical,T,Index2D> &v,
-         Coefficients<Lexicographical,T,Index2D> &auxiliary,
          Coefficients<Lexicographical,T,Index2D> &AAv);
 
     void
     eval(const Coefficients<Lexicographical,T,Index2D> &v,
-          Coefficients<Lexicographical,T,Index2D> &auxiliary,
-          Coefficients<Lexicographical,T,Index2D> &AAv,
-          T &time_intermediate1, T &time_intermediate2,
-          T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv);
+         Coefficients<Lexicographical,T,Index2D> &AAv,
+         T &time_intermediate1, T &time_intermediate2,
+         T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv);
 
     void
     debug_eval(const Coefficients<Lexicographical,T,Index2D> &v,

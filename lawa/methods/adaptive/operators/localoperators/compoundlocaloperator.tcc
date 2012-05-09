@@ -3,12 +3,10 @@ namespace lawa {
 template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
           typename ThirdLocalOperator,typename FourthLocalOperator>
 CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>
-::CompoundLocalOperator(FirstLocalOperator &_firstLocalOp, SecondLocalOperator &_secondLocalOp,
-                        size_t hashMapSize)
+::CompoundLocalOperator(FirstLocalOperator &_firstLocalOp, SecondLocalOperator &_secondLocalOp)
 : numOfLocalOp(2),
   firstLocalOp(_firstLocalOp), secondLocalOp(_secondLocalOp),
-  thirdLocalOp(_secondLocalOp), fourthLocalOp(_secondLocalOp),
-  auxiliary(hashMapSize)
+  thirdLocalOp(_secondLocalOp), fourthLocalOp(_secondLocalOp)
 {
 
 }
@@ -19,22 +17,15 @@ void
 CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>
 ::eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographical,T,Index> &Av)
 {
-    auxiliary = Av;
-    auxiliary.setToZero();
-
     switch (numOfLocalOp)
     {
         case 2:
-            firstLocalOp.eval( v,auxiliary,Av);
-            //std::cerr << "Av = " << Av << std::endl;
-            auxiliary.setToZero();
-            secondLocalOp.eval(v,auxiliary,Av);
-            //std::cerr << "Av = " << Av << std::endl;
+            firstLocalOp.eval( v, Av);
+            secondLocalOp.eval(v, Av);
             break;
         case 3:
-            firstLocalOp.eval( v,auxiliary,Av);
-            auxiliary.setToZero();
-            secondLocalOp.eval(v,auxiliary,Av);
+            firstLocalOp.eval( v, Av);
+            secondLocalOp.eval(v, Av);
             break;
         default:
             std::cerr << "CompoundLocalOperator not yet implemented for " << numOfLocalOp
@@ -51,9 +42,6 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
 ::eval(Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographical,T,Index> &Av,
        Preconditioner &P)
 {
-    auxiliary = Av;
-    auxiliary.setToZero();
-
     for (coeff_it it=v.begin(); it!=v.end(); ++it) {
         (*it).second *= P[(*it).first];
     }
@@ -61,16 +49,12 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
     switch (numOfLocalOp)
     {
         case 2:
-            firstLocalOp.eval( v,auxiliary,Av);
-            //std::cerr << "Av = " << Av << std::endl;
-            auxiliary.setToZero();
-            secondLocalOp.eval(v,auxiliary,Av);
-            //std::cerr << "Av = " << Av << std::endl;
+            firstLocalOp.eval( v, Av);
+            secondLocalOp.eval(v, Av);
             break;
         case 3:
-            firstLocalOp.eval( v,auxiliary,Av);
-            auxiliary.setToZero();
-            secondLocalOp.eval(v,auxiliary,Av);
+            firstLocalOp.eval( v, Av);
+            secondLocalOp.eval(v, Av);
             break;
         default:
             std::cerr << "CompoundLocalOperator not yet implemented for " << numOfLocalOp

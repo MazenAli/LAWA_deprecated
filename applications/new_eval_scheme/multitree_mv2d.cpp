@@ -229,23 +229,21 @@ int main (int argc, char *argv[]) {
             cout << "New scheme finished." << endl;
         }
         else {
-            Coefficients<Lexicographical,T,Index2D> auxiliary(SIZEHASHINDEX2D);
             Coefficients<Lexicographical,T,Index2D> AAv(SIZEHASHINDEX2D);
 
             for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
-                auxiliary[*it] = 0.;
                 AAv[*it] = 0.;
             }
             N = v.size() + checkLambda.size();
             cout << "**** New scheme started ****" << endl;
             cout << "   #v = " << Lambda.size() << endl;
 
-            localop2d.eval(v, auxiliary, AAv, time_intermediate1, time_intermediate2,
+            localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
                            time_IAv1, time_IAv2, time_LIv, time_UIv);
 
-            auxiliary.setToZero(); AAv.setToZero();
+            AAv.setToZero();
             time.start();
-            localop2d.eval(v, auxiliary, AAv, time_intermediate1, time_intermediate2,
+            localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
                            time_IAv1, time_IAv2, time_LIv, time_UIv);
             time.stop();
             time_evalAA1 = time.elapsed();

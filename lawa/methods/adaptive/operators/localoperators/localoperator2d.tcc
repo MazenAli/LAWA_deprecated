@@ -25,35 +25,26 @@ template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::eval(const Coefficients<Lexicographical,T,Index2D> &v,
-       Coefficients<Lexicographical,T,Index2D> &auxiliary,
        Coefficients<Lexicographical,T,Index2D> &AAv)
 {
     Coefficients<Lexicographical,T,Index2D> intermediate((size_t)SIZELARGEHASHINDEX2D);
     Coefficients<Lexicographical,T,Index1D> Pe1_UIv(SIZELARGEHASHINDEX1D);
 
-    initializeIntermediateVectorIAv(v, auxiliary, intermediate);
-
+    initializeIntermediateVectorIAv(v, AAv, intermediate);
     evalIA(v, intermediate);
+    evalLI(intermediate, AAv);
 
-    evalLI(intermediate, auxiliary);
-
-    AAv += auxiliary;
-    auxiliary.setToZero();
     intermediate.clear();
 
-    initializeIntermediateVectorUIv(v, auxiliary, Pe1_UIv);
+    initializeIntermediateVectorUIv(v, AAv, Pe1_UIv);
     evalUI(v, Pe1_UIv, intermediate);
-
-    evalIA(intermediate, auxiliary);
-
-    AAv += auxiliary;
+    evalIA(intermediate, AAv);
 }
 
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::eval(const Coefficients<Lexicographical,T,Index2D> &v,
-       Coefficients<Lexicographical,T,Index2D> &auxiliary,
        Coefficients<Lexicographical,T,Index2D> &AAv,
        T &time_intermediate1, T &time_intermediate2,
        T &time_IAv1, T &time_IAv2, T &time_LIv, T &time_UIv) /*const*/
@@ -74,12 +65,10 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     time_IAv1 = time.elapsed();
 
     time.start();
-    evalLI(intermediate, auxiliary);
+    evalLI(intermediate, AAv);
     time.stop();
     time_LIv = time.elapsed();
 
-    AAv += auxiliary;
-    auxiliary.setToZero();
     intermediate.clear();
 
     time.start();
@@ -93,10 +82,9 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     time_UIv = time.elapsed();
 
     time.start();
-    evalIA(intermediate, auxiliary);
+    evalIA(intermediate, AAv);
     time.stop();
     time_IAv2 = time.elapsed();
-    AAv += auxiliary;
 }
 
 template <typename LocalOperator1, typename LocalOperator2>
@@ -294,6 +282,8 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
         if ( x1aligned_IAz.map.find((*it).first)==x1aligned_IAz.map.end() ) continue;
         PsiLambdaCheck_x2 = x1aligned_IAz.map[(*it).first];
+        int maxTreeLevel = PsiLambdaCheck_x2.getMaxTreeLevel();
+        PsiLambdaCheck_x2.setToZero();
         time.stop();
         time_setup_tree += time.elapsed();
 
@@ -354,6 +344,8 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         time.start();
         TreeCoefficients1D<T> PsiLambdaCheck_x1(n2,testBasis_x1.j0);
         PsiLambdaCheck_x1 = x2aligned_LIz.map[(*it).first];
+        int maxTreeLevel = PsiLambdaCheck_x1.getMaxTreeLevel();
+        PsiLambdaCheck_x1.setToZero();
         time.stop();
 
         time.start();

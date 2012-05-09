@@ -148,8 +148,6 @@ getSparseGridVector(const Basis &basis, Coefficients<Lexicographical,T,Index2D> 
 }
 
 
-/*
-
 template <typename Basis>
 void
 extendMultiTree(const Basis &basis, const Index2D &index2d, IndexSet<Index2D> &Lambda)
@@ -311,5 +309,5 @@ extendMultiTree2(const Basis &basis, const Index2D &index2d, const int offset, I
         }
     }
 }
-*/
+
 }   // namespace lawa

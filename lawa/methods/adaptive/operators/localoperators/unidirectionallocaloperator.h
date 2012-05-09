@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_UNIDIRECTIONALOPERATOR_H
-#define LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_UNIDIRECTIONALOPERATOR_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_UNIDIRECTIONALLOCALOPERATOR_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_UNIDIRECTIONALLOCALOPERATOR_H 1
 
 #include <lawa/flensforlawa.h>
 #include <lawa/settings/enum.h>
@@ -30,24 +30,38 @@ namespace lawa {
 
 template <typename Index, CoordinateDirection CoordX, typename LocalOperator1D,
                           CoordinateDirection NotCoordX, typename NotCoordXIndex>
-struct UniDirectionalOperator
+struct UniDirectionalLocalOperator
 {
     typedef typename LocalOperator1D::T T;
 
-    typedef typename LocalOperator1D::TrialWaveletBasis                    TrialBasis_x1;
-    typedef typename LocalOperator1D::TestWaveletBasis                     TestBasis_x1;
+    typedef typename LocalOperator1D::TrialWaveletBasis                    TrialBasis_CoordX;
+    typedef typename LocalOperator1D::TestWaveletBasis                     TestBasis_CoordX;
 
     typedef typename TreeCoefficients1D<T>::const_by_level_it              const_by_level_it;
     typedef typename TreeCoefficients1D<T>::by_level_it                    by_level_it;
 
     typedef AlignedCoefficients<T,Index,NotCoordXIndex,Index1D,NotCoordX>  NotCoordXAlignedCoefficients;
 
-    UniDirectionalOperator(LocalOperator1D &_localOperator1D);
+    UniDirectionalLocalOperator(LocalOperator1D &_localOperator1D);
+
+    void
+    setParameters(int _J, size_t _hashTableLargeLength, size_t _hashTableSmallLength);
+
+    void
+    eval(const Coefficients<Lexicographical,T,Index> &v,
+         Coefficients<Lexicographical,T,Index> &IAIv);
 
     LocalOperator1D &localOperator1D;
+    const TrialBasis_CoordX  &trialBasis_CoordX;
+    const TestBasis_CoordX   &testBasis_CoordX;
+    int                      J;
+    size_t                   hashTableLargeLength;
+    size_t                   hashTableSmallLength;
 
 };
 
 }   // namespace lawa
 
-#endif  // LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_UNIDIRECTIONALOPERATOR_H
+#include <lawa/methods/adaptive/operators/localoperators/unidirectionallocaloperator.tcc>
+
+#endif  // LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_UNIDIRECTIONALLOCALOPERATOR_H

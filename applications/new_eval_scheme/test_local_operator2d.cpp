@@ -11,12 +11,7 @@ using namespace lawa;
 
 /// Several typedefs for notational convenience.
 
-///  Typedefs for Flens data types:
 typedef double T;
-typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
-typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
-
-///  Typedefs for problem components:
 
 ///  Wavelet basis over an interval
 typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
@@ -26,7 +21,6 @@ bool isL2Orthonormal_x = true;
 bool isL2Orthonormal_y = true;
 
 typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
-
 
 ///  Underlying bilinear form
 typedef IdentityOperator1D<T,PrimalBasis>                           BilinearForm_x;
@@ -98,13 +92,6 @@ int main (int argc, char *argv[]) {
     int numOfIter=J;
     bool useSparseGrid=true;
     bool calcRefSol=true;
-
-    Index2D index2d(Index1D(3,4,XWavelet),Index1D(4,5,XBSpline));
-    Index1D prinIndex, aligIndex;
-    Project<Index2D,Index1D,Index1D,XOne> projectX1;
-    Project<Index2D,Index1D,Index1D,XTwo> projectX2;
-    projectX1(index2d,prinIndex,aligIndex);
-    cout << "Project along x1: " << prinIndex << " " << aligIndex << endl;
 
     /// Basis initialization, using Dirichlet boundary conditions
     PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
@@ -179,14 +166,11 @@ int main (int argc, char *argv[]) {
         }
 
         Coefficients<Lexicographical,T,Index2D> v(SIZEHASHINDEX2D);
-        Coefficients<Lexicographical,T,Index2D> intermediate(SIZEHASHINDEX2D);
-        Coefficients<Lexicographical,T,Index2D> LIIAv(SIZEHASHINDEX2D);
-        Coefficients<Lexicographical,T,Index2D> IAUIv(SIZEHASHINDEX2D);
-
-
         getRandomCoefficientVector(Lambda,v);
 
         if (calcRefSol) {
+            Coefficients<Lexicographical,T,Index2D> LIIAv(SIZEHASHINDEX2D);
+            Coefficients<Lexicographical,T,Index2D> IAUIv(SIZEHASHINDEX2D);
             T time_evalAA1 = 0.;
             Coefficients<Lexicographical,T,Index2D> IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref;
             IndexSet<Index1D> checkLambda_x;
@@ -251,27 +235,27 @@ int main (int argc, char *argv[]) {
             cout << "Reference calculation finished." << endl;
             cout << "New scheme started..." << endl;
             time.start();
-            localop2d.debug_evalAA(v, intermediate, LIIAv, IAUIv, IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref);
+            localop2d.debug_eval(v, LIIAv, IAUIv, IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref);
             time.stop();
             time_evalAA1 = time.elapsed();
             cout << "New scheme finished." << endl;
         }
         else {
+            Coefficients<Lexicographical,T,Index2D> AAv(SIZEHASHINDEX2D);
+
             for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
-                LIIAv[*it] = 0.;
-                IAUIv[*it] = 0.;
+                AAv[*it] = 0.;
             }
             N = v.size() + checkLambda.size();
             cout << "**** New scheme started ****" << endl;
             cout << "   #v = " << Lambda.size() << endl;
 
-            localop2d.evalAA(v,intermediate, LIIAv, IAUIv, time_intermediate1, time_intermediate2,
-                             time_IAv1, time_IAv2, time_LIv, time_UIv);
+            localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
+                           time_IAv1, time_IAv2, time_LIv, time_UIv);
 
-            LIIAv.setToZero(); IAUIv.setToZero(); intermediate.setToZero();
             time.start();
-            localop2d.evalAA(v,intermediate, LIIAv, IAUIv, time_intermediate1, time_intermediate2,
-                                         time_IAv1, time_IAv2, time_LIv, time_UIv);
+            localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
+                           time_IAv1, time_IAv2, time_LIv, time_UIv);
             time.stop();
             time_evalAA1 = time.elapsed();
             cout << "   N = " << N << ", time = " << time_evalAA1 << " -> ratio new / old = "

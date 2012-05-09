@@ -34,13 +34,11 @@ class CompoundLocalOperator {
         typedef typename Coefficients<Lexicographical,T,Index>::iterator coeff_it;
 
         CompoundLocalOperator(FirstLocalOperator  &_firstLocalOp,
-                              SecondLocalOperator &_secondLocalOp,
-                              size_t hashMapSize=SIZEHASHINDEX2D);
+                              SecondLocalOperator &_secondLocalOp);
 
         CompoundLocalOperator(FirstLocalOperator  &_firstLocalOp,
                               SecondLocalOperator &_secondLocalOp,
-                              ThirdLocalOperator  &_thirdLocalOp,
-                              size_t hashMapSize=SIZEHASHINDEX2D);
+                              ThirdLocalOperator  &_thirdLocalOp);
 
         void
         eval(const Coefficients<Lexicographical,T,Index> &v,
@@ -56,10 +54,6 @@ class CompoundLocalOperator {
         SecondLocalOperator         &secondLocalOp;
         ThirdLocalOperator          &thirdLocalOp;
         FourthLocalOperator         &fourthLocalOp;
-
-        Coefficients<Lexicographical,T,Index> auxiliary;
-
-
 };
 
 }   // namespace lawa

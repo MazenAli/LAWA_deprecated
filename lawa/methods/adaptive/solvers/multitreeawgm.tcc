@@ -26,6 +26,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
                                           Ap(hashMapSize);
 
     Timer time;
+    Timer iteration_time;
 
     for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
         r[(*it).first] = 0.;
@@ -35,7 +36,17 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
 
     std::ofstream file(filename);
     file.precision(16);
+
+    T time_total_comp = 0.;
     for (int iter=1; iter<=NumOfIterations; ++iter) {
+        T time_mv_linsys = 0.;
+        T time_mv_residual = 0.;
+        iteration_time.start();
+
+        int N = u.size();
+        int N_residual = 0;
+
+
         std::cerr << std::endl << "*****  Iteration " << iter << " *****" << std::endl << std::endl;
         std::cerr << "   Current number of dof = " << u.size() << std::endl;
         std::cerr << "   Resetting vectors..." << std::endl;
@@ -68,7 +79,10 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
             std::cerr << "    Iteration " << cg_iter+1 << std::endl;
             Ap.setToZero();
             //std::cerr << "p = " << p << std::endl;
+            time.start();
             A.eval(p,Ap,Prec);
+            time.stop();
+            time_mv_linsys += time.elapsed();
             //std::cerr << "Ap = " << Ap << std::endl;
             T pAp = p * Ap;
             T alpha = cg_rNormSquare/pAp;
@@ -93,6 +107,8 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
 
         std::cerr << "   CG method finished after " << cg_iter << " iterations." << std::endl;
 
+        time_mv_linsys *= 1./cg_iter;
+
         std::cerr << "   Computing enery error..." << std::endl;
         Ap.setToZero();
         A.eval(u,Ap,Prec);
@@ -108,10 +124,14 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         r.setToZero();
         std::cerr << "     Computing multi-tree for residual..." << std::endl;
         extendMultiTree(basis, u, r);
+        N_residual = r.size();
         std::cerr << "     ... finished." << std::endl;
         std::cerr << "   #supp u = " << u.size() << ", #supp r = " << r.size() << std::endl;
         std::cerr << "     Computing matrix vector product..." << std::endl;
+        time.start();
         A.eval(u,r,Prec);
+        time.stop();
+        time_mv_residual = time.elapsed();
         std::cerr << "     ... finished." << std::endl;
         std::cerr << "     Substracting right-hand side..." << std::endl;
         time.start();
@@ -129,7 +149,6 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         std::cerr << "     ... test finished after " << time.elapsed() << ", " << tmp << std::endl;
         long double Residual = r.norm(2.);
         std::cerr << "   ... finished with Residual: " << Residual << std::endl;
-        file << u.size() << " " << EnergyError << " " << Residual << std::endl;
 
 
         long double P_Lambda_Residual_square = 0.0L;
@@ -156,6 +175,10 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         for (const_coeff_it it=p.begin(); it!=p.end(); ++it) {
             completeMultiTree(basis, (*it).first, u);
         }
+        iteration_time.stop();
+        time_total_comp += iteration_time.elapsed();
+        file << N << " " << N_residual << " " << time_total_comp << " " << EnergyError
+                  << " " << Residual << " " << time_mv_linsys << " " << time_mv_residual << std::endl;
 
     }
     file.close();
