@@ -37,12 +37,19 @@ pow2i(int expo)
 }
 
 template <typename T>
+typename RestrictTo<flens::IsSame<T,long double>::value, T>::Type
+pow2i(int expo)
+{
+    return std::ldexp(1.L, expo);
+}
+
+template <typename T>
 T
 pow2ih(int expo)
 {
-    return (expo&1) ? (expo>0) ? std::ldexp(sqrt(2.), expo/2)
-                               : std::ldexp(1./sqrt(2.), expo/2)
-                    : std::ldexp(1., expo/2);
+    return (expo&1) ? (expo>0) ? std::ldexp(std::sqrt(T(2.)), expo/2)
+                               : std::ldexp(T(1.)/std::sqrt(T(2.)), expo/2)
+                    : std::ldexp(T(1.), expo/2);
 }
 
 } // namespace lawa

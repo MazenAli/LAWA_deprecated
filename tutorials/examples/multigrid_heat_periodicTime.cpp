@@ -27,7 +27,6 @@ typedef TimeStepping<T, Theta>                                                  
 typedef FixedPointSolver<T, TimeStepper>                                        ThetaFPSolver;
 typedef MultiGrid_2ndKind_LTI<T, PrimalBasis, DualBasis, PDE1DOp, SumOfRHS1D >  Multigrid;
 
-
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
 typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;

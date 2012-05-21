@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_PRECONDITIONERS_PRECONDITIONERS1D_H1NORMPRECONDITIONER2D_H
-#define LAWA_PRECONDITIONERS_PRECONDITIONERS1D_H1NORMPRECONDITIONER2D_H 1
+#ifndef LAWA_PRECONDITIONERS_PRECONDITIONERS2D_H1NORMPRECONDITIONER2D_H
+#define LAWA_PRECONDITIONERS_PRECONDITIONERS2D_H1NORMPRECONDITIONER2D_H 1
 
 #include <lawa/integrals/integrals.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
@@ -34,7 +34,8 @@ class H1NormPreconditioner2D
         H1NormPreconditioner2D(const Basis2D &_basis);
 
         T
-        operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
+        operator()(XType xtype1, int j1, long k1,
+                   XType xtype2, int j2, long k2) const;
 
         T
         operator()(const Index2D &index) const;
@@ -56,5 +57,5 @@ class H1NormPreconditioner2D
 
 #include <lawa/preconditioners/preconditioners2d/H1normpreconditioner2d.tcc>
 
-#endif // LAWA_PRECONDITIONERS_PRECONDITIONERS1D_H1NORMPRECONDITIONER2D_H
+#endif // LAWA_PRECONDITIONERS_PRECONDITIONERS2D_H1NORMPRECONDITIONER2D_H
 

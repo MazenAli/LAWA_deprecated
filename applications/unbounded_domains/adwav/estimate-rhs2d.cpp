@@ -92,7 +92,7 @@ int main (int argc, char *argv[]) {
     //Righthand side construction for tensor solution
     if (example==1 || example==2 || example==3) {
         TensorRefSols_PDE_Realline2D<T> refsol;
-        refsol.setExample(example, c);
+        refsol.setExample(example, c, 0., 0., 1.);
         SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
                                         refsol.exact_y, refsol.sing_pts_y);
 

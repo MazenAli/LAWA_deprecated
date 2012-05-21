@@ -13,8 +13,8 @@ WeightedHelmholtzOperator1D<T, Basis, Quad>::WeightedHelmholtzOperator1D(const B
 
 template <typename T, typename Basis, QuadratureType Quad>
 T
-WeightedHelmholtzOperator1D<T, Basis, Quad>::operator()(XType xtype1, int j1, int k1,
-                                                       XType xtype2, int j2, int k2) const
+WeightedHelmholtzOperator1D<T, Basis, Quad>::operator()(XType xtype1, int j1, long k1,
+                                                        XType xtype2, int j2, long k2) const
 {
     return      integral(j1, k1, xtype1, 1, j2, k2, xtype2, 1)
            +c * integral(j1, k1, xtype1, 0, j2, k2, xtype2, 0);

@@ -31,6 +31,7 @@ enum FunctionSide {
 enum DomainType {
     Periodic,
     R,
+    RPlus,
     Interval
 };
 
@@ -51,6 +52,7 @@ enum Construction {
     Primbs,
     Dijkema,
     Multi,
+    MultiRefinement,
     SparseMulti
 };
 
@@ -83,6 +85,17 @@ enum MethodType {
 
 enum SolverCall {
     call_cg, call_gmres, call_gmresm, call_cgls
+};
+
+enum CoordinateDirection {
+    XOne,
+    NotXOne,
+    XTwo,
+    NotXTwo,
+    XThree,
+    NotXThree,
+    XFour,
+    NotXFour
 };
 
 } // namespace lawa

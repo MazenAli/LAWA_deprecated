@@ -2,7 +2,7 @@ namespace lawa {
 
 template <typename T, typename Basis>
 GeMatrix<FullStorage<T,ColMajor> >
-computeDeltas(const Basis &basis, int j, int k, XType e)
+computeDeltas(const Basis &basis, int j, long k, XType e)
 {
     GeMatrix<FullStorage<T,ColMajor> > ret;
     const typename Basis::BasisFunctionType &varphi=basis.generator(e); //either B-Spline or Wavelet

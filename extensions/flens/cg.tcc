@@ -61,9 +61,6 @@ cg(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     return maxIterations;
 }
 
-// Algorithm 8.4, Y. Saad: Iterative Methods for Sparse Linear Systems
-// for solving A^T A x= A^T b
-// (for over-determined systems)
 template <typename MA, typename VX, typename VB>
 int
 cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
@@ -73,14 +70,17 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     typename _cg<VB>::AuxVector r, q, s, p;
 
     assert(b.length()==A.numRows());
-/*
+
+    std::cerr << "   cgls: tol = " << tol << std::endl;
     if (x.length()!=A.numCols()) {
         x.engine().resize(A.numCols());
     }
+    /*
     for (int i=x.firstIndex(); i<=x.lastIndex(); ++i) {
         x(i) = 0;
     }
-*/
+    */
+
     b_norm = b*b;
     if (std::sqrt(b_norm) < 1e-15) {
         for (int i=x.firstIndex(); i<=x.lastIndex(); ++i) {
@@ -89,12 +89,10 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         return 0;
     }
 
-    //r = b;
-    r = b-A*x;
-    
-    //flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
-    
-    s = transpose(A)*r;
+    r = A*x;
+    r += (-1.)*b;
+    r *= -1.;
+    flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
     p = s;
     gammaPrev = s*s;
 #ifdef SOLVER_DEBUG
@@ -115,7 +113,6 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
         gamma = s*s;
         if (sqrt(gamma)<=tol) {
-            std::cerr << "    cgls: gamma = " << gamma << std::endl;
             return k-1;
         }
         beta  = gamma/gammaPrev;

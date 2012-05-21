@@ -48,7 +48,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
 S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const char *linsolvertype,
-                                     const char *filename, bool optimized, T H1norm)
+                                     const char *filename, int assemble_matrix, T H1norm)
 {
     Timer timer;
 
@@ -58,6 +58,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
     LambdaActive = InitialLambda;
     T old_res = 0.;
     int its_per_threshTol=0;
+    T timeMatrixVector=0.;
     std::cout << "Simple adaptive solver started." << std::endl;
 
     std::ofstream file(filename);
@@ -76,11 +77,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations=0;
+
         if (strcmp(linsolvertype,"cg")==0) {
-            iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, optimized);
+            iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 100, timeMatrixVector, assemble_matrix);
         }
         else if (strcmp(linsolvertype,"gmres")==0) {
-            iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, optimized);
+            iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol,100, assemble_matrix);
         }
         else {
             assert(0);
@@ -88,29 +90,14 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
             exit(1);
         }
         linsolve_iterations[its] = iterations;
-        std::cout << "   ...finished with res=" << r_norm_LambdaActive << std::endl;
-
-        //Threshold step
-        //std::cout << "Before THRESH: " << u << std::endl;
-        /*
-        std::cout << "Before THRESH: Size of supp(u) = " << u.size()
-                  << ", ||u||_2 = " << u.norm(2.) << ", threshTol = " << threshTol
-                  << " -> " << threshTol*u.norm(2.) << std::endl;
-        */
+        std::cerr << "   ...finished with res=" << r_norm_LambdaActive << std::endl;
 
         // Attention: Relative threshold here removes lots of entries -> linear system was much
         // larger than necessary.
+        T thresh_off_quot = 1./T(u.size());
         //u = THRESH(u,threshTol*u.norm(2.),false);
         u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
-
-        /*
-        std::cout << "After THRESH:  Size of supp(u) = " << u.size()
-                  << ", ||u||_2 = " << u.norm(2.) << ", threshTol = " << threshTol
-                  << " -> " << threshTol*u.norm(2.) << std::endl;
-        */
-        //std::cout << "After THRESH: u = " << u << std::endl;
-
-
+        thresh_off_quot *= T(u.size());
         solutions[its] = u;
         LambdaThresh = supp(u);
 
@@ -127,20 +114,25 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         //Computing residual
         std::cout << "   Computing DeltaLambda..." << std::endl;
         DeltaLambda = C(LambdaThresh, contraction, basis);
+
         std::cout << "... finished." << std::endl;
         std::cout << "   Computing rhs for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         f = F(DeltaLambda);
+
+
+
         std::cout << "   ...finished" << std::endl;
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         //Au = mv(DeltaLambda,A,u);
-        if (optimized) {
-            Au = A.mv(DeltaLambda,u);
-        }
-        else {
+        if (assemble_matrix==1) {
             Au = mv_sparse(DeltaLambda,A,u);
         }
+        else {
+            Au = A.mv(DeltaLambda,u);
+        }
         r  = Au-f;
+
         T r_norm_DeltaLambda = r.norm(2.);
         T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
         T denominator = f_norm_DeltaLambda*f_norm_DeltaLambda + f_norm_LambdaActive*f_norm_LambdaActive;
@@ -149,20 +141,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         residuals[its] = estim_res;
         toliters[its] = linTol;
 
-        /*
-        std::cout << "Before THRESH: Size of supp(r) = " << r.size()
-                  << ", ||r||_2 = " << r.norm(2.) << ", threshTol = " << threshTol
-                  << " -> " << threshTol*r.norm(2.) << std::endl;
-        */
+        //r = THRESH(r,threshTol*r.norm(2.),false,false);
+        r = THRESH(r,threshTol, false, basis.d > 3 ? true : false);
 
-        //r = THRESH(r,threshTol*r.norm(2.));
-        r = THRESH(r,threshTol, true, basis.d > 3 ? true : false);
-
-        /*
-        std::cout << "After THRESH:  Size of supp(r) = " << r.size()
-                  << ", ||r||_2 = " << r.norm(2.) << ", threshTol = " << threshTol
-                  << " -> " << threshTol*r.norm(2.) << std::endl;
-        */
         LambdaActive = LambdaThresh+supp(r);
 
 
@@ -180,13 +161,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         if (its==0) {
             T total_time = time1+timer.elapsed();
             file << LambdaThresh.size() << " " << iterations << " " <<  total_time << " "
-                 << estim_res << " " << Error_H_energy << std::endl;
+                 << estim_res << " " << Error_H_energy << " " << thresh_off_quot << std::endl;
             times[its] = total_time;
         }
         else {
             T total_time = times[its-1] + time1 + timer.elapsed();
             file << LambdaThresh.size() << " " << iterations << " "  << total_time << " "
-                 << estim_res << " " << Error_H_energy << std::endl;
+                 << estim_res << " " << Error_H_energy << " " << thresh_off_quot << std::endl;
             times[its] = total_time;
         }
 
@@ -455,7 +436,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         std::cout << "   GMRES solver started with N = " << LambdaActive.size() << std::endl;
-        int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
+        int maxIterations = 1000;
+        int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 1000);
         std::cout << "   ...finished." << std::endl;
 
 
@@ -782,5 +764,45 @@ S_ADWAV<T,Index,Basis,MA,RHS>::get_parameters(T& _contraction, T& _threshTol, T&
     _Jmaxvec = Jmaxvec;
 }
 
+
+
+
+
+/*
+std::stringstream coeff_filename;
+coeff_filename << "s_adwav_coeff_" << u.size();
+Coefficients<AbsoluteValue,T,Index1D> u_abs;
+u_abs = u;
+plotCoeff(u_abs, basis, coeff_filename.str().c_str());
+*/
+/*
+std::stringstream coefffile;
+coefffile << "s_adwav_coeffs_" << its;
+plotScatterCoeff2D(u, A.basis.first, A.basis.second, coefffile.str().c_str());
+*/
+
+
+/*
+       std::cout << "Computing eigenvalues..." << std::endl;
+       T cB, CB;
+       int N = LambdaActive.size();
+       SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A_sparse(N,N);
+       A.toFlensSparseMatrix(LambdaActive,LambdaActive,A_sparse);
+       flens::DenseVector<flens::Array<T> > x(N);
+       for (int i=1; i<=N; ++i) {
+           x(i) = 1.;
+       }
+       std::cout << "powerMethod started." << std::endl;
+       lawa::powerMethod(A_sparse,(T)1e-12,CB,x);
+       std::cout << "powerMethod finished." << std::endl;
+       for (int i=1; i<=N; ++i) {
+           x(i) = 1.;
+       }
+       std::cout << "inversePowerMethod started." << std::endl;
+       lawa::inversePowerMethod(A_sparse,(T)1e-12,cB,x);
+       std::cout << "inversePowerMethod finished." << std::endl;
+
+       std::cout << "  -> cB = " << cB << ", CB = " << CB << std::endl;
+       */
 }    //namespace lawa
 

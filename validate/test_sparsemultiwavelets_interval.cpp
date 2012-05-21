@@ -1,4 +1,8 @@
+/// First we simply include the general LAWA header `lawa/lawa.h` for simplicity, thus having
+/// all LAWA features available.
+/// All LAWA features reside in the namespace lawa, so we introduce the `namespace lawa` globally.
 #include <iostream>
+#include <fstream>
 #include <lawa/lawa.h>
 
 using namespace std;
@@ -6,103 +10,178 @@ using namespace lawa;
 
 typedef double T;
 
-typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
+/// Several typedefs for notational convenience.
 
-typedef Basis<T,Primal,Interval,SparseMulti> Basis1D;
+///  Typedefs for Flens data types:
+typedef double T;
+typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
+typedef flens::DiagonalMatrix<T>                                    DiagonalMatrixT;
+typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
-typedef Integral<Gauss,Basis1D,Basis1D>     Integral1D;
-typedef IntegralF<Gauss,Basis1D>            IntegralF1D;
+///  Typedefs for problem components:
+
+///     Special Multiwavelet Basis over an interval
+typedef Basis<T,Primal,Interval,SparseMulti> SparseMWBasis;
+
+///     IdentityOperator in 1D, i.e. for $a(v,u) = \cdot \int(v \cdot u)$
+typedef IdentityOperator1D<T,SparseMWBasis>                           IdentityOp;
+
+///     LaplaceOperator in 1D, i.e. for $a(v,u) = \int(v_x \cdot u_x)$
+typedef LaplaceOperator1D<T,SparseMWBasis>                            LaplaceOp;
+
+///     ConvectionOperator in 1D, i.e. for $a(v,u) = \int(v \cdot u_x)$
+typedef ConvectionOperator1D<T,SparseMWBasis>                         ConvectionOp;
 
 T
-p0(T x) {
-    return 1.;
-}
+p0(T x) {   return 1.; }
 
 T
-p1(T x) {
-    return x;
-}
+p1(T x) {   return x; }
 
 T
-p2(T x) {
-    return x*x;
-}
+p2(T x) {   return x*x; }
 
 T
-p3(T x) {
-    return exp(x);
-}
-
-Range<int>
-getRange(const Basis1D& basis, int j, XType type);
+p3(T x) {   return x*x*x; }
 
 int main (int argc, char *argv[]) {
 
     cout.precision(16);
     int d=4;
-    int j0=2;
+    int j0=1;
+    int j=1;
+    int J=5;
 
-    Basis1D basis(d,j0);
+
+    /// Basis initialization, using Dirichlet boundary conditions
+    SparseMWBasis basis(d,j0);
     basis.enforceBoundaryCondition<DirichletBC>();
 
-    int j=2;
-
-    Integral1D integral(basis,basis);
-
-    DenseVectorT singPts;
-    Function<T> p0Fct(p0,singPts);
-    Function<T> p1Fct(p1,singPts);
-    Function<T> p2Fct(p2,singPts);
-    Function<T> p3Fct(p3,singPts);
-
-    IntegralF1D integralp0(p0Fct,basis);
-    IntegralF1D integralp1(p1Fct,basis);
-    IntegralF1D integralp2(p2Fct,basis);
-    IntegralF1D integralp3(p3Fct,basis);
-
-    Range<int> waveletrange = getRange(basis, j, XWavelet);
-    for(int k=waveletrange.firstIndex(); k<=waveletrange.lastIndex(); ++k) {
-        ofstream file("sparsemulti_wavelet.dat");
-        cout << basis.psi.support(j,k) << endl;
-        cout << basis.psi.singularSupport(j,k) << endl;
-        cout << "<psi, psi> = " << integral(j,k,XWavelet,0,j,k,XWavelet,0) << endl;
-        cout << "<p0, psi> = " << integralp0(j,k,XWavelet,0) << endl;
-        cout << "<p1, psi> = " << integralp1(j,k,XWavelet,0) << endl;
-        cout << "<p2, psi> = " << integralp2(j,k,XWavelet,0) << endl;
-        cout << "<p3, psi> = " << integralp3(j,k,XWavelet,0) << endl;
-        T l1=basis.psi.support(j,k).l1;
-        T l2=basis.psi.support(j,k).l2;
-        for (T x=l1; x<=l2; x+=pow2i<T>(-9)) {
-            file << x << " " << basis.psi(x,j,k,0) << " " << basis.psi(x,j,k,1)  << endl;
+    /// Check for correct dimension of single and multi scale spaces
+    int dim_Vj = basis.mra.cardI(j0);
+    for (int j=j0; j<=J-1; ++j) {
+        cout << "Range of W_" << j << ": " << basis.rangeJ(j) << endl;
+        dim_Vj += basis.cardJ(j);
+        if (dim_Vj != basis.mra.cardI(j+1)) {
+            cout << "Incorrect dimensions: dim(multi scale space) = " << dim_Vj
+                 << ", dim(single scale space) ) " << basis.mra.cardI(j+1) << endl;
         }
-        file.close();
-        getchar();
     }
 
-    Range<int> scalingrange = getRange(basis, j, XBSpline);
-    for (int k=scalingrange.firstIndex(); k<=scalingrange.lastIndex(); ++k) {
-        ofstream file("sparsemulti_scaling.dat");
-
-        cout << basis.mra.phi.support(j,k) << endl;
-        cout << basis.mra.phi.singularSupport(j,k) << endl;
-        cout << "<phi, phi> = " << integral(j,k,XBSpline,0,j,k,XBSpline,0) << endl;
-        for (T x=-2.; x<=2.; x+=pow2i<T>(-8)) {
-            file << x << " " << basis.mra.phi(x,j,k,0) << " " << basis.mra.phi(x,j,k,1) <<  endl;
+    /// Plot multi-scaling function and multi-wavelets
+    ofstream plotfile_scaling("interval_sparsemultiscaling.txt");
+    for (T x=0.; x<=2.; x+=pow2i<T>(-12)) {
+        plotfile_scaling << x;
+        for (int k=basis.mra.rangeI(j0).firstIndex(); k<=basis.mra.rangeI(j0).lastIndex(); ++k) {
+            plotfile_scaling << " " << basis.generator(XBSpline)(x,j0,k,0);
         }
-        file.close();
-        getchar();
+        plotfile_scaling << endl;
+    }
+    ofstream plotfile_wavelet("interval_sparsemultiwavelet.txt");
+    for (T x=0.; x<=1.; x+=pow2i<T>(-7)) {
+        plotfile_wavelet << x;
+        for (int j=j0; j<=J-1; ++j) {
+            for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
+                plotfile_wavelet << " " << basis.generator(XWavelet)(x,j,k,0);
+            }
+        }
+        plotfile_wavelet << endl;
+    }
+
+    /// Operator initialization
+    IdentityOp   identity_op(basis);
+    LaplaceOp    laplace_op(basis);
+    ConvectionOp convection_op(basis);
+
+    DenseVectorT singPts;
+    Function<T> p0_Fct(p0,singPts);
+    Function<T> p1_Fct(p1,singPts);
+    Function<T> p2_Fct(p2,singPts);
+    Function<T> p3_Fct(p3,singPts);
+    IntegralF<Gauss,SparseMWBasis> sparsemw_p0(p0_Fct, basis);
+    IntegralF<Gauss,SparseMWBasis> sparsemw_p1(p1_Fct, basis);
+    IntegralF<Gauss,SparseMWBasis> sparsemw_p2(p2_Fct, basis);
+    IntegralF<Gauss,SparseMWBasis> sparsemw_p3(p3_Fct, basis);
+
+    /// Check for orthogonality and vanishing moments
+    int N = basis.mra.cardI(J);
+
+    for (int k_row=basis.mra.rangeI(j0).firstIndex(); k_row<=basis.mra.rangeI(j0).lastIndex(); ++k_row) {
+        for (int j_col=j0; j_col<=J-1; ++j_col) {
+            for (int k_col=basis.rangeJ(j_col).firstIndex(); k_col<=basis.rangeJ(j_col).lastIndex(); ++k_col) {
+                T identity_val = identity_op(XBSpline,j0,k_row,XWavelet,j_col,k_col);
+                if (fabs(identity_val)>1e-13 && j_col-j0>=1) {
+                    cout << "identity: (" << j0 << ", " << k_row << "), ("
+                         << j_col << ", " << k_col << "): " << identity_val << endl;
+                }
+                T laplace_val = laplace_op(XBSpline,j0,k_row,XWavelet,j_col,k_col);
+                if (fabs(laplace_val)>1e-13 && j_col-j0>=1) {
+                    cout << "laplace: (" << j0 << ", " << k_row << "), ("
+                         << j_col << ", " << k_col << "): " << laplace_val << endl;
+                }
+                T convection_val = convection_op(XBSpline,j0,k_row,XWavelet,j_col,k_col);
+                if (fabs(convection_val)>1e-13 && j_col-j0>=1) {
+                    cout << "convection: (" << j0 << ", " << k_row << "), ("
+                         << j_col << ", " << k_col << "): " << convection_val << endl;
+                }
+            }
+        }
+    }
+    for (int j_row=j0; j_row<=J-1; ++j_row) {
+        for (int k_row=basis.rangeJ(j_row).firstIndex(); k_row<=basis.rangeJ(j_row).lastIndex(); ++k_row) {
+
+            T val_p0 = sparsemw_p0(j_row,k_row,XWavelet,0);
+            T val_p1 = sparsemw_p1(j_row,k_row,XWavelet,0);
+            T val_p2 = sparsemw_p2(j_row,k_row,XWavelet,0);
+            T val_p3 = sparsemw_p3(j_row,k_row,XWavelet,0);
+
+            if (fabs(val_p0)>1e-16 && k_row>basis.rangeJL(j_row).lastIndex()
+                                   && k_row<basis.rangeJR(j_row).firstIndex()) {
+                cout << "p0: (" << j_row << ", " << k_row << "): " << val_p0 << endl;
+            }
+            if (fabs(val_p1)>1e-16 && k_row>basis.rangeJL(j_row).lastIndex()
+                                   && k_row<basis.rangeJR(j_row).firstIndex()) {
+                cout << "p1: (" << j_row << ", " << k_row << "): " << val_p1 << endl;
+            }
+            if (fabs(val_p2)>1e-16 && k_row>basis.rangeJL(j_row).lastIndex()
+                                   && k_row<basis.rangeJR(j_row).firstIndex()) {
+                cout << "p2: (" << j_row << ", " << k_row << "): " << val_p2 << endl;
+            }
+            if (fabs(val_p3)>1e-16 && k_row>basis.rangeJL(j_row).lastIndex()
+                                   && k_row<basis.rangeJR(j_row).firstIndex()) {
+                cout << "p3: (" << j_row << ", " << k_row << "): " << val_p3 << endl;
+            }
+
+            for (int k_col=basis.mra.rangeI(j0).firstIndex(); k_col<=basis.mra.rangeI(j0).lastIndex(); ++k_col) {
+                T identity_val = identity_op(XWavelet,j_row,k_row,XBSpline,j0,k_col);
+                if (fabs(identity_val)>1e-13 && j_row-j0>=1) {
+                    cout << "identity: (" << j_row << ", " << k_row << "), ("
+                         << j0 << ", " << k_col << "): " << identity_val << endl;
+                }
+            }
+            for (int j_col=j0; j_col<=J-1; ++j_col) {
+                for (int k_col=basis.rangeJ(j_col).firstIndex(); k_col<=basis.rangeJ(j_col).lastIndex(); ++k_col) {
+                    T identity_val = identity_op(XWavelet,j_row,k_row,XWavelet,j_col,k_col);
+                    if (fabs(identity_val)>1e-13 && fabs(j_row-j_col)>1) {
+                        cout << "identity: (" << j_row << ", " << k_row << "), ("
+                             << j_col << ", " << k_col << "): " << identity_val << endl;
+                    }
+                    T laplace_val = laplace_op(XWavelet,j_row,k_row,XWavelet,j_col,k_col);
+                    if (fabs(laplace_val)>1e-13 && fabs(j_row-j_col)>1) {
+                        cout << "laplace: (" << j_row << ", " << k_row << "), ("
+                             << j_col << ", " << k_col << "): " << laplace_val << endl;
+                    }
+                    T convection_val = convection_op(XWavelet,j_row,k_row,XWavelet,j_col,k_col);
+                    if (fabs(convection_val)>1e-13 && fabs(j_row-j_col)>1) {
+                        cout << "convection: (" << j_row << ", " << k_row << "), ("
+                             << j_col << ", " << k_col << "): " << convection_val << endl;
+                    }
+                }
+            }
+        }
     }
 
     return 0;
-}
-
-Range<int>
-getRange(const Basis1D& basis, int j, XType type)
-{
-    if (type==XBSpline) {
-        return basis.mra.rangeI(j);
-    }
-    else {
-        return basis.rangeJ(j);
-    }
 }

@@ -27,6 +27,20 @@ IndexSet<Index>::IndexSet(void)
 {
 }
 
+#ifdef TRONE
+template <typename Index>
+IndexSet<Index>::IndexSet(size_t n)
+: std::tr1::unordered_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >::unordered_set(n)
+{
+}
+#else
+template <typename Index>
+IndexSet<Index>::IndexSet(size_t n)
+:__gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >::hash_set(n)
+{
+}
+#endif
+
 template <typename Index>
 IndexSet<Index>&
 IndexSet<Index>::operator=(const IndexSet<Index> &_set)
@@ -51,6 +65,17 @@ IndexSet<Index>::operator+(const IndexSet<Index> &_set) const
         ret.insert(*lambda);
     }
     return ret;
+}
+
+template <typename Index>
+IndexSet<Index> &
+IndexSet<Index>::operator+=(const IndexSet<Index> &_set)
+{
+    typedef typename IndexSet<Index>::const_iterator const_it;
+    for (const_it lambda = _set.begin(); lambda != _set.end(); ++lambda) {
+        (*this).insert(*lambda);
+    }
+    return (*this);
 }
 
 template <typename Index>

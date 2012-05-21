@@ -27,45 +27,73 @@ typedef Basis<T,Orthogonal,Interval,Multi>                          MWBasis;
 ///     IdentityOperator in 1D, i.e. for $a(v,u) = \cdot \int(v \cdot u)$
 typedef IdentityOperator1D<T, MWBasis>                              IdentityOp;
 
-///     HelmholtzOperator in 1D, i.e. for $a(v,u) = \int(v_x \cdot u_x) + c \cdot \int(v \cdot u)$
-typedef HelmholtzOperator1D<T, MWBasis>                             HelmholtzOp;
+T
+p0(T x) {   return 1.; }
 
+T
+p1(T x) {   return x; }
+
+T
+p2(T x) {   return x*x; }
+
+T
+p3(T x) {   return x*x*x; }
 
 int main()
 {
     /// wavelet basis parameters:
-    int d = 2;          // d-wavelets
-    int j0 = 2;         // minimal level
-    int J = 10;         // maximal level
+    int d = 1;          // d-wavelets
+    int j0 = 0;         // minimal level
+    int J = 3;         // maximal level
     cout.precision(16);
 
     /// Basis initialization, using Dirichlet boundary conditions
     MWBasis basis(d,j0);
-    basis.enforceBoundaryCondition<DirichletBC>();
+    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
 
+    /// Check for correct dimension of single and multi scale spaces
+    int dim_Vj = basis.mra.cardI(j0);
+    for (int j=j0; j<=J-1; ++j) {
+        cout << "Range of W_" << j << ": " << basis.rangeJ(j) << endl;
+        dim_Vj += basis.cardJ(j);
+        if (dim_Vj != basis.mra.cardI(j+1)) {
+            cout << "Incorrect dimensions: dim(multi scale space) = " << dim_Vj
+                 << ", dim(single scale space) ) " << basis.mra.cardI(j+1) << endl;
+        }
+    }
     /// Plot multi-scaling function and multi-wavelets
-
-    ofstream plotfile_scaling("multiscaling.txt");
-    for (T x=0.; x<=1.; x+=pow2i<T>(-7)) {
+    ofstream plotfile_scaling("interval_multiscaling.txt");
+    for (T x=0.; x<=2.; x+=pow2i<T>(-12)) {
         plotfile_scaling << x;
         for (int k=basis.mra.rangeI(j0).firstIndex(); k<=basis.mra.rangeI(j0).lastIndex(); ++k) {
             plotfile_scaling << " " << basis.generator(XBSpline)(x,j0,k,0);
         }
         plotfile_scaling << endl;
     }
-    ofstream plotfile_wavelet("multiwavelet.txt");
-    for (T x=0.; x<=1.; x+=pow2i<T>(-7)) {
+    ofstream plotfile_wavelet("interval_multiwavelet.txt");
+    for (T x=0.; x<=1.; x+=pow2i<T>(-12)) {
         plotfile_wavelet << x;
-        for (int k=basis.rangeJ(j0).firstIndex(); k<=basis.rangeJ(j0).lastIndex(); ++k) {
-            plotfile_wavelet << " " << basis.generator(XWavelet)(x,j0,k,0);
+        for (int j=j0; j<=J-1; ++j) {
+            for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
+                plotfile_wavelet << " " << basis.generator(XWavelet)(x,j,k,0);
+            }
         }
         plotfile_wavelet << endl;
     }
 
 
-    /// Operator initialization
+    /// Operator and Integral initialization
     IdentityOp   identity_op(basis);
-    HelmholtzOp  helmholtz_op(basis, 1.);
+
+    DenseVectorT singPts;
+    Function<T> p0_Fct(p0,singPts);
+    Function<T> p1_Fct(p1,singPts);
+    Function<T> p2_Fct(p2,singPts);
+    Function<T> p3_Fct(p3,singPts);
+    IntegralF<Gauss,MWBasis> mw_p0(p0_Fct, basis);
+    IntegralF<Gauss,MWBasis> mw_p1(p1_Fct, basis);
+    IntegralF<Gauss,MWBasis> mw_p2(p2_Fct, basis);
+    IntegralF<Gauss,MWBasis> mw_p3(p3_Fct, basis);
 
 
     /// Assembler: Check for orthogonality
@@ -86,8 +114,36 @@ int main()
                 }
             }
         }
-    }
 
+    }
+    cout << identity_A_dense << endl;
+
+    /// Assembler: Check for vanishing moments
+    for (int j=j0; j<=J-1; ++j) {
+        for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
+            T val_p0 = mw_p0(j,k,XWavelet,0);
+            T val_p1 = mw_p1(j,k,XWavelet,0);
+            T val_p2 = mw_p2(j,k,XWavelet,0);
+            T val_p3 = mw_p3(j,k,XWavelet,0);
+
+            if (d>=1 && fabs(val_p0)>1e-16 && k>basis.rangeJL(j).lastIndex()
+                                   && k<basis.rangeJR(j).firstIndex()) {
+                cout << "p0: (" << j << ", " << k << "): " << val_p0 << endl;
+            }
+            if (d>=2 && fabs(val_p1)>1e-16 && k>basis.rangeJL(j).lastIndex()
+                                   && k<basis.rangeJR(j).firstIndex()) {
+                cout << "p1: (" << j << ", " << k << "): " << val_p1 << endl;
+            }
+            if (d>=3 && fabs(val_p2)>1e-16 && k>basis.rangeJL(j).lastIndex()
+                                   && k<basis.rangeJR(j).firstIndex()) {
+                cout << "p2: (" << j << ", " << k << "): " << val_p2 << endl;
+            }
+            if (d>=4 && fabs(val_p3)>1e-16 && k>basis.rangeJL(j).lastIndex()
+                                   && k<basis.rangeJR(j).firstIndex()) {
+                cout << "p3: (" << j << ", " << k << "): " << val_p3 << endl;
+            }
+        }
+    }
 
     return 0;
 }

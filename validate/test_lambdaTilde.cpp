@@ -11,7 +11,7 @@ const T thresh = 1e-30;
 
 // Basis definitions
 const FunctionSide functionside = Primal;
-const DomainType   domain = R;
+const DomainType   domain = RPlus;
 const Construction construction = SparseMulti;
 
 const T leftbound=-10.;   //for realline constructions, we only consider wavelets with support intersecting [left,right]
@@ -35,24 +35,30 @@ typedef IndexSet<Index1D>::const_iterator                           const_set_it
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff_it;
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j);
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j);
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j);
 
+template <typename T>
+Range<long>
+getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j);
+
 template <typename T, Construction Cons>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j);
 
 template <typename T, Construction Cons>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,Periodic,Cons> &basis, XType e, int j);
+
+
 
 int main (int argc, char *argv[]) {
     cout.precision(16);
@@ -64,9 +70,9 @@ int main (int argc, char *argv[]) {
     int j0=atoi(argv[3]);
     int J =atoi(argv[4]);
 
-
     //Basis1D basis(d,d_,j0);
     Basis1D         basis(d,j0);
+    basis.enforceBoundaryCondition<DirichletBC>();
     HelmholtzOp     op(basis,1.);
     //IdentityOp       op(basis);
     Preconditioner  p(basis);
@@ -120,7 +126,6 @@ int main (int argc, char *argv[]) {
         //     << lambdaTilde_nonzeros << endl;
         //getchar();
 
-
         for (const_coeff_it it=nonzeros.begin(); it!=nonzeros.end();++it) {
             if (lambdaTilde_nonzeros.count((*it).first)==0) {
                 if (fabs((*it).second)> max_abs_error) {
@@ -138,6 +143,7 @@ int main (int argc, char *argv[]) {
                 */
             }
         }
+
         for (const_set_it it=lambdaTilde_nonzeros.begin(); it!=lambdaTilde_nonzeros.end();++it) {
             if ( (nonzeros.count((*it))==0) &&
                  ( (*it).k >= getRange(basis,(*it).xtype,(*it).j).firstIndex()) &&
@@ -193,14 +199,9 @@ int main (int argc, char *argv[]) {
             cout << "Current index: " << col_index << endl;
             IndexSet<Index1D> lambdaTilde_nonzeros;
             lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, j0+J, false);
-            /*
-            cout << "[" << lambdaTilde_nonzeros.size() << "] " << endl;
-            for (const_set_it it=lambdaTilde_nonzeros.begin(); it!=lambdaTilde_nonzeros.end(); ++it) {
-                cout << basis.psi.support(j_col,k_col) << " -> "
-                     <<  basis.psi.support((*it).j,(*it).k) << endl;
-            }
-            getchar();
-            */
+            //cout << "(XBSpline, " << j0 << ", " << k_col << "): [" << lambdaTilde_nonzeros.size() << "] "
+            //     << lambdaTilde_nonzeros << endl;
+            //getchar();
 
             for (const_coeff_it it=nonzeros.begin(); it!=nonzeros.end();++it) {
                 if (lambdaTilde_nonzeros.count((*it).first)==0) {
@@ -246,8 +247,10 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
+
+
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j)
 {
     T l1 = basis.generator(e).support(0,0).l1;
@@ -256,7 +259,7 @@ getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j)
 }
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j)
 {
     const BSpline<T,Orthogonal,R,Multi> &phi = basis.mra.phi;
@@ -281,7 +284,7 @@ getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j)
 }
 
 template <typename T>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j)
 {
     const BSpline<T,Primal,R,SparseMulti> &phi = basis.mra.phi;
@@ -305,8 +308,36 @@ getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j)
     return _(int(pow2i<T>(j)*leftbound-numFunc),int(pow2i<T>(j)*rightbound+numFunc));
 }
 
+template <typename T>
+Range<long>
+getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j)
+{
+    const BSpline<T,Primal,RPlus,SparseMulti> &phi = basis.mra.phi;
+    const Wavelet<T,Primal,RPlus,SparseMulti> &psi = basis.psi;
+
+    T l1=0., l2=1.;
+    int numFunc=1;
+    long mintranslationindex = 0;
+    if (e==XBSpline) {
+        Support<T> supp = phi.max_support();
+        l1 = supp.l1;
+        l2 = supp.l2;
+        numFunc = phi._numSplines;
+    }
+    else {
+        Support<T> supp = psi.max_support();
+        l1 = supp.l1;
+        l2 = supp.l2;
+        numFunc = psi._numSplines;
+        mintranslationindex = 1;
+    }
+
+    return Range<long>((long)std::max(long(pow2i<T>(j)*leftbound-numFunc),mintranslationindex),
+             long(pow2i<T>(j)*rightbound+numFunc));
+}
+
 template <typename T, Construction Cons>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j)
 {
     if (e==XBSpline)    return basis.mra.rangeI(j);
@@ -314,7 +345,7 @@ getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j)
 }
 
 template <typename T, Construction Cons>
-Range<int>
+Range<long>
 getRange(const Basis<T,Primal,Periodic,Cons> &basis, XType e, int j)
 {
     if (e==XBSpline)    return basis.mra.rangeI(j);

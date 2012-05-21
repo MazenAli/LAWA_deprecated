@@ -36,14 +36,15 @@ struct RefSols_PDE_Realline1D
 {
     static int nr;
 
-    static T diffusion, convection, reaction;
+    static T reaction, convection, diffusion;
 
     static DenseVector<Array<T> > sing_pts;
 
     static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas;
+    static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > H1_deltas;
 
     static void
-    setExample(int _nr, T _diffusion, T _convection, T _reaction);
+    setExample(int _nr, T _reaction, T _convection, T diffusion);
 
     static T
     exact(T x, int deriv);
@@ -56,6 +57,10 @@ struct RefSols_PDE_Realline1D
 
     static T
     rhs(T x);
+
+    // required for post-processing
+    static T
+    H1_rhs(T x);
 
     static T
     H1norm();

@@ -6,7 +6,7 @@ RefSols_PDE_Realline1D<T>::nr;
 
 template <typename T>
 T
-RefSols_PDE_Realline1D<T>::diffusion;
+RefSols_PDE_Realline1D<T>::reaction;
 
 template <typename T>
 T
@@ -14,8 +14,7 @@ RefSols_PDE_Realline1D<T>::convection;
 
 template <typename T>
 T
-RefSols_PDE_Realline1D<T>::reaction;
-
+RefSols_PDE_Realline1D<T>::diffusion;
 
 template <typename T>
 flens::DenseVector<Array<T> >
@@ -25,15 +24,19 @@ template <typename T>
 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
 RefSols_PDE_Realline1D<T>::deltas;
 
+template <typename T>
+flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
+RefSols_PDE_Realline1D<T>::H1_deltas;
+
 
 template <typename T>
 void
-RefSols_PDE_Realline1D<T>::setExample(int _nr, T _diffusion, T _convection, T _reaction)
+RefSols_PDE_Realline1D<T>::setExample(int _nr, T _reaction, T _convection, T _diffusion)
 {
     nr=_nr;
-    diffusion = _diffusion;
-    convection = _convection;
-    reaction = _reaction;
+    reaction      = _reaction;
+    convection    = _convection;
+    diffusion     = _diffusion;
 
     assert(nr>=1);
     assert(nr<=6);
@@ -45,6 +48,8 @@ RefSols_PDE_Realline1D<T>::setExample(int _nr, T _diffusion, T _convection, T _r
         sing_pts(1) = 0.01;
         deltas.engine().resize(1,2);
         deltas(1,1) = 0.01; deltas(1,2) = diffusion*2.;
+        H1_deltas.engine().resize(1,2);
+        H1_deltas(1,1) = 0.01; H1_deltas(1,2) = 2.;
     }
     else if (nr==3) {
         sing_pts.engine().resize(2);
@@ -55,6 +60,9 @@ RefSols_PDE_Realline1D<T>::setExample(int _nr, T _diffusion, T _convection, T _r
         //deltas(2,1) =  M_PI/32.; deltas(2,2) = diffusion*4.;
         deltas(1,1) = -M_PI/32.; deltas(1,2) = -diffusion*0.4;
         deltas(2,1) =  M_PI/32.; deltas(2,2) = diffusion*0.1;
+        H1_deltas.engine().resize(2,2);
+        H1_deltas(1,1) = -M_PI/32.; H1_deltas(1,2) = -0.4;
+        H1_deltas(2,1) =  M_PI/32.; H1_deltas(2,2) =  0.1;
     }
     else if (nr==4) {    //second derivative not continuous on R!!
         sing_pts.engine().resize(2);
@@ -68,6 +76,9 @@ RefSols_PDE_Realline1D<T>::setExample(int _nr, T _diffusion, T _convection, T _r
         deltas.engine().resize(2,2);
         deltas(1,1) = -0.4; deltas(1,2) = diffusion*20.8;
         deltas(2,1) =  0.9; deltas(2,2) = diffusion*105.3;
+        H1_deltas.engine().resize(2,2);
+        H1_deltas(1,1) = -0.4; H1_deltas(1,2) = 20.8;
+        H1_deltas(2,1) =  0.9; H1_deltas(2,2) = 105.3;
     }
     else if (nr==6) {
         sing_pts.engine().resize(1);
@@ -75,20 +86,27 @@ RefSols_PDE_Realline1D<T>::setExample(int _nr, T _diffusion, T _convection, T _r
         deltas.engine().resize(1,2);
         //deltas(1,1) = 0.0001; deltas(1,2) = 3.;
         deltas(1,1) = 0.0001; deltas(1,2) = diffusion*9.;
+        H1_deltas.engine().resize(1,2);
+        H1_deltas(1,1) = 0.0001; H1_deltas(1,2) = 9.;
     }
     else if (nr==7) {
         sing_pts.engine().resize(1);
         sing_pts(1) = 0.0001;
         deltas.engine().resize(1,2);
         deltas(1,1) = 0.0001; deltas(1,2) = diffusion*3.;
+        H1_deltas.engine().resize(1,2);
+        H1_deltas(1,1) = 0.0001; H1_deltas(1,2) = 3.;
     }
     else if (nr==8) {
         sing_pts.engine().resize(2);
         sing_pts(1) = -16./3.;
         sing_pts(2) =  16./3.;
         deltas.engine().resize(2,2);
-        deltas(1,1) = -16./3.; deltas(1,2) = 22773./6391.;
-        deltas(2,1) =  16./3.; deltas(2,2) = 16382./6391.;
+        deltas(1,1) = -16./3.; deltas(1,2) = diffusion*22773./6391.;
+        deltas(2,1) =  16./3.; deltas(2,2) = diffusion*16382./6391.;
+        H1_deltas.engine().resize(2,2);
+        H1_deltas(1,1) = -16./3.; H1_deltas(1,2) = 22773./6391.;
+        H1_deltas(2,1) =  16./3.; H1_deltas(2,2) = 16382./6391.;
     }
 }
 
@@ -248,6 +266,13 @@ T
 RefSols_PDE_Realline1D<T>::rhs(T x)
 {
     return -diffusion*exact(x,2) + convection*exact(x,1) + reaction*exact(x,0);
+}
+
+template <typename T>
+T
+RefSols_PDE_Realline1D<T>::H1_rhs(T x)
+{
+    return -exact(x,2) + exact(x,0);
 }
 
 template <typename T>

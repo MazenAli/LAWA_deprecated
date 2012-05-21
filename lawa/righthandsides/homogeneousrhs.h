@@ -7,7 +7,7 @@ template <typename T>
 struct HomogeneousRHS{
     
     T 
-    operator()(T time, XType xtype, int j, int k) const;
+    operator()(T time, XType xtype, int j, long k) const;
     
 };
 

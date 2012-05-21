@@ -74,7 +74,7 @@ template <typename T>
 T
 distance(const Support<T> &supp1, const Support<T> &supp2)
 {
-    return std::max(0.0, std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2));
+    return std::max((T)0.0, std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2));
 }
 
 template <typename T>

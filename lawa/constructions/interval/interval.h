@@ -20,8 +20,10 @@
 #include <lawa/constructions/interval/dijkema/dijkema.h>
 #include <lawa/constructions/interval/dku/dku.h>
 #include <lawa/constructions/interval/fwt.h>
+#include <lawa/constructions/interval/multi/multi.h>
 #include <lawa/constructions/interval/primal/primal.h>
 #include <lawa/constructions/interval/primbs/primbs.h>
+#include <lawa/constructions/interval/sparsemulti/sparsemulti.h>
 #include <lawa/constructions/interval/initial_stable_completion.h>
 #include <lawa/constructions/interval/evaluate.h>
 #include <lawa/constructions/interval/refinementmatrix.h>

@@ -155,6 +155,11 @@ class AdaptiveRBTruth2D{
                 toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
                                     const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
 
+                void
+                 apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                       const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+                       cxxblas::Transpose trans=cxxblas::NoTrans);
+
                 Compression compression;
                 
                 int qa;
@@ -222,6 +227,11 @@ class AdaptiveRBTruth2D{
                  void
                  toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
                                      const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
+
+                 void
+                 apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                       const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+                       cxxblas::Transpose trans=cxxblas::NoTrans);
 
                  Compression compression;
          };

@@ -73,13 +73,13 @@ Wavelet<T,Primal,Interval,Cons>::singularSupport(int j, long k) const
     assert(k<=basis.rangeJ(j).lastIndex());
 
     if (k<=basis.M1.left.lastIndex()) {
-        return linspace(0.,
+        return linspace((T)0.,
                         pow2i<T>(-j-1)*basis.M1.lengths(k),
                         2*basis.M1.lengths(k)+1.);
     }
     if (k>pow2i<T>(j)-basis.M1.right.length()) {
-        return linspace(1-pow2i<T>(-j-1)*(basis.M1.lengths(k-1-pow2i<T>(j))), 
-                        1.,
+        return linspace(1-pow2i<T>(-j-1)*(basis.M1.lengths(k-1-pow2i<T>(j))),
+                        (T)1.,
                         2*basis.M1.lengths(k-1-pow2i<T>(j))+1.);
     }
     // FIXME: remove std::max: left support end cannot be less than 0. Check for error (Primbs!!!)
@@ -108,6 +108,107 @@ T
 Wavelet<T,Primal,Interval,Cons>::tic(int j) const
 {
     return pow2i<T>(-j-1);
+}
+
+template <typename T, Construction Cons>
+DenseVector<Array<long double> > *
+Wavelet<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+{
+    k -= 1;
+    refinement_j = j + 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        refinement_k_first = basis._leftOffsets[k];
+        return &(basis._leftRefCoeffs[k]);
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        int type = 0;
+        if (basis.d % 2 != 0 && k+1>basis.cardJ(j)/2.) type = 1;
+        long shift = k+1L;
+        refinement_k_first = 2*shift+basis._innerOffsets[type];
+        return &(basis._innerRefCoeffs[type]);
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    long shift = pow2i<long>(j)-1;
+    refinement_k_first = 2*shift+basis._rightOffsets[type];
+    return &(basis._rightRefCoeffs[type]);
+}
+
+template <typename T, Construction Cons>
+int
+Wavelet<T,Primal,Interval,Cons>::getRefinementLevel(int j) const
+{
+    return j + 1;
+}
+
+template <typename T, Construction Cons>
+void
+Wavelet<T,Primal,Interval,Cons>::getRefinementNeighbors(int j, long k, int &refinement_j,
+                                                        long &refinement_k_first,
+                                                        long &refinement_k_last) const
+{
+    k -= 1;
+    refinement_j = j + 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        refinement_k_first = basis._leftOffsets[k];
+        refinement_k_last  = refinement_k_first + basis._leftRefCoeffs[k].lastIndex();
+        return;
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        int type = 0;
+        if (basis.d % 2 != 0 && k+1>basis.cardJ(j)/2.) type = 1;
+        long shift = k+1L;
+        refinement_k_first = 2*shift+basis._innerOffsets[type];
+        refinement_k_last  = refinement_k_first + basis._innerRefCoeffs[type].lastIndex();
+        return;
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    long shift = pow2i<long>(j)-1;
+    refinement_k_first = 2*shift+basis._rightOffsets[type];
+    refinement_k_last  = refinement_k_first + basis._rightRefCoeffs[type].lastIndex();
+    return;
+}
+
+template <typename T, Construction Cons>
+T
+Wavelet<T,Primal,Interval,Cons>::getL2Norm(int j, long k) const
+{
+    k -= 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        return basis._leftL2Norms[k];
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        return basis._innerL2Norms[0];
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    return basis._rightL2Norms[type];
+}
+
+template <typename T, Construction Cons>
+T
+Wavelet<T,Primal,Interval,Cons>::getH1SemiNorm(int j, long k) const
+{
+    T pow2ij = (T)(1L << j);
+    k -= 1;
+    // left boundary
+    if (k<basis.cardJL(j)) {
+        return pow2ij*basis._leftH1SemiNorms[k];
+    }
+    // inner part
+    if (k<basis.cardJL(j)+basis.cardJI(j)) {
+        return pow2ij*basis._innerH1SemiNorms[0];
+    }
+    // right part
+    int type  = (int)(k+1 - (basis.cardJ(j) - basis.cardJL(j) + 1));
+    return pow2ij*basis._rightH1SemiNorms[type];
 }
 
 } // namespace lawa

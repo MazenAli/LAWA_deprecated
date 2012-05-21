@@ -51,9 +51,9 @@ class SeparableRHS3D
                        int order);
 
         T
-        operator()(XType xtype_x, int j_x, int k_x,
-                   XType xtype_y, int j_y, int k_y,
-                   XType xtype_z, int j_z, int k_z) const;
+        operator()(XType xtype_x, int j_x, long k_x,
+                   XType xtype_y, int j_y, long k_y,
+                   XType xtype_z, int j_z, long k_z) const;
 
         T
         operator()(const Index3D &index) const;

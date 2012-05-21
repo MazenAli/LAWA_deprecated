@@ -76,7 +76,7 @@ const BasisFunction<T,Dual,Interval,Dijkema> &
 Basis<T,Dual,Interval,Dijkema>::generator(XType xtype) const
 {
     if (xtype==XBSpline) {
-        return mra.phi_;
+        return mra_.phi_;
     } else {
         return psi_;
     }

@@ -53,6 +53,18 @@ struct BSpline<_T,Primal,Interval,_Cons>
     T
     tic(int j) const;
 
+    DenseVector<Array<long double> > *
+    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
+
+    int
+    getRefinementLevel(int j) const;
+
+    T
+    getL2Norm(int j, long k) const;
+
+    T
+    getH1SemiNorm(int j, long k) const;
+
     const MRA<T,Primal,Interval,Cons> &mra;
 };
 

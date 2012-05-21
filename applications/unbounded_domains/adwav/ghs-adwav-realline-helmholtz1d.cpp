@@ -201,6 +201,8 @@ int main (int argc, char *argv[]) {
         SparseMW_Rhs                SparseMW_F(SparseMW_rhsintegral1d,SparseMW_prec);
         SparseMW_GHS_ADWAV_SOLVER   SparseMW_ghs_adwav_solver(SparseMW_A, SparseMW_F);
 
+        T alpha = 0.6, omega = 0.2, gamma = 0.15, theta = 2*omega/(1+omega);
+        SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);
         if (SparseMW_F.readIndexSets(rhsfilename.str().c_str()) ) {
             cout << "Index sets for rhs read... Ready to start."  << endl;
         }
@@ -208,7 +210,7 @@ int main (int argc, char *argv[]) {
             cout << "RHS: Could not open file." << endl;
             return 0;
         }
-        u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-10, convfilename.str().c_str(),
+        u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
                                             NumOfIterations, refsol.H1norm());
         cout << "Plot of solution started." << endl;
         plot<T, SparseMW_Basis1D, SparseMW_Prec>(SparseMW_basis, u, SparseMW_prec, refsol.u,

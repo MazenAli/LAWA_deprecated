@@ -48,6 +48,7 @@ template <typename T>
 // Computation of a security zone for 2d-tensor basis
 template <typename T, typename Basis2D>
     IndexSet<Index2D>
+    C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis, bool extralevel=false);
     C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis);
     
     // Security Zone does not include levels higher than J1_max, J2_max

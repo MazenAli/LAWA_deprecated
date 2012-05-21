@@ -125,6 +125,8 @@ int main(int argc, char* argv[]) {
     // Construct test set
     std::vector<std::vector<T> > Xi_test;
 
+// does not compile, test_min unknown
+/*
     cout << "Testset: " << endl;
     for(int i = 0; i < n_test; ++i){
       vector<T> test_param;
@@ -180,6 +182,6 @@ int main(int argc, char* argv[]) {
       errorfile << n+1 << " " << maxerr[n] << " " << maxerr_bound[n] << " " << maxerr_mu[n] << endl;              
     }
     errorfile.close();
-
+*/
     return 0;
 }

@@ -40,6 +40,23 @@ decompose(const DenseVector<X> &x,
 
 template <typename X, typename Y, Construction Cons>
 void
+decompose_(const DenseVector<X> &x,
+           const Basis<typename X::ElementType,Primal,Interval,Cons> &basis, int j,
+           DenseVector<Y> &y)
+{
+    assert(j>=basis.j0);
+    assert(x.range()==basis.mra.rangeI(j+1));
+    typedef typename X::ElementType T;
+
+    basis.setLevel(j);
+    DenseVector<Array<T> > sf, w;
+    sf = transpose(basis.mra.M0) * x;
+    w  = transpose(basis.M1) * x;
+    concatenate(sf,w,y,y.firstIndex());
+}
+
+template <typename X, typename Y, Construction Cons>
+void
 reconstruct(const DenseVector<X> &x, 
             const Basis<typename X::ElementType,Primal,Interval,Cons> &basis, int j,
             DenseVector<Y> &y)
@@ -50,6 +67,20 @@ reconstruct(const DenseVector<X> &x,
     basis.setLevel(j);
     y  = basis.mra.M0 * x(basis.mra.rangeI(j));
     y += basis.M1*x(_(basis.mra.rangeI(j).lastIndex()+1,basis.mra.rangeI(j+1).lastIndex()));
+}
+
+template <typename X, typename Y, Construction Cons>
+void
+reconstruct_(const DenseVector<X> &x,
+             const Basis<typename X::ElementType,Dual,Interval,Cons> &basis_, int j,
+             DenseVector<Y> &y)
+{
+    typedef typename X::ElementType T;
+    assert(j>=basis_.j0);
+    assert(x.range()==basis_.mra_.rangeI_(j+1));
+    basis_.setLevel(j);
+    y  = basis_.mra_.M0_ * x(basis_.mra_.rangeI_(j));
+    y += basis_.M1_*x(_(basis_.mra_.rangeI_(j).lastIndex()+1,basis_.mra_.rangeI_(j+1).lastIndex()));
 }
 
 template <typename X, typename Y, Construction Cons>

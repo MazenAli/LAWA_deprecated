@@ -33,7 +33,7 @@ MRA<T,Dual,Interval,Dijkema>::MRA(int _d, int _d_, int j)
     : d(_d), d_(_d_), mu(d&1),
       l1((mu-d)/2), l2((mu+d)/2),
       l1_(l1-d_+1), l2_(l2+d_-1),
-      min_j0(iceil(log2(-2*l1_-1+mu))),
+      min_j0(iceil<int>(log2(-2*l1_-1+mu))),
       j0((j==-1) ? min_j0 : j),
       phi_(*this),
       phi_R(_d,_d_),
@@ -370,7 +370,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     FullColMatrix Transformation(knots.length()-d, knots.length()-d);
     Transformation.diag(0) = 1.;
     for (int i=1; i<d; ++i) {
-        FullColMatrix Tmp = insertKnot(d-1,knots,0.), Tmp2;
+        FullColMatrix Tmp = insertKnot(d-1,knots,(T)0.), Tmp2;
         blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,
                  1.,Tmp,Transformation,0.,Tmp2);
         Transformation = Tmp2;

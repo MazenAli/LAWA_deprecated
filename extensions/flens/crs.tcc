@@ -180,7 +180,7 @@ CRS_Initializer<T, Storage>::CRS_Initializer(CRS<T, Storage> &crs, int k)
 }
 
 template <typename T, CRS_Storage Storage>
-CRS_Initializer<T, Storage>::CRS_Initializer(CRS<T, Storage> &crs, int k,
+CRS_Initializer<T, Storage>::CRS_Initializer(CRS<T, Storage> &crs, int /*k*/,
                                              std::vector<CRS_Coordinate<T> > &coordinates,
                                              size_t lastSortedCoord)
     : _coordinates(coordinates), _lastSortedCoord(lastSortedCoord), _isSorted(true), _crs(crs)

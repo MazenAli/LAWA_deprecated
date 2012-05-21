@@ -21,6 +21,11 @@
 #define  LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_MAPMATRIX_H 1
 
 #include <utility>
+#ifdef TRONE
+    #include <tr1/unordered_map>
+#else
+    #include <ext/hash_map>
+#endif
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
 #include <lawa/preconditioners/nopreconditioner.h>
@@ -34,7 +39,14 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
           typename Preconditioner>
 struct MapMatrix
 {
-    typedef typename std::map<Entry<Index>,T,lt<Lexicographical,Index > > EntryMap;
+    //typedef typename std::map<Entry<Index>,T,lt<Lexicographical,Index > > EntryMap;
+#ifdef TRONE
+    typedef typename std::tr1::unordered_map<Entry<Index>, T, entry_hashfunction<Index>,
+                                                             entry_eqfunction<Index> > EntryMap;
+#else
+    typedef typename __gnu_cxx::hash_map<Entry<Index>, T, entry_hashfunction<Index>,
+                                                             entry_eqfunction<Index> > EntryMap;
+#endif
     typedef typename EntryMap::value_type val_type;
     EntryMap data;
 
@@ -54,11 +66,15 @@ struct MapMatrix
 
     void
     toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, int J);
+                        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, int J=-1);
 
     void
     toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
                         flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, T tol);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index> &u, T tol, const IndexSet<Index> Lambda,
+          Coefficients<Lexicographical,T,Index> &r);
 
     //T
     //operator()(T t, const  Index &row_index, const Index &col_index);
