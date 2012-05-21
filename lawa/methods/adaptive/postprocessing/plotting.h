@@ -92,6 +92,16 @@ plotScatterCoeff2D_interval(const Coefficients<Lexicographical,T,Index> &coeff,
                             const Basis_x &basis_x, const Basis_y &basis_y,
                             const char* filename);
 
+template <typename T, typename Basis>
+void
+plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Basis &basis,
+                 const char* filename, bool useSupportCenter=false);
+
+template <typename T, typename Basis>
+void
+plotScatterCoeff(const Coefficients<Lexicographical,T,Index3D> &coeff, const Basis &basis,
+                 const char* filename, bool useSupportCenter=false);
+
 
 }  // namespace lawa
 

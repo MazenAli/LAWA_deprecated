@@ -25,6 +25,12 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
     Coefficients<Lexicographical,T,Index> r(hashMapSize), p(hashMapSize),
                                           Ap(hashMapSize);
 
+    Index maxIndex;
+    Index maxWaveletIndex;
+    int *jmax = new int[1];
+    int arrayLength = 1;
+    long double Residual = 1.L;
+
     Timer time;
     Timer iteration_time;
 
@@ -60,6 +66,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
             r[(*it).first] = 0.;
             p[(*it).first] = tmp;
         }
+        std::cerr.precision(16);
+        std::cerr << "   || f ||_{ell_2} = " << p.norm((T)2.) << std::endl;
+        std::cerr.precision(6);
         std::cerr << "   ...finished." << std::endl;
 
         std::cerr << "   CG method started." << std::endl;
@@ -68,7 +77,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         p = r;
         p *= (T)(-1.);
         T cg_rNormSquare = r*r;
-        T tol = std::min((T)1e-2,gamma*std::sqrt(cg_rNormSquare));
+        T tol = std::min((T)1e-2,gamma*(T)Residual);
         int maxIterations=100;
         int cg_iter=0;
         for (cg_iter=0; cg_iter<maxIterations; ++cg_iter) {
@@ -120,10 +129,34 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         T EnergyError =  sqrt(fabs(EnergyNormSquared - 2*fu + uAu));
         std::cerr << "   ... finished with EnergyError: " << EnergyError << std::endl;
 
+        getLevelInfo(u, maxIndex, maxWaveletIndex, jmax, arrayLength);
+        int J = -100;
+        for (int i=0; i<arrayLength; ++i) {
+            if (J<jmax[i]) J=jmax[i];
+        }
+
+        std::cerr << "   Level information: " << std::endl;
+        std::cerr << "      maxIndex = " << maxIndex << ", maxWaveletIndex = "
+                 << maxWaveletIndex << std::endl;
+        std::cerr << "      arrayLength = " << arrayLength << std::endl;
+        std::cerr << "      Highest level per coordinate direction:";
+        for (int i=0; i<arrayLength; ++i) {
+            std::cerr << " " << jmax[i];
+        }
+        std::cerr << std::endl;
+        bool useSupportCenter=true;
+        plotScatterCoeff(u, basis, "u_coeff", useSupportCenter);
+        //std::cerr << "Please hit enter." << std::endl;
+        //getchar();
+
         std::cerr << "   Computing residual..." << std::endl;
         r.setToZero();
         std::cerr << "     Computing multi-tree for residual..." << std::endl;
+        //Coefficients<Lexicographical,T,Index> tmp(hashMapSize);
         extendMultiTree(basis, u, r);
+        //extendMultiTree(basis, tmp, r);
+        //tmp.clear();
+        //extendMultiTreeAtBoundary(basis, u, r, J+1);
         N_residual = r.size();
         std::cerr << "     ... finished." << std::endl;
         std::cerr << "   #supp u = " << u.size() << ", #supp r = " << r.size() << std::endl;
@@ -138,16 +171,8 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         for (coeff_it it=r.begin(); it!=r.end(); ++it) {
             (*it).second -= Prec((*it).first) * F((*it).first);
         }
+        Residual = r.norm(2.);
         time.stop();
-        std::cerr << "     ... finished after " << time.elapsed() << std::endl;
-        time.start();
-        T tmp = 0.;
-        for (coeff_it it=r.begin(); it!=r.end(); ++it) {
-            tmp += Prec((*it).first);
-        }
-        time.stop();
-        std::cerr << "     ... test finished after " << time.elapsed() << ", " << tmp << std::endl;
-        long double Residual = r.norm(2.);
         std::cerr << "   ... finished with Residual: " << Residual << std::endl;
 
 
@@ -168,7 +193,10 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
             for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
                 P_Lambda_Residual_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
                 r_bucket.addBucketToCoefficients(p,i);
-                if (P_Lambda_Residual_square >= alpha*Residual*alpha*Residual) break;
+                if (P_Lambda_Residual_square >= alpha*Residual*alpha*Residual) {
+                    //r_bucket.addBucketToCoefficients(p,i+1);
+                    break;
+                }
             }
         }
 

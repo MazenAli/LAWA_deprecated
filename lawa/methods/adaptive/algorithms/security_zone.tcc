@@ -245,7 +245,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,R,Multi> &basis,
     }
 }
 
-// Security zone orthonormal multi-wavelet realline
+// Security zone orthonormal multi-wavelet interval
 template <typename T>
 void
 index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,Interval,Multi> &basis,

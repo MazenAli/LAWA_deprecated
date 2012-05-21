@@ -595,6 +595,118 @@ plotScatterCoeff2D_interval(const Coefficients<Lexicographical,T,Index> &coeff, 
 
 }
 
+template <typename T, typename Basis>
+void
+plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Basis &basis,
+                 const char* filename, bool useSupportCenter)
+{
+    typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
+
+    std::stringstream datafilename;
+    datafilename << filename << ".dat";
+    std::ofstream datafile(datafilename.str().c_str());
+
+    if (useSupportCenter) {
+        for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+            int  j_x=(*it).first.index1.j, j_y=(*it).first.index2.j;
+            long k_x=(*it).first.index1.k,  k_y=(*it).first.index2.k;
+            XType xtype_x=(*it).first.index1.xtype, xtype_y=(*it).first.index2.xtype;
+
+            Support<T> supp_x = basis.first.generator(xtype_x).support(j_x,k_x);
+            Support<T> supp_y = basis.first.generator(xtype_y).support(j_y,k_y);
+
+            T x=0., y=0.;
+            x = (supp_x.l2 + supp_x.l1)/(T)2.;
+            y = (supp_y.l2 + supp_y.l1)/(T)2.;
+
+            //center of the support
+            if(fabs((*it).second) > 0){
+              datafile << x << " " << y << " " << (*it).second << " " << -1. << std::endl;
+            }
+        }
+    }
+    else {
+        int offset_x = 1-basis.first.mra.rangeI(basis.first.j0).firstIndex();
+        int offset_y = 1-basis.second.mra.rangeI(basis.second.j0).firstIndex();
+        for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+            int  j_x=(*it).first.index1.j, j_y=(*it).first.index2.j;
+            long k_x=(*it).first.index1.k,  k_y=(*it).first.index2.k;
+            XType xtype_x=(*it).first.index1.xtype, xtype_y=(*it).first.index2.xtype;
+
+            T x=0., y=0.;
+            if (xtype_x==XBSpline) {  x = T(k_x+offset_x) / (basis.first.mra.cardI(j_x)+1);      }
+            else {                    x = T((k_x-1)*2+1) / (basis.first.mra.cardI(j_x+1)+1);  }
+            if (xtype_y==XBSpline) {  y = T(k_y+offset_y) / (basis.second.mra.cardI(j_y)+1);      }
+            else {                    y = T((k_y-1)*2+1) / (basis.second.mra.cardI(j_y+1)+1);  }
+
+            //center of the support
+            if(fabs((*it).second) > 0){
+              datafile << x << " " << y << " " << (*it).second << " " << -1. << std::endl;
+            }
+        }
+    }
+    datafile.close();
+}
+
+template <typename T, typename Basis>
+void
+plotScatterCoeff(const Coefficients<Lexicographical,T,Index3D> &coeff, const Basis &basis,
+                 const char* filename, bool useSupportCenter)
+{
+    typedef typename Coefficients<Lexicographical,T,Index3D>::const_iterator const_coeff_it;
+
+    std::stringstream datafilename;
+    datafilename << filename << ".dat";
+    std::ofstream datafile(datafilename.str().c_str());
+
+    if (useSupportCenter) {
+        for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+            int  j_x=(*it).first.index1.j, j_y=(*it).first.index2.j,  j_z=(*it).first.index3.j;
+            long k_x=(*it).first.index1.k,  k_y=(*it).first.index2.k, k_z=(*it).first.index3.k;
+            XType xtype_x=(*it).first.index1.xtype, xtype_y=(*it).first.index2.xtype,
+                  xtype_z=(*it).first.index3.xtype;
+
+            Support<T> supp_x = basis.first.generator(xtype_x).support(j_x,k_x);
+            Support<T> supp_y = basis.first.generator(xtype_y).support(j_y,k_y);
+            Support<T> supp_z = basis.first.generator(xtype_z).support(j_z,k_z);
+
+            T x=0., y=0., z=0.;
+            x = (supp_x.l2 + supp_x.l1)/(T)2.;
+            y = (supp_y.l2 + supp_y.l1)/(T)2.;
+            z = (supp_z.l2 + supp_z.l1)/(T)2.;
+            //center of the support
+            if(fabs((*it).second) > 0){
+              datafile << x << " " << y << " " << z << " " << (*it).second << " " << -1. << std::endl;
+            }
+        }
+    }
+    else {
+        int offset_x = 1-basis.first.mra.rangeI(basis.first.j0).firstIndex();
+        int offset_y = 1-basis.second.mra.rangeI(basis.second.j0).firstIndex();
+        int offset_z = 1-basis.third.mra.rangeI(basis.third.j0).firstIndex();
+        for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
+            int  j_x=(*it).first.index1.j, j_y=(*it).first.index2.j,  j_z=(*it).first.index3.j;
+            long k_x=(*it).first.index1.k,  k_y=(*it).first.index2.k, k_z=(*it).first.index3.k;
+            XType xtype_x=(*it).first.index1.xtype, xtype_y=(*it).first.index2.xtype,
+                  xtype_z=(*it).first.index3.xtype;
+
+            T x=0., y=0., z=0.;
+            if (xtype_x==XBSpline) {  x = T(k_x+offset_x) / (basis.first.mra.cardI(j_x)+1);      }
+            else {                    x = T((k_x-1)*2+1) / (basis.first.mra.cardI(j_x+1)+1);  }
+            if (xtype_y==XBSpline) {  y = T(k_y+offset_y) / (basis.second.mra.cardI(j_y)+1);      }
+            else {                    y = T((k_y-1)*2+1) / (basis.second.mra.cardI(j_y+1)+1);  }
+            if (xtype_z==XBSpline) {  z = T(k_z+offset_z) / (basis.third.mra.cardI(j_z)+1);      }
+            else {                    z = T((k_z-1)*2+1) / (basis.third.mra.cardI(j_z+1)+1);  }
+
+            //center of the support
+            if(fabs((*it).second) > 0){
+              datafile << x << " " << y << " " << z << " " << (*it).second << " " << -1. << std::endl;
+            }
+        }
+    }
+    datafile.close();
+}
+
 
 }  // namespace lawa
 

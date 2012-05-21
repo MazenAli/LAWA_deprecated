@@ -49,7 +49,7 @@ class CompoundLocalOperator {
         eval(Coefficients<Lexicographical,T,Index> &v,
              Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P);
 
-        int                               numOfLocalOp;
+        int                         numOfLocalOp;
         FirstLocalOperator          &firstLocalOp;
         SecondLocalOperator         &secondLocalOp;
         ThirdLocalOperator          &thirdLocalOp;

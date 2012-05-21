@@ -48,7 +48,7 @@ struct Index1D
     Index1D(int j, long k, XType _xtype);
     Index1D(const Index1D &index);
     ~Index1D();
-    short levelSum();
+    short levelSum() const;
 };
 
 std::ostream& operator<<(std::ostream &s, const Index1D &_Index);
@@ -58,7 +58,7 @@ struct Index2D
     Index2D(void);
     Index2D(const Index1D &index1, const Index1D &index2);
     ~Index2D();
-    short levelSum();
+    short levelSum() const;
 
     Index1D index1, index2;
 
@@ -68,9 +68,10 @@ std::ostream& operator<<(std::ostream &s, const Index2D &_Index);
 
 struct Index3D
 {
+    Index3D(void);
     Index3D(const Index1D &index1, const Index1D &index2, const Index1D &index3);
     ~Index3D();
-    short levelSum();
+    short levelSum() const;
 
     Index1D index1, index2, index3;
 

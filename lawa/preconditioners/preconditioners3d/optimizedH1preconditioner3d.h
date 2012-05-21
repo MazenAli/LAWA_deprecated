@@ -17,45 +17,47 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_PRECONDITIONERS_PRECONDITIONERS2D_H1NORMPRECONDITIONER2D_H
-#define LAWA_PRECONDITIONERS_PRECONDITIONERS2D_H1NORMPRECONDITIONER2D_H 1
+#ifndef LAWA_PRECONDITIONERS_PRECONDITIONERS3D_OPTIMIZEDH1PRECONDITIONER3D_H
+#define LAWA_PRECONDITIONERS_PRECONDITIONERS3D_OPTIMIZEDH1PRECONDITIONER3D_H 1
 
-#include <lawa/integrals/integrals.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/settings/enum.h>
 #include <lawa/aux/compiletime_assert.h>
 
 namespace lawa {
 
-template <typename T, typename Basis2D>
-class H1NormPreconditioner2D
+template <typename T, typename Basis3D>
+class OptimizedH1Preconditioner3D
 {
     public:
-        H1NormPreconditioner2D(const Basis2D &_basis);
+        OptimizedH1Preconditioner3D(const Basis3D &_basis, T _a_x=1., T _a_y=1., T _a_z=1., T _c=1.);
 
         T
-        operator()(XType xtype1, int j1, long k1,
-                   XType xtype2, int j2, long k2) const;
+        operator()(XType xtype_x, int j_x, long k_x,
+                   XType xtype_y, int j_y, long k_y,
+                   XType xtype_z, int j_z, long k_z) const;
 
         T
-        operator()(const Index2D &index) const;
+        operator()(const Index3D &index) const;
+
+        T
+        operator[](const Index3D &index) const;
 
     private:
-        typedef typename Basis2D::FirstBasisType Basis_x;
-        typedef typename Basis2D::SecondBasisType Basis_y;
+        typedef typename Basis3D::FirstBasisType  Basis_x;
+        typedef typename Basis3D::SecondBasisType Basis_y;
+        typedef typename Basis3D::ThirdBasisType  Basis_z;
 
-        Integral<Gauss, Basis_x, Basis_x>   _integral_x;
-        Integral<Gauss, Basis_y, Basis_y>   _integral_y;
+        const Basis_x &basis_x;
+        const Basis_y &basis_y;
+        const Basis_z &basis_z;
 
-        T refval_id_bspline;
-        T refval_dd_bspline;
-        T refval_id_wavelet;
-        T refval_dd_wavelet;
+        const T a_x, a_y, a_z, c;
 };
 
 }   // namespace lawa
 
-#include <lawa/preconditioners/preconditioners2d/H1normpreconditioner2d.tcc>
+#include <lawa/preconditioners/preconditioners3d/optimizedH1preconditioner3d.tcc>
 
-#endif // LAWA_PRECONDITIONERS_PRECONDITIONERS2D_H1NORMPRECONDITIONER2D_H
+#endif // LAWA_PRECONDITIONERS_PRECONDITIONERS3D_OPTIMIZEDH1PRECONDITIONER3D_H
 

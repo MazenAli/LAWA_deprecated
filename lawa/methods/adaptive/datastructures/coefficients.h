@@ -131,6 +131,32 @@ template <typename T, typename Index>
 void
 FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Index> &_coeff);
 
+template <typename T>
+void
+getLevelInfo(const Coefficients<Lexicographical,T,Index2D> &Lambda, Index2D &maxIndex,
+             Index2D &maxWaveletIndex, int *jmax, int &arrayLength);
+
+template <typename T>
+void
+getLevelInfo(const Coefficients<Lexicographical,T,Index3D> &Lambda, Index3D &maxIndex,
+             Index3D &maxWaveletIndex, int *jmax, int &arrayLength);
+
+template <typename T, typename Index>
+void
+Pe1(const Coefficients<Lexicographical,T,Index> &v,
+    Coefficients<Lexicographical,T,Index1D> &Pe1_v);
+
+template <typename T, typename Index>
+void
+Pe2(const Coefficients<Lexicographical,T,Index> &v,
+    Coefficients<Lexicographical,T,Index1D> &Pe2_v);
+
+template <typename T, typename Index>
+void
+Pe3(const Coefficients<Lexicographical,T,Index> &v,
+    Coefficients<Lexicographical,T,Index1D> &Pe3_v);
+
+
 /* **********************************************************************************************
  * Bucket sorted coefficient vector
  * ********************************************************************************************** */

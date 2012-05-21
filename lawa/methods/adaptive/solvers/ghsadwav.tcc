@@ -64,12 +64,14 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
 
         if (nu_k <=eps) break;
 
+        /*
         IndexSet<Index1D> Lambda_x, Lambda_y;
         split(Lambda_kP1, Lambda_x, Lambda_y);
         int jmin_x, jmax_x, jmin_y, jmax_y;
         getMinAndMaxLevel(Lambda_x, jmin_x, jmax_x);
         getMinAndMaxLevel(Lambda_y, jmin_y, jmax_y);
         std::cerr << "   Current jmax  = (" << jmax_x << ", " << jmax_y << ")" << std::endl;
+        */
         Coefficients<Lexicographical,T,Index> Au, f, rhs;
         f = F(supp(w_k));
         T fu = w_k*f;

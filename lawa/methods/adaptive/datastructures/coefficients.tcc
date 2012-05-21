@@ -268,6 +268,88 @@ FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Inde
     }
 }
 
+template <typename T>
+void
+getLevelInfo(const Coefficients<Lexicographical,T,Index2D> &v, Index2D &maxIndex,
+             Index2D &maxWaveletIndex, int *jmax, int &arrayLength)
+{
+    typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
+    delete [] jmax;
+    arrayLength = 2;
+    jmax = new int[2];
+    jmax[0] = -100; jmax[1] = -100;
+    for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
+        jmax[0] = std::max((int)(*it).first.index1.j,jmax[0]);
+        jmax[1] = std::max((int)(*it).first.index2.j,jmax[1]);
+        if ((*it).first.levelSum()>maxIndex.levelSum()) maxIndex = (*it).first;
+        if ((*it).first.index1.xtype==XWavelet && (*it).first.index2.xtype==XWavelet) {
+            if ((*it).first.levelSum()>maxWaveletIndex.levelSum()) maxWaveletIndex = (*it).first;
+        }
+        }
+    return;
+}
+
+template <typename T>
+void
+getLevelInfo(const Coefficients<Lexicographical,T,Index3D> &v, Index3D &maxIndex,
+             Index3D &maxWaveletIndex, int *jmax, int &arrayLength)
+{
+    typedef typename Coefficients<Lexicographical,T,Index3D>::const_iterator const_coeff_it;
+    delete [] jmax;
+    arrayLength = 3;
+    jmax = new int[3];
+    jmax[0] = -100; jmax[1] = -100; jmax[2] = -100;
+    for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
+        jmax[0] = std::max((int)(*it).first.index1.j,jmax[0]);
+        jmax[1] = std::max((int)(*it).first.index2.j,jmax[1]);
+        jmax[2] = std::max((int)(*it).first.index3.j,jmax[2]);
+        if ((*it).first.levelSum()>maxIndex.levelSum()) maxIndex = (*it).first;
+        if (    (*it).first.index1.xtype==XWavelet && (*it).first.index2.xtype==XWavelet
+             && (*it).first.index3.xtype==XWavelet) {
+            if ((*it).first.levelSum()>maxWaveletIndex.levelSum()) maxWaveletIndex = (*it).first;
+        }
+    }
+}
+
+template <typename T, typename Index>
+void
+Pe1(const Coefficients<Lexicographical,T,Index> &v,
+          Coefficients<Lexicographical,T,Index1D> &Pe1_v)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator   const_coeff_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff1d_it;
+    for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
+        const_coeff1d_it it_Pe1 = Pe1_v.find((*it).first.index1);
+        if (it_Pe1==Pe1_v.end()) Pe1_v[(*it).first.index1] = 0.;
+    }
+}
+
+template <typename T, typename Index>
+void
+Pe2(const Coefficients<Lexicographical,T,Index> &v,
+          Coefficients<Lexicographical,T,Index1D> &Pe2_v)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator   const_coeff_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff1d_it;
+    for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
+        const_coeff1d_it it_Pe2 = Pe2_v.find((*it).first.index2);
+        if (it_Pe2==Pe2_v.end()) Pe2_v[(*it).first.index2] = 0.;
+    }
+}
+
+template <typename T, typename Index>
+void
+Pe3(const Coefficients<Lexicographical,T,Index> &v,
+          Coefficients<Lexicographical,T,Index1D> &Pe3_v)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator   const_coeff_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff1d_it;
+    for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
+        const_coeff1d_it it_Pe3 = Pe3_v.find((*it).first.index3);
+        if (it_Pe3==Pe3_v.end()) Pe3_v[(*it).first.index3] = 0.;
+    }
+}
+
 /* **********************************************************************************************
  * Bucket sorted coefficient vector
  * ********************************************************************************************** */

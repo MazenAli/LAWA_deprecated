@@ -72,13 +72,14 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
 
         if (nu_k <=eps) break;
 
+        /*
         IndexSet<Index1D> Lambda_x, Lambda_y;
         split(Lambda_kP1, Lambda_x, Lambda_y);
         int jmin_x, jmax_x, jmin_y, jmax_y;
         getMinAndMaxLevel(Lambda_x, jmin_x, jmax_x);
         getMinAndMaxLevel(Lambda_y, jmin_y, jmax_y);
         std::cerr << "   Current jmax  = (" << jmax_x << ", " << jmax_y << ")" << std::endl;
-
+        */
         Coefficients<Lexicographical,T,Index> PP_Au, PP_f, u;
         u = w_k;
         for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {

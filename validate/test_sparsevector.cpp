@@ -15,7 +15,6 @@ typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT
 typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
-
 void
 test(std::vector<SparseMatrixT> &vec) {
     cout << "test started..." << endl;
@@ -109,7 +108,6 @@ int main () {
     DenseMatrixT A_dense2;
     densify(cxxblas::NoTrans,A2,A_dense2);
     cout << A_dense2 << endl;
-
 
     int N = 5000000;
 

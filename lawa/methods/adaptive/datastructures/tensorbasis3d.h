@@ -2,5 +2,5 @@
  *  the basic tensorbasis class
  */
 
-#include <lawa/constructions/tensorbasis2d.h>
+#include <lawa/constructions/tensorbasis3d.h>
 

@@ -78,54 +78,8 @@ struct AlignedCoefficients
 
 };
 
-/*
-template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
-struct AlignedCoefficients
-{
-    #ifdef TRONE
-        typedef typename std::tr1::unordered_map<PrincipalIndex,Coefficients<Lexicographical,T,AlignedIndex>,
-                                                 index_hashfunction<PrincipalIndex>,
-                                                 index_eqfunction<PrincipalIndex> >
-                         IndexToCoefficientsMap;
-    #else
-        typedef typename __gnu_cxx::hash_map<PrincipalIndex,Coefficients<Lexicographical,T,AlignedIndex>,
-                                             index_hashfunction<PrincipalIndex>,
-                                             index_eqfunction<PrincipalIndex> >
-                         IndexToCoefficientsMap;
-    #endif
 
-    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator          const_coeff_index_it;
-    typedef typename IndexToCoefficientsMap::const_iterator                         const_map_prindex_it;
-    typedef typename IndexToCoefficientsMap::iterator                               map_prinindex_it;
 
-    typedef typename Coefficients<Lexicographical,T,AlignedIndex>::const_iterator   const_coeff_aligindex_it;
-    typedef typename Coefficients<Lexicographical,T,AlignedIndex>::iterator         coeff_aligindex_it;
-
-    AlignedCoefficients(void);
-
-    AlignedCoefficients(size_t n1, size_t n2);
-
-    /// Aligns the coefficient vector w.r.t. to the principal index assuming that
-    /// Index = (PrincipalIndex,AlignedIndex)
-    void
-    align_x1(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
-
-    /// Aligns the coefficient vector w.r.t. to the principal index assuming that
-    /// Index = (AlignedIndex,PrincipalIndex)
-    void
-    align_x2(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
-
-    IndexToCoefficientsMap map;
-
-    size_t n1, n2;
-};
-
-template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
-std::ostream& operator<< (std::ostream &s,
-                          const AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex> &alignedcoeff);
-*/
-
-/*
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
 struct AlignedCoefficients2
 {
@@ -146,7 +100,6 @@ struct AlignedCoefficients2
     PrincipalIndexToAlignedIndices  principalIndexToAlignedIndices;
 
 };
-*/
 
 }   // namespace lawa
 

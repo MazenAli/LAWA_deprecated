@@ -42,6 +42,9 @@ struct UniDirectionalLocalOperator
 
     typedef AlignedCoefficients<T,Index,NotCoordXIndex,Index1D,NotCoordX>  NotCoordXAlignedCoefficients;
 
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff1d_it;
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator   const_coeff_it;
+
     UniDirectionalLocalOperator(LocalOperator1D &_localOperator1D);
 
     void
