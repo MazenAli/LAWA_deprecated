@@ -1,6 +1,0 @@
-#ifndef LAWA_CONSTRUCTIONS_INTERVAL_DKU_DUAL_TCC
-#define LAWA_CONSTRUCTIONS_INTERVAL_DKU_DUAL_TCC 1
-
-#include <lawa/constructions/interval/dku/dual/mra.tcc>
-
-#endif // LAWA_CONSTRUCTIONS_INTERVAL_DKU_DUAL_TCC
