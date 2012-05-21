@@ -264,6 +264,10 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
         } else if ((d==2) && (d_==4)) {
             indices.engine().resize(4);
             indices = 1, 4, 5, 2;
+        } else if ((d==2) && (d_==2)) {
+            indices.engine().resize(2);
+            indices = 2,1;
+            positions = 1,2,3;
         } else { // for d=2 we need all, for others not necessarily optimal!
             indices.engine().resize(d+d_-2);
             for (int i=indices.firstIndex(); i<=indices.lastIndex(); ++i) {

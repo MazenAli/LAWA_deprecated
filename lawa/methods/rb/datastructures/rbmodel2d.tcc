@@ -45,6 +45,13 @@ RBModel2D<T, TruthModel>::Q_f()
 
 template <typename T, typename TruthModel>
 unsigned int
+RBModel2D<T, TruthModel>::Q_output()
+{
+  return theta_output.size();
+}
+
+template <typename T, typename TruthModel>
+unsigned int
 RBModel2D<T, TruthModel>::n_bf()
 {
   return rb_basis_functions.size();  
@@ -62,6 +69,13 @@ void
 RBModel2D<T, TruthModel>::attach_theta_f_q(theta_fctptr theta_f_q)
 {
   theta_f.push_back(theta_f_q);
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::attach_theta_output_q(theta_fctptr theta_output_q)
+{
+  theta_output.push_back(theta_output_q);
 }
 
 template <typename T, typename TruthModel>
@@ -88,6 +102,7 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
     
     timer.start();
     std::cout << "  Updating RB Matrices ..." << std::endl;
+
     update_RB_A_matrices();
     update_RB_F_vectors();
     update_RB_inner_product();
@@ -561,6 +576,14 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   repr_F_file.precision(precision);
   repr_F_file << std::scientific << F_F_representor_norms << std::endl;
   repr_F_file.close();
+
+  // Write output_output_representor_norms
+  std::stringstream repr_output_filename;
+  repr_output_filename << directory_name << "/output_output_representor_norms.dat";
+  std::ofstream repr_output_file(repr_output_filename.str().c_str());
+  repr_output_file.precision(precision);
+  repr_output_file << std::scientific << output_output_representor_norms << std::endl;
+  repr_output_file.close();
   
   // Write A_F_representor_norms
   std::stringstream repr_A_F_filename;
@@ -689,6 +712,25 @@ RBModel2D<T, TruthModel>::read_RB_data(const std::string& directory_name){
     std::cerr << "Unable to open file " << F_F_filename.str() << " for reading!" << std::endl;
     exit(1);
   }
+
+  // Read output_output_representor norms
+  output_output_representor_norms.engine().resize((int)Q_output(), (int)Q_output());
+  std::stringstream output_output_filename;
+  output_output_filename << directory_name << "/output_output_representor_norms.dat";
+  std::ifstream output_output_file(output_output_filename.str().c_str());
+  if(output_output_file.is_open()){
+    for(unsigned int i = 1; i <= Q_output(); ++i){
+      for(unsigned int j = 1; j <= Q_output(); ++j){
+        output_output_file >> output_output_representor_norms(i,j);
+      }
+    }
+    output_output_file.close();
+    std::cout << " Read " << output_output_filename.str() << std::endl;
+  }
+  else{
+    std::cerr << "Unable to open file " << output_output_filename.str() << " for reading!" << std::endl;
+    exit(1);
+  }
   
   // Read A_F_representor norms
   A_F_representor_norms.clear();
@@ -784,12 +826,13 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
             }
 
         }
-        
+
         DenseVectorT A_new_bf, A_new_bf_T;
         if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
             A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense;
             A_new_bf_T = transpose(truth->A_operator_matrices[q_a]) * new_bf_dense;
         }
+        
         
         for (unsigned int i = 1; i <= n_bf(); ++i) {
             if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){

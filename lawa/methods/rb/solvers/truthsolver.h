@@ -30,6 +30,9 @@ struct TruthSolver {
     virtual Coefficients<Lexicographical,T,Index>
     repr_solve_A() = 0;
     
+    virtual Coefficients<Lexicographical,T,Index>
+    repr_solve_output() = 0;
+
 };
     
 } // namespace lawa
