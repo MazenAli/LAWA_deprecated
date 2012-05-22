@@ -41,14 +41,14 @@ class S_ADWAV {
         void solve(const IndexSet<Index> &Initial_Lambda, const char *linsolvertype,
                    const char *filename, int assemble_matrix=2, T H1norm=0.);
         //solver for symmetric elliptic problems
-        void solve_cg(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
+        void solve_cg(const IndexSet<Index> &Initial_Lambda, int assemble_matrix=1, T H1norm=0.);
         //solver for symmetric elliptic problems without B-Splines
-        void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, T H1norm=0.);
+        void solve_cg_WO_XBSpline(const IndexSet<Index> &Initial_Lambda, int assemble_matrix=1, T H1norm=0.);
         //solver for elliptic problems
-        void solve_gmres(const IndexSet<Index> &Initial_Lambda);
-        void solve_gmresm(const IndexSet<Index> &Initial_Lambda);
+        void solve_gmres(const IndexSet<Index> &Initial_Lambda, int assemble_matrix=1);
+        void solve_gmresm(const IndexSet<Index> &Initial_Lambda, int assemble_matrix=1);
         //solver for indefinite problems
-        void solve_cgls(const IndexSet<Index> &Initial_Lambda);
+        void solve_cgls(const IndexSet<Index> &Initial_Lambda, int assemble_matrix=1);
         
         void
         set_parameters(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 

@@ -18,6 +18,8 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
 { 
   Coefficients<Lexicographical,T,Index> u, f;
   std::cout << "Start Truth Solve: Call Method " << solution_method << std::endl; 
+
+	int assemble_matrix = 1;
   
   Timer timer1, timer2;
   
@@ -38,22 +40,25 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
   int its;
   switch(solution_method){
     case call_cg:
-    std::cout << " This only makes sense if TrialBasis == TestBasis !! Are you sure?" << std::endl;
-    if(testbasis_set.size() != trialbasis_set.size()){
-      std::cerr << "Dimension of Trial and Test Basis are different -> Cannot apply CG! " << std::endl;
-      exit(1);
-    }
-    std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = CG_Solve(trialbasis_set, truth_model->lhs_op, u, f, res, tol, false, maxIterations);
+		{
+			T timeMatrixVector = 0;
+    	std::cout << " This only makes sense if TrialBasis == TestBasis !! Are you sure?" << std::endl;
+    	if(testbasis_set.size() != trialbasis_set.size()){
+      	std::cerr << "Dimension of Trial and Test Basis are different -> Cannot apply CG! " << std::endl;
+      	exit(1);
+    	}
+    	std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
+      its = CG_Solve(trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
       std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
       break;
+		}
     case call_gmres:
     if(testbasis_set.size() != trialbasis_set.size()){
       std::cerr << "Dimension of Trial and Test Basis are different -> Cannot apply GMRES! " << std::endl;
       exit(1);
     }
     std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = GMRES_Solve_PG(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations);
+      its = GMRES_Solve_PG(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, assemble_matrix);
       std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
       break;
     case call_cgls: 
@@ -62,7 +67,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
         exit(1);
       }
       std::cout << "  Start CGLS Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = CGLS_Solve(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations);
+      its = CGLS_Solve(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, assemble_matrix);
       std::cout << "  CGLS iterations: " << its << ", residual = " << res << std::endl;
       break;      
     default: 
@@ -87,6 +92,8 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
   
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
   
+		int assemble_matrix = 1;
+		T timeMatrixVector = 0;
     // Construct rhs coefficients vector
     typename IndexSet<Index>::const_iterator it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
@@ -102,7 +109,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     int its;
 
     std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-    its = CG_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    its = CG_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
     std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
 
     timer1.stop();
@@ -166,6 +173,9 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
   
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
       
+		int assemble_matrix = 1;
+		T timeMatrixVector = 0;
+		
     timer1.start();    
     
     Coefficients<Lexicographical,T,Index> f;  
@@ -184,7 +194,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     int its;
 
     std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-    its = CG_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    its = CG_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
     std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
 
     timer1.stop();
@@ -253,6 +263,9 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
   
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
       
+		int assemble_matrix = 1;
+		T timeMatrixVector = 0;
+		
     timer1.start();    
     
     Coefficients<Lexicographical,T,Index> f;  
@@ -271,7 +284,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
     int its;
 
     std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-    its = CG_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    its = CG_Solve(testbasis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
     std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
 
     timer1.stop();

@@ -166,6 +166,7 @@ mv_sparse(T t, const IndexSet<Index> &LambdaRow, MA &A, const Coefficients<Lexic
 }
 */
 
+/*
 template <typename T, typename Index, typename MA>
 int
 CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
@@ -321,7 +322,9 @@ GMRESM_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,
     else return -1;
     
 }
+*/
 
+/*
 template <typename T, typename Index, typename MA>
 int
 GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
@@ -342,7 +345,7 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
         flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
         toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
     
-        /*    
+  
     //----------------------------
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
     densify(cxxblas::NoTrans, A_flens, A_dense);
@@ -350,7 +353,7 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
     A_matrix << A_dense << std::cout;
     A_matrix.close();
     //----------------------------
-    */
+
 
         if (LambdaRow.size() > 0) {
             DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
@@ -363,12 +366,11 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
                 else                     rhs(row_count) = 0.;
             }
             
-            /*//----------------------------
+            //----------------------------
             std::ofstream b_vector("RHS_Vector.txt");
             b_vector << rhs << std::cout;
             b_vector.close();
             //----------------------------
-            */
             
             std::cout << "Starting gmres (pg)..." << std::endl;
             int number_of_iterations = lawa::gmres(A_flens,x,rhs, tol, maxIterations);
@@ -484,6 +486,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
         else return -1;
 
 }
+*/
 }   //namespace lawa
 
 /*

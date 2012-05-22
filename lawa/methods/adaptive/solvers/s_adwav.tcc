@@ -188,7 +188,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
-S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T H1norm)
+S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, int assemble_matrix, T H1norm)
 {
     Timer timer;
 
@@ -198,6 +198,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
     LambdaActive = InitialLambda;
     T old_res = 0.;
     int its_per_threshTol=0;
+    T timeMatrixVector=0.;
+
     std::cout << "Simple adaptive solver started." << std::endl;
     
     std::stringstream filename;
@@ -217,15 +219,17 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         //std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
-        int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
+        int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 1000, timeMatrixVector, assemble_matrix);
         linsolve_iterations[its] = iterations;
         //std::cout << "   ...finished." << std::endl;
 
         //Threshold step
         //std::cout << "Before THRESH: " << u << std::endl;
         //std::cout << "||u||_2 = " << u.norm(2.) << ", threshTol = " << threshTol << std::endl;
-        u = THRESH(u,threshTol*u.norm(2.),false);
-        //int jmin,jmax;
+        // u = THRESH(u,threshTol*u.norm(2.),false);
+        u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+
+				//int jmin,jmax;
         //getMinAndMaxLevel(LambdaActive, jmin, jmax);
         //std::cout << "Before THRESH: jmin = " << jmin << ", jmax = " << jmax << std::endl;
         //std::cout << "After THRESH: " << u << std::endl;
@@ -255,7 +259,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         T f_norm_DeltaLambda = f.norm(2.);
         //std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         //Au = mv(DeltaLambda,A,u);
-        Au = mv_sparse(DeltaLambda,A,u);
+        if (assemble_matrix==1) {
+            Au = mv_sparse(DeltaLambda,A,u);
+        }
+        else {
+            Au = A.mv(DeltaLambda,u);
+        }
         r  = Au-f;
         T r_norm_DeltaLambda = r.norm(2.);
         T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
@@ -265,8 +274,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
         residuals[its] = estim_res;
         toliters[its] = linTol;
 
-        r = THRESH(r,threshTol*r.norm(2.));
-        LambdaActive = LambdaThresh+supp(r);
+        //r = THRESH(r,threshTol*r.norm(2.));
+        r = THRESH(r,threshTol, false, basis.d > 3 ? true : false);
+				LambdaActive = LambdaThresh+supp(r);
 
 
         //Check if residual is decreasing, if not decrease threshold tolerance
@@ -310,7 +320,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, T 
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
-S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &InitialLambda, T H1norm)
+S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &InitialLambda, int assemble_matrix, T H1norm)
 {
     Timer timer;
 
@@ -320,6 +330,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
     LambdaActive = InitialLambda;
     T old_res = 0.;
     int its_per_threshTol=0;
+		T timeMatrixVector = 0;
+		
     std::cout << "Simple adaptive solver started." << std::endl;
     std::stringstream filename;
     filename << "s-adwav-realline-helmholtz-otf.dat";
@@ -338,12 +350,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
-        int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
+        int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 1000, timeMatrixVector, assemble_matrix);
         std::cout << "   ...finished." << std::endl;
 
         //Threshold step
-        u = THRESH(u,threshTol);
-        solutions[its] = u;
+        //u = THRESH(u,threshTol);
+        u = THRESH(u,threshTol, false, basis.d > 3 ? true : false);
+				solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
 
@@ -360,9 +373,15 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
         std::cout << "   ...finished" << std::endl;
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
-        Au = mv(DeltaLambda,A,u);
         //Do not use mv_sparse before lambdaTilde works properly for very low levels!!
         //Au = mv_sparse(DeltaLambda,A,u);
+        if (assemble_matrix==1) {
+            //Au = mv_sparse(DeltaLambda,A,u);
+					Au = mv(DeltaLambda,A,u);
+        }
+        else {
+            Au = A.mv(DeltaLambda,u);
+        }
         r  = Au-f;
         T r_norm_DeltaLambda = r.norm(2.);
         T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
@@ -373,7 +392,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
 
         file << LambdaThresh.size() << " " << estim_res << " " << Error_H_energy << std::endl;
 
-        r = THRESH(r,threshTol);
+        //r = THRESH(r,threshTol);
+				r = THRESH(r,threshTol, false, basis.d > 3 ? true : false);
         LambdaActive = LambdaActive+supp(r);
 
         //Check if residual is decreasing, if not decrease threshold tolerance
@@ -407,7 +427,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
-S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
+S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda, int assemble_matrix)
 {
     Timer timer;
     
@@ -437,13 +457,14 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         T r_norm_LambdaActive = 0.0;
         std::cout << "   GMRES solver started with N = " << LambdaActive.size() << std::endl;
         int maxIterations = 1000;
-        int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 1000);
+        int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, maxIterations, assemble_matrix);
         std::cout << "   ...finished." << std::endl;
 
 
 
         //Threshold step
-        u = THRESH(u,threshTol);
+        // u = THRESH(u,threshTol);
+        u = THRESH(u,threshTol, false, basis.d > 3 ? true : false);
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
@@ -465,7 +486,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
 
-        Au = mv_sparse(DeltaLambda,A,u);
+        //Au = mv(DeltaLambda,A,u);
+        if (assemble_matrix==1) {
+            Au = mv_sparse(DeltaLambda,A,u);
+        }
+        else {
+            Au = A.mv(DeltaLambda,u);
+        }
         r  = Au-f;
         T r_norm_DeltaLambda = r.norm(2.);
         T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
@@ -474,7 +501,9 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
         std::cout << "   ...finished" << std::endl;
         residuals[its] = estim_res;
 
-        r = THRESH(r,threshTol);
+        //r = THRESH(r,threshTol);
+        u = THRESH(u,threshTol, false, basis.d > 3 ? true : false);
+
         //LambdaActive = LambdaThresh+supp(r);
         LambdaActive = LambdaActive+supp(r);
 
@@ -516,7 +545,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda)
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
-S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda)
+S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda, int assemble_matrix)
 {
     Timer timer;
     
@@ -544,14 +573,16 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda
         
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
+				int maxIterations = 1000;
         std::cout << "   GMRESM solver started with N = " << LambdaActive.size() << std::endl;
-        int iterations = GMRESM_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol);
+        int iterations = GMRESM_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, maxIterations, assemble_matrix);
         std::cout << "   ...finished." << std::endl;
         
         
         
         //Threshold step
-        u = THRESH(u,threshTol);
+        //u = THRESH(u,threshTol);
+        u = THRESH(u,threshTol, false, basis.d > 3 ? true : false);
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
@@ -573,7 +604,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda (size = " << DeltaLambda.size() << ")" << std::endl;
         
-        Au = mv_sparse(DeltaLambda,A,u);
+        //Au = mv(DeltaLambda,A,u);
+        if (assemble_matrix==1) {
+            Au = mv_sparse(DeltaLambda,A,u);
+        }
+        else {
+            Au = A.mv(DeltaLambda,u);
+        }
         r  = Au-f;
         T r_norm_DeltaLambda = r.norm(2.);
         T numerator   = r_norm_DeltaLambda*r_norm_DeltaLambda + r_norm_LambdaActive*r_norm_LambdaActive;
@@ -582,7 +619,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda
         std::cout << "   ...finished" << std::endl;
         residuals[its] = estim_res;
         
-        r = THRESH(r,threshTol);
+        //r = THRESH(r,threshTol);
+        r = THRESH(r,threshTol, false, basis.d > 3 ? true : false);
         //LambdaActive = LambdaThresh+supp(r);
         LambdaActive = LambdaActive+supp(r);
         
@@ -625,7 +663,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
 void
-S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
+S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda, int assemble_matrix)
 {
     Timer timer;
 
@@ -654,12 +692,14 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
+				int maxIterations = 100000;
         int iterations = CGLS_Solve(LambdaActive_test, LambdaActive,
-                                    A, u, f, r_norm_LambdaActive, linTol, 100000);
+                                    A, u, f, r_norm_LambdaActive, linTol, maxIterations, assemble_matrix);
         std::cout << "   ...finished after " << iterations << " iterations with residual = " << r_norm_LambdaActive << std::endl;
 
         //Threshold step
-        u = THRESH(u,threshTol);
+        //u = THRESH(u,threshTol);
+        u = THRESH(u,threshTol, false, basis.d > 3 ? true : false);
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
@@ -671,7 +711,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
         std::cout << "   ...finished" << std::endl;
         T f_norm_DeltaLambda = f.norm(2.);
         std::cout << "   Computing residual for DeltaLambda_test_operator..." << std::endl;
-        Au = mv_sparse(DeltaLambda,A,u);
+        //Au = mv_sparse(DeltaLambda,A,u);
+        if (assemble_matrix==1) {
+            Au = mv_sparse(DeltaLambda,A,u);
+        }
+        else {
+            Au = A.mv(DeltaLambda,u);
+        }
         r  = Au-f;
         T r_norm_DeltaLambda = r.norm(2.);
         std::cout << "   ...finished" << std::endl;
@@ -684,7 +730,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda)
 
         file << u.size() << " " << LambdaActive.size() << " " << estim_res << " " << iterations << " " << r_norm_LambdaActive << std::endl;
 
-        r = THRESH(r,threshTol);
+        //r = THRESH(r,threshTol);
+        r = THRESH(r,threshTol, false, basis.d > 3 ? true : false);
         LambdaActive = LambdaThresh+supp(r);
 
         //Check if residual is decreasing, if not decrease threshold tolerance

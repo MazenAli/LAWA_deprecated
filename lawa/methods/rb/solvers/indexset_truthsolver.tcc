@@ -39,15 +39,19 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::truth_solve()
   
   T res;
   int its;
+	int assemble_matrix = 1;
   switch(solution_method){
     case call_cg:
-    std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = CG_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, false, maxIterations);
+		{
+			T timeMatrixVector=0;
+    	std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
+      its = CG_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
       std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
       break;
+		}
     case call_gmres:
     std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = GMRES_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, false, maxIterations);
+      its = GMRES_Solve(basis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, assemble_matrix);
       std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
       break;
     default: 
@@ -70,7 +74,9 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
   timer1.start();
   
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
-  
+  	int assemble_matrix = 1;
+		T timeMatrixVector=0;
+	
     // Construct rhs coefficients vector
     typename IndexSet<Index>::const_iterator it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
@@ -87,7 +93,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
     int its;
 
     std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
     std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
 
     timer1.stop();
@@ -152,7 +158,10 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
   Coefficients<Lexicographical,T,Index> u;
   
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
-
+		
+		int assemble_matrix = 1;
+		T timeMatrixVector=0;
+		
     timer1.start();    
     
     Coefficients<Lexicographical,T,Index> f;  
@@ -171,7 +180,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
     int its;
 
     std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
     std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
 
     timer1.stop();
@@ -241,6 +250,9 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
 
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
    
+		int assemble_matrix = 1;
+		T timeMatrixVector=0;
+		
         // Construct rhs coefficients vector
     typename IndexSet<Index>::const_iterator it;
     typedef typename Coefficients<Lexicographical,T,Index2D>::value_type val_type;
@@ -254,24 +266,20 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
 
     T res;
     int its;
-    switch(solution_method){
-      case call_cg:
-        std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-        its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
-        std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
-        break;
-      case call_gmres:
-        its = GMRES_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations);
-        std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
-        break;
-      default:
-        std::cerr << "Method not implemented yet " << std::endl;
-        break;
-    }
+
+    std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
+    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
+    std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
+
     timer1.stop();
     std::cout << "Done Output Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
   }
   else{ // Use pre-assembled matrix (assumes assemble_inner_product_matrix has been called before)
+
+    assert(truth_model->assembled_inner_product_matrix);
+    assert(truth_model->assembled_prec_vec);
+
+		DiagonalMatrix<T> P(truth_model->prec_vec);  
 
     std::cout << "    Using inner product matrix!" << std::endl;
     if (basis_set.size() > 0) {
@@ -295,26 +303,17 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
 
       T residual;
       int its;
-      switch(solution_method){
-        case call_cg:
-          std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl;
-          its = lawa::cg(truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
-          Ax = truth_model->inner_product_matrix*x;
-          res= Ax-rhs;
-          residual = std::sqrt(res*res);
-          row_count = 1;
-          for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
-              u[*row] = x(row_count)/ truth_model->get_prec((*row));
-          }
-          std::cout << "  CG iterations: " << its << ", residual = " << residual << std::endl;
-          break;
-        case call_gmres:
-            std::cerr << "Method not implemented yet " << std::endl;
-          break;
-        default:
-          std::cerr << "Method not implemented yet " << std::endl;
-          break;
+      std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
+      its = lawa::pcg(P, truth_model->inner_product_matrix, x, rhs, tol, maxIterations);
+      Ax = truth_model->inner_product_matrix*x;
+      res= Ax-rhs;
+      residual = std::sqrt(res*res);
+      row_count = 1;
+      for (const_set_it row=basis_set.begin(); row!=basis_set.end(); ++row, ++row_count) {
+          u[*row] = x(row_count) / truth_model->get_prec((*row));
       }
+      std::cout << "  PCG iterations: " << its << ", residual = " << residual << std::endl;
+
       timer1.stop();
       std::cout << std::endl << "  Done Output Representor Solve: "<< timer1.elapsed() << " seconds" << std::endl << std::endl;
 
@@ -335,6 +334,9 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
   if(!truth_model->use_inner_product_matrix){ // Assemble LHS Matrix
       
     timer1.start();    
+
+		int assemble_matrix = 1;
+		T timeMatrixVector = 0;
     
     Coefficients<Lexicographical,T,Index> f;  
     // Construct rhs coefficients vector
@@ -351,7 +353,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
     T res;
     int its;
     std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, false, maxIterations);
+    its = CG_Solve(basis_set, truth_model->repr_lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
     std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
 
     timer1.stop();
