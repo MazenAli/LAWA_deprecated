@@ -26,8 +26,8 @@ namespace lawa {
        const Coefficients<Lexicographical,T,Index2D> &x) = 0;
     
     virtual void
-    toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
-                        const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol) = 0; 
+    toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow, const IndexSet<Index2D> &LambdaCol, 
+												SparseMatrixT &A, T eps, bool useLinearIndex=false) = 0; 
     
   };
   

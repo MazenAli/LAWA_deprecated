@@ -1,4 +1,3 @@
-#include <lawa/methods/adaptive/operators/adaptiveoperator2d.h>
 #include <lawa/methods/adaptive/operators/localoperators/localoperators.h>
 #include <lawa/methods/adaptive/operators/pdeoperators1d/pdeoperators1d.h>
 #include <lawa/methods/adaptive/operators/pdeoperators2d/pdeoperators2d.h>
