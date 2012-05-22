@@ -121,7 +121,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Primal,Interval,Cons> &basi
     Support<T> contractedSupp(c*supp.l1 + (1-c)*zLambda, c*supp.l2 + (1-c)*zLambda);
     
     int kMin = basis.rangeJ(jP1).firstIndex(), kMax = basis.rangeJ(jP1).lastIndex();
-    int kStart = std::min(std::max(iceil(contractedSupp.l1 * pow2i<T>(jP1)), kMin), kMax);
+    int kStart = std::min(std::max(iceil<int>(contractedSupp.l1 * pow2i<T>(jP1)), kMin), kMax);
     assert((overlap(contractedSupp, basis.psi.support(jP1,kStart))>0));
     while ((kStart-1 >= kMin) &&
            (overlap(contractedSupp, basis.psi.support(jP1,std::max(kStart-1, kMin)))>0)) {

@@ -80,7 +80,7 @@ BSpline<T,Dual,R,CDF>::operator()(T x, int j, long k, unsigned short deriv) cons
     assert(x<=pow2i<T>(resolution)*l2_);
 
     // use linear interpolation between neighboring grid points.
-    return pow2ih<T>(j) * values(x);//(ifloor(values(x))+iceil(values(x)))/2;
+    return pow2ih<T>(j) * values(x);//(ifloor(values(x))+iceil<T>(values(x)))/2;
 }
 
 template <typename T>

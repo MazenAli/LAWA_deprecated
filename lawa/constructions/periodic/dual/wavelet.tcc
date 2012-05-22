@@ -60,7 +60,7 @@ Wavelet<T,Dual,Periodic,CDF>::operator()(T x, int j, long k, unsigned short deri
     // sum contributions of original spline on R
     // = 'wrapping' around [0,1]
     T val = 0;
-    for(int l = ifloor(psiR_.support(j,k).l1); l < iceil(psiR_.support(j,k).l2); ++l){
+    for(int l = ifloor(psiR_.support(j,k).l1); l < iceil<int>(psiR_.support(j,k).l2); ++l){
         val += psiR_(l+x, j, k);
     }
     return val;
