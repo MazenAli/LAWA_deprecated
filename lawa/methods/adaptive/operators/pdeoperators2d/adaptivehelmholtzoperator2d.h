@@ -29,8 +29,9 @@
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
 #include <lawa/preconditioners/preconditioners.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+#include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 #include <lawa/methods/adaptive/datastructures/matrixoperations.h>
+#include <lawa/methods/adaptive/operators/pdeoperators2d/adaptiveoperator2d.h>
 
 namespace lawa {
 
@@ -86,7 +87,7 @@ struct AdaptiveHelmholtzOperator2D : public AdaptiveOperator2D<T>
 
     void
     toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
-                        SparseMatrixT &A_flens, T eps);
+                        SparseMatrixT &A_flens, T eps, bool useLinearIndex=false);
 
     Coefficients<Lexicographical,T,Index2D>
     apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J=-1000,

@@ -26,7 +26,7 @@
 #include <lawa/methods/adaptive/compressions/compression_weightedpde1d.h>
 #include <lawa/methods/adaptive/compressions/compression_weightedpde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+#include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/operators/pdeoperators1d/weightedidentityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedlaplaceoperator1d.h>
@@ -53,19 +53,18 @@ struct WeightedAdaptiveHelmholtzOperator2D : public Operator2D<T>
     typedef WeightedLaplaceOperator1D<T, Basis_x, Gauss>    WeightedLaplaceOperator_x;
     typedef WeightedLaplaceOperator1D<T, Basis_y, Gauss>    WeightedLaplaceOperator_y;
 
-    typedef MapMatrixWithZeros<T, Index1D, WeightedIdentityOperator_x,
+    typedef MapMatrix<T, Index1D, WeightedIdentityOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataWeightedIdentity_x;
-    typedef MapMatrixWithZeros<T, Index1D, WeightedIdentityOperator_y,
+    typedef MapMatrix<T, Index1D, WeightedIdentityOperator_y,
                                Compression1D_y, NoPreconditioner1D>  DataWeightedIdentity_y;
-    typedef MapMatrixWithZeros<T, Index1D, WeightedLaplaceOperator_x,
+    typedef MapMatrix<T, Index1D, WeightedLaplaceOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataWeightedLaplace_x;
-    typedef MapMatrixWithZeros<T, Index1D, WeightedLaplaceOperator_y,
+    typedef MapMatrix<T, Index1D, WeightedLaplaceOperator_y,
                                Compression1D_y, NoPreconditioner1D>  DataWeightedLaplace_y;
 
     WeightedAdaptiveHelmholtzOperator2D(const Basis &_basis, const T _c, 
                                       Function<T> weightFct_x, Function<T> weightFct_y,
-                                      const Preconditioner &_Prec,
-                                	  T thresh=0., int NumOfCols=4096, int NumOfRows=4096);
+                                      const Preconditioner &_Prec);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);

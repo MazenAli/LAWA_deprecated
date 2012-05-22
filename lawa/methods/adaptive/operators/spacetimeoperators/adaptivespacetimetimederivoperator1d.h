@@ -24,7 +24,7 @@
 #include <lawa/methods/adaptive/compressions/compression_pde1d.h>
 #include <lawa/methods/adaptive/compressions/compression_pde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+#include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/convectionoperator1d.h>
@@ -60,19 +60,17 @@ struct AdaptiveSpaceTimeTimeDerivOperator1D : public Operator2D<T> {
     typedef IdentityOperator1D<T, Basis_x>      IdentityOperator_x;
     typedef ConvectionOperator1D<T, Basis_t>    ConvectionOperator_t;
 
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x, 
+    typedef MapMatrix<T, Index1D, IdentityOperator_x, 
                                Compression1D_x, NoPreconditioner1D>   DataIdentity_x;    
-    typedef MapMatrixWithZeros<T, Index1D, ConvectionOperator_t, 
+    typedef MapMatrix<T, Index1D, ConvectionOperator_t, 
                                Compression1D_t, NoPreconditioner1D>   DataConvection_t;
                                
     AdaptiveSpaceTimeTimeDerivOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    T _timederivfactor = 1.,
-                                    T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
+                                    T _timederivfactor = 1.);
     
     AdaptiveSpaceTimeTimeDerivOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
                                     InitialCondition& _init_cond,
-                                    T _timederivfactor = 1.,
-                                    T _entrybound = 0., int _NumOfRows=4096, int _NumOfCols=2048);
+                                    T _timederivfactor = 1.);
                                     
     // call of p_left * a_operator * p_right
     T
@@ -112,9 +110,6 @@ struct AdaptiveSpaceTimeTimeDerivOperator1D : public Operator2D<T> {
     
     const NoInitialCondition    op_noinitcond;
     const InitialCondition&     op_initcond;
-    
-    T   entrybound;
-    int NumOfRows, NumOfCols;
     
     DataIdentity_x      data_identity_x;
     DataConvection_t    data_convection_t;

@@ -9,8 +9,7 @@ template <typename T, typename TrialBasis, typename TestBasis,
 AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPrec2D, InitialCondition>::
 AdaptiveSpaceTimePDEOperator1D_PG(const TrialBasis& _trialbasis, const TestBasis& _testbasis,
                                    LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                   T _diffusion, T _convection, T _reaction, T _timederivfactor,
-                                   T _entrybound, int _NumOfRows, int _NumOfCols)
+                                   T _diffusion, T _convection, T _reaction, T _timederivfactor)
     : trialbasis(_trialbasis), testbasis(_testbasis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
       timederivfactor(_timederivfactor),
       compression_1d_t(_trialbasis.first), compression_1d_x(_trialbasis.second), compression(_trialbasis),
@@ -18,12 +17,11 @@ AdaptiveSpaceTimePDEOperator1D_PG(const TrialBasis& _trialbasis, const TestBasis
       op_identity_t(_trialbasis.first, _testbasis.first), op_identity_x(_trialbasis.second, _testbasis.second), 
       op_convection_t(_trialbasis.first, _testbasis.first), op_convection_x(_trialbasis.second, _testbasis.second), 
       op_laplace_x(_trialbasis.second, _testbasis.second), op_noinitcond(), op_initcond(op_noinitcond),
-      entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-      data_identity_t(op_identity_t,     noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
-      data_identity_x(op_identity_x,     noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-      data_convection_t(op_convection_t, noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
-      data_convection_x(op_convection_x, noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-      data_laplace_x(op_laplace_x,       noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols)
+      data_identity_t(op_identity_t,     noprec, compression_1d_t),
+      data_identity_x(op_identity_x,     noprec, compression_1d_x),
+      data_convection_t(op_convection_t, noprec, compression_1d_t),
+      data_convection_x(op_convection_x, noprec, compression_1d_x),
+      data_laplace_x(op_laplace_x,       noprec, compression_1d_x)
 {
 }
     
@@ -33,8 +31,7 @@ AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPre
 AdaptiveSpaceTimePDEOperator1D_PG(const TrialBasis& _trialbasis, const TestBasis& _testbasis,
                                    LeftPrec2D& _p_left, RightPrec2D& _p_right,
                                    InitialCondition& _init_cond,
-                                   T _diffusion, T _convection, T _reaction, T _timederivfactor,
-                                   T _entrybound, int _NumOfRows, int _NumOfCols)
+                                   T _diffusion, T _convection, T _reaction, T _timederivfactor)
     : trialbasis(_trialbasis), testbasis(_testbasis), diffusion(_diffusion), convection(_convection), reaction(_reaction),
       timederivfactor(_timederivfactor),
       compression_1d_t(_trialbasis.first), compression_1d_x(_trialbasis.second), compression(_trialbasis),
@@ -42,12 +39,11 @@ AdaptiveSpaceTimePDEOperator1D_PG(const TrialBasis& _trialbasis, const TestBasis
       op_identity_t(_trialbasis.first, _testbasis.first), op_identity_x(_trialbasis.second, _testbasis.second), 
       op_convection_t(_trialbasis.first, _testbasis.first), op_convection_x(_trialbasis.second, _testbasis.second), 
       op_laplace_x(_trialbasis.second, _testbasis.second), op_noinitcond(), op_initcond(op_noinitcond),
-      entrybound(_entrybound), NumOfRows(_NumOfRows), NumOfCols(_NumOfCols),
-      data_identity_t(op_identity_t,     noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
-      data_identity_x(op_identity_x,     noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-      data_convection_t(op_convection_t, noprec, compression_1d_t, entrybound, NumOfRows, NumOfCols),
-      data_convection_x(op_convection_x, noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols),
-      data_laplace_x(op_laplace_x,       noprec, compression_1d_x, entrybound, NumOfRows, NumOfCols)
+      data_identity_t(op_identity_t,     noprec, compression_1d_t),
+      data_identity_x(op_identity_x,     noprec, compression_1d_x),
+      data_convection_t(op_convection_t, noprec, compression_1d_t),
+      data_convection_x(op_convection_x, noprec, compression_1d_x),
+      data_laplace_x(op_laplace_x,       noprec, compression_1d_x)
 {
 }
 
