@@ -66,8 +66,8 @@ int main(int argc, char* argv[]) {
     Function<T>         w_x_2(weight_Omega_x_2, singpts_x);
     Function<T>         w_y(weight_Omega_y, singpts_y);
         
-    WeightedAdaptHHOp2D hh_1(basis2d, 0, w_x_1, w_y, noprec, 1e-10);
-    WeightedAdaptHHOp2D hh_2(basis2d, 0, w_x_2, w_y, noprec, 1e-10);
+    WeightedAdaptHHOp2D hh_1(basis2d, 0, w_x_1, w_y, noprec);
+    WeightedAdaptHHOp2D hh_2(basis2d, 0, w_x_2, w_y, noprec);
     
     rb_model.truth->attach_A_q(theta_a_1, hh_1);
     rb_model.truth->attach_A_q(theta_a_2, hh_2);
