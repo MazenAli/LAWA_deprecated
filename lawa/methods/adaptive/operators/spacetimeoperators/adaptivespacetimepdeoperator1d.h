@@ -25,6 +25,7 @@
 #include <lawa/methods/adaptive/compressions/compression_pde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/mapmatrix.h>
+#include <lawa/methods/adaptive/operators/pdeoperators2d/adaptiveoperator2d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/convectionoperator1d.h>
@@ -100,7 +101,7 @@ struct AdaptiveSpaceTimePDEOperator1D : public AdaptiveOperator2D<T> {
 
     void
     toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
-                        const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
+                        const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol, bool useLinearIndex=false);
 
     void
     clear();

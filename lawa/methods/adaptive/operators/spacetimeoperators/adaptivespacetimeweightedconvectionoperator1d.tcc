@@ -119,7 +119,7 @@ template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2
 void
 AdaptiveSpaceTimeWeightedConvectionOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::
 toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow, const IndexSet<Index2D> &LambdaCol,
-                    SparseMatrixT &A, T tol)
+                    SparseMatrixT &A, T tol, bool useLinearIndex)
 {
     std::cerr << "AdaptiveSpaceTimeConvectionOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::"
               << "toFlensSparseMatrix not implemented." << std::endl;

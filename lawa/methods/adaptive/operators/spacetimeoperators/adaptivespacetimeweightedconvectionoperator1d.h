@@ -85,7 +85,7 @@ struct AdaptiveSpaceTimeWeightedConvectionOperator1D : public Operator2D<T> {
 
     void
     toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
-                        const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
+                        const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol, bool useLinearIndex=false);
 
     void
     clear();

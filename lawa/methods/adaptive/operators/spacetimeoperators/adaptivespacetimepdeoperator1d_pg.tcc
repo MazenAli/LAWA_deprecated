@@ -138,6 +138,19 @@ template <typename T, typename TrialBasis, typename TestBasis,
           typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 void
 AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPrec2D, InitialCondition>::
+toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow, const IndexSet<Index2D> &LambdaCol,
+                    SparseMatrixT &A, T tol, bool useLinearIndex)
+{
+    std::cerr << "AdaptiveSpaceTimeConvectionOperator1D<T, Basis2D, LeftPrec2D, RightPrec2D, InitialCondition>::"
+              << "toFlensSparseMatrix not implemented." << std::endl;
+    assert(0);
+    exit(1);
+}
+
+template <typename T, typename TrialBasis, typename TestBasis, 
+          typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
+void
+AdaptiveSpaceTimePDEOperator1D_PG<T, TrialBasis, TestBasis, LeftPrec2D, RightPrec2D, InitialCondition>::
 clear()
 {
     data_identity_t.clear();

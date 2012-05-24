@@ -50,6 +50,8 @@ namespace lawa {
 template <typename T, typename TrialBasis, typename TestBasis, 
           typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 struct AdaptiveSpaceTimePDEOperator1D_PG : public Operator2D<T> {
+	
+		typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
     
     typedef typename TrialBasis::FirstBasisType    TrialBasis_t;
     typedef typename TrialBasis::SecondBasisType   TrialBasis_x;
@@ -105,6 +107,10 @@ struct AdaptiveSpaceTimePDEOperator1D_PG : public Operator2D<T> {
     //call of op_initcond * p_right
     T
     operator()(const Index1D &row_index, const Index2D &col_index);
+
+		void
+		toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow, const IndexSet<Index2D> &LambdaCol,
+												SparseMatrixT &A, T tol, bool useLinearIndex=false);
 
     void
     clear();
