@@ -82,7 +82,15 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, MA &A, Coefficients<Lexicographical
            const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations,
            int assemble_matrix=1);
 
-
+/* @assemble_matrix: "0" -> operate only on hashmap data, use version without LambdaCol for that!
+                     "1" -> use standard routine to assemble stiffness matrix
+                     "2" -> use operator intern routines to assemble stiffness matrix
+ */
+template <typename T, typename Index, typename MA>
+int
+CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,  MA &A,
+ 					 Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f, 
+					 T &res, T tol, int maxIterations, int assemble_matrix=1);
 
 //todo: adapt and revise these methods!!!
 template <typename T, typename Index, typename SpaceIndex, typename MA>

@@ -255,7 +255,8 @@ template <typename T, typename Index, typename MA>
 int
 GMRESM_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
              const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations, 
-						 int assemble_matrix=1, int m=20){
+						 int assemble_matrix=1, int m=20)
+{
        typedef typename IndexSet<Index >::const_iterator const_set_it;
        typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
        typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
@@ -312,7 +313,8 @@ int
 GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol, MA &A, 
 						Coefficients<Lexicographical,T,Index > &u, 
             const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations,
-						int assemble_matrix = 1){
+						int assemble_matrix = 1)
+{
       typedef typename IndexSet<Index >::const_iterator const_set_it;
       typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
       typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
@@ -329,7 +331,7 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
       else {
         flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
           if (assemble_matrix==2) {
-						A.toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
+						A.toFlensSparseMatrix(LambdaRow, LambdaCol, A_flens, tol);
           }
           else {
 		        toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
@@ -457,7 +459,55 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, MA &A, Coefficients<Lexicographical
 }
 
 
+template <typename T, typename Index, typename MA>
+int
+CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,  MA &A,
+ 					 Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f, 
+					 T &res, T tol, int maxIterations, int assemble_matrix)
+{
+		if (assemble_matrix==0) {
+			std::cout << "CGLS called with LambdaRow and LambdaCol not set up to use with hashmap structure" << std::endl;
+			exit(1);
+		}
+		else{
+      typedef typename IndexSet<Index >::const_iterator const_set_it;
+      typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
+      typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
+      int NumOfRows = (int)LambdaRow.size();
+      int NumOfCols = (int)LambdaCol.size();
+      flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+      if (assemble_matrix==2) {
+          A.toFlensSparseMatrix(LambdaRow, LambdaCol, A_flens, tol);
+      }
+      else {
+          toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
+      }
+      if (LambdaRow.size() > 0) {
+          DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), residual(NumOfRows), Ax(NumOfRows);
+          int row_count=1;
+          for (const_set_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
+              if (f.count((*row)) > 0) {
+                  const_coeff_it it = f.find(*row);
+                  rhs(row_count) = (*it).second;
+              }
+              else                     rhs(row_count) = 0.;
+          }
+          std::cout << "Starting cgls..." << std::endl;
+          int number_of_iterations = lawa::cgls(A_flens,x,rhs, tol, maxIterations);
+          std::cout << "... finished" << std::endl;
+          Ax = A_flens*x;
+          residual= Ax-rhs;
+          res= std::sqrt(residual*residual);
+          int col_count = 1;
+          for (const_set_it col=LambdaCol.begin(); col!=LambdaCol.end(); ++col, ++col_count) {
+              u[*col] = x(col_count);
+          }
+          return number_of_iterations;
+      }
+      else return -1;
+		}
+}
 
 template <typename T, typename Index, typename SpaceIndex, typename MA>
 int
