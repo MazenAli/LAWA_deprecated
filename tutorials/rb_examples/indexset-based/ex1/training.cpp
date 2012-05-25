@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     
     
         // We need a truth model, as we want to do truth solves
-    bool use_inner_product_matrix = true;
+    bool use_inner_product_matrix = false;
     bool use_A_operator_matrices = false;
     RBTruth rb_truth(basis2d, prec, use_inner_product_matrix, use_A_operator_matrices);
     rb_model.set_truthmodel(rb_truth);

@@ -395,6 +395,9 @@ AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>::inner_product(const
         // Assumption here: both vectors and the matrix have the same indexset
 
         assert(v1.size() == v2.size());
+
+				std::cerr << "Working with HashMaps? Then you shouldn't use the inner product matrix --- it won't work !"<< std::endl;
+				
         typename CoeffVector::const_iterator it1, it2;
         
         // Build dense vectors

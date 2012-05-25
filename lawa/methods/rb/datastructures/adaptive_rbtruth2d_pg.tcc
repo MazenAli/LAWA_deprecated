@@ -231,7 +231,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
             
         A_representors[N-1][i] = c;
     }
- }
+}
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
@@ -387,7 +387,8 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
 
     if(use_inner_product_matrix && assembled_inner_product_matrix){
         // Assumption here: both vectors and the matrix have the same indexset
-        
+				std::cerr << "Working with HashMaps? Then you shouldn't use the inner product matrix --- it won't work !"<< std::endl;
+				
         assert(v1.size() == v2.size());
         typename CoeffVector::const_iterator it1, it2;
         
@@ -404,7 +405,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
         val = v1_dense * I_v2;
     }
     else{
-
+	
         /*typename CoeffVector::const_iterator it1, it2;
         for (it1 = v1.begin(); it1 != v1.end() ; ++it1) {
             for (it2 = v2.begin(); it2 != v2.end(); ++it2) {
@@ -476,9 +477,10 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     
     if(use_inner_product_matrix && assembled_inner_product_matrix){
         // Assumption here: both vectors and the matrix have the same indexset
-        
+        std::cerr << "Working with HashMaps? Then you shouldn't use the inner product matrix --- it won't work !"<< std::endl;
+				
         assert(v1.size() == v2.size());
-        typename CoeffVector::const_iterator it1, it2;
+        typename CoeffVector::const_iterator it1, it2;				
         
         // Build dense vectors
         DenseVectorT v1_dense(v1.size()), v2_dense(v2.size());
@@ -584,6 +586,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     
     trial_inner_product_matrix.resize((int)trial_indexset.size(), (int)trial_indexset.size());
     test_inner_product_matrix.resize((int)test_indexset.size(), (int)test_indexset.size());
+								
     timer.start();
     
     // ToFlensSparseMatrix Trial Indexset
