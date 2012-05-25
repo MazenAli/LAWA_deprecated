@@ -60,7 +60,7 @@ tutorials/rb_examples/indexset-based/indexset_rb_example_training
 tutorials/rb_examples/indexset-based/indexset_rb_test
 tutorials/rb_examples/indexset-based/online_rb_example
 tutorials/rb_examples/uniform/rb_example
-validate/plot_wavelets
+svalidate/plot_wavelets
 applications/unbounded_domains/validate/test_index
 applications/new_eval_scheme/plot_wavelets
 applications/new_eval_scheme/multi_to_single
@@ -104,3 +104,4 @@ applications/new_eval_scheme/multitree_mw_awgm2d
 applications/new_eval_scheme/test_unidirectionoperator
 applications/new_eval_scheme/multitree_mw_awgm3d
 applications/unbounded_domains/validate/test_gradedscheme
+Runs/
