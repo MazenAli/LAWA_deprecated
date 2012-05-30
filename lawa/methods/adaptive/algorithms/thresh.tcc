@@ -98,9 +98,11 @@ THRESH(const Coefficients<Lexicographical,T,Index2D> &v, T eta, bool deleteBSpli
                 }
             }
         }
-        abs_scaling_indices = scaling_indices;
-        it max_scaling_index = abs_scaling_indices.begin();
-        ret[(*max_scaling_index).second] = (*max_scaling_index).first;
+        if(scaling_indices.size() > 0){
+			abs_scaling_indices = scaling_indices;
+			it max_scaling_index = abs_scaling_indices.begin();
+			ret[(*max_scaling_index).second] = (*max_scaling_index).first;
+        }
     }
     return ret;
 }
