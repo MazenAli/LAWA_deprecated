@@ -23,6 +23,7 @@
 #include <vector>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/rb/datastructures/datastructures.h>
 #include <lawa/methods/rb/solvers/solvers.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>

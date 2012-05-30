@@ -2,7 +2,7 @@
 #define LAWA_METHODS_RB_OUTPUTS_AVERAGEOUTPUT2D_H 1
 
 #include <lawa/methods/rb/outputs/adaptiveoutput.h>
-#include <lawa/methods/adaptive/algorithms/rhs.h>
+#include <lawa/methods/adaptive/righthandsides/rhs.h>
 
 using namespace std;
 

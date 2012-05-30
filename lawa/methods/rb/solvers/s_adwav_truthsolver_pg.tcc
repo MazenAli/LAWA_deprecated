@@ -58,6 +58,7 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
             break;
         case call_gmres:
             s_adwav.solve_gmres(InitialLambda);
+            break;
         case call_gmresm:
             s_adwav.solve_gmresm(InitialLambda);
             break;
