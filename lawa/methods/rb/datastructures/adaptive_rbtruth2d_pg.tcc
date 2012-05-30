@@ -1,4 +1,6 @@
 #include <lawa/methods/rb/postprocessing/plotting.h>
+#include <sys/stat.h>
+
 
 namespace  lawa {
 
