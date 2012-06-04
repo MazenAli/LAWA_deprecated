@@ -33,8 +33,9 @@ namespace lawa {
    
 //--- primal * primal or orthogonal * orthogonal
 template <typename First, typename Second>
-typename RestrictTo<BothPrimal<First,Second>::value
-                    or BothOrthogonal<First,Second>::value, typename First::T>::Type
+//typename RestrictTo<BothPrimal<First,Second>::value
+//                    or BothOrthogonal<First,Second>::value, typename First::T>::Type
+typename RestrictTo<!IsDual<First>::value and !IsDual<Second>::value, typename First::T>::Type
 _integrate(const Integral<Gauss,First,Second> &integral)
 {
     typedef typename First::T T;
