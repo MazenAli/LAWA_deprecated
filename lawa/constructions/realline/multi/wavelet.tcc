@@ -13,6 +13,7 @@ Wavelet<T,Orthogonal,R,Multi>::Wavelet(int _d)
         case 2: _numSplines = 3;
 
         _evaluator = new Evaluator[3];
+        //Reordering necessary due to old construction is necessary: rhs estimates are for old cons.!
         _evaluator[0] = _linear_wavelet_inner_evaluator2;
         _evaluator[1] = _linear_wavelet_inner_evaluator1;
         _evaluator[2] = _linear_wavelet_inner_evaluator0;

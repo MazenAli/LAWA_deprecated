@@ -60,7 +60,7 @@ BSpline<T,Primal,Periodic,CDF>::operator()(T x, int j, long k, unsigned short de
     // add contributions of original spline on R
     // = 'wrapping' around [0,1]
     T val = 0;
-    for(int l = ifloor(phiR.support(j,k).l1); l < iceil(phiR.support(j,k).l2); ++l){
+    for(int l = ifloor(phiR.support(j,k).l1); l < iceil<int>(phiR.support(j,k).l2); ++l){
         val += phiR(l+x, j, k, deriv);
     }
     return val;

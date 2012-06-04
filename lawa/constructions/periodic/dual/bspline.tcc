@@ -61,7 +61,7 @@ BSpline<T,Dual,Periodic,CDF>::operator()(T x, int j, long k, unsigned short deri
     }
 
     T val = 0;
-    for(int l = ifloor(phiR_.support(j,k).l1); l < iceil(phiR_.support(j,k).l2); ++l){
+    for(int l = ifloor(phiR_.support(j,k).l1); l < iceil<int>(phiR_.support(j,k).l2); ++l){
         val += phiR_(l+x, j, k);
     }
     return val;
