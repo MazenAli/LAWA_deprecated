@@ -71,9 +71,10 @@ struct index3d_hashfunction2
 
 int main (int argc, char *argv[]) {
 
-    int J=10;
+    int J=3;
 
-/*
+    Coefficients<Lexicographical,double,Index2D> v;
+    IndexSet<Index2D> Lambda;
     index2d_hashfunction1  index2d_hasher1;
     index2d_hashfunction2  index2d_hasher2;
 
@@ -86,6 +87,8 @@ int main (int argc, char *argv[]) {
                     XType xtype2 = (j2 == 0) ? XBSpline : XWavelet;
                     Index1D index2(j2,k2,xtype2);
                     Index2D index(index1,index2);
+                    v[index] = 1.;
+                    Lambda.insert(index);
                     size_t val1 = index2d_hasher1.operator()(index);
                     size_t val2 = index2d_hasher2.operator()(index);
                     if (val1 != val2) {
@@ -96,10 +99,22 @@ int main (int argc, char *argv[]) {
         }
     }
 
+    typedef Coefficients<Lexicographical,double,Index2D>::const_iterator const_coeff2d_it;
+    typedef IndexSet<Index2D>::const_iterator                       const_set2d_it;
+
+    for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
+        cout << (*it).first << endl;
+    }
+    cout << endl << endl;
+    for (const_set2d_it it=Lambda.begin(); it!=Lambda.end(); ++it) {
+        cout << (*it) << endl;
+    }
 
     cout << "Hit enter to continue." << endl;
     getchar();
-*/
+
+
+/*
     index3d_hashfunction1  index3d_hasher1;
     index3d_hashfunction2  index3d_hasher2;
 
@@ -139,6 +154,6 @@ int main (int argc, char *argv[]) {
     cout << "Size of v: " << v1.size() << ", storage: " << sizeof(v1) << endl;
     cout << "Size of Lambda: " << Lambda.size() << ", storage: " << sizeof(Lambda) << endl;
     getchar();
-
+*/
     return 0;
 }

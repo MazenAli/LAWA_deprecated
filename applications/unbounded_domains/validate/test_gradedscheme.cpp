@@ -65,7 +65,7 @@ int main (int argc, char *argv[]) {
     int d_=atoi(argv[2]);
     int j0=0;
     int J = 20;
-    T gamma = 0.8;
+    T gamma = 0.5;
 
     T c = 1.;
     int example=1;
@@ -105,7 +105,7 @@ int main (int argc, char *argv[]) {
         }
         A.finalize();
         cerr << "   cg-solve started..." << endl;
-        int numOfIterations = cg(A, u, F, 1e-13);
+        int numOfIterations = cg(A, u, F, 1e-18);
         cerr << "   ... finished." << endl;
 
         DenseVectorT  Au(N);
@@ -124,9 +124,8 @@ void
 getGradedLambda(IndexSet<Index1D> &Lambda, T gamma, int j0, int J)
 {
     for (int j=j0; j<=J; ++j) {
-        std::cerr << "   j = " << j << " [" << -(5*std::pow(2.,(T)j) + std::pow(2.,gamma*(J-j)))
-                              << ", " << 5*std::pow(2.,(T)j) + 3* std::pow(2.,gamma*(J-j))  << "]"<< std::endl;
-        for (int k=0; k<=5*std::pow(2.,(T)j) + 3*std::pow(2.,gamma*(J-j)); ++k) {
+        cerr << "   j = " << j << " " << 5*std::pow(2.,(T)j) << " " << 5* std::pow(2.,(T)(J-j)) << endl;
+        for (int k=0; k<=3 + 3*std::pow(2.,(T)j) + 5*std::pow(2.,(T)(J-j)); ++k) {
 
             if (j==j0) {
                 Lambda.insert(Index1D(j,k,XBSpline));

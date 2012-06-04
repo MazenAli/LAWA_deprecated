@@ -264,8 +264,15 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
                       SparseMatrixT &A_flens, T eps)
 {
+    int d = basis.first.d;
+    if (basis.first.d!=basis.second.d) {
+        std::cerr << "AdaptiveHelmholtzOperatorOptimized2D::toFlensSparseMatrix not implemented "
+                  << "for different polynomial orders " << basis.first.d << ", " << basis.second.d
+                  << "." << std::endl;
+        exit(1);
+    }
     int J=0;        //compression
-    J = (int)std::ceil(-1./(basis.first.d-1.5)*log(eps/CA)/log(2.));
+    J = (int)std::ceil(-1./(d-1.5)*log(eps/CA)/log(2.));
     std::cerr << "   -> toFlensSparseMatrix: Estimated compression level for "
               << "tol = " << eps << " : " << J << std::endl;
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,J);

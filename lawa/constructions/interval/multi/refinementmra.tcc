@@ -24,14 +24,17 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
      * implemented yet. They require __different__ boundary adapted wavelets and scaling functions.
      */
     if (d==1) {
+        // Same functions as in the standard mra. However, the computation of translation indices
+        // is different in this class, so we need to change the arrangement of the evaluators.
+
         _shiftFactor        = 2;
         //left part
         _numLeftParts = 0;
-        _leftEvaluator = new Evaluator[0];
-        _leftSupport = new Support<T>[0];
-        _leftSingularSupport = new DenseVector<Array<T> >[0];
-        _leftRefCoeffs = new DenseVector<Array<long double> >[0];
-        _leftOffsets = new long[0];
+        //_leftEvaluator = new Evaluator[0];
+        //_leftSupport = new Support<T>[0];
+        //_leftSingularSupport = new DenseVector<Array<T> >[0];
+        //_leftRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_leftOffsets = new long[0];
 
         //inner part
         _numInnerParts = 1;
@@ -55,11 +58,11 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
 
         //right part
         _numRightParts = 0;
-        _rightEvaluator = new Evaluator[0];
-        _rightSupport = new Support<T>[0];
-        _rightSingularSupport = new DenseVector<Array<T> >[0];
-        _rightRefCoeffs = new DenseVector<Array<long double> >[0];
-        _rightOffsets   = new long[0];
+        //_rightEvaluator = new Evaluator[0];
+        //_rightSupport = new Support<T>[0];
+        //_rightSingularSupport = new DenseVector<Array<T> >[0];
+        //_rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_rightOffsets   = new long[0];
     }
     else {
         this->enforceBoundaryCondition<DirichletBC>();
@@ -71,15 +74,28 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
 template <typename T>
 MRA<T,Orthogonal,Interval,MultiRefinement>::~MRA()
 {
-    delete[] _leftEvaluator;
-    delete[] _innerEvaluator;
-    delete[] _rightEvaluator;
-    delete[] _leftSupport;
-    delete[] _innerSupport;
-    delete[] _rightSupport;
-    delete[] _leftSingularSupport;
-    delete[] _innerSingularSupport;
-    delete[] _rightSingularSupport;
+    if (_numLeftParts>0) {
+        delete[] _leftEvaluator;
+        delete[] _leftSupport;
+        delete[] _leftSingularSupport;
+        delete[] _leftRefCoeffs;
+        delete[] _leftOffsets;
+    }
+    if (_numInnerParts>0) {
+        delete[] _innerEvaluator;
+        delete[] _innerSupport;
+        delete[] _innerSingularSupport;
+        delete[] _innerRefCoeffs;
+        delete[] _innerOffsets;
+
+    }
+    if (_numRightParts>0) {
+        delete[] _rightEvaluator;
+        delete[] _rightSupport;
+        delete[] _rightSingularSupport;
+        delete[] _rightRefCoeffs;
+        delete[] _rightOffsets;
+    }
 }
 
 //--- cardinalities of whole, left, inner, right index sets. -------------------
@@ -183,11 +199,11 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _shiftFactor = 2;
             //left part
             _numLeftParts = 0;
-            _leftEvaluator = new Evaluator[0];
-            _leftSupport = new Support<T>[0];
-            _leftSingularSupport = new DenseVector<Array<T> >[0];
-            _leftRefCoeffs = new DenseVector<Array<long double> >[0];
-            _leftOffsets = new long[0];
+            //_leftEvaluator = new Evaluator[0];
+            //_leftSupport = new Support<T>[0];
+            //_leftSingularSupport = new DenseVector<Array<T> >[0];
+            //_leftRefCoeffs = new DenseVector<Array<long double> >[0];
+            //_leftOffsets = new long[0];
 
             //inner part
             _numInnerParts = 1;
@@ -207,11 +223,11 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
 
             //right part
             _numRightParts = 0;
-            _rightEvaluator = new Evaluator[0];
-            _rightSupport = new Support<T>[0];
-            _rightSingularSupport = new DenseVector<Array<T> >[0];
-            _rightRefCoeffs = new DenseVector<Array<long double> >[0];
-            _rightOffsets = new long[0];
+            //_rightEvaluator = new Evaluator[0];
+            //_rightSupport = new Support<T>[0];
+            //_rightSingularSupport = new DenseVector<Array<T> >[0];
+            //_rightRefCoeffs = new DenseVector<Array<long double> >[0];
+            //_rightOffsets = new long[0];
 
             break;
 

@@ -47,7 +47,7 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
         _leftOffsets = new long[1];
         _leftOffsets[0] =  0;
 
-        _leftH1SemiNorms = new long double[0];
+        //_leftH1SemiNorms = new long double[0];
 
         //inner part
         _numInnerParts = 1;
@@ -69,17 +69,17 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
         _innerOffsets = new long[1];
         _innerOffsets[0] =  0;
 
-        _innerH1SemiNorms = new long double[0];
+        //_innerH1SemiNorms = new long double[0];
 
 
         //right part
         _numRightParts = 0;
-        _rightEvaluator = new Evaluator[0];
-        _rightSupport = new Support<T>[0];
-        _rightSingularSupport = new DenseVector<Array<T> >[0];
-        _rightRefCoeffs = new DenseVector<Array<long double> >[0];
-        _rightOffsets   = new long[0];
-        _rightH1SemiNorms = new long double[0];
+        //_rightEvaluator = new Evaluator[0];
+        //_rightSupport = new Support<T>[0];
+        //_rightSingularSupport = new DenseVector<Array<T> >[0];
+        //_rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_rightOffsets   = new long[0];
+        //_rightH1SemiNorms = new long double[0];
     }
     else {
         this->enforceBoundaryCondition<DirichletBC>();
@@ -91,24 +91,44 @@ MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
 template <typename T>
 MRA<T,Orthogonal,Interval,Multi>::~MRA()
 {
-    delete[] _leftEvaluator;
-    delete[] _innerEvaluator;
-    delete[] _rightEvaluator;
-    delete[] _leftSupport;
-    delete[] _innerSupport;
-    delete[] _rightSupport;
-    delete[] _leftSingularSupport;
-    delete[] _innerSingularSupport;
-    delete[] _rightSingularSupport;
-    delete[] _leftRefCoeffs,
-    delete[] _innerRefCoeffs,
-    delete[] _rightRefCoeffs;
-    delete[] _leftOffsets,
-    delete[] _innerOffsets,
-    delete[] _rightOffsets;
-    delete[] _leftH1SemiNorms;
-    delete[] _innerH1SemiNorms;
-    delete[] _rightH1SemiNorms;
+    if (d==1) {
+        delete[] _leftEvaluator;
+        delete[] _innerEvaluator;
+        delete[] _leftSupport;
+        delete[] _innerSupport;
+        delete[] _leftSingularSupport;
+        delete[] _innerSingularSupport;
+        delete[] _leftRefCoeffs;
+        delete[] _innerRefCoeffs;
+        delete[] _leftOffsets;
+        delete[] _innerOffsets;
+    }
+    else {
+        if (_numLeftParts>0) {
+            delete[] _leftEvaluator;
+            delete[] _leftSupport;
+            delete[] _leftSingularSupport;
+            delete[] _leftRefCoeffs;
+            delete[] _leftOffsets;
+            delete[] _leftH1SemiNorms;
+        }
+        if (_numInnerParts>0) {
+            delete[] _innerEvaluator;
+            delete[] _innerSupport;
+            delete[] _innerSingularSupport;
+            delete[] _innerRefCoeffs;
+            delete[] _innerOffsets;
+            delete[] _innerH1SemiNorms;
+        }
+        if (_numRightParts>0) {
+            delete[] _rightEvaluator;
+            delete[] _rightSupport;
+            delete[] _rightSingularSupport;
+            delete[] _rightRefCoeffs;
+            delete[] _rightOffsets;
+            delete[] _rightH1SemiNorms;
+        }
+    }
 }
 
 //--- cardinalities of whole, left, inner, right index sets. -------------------
@@ -284,13 +304,13 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
 
             //right part
             _numRightParts = 0;
-            _rightEvaluator = new Evaluator[0];
-            _rightSupport = new Support<T>[0];
-            _rightSingularSupport = new DenseVector<Array<T> >[0];
+            //_rightEvaluator = new Evaluator[0];
+            //_rightSupport = new Support<T>[0];
+            //_rightSingularSupport = new DenseVector<Array<T> >[0];
 
-            _rightRefCoeffs = new DenseVector<Array<long double> >[0];
-            _rightOffsets   = new long[0];
-            _rightH1SemiNorms = new long double[0];
+            //_rightRefCoeffs = new DenseVector<Array<long double> >[0];
+            //_rightOffsets   = new long[0];
+            //_rightH1SemiNorms = new long double[0];
             break;
             
         case 3:

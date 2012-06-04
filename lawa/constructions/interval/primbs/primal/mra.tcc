@@ -127,18 +127,27 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
 template <typename T>
 MRA<T,Primal,Interval,Primbs>::~MRA()
 {
-    delete[] _leftRefCoeffs,
-    delete[] _innerRefCoeffs,
-    delete[] _rightRefCoeffs;
-    delete[] _leftOffsets,
-    delete[] _innerOffsets,
-    delete[] _rightOffsets;
-    delete[] _leftL2Norms;
-    delete[] _innerL2Norms;
-    delete[] _rightL2Norms;
-    delete[] _leftH1SemiNorms;
-    delete[] _innerH1SemiNorms;
-    delete[] _rightH1SemiNorms;
+    if (d<=2) {
+        delete[] _innerRefCoeffs;
+        delete[] _innerOffsets;
+        delete[] _innerL2Norms;
+        delete[] _innerH1SemiNorms;
+    }
+    else {
+        delete[] _leftRefCoeffs;
+        delete[] _innerRefCoeffs;
+        delete[] _rightRefCoeffs;
+        delete[] _leftOffsets;
+        delete[] _innerOffsets;
+        delete[] _rightOffsets;
+        delete[] _leftL2Norms;
+        delete[] _innerL2Norms;
+        delete[] _rightL2Norms;
+        delete[] _leftH1SemiNorms;
+        delete[] _innerH1SemiNorms;
+        delete[] _rightH1SemiNorms;
+
+    }
 }
 
 //--- cardinalities of whole, left, inner, right index sets. -------------------
@@ -237,10 +246,10 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
     // precision in blas routines.
     if (d==2) {
         // left part
-        _leftRefCoeffs = new DenseVector<Array<long double> >[0];
-        _leftOffsets = new long[0];
-        _leftL2Norms = new long double[0];
-        _leftH1SemiNorms  = new long double[0];
+        //_leftRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_leftOffsets = new long[0];
+        //_leftL2Norms = new long double[0];
+        //_leftH1SemiNorms  = new long double[0];
 
         // inner part
         _innerRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -254,10 +263,10 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         _innerH1SemiNorms[0] =  std::sqrt(2.L);
 
         // inner part
-        _rightRefCoeffs = new DenseVector<Array<long double> >[0];
-        _rightOffsets = new long[0];
-        _rightL2Norms = new long double[0];
-        _rightH1SemiNorms  = new long double[0];
+        //_rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_rightOffsets = new long[0];
+        //_rightL2Norms = new long double[0];
+        //_rightH1SemiNorms  = new long double[0];
     }
     else if (d==3) {
         // left part
