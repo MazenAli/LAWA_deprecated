@@ -105,3 +105,6 @@ applications/new_eval_scheme/test_unidirectionoperator
 applications/new_eval_scheme/multitree_mw_awgm3d
 applications/unbounded_domains/validate/test_gradedscheme
 Runs/
+tutorials/rb_examples/indexset-based/ex1_output/test_output
+validate/plot_wavelets
+tutorials/rb_examples/indexset-based/ex1_output/training_output
