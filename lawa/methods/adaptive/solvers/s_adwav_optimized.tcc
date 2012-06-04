@@ -75,7 +75,8 @@ solve(const IndexSet<Index> &InitialLambda, Coefficients<Lexicographical,T,Index
 
         //u = THRESH(u,0.5*threshTol,false, A.basis.d > 3 ? true : false);
         if (its!=NumOfIterations) {
-            u = THRESH(u,0.5*threshTol,false, A.basis.d > 3 ? true : false);
+            //u = THRESH(u,0.5*threshTol,false, A.basis.d > 3 ? true : false);
+            u = THRESH(u,0.5*threshTol,false, true);
             Lambda = supp(u);
         }
         thresh_off_quot *= T(u.size());
@@ -137,7 +138,8 @@ solve(const IndexSet<Index> &InitialLambda, Coefficients<Lexicographical,T,Index
 
         //r = THRESH(r,threshTol*r.norm(2.),false,false);
         // f is currently not need and is overwritten in the next iteration anyway
-        f = THRESH(r, threshTol, false, A.basis.d > 3 ? true : false);
+        //f = THRESH(r, threshTol, false, A.basis.d > 3 ? true : false);
+        f = THRESH(r, threshTol, false, true);
 
         Lambda +=  supp(f);
 

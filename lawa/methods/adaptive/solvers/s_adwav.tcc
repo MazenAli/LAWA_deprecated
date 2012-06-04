@@ -96,7 +96,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         // larger than necessary.
         T thresh_off_quot = 1./T(u.size());
         //u = THRESH(u,threshTol*u.norm(2.),false);
-        u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        //u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        u = THRESH(u,threshTol,false, true);
         thresh_off_quot *= T(u.size());
         solutions[its] = u;
         LambdaThresh = supp(u);
@@ -142,7 +143,8 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
         toliters[its] = linTol;
 
         //r = THRESH(r,threshTol*r.norm(2.),false,false);
-        r = THRESH(r,threshTol, false, basis.d > 3 ? true : false);
+        //r = THRESH(r,threshTol, false, basis.d > 3 ? true : false);
+        r = THRESH(r,threshTol, false, true);
 
         LambdaActive = LambdaThresh+supp(r);
 
