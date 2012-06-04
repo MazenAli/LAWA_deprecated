@@ -265,7 +265,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
                       SparseMatrixT &A_flens, T eps)
 {
     int J=0;        //compression
-    J = (int)std::ceil(-1./(basis.d-1.5)*log(eps/CA)/log(2.));
+    J = (int)std::ceil(-1./(basis.first.d-1.5)*log(eps/CA)/log(2.));
     std::cerr << "   -> toFlensSparseMatrix: Estimated compression level for "
               << "tol = " << eps << " : " << J << std::endl;
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,J);
