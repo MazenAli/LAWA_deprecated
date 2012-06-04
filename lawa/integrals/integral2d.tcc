@@ -21,7 +21,7 @@ namespace lawa {
 
 template <QuadratureType Quad, typename BasisX, typename BasisY>
 typename BasisX::T
-_integrate(const Integral2D<Quad,BasisX,BasisY> integral) 
+_integrate(const Integral2D<Quad,BasisX,BasisY>& integral) 
 {
     typedef typename BasisX::T T;
     // note: called phi_... but can also be a wavelet.
@@ -61,7 +61,7 @@ _integrate(const Integral2D<Quad,BasisX,BasisY> integral)
     T right_x = SingularPoints_phi_x(SingularPoints_phi_x.lastIndex());
     T left_y  = SingularPoints_phi_y(SingularPoints_phi_y.firstIndex());
     T right_y = SingularPoints_phi_y(SingularPoints_phi_y.lastIndex());
-
+    
     for (int i=AllSingularPoints_x.firstIndex(); i<AllSingularPoints_x.lastIndex(); ++i) {
         T a_x = AllSingularPoints_x(i), b_x = AllSingularPoints_x(i+1);
         if ((b_x <= left_x) || (a_x >= right_x)) continue;
@@ -82,7 +82,7 @@ Integral2D<Quad,BasisX,BasisY>::Integral2D(const Function2D<T> &_F,
     : F(_F), basisx(_basisx), basisy(_basisy), quadrature(*this)
 {
 }
-
+    
 template <QuadratureType Quad, typename BasisX, typename BasisY>
 typename BasisX::T
 Integral2D<Quad,BasisX,BasisY>::operator()(int _jx, long _kx, XType _ex, unsigned short _derivx,

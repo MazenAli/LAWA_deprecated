@@ -41,9 +41,7 @@ int main(int argc, char* argv[]) {
     RBModel rb_model;
     
     // We need a truth model, as we want to do truth solves
-    bool use_inner_product_matrix = true;
-    bool use_A_operator_matrices = false;
-    RBTruth rb_truth(basis2d, prec, use_inner_product_matrix, use_A_operator_matrices);
+    RBTruth rb_truth(basis2d, prec);
     rb_model.set_truthmodel(rb_truth);
     
         // Attach an inner product (here: H1 norm)
@@ -64,8 +62,8 @@ int main(int argc, char* argv[]) {
     Function<T>         w_x_2(weight_Omega_x_2, singpts_x);
     Function<T>         w_y(weight_Omega_y, singpts_y);
         
-    WeightedAdaptHHOp2D hh_1(basis2d, 0, w_x_1, w_y, noprec, 1e-10);
-    WeightedAdaptHHOp2D hh_2(basis2d, 0, w_x_2, w_y, noprec, 1e-10);
+    WeightedAdaptHHOp2D hh_1(basis2d, 0, w_x_1, w_y, noprec);
+    WeightedAdaptHHOp2D hh_2(basis2d, 0, w_x_2, w_y, noprec);
     
     rb_model.truth->attach_A_q(theta_a_1, hh_1);
     rb_model.truth->attach_A_q(theta_a_2, hh_2);
@@ -101,6 +99,17 @@ int main(int argc, char* argv[]) {
     stringstream bf_offline_data;
     bf_offline_data << argv[6] << "/bf";
     rb_model.read_basis_functions(bf_offline_data.str().c_str());
+
+    //***********************************************************************
+/*    T mu=1.;
+    std::vector<std::vector<T> > Xi_test;
+    vector<T> test_param;
+    test_param.push_back(mu);
+    Xi_test.push_back(test_param);
+    rb_model.set_current_param(Xi_test[0]);
+    Coeffs u = rb_model.truth->solver->truth_solve();
+    plot2D(basis2d,u,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_1");*/
+    //********************************************************************************
         
     cout << "=================================================================" << endl;
     cout << "=====       ONLINE : TESTS                                 ======" << endl;
@@ -119,7 +128,7 @@ int main(int argc, char* argv[]) {
     cout << "Testset: " << endl;
     for(int i = 0; i < n_test; ++i){
       vector<T> test_param;
-      test_param.push_back(test_min + test_h * i);
+      test_param.push_back(test_mu_min + test_h * i);
       Xi_test.push_back(test_param);
       cout << Xi_test[i][0] << endl;
     }
@@ -137,7 +146,7 @@ int main(int argc, char* argv[]) {
       // Reference truth solve at test parameter
       rb_model.set_current_param(Xi_test[i]);
       Coeffs u = rb_model.truth->truth_solve();
-      
+      plot2D(basis2d,u,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_1");
       // RB solves for different basis sizes
       for(unsigned int n = 1; n <= rb_model.n_bf(); ++n){
 
@@ -145,6 +154,12 @@ int main(int argc, char* argv[]) {
         T error_bound = rb_model.residual_dual_norm(u_N, Xi_test[i]) / rb_model.alpha_LB(Xi_test[i]);
         
         Coeffs u_approx = rb_model.reconstruct_u_N(u_N, n);
+        //**************************************************************************
+        if(n==1)
+        {
+            plot2D(basis2d,u_approx,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_approx_1");
+        }
+        //****************************************************************************
         Coeffs coeff_diff = u - u_approx;
         T err_norm = rb_model.truth->inner_product(coeff_diff, coeff_diff);
 

@@ -23,6 +23,7 @@
 #include <vector>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/rb/datastructures/datastructures.h>
 #include <lawa/methods/rb/solvers/solvers.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>
@@ -49,6 +50,7 @@ class RBModel2D {
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
 
     public:
+        typedef TruthModel      TruthModelType;
 
     /* Public member functions */
         RBModel2D();
@@ -66,6 +68,9 @@ class RBModel2D {
         Q_f();
 
         unsigned int
+        Q_output();
+
+        unsigned int
         n_bf();
         
         void
@@ -73,6 +78,9 @@ class RBModel2D {
         
         void
         attach_theta_f_q(theta_fctptr theta_f_q);
+
+        void
+        attach_theta_output_q(theta_fctptr theta_output_q);
 
         void
         set_truthmodel(TruthModel& _truthmodel);
@@ -95,6 +103,9 @@ class RBModel2D {
         // Lower bound for coercivity constant, min-Theta approach
         virtual T
         alpha_LB(std::vector<T>& _param);
+        
+        virtual T
+        RB_errorbound(const DenseVectorT& u_RB, std::vector<T>& _param);
 
         void
         set_min_param(const std::vector<T>& _param);
@@ -107,13 +118,19 @@ class RBModel2D {
         
         void
         train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename = "Training.txt",
-                     SolverCall call = call_cg);
+                     SolverCall call = call_cg, bool write_during_training = false, const char* foldername="training_adaptive");
         
         void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
         
         void
-        write_basis_functions(const std::string& directory_name = "offline_data/bf");
+        generate_logarithmic_trainingset(std::vector<int>& param_nbs_per_dim);
+        
+        void
+        generate_loglin2d_trainingset(std::vector<int>& param_nbs_per_dim);
+        
+        void
+        write_basis_functions(const std::string& directory_name = "offline_data/bf", int bf_nr = -1);
         
         void
         read_basis_functions(const std::string& directory_name = "offline_data/bf");
@@ -128,6 +145,7 @@ class RBModel2D {
 
         std::vector<theta_fctptr> theta_a;
         std::vector<theta_fctptr> theta_f;
+        std::vector<theta_fctptr> theta_output;
 
         std::vector<FullColMatrixT>     RB_A_matrices;
         std::vector<DenseVectorT>       RB_F_vectors;
@@ -140,6 +158,7 @@ class RBModel2D {
         FullColMatrixT                               F_F_representor_norms; // Speicherbedarf kann verringert werden..
         std::vector<FullColMatrixT>                  A_F_representor_norms;
         std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
+        FullColMatrixT                               output_output_representor_norms; // Speicherbedarf kann verringert werden..
         
         std::vector<std::vector<T> >  Xi_train;
         

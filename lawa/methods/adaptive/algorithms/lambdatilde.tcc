@@ -969,7 +969,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
 
         //Adding B-Splines
         int kMin = basis.mra.rangeI(jmin).firstIndex(), kMax = basis.mra.rangeI(jmin).lastIndex();
-        int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(jmin)),kMin), kMax);
+        int kStart = min(max(iceil<int>(supp_col.l1 * pow2i<T>(jmin)),kMin), kMax);
         //assert((overlap(supp_col, phi_row.support(jmin,kStart))>0));
         while ((kStart-1 >= kMin) && (overlap(supp_col, phi_row.support(jmin,max(kStart-1, kMin)))>0)) {
             --kStart;
@@ -988,7 +988,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
         for (int j_row=jmin; j_row<=min(jmin+s_tilde_level, jmax); ++j_row) {
 
             int kMin = basis.rangeJ(j_row).firstIndex(), kMax = basis.rangeJ(j_row).lastIndex();
-            int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(j_row)), kMin), kMax);
+            int kStart = min(max(iceil<int>(supp_col.l1 * pow2i<T>(j_row)), kMin), kMax);
             //assert((overlap(supp_col, psi_row.support(j_row,kStart))>0));
             while (kStart-1>=kMin && overlap(supp_col,psi_row.support(j_row,max(kStart-1,kMin)))>0) {
                 --kStart;
@@ -1018,7 +1018,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
         //Adding B-Splines
         if (fabs(j - jmin) <= s_tilde_level) {
             int kMin = basis.mra.rangeI(jmin).firstIndex(), kMax = basis.mra.rangeI(jmin).lastIndex();
-            int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(jmin)), kMin), kMax);
+            int kStart = min(max(iceil<int>(supp_col.l1 * pow2i<T>(jmin)), kMin), kMax);
             //assert((overlap(supp_col, phi_row.support(jmin,kStart))>0));
             while (kStart-1>=kMin && overlap(supp_col,phi_row.support(jmin,max(kStart-1,kMin)))>0) {
                 --kStart;
@@ -1047,7 +1047,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
         for (int j_row=max(j-s_tilde_level,jmin); j_row<=min(j+s_tilde_level,jmax); ++j_row) {
 
             int kMin = basis.rangeJ(j_row).firstIndex(), kMax = basis.rangeJ(j_row).lastIndex();
-            int kStart = min(max(iceil(supp_col.l1 * pow2i<T>(j_row)), kMin), kMax);
+            int kStart = min(max(iceil<int>(supp_col.l1 * pow2i<T>(j_row)), kMin), kMax);
             //assert((overlap(supp_col, psi_row.support(j_row,kStart))>0));
             while (kStart-1>=kMin && overlap(supp_col,psi_row.support(j_row,max(kStart-1,kMin)))>0) {
                 --kStart;

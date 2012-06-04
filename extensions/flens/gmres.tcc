@@ -82,6 +82,7 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
             H(j+1, j) = sqrt(w_j * w_j);
           }
 
+
         for (int i=1; i<=j-1; ++i) {
             h_ij =      c(i) * H(i,j) + s(i) * H(i+1,j);
             H(i+1,j) = -s(i) * H(i,j) + c(i) * H(i+1,j);

@@ -129,6 +129,34 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
 }
 
 template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
+Coefficients<Lexicographical,T,Index>
+S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
+{
+    reset_repr_s_adwav_output();
+
+    // Construct initial index set, based on splines on minimal level(s)
+    IndexSet<Index> InitialLambda;
+    if (flens::IsSame<Index2D, Index>::value) {
+        Range<int> R_x = repr_s_adwav_output.basis.first.mra.rangeI(repr_s_adwav_output.basis.first.j0);
+        Range<int> R_y = repr_s_adwav_output.basis.second.mra.rangeI(repr_s_adwav_output.basis.second.j0);
+        for (int k_x = R_x.firstIndex(); k_x <= R_x.lastIndex(); ++k_x) {
+            for (int k_y = R_y.firstIndex(); k_y <= R_y.lastIndex(); ++k_y) {
+                Index1D index_x(repr_s_adwav_output.basis.first.j0, k_x, XBSpline);
+                Index1D index_y(repr_s_adwav_output.basis.second.j0, k_y, XBSpline);
+                InitialLambda.insert(Index2D(index_x, index_y));
+             }
+        }
+    }
+
+    Timer timer;
+    timer.start();
+    repr_s_adwav_output.solve_cg(InitialLambda);
+    timer.stop();
+    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;
+    return repr_s_adwav_output.solutions[repr_s_adwav_output.solutions.size() - 1];
+}
+
+template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void 
 S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::clear_solver()
 {

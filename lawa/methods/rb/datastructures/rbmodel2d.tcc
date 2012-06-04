@@ -3,7 +3,10 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <errno.h>
 #include <iomanip>
+#include <cmath>
+#include <string>
 
 namespace  lawa {
 
@@ -42,6 +45,13 @@ RBModel2D<T, TruthModel>::Q_f()
 
 template <typename T, typename TruthModel>
 unsigned int
+RBModel2D<T, TruthModel>::Q_output()
+{
+  return theta_output.size();
+}
+
+template <typename T, typename TruthModel>
+unsigned int
 RBModel2D<T, TruthModel>::n_bf()
 {
   return rb_basis_functions.size();  
@@ -59,6 +69,13 @@ void
 RBModel2D<T, TruthModel>::attach_theta_f_q(theta_fctptr theta_f_q)
 {
   theta_f.push_back(theta_f_q);
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::attach_theta_output_q(theta_fctptr theta_output_q)
+{
+  theta_output.push_back(theta_output_q);
 }
 
 template <typename T, typename TruthModel>
@@ -85,6 +102,7 @@ RBModel2D<T, TruthModel>::add_to_basis(const CoeffVector& sol)
     
     timer.start();
     std::cout << "  Updating RB Matrices ..." << std::endl;
+
     update_RB_A_matrices();
     update_RB_F_vectors();
     update_RB_inner_product();
@@ -230,14 +248,97 @@ RBModel2D<T, TruthModel>::generate_uniform_trainingset(std::vector<int>& n_train
             Xi_train.push_back(new_mu);   
         }
     }
-    else {
-        std::cerr << "Generate Trainingsset for dim = " << n_train.size() << " : Not implemented yet " << std::endl;
-    }
+    else{
+        if (n_train.size() == 2) {
+            for (int i = 0; i < n_train[0]; ++i){
+                for (int j = 0; j < n_train[1]; ++j){
+                    std::vector<T> new_mu;
+                    new_mu.push_back(std::min(min_param[0] + i*h[0], max_param[0]));
+                    new_mu.push_back(std::min(min_param[1] + j*h[1], max_param[1]));
+                    Xi_train.push_back(new_mu); 
+                }  
+            }
+        }
+        else {
+            std::cerr << "Generate Trainingsset for dim = " << n_train.size() << " : Not implemented yet " << std::endl;
+        }  
+    } 
 }
 
 template <typename T, typename TruthModel>
 void
-RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename, SolverCall call)
+RBModel2D<T, TruthModel>::generate_logarithmic_trainingset(std::vector<int>& n_train)
+{
+    std::vector<T> h(current_param.size());
+    std::vector<T> logmin(current_param.size());
+    std::vector<T> logrange(current_param.size());
+    
+    T eps = 1.e-6;
+    
+    for(unsigned int d = 0; d < current_param.size(); ++d) {
+        logmin[d] = log10(min_param[d] + eps);
+        logrange[d] =  log10( (max_param[d]-eps)/(min_param[d]+eps));
+        h[d] = logrange[d] / std::max(1,n_train[d]-1);
+        std::cout << logmin[d] << " " << logrange[d] << " " << h[d] << std::endl;
+    }
+    
+    if(n_train.size() == 1) {
+        for (int i = 0; i < n_train[0]; ++i){
+            std::vector<T> new_mu;
+            new_mu.push_back(std::min(pow(10, logmin[0] + i*h[0]), max_param[0]));
+            Xi_train.push_back(new_mu);   
+        }
+    }
+    else{
+        if (n_train.size() == 2) {
+            for (int i = 0; i < n_train[0]; ++i){
+                for (int j = 0; j < n_train[1]; ++j){
+                    std::vector<T> new_mu;
+                    new_mu.push_back(std::min(pow(10, logmin[0] + i*h[0]), max_param[0]));
+                    new_mu.push_back(std::min(pow(10, logmin[1] + i*h[1]), max_param[1]));
+                    Xi_train.push_back(new_mu); 
+                }  
+            }
+        }
+        else {
+            std::cerr << "Generate Trainingsset for dim = " << n_train.size() << " : Not implemented yet " << std::endl;
+        }  
+    } 
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::generate_loglin2d_trainingset(std::vector<int>& n_train)
+{
+    std::vector<T> h(current_param.size());
+    std::vector<T> logmin(current_param.size());
+    std::vector<T> logrange(current_param.size());
+    
+    T eps = 1.e-6;
+    
+    logmin[0] = log10(min_param[0] + eps);
+    logrange[0] =  log10( (max_param[0]-eps)/(min_param[0]+eps));
+    h[0] = logrange[0] / std::max(1,n_train[0]-1);
+    h[1] = (max_param[1] - min_param[1]) / (n_train[1]-1);
+
+
+    for (int i = 0; i < n_train[0]; ++i){
+        for (int j = 0; j < n_train[1]; ++j){
+            std::vector<T> new_mu;
+            new_mu.push_back(std::min(std::pow(10., (double)(logmin[0] + i*h[0])), max_param[0]));
+            new_mu.push_back(std::min(min_param[1] + j*h[1], max_param[1]));
+            Xi_train.push_back(new_mu); 
+        }  
+    }
+
+}
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, int Nmax, 
+																			 const char* filename, SolverCall call,
+																			 bool write_during_training,
+                                                                             const char* foldername)
 {
     // Initial Snapshot
     set_current_param(init_param);
@@ -266,12 +367,41 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
     int N = 0;
     do {
         std::cout << " ================================================= " << std::endl << std::endl;
-        std::cout << "Adding Snapshot at mu = " << get_current_param()[0] << std::endl << std::endl;
-        error_file << N+1 << " " << get_current_param()[0];
+        std::cout << "Adding Snapshot at mu = " ;
+        for(unsigned int i = 0; i < get_current_param().size(); ++i){
+            std::cout << get_current_param()[i]  << " ";
+        }
+        std::cout << std::endl << std::endl;
         
+        error_file << N+1 << " ";
+        for(unsigned int i = 0; i < get_current_param().size(); ++i){
+            error_file << get_current_param()[i]  << " ";
+        }
+                
         CoeffVector u = truth->truth_solve();
         add_to_basis(u);
         N++;
+
+				if(write_during_training){
+					std::cout << "Writing Data.... " << std::endl;
+					if(mkdir(foldername, 0777) == -1)
+				  {
+						  std::cerr << "In RBModel::train_Greedy: directory " << foldername << " already exists, overwriting contents." << std::endl;	
+				  }
+					std::string bf_folder = foldername;
+                    bf_folder = bf_folder + "/bf";
+					write_basis_functions(bf_folder, N);
+					std::string repr_folder = foldername;
+                    repr_folder = repr_folder + "/representors";
+					truth->write_riesz_representors(repr_folder,N);
+					if(N == 1){
+						truth->write_riesz_representors(repr_folder, 0);	
+					}
+					std::string RB_folder = foldername;
+                    RB_folder = RB_folder + "/RB";
+					write_RB_data(RB_folder);
+					std::cout << " ... done " << std::endl;
+				}
         
         /*
         // Scatterplot
@@ -296,14 +426,21 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
         for (unsigned int n = 0; n < Xi_train.size(); ++n) {
             
             set_current_param(Xi_train[n]);
-            std::cout << "    Parameter set to " << Xi_train[n][0] << std::endl;
+            std::cout << "    Parameter set to " ;
+            for(unsigned int i = 0; i < Xi_train[n].size(); ++i){
+                std::cout << Xi_train[n][i] << " ";
+            }
+            std::cout << std::endl;
+            
             DenseVectorT u_N = RB_solve(N, Xi_train[n], call);
             
-            T resnorm = residual_dual_norm(u_N, Xi_train[n]);
-            T alpha =  alpha_LB(Xi_train[n]);
-            T error_est = resnorm / alpha;
+            T error_est = RB_errorbound(u_N, Xi_train[n]);
             
-            std::cout << "Training parameter " << Xi_train[n][0]  << ": Error = " << std::scientific << error_est << " = " << resnorm << " / " << alpha << std::endl;
+            std::cout << "Training parameter ";             
+            for(unsigned int i = 0; i < Xi_train[n].size(); ++i){
+                std::cout << Xi_train[n][i] << " ";
+            }
+            std::cout  << ": Error = " << std::scientific << error_est << std::endl;
             if ( error_est > maxerr) {
                 maxerr = error_est;
                 next_Mu = n;
@@ -323,13 +460,14 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
 
 template <typename T, typename TruthModel>
 void
-RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_name){
+RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_name, int bf_nr){
 
   // Make a directory to store all the data files
-  if( mkdir(directory_name.c_str(), 0777) == -1)
+  if(mkdir(directory_name.c_str(), 0777) == -1)
   {
-    std::cerr << "In RBModel::write_basis_functions, directory "
-                 << directory_name << " already exists, overwriting contents." << std::endl;
+			std::cerr << strerror(errno) << std::endl;
+		  std::cerr << "In RBModel::write_basis_functions, directory "
+	                 << directory_name << " already exists, overwriting contents." << std::endl;	
   }
   
   std::stringstream n_bf_filename;
@@ -338,11 +476,19 @@ RBModel2D<T, TruthModel>::write_basis_functions(const std::string& directory_nam
   n_bf_file <<  n_bf() << std::endl;
   n_bf_file.close();
   
-  for(unsigned int i = 0; i < n_bf(); ++i){
-    std::stringstream filename;
-    filename << directory_name << "/bf_" << i+1 << ".dat";
-    saveCoeffVector2D(rb_basis_functions[i], truth->basis, filename.str().c_str());
-  }
+	if(bf_nr < 1){
+		for(unsigned int i = 0; i < n_bf(); ++i){
+	    std::stringstream filename;
+	    filename << directory_name << "/bf_" << i+1 << ".dat";
+	    saveCoeffVector2D(rb_basis_functions[i], truth->basis, filename.str().c_str());
+	  }
+	}
+	else{
+		std::cout << "Write Basis fct nr " << bf_nr << std::endl;
+	    std::stringstream filename;
+	    filename << directory_name << "/bf_" << bf_nr << ".dat";
+	    saveCoeffVector2D(rb_basis_functions[bf_nr-1], truth->basis, filename.str().c_str());
+	}
 }
 
 template <typename T, typename TruthModel>
@@ -430,6 +576,14 @@ RBModel2D<T, TruthModel>::write_RB_data(const std::string& directory_name){
   repr_F_file.precision(precision);
   repr_F_file << std::scientific << F_F_representor_norms << std::endl;
   repr_F_file.close();
+
+  // Write output_output_representor_norms
+  std::stringstream repr_output_filename;
+  repr_output_filename << directory_name << "/output_output_representor_norms.dat";
+  std::ofstream repr_output_file(repr_output_filename.str().c_str());
+  repr_output_file.precision(precision);
+  repr_output_file << std::scientific << output_output_representor_norms << std::endl;
+  repr_output_file.close();
   
   // Write A_F_representor_norms
   std::stringstream repr_A_F_filename;
@@ -558,6 +712,25 @@ RBModel2D<T, TruthModel>::read_RB_data(const std::string& directory_name){
     std::cerr << "Unable to open file " << F_F_filename.str() << " for reading!" << std::endl;
     exit(1);
   }
+
+  // Read output_output_representor norms
+  output_output_representor_norms.engine().resize((int)Q_output(), (int)Q_output());
+  std::stringstream output_output_filename;
+  output_output_filename << directory_name << "/output_output_representor_norms.dat";
+  std::ifstream output_output_file(output_output_filename.str().c_str());
+  if(output_output_file.is_open()){
+    for(unsigned int i = 1; i <= Q_output(); ++i){
+      for(unsigned int j = 1; j <= Q_output(); ++j){
+        output_output_file >> output_output_representor_norms(i,j);
+      }
+    }
+    output_output_file.close();
+    std::cout << " Read " << output_output_filename.str() << std::endl;
+  }
+  else{
+    std::cerr << "Unable to open file " << output_output_filename.str() << " for reading!" << std::endl;
+    exit(1);
+  }
   
   // Read A_F_representor norms
   A_F_representor_norms.clear();
@@ -653,16 +826,17 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
             }
 
         }
-        
+
         DenseVectorT A_new_bf, A_new_bf_T;
         if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
             A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense;
             A_new_bf_T = transpose(truth->A_operator_matrices[q_a]) * new_bf_dense;
         }
         
+        
         for (unsigned int i = 1; i <= n_bf(); ++i) {
             if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
-                DenseVectorT bf_dense(rb_basis_functions[i-1].size());
+                DenseVectorT bf_dense((int)rb_basis_functions[i-1].size());
                 int index_count = 1;
                 for (it = rb_basis_functions[i-1].begin(); it != rb_basis_functions[i-1].end(); ++it, ++index_count) {
                     bf_dense(index_count) = (*it).second;
@@ -818,5 +992,13 @@ RBModel2D<T, TruthModel>::alpha_LB(std::vector<T>& _param)
     
     return alpha_lb;
 }
+
+template <typename T, typename TruthModel>
+T
+RBModel2D<T, TruthModel>::RB_errorbound(const DenseVectorT& u_RB, std::vector<T>& _param)
+{
+    return  residual_dual_norm(u_RB, _param) / alpha_LB(_param);
+}
+
 } // namespace lawa
 

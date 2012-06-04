@@ -67,9 +67,15 @@ class AdaptiveRBTruth2D{
         
         void
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
+
+        void
+        attach_output_q(theta_fctptr theta_output_q, AdaptiveRhs<T, Index2D>& output_q);
+
+        void
+        attach_output_q(AdaptiveRhs<T, Index2D>& output_q);
     
         void 
-        attach_inner_product_op(Operator2D<T>& _inner_product_op);
+        attach_inner_product_op(AdaptiveOperator2D<T>& _inner_product_op);
         
         void
         set_truthsolver(TruthSolver& _truthsolver);
@@ -100,7 +106,7 @@ class AdaptiveRBTruth2D{
         update_representor_norms();
         
         void
-        write_riesz_representors(const std::string& directory_name = "offline_data/representors");
+        write_riesz_representors(const std::string& directory_name = "offline_data/representors", int repr_nr = -1);
         
         void
         assemble_inner_product_matrix(IndexSet<Index2D>& indexset);
@@ -117,7 +123,9 @@ class AdaptiveRBTruth2D{
         
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
-        Operator2D<T>*                          inner_product_op;
+        std::vector<AdaptiveRhs<T, Index2D>*>   output_operators;
+
+        AdaptiveOperator2D<T>*                          inner_product_op;
             
         TruthSolver*                            solver;
         
@@ -175,8 +183,27 @@ class AdaptiveRBTruth2D{
                 AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;        
         };
         
+        // Wrapper class for affine structure on output
+       class Operator_output {
+           public:
+               Operator_output(AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* _truth) : thisTruth(_truth){}
+
+               T
+               operator()(const Index2D &lambda);
+
+               Coefficients<Lexicographical,T,Index2D>
+               operator()(const IndexSet<Index2D> &Lambda);
+
+               Coefficients<Lexicographical,T,Index2D>
+               operator()(T tol);
+
+           private:
+               AdaptiveRBTruth2D<T, Basis, Prec, TruthSolver, Compression>* thisTruth;
+       };
+
         Operator_LHS lhs_op;
         Operator_RHS rhs_op;
+        Operator_output output_op;
          
           // Wrapper class for affine structure on left hand side
           // in the calculation of the Riesz representors       
@@ -266,9 +293,11 @@ class AdaptiveRBTruth2D{
         Operator_LHS_Representor            repr_lhs_op;
         Operator_RHS_BilFormRepresentor     repr_rhs_A_op;
         Operator_RHS_FunctionalRepresentor  repr_rhs_F_op;
+        Operator_RHS_FunctionalRepresentor  repr_rhs_output_op;
         
         bool use_inner_product_matrix;
         bool use_A_operator_matrices;
+     //   bool use_output_operator_vectors;
         
         SparseMatrixT   inner_product_matrix;
         DenseVectorT    prec_vec;
@@ -297,6 +326,7 @@ class AdaptiveRBTruth2D{
             const DenseVectorT& u_N;
         };
         
+        
         T
         uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu);
             
@@ -310,6 +340,8 @@ class AdaptiveRBTruth2D{
         
         std::vector<CoeffVector>                F_representors; // Dim: 1 x Q_f
         std::vector<std::vector<CoeffVector> >  A_representors; // Dim: n x Q_a
+        std::vector<CoeffVector>                output_representors; // Dim: 1 x Q_output
+
         
         Prec& prec;
         Coefficients<Lexicographical, T, Index2D> prec_data;

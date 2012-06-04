@@ -82,7 +82,7 @@ tri(GeMatrix<MA> &A, DenseVector<Array<int> > &P)
     assert(info==0);
 
     // allocate work space
-    DenseVector<Array<T> > work(iceil(lwork));
+    DenseVector<Array<T> > work(iceil<T>(lwork));
     return getri(A.numCols(), A.engine().data(), A.engine().leadingDimension(), P.engine().data(),
                  work.engine().data(), work.length());
 }

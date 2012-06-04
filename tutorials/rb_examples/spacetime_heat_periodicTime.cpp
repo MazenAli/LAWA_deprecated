@@ -119,7 +119,7 @@ int main (int argc, char *argv[]) {
     }
     //      Solving the problem, using gmres due to nonsymmetry
     S_Adwav s_adwav(basis2D, A, F, contraction, threshTol, cgTol, resTol, numIts, 4, 1e-2);
-    s_adwav.solve_gmres(InitialLambda);
+    s_adwav.solve_gmres(InitialLambda,1);
 
     // Post-processing
     cout << "Starting post-processing..." << endl;

@@ -50,10 +50,16 @@ class AdaptiveRBTruth2D_PG{
 
     public:
 
+        typedef TrialBasis                                         TrialBasisType;
+        typedef TestBasis                                          TestBasisType;
+        typedef TrialPrec                                          TrialPrecType;
+        typedef TestPrec                                           TestPrecType;
+    
     /* Public member functions */
                           
         AdaptiveRBTruth2D_PG(TrialBasis& _trialbasis, TestBasis& _testbasis, TrialPrec& _trialprec, TestPrec& _testprec, 
-                          bool _use_inner_product = false, bool _use_A_matrix = false);
+                          bool _use_inner_product = false, bool _use_A_matrix = false,
+                          bool _orthwithX = false, bool _useinnprodX = false);
         
         void 
         attach_A_q (theta_fctptr theta_a_q, Operator2D<T>& A_q);
@@ -68,12 +74,12 @@ class AdaptiveRBTruth2D_PG{
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
         
         void 
-        attach_inner_product_op(Operator2D<T>& _trial_inner_product_op, Operator2D<T>& _test_inner_product_op);
+        attach_inner_product_op(AdaptiveOperator2D<T>& _trial_inner_product_op, AdaptiveOperator2D<T>& _test_inner_product_op);
         
         void
         set_truthsolver(TruthSolver& _truthsolver);
         
-        void
+        virtual void
         set_rb_model(RBModel2D<T, AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression> >& _rb);
         
         RBModel2D<T, AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression> >&
@@ -95,7 +101,7 @@ class AdaptiveRBTruth2D_PG{
         void
         undo_test_prec(CoeffVector& u_test);
         
-        void
+        virtual void
         add_new_basis_function(const CoeffVector& sol);
         
         void
@@ -105,7 +111,7 @@ class AdaptiveRBTruth2D_PG{
         update_representor_norms();
         
         void
-        write_riesz_representors(const std::string& directory_name = "offline_data/representors");
+        write_riesz_representors(const std::string& directory_name = "offline_data/representors", int repr_nr = -1);
         
         void
         assemble_inner_product_matrix(IndexSet<Index2D>& trial_indexset, IndexSet<Index2D>& test_indexset);
@@ -119,7 +125,7 @@ class AdaptiveRBTruth2D_PG{
         T
         test_inner_product(const CoeffVector& v1, const CoeffVector& v2);
         
-        T
+        virtual T
         inner_product(const CoeffVector& v1, const CoeffVector& v2);
             
     /* Public members */
@@ -129,8 +135,8 @@ class AdaptiveRBTruth2D_PG{
         
         std::vector<Operator2D<T>*>             A_operators;
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
-        Operator2D<T>*                          trial_inner_product_op;
-        Operator2D<T>*                          test_inner_product_op;
+        AdaptiveOperator2D<T>*                          trial_inner_product_op;
+        AdaptiveOperator2D<T>*                          test_inner_product_op;
             
         TruthSolver*                            solver;
         
@@ -159,6 +165,11 @@ class AdaptiveRBTruth2D_PG{
                 void
                 toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
                                     const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);      
+
+                void
+                 apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                       const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+                       cxxblas::Transpose trans=cxxblas::NoTrans);
                 
                 Compression compression;
                 
@@ -208,6 +219,11 @@ class AdaptiveRBTruth2D_PG{
                  void
                  toFlensSparseMatrix(const IndexSet<Index2D> &LambdaRow,
                                      const IndexSet<Index2D> &LambdaCol, SparseMatrixT &A, T tol);
+
+                 void
+                 apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
+                       const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret,
+                       cxxblas::Transpose trans=cxxblas::NoTrans);
 
                  Compression compression;
          };
@@ -308,7 +324,7 @@ class AdaptiveRBTruth2D_PG{
         uncached_residual_dual_norm(const DenseVectorT& u_RB, const std::vector<T>& mu, 
                                     Coefficients<Lexicographical,T,Index2D>& res_repr);
         
-    private:
+    protected:
                 
         RBModel2D<T, AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression> >*     rb;
         
@@ -319,6 +335,11 @@ class AdaptiveRBTruth2D_PG{
         TestPrec&  test_prec;
         Coefficients<Lexicographical, T, Index2D> trial_prec_data;
         Coefficients<Lexicographical, T, Index2D> test_prec_data;
+        
+        lt<AbsoluteValue,T> lt_obj;
+        
+        bool orth_wrt_X;
+        bool use_innprod_X;
 };
     
 } // namespace lawa

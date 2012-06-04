@@ -9,11 +9,16 @@ saveCoeffVector2D(const Coefficients<Lexicographical,T,Index2D> &coeff, const Ba
   typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
   
   std::ofstream data(filename);
+
+	if(!data.good()){
+		std::cerr << "Could not open data file " << std::endl;
+		exit(1);
+	}
   data.precision(40);
   data << "# Center_x Center_y Value Xtype1 j1 k1 Xtype2 j2 k2" << std::endl;
   
-  typename Basis::FirstBasisType basis_x = basis2d.first;
-  typename Basis::SecondBasisType basis_y = basis2d.second;
+  const typename Basis::FirstBasisType& basis_x = basis2d.first;
+  const typename Basis::SecondBasisType& basis_y = basis2d.second;
   
   for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
       int j1=(*it).first.index1.j, k1=(*it).first.index1.k, j2=(*it).first.index2.j, k2=(*it).first.index2.k;
@@ -71,8 +76,8 @@ saveIndexSet2D(const IndexSet<Index2D> &indexset, const Basis &basis2d, const ch
   std::ofstream data(filename);
   data << "# Center_x Center_y Xtype1 j1 k1 Xtype2 j2 k2" << std::endl;
   
-  typename Basis::FirstBasisType basis_x = basis2d.first;
-  typename Basis::SecondBasisType basis_y = basis2d.second;
+  const typename Basis::FirstBasisType& basis_x = basis2d.first;
+  const typename Basis::SecondBasisType& basis_y = basis2d.second;
   
   for (const_ind_it it = indexset.begin(); it != indexset.end(); ++it) {
       int j1=(*it).index1.j, k1=(*it).index1.k, j2=(*it).index2.j, k2=(*it).index2.k;

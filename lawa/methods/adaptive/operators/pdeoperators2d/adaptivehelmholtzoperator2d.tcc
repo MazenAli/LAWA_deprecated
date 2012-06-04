@@ -200,6 +200,5 @@ AdaptiveHelmholtzOperator2D<T, Basis2D, Preconditioner>::clear()
     data_identity_y.clear();
 }
 
-
 }   // namespace lawa
 
