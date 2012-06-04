@@ -25,6 +25,7 @@
 #include <lawa/methods/adaptive/compressions/compression_pde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/mapmatrix.h>
+#include <lawa/methods/adaptive/operators/pdeoperators2d/adaptiveoperator2d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/convectionoperator1d.h>
