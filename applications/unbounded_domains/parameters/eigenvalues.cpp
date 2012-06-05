@@ -50,13 +50,11 @@ typedef AdaptiveIdentityOperator1D<T,Primal,R,CDF>                       CDF_MA_
 typedef AdaptiveIdentityOperator1D<T,Orthogonal,R,Multi>                 MW_MA_L2;
 typedef AdaptiveIdentityOperator1D<T,Primal,R,SparseMulti>               SparseMW_MA_L2;
 typedef AdaptiveIdentityOperator1D<T,Primal,RPlus,SparseMulti>           SparseMWRPlus_MA_L2;
-typedef AdaptiveIdentityOperator1D<T,Primal,Interval,SparseMulti>        SparseMWInterval_MA_L2;
 
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>                CDF_MA;
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,R,Multi>          MW_MA;
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,SparseMulti>        SparseMW_MA;
 typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,RPlus,SparseMulti>    SparseMWRPlus_MA;
-typedef AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Interval,SparseMulti> SparseMWInterval_MA;
 
 typedef IntegralF<Gauss,SparseMWRPlus_Basis1D>                                      IntegralRPlus;
 
@@ -129,7 +127,6 @@ int main (int argc, char *argv[]) {
     T   c=atof(argv[6]);
     int j0; bool w_XBSpline;
     bool realline = true;
-    bool rplus    = false;
 
     if   (strcmp(argv[4],"-inf")==0) { j0=0;             w_XBSpline=false; }
     else                             { j0=atoi(argv[4]); w_XBSpline=true; }
@@ -224,39 +221,37 @@ int main (int argc, char *argv[]) {
     }
     else if (strcmp(argv[1],"MW")==0) {
         MW_Basis1D             MW_basis(d,j0);
-        MW_MA                  MW_A(MW_basis,w_XBSpline,c);
+        MW_MA                  MW_A(MW_basis,c);
         MW_MA_L2               MW_A_L2(MW_basis);
-        if (w_XBSpline) {
-            for (int jmax=std::max(0,MW_basis.j0); jmax<=max_level; jmax+=1) {
-                for (T r=1.; r<=max_radius; r+=1.) {
-                    IndexSet<Index1D> Lambda = LambdaForEigenvalues(MW_basis, MW_basis.j0, jmax,
-                                                                    w_XBSpline, r);
-                    int N = Lambda.size();
-                    cout << "Size of Lambda: " << N << endl;
-                    SparseMatrixT A(N,N);
-                    if (s==0) {
-                        MW_A_L2.toFlensSparseMatrix(Lambda, Lambda, A);
-                    }
-                    else if (s==1) {
-                        MW_A.toFlensSparseMatrix(Lambda, Lambda, A);
-                    }
-
-                    T cB=0., CB=0.;
-                    //DenseMatrixT A_dense;
-                    //densify(cxxblas::NoTrans,A,A_dense);
-                    //computeEV(A_dense, cB, CB);
-
-                    T cB2, CB2;
-                    computesmallestEV(A,cB2);
-                    computelargestEV(A,CB2);
-
-                    file_eigenvalues << " " << jmax << " " << r
-                                     << " " << cB << " " << cB2 << " " << CB  << " " << CB2 << endl;
-                    cout             << " " << jmax << " " << r
-                                     << " " << cB << " " << cB2 << " " << CB  << " " << CB2 << endl;
+        for (int jmax=std::max(0,MW_basis.j0); jmax<=max_level; jmax+=1) {
+            for (T r=1.; r<=max_radius; r+=1.) {
+                IndexSet<Index1D> Lambda = LambdaForEigenvalues(MW_basis, MW_basis.j0, jmax,
+                                                                w_XBSpline, r);
+                int N = Lambda.size();
+                cout << "Size of Lambda: " << N << endl;
+                SparseMatrixT A(N,N);
+                if (s==0) {
+                    MW_A_L2.toFlensSparseMatrix(Lambda, Lambda, A);
                 }
-                file_eigenvalues << endl;
+                else if (s==1) {
+                    MW_A.toFlensSparseMatrix(Lambda, Lambda, A);
+                }
+
+                T cB=0., CB=0.;
+                //DenseMatrixT A_dense;
+                //densify(cxxblas::NoTrans,A,A_dense);
+                //computeEV(A_dense, cB, CB);
+
+                T cB2, CB2;
+                computesmallestEV(A,cB2);
+                computelargestEV(A,CB2);
+
+                file_eigenvalues << " " << jmax << " " << r
+                                 << " " << cB << " " << cB2 << " " << CB  << " " << CB2 << endl;
+                cout             << " " << jmax << " " << r
+                                 << " " << cB << " " << cB2 << " " << CB  << " " << CB2 << endl;
             }
+            file_eigenvalues << endl;
         }
     }
     else if (strcmp(argv[1],"SparseMW")==0) {
@@ -302,7 +297,7 @@ int main (int argc, char *argv[]) {
                 file_eigenvalues << endl;
             }
         }
-        else if (!realline && rplus) {
+        else {
             SparseMWRPlus_Basis1D       SparseMWRPlus_basis(d,j0);
             SparseMWRPlus_basis.enforceBoundaryCondition<DirichletBC>();
             SparseMWRPlus_MA            SparseMWRPlus_A(SparseMWRPlus_basis,c);
@@ -344,46 +339,6 @@ int main (int argc, char *argv[]) {
                 }
                 file_eigenvalues << endl;
             }
-        }
-
-        else if (!realline && !rplus) {
-            if (j0<1) { cerr << "Minimal level too small." << endl; exit(1); }
-            SparseMWInterval_Basis1D       SparseMWInterval_basis(d,j0);
-            SparseMWInterval_basis.enforceBoundaryCondition<DirichletBC>();
-            SparseMWInterval_MA            SparseMWInterval_A(SparseMWInterval_basis,0.);
-            SparseMWInterval_MA_L2         SparseMWInterval_A_L2(SparseMWInterval_basis);
-            for (int jmax=std::max(0,SparseMWInterval_basis.j0); jmax<=max_level; jmax+=1) {
-                IndexSet<Index1D> Lambda = LambdaForEigenvalues(SparseMWInterval_basis,
-                                                                SparseMWInterval_basis.j0, jmax);
-
-                int N = Lambda.size();
-                cout << "Size of Lambda: " << N << endl;
-                SparseMatrixT A(N,N);
-                if (s==0) {
-                    cout << "interval, s=0" << endl;
-                    SparseMWInterval_A_L2.toFlensSparseMatrix(Lambda, Lambda, A,-1);
-                }
-                else if (s==1) {
-                    cout << "interval, s=1" << endl;
-                    SparseMWInterval_A.toFlensSparseMatrix(Lambda, Lambda, A);
-                }
-
-                T cB=0., CB=0.;
-                //DenseMatrixT A_dense;
-                //densify(cxxblas::NoTrans,A,A_dense);
-                //computeEV(A_dense, cB, CB);
-
-                T cB2, CB2;
-                computesmallestEV(A,cB2);
-                computelargestEV(A,CB2);
-
-                file_eigenvalues << " " << jmax
-                                 << " " << cB << " " << cB2 << " " << CB  << " " << CB2 << endl;
-                cout             << " " << jmax
-                                 << " " << cB << " " << cB2 << " " << CB  << " " << CB2  << " " << CB2/cB2 << endl;
-
-            }
-            file_eigenvalues << endl;
         }
     }
 

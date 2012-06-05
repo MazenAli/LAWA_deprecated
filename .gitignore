@@ -108,3 +108,6 @@ Runs/
 tutorials/rb_examples/indexset-based/ex1_output/test_output
 validate/plot_wavelets
 tutorials/rb_examples/indexset-based/ex1_output/training_output
+tutorials/examples/eigenvalues
+applications/new_eval_scheme/test_mw_apply1d
+applications/new_eval_scheme/test_mw_apply2d

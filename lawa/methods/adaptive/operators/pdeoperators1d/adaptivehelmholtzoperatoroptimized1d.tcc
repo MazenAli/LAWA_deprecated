@@ -390,12 +390,30 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::AdaptiveHelmhol
 {
     std::cout << "AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>: j0="
               << basis.j0 << std::endl;
-    if (basis.d==2 && c == 1.) {
-        if (basis.j0==0)       {    cA = 0.14;  CA = 2.9;    }
-        else if (basis.j0==-1) {    cA = 0.14;  CA = 2.9;    }
-        else if (basis.j0==-2) {    cA = 0.19;  CA = 2.9;    }
-        else if (basis.j0==-3) {    cA = 0.19;  CA = 2.9;    }
-        else if (basis.j0==-4) {    cA = 0.19;  CA = 2.9;    }
+    if (Domain == R) {
+        if (basis.d==2 && c==1.) {
+            if (basis.j0==0)       {    cA = 0.14;  CA = 2.9;    }
+            else if (basis.j0==-1) {    cA = 0.14;  CA = 2.9;    }
+            else if (basis.j0==-2) {    cA = 0.19;  CA = 2.9;    }
+            else if (basis.j0==-3) {    cA = 0.19;  CA = 2.9;    }
+            else if (basis.j0==-4) {    cA = 0.19;  CA = 2.9;    }
+            else assert(0);
+        }
+        else assert(0);
+    }
+    else if (Domain == Interval) {
+        if (basis.d==2 && c==0.) {
+            if (basis.j0==0)       {    cA = 0.18;    CA = 2.7;    }
+            else assert(0);
+        }
+        else if (basis.d==3 && c==0.) {
+            if (basis.j0==0)       {    cA = 0.306;   CA = 2.08;    }
+            else assert(0);
+        }
+        else if (basis.d==4 && c==0.) {
+            if (basis.j0==0)       {    cA = 0.329;   CA = 1.96;    }
+            else assert(0);
+        }
         else assert(0);
     }
     else assert(0);
@@ -493,15 +511,12 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::apply
     Coefficients<Lexicographical,T,Index1D> ret;
     if (v.size() == 0) return ret;
 
-    for (const_coeff1d_it it=v.begin(); it!=v.end(); ++it) {
-        ret[(*it).first] = c * (*it).second * this->prec((*it).first);
-    }
-
     Coefficients<AbsoluteValue,T,Index1D> temp;
     temp = v;
 
     int s = 0, count = 0;
     for (const_abs_coeff1d_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
+        ret[(*it).second] += c * (*it).first * this->prec((*it).second);
         Index1D colindex = (*it).second;
         T prec_colindex = this->prec(colindex);
         IndexSet<Index1D> Lambda_v;
@@ -531,12 +546,70 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::apply
                                                   (const Coefficients<Lexicographical,T,Index1D> &v,
                                                    T eps, Coefficients<Lexicographical,T,Index1D> & ret)
 {
+/*
     Coefficients<AbsoluteValue,T,Index1D> v_abs;
     v_abs = v;
     int k = this->findK(v_abs, eps);
     //Coefficients<Lexicographical,T,Index1D> ret;
     ret = this->apply(v, k);
     return;// ret;
+*/
+    T comprConst = CA;
+    T convFactor = std::min(basis.d-1.5,1.5);
+    /* multiwavelets are only C^1 and not C^{d-2} and so their smoothness index is
+       gamma = std::min(d,3)-1/2. Moreoever, the half order of the operator order here is t=1.
+       We have \| A-A_j \| \leq comprConst * 2^{-convFactor*j}
+       Replacing j -> j/convFactor yields the setting from Stevenson:2009
+     */
+
+    Coefficients<Bucket,T,Index1D> v_bucket;
+    T tol = 0.5*eps/comprConst;
+    v_bucket.bucketsort(v,tol);
+    //std::cerr << "APPLY: NumOfBuckets=" << v_bucket.buckets.size() << std::endl;
+    long double squared_v_norm = (long double)std::pow(v.norm(2.),2.);
+    long double squared_v_bucket_norm = 0.;
+    T delta=0.;
+    int l=0;
+    int support_size_all_buckets=0;
+    for (int i=0; i<(int)v_bucket.buckets.size(); ++i) {
+        squared_v_bucket_norm += v_bucket.bucket_ell2norms[i]*v_bucket.bucket_ell2norms[i];
+        T squared_delta = fabs(squared_v_norm - squared_v_bucket_norm);
+        support_size_all_buckets += v_bucket.buckets[i].size();
+        delta = std::sqrt(squared_delta);
+        l = i+1;
+        if (squared_delta<tol*tol) {
+            break;
+        }
+    }
+    //std::cerr << "APPLY: squared_v_norm=" << squared_v_norm << ", squared_v_bucket_norm=" << squared_v_bucket_norm << std::endl;
+
+    for (int i=0; i<l; ++i) {
+        Coefficients<Lexicographical,T,Index1D> w_p;
+        v_bucket.addBucketToCoefficients(w_p,i);
+        if (w_p.size()==0) continue;
+        T numerator = w_p.norm(2.) * support_size_all_buckets;
+        T denominator = w_p.size() * (eps-delta) / comprConst;
+        //T denominator = w_p.size() * 0.5*tol / CA;
+        //std::cout << "Bucket " << i << ": size=" << w_p.size() << ", (tol-delta)" << fabs(tol-delta) << std::endl;
+        int jp = (int)std::max((std::log(numerator/denominator) / std::log(2.)) / convFactor, 0.);
+        //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
+        for (const_coeff1d_it it=w_p.begin(); it!=w_p.end(); ++it) {
+            Index1D colindex = (*it).first;
+            ret[colindex] += c * (*it).second * this->prec(colindex);
+            T prec_colindex = this->prec(colindex);
+            IndexSet<Index1D> Lambda_v;
+            Lambda_v=lambdaTilde1d_PDE(colindex, basis,jp, basis.j0, std::min(colindex.j+jp,25), false);
+            for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+                ret[*mu] += this->laplace_data1d(*mu, colindex) * prec_colindex * (*it).second;
+            }
+        }
+    }
+    for (coeff1d_it it=ret.begin(); it!=ret.end(); ++it) {
+        (*it).second *= this->prec((*it).first);
+    }
+
+    return;
+
 }
 
 template <typename T, DomainType Domain>
