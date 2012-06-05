@@ -146,8 +146,8 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int its;
 
       std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = lawa::pcg(P, truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-      Ax = truth_model->test_inner_product_matrix*x;
+      its = lawa::pcg(P, truth_model->test_inner_product_v_v_matrix, x, rhs, tol, maxIterations);
+      Ax = truth_model->test_inner_product_v_v_matrix*x;
       res= Ax-rhs;
       residual = std::sqrt(res*res);
       row_count = 1;
@@ -233,8 +233,8 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int its;
 
       std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = lawa::pcg(P,truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-      Ax = truth_model->test_inner_product_matrix*x;
+      its = lawa::pcg(P,truth_model->test_inner_product_v_v_matrix, x, rhs, tol, maxIterations);
+      Ax = truth_model->test_inner_product_v_v_matrix*x;
       res= Ax-rhs;
       residual = std::sqrt(res*res);
       row_count = 1;
@@ -322,8 +322,8 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       int its;
 
       std::cout << "  Start PCG Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = lawa::pcg(P,truth_model->test_inner_product_matrix, x, rhs, tol, maxIterations);
-      Ax = truth_model->test_inner_product_matrix*x;
+      its = lawa::pcg(P,truth_model->test_inner_product_v_v_matrix, x, rhs, tol, maxIterations);
+      Ax = truth_model->test_inner_product_v_v_matrix*x;
       res= Ax-rhs;
       residual = std::sqrt(res*res);
       row_count = 1;
