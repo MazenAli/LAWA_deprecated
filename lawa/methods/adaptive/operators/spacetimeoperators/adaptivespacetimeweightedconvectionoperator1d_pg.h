@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
  
-#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMELAPLACEOPERATOR1D_H
-#define LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMELAPLACEOPERATOR1D_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_SPACETIMEOPERATORS_ADAPTIVESPACETIMEWEIGHTEDCONVECTIONOPERATOR1D_PG_H
+#define LAWA_METHODS_ADAPTIVE_OPERATORS_SPACETIMEOPERATORS_ADAPTIVESPACETIMEWEIGHTEDCONVECTIONOPERATOR1D_PG_H 1
  
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/compressions/compression_pde1d.h>
@@ -27,51 +27,53 @@
 #include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 #include <lawa/methods/adaptive/operators/pdeoperators2d/adaptiveoperator2d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
-#include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
-#include <lawa/operators/pdeoperators1d/convectionoperator1d.h>
+#include <lawa/operators/pdeoperators1d/weightedconvectionoperator1d_pg.h>
 #include <lawa/operators/spacetimeoperators/spacetimeoperators.h>
 #include <lawa/preconditioners/nopreconditioner.h>
 #include <lawa/preconditioners/spacetimepreconditioners/spacetimepreconditioners.h>
  
 namespace lawa {
 
-/* Space-Time Laplace Operator
+/* Space-Time Weighted Convection Operator
  *
- *  a(v,u) =  diffusion  * Integral(v1 * u1)    * Integral(v2_x * u2_x)
+ *  a(v,u) =  convection * Integral(v1 * u1)    * Integral( w * v2 * u2_x)
  *
  *  Template Parameters:
  *      LeftPrec2D :        left preconditioner
  *      RightPrec2D:        right preconditioner
  *      InitialCondition:   operator for initial condition, can be NoInitialCondition
  */
-template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-struct AdaptiveSpaceTimeLaplaceOperator1D : public AdaptiveOperator2D<T> {
+template <typename T, typename TrialBasis, typename TestBasis,
+          typename TrialPrec, typename TestPrec, typename InitialCondition>
+struct AdaptiveSpaceTimeWeightedConvectionOperator1D_PG : public AdaptiveOperator2D<T> {
     
     typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
 
-    typedef typename Basis2D::FirstBasisType    Basis_t;
-    typedef typename Basis2D::SecondBasisType   Basis_x;
+    typedef typename TrialBasis::FirstBasisType    TrialBasis_t;
+    typedef typename TrialBasis::SecondBasisType   TrialBasis_x;
+
+    typedef typename TestBasis::FirstBasisType    TestBasis_t;
+    typedef typename TestBasis::SecondBasisType   TestBasis_x;
     
-    typedef CompressionPDE1D<T, Basis_t>        Compression1D_t;
-    typedef CompressionPDE1D<T, Basis_x>        Compression1D_x;  
-    typedef CompressionPDE2D<T, Basis2D>        Compression2D;
+    typedef NoCompression<T, Index1D, TrialBasis_t>   Compression1D_t;
+    typedef NoCompression<T, Index1D, TrialBasis_x>   Compression1D_x;
+    typedef NoCompression<T, Index2D, TrialBasis>     Compression2D;
     
     typedef NoPreconditioner<T,Index1D>         NoPreconditioner1D;
     
-    typedef IdentityOperator1D<T, Basis_t>      IdentityOperator_t;
-    typedef LaplaceOperator1D<T, Basis_x>       LaplaceOperator_x;
+    typedef IdentityOperator1D_PG<T, TrialBasis_t, TestBasis_t>      				IdentityOperator_t;
+    typedef WeightedConvectionOperator1D_PG<T, TrialBasis_x, TestBasis_x, Gauss>    ConvectionOperator_x;
 
     typedef MapMatrix<T, Index1D, IdentityOperator_t, 
-                               Compression1D_t, NoPreconditioner1D>   DataIdentity_t;
-    typedef MapMatrix<T, Index1D, LaplaceOperator_x,
-                               Compression1D_x, NoPreconditioner1D>   DataLaplace_x;
+                               Compression1D_t, NoPreconditioner1D>   DataIdentity_t;  
+    typedef MapMatrix<T, Index1D, ConvectionOperator_x, 
+                               Compression1D_x, NoPreconditioner1D>   DataConvection_x;
                                
-    AdaptiveSpaceTimeLaplaceOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    T _diffusion = 1.);
+    AdaptiveSpaceTimeWeightedConvectionOperator1D_PG(const TrialBasis& _trialbasis, const TestBasis& _testbasis,
+            TrialPrec& _trialprec, TestPrec& _testprec, Function<T> weightFct, T _convection = 1);
     
-    AdaptiveSpaceTimeLaplaceOperator1D(const Basis2D& _basis, LeftPrec2D& _p_left, RightPrec2D& _p_right,
-                                    InitialCondition& _init_cond,
-                                    T _diffusion = 1.);
+    AdaptiveSpaceTimeWeightedConvectionOperator1D_PG(const TrialBasis& _trialbasis, const TestBasis& _testbasis,
+            TrialPrec& _trialprec, TestPrec& _testprec, InitialCondition& _init_cond, Function<T> weightFct, T _convection = 1);
                                     
     // call of p_left * a_operator * p_right
     T
@@ -92,36 +94,37 @@ struct AdaptiveSpaceTimeLaplaceOperator1D : public AdaptiveOperator2D<T> {
     void
     clear();
     
-    const Basis2D&      basis;
-    const T             diffusion;
+    const TrialBasis&   trialbasis;
+    const TestBasis&    testbasis;
+    const T             convection;
     
     Compression1D_t     compression_1d_t;
     Compression1D_x     compression_1d_x;
     Compression2D       compression;
     
-    Coefficients<Lexicographical,T,Index2D> P_left_data;
-    Coefficients<Lexicographical,T,Index2D> P_right_data;
+    Coefficients<Lexicographical,T,Index2D> P_trial_data;
+    Coefficients<Lexicographical,T,Index2D> P_test_data;
     
-    const LeftPrec2D&   p_left;
-    const RightPrec2D&  p_right;
+    const TrialPrec&   trialprec;
+    const TestPrec&    testprec;
     NoPreconditioner1D  noprec;
     
     const IdentityOperator_t    op_identity_t;
-    const LaplaceOperator_x     op_laplace_x;
+    const ConvectionOperator_x  op_convection_x;
     
     const NoInitialCondition    op_noinitcond;
     const InitialCondition&     op_initcond;
     
     DataIdentity_t      data_identity_t;
-    DataLaplace_x       data_laplace_x;
+    DataConvection_x    data_convection_x;
     
 };    
       
 } // namespace lawa
 
-#include <lawa/methods/adaptive/operators/spacetimeoperators/adaptivespacetimelaplaceoperator1d.tcc>
+#include <lawa/methods/adaptive/operators/spacetimeoperators/adaptivespacetimeweightedconvectionoperator1d_pg.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVESPACETIMELAPLACEOPERATOR1D_H
+#endif // LAWA_METHODS_ADAPTIVE_OPERATORS_SPACETIMEOPERATORS_ADAPTIVESPACETIMEWEIGHTEDCONVECTIONOPERATOR1D_PG_H
  
  
 

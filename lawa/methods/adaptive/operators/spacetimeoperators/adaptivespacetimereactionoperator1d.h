@@ -25,6 +25,7 @@
 #include <lawa/methods/adaptive/compressions/compression_pde2d.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/mapmatrix.h>
+#include <lawa/methods/adaptive/operators/pdeoperators2d/adaptiveoperator2d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/convectionoperator1d.h>
@@ -44,7 +45,7 @@ namespace lawa {
  *      InitialCondition:   operator for initial condition, can be NoInitialCondition
  */
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
-struct AdaptiveSpaceTimeReactionOperator1D : public Operator2D<T> {
+struct AdaptiveSpaceTimeReactionOperator1D : public AdaptiveOperator2D<T> {
     
     typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
 

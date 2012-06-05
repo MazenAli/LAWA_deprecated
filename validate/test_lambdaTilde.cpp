@@ -10,9 +10,9 @@ typedef double T;
 const T thresh = 1e-30;
 
 // Basis definitions
-const FunctionSide functionside = Primal;
-const DomainType   domain = RPlus;
-const Construction construction = SparseMulti;
+const FunctionSide functionside = Orthogonal;
+const DomainType   domain = Interval;
+const Construction construction = Multi;
 
 const T leftbound=-10.;   //for realline constructions, we only consider wavelets with support intersecting [left,right]
 const T rightbound=10.;
@@ -41,6 +41,10 @@ getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j);
 template <typename T>
 Range<long>
 getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j);
+
+template <typename T>
+Range<int>
+getRange(const Basis<T,Orthogonal,Interval,Multi> &basis, XType e, int j);
 
 template <typename T>
 Range<long>
@@ -118,7 +122,6 @@ int main (int argc, char *argv[]) {
                 }
             }
         }
-
         cout << "Current index: " << col_index << endl;
         IndexSet<Index1D> lambdaTilde_nonzeros;
         lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, j0+J, false);
@@ -199,6 +202,9 @@ int main (int argc, char *argv[]) {
             cout << "Current index: " << col_index << endl;
             IndexSet<Index1D> lambdaTilde_nonzeros;
             lambdaTilde_nonzeros=lambdaTilde1d_PDE(col_index, basis, J, j0, j0+J, false);
+            if (j_col==2 && k_col==8) {
+                cout << lambdaTilde_nonzeros << endl;
+            }
             //cout << "(XBSpline, " << j0 << ", " << k_col << "): [" << lambdaTilde_nonzeros.size() << "] "
             //     << lambdaTilde_nonzeros << endl;
             //getchar();
@@ -210,15 +216,13 @@ int main (int argc, char *argv[]) {
                         max_error_col_index = col_index;
                         max_error_row_index = (*it).first;
                     }
-                    /*
-                    cout << "Error: " << col_index << ": " << (*it).first << ", "
-                         << basis.generator(XWavelet).singularSupport(j_col,k_col)
-                         << " " << basis.generator((*it).first.xtype).singularSupport((*it).first.j,(*it).first.k)
-                         << " is missing: ";
-                    printf("%E",fabs((*it).second));
-                    cout << endl << endl;
+                    //cout << "Error: " << col_index << ": " << (*it).first << ", "
+                    //     << basis.generator(XWavelet).singularSupport(j_col,k_col)
+                    //     << " " << basis.generator((*it).first.xtype).singularSupport((*it).first.j,(*it).first.k)
+                    //     << " is missing: ";
+                    //printf("%E",fabs((*it).second));
+                    //cout << endl << endl;
                     //getchar();
-                    */
                 }
             }
             for (const_set_it it=lambdaTilde_nonzeros.begin(); it!=lambdaTilde_nonzeros.end();++it) {
@@ -227,13 +231,10 @@ int main (int argc, char *argv[]) {
                      ( (*it).k <= getRange(basis,(*it).xtype,(*it).j).lastIndex()) )
                 {
                     T tmp = p(*it)*op(*it,col_index)*p(col_index);
-                    /*
-                    cout << "Inefficient: "<< col_index << ": "  << *it << ", "
-                         << basis.generator(XWavelet).singularSupport(j_col,k_col)
-                         << " " << basis.generator((*it).xtype).singularSupport((*it).j,(*it).k)
-                         << " is not required: " << tmp << endl << endl;
-                    */
-
+                    //cout << "Inefficient: "<< col_index << ": "  << *it << ", "
+                    //     << basis.generator(XWavelet).singularSupport(j_col,k_col)
+                    //     << " " << basis.generator((*it).xtype).singularSupport((*it).j,(*it).k)
+                    //     << " is not required: " << tmp << endl << endl;
                 }
             }
         }
@@ -281,6 +282,14 @@ getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j)
     }
 
     return _(int(pow2i<T>(j)*leftbound-numFunc),int(pow2i<T>(j)*rightbound+numFunc));
+}
+
+template <typename T>
+Range<int>
+getRange(const Basis<T,Orthogonal,Interval,Multi> &basis, XType e, int j)
+{
+    if (e==XBSpline)    return basis.mra.rangeI(j);
+    else                return basis.rangeJ(j);
 }
 
 template <typename T>

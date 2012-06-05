@@ -10,11 +10,12 @@
 #define LAWA_METHODS_ADAPTIVE_OPERATORS_ADAPTIVEOPERATOR2D_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/operators/operator2d.h>
 
 namespace lawa {
   
   template <typename T>
-  struct AdaptiveOperator2D {     
+  struct AdaptiveOperator2D : Operator2D<T> {
     
     typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
 
