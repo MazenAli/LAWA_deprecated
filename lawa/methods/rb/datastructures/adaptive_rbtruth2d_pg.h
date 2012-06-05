@@ -117,7 +117,7 @@ class AdaptiveRBTruth2D_PG{
         assemble_matrix(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row, Operator2D<T>& op, SparseMatrixT& matrix);
 
         void
-        assemble_vector(IndexSet<Index2D>& indexset, Operator2D<T>& op, DenseVectorT& vec);
+        assemble_testprec(IndexSet<Index2D>& indexset, DenseVectorT& vec);
 
         void
         assemble_all(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row);

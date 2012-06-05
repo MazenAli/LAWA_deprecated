@@ -487,13 +487,13 @@ assemble_matrix(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
-assemble_vector(IndexSet<Index2D>& indexset, Operator2D<T>& op, DenseVectorT& vec)
+assemble_testprec(IndexSet<Index2D>& indexset, DenseVectorT& vec)
 {
 	vec.engine().resize((int)indexset.size());
     typedef typename IndexSet<Index2D>::const_iterator const_set_it;
     int row_count = 1;
     for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
-	    vec(row_count) = op(*row);
+	    vec(row_count) = test_prec(*row);
 	}
 }
 
@@ -508,14 +508,14 @@ assemble_all(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row)
 	assembled_inner_product_matrix = true;
 
 	A_operator_matrices.clear();
-	for(int q = 0; q < A_operators.size(); ++q){
-	    SparseMatrixT matrix();
+	for(unsigned int q = 0; q < A_operators.size(); ++q){
+	    SparseMatrixT matrix(0,0);
 	    A_operator_matrices.push_back(matrix);
 		assemble_matrix(indexset_col, indexset_row, *A_operators[q], A_operator_matrices[q]);
 	}
 	assembled_A_operator_matrices = true;
 
-	assemble_vector(indexset_row, test_prec, test_prec_vec);
+	assemble_testprec(indexset_row, test_prec_vec);
 	assembled_prec_vec = true;
 
 
