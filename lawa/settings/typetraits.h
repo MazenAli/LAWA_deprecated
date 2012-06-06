@@ -23,6 +23,7 @@
 #include <lawa/settings/enum.h>
 #include <lawa/constructions/bspline.h>
 #include <lawa/constructions/wavelet.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
 
 namespace lawa {
 
@@ -204,6 +205,45 @@ struct IsSparseMulti<BSpline<T,Side,Domain,SparseMulti> >
 
 template <typename T, FunctionSide Side, DomainType Domain>
 struct IsSparseMulti<Basis<T,Side,Domain,SparseMulti> >
+{
+    static const bool value = true;
+};
+
+//--- IsIndex1D
+template <typename X>
+struct IsIndex1D
+{
+    static const bool value = false;
+};
+
+template <>
+struct IsIndex1D<Index1D>
+{
+    static const bool value = true;
+};
+
+//--- IsIndex2D
+template <typename X>
+struct IsIndex2D
+{
+    static const bool value = false;
+};
+
+template <>
+struct IsIndex2D<Index2D>
+{
+    static const bool value = true;
+};
+
+//--- IsIndex3D
+template <typename X>
+struct IsIndex3D
+{
+    static const bool value = false;
+};
+
+template <>
+struct IsIndex3D<Index3D>
 {
     static const bool value = true;
 };

@@ -5,13 +5,35 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F
                                                    bool _optimized_grow, int _assemble_matrix)
     : A(_A), F(_F), optimized_grow(_optimized_grow), assemble_matrix(_assemble_matrix),
       cA(A.cA), CA(A.CA), kappa(A.kappa),
-      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.)
+      alpha(0.), omega(0.), gamma(0.), theta(0.), eps(0.),
+      hms_galerkin(389), hms_residual(3079)
 {
     omega = 0.01;
     alpha = 1./std::sqrt(kappa)-(1.+1./std::sqrt(kappa))*omega-0.00001;
     gamma = 0.5 * (1./6.) * 1./sqrt(kappa) * (alpha-omega)/(1+omega);
     theta = 2./7.;
-
+    if (IsIndex1D<Index>::value) {
+        if (A.basis.d==2) {
+            hms_galerkin = 6151;
+            hms_residual = 24593;
+        }
+        else {
+            hms_galerkin = 3079;
+            hms_residual = 12289;
+        }
+    }
+    else if (IsIndex2D<Index>::value) {
+        hms_galerkin = 3145739;
+        hms_residual = 6291469;
+    }
+    else if (IsIndex3D<Index>::value) {
+        hms_galerkin = 3145739;
+        hms_residual = 6291469;
+    }
+    else {
+        hms_galerkin = 3145739;
+        hms_residual = 6291469;
+    }
 }
 
 template <typename T, typename Index, typename AdaptiveOperator, typename RHS>
@@ -30,8 +52,8 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
                                                int NumOfIterations, T H1norm)
 {
     T eps = _eps;
-    Coefficients<Lexicographical,T,Index> w_k(SIZEHASHINDEX2D), g_kP1(SIZEHASHINDEX2D);
-    IndexSet<Index>                       Lambda_kP1(SIZEHASHINDEX2D);
+    Coefficients<Lexicographical,T,Index> w_k(hms_galerkin), g_kP1(hms_galerkin);
+    IndexSet<Index>                       Lambda_kP1(hms_galerkin);
     T nu_kM1 = nuM1;
     T nu_k   = 0.;
     T total_time=0.;
@@ -64,14 +86,6 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
 
         if (nu_k <=eps) break;
 
-        /*
-        IndexSet<Index1D> Lambda_x, Lambda_y;
-        split(Lambda_kP1, Lambda_x, Lambda_y);
-        int jmin_x, jmax_x, jmin_y, jmax_y;
-        getMinAndMaxLevel(Lambda_x, jmin_x, jmax_x);
-        getMinAndMaxLevel(Lambda_y, jmin_y, jmax_y);
-        std::cerr << "   Current jmax  = (" << jmax_x << ", " << jmax_y << ")" << std::endl;
-        */
         Coefficients<Lexicographical,T,Index> Au, f, rhs;
         f = F(supp(w_k));
         T fu = w_k*f;
@@ -83,22 +97,16 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
                          << Error_H_energy << " " << timeApply << " " << timeMatrixVector << " "
                          << T(lengthOfResidual)/T(w_k.size())  << std::endl;
 
-        /*
-        std::stringstream coefffile;
-        coefffile << "adwav_coeffs_" << w_k.size();
-        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coefffile.str().c_str());
-        */
-
-
         time.start();
         std::cerr << "   GALSOLVE started with #Lambda = " << Lambda_kP1.size()  << std::endl;
-        /*
-         * Attention: update in rhs1d is set! Linear complexity still holds with better convergence!
-         */
+
+        //Attention: update in rhs1d is set! Linear complexity still holds with better convergence!
 
         //g_kP1 = F(Lambda_kP1);                // update rhs vector
-        rhs = F(gamma*nu_k);
-        g_kP1 = P(rhs,Lambda_kP1);  // compute with restriction, otherwise GROW does not work
+        //rhs = F(gamma*nu_k);
+        //g_kP1 = P(rhs,Lambda_kP1);  // compute with restriction, otherwise GROW does not work
+        g_kP1 = F(gamma*nu_k);
+        P(Lambda_kP1, g_kP1);
         T res;
         numOfIterations=CG_Solve(Lambda_kP1, A, w_k, g_kP1, res, gamma*nu_k,
                                  maxIterations,timeMatrixVector,assemble_matrix);
@@ -124,7 +132,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GROW(const Coefficients<Lexicographical
 {
     T zeta = 2.*(omega*nu_bar)/(1-omega);
     T r_norm = 0.;
-    Coefficients<Lexicographical,T,Index> r(16769023), rhs;
+    Coefficients<Lexicographical,T,Index> r(hms_residual);
     while (1) {
         r.setToZero();
         zeta *= 0.5;
@@ -286,6 +294,13 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
     }
     return;
 }
+
+/*
+        std::stringstream coefffile;
+        coefffile << "adwav_coeffs_" << w_k.size();
+        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coefffile.str().c_str());
+        */
+
 
 
 /*

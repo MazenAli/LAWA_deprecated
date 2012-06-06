@@ -75,7 +75,6 @@ int main (int argc, char *argv[]) {
     }
     cout.precision(3);
 
-
     int d=atoi(argv[2]);
     int d_=atoi(argv[3]);
     int j0; bool w_XBSpline;
@@ -122,11 +121,13 @@ int main (int argc, char *argv[]) {
         CDF_Basis1D             CDF_basis(d,d_,j0);
         CDF_MA                  CDF_A(CDF_basis,w_XBSpline,c);
         CDF_Prec                CDF_prec(CDF_A);
+        bool optimizedGrow =   true;
+        int assembleMatrix  =   2;
 
         if (w_XBSpline) {
             CDF_RhsIntegral1D       CDF_rhsintegral1d(CDF_basis, rhsFct, refsol.deltas, 70);
             CDF_Rhs                 CDF_F(CDF_rhsintegral1d,CDF_prec);
-            CDF_GHS_ADWAV_SOLVER    CDF_ghs_adwav_solver(CDF_A, CDF_F,true);
+            CDF_GHS_ADWAV_SOLVER    CDF_ghs_adwav_solver(CDF_A, CDF_F,optimizedGrow,assembleMatrix);
             if (CDF_F.readIndexSets(rhsfilename.str().c_str()) ) {
                 cout << "Index sets for rhs read... Ready to start."  << endl;
             }
@@ -150,8 +151,8 @@ int main (int argc, char *argv[]) {
                                                    4., 20);
             CDF_Rhs_WO_XBSpline                 CDF_F_WO_XBSpline(CDF_rhsintegral1d_WO_XBSpline,
                                                                   CDF_prec);
-            CDF_GHS_ADWAV_SOLVER_WO_XBSpline    CDF_ghs_adwav_solver_WO_XBSpline(CDF_A,
-                                                                                 CDF_F_WO_XBSpline);
+            CDF_GHS_ADWAV_SOLVER_WO_XBSpline    CDF_ghs_adwav_solver_WO_XBSpline(CDF_A,CDF_F_WO_XBSpline,optimizedGrow,
+                                                                                 assembleMatrix);
             if (CDF_F_WO_XBSpline.readIndexSets(rhsfilename.str().c_str()) ) {
                 cout << "Index sets for rhs read... Ready to start."  << endl;
             }
@@ -175,7 +176,9 @@ int main (int argc, char *argv[]) {
         MW_Prec                 MW_prec(MW_A);
         MW_RhsIntegral1D        MW_rhsintegral1d(MW_basis, rhsFct, refsol.deltas, 20);
         MW_Rhs                  MW_F(MW_rhsintegral1d,MW_prec);
-        MW_GHS_ADWAV_SOLVER     MW_ghs_adwav_solver(MW_A, MW_F);
+        bool optimizedGrow =    true;
+        int assembleMatrix  =   2;
+        MW_GHS_ADWAV_SOLVER     MW_ghs_adwav_solver(MW_A, MW_F, optimizedGrow, assembleMatrix);
 
         if (MW_F.readIndexSets(rhsfilename.str().c_str()) ) {
             cout << "Index sets for rhs read... Ready to start."  << endl;
@@ -199,7 +202,9 @@ int main (int argc, char *argv[]) {
         SparseMW_Prec               SparseMW_prec(SparseMW_A);
         SparseMW_RhsIntegral1D      SparseMW_rhsintegral1d(SparseMW_basis, rhsFct, refsol.deltas, 10);
         SparseMW_Rhs                SparseMW_F(SparseMW_rhsintegral1d,SparseMW_prec);
-        SparseMW_GHS_ADWAV_SOLVER   SparseMW_ghs_adwav_solver(SparseMW_A, SparseMW_F);
+        bool optimizedGrow =    true;
+        int assembleMatrix  =   2;
+        SparseMW_GHS_ADWAV_SOLVER   SparseMW_ghs_adwav_solver(SparseMW_A, SparseMW_F, optimizedGrow, assembleMatrix);
 
         T alpha = 0.6, omega = 0.2, gamma = 0.15, theta = 2*omega/(1+omega);
         SparseMW_ghs_adwav_solver.setParameters(alpha, omega, gamma, theta);

@@ -124,6 +124,10 @@ Coefficients<Lexicographical,T,Index>
 P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda);
 
 template <typename T, typename Index>
+void
+P(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Index> &v);
+
+template <typename T, typename Index>
 IndexSet<Index>
 supp(const Coefficients<Lexicographical,T,Index> &v);
 

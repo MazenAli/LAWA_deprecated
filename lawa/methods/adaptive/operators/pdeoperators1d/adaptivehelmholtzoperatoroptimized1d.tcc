@@ -158,7 +158,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::toFlensSparseMatrix
                                                        SparseMatrixT &A_flens, T eps)
 {
     int J=0;        //compression
-    J = (int)std::ceil(-1./(basis.d-1.5)*log(eps/CA)/log(2.));
+    J = std::min((int)std::ceil(-1./(basis.d-1.5)*log(eps/CA)/log(2.)), 25);
     std::cerr << "AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>: Estimated compression level for "
               << "tol = " << eps << " : " << J << std::endl;
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,J);
@@ -176,7 +176,6 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
     Coefficients<AbsoluteValue,T,Index1D> temp;
     temp = v;
 
-    //todo: without minimal level is still missing
     if (w_XBSpline) {
         int s = 0, count = 0;
         for (const_abs_coeff1d_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
@@ -185,7 +184,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
             IndexSet<Index1D> Lambda_v;
             int maxlevel;
             J==-1000 ? maxlevel=colindex.j+(k-s)+1 : maxlevel=J;
-            Lambda_v=lambdaTilde1d_PDE(colindex, basis,(k-s), basis.j0, std::max(maxlevel,36), false);
+            Lambda_v=lambdaTilde1d_PDE(colindex, basis,(k-s), basis.j0, std::min(maxlevel,36), false);
             for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
                 ret[*mu] += this->helmholtz_data1d(*mu, (*it).second) * prec_colindex * (*it).first;
             }
@@ -197,47 +196,13 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
         }
     }
     else {
-/*
         int s = 0, count = 0;
         for (const_abs_coeff1d_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
             IndexSet<Index1D> Lambda_v;
             Index1D colindex = (*it).second;
             int maxlevel=colindex.j+(k-s)+1;
-            Lambda_v=lambdaTilde1d_PDE_WO_XBSpline(colindex, basis, (k-s), -70,
+            Lambda_v=lambdaTilde1d_PDE_WO_XBSpline(colindex, basis, (k-s), (*it).second.j-(k-s),
                                                    std::max(36,maxlevel));
-            for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-                ret[*mu] += this->operator()(*mu, (*it).second) * (*it).first;
-            }
-            ++count;
-            s = int(log(T(count))/log(T(2))) + 1;
-        }
-    }
-*/
-
-        int s = 0, count = 0;
-        T beta1 = 1./(d-0.5); //gamma-1 im nenner kuerzt sich raus!!
-        T beta2 = beta1 - 0.1;
-
-        for (const_abs_coeff1d_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
-            IndexSet<Index1D> Lambda_v;
-            int kj = k-s;
-            int minlevel, maxlevel;
-            int j=(*it).second.j;
-            if (j>=0) {
-                maxlevel = j+kj;
-                minlevel = j-kj;
-                if (minlevel<0) {
-                    minlevel =  int(std::floor(beta2*j-beta1*kj));
-                }
-            }
-            else {//j<0
-                minlevel = int(std::floor(j-beta1*kj));
-                maxlevel = int(std::ceil(j+beta1*kj));
-                if (maxlevel>0) maxlevel = int(std::ceil((j+beta1*kj)/beta2));
-            }
-
-            Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, basis, kj, minlevel,
-                                                    std::max(maxlevel,36));
             for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
                 ret[*mu] += this->operator()(*mu, (*it).second) * (*it).first;
             }
@@ -257,24 +222,27 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
     //Coefficients<Lexicographical,T,Index1D> ret;
     if (v.size()==0) return;// ret;
 
+    // Implementation of APPLY as stated in Urban:2009, p. 216
+/*
     Coefficients<AbsoluteValue,T,Index1D> v_abs;
     v_abs = v;
     int k = this->findK(v_abs, eps);
     ret = this->apply(v, k);
     return;// ret;
+*/
 
-    //std::cerr << "APPLY called for eps = " << eps << std::endl;
 
-/*
+    // Implementation of APPLY as stated in Stevenson:2009, p.560.
+
     Coefficients<Bucket,T,Index1D> v_bucket;
     T tol = 0.5*eps/CA;
     v_bucket.bucketsort(v,tol);
-    //std::cerr << "APPLY: NumOfBuckets=" << v_bucket.buckets.size() << std::endl;
     long double squared_v_norm = (long double)std::pow(v.norm(2.),2.);
     long double squared_v_bucket_norm = 0.;
     T delta=0.;
     int l=0;
     int support_size_all_buckets=0;
+
     for (int i=0; i<(int)v_bucket.buckets.size(); ++i) {
         squared_v_bucket_norm += v_bucket.bucket_ell2norms[i]*v_bucket.bucket_ell2norms[i];
         T squared_delta = fabs(squared_v_norm - squared_v_bucket_norm);
@@ -285,33 +253,51 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
             break;
         }
     }
-    //std::cerr << "APPLY: squared_v_norm=" << squared_v_norm << ", squared_v_bucket_norm=" << squared_v_bucket_norm << std::endl;
+    // When tol*tol is close to machine precision, the above approach does not work any longer.
+    // Also summing first over the smallest terms does not help (an implementation can be found at
+    // the end of the file) -> i<=l required in the loop below!!!.
+    // Coarsening does not suffer form this effect so that we have delta < eps/2.
+    if (delta>tol) delta = eps/2;
 
     for (int i=0; i<l; ++i) {
         Coefficients<Lexicographical,T,Index1D> w_p;
         v_bucket.addBucketToCoefficients(w_p,i);
         if (w_p.size()==0) continue;
         T numerator = w_p.norm(2.) * support_size_all_buckets;
-        T denominator = w_p.size() * 0.5*tol / CA;
-        //std::cout << "Bucket " << i << ": size=" << w_p.size() << ", (tol-delta)" << fabs(tol-delta) << std::endl;
+        //T denominator = w_p.size() * 0.5*tol / CA;
+        T denominator = w_p.size() * (eps-delta) / CA;
+        std::cout << "Bucket " << i << ": numerator=" << numerator << ", denominator=" << denominator << std::endl;
+        if (denominator < 0) {
+            std::cout << "Bucket " << i << ": eps=" << eps << ", delta=" << delta << std::endl;
+        }
         int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.) / (basis.d-1.5), 0.);
-        //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
+        std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
+        jp = std::min(jp,36);
         for (const_coeff1d_it it=w_p.begin(); it!=w_p.end(); ++it) {
             Index1D colindex = (*it).first;
             T prec_colindex = this->prec(colindex);
             IndexSet<Index1D> Lambda_v;
-            Lambda_v=lambdaTilde1d_PDE(colindex, basis,jp, basis.j0, colindex.j+jp, false);
-            for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
-                ret[*mu] += this->helmholtz_data1d(*mu, colindex) * prec_colindex * (*it).second;
+            if (w_XBSpline) {
+                Lambda_v=lambdaTilde1d_PDE(colindex, basis,jp, basis.j0, std::min(colindex.j+jp,36), false);
+                for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+                    ret[*mu] += this->helmholtz_data1d(*mu, colindex) * prec_colindex * (*it).second;
+                }
             }
+            else {
+                Lambda_v=lambdaTilde1d_PDE_WO_XBSpline(colindex, basis,jp, colindex.j-jp, std::min(colindex.j+jp,36));
+                for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+                    ret[*mu] += this->helmholtz_data1d(*mu, colindex) * prec_colindex * (*it).second;
+                }
+            }
+
         }
     }
     for (coeff1d_it it=ret.begin(); it!=ret.end(); ++it) {
         (*it).second *= this->prec((*it).first);
     }
 
-    return ret;
-*/
+    return;
+
 }
 
 template <typename T>
@@ -581,7 +567,8 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::apply
             break;
         }
     }
-    //std::cerr << "APPLY: squared_v_norm=" << squared_v_norm << ", squared_v_bucket_norm=" << squared_v_bucket_norm << std::endl;
+
+    if (delta>eps) delta = eps/2.;  // due to rounding error (see also above for CDF wavelets)
 
     for (int i=0; i<l; ++i) {
         Coefficients<Lexicographical,T,Index1D> w_p;
@@ -848,3 +835,70 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>::apply(const C
 
 
 }   // namespace lawa
+
+
+/*
+ * std::cerr.precision(16);
+    for (int i=(int)v_bucket.buckets.size()-1; i>=0; --i) {
+        squared_v_bucket_norm += v_bucket.bucket_ell2norms[i]*v_bucket.bucket_ell2norms[i];
+    }
+    std::cerr << "Norms: " << squared_v_norm - tol*tol << " < " << squared_v_bucket_norm
+              << " < " << squared_v_norm  << std::endl;
+    long double diff = squared_v_bucket_norm - (squared_v_norm - tol*tol);
+    std::cerr << "diff = " << diff << std::endl;
+    long double tmp = 0.L;
+    for (int i=(int)v_bucket.buckets.size()-1; i>=0; --i) {
+        tmp += v_bucket.bucket_ell2norms[i]*v_bucket.bucket_ell2norms[i];
+        if (tmp>diff) {
+            l=i;
+            break;
+        }
+    }
+    std::cerr << "tmp = " << tmp << ", l = " << l << std::endl;
+    tmp = 0.L;
+    for (int i=l; i>=0; --i) {
+        support_size_all_buckets += v_bucket.buckets[i].size();
+        tmp += v_bucket.bucket_ell2norms[i]*v_bucket.bucket_ell2norms[i];
+    }
+    std::cerr << "tmp = " << tmp << ", squared_v_norm = " << squared_v_norm << std::endl;
+    delta = std::sqrt(fabs(squared_v_norm - tmp));
+    std::cerr << "Norms: delta = " << delta << ", tol = " << tol << std::endl;
+    std::cerr.precision(8);
+ */
+
+
+/*
+ * Experimental apply for no minimal level.
+ *
+        int s = 0, count = 0;
+        T beta1 = 1./(d-0.5); //gamma-1 im nenner kuerzt sich raus!!
+        T beta2 = beta1 - 0.1;
+
+        for (const_abs_coeff1d_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
+            IndexSet<Index1D> Lambda_v;
+            int kj = k-s;
+            int minlevel, maxlevel;
+            int j=(*it).second.j;
+            if (j>=0) {
+                maxlevel = j+kj;
+                minlevel = j-kj;
+                if (minlevel<0) {
+                    minlevel =  int(std::floor(beta2*j-beta1*kj));
+                }
+            }
+            else {//j<0
+                minlevel = int(std::floor(j-beta1*kj));
+                maxlevel = int(std::ceil(j+beta1*kj));
+                if (maxlevel>0) maxlevel = int(std::ceil((j+beta1*kj)/beta2));
+            }
+
+            Lambda_v=lambdaTilde1d_PDE_WO_XBSpline((*it).second, basis, kj, minlevel,
+                                                    std::min(maxlevel,36));
+            for (const_set1d_it mu = Lambda_v.begin(); mu != Lambda_v.end(); ++mu) {
+                ret[*mu] += this->operator()(*mu, (*it).second) * (*it).first;
+            }
+            ++count;
+            s = int(log(T(count))/log(T(2))) + 1;
+        }
+    }
+*/

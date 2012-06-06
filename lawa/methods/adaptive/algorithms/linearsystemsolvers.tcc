@@ -16,8 +16,10 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     if (assemble_matrix==0) {
 
         T alpha, beta, rNormSquare, rNormSquarePrev;
-        Coefficients<Lexicographical,T,Index> r(SIZEHASHINDEX2D), p(SIZEHASHINDEX2D),
-                                              Ap(SIZEHASHINDEX2D);
+        //Coefficients<Lexicographical,T,Index> r(SIZEHASHINDEX2D), p(SIZEHASHINDEX2D),
+        //                                      Ap(SIZEHASHINDEX2D);
+        size_t hms = u.size();
+        Coefficients<Lexicographical,T,Index> r(hms), p(hms), Ap(hms);
         A.apply(u, tol/3.,Lambda, r);
         r -= f;
         p -= r;
