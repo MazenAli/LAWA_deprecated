@@ -375,6 +375,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain
             break;
         }
     }
+
+    if (delta>tol) delta = eps/2.;
     //std::cerr << "APPLY: squared_v_norm=" << squared_v_norm << ", squared_v_bucket_norm=" << squared_v_bucket_norm << std::endl;
 
     for (int i=0; i<l; ++i) {
@@ -400,15 +402,12 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain
             int maxlevel_y = std::min(col_index_y.j+jp,36);
             Lambda_x=lambdaTilde1d_PDE(col_index_x, basis.first, jp, basis.first.j0,
                                        maxlevel_x,false);
-
             Lambda_y=lambdaTilde1d_PDE(col_index_y, basis.second,jp, basis.second.j0,
                                        maxlevel_y,false);
-
             for (const_set1d_it row_x = Lambda_x.begin(); row_x != Lambda_x.end(); ++row_x) {
                 Index2D row_index(*row_x, col_index_y);
                 ret[row_index] += this->laplace_data1d(*row_x, col_index_x) * prec_col_index * (*it).second;
             }
-
             for (const_set1d_it row_y = Lambda_y.begin(); row_y != Lambda_y.end(); ++row_y) {
                 Index2D row_index(col_index_x, *row_y);
                 ret[row_index] += this->laplace_data1d(*row_y, col_index_y) * prec_col_index * (*it).second;

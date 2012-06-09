@@ -2,18 +2,26 @@ namespace lawa {
 
 template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
-MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_Prec)
-: basis(_basis), A(_A), F(_F), Prec(_Prec), alpha(0.5), gamma(0.1), hashMapSize(SIZEHASHINDEX2D)
+MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_Prec,
+              Coefficients<Lexicographical,T,Index> &_f_eps)
+: basis(_basis), A(_A), F(_F), Prec(_Prec), f_eps(_f_eps),
+  alpha(0.5), gamma(0.1), residualType("standard"), hashMapSize(SIZEHASHINDEX2D),
+  compute_f_minus_Au_error(false)
 {
 
 }
 
 template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
 void
-MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters(T _alpha, T _gamma)
+MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters(T _alpha, T _gamma,
+                                                                           const char* _residualType,
+                                                                           bool _compute_f_minus_Au_error)
 {
     alpha = _alpha;
     gamma = _gamma;
+    residualType = _residualType;
+    compute_f_minus_Au_error = _compute_f_minus_Au_error;
+    std::cerr << "Residual Type: " << residualType << std::endl;
 }
 
 template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
@@ -118,6 +126,8 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
 
         time_mv_linsys *= 1./cg_iter;
 
+        writeCoefficientsToFile(u, iter, "u");
+
         std::cerr << "   Computing enery error..." << std::endl;
         Ap.setToZero();
         A.eval(u,Ap,Prec);
@@ -144,8 +154,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
             std::cerr << " " << jmax[i];
         }
         std::cerr << std::endl;
-        bool useSupportCenter=true;
-        plotScatterCoeff(u, basis, "u_coeff", useSupportCenter);
+
+        //bool useSupportCenter=true;
+        //plotScatterCoeff(u, basis, "u_coeff", useSupportCenter);
         //std::cerr << "Please hit enter." << std::endl;
         //getchar();
 
@@ -153,7 +164,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         r.setToZero();
         std::cerr << "     Computing multi-tree for residual..." << std::endl;
         //Coefficients<Lexicographical,T,Index> tmp(hashMapSize);
-        extendMultiTree(basis, u, r);
+        extendMultiTree(basis, u, r, residualType);
         //extendMultiTree(basis, tmp, r);
         //tmp.clear();
         //extendMultiTreeAtBoundary(basis, u, r, J+1);
@@ -175,6 +186,11 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         time.stop();
         std::cerr << "   ... finished with Residual: " << Residual << std::endl;
 
+
+        T f_minus_Au_error = 0.;
+        std::cerr << "#Supp u = " << u.size() << std::endl;
+        if (compute_f_minus_Au_error) { compute_f_minus_Au(u, 1e-9, f_minus_Au_error); }
+        std::cerr << "#Supp u = " << u.size() << std::endl;
 
         long double P_Lambda_Residual_square = 0.0L;
         if (u.size() > 0) {
@@ -206,10 +222,45 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
         iteration_time.stop();
         time_total_comp += iteration_time.elapsed();
         file << N << " " << N_residual << " " << time_total_comp << " " << EnergyError
-                  << " " << Residual << " " << time_mv_linsys << " " << time_mv_residual << std::endl;
+                  << " " << Residual << " " << f_minus_Au_error << " "
+                  << time_mv_linsys << " " << time_mv_residual << std::endl;
 
     }
     file.close();
+}
+
+template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
+void
+MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
+compute_f_minus_Au(Coefficients<Lexicographical,T,Index> &u,
+                   /*Coefficients<Lexicographical,T,Index> &Au,*/ T eps, T &f_minus_Au_error)
+{
+    Coefficients<Lexicographical,T,Index> Au(hashMapSize);
+    std::cerr << "      APPLY started..." << std::endl;
+    A.apply(u,Au,Prec,eps);
+    std::cerr << "      ... finished." << std::endl;
+    Au -= f_eps;
+    f_minus_Au_error = Au.norm(2.);
+    //Au.clear();
+    std::cerr << "DEBUG: #buckets in Ap = " << Au.bucket_count() << std::endl;
+    return;// Au.norm(2.);
+}
+
+template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
+void
+MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
+writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const char* filename)
+{
+    std::stringstream filenamestr;
+    filenamestr << filename << "_" << i << ".dat";
+    std::ofstream file(filenamestr.str().c_str());
+    file.precision(20);
+    std::cerr << "Started writing into file..." << std::endl;
+    for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
+        file << (*it).first << " " << (*it).second << std::endl;
+    }
+    file.close();
+    std::cerr << "... finished." << std::endl;
 }
 
 }   // namespace lawa

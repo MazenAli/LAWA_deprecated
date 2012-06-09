@@ -401,8 +401,8 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
     //std::cerr << "Supremum norm = " << supremumnorm << std::endl;
     int NumOfBuckets = std::max(0,(int)(2*std::log(supremumnorm*std::sqrt(_coeff.size())/eps)/std::log(T(2)))+1);
 
-    std::cerr << "   Bucketsort: " << std::pow(2.,-0.5*NumOfBuckets)*supremumnorm*std::sqrt(_coeff.size())
-              << " " << eps << std::endl;
+    //std::cerr << "   Bucketsort: " << std::pow(2.,-0.5*NumOfBuckets)*supremumnorm*std::sqrt(_coeff.size())
+    //          << " " << eps << std::endl;
 
 
     for (int i=0; i<NumOfBuckets; ++i) {

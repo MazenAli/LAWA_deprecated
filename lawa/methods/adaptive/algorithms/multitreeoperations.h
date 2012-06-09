@@ -30,12 +30,12 @@ namespace lawa {
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
-                Coefficients<Lexicographical,T,Index2D>  &C_v);
+                Coefficients<Lexicographical,T,Index2D>  &C_v, const char* residualType);
 
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
-                Coefficients<Lexicographical,T,Index3D>  &C_v);
+                Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType);
 
 template <typename T, typename Basis>
 void

@@ -257,7 +257,7 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
     // Also summing first over the smallest terms does not help (an implementation can be found at
     // the end of the file) -> i<=l required in the loop below!!!.
     // Coarsening does not suffer form this effect so that we have delta < eps/2.
-    if (delta>tol) delta = eps/2;
+    if (delta>tol) delta = eps/2.;
 
     for (int i=0; i<l; ++i) {
         Coefficients<Lexicographical,T,Index1D> w_p;

@@ -83,4 +83,83 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
     }
 }
 
+template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
+          typename ThirdLocalOperator,typename FourthLocalOperator>
+template <typename Preconditioner>
+void
+CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>::
+apply(Coefficients<Lexicographical,T,Index> &v,
+      Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P, T eps)
+{
+    int d = firstLocalOp.testBasis_CoordX.d;
+    if (d!=secondLocalOp.testBasis_CoordX.d) {
+        std::cerr << "CompoundLocalOperator<...>::apply: Order of first local operator is not equal"
+                  << " to order of second local operator: "
+                  << firstLocalOp.testBasis_CoordX.d << " " << secondLocalOp.testBasis_CoordX.d
+                  << std::endl;
+    }
+
+    //todo: CA should be a read-in parameter
+    T CA = 2.7;
+    Coefficients<Bucket,T,Index> v_bucket;
+    T tol = 0.5*eps/CA;
+    v_bucket.bucketsort(v,tol);
+    long double squared_v_norm = (long double)std::pow(v.norm(2.),(T)2.);
+    long double squared_v_bucket_norm = 0.;
+    T delta=0.;
+    int l=0;
+    int support_size_all_buckets=0;
+    for (int i=0; i<(int)v_bucket.buckets.size(); ++i) {
+        squared_v_bucket_norm += v_bucket.bucket_ell2norms[i]*v_bucket.bucket_ell2norms[i];
+        T squared_delta = fabs(squared_v_norm - squared_v_bucket_norm);
+        support_size_all_buckets += v_bucket.buckets[i].size();
+        delta = std::sqrt(squared_delta);
+        l = i+1;
+        if (squared_delta<tol*tol) {
+            break;
+        }
+    }
+
+    if (delta>tol) delta = eps/2.;
+
+    for (int i=0; i<l; ++i) {
+        Coefficients<Lexicographical,T,Index> w_p;
+        v_bucket.addBucketToCoefficients(w_p,i);
+        if (w_p.size()==0) continue;
+        T numerator = w_p.norm(2.) * support_size_all_buckets;
+        T denominator = w_p.size() * (eps-delta) / CA;
+        //int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.) / (d-1.5), (T)0.);
+        int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.), (T)0.);
+        //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
+        for (const_coeff_it it=w_p.begin(); it!=w_p.end(); ++it) {
+            if (IsSame<Index,Index2D>::value && numOfLocalOp==2) {
+                T prec_col_index = P[(*it).first];
+                IndexSet<Index1D> Lambda;
+                Index1D coordX_col_index;
+                typename FirstLocalOperator::notCoordXIndex notcoordX_col_index;
+
+                firstLocalOp.split((*it).first, coordX_col_index, notcoordX_col_index);
+                int maxlevel1 = std::min(coordX_col_index.j+jp,25);
+                Lambda=lambdaTilde1d_PDE(coordX_col_index, firstLocalOp.testBasis_CoordX, jp,
+                                           firstLocalOp.trialBasis_CoordX.j0, maxlevel1,false);
+                firstLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
+                                         prec_col_index*(*it).second, Lambda, Av);
+                secondLocalOp.split((*it).first, coordX_col_index, notcoordX_col_index);
+                int maxlevel2 = std::min(coordX_col_index.j+jp,25);
+                Lambda=lambdaTilde1d_PDE(coordX_col_index, secondLocalOp.testBasis_CoordX,jp,
+                                           secondLocalOp.testBasis_CoordX.j0, maxlevel2,false);
+                secondLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
+                                          prec_col_index*(*it).second, Lambda, Av);
+            }
+            else {
+                std::cerr << "CompoundLocalOperator<...>::apply not yet implement for n>3." << std::endl;
+                exit(1);
+            }
+        }
+    }
+    for (coeff_it it=Av.begin(); it!=Av.end(); ++it) {
+        (*it).second *= P[(*it).first];
+    }
+}
+
 }   // namespace lawa

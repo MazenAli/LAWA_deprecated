@@ -26,7 +26,8 @@
 
 namespace lawa {
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm,
+          typename BilinearForm=RefinementBilinearForm>
 class LocalOperator1D {
 
     public:
@@ -40,12 +41,16 @@ class LocalOperator1D {
         typedef typename TreeCoefficients1D<T>::by_level_it                        by_level_it;
 
         LocalOperator1D(const TestBasis &_testBasis, const TrialBasis &_trialBasis,
-                        BilinearForm &_Bil);
+                        RefinementBilinearForm &_RefinementBil);
+
+        LocalOperator1D(const TestBasis &_testBasis, const TrialBasis &_trialBasis,
+                        RefinementBilinearForm &_RefinementBil, BilinearForm &_Bil);
 
         const TestBasis                   &testBasis;
         const TrialBasis                  &trialBasis;
         const TestRefinementBasis         &testRefinementBasis;
         const TrialRefinementBasis        &trialRefinementBasis;
+        RefinementBilinearForm            &RefinementBil;
         BilinearForm                      &Bil;
         LocalRefinement<TestBasis>        testLocalRefine;
         LocalRefinement<TrialBasis>       trialLocalRefine;
@@ -82,8 +87,8 @@ class LocalOperator1D {
                 CoefficientsByLevel<T> &d1, CoefficientsByLevel<T> &d2) const;
 
         void
-        _applyBilinearForm(int l, const CoefficientsByLevel<T> &d,
-                           CoefficientsByLevel<T> &PhiPiCheck);
+        _applyRefinementBilinearForm(int l, const CoefficientsByLevel<T> &d,
+                                     CoefficientsByLevel<T> &PhiPiCheck);
 
 };
 

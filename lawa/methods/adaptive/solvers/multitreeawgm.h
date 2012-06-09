@@ -35,22 +35,33 @@ struct MultiTreeAWGM {
     typedef typename Coefficients<Lexicographical,T,Index>::iterator          coeff_it;
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator    const_coeff_it;
 
-    MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_Prec);
+    MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_Prec,
+                  Coefficients<Lexicographical,T,Index> &_f_eps);
 
     void
-    setParameters(T _alpha, T _gamma);
+    setParameters(T _alpha, T _gamma, const char* _residualType, bool _compute_f_minus_Au_error);
 
     void
     cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
              int NumOfIterations=100, T EnergyNorm=0.);
 
-    const Basis      &basis;
-    LocalOperator    &A;
-    RHS              &F;
-    Preconditioner   &Prec;
-    T                alpha, gamma;
-    T                eps;
-    size_t           hashMapSize;
+    void
+    compute_f_minus_Au(Coefficients<Lexicographical,T,Index> &u,
+                       /*Coefficients<Lexicographical,T,Index> &Au,*/ T _eps, T &f_minus_Au_error);
+
+    void
+    writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const char* filename);
+
+    const Basis                             &basis;
+    LocalOperator                           &A;
+    RHS                                     &F;
+    Preconditioner                          &Prec;
+    Coefficients<Lexicographical,T,Index>   &f_eps;
+    T                                       alpha, gamma;
+    const char*                             residualType;
+    T                                       eps;
+    size_t                                  hashMapSize;
+    bool                                    compute_f_minus_Au_error;
 };
 
 

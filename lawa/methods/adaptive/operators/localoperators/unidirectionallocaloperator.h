@@ -34,6 +34,8 @@ struct UniDirectionalLocalOperator
 {
     typedef typename LocalOperator1D::T T;
 
+    typedef NotCoordXIndex                                                 notCoordXIndex;
+
     typedef typename LocalOperator1D::TrialWaveletBasis                    TrialBasis_CoordX;
     typedef typename LocalOperator1D::TestWaveletBasis                     TestBasis_CoordX;
 
@@ -43,6 +45,7 @@ struct UniDirectionalLocalOperator
     typedef AlignedCoefficients<T,Index,NotCoordXIndex,Index1D,NotCoordX>  NotCoordXAlignedCoefficients;
 
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff1d_it;
+    typedef typename IndexSet<Index1D>::const_iterator                       const_set1d_it;
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator   const_coeff_it;
 
     UniDirectionalLocalOperator(LocalOperator1D &_localOperator1D);
@@ -54,12 +57,20 @@ struct UniDirectionalLocalOperator
     eval(const Coefficients<Lexicographical,T,Index> &v,
          Coefficients<Lexicographical,T,Index> &IAIv);
 
-    LocalOperator1D &localOperator1D;
+    void
+    nonTreeEval(const Index1D &coordX_col_index, const NotCoordXIndex &notcoordX_col_index,
+                T col_val, IndexSet<Index1D> &row_indices1d,
+                Coefficients<Lexicographical,T,Index> &Av);
+
+    LocalOperator1D          &localOperator1D;
     const TrialBasis_CoordX  &trialBasis_CoordX;
     const TestBasis_CoordX   &testBasis_CoordX;
     int                      J;
     size_t                   hashTableLargeLength;
     size_t                   hashTableSmallLength;
+
+    Split<Index,Index1D,NotCoordXIndex,CoordX> split;
+    Join<Index,Index1D,NotCoordXIndex,CoordX>  join;
 
 };
 

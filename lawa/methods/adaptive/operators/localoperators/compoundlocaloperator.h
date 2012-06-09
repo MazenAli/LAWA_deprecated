@@ -31,7 +31,9 @@ class CompoundLocalOperator {
 
     public:
         typedef typename FirstLocalOperator::T T;
-        typedef typename Coefficients<Lexicographical,T,Index>::iterator coeff_it;
+        typedef typename Coefficients<Lexicographical,T,Index>::iterator    coeff_it;
+        typedef typename Coefficients<Lexicographical,T,Index>::iterator    const_coeff_it;
+        typedef typename IndexSet<Index1D>::const_iterator                  const_set1d_it;
 
         CompoundLocalOperator(FirstLocalOperator  &_firstLocalOp,
                               SecondLocalOperator &_secondLocalOp);
@@ -48,6 +50,11 @@ class CompoundLocalOperator {
         void
         eval(Coefficients<Lexicographical,T,Index> &v,
              Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P);
+
+        template <typename Preconditioner>
+        void
+        apply(Coefficients<Lexicographical,T,Index> &v,
+              Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P, T eps);
 
         int                         numOfLocalOp;
         FirstLocalOperator          &firstLocalOp;

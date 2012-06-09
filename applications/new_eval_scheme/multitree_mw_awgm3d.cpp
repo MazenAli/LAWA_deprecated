@@ -6,21 +6,22 @@ using namespace lawa;
 
 typedef double T;
 
-typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >   DenseMatrixT;
-typedef flens::DenseVector<flens::Array<T> >                         DenseVectorT;
+typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
+typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
-typedef Basis<T,Orthogonal,Interval,Multi>                           PrimalBasis;
-typedef PrimalBasis::RefinementBasis                                 RefinementBasis;
-typedef TensorBasis3D<Adaptive,PrimalBasis,PrimalBasis,PrimalBasis>  Basis3D;
+typedef Basis<T,Orthogonal,Interval,Multi>                          PrimalBasis;
+typedef PrimalBasis::RefinementBasis                                RefinementBasis;
+typedef TensorBasis3D<Adaptive,PrimalBasis,PrimalBasis,PrimalBasis> Basis3D;
 
 typedef OptimizedH1Preconditioner3D<T,Basis3D>                      Preconditioner3D;
 
 ///  Underlying bilinear form
 typedef RefinementBasis::LaplaceOperator1D                          RefinementLaplaceOp1D;
+typedef AdaptiveLaplaceOperator1D<T,Orthogonal,Interval,Multi>      LaplaceOp1D;
 
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
-                        RefinementLaplaceOp1D>                      LocalOp1D;
+                        RefinementLaplaceOp1D, LaplaceOp1D>         LocalOp1D;
 
 typedef UniDirectionalLocalOperator<Index3D,XOne,LocalOp1D,
                                             NotXOne,Index2D>        UniDirectionalLocalOpXOne3D;
@@ -98,6 +99,8 @@ int main (int argc, char *argv[]) {
     int J  = atoi(argv[3]);
     T alpha = 0.7;
     T gamma = 0.005;
+    const char* residualType = "standard";
+    bool compute_f_minus_Au_error = false;
     T eps   = 1e-5;
     Timer time;
 
@@ -109,7 +112,8 @@ int main (int argc, char *argv[]) {
     Basis3D basis3d(basis,basis,basis);
 
     /// Operator initialization
-    LocalOp1D                       localOp1D(basis,basis,refinementbasis.LaplaceOp1D);
+    LaplaceOp1D                     laplaceOp1D(basis);
+    LocalOp1D                       localOp1D(basis,basis,refinementbasis.LaplaceOp1D, laplaceOp1D);
     UniDirectionalLocalOpXOne3D     uniDirectionalOpXOne3D(localOp1D);
     //uniDirectionalOpXOne3D.setParameters(J, 49157, 6151);
     UniDirectionalLocalOpXTwo3D     uniDirectionalOpXTwo3D(localOp1D);
@@ -153,12 +157,18 @@ int main (int argc, char *argv[]) {
     CompoundRhsIntegral3D          F(rhs1,rhs2,rhs3);
 
     /// Initialization of multi tree based adaptive wavelet Galerkin method
-    MultiTreeAWGM3D multiTreeAWGM3D(basis3d, localOp3D, F, Prec);
-    multiTreeAWGM3D.setParameters(alpha, gamma);
+    Coefficients<Lexicographical,T,Index3D> f_eps;
+
+    MultiTreeAWGM3D multiTreeAWGM3D(basis3d, localOp3D, F, Prec, f_eps);
+    multiTreeAWGM3D.setParameters(alpha, gamma, residualType, compute_f_minus_Au_error);
 
     Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
     getSparseGridVector(basis3d,u,0,(T)0.2);
-    multiTreeAWGM3D.cg_solve(u, eps, "convfile.txt", 100, EnergyErrorSquared);
+
+    stringstream convfilename;
+    convfilename << "conv_multitree_mw_awgm_poisson3d_" << argv[1] << "_" << argv[2] << "_"
+                 << alpha << "_" << gamma << "_" << residualType << ".dat";
+    multiTreeAWGM3D.cg_solve(u, eps, convfilename.str().c_str(), 100, EnergyErrorSquared);
     /*
     for (int j=0; j<=20; ++j) {
         Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);

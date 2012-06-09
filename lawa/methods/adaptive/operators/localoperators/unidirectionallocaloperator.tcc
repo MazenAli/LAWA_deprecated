@@ -95,4 +95,21 @@ eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographica
     */
 }
 
+template <typename Index, CoordinateDirection CoordX, typename LocalOperator1D,
+                          CoordinateDirection NotCoordX, typename NotCoordXIndex>
+void
+UniDirectionalLocalOperator<Index,CoordX,LocalOperator1D,NotCoordX,NotCoordXIndex>::
+nonTreeEval(const Index1D &coordX_col_index, const NotCoordXIndex &notcoordX_col_index,
+            T col_val, IndexSet<Index1D> &row_indices1d,
+            Coefficients<Lexicographical,T,Index> &Av)
+{
+    Index row_index;
+    for (const_set1d_it it=row_indices1d.begin(); it!=row_indices1d.end(); ++it) {
+        T tmp = localOperator1D.Bil((*it),coordX_col_index);
+        join((*it), notcoordX_col_index, row_index);
+        Av[row_index] += tmp * col_val;
+    }
+    return;
+}
+
 }   // namespace lawa

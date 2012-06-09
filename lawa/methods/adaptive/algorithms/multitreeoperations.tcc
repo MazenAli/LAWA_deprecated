@@ -3,7 +3,7 @@ namespace lawa {
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
-                Coefficients<Lexicographical,T,Index2D>  &C_v)
+                Coefficients<Lexicographical,T,Index2D>  &C_v, const char* residualType)
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff2d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
@@ -13,13 +13,29 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
         IndexSet<Index1D > C_index1, C_index2;
         C_index1 = C((*it).first.index1, (T)1., basis.first);
         C_index2 = C((*it).first.index2, (T)1., basis.second);
-        for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+        if (strcmp(residualType,"standard")==0) {
+            for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+                Index2D newindex((*it_C_index1), (*it).first.index2);
+                if (C_v.find(newindex)==C_v.end()) { completeMultiTree(basis,newindex,C_v); }
+            }
             for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
-                Index2D newindex((*it_C_index1), (*it_C_index2));
-                if (C_v.find(newindex)==C_v.end()) {
-                    completeMultiTree(basis,newindex,C_v);
+                Index2D newindex((*it).first.index1, (*it_C_index2));
+                if (C_v.find(newindex)==C_v.end()) { completeMultiTree(basis,newindex,C_v); }
+            }
+        }
+        else if (strcmp(residualType,"large1")==0) {
+            for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+                for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+                    Index2D newindex((*it_C_index1), (*it_C_index2));
+                    if (C_v.find(newindex)==C_v.end()) {
+                        completeMultiTree(basis,newindex,C_v);
+                    }
                 }
             }
+        }
+        else {
+            std::cerr << "extendMultiTree: unknown residual type " << residualType << std::endl;
+            exit(1);
         }
     }
     return;
@@ -28,7 +44,7 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
-                Coefficients<Lexicographical,T,Index3D>  &C_v)
+                Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType)
 {
     typedef typename Coefficients<Lexicographical,T,Index3D>::const_iterator const_coeff3d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
@@ -39,35 +55,41 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
         C_index1 = C((*it).first.index1, (T)1., basis.first);
         C_index2 = C((*it).first.index2, (T)1., basis.second);
         C_index3 = C((*it).first.index3, (T)1., basis.third);
-        /*
-        for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
-            Index3D newindex((*it_C_index1), (*it).first.index2, (*it).first.index3);
-            if (C_v.find(newindex)==C_v.end()) {
-                completeMultiTree(basis,newindex,C_v);
+        if (strcmp(residualType,"standard")==0) {
+            for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+                Index3D newindex((*it_C_index1), (*it).first.index2, (*it).first.index3);
+                if (C_v.find(newindex)==C_v.end()) {
+                    completeMultiTree(basis,newindex,C_v);
+                }
             }
-        }
-        for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
-            Index3D newindex((*it).first.index1, (*it_C_index2), (*it).first.index3);
-            if (C_v.find(newindex)==C_v.end()) {
-                completeMultiTree(basis,newindex,C_v);
-            }
-        }
-        for (const_set1d_it it_C_index3=C_index3.begin(); it_C_index3!=C_index3.end(); ++it_C_index3) {
-            Index3D newindex((*it).first.index1, (*it).first.index2, (*it_C_index3));
-            if (C_v.find(newindex)==C_v.end()) {
-                completeMultiTree(basis,newindex,C_v);
-            }
-        }
-        */
-        for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
             for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
-                for (const_set1d_it it_C_index3=C_index3.begin(); it_C_index3!=C_index3.end(); ++it_C_index3) {
-                    Index3D newindex((*it_C_index1), (*it_C_index2), (*it_C_index3));
-                    if (C_v.find(newindex)==C_v.end()) {
-                        completeMultiTree(basis,newindex,C_v);
+                Index3D newindex((*it).first.index1, (*it_C_index2), (*it).first.index3);
+                if (C_v.find(newindex)==C_v.end()) {
+                    completeMultiTree(basis,newindex,C_v);
+                }
+            }
+            for (const_set1d_it it_C_index3=C_index3.begin(); it_C_index3!=C_index3.end(); ++it_C_index3) {
+                Index3D newindex((*it).first.index1, (*it).first.index2, (*it_C_index3));
+                if (C_v.find(newindex)==C_v.end()) {
+                    completeMultiTree(basis,newindex,C_v);
+                }
+            }
+        }
+        else if (strcmp(residualType,"large1")==0) {
+            for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+                for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+                    for (const_set1d_it it_C_index3=C_index3.begin(); it_C_index3!=C_index3.end(); ++it_C_index3) {
+                        Index3D newindex((*it_C_index1), (*it_C_index2), (*it_C_index3));
+                        if (C_v.find(newindex)==C_v.end()) {
+                            completeMultiTree(basis,newindex,C_v);
+                        }
                     }
                 }
             }
+        }
+        else {
+            std::cerr << "extendMultiTree: unknown residual type " << residualType << std::endl;
+            exit(1);
         }
     }
     return;
