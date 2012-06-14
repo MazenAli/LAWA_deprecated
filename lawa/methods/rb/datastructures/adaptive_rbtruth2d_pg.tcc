@@ -503,8 +503,8 @@ void
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
 assemble_all(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row)
 {
-	assemble_matrix(indexset_col, indexset_row, *test_inner_product_u_u_op, test_inner_product_u_u_matrix);
-	assemble_matrix(indexset_col, indexset_row, *test_inner_product_v_v_op, test_inner_product_v_v_matrix);
+	assemble_matrix(indexset_col, indexset_col, *test_inner_product_u_u_op, test_inner_product_u_u_matrix);
+	assemble_matrix(indexset_row, indexset_row, *test_inner_product_v_v_op, test_inner_product_v_v_matrix);
 	assembled_inner_product_matrix = true;
 
 	A_operator_matrices.clear();
