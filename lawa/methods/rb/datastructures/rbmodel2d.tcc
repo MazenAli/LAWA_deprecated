@@ -713,7 +713,7 @@ RBModel2D<T, TruthModel>::read_RB_data(const std::string& directory_name){
     exit(1);
   }
 
-  // Read output_output_representor norms
+  /*// Read output_output_representor norms
   output_output_representor_norms.engine().resize((int)Q_output(), (int)Q_output());
   std::stringstream output_output_filename;
   output_output_filename << directory_name << "/output_output_representor_norms.dat";
@@ -730,7 +730,7 @@ RBModel2D<T, TruthModel>::read_RB_data(const std::string& directory_name){
   else{
     std::cerr << "Unable to open file " << output_output_filename.str() << " for reading!" << std::endl;
     exit(1);
-  }
+  }*/
   
   // Read A_F_representor norms
   A_F_representor_norms.clear();
