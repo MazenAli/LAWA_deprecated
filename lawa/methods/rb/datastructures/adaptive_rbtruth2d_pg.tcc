@@ -12,7 +12,7 @@ AdaptiveRBTruth2D_PG(TrialBasis& _trialbasis, TestBasis& _testbasis, TrialPrec& 
     : trialbasis(_trialbasis), basis(_trialbasis), testbasis(_testbasis), lhs_op(this), rhs_op(this), repr_lhs_op(this), repr_rhs_A_op(this), repr_rhs_F_op(this),
       use_inner_product_matrix(_use_inner_product), use_A_operator_matrices(_use_A_matrix), 
       orth_wrt_X(_orthwithX), use_innprod_X(_useinnprodX),
-      assembled_inner_product_matrix(false), assembled_prec_vec(false), assembled_A_operator_matrices(false),
+      assembled_inner_product_matrix(false), assembled_prec_vec(false), assembled_A_operator_matrices(false), assembled_A_u_u_matrices(false),
       trial_prec(_trialprec), test_prec(_testprec), trial_prec_data(), test_prec_data()
 {
     std::cout << "Truth Model: " << std::endl;
@@ -56,6 +56,18 @@ void
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::attach_F_q(AdaptiveRhs<T, Index2D>& F_q)
 {
     F_operators.push_back(&F_q);
+}
+
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::attach_A_u_u_q(Operator2D<T>& A_q){
+    A_u_u_operators.push_back(&A_q);
+}
+
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::attach_F_u_q(AdaptiveRhs<T, Index2D>& F_q){
+    F_u_operators.push_back(&F_q);
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
@@ -515,6 +527,17 @@ assemble_all(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row)
 	}
 	assembled_A_operator_matrices = true;
 
+
+	A_u_u_op_matrices.clear();
+	for(unsigned int q = 0; q < A_u_u_operators.size(); ++q){
+	    SparseMatrixT matrix(0,0);
+	    A_u_u_op_matrices.push_back(matrix);
+	    assemble_matrix(indexset_col, indexset_col, *A_u_u_operators[q], A_u_u_op_matrices[q]);
+		A_u_u_op_matrices.push_back(matrix);
+	}
+	assembled_A_u_u_matrices = true;
+
+
 	assemble_testprec(indexset_row, test_prec_vec);
 	assembled_prec_vec = true;
 
@@ -532,6 +555,8 @@ clear_assembled()
 
 	A_operator_matrices.clear();
 	assembled_A_operator_matrices = false;
+	A_u_u_op_matrices.clear();
+	assembled_A_u_u_matrices = false;
 
 	test_prec_vec.resize(0);
 	assembled_prec_vec = false;

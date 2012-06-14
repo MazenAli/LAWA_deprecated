@@ -25,6 +25,7 @@
 #include <lawa/methods/rb/datastructures/rbmodel2d.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -50,6 +51,9 @@ class AdaptiveRBTruth2D{
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
 
     public:
+
+        static const VariationalFormulationType Type = Galerkin;
+        typedef Operator2D<T> OperatorType;
 
     /* Public member functions */
         

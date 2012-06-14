@@ -25,6 +25,7 @@
 #include <lawa/methods/rb/datastructures/rbmodel2d.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -54,6 +55,11 @@ class AdaptiveRBTruth2D_PG{
         typedef TestBasis                                          TestBasisType;
         typedef TrialPrec                                          TrialPrecType;
         typedef TestPrec                                           TestPrecType;
+
+        static const VariationalFormulationType Type = PetrovGalerkin;
+        typedef Operator2D<T> 			OperatorType;
+        typedef AdaptiveRhs<T, Index2D> RhsType;
+
     
     /* Public member functions */
                           
@@ -72,7 +78,13 @@ class AdaptiveRBTruth2D_PG{
         
         void
         attach_F_q(AdaptiveRhs<T, Index2D>& F_q);
-        
+
+        void
+        attach_A_u_u_q(Operator2D<T>& A_q);
+
+        void
+        attach_F_u_q(AdaptiveRhs<T, Index2D>& F_q);
+
         void 
         attach_test_inner_product_ops(AdaptiveOperator2D<T>& _test_inner_product_u_u_op, AdaptiveOperator2D<T>& _test_inner_product_v_v_op);
         
@@ -328,7 +340,9 @@ class AdaptiveRBTruth2D_PG{
         TestBasis&                              testbasis;
         
         std::vector<Operator2D<T>*>             A_operators;
+        std::vector<Operator2D<T>*>  			A_u_u_operators;  // necessary for eigenvalue problems and RB-Matrices
         std::vector<AdaptiveRhs<T, Index2D>*>   F_operators;
+        std::vector<AdaptiveRhs<T, Index2D>*>   F_u_operators; 	  // necessary for RB-Matrices
         // AdaptiveOperator2D<T>*                  trial_inner_product_op;
         AdaptiveOperator2D<T>*                  test_inner_product_u_u_op;
         AdaptiveOperator2D<T>*                  test_inner_product_v_v_op;
@@ -348,6 +362,7 @@ class AdaptiveRBTruth2D_PG{
         
         bool assembled_inner_product_matrix;
         bool assembled_A_operator_matrices;
+        bool assembled_A_u_u_matrices;
         bool assembled_prec_vec;
 
         //SparseMatrixT   trial_inner_product_matrix;
@@ -355,6 +370,7 @@ class AdaptiveRBTruth2D_PG{
         SparseMatrixT   test_inner_product_v_v_matrix;
         DenseVectorT    test_prec_vec;
         std::vector<SparseMatrixT> A_operator_matrices;
+        std::vector<SparseMatrixT>   A_u_u_op_matrices;
       
     protected:
                 

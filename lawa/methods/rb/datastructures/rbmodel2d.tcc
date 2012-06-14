@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <cmath>
 #include <string>
+#include <vector>
 
 namespace  lawa {
 
@@ -792,6 +793,15 @@ template <typename T, typename TruthSolver>
 void
 RBModel2D<T, TruthSolver>::update_RB_A_matrices()
 {
+
+	// Initializations for structures that depend on Galerkin or Petrov-Galerkin formulation
+  typename std::vector<typename TruthSolver::OperatorType*>& A_ops = (TruthSolver::Type == Galerkin)? truth->A_operators: truth->A_u_u_operators;
+
+  typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+  std::vector<SparseMatrixT>& A_mats = (TruthSolver::Type == Galerkin)? truth->A_operator_matrices: truth->A_u_u_op_matrices;
+  bool matrices_assembled = (TruthSolver::Type == Galerkin)? truth->assembled_A_operator_matrices: truth->assembled_A_u_u_matrices;
+
+
   typename CoeffVector::const_iterator it, it1, it2;
     if ((n_bf() == 1) && (RB_A_matrices.size() < Q_a())) {
         //RB_A_matrices.resize(Q_a());
@@ -803,7 +813,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
     
     // Assemble new basis function vector
     DenseVectorT new_bf_dense;
-    if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
+    if(truth->use_A_operator_matrices && matrices_assembled){
         // Build dense vector
         new_bf_dense.engine().resize((int)rb_basis_functions[n_bf()-1].size());
         int index_count = 1;
@@ -828,14 +838,14 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
         }
 
         DenseVectorT A_new_bf, A_new_bf_T;
-        if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
-            A_new_bf = truth->A_operator_matrices[q_a] * new_bf_dense;
-            A_new_bf_T = transpose(truth->A_operator_matrices[q_a]) * new_bf_dense;
+        if(truth->use_A_operator_matrices && matrices_assembled){
+            A_new_bf = A_mats[q_a] * new_bf_dense;
+            A_new_bf_T = transpose(A_mats[q_a]) * new_bf_dense;
         }
         
         
         for (unsigned int i = 1; i <= n_bf(); ++i) {
-            if(truth->use_A_operator_matrices && truth->assembled_A_operator_matrices){
+            if(truth->use_A_operator_matrices && matrices_assembled){
                 DenseVectorT bf_dense((int)rb_basis_functions[i-1].size());
                 int index_count = 1;
                 for (it = rb_basis_functions[i-1].begin(); it != rb_basis_functions[i-1].end(); ++it, ++index_count) {
@@ -851,11 +861,11 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
                     for (it2 = rb_basis_functions[i-1].begin(); it2 != rb_basis_functions[i-1].end(); ++it2) {
                     
                         RB_A_matrices[q_a](n_bf(), i) += (*it1).second * (*it2).second 
-                                                         * (*truth->A_operators[q_a])((*it1).first, (*it2).first) ;
+                                                         * (*A_ops[q_a])((*it1).first, (*it2).first) ;
 
                         if (i != n_bf()) {
                             RB_A_matrices[q_a](i, n_bf()) += (*it1).second * (*it2).second 
-                                    * (*truth->A_operators[q_a])((*it2).first, (*it1).first) ;
+                                    * (*A_ops[q_a])((*it2).first, (*it1).first) ;
                         }
                         
                     }
@@ -872,6 +882,9 @@ template <typename T, typename TruthSolver>
 void
 RBModel2D<T, TruthSolver>::update_RB_F_vectors()
 {
+	// Initializations for structures that depend on Galerkin or Petrov-Galerkin formulation
+	typename std::vector<typename TruthSolver::RhsType*>& F_ops = (TruthSolver::Type == Galerkin)? truth->F_operators: truth->F_u_operators;
+
     typename CoeffVector::const_iterator it;
     if ((n_bf() == 1) && (RB_F_vectors.size() < Q_f())) {
         RB_F_vectors.resize(Q_f());
@@ -888,7 +901,7 @@ RBModel2D<T, TruthSolver>::update_RB_F_vectors()
       }
 
       for (it = rb_basis_functions[n_bf()-1].begin(); it != rb_basis_functions[n_bf()-1].end(); ++it) {
-          RB_F_vectors[q_f](n_bf()) += (*it).second * (*truth->F_operators[q_f])((*it).first) ;
+          RB_F_vectors[q_f](n_bf()) += (*it).second * (*F_ops[q_f])((*it).first) ;
       }
       
       std::cout << "RB_F(" << q_f << ") = " << RB_F_vectors[q_f] << std::endl;

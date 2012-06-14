@@ -26,6 +26,7 @@
 #include <lawa/operators/uniformoperator2d.h>
 #include <lawa/preconditioners/nopreconditioner.h>
 #include <lawa/righthandsides/rhs2d.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -48,6 +49,9 @@ class UniformRBTruth2D {
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
     
     public:
+
+        static const VariationalFormulationType Type = Galerkin;
+        typedef UniformOperator2D<T> OperatorType;
 
         /* Public member functions */
         
