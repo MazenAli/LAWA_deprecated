@@ -60,7 +60,7 @@ struct UniDirectionalLocalOperator
     void
     nonTreeEval(const Index1D &coordX_col_index, const NotCoordXIndex &notcoordX_col_index,
                 T col_val, IndexSet<Index1D> &row_indices1d,
-                Coefficients<Lexicographical,T,Index> &Av);
+                Coefficients<Lexicographical,T,Index> &Av, T eps=0.);
 
     LocalOperator1D          &localOperator1D;
     const TrialBasis_CoordX  &trialBasis_CoordX;

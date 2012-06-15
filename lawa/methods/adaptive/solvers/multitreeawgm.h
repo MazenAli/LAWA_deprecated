@@ -39,11 +39,12 @@ struct MultiTreeAWGM {
                   Coefficients<Lexicographical,T,Index> &_f_eps);
 
     void
-    setParameters(T _alpha, T _gamma, const char* _residualType, bool _compute_f_minus_Au_error);
+    setParameters(T _alpha, T _gamma, const char* _residualType,
+                  bool _compute_f_minus_Au_error=false, bool _writeCoefficientsToFile=false);
 
     void
-    cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
-             int NumOfIterations=100, T EnergyNorm=0.);
+    cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations=100,
+             T EnergyNorm=0., const char *filename="conv.dat", const char *coefffilename="coeff.dat");
 
     void
     compute_f_minus_Au(Coefficients<Lexicographical,T,Index> &u,
@@ -62,6 +63,7 @@ struct MultiTreeAWGM {
     T                                       eps;
     size_t                                  hashMapSize;
     bool                                    compute_f_minus_Au_error;
+    bool                                    write_coefficients_to_file;
 };
 
 

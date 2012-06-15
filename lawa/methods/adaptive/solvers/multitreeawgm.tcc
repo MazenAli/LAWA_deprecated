@@ -6,7 +6,7 @@ MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_
               Coefficients<Lexicographical,T,Index> &_f_eps)
 : basis(_basis), A(_A), F(_F), Prec(_Prec), f_eps(_f_eps),
   alpha(0.5), gamma(0.1), residualType("standard"), hashMapSize(SIZEHASHINDEX2D),
-  compute_f_minus_Au_error(false)
+  compute_f_minus_Au_error(false), write_coefficients_to_file(false)
 {
 
 }
@@ -15,20 +15,22 @@ template <typename Index, typename Basis, typename LocalOperator, typename RHS, 
 void
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters(T _alpha, T _gamma,
                                                                            const char* _residualType,
-                                                                           bool _compute_f_minus_Au_error)
+                                                                           bool _compute_f_minus_Au_error,
+                                                                           bool _write_coefficients_to_file)
 {
     alpha = _alpha;
     gamma = _gamma;
     residualType = _residualType;
     compute_f_minus_Au_error = _compute_f_minus_Au_error;
+    write_coefficients_to_file = _write_coefficients_to_file;
     std::cerr << "Residual Type: " << residualType << std::endl;
 }
 
 template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
 void
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
-cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
-      int NumOfIterations, T EnergyNormSquared)
+cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
+         T EnergyNormSquared, const char *filename, const char *coefffilename)
 {
     Coefficients<Lexicographical,T,Index> r(hashMapSize), p(hashMapSize),
                                           Ap(hashMapSize);
@@ -126,7 +128,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
 
         time_mv_linsys *= 1./cg_iter;
 
-        writeCoefficientsToFile(u, iter, "u");
+        if (write_coefficients_to_file) {
+            writeCoefficientsToFile(u, iter, coefffilename);
+        }
 
         std::cerr << "   Computing enery error..." << std::endl;
         Ap.setToZero();
@@ -188,9 +192,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, const char *filename,
 
 
         T f_minus_Au_error = 0.;
-        std::cerr << "#Supp u = " << u.size() << std::endl;
-        if (compute_f_minus_Au_error) { compute_f_minus_Au(u, 1e-9, f_minus_Au_error); }
-        std::cerr << "#Supp u = " << u.size() << std::endl;
+        if (compute_f_minus_Au_error) {
+            compute_f_minus_Au(u, 1e-9, f_minus_Au_error);
+        }
 
         long double P_Lambda_Residual_square = 0.0L;
         if (u.size() > 0) {
@@ -252,7 +256,7 @@ MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
 writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const char* filename)
 {
     std::stringstream filenamestr;
-    filenamestr << filename << "_" << i << ".dat";
+    filenamestr << filename << "__" << i << ".dat";
     std::ofstream file(filenamestr.str().c_str());
     file.precision(20);
     std::cerr << "Started writing into file..." << std::endl;

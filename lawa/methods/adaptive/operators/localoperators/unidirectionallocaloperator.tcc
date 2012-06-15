@@ -101,11 +101,12 @@ void
 UniDirectionalLocalOperator<Index,CoordX,LocalOperator1D,NotCoordX,NotCoordXIndex>::
 nonTreeEval(const Index1D &coordX_col_index, const NotCoordXIndex &notcoordX_col_index,
             T col_val, IndexSet<Index1D> &row_indices1d,
-            Coefficients<Lexicographical,T,Index> &Av)
+            Coefficients<Lexicographical,T,Index> &Av, T eps)
 {
     Index row_index;
     for (const_set1d_it it=row_indices1d.begin(); it!=row_indices1d.end(); ++it) {
         T tmp = localOperator1D.Bil((*it),coordX_col_index);
+        if (fabs(tmp)<eps) continue;
         join((*it), notcoordX_col_index, row_index);
         Av[row_index] += tmp * col_val;
     }

@@ -142,7 +142,7 @@ THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta, bool hp)
                 ++rev_lambda;
                 ++count;
             } while ((rev_lambda != temp.rend()) && (sum <= bound));
-            std::cerr << "tol = " << eta << ", count = " << count << std::endl;
+            //std::cerr << "tol = " << eta << ", count = " << count << std::endl;
             it lambda = temp.begin();
             for (int i=0; i<=(int)temp.size()-count; ++i) {
                 ++lambda;

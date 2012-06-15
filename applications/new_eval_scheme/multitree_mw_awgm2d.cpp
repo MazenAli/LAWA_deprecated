@@ -95,9 +95,6 @@ setUp_f_eps(int example, PrimalBasis &basis,
             Coefficients<Lexicographical,T,Index1D> &rhs_f1_data, RHSWithPeaks1D<T,PrimalBasis> &rhs_f1,
             Coefficients<Lexicographical,T,Index1D> &rhs_f2_data, RHSWithPeaks1D<T,PrimalBasis> &rhs_f2);
 
-void
-readCoefficientsFromFile();
-
 int main (int argc, char *argv[]) {
 
     cout.precision(20);
@@ -105,15 +102,18 @@ int main (int argc, char *argv[]) {
         cout << "Usage: " << argv[0] << " d j0 J" << endl;
         return 0;
     }
+
     int d   = atoi(argv[1]);
     int j0  = atoi(argv[2]);
     int J  = atoi(argv[3]);
     T alpha = 0.7;
     T gamma = 0.005;
     const char* residualType = "standard";
-    bool compute_f_minus_Au_error = true;
+    bool compute_f_minus_Au_error = false;
+    bool writeCoefficientsToFile = false;
     T eps   = 1e-5;
     Timer time;
+
 
     /// Basis initialization
     //PrimalBasis       basis(d,d_,j0);
@@ -152,26 +152,31 @@ int main (int argc, char *argv[]) {
     AdaptiveSeparableRhsIntegral2D rhs2(rhs_u1, rhs_u1_data, rhs_f2, rhs_f2_data);
     CompoundRhsIntegral2D          F(rhs1,rhs2);
 
-    readCoefficientsFromFile();
-    return 0;
-
     Coefficients<Lexicographical,T,Index2D> f_eps(SIZEHASHINDEX2D);
-    setUp_f_eps<T>(example, basis, Prec, f_eps,
-                   rhs_u1_data, rhs_u1, rhs_u2_data, rhs_u2,
-                   rhs_f1_data, rhs_f1, rhs_f2_data, rhs_f2);
+    if (compute_f_minus_Au_error) {
+        setUp_f_eps<T>(example, basis, Prec, f_eps,
+                       rhs_u1_data, rhs_u1, rhs_u2_data, rhs_u2,
+                       rhs_f1_data, rhs_f1, rhs_f2_data, rhs_f2);
+    }
 
     /// Initialization of multi tree based adaptive wavelet Galerkin method
     MultiTreeAWGM2D multiTreeAWGM2D(basis2d, localOp2D, F, Prec, f_eps);
-    multiTreeAWGM2D.setParameters(alpha, gamma, residualType, compute_f_minus_Au_error);
+    multiTreeAWGM2D.setParameters(alpha, gamma, residualType, compute_f_minus_Au_error,
+                                  writeCoefficientsToFile);
+
 
     Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
     getSparseGridVector(basis2d,u,0,(T)0.2);
 
     stringstream convfilename;
-    convfilename << "conv_multitree_mw_awgm_poisson2d_" << argv[1] << "_" << argv[2] << "_"
-                 << alpha << "_" << gamma << "_" << residualType << ".dat";
+    convfilename << "conv_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
+                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << ".dat";
+    stringstream coefffilename;
+    coefffilename << "coeff_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
+                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType;
 
-    multiTreeAWGM2D.cg_solve(u, eps, convfilename.str().c_str(), 100, EnergyErrorSquared);
+    multiTreeAWGM2D.cg_solve(u, eps, 100, EnergyErrorSquared, convfilename.str().c_str(),
+                             coefffilename.str().c_str());
 
     plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.1, "multiTreeAWGM_sol");
 
@@ -222,48 +227,4 @@ setUp_f_eps(int example, PrimalBasis &basis,
         }
     }
     std::cerr << "#Supp f_eps = " << f_eps.size() << std::endl;
-}
-
-void
-readCoefficientsFromFile()
-{
-    Coefficients<Lexicographical,T,Index2D> u;
-    std::ifstream infile ("u_2.dat");
-    if (infile.is_open()) {
-        std::cout << "File is open, ready to read..." << std::endl;
-        std::string line;
-        while(std::getline( infile, line, '\n' )) {
-            cout << line << endl;
-            std::string field1, field2, field3, field4, field5, field6, field7;
-            std::istringstream line_ss(line);
-            std::getline( line_ss, field1, ',' );
-            std::getline( line_ss, field2, ',' );
-            std::getline( line_ss, field3, ',' );
-            std::getline( line_ss, field4, ',' );
-            std::getline( line_ss, field5, ',' );
-            std::getline( line_ss, field6, ' ' );
-            std::getline( line_ss, field7, ' ' );
-            //std::cerr << field1 << " " << field2 << " " << field3 << " " << field4
-            //          << " " << field5 << " " << field6 << " " << field7 << std::endl;
-            Index1D index1, index2;
-            double val;
-            int j1 = atoi(field2.c_str());
-            int k1 = atoi(field3.c_str());
-            index1.j = j1; index1.k = k1;
-            int j2 = atoi(field5.c_str());
-            int k2 = atoi(field6.c_str());
-            index2.j = j2; index2.k = k2;
-            val = atof(field7.c_str());
-            std::cerr << field1 << " " << j1 << " " << k1 << " " << field4 << " " << j2 << " " << k2 << " " << val << " " << field7 << endl << endl;
-
-            if (strcmp(field1.c_str(),"wavelet")==0)    index1.xtype = XWavelet;
-            else                                        index1.xtype = XBSpline;
-            if (strcmp(field4.c_str(),"wavelet")==0)    index2.xtype = XWavelet;
-            else                                        index2.xtype = XBSpline;
-
-            Index2D index(index1,index2);
-            u[index] = val;
-        }
-    }
-    cout << "u = " << u << endl;
 }

@@ -348,11 +348,23 @@ int main (int argc, char *argv[]) {
         std::cerr << "---> H1-error: " << H1error << ": " << H1seminorm_squared << " " << fu  << " " << uAu << endl;
         cerr.precision(6);
 
+        /*
         stringstream plotfilename;
         plotfilename << "multitree_awgm2d_Linfty_" << example << "_" << d << "_" << threshTol << "_" << ell << "_" << iter;
         std::cerr << "Start plot with u.size() == " << u.size() << std::endl;
         plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0.3, 0.7, 0.3, 0.7, 0.1, plotfilename.str().c_str());
         std::cerr << "Finished plot with u.size() == " << u.size() << std::endl;
+        */
+        /*
+        Coefficients<Lexicographical,T,Index1D> tmp;
+        for (const_coeff2d_it it=u.begin(); it!=u.end(); ++it) {
+            if ((*it).first.index1.xtype==XBSpline && (*it).first.index1.k==2) tmp[(*it).first.index2] = (*it).second;
+        }
+        cout << "tmp = " << tmp << endl;
+        stringstream coefffilename;
+        coefffilename << "u_" << iter;
+        plotCoeff(tmp, basis, coefffilename.str().c_str(), false, true);
+        */
 
         IndexSet<Index2D> checkLambda = Lambda;
         Timer time;

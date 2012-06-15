@@ -100,7 +100,7 @@ apply(Coefficients<Lexicographical,T,Index> &v,
     }
 
     //todo: CA should be a read-in parameter
-    T CA = 2.7;
+    T CA = 2.;
     Coefficients<Bucket,T,Index> v_bucket;
     T tol = 0.5*eps/CA;
     v_bucket.bucketsort(v,tol);
@@ -119,18 +119,30 @@ apply(Coefficients<Lexicographical,T,Index> &v,
             break;
         }
     }
-
-    if (delta>tol) delta = eps/2.;
+    if (delta>tol || eps < 5e-7) {
+        std::cerr << "Warning: delta no longer computable!" << std::endl;
+        delta = eps/2.;
+    }
+    Timer time;
+    T critTime = 0.;
+    int critBucketsize = 0;
+    int critBucketnum = 0;
+    T gamma = 0.5;
+    if (d>=3) gamma = 1.5;      // smoothness of multiwavelets minus half the order of the operator
+                                // multiwavelets are only C^1!!
 
     for (int i=0; i<l; ++i) {
+        time.start();
         Coefficients<Lexicographical,T,Index> w_p;
         v_bucket.addBucketToCoefficients(w_p,i);
         if (w_p.size()==0) continue;
         T numerator = w_p.norm(2.) * support_size_all_buckets;
         T denominator = w_p.size() * (eps-delta) / CA;
-        //int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.) / (d-1.5), (T)0.);
-        int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.), (T)0.);
-        //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
+        int jp = (int)std::max((std::log(numerator/denominator) / std::log(2.) / gamma ) -1, (T)0.);
+
+        if (w_p.size()>1000 && eps > 5e-10) {
+            jp = std::max(0, jp-2);
+        }
         for (const_coeff_it it=w_p.begin(); it!=w_p.end(); ++it) {
             if (IsSame<Index,Index2D>::value && numOfLocalOp==2) {
                 T prec_col_index = P[(*it).first];
@@ -143,20 +155,29 @@ apply(Coefficients<Lexicographical,T,Index> &v,
                 Lambda=lambdaTilde1d_PDE(coordX_col_index, firstLocalOp.testBasis_CoordX, jp,
                                            firstLocalOp.trialBasis_CoordX.j0, maxlevel1,false);
                 firstLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
-                                         prec_col_index*(*it).second, Lambda, Av);
+                                         prec_col_index*(*it).second, Lambda, Av, eps);
                 secondLocalOp.split((*it).first, coordX_col_index, notcoordX_col_index);
                 int maxlevel2 = std::min(coordX_col_index.j+jp,25);
                 Lambda=lambdaTilde1d_PDE(coordX_col_index, secondLocalOp.testBasis_CoordX,jp,
                                            secondLocalOp.testBasis_CoordX.j0, maxlevel2,false);
                 secondLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
-                                          prec_col_index*(*it).second, Lambda, Av);
+                                          prec_col_index*(*it).second, Lambda, Av, eps);
             }
             else {
                 std::cerr << "CompoundLocalOperator<...>::apply not yet implement for n>3." << std::endl;
                 exit(1);
             }
         }
+        time.stop();
+        if (time.elapsed()>critTime) {
+            critTime = time.elapsed();
+            critBucketsize = w_p.size();
+            critBucketnum = i;
+        }
+        //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp
+        //          << ", time: " << time.elapsed() << std::endl;
     }
+    std::cerr << "   Critical Bucket: " << critBucketnum << ", size = " << critBucketsize << ", time = " << critTime << std::endl;
     for (coeff_it it=Av.begin(); it!=Av.end(); ++it) {
         (*it).second *= P[(*it).first];
     }
