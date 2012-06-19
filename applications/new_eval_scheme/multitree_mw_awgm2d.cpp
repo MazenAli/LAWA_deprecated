@@ -164,7 +164,6 @@ int main (int argc, char *argv[]) {
     multiTreeAWGM2D.setParameters(alpha, gamma, residualType, compute_f_minus_Au_error,
                                   writeCoefficientsToFile);
 
-
     Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
     getSparseGridVector(basis2d,u,0,(T)0.2);
 

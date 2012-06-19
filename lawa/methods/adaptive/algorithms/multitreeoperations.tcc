@@ -2,17 +2,74 @@ namespace lawa {
 
 template <typename T, typename Basis>
 void
+extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index1D>  &v,
+                Coefficients<Lexicographical,T,Index1D>  &C_v, const char* residualType)
+{
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff1d_it;
+    typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
+
+    for (const_coeff1d_it it=v.begin(); it!=v.end(); ++it) {
+        C_v[(*it).first] = (T)0.;
+        IndexSet<Index1D > C_index;
+        C_index = C((*it).first, (T)1., basis);
+        if (strcmp(residualType,"standard")==0) {
+            for (const_set1d_it newindex=C_index.begin(); newindex!=C_index.end(); ++newindex) {
+                if (C_v.find(*newindex)==C_v.end()) { completeMultiTree(basis,*newindex,C_v); }
+            }
+        }
+        else {
+            std::cerr << "extendMultiTree: unknown residual type " << residualType << std::endl;
+            exit(1);
+        }
+    }
+    return;
+}
+
+template <typename T, typename Basis>
+void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
                 Coefficients<Lexicographical,T,Index2D>  &C_v, const char* residualType)
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff2d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
+    typedef IndexSet<Index2D>::iterator                                      set2d_it;
+
+
+#ifdef TRONE
+    typedef std::tr1::unordered_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
+#else
+    typedef __gnu_cxx::hash_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
+#endif
+
+    IndexConeContainer indexConeContainer(v.size());
 
     for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
         C_v[(*it).first] = (T)0.;
         IndexSet<Index1D > C_index1, C_index2;
-        C_index1 = C((*it).first.index1, (T)1., basis.first);
-        C_index2 = C((*it).first.index2, (T)1., basis.second);
+
+        //C_index1 = C((*it).first.index1, (T)1., basis.first);
+        //C_index2 = C((*it).first.index2, (T)1., basis.second);
+
+        IndexConeContainer::const_iterator indexConeContainer_ptr;
+        indexConeContainer_ptr = indexConeContainer.find((*it).first.index1);
+        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+            C_index1 = (*indexConeContainer_ptr).second;
+        }
+        else {
+            C_index1 = C((*it).first.index1, (T)1., basis.first);
+            indexConeContainer[(*it).first.index1] = C_index1;
+        }
+        indexConeContainer_ptr = indexConeContainer.find((*it).first.index2);
+        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+            C_index2 = (*indexConeContainer_ptr).second;
+        }
+        else {
+            C_index2 = C((*it).first.index2, (T)1., basis.second);
+            indexConeContainer[(*it).first.index2] = C_index2;
+        }
+
         if (strcmp(residualType,"standard")==0) {
             for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
                 Index2D newindex((*it_C_index1), (*it).first.index2);
@@ -38,6 +95,8 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
             exit(1);
         }
     }
+
+
     return;
 }
 
@@ -48,13 +107,46 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
 {
     typedef typename Coefficients<Lexicographical,T,Index3D>::const_iterator const_coeff3d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
+    typedef IndexSet<Index3D>::const_iterator                                set3d_it;
+
+#ifdef TRONE
+    typedef std::tr1::unordered_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
+#else
+    typedef __gnu_cxx::hash_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
+#endif
+
+    IndexConeContainer indexConeContainer(v.size());
 
     for (const_coeff3d_it it=v.begin(); it!=v.end(); ++it) {
         C_v[(*it).first] = (T)0.;
         IndexSet<Index1D > C_index1, C_index2, C_index3;
-        C_index1 = C((*it).first.index1, (T)1., basis.first);
-        C_index2 = C((*it).first.index2, (T)1., basis.second);
-        C_index3 = C((*it).first.index3, (T)1., basis.third);
+        IndexConeContainer::const_iterator indexConeContainer_ptr;
+        indexConeContainer_ptr = indexConeContainer.find((*it).first.index1);
+        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+            C_index1 = (*indexConeContainer_ptr).second;
+        }
+        else {
+            C_index1 = C((*it).first.index1, (T)1., basis.first);
+            indexConeContainer[(*it).first.index1] = C_index1;
+        }
+        indexConeContainer_ptr = indexConeContainer.find((*it).first.index2);
+        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+            C_index2 = (*indexConeContainer_ptr).second;
+        }
+        else {
+            C_index2 = C((*it).first.index2, (T)1., basis.second);
+            indexConeContainer[(*it).first.index2] = C_index2;
+        }
+        indexConeContainer_ptr = indexConeContainer.find((*it).first.index3);
+        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+            C_index3 = (*indexConeContainer_ptr).second;
+        }
+        else {
+            C_index3 = C((*it).first.index3, (T)1., basis.second);
+            indexConeContainer[(*it).first.index3] = C_index3;
+        }
         if (strcmp(residualType,"standard")==0) {
             for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
                 Index3D newindex((*it_C_index1), (*it).first.index2, (*it).first.index3);
@@ -93,6 +185,52 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
         }
     }
     return;
+}
+
+
+template <typename T, typename Basis>
+void
+extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
+                          Coefficients<Lexicographical,T,Index2D>  &C_v, int J)
+{
+    typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff2d_it;
+    typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
+
+    IndexSet<Index1D> LambdaB_x1;
+    for (int k= basis.first.mra.rangeI(basis.first.j0).firstIndex();
+             k<=basis.first.mra.rangeI(basis.first.j0).lastIndex(); ++k) {
+        LambdaB_x1.insert(Index1D(basis.first.j0,k,XBSpline));
+    }
+    for (int j=basis.first.j0; j<=J; ++j) {
+        for (int k=basis.first.rangeJL(j).firstIndex(); k<=basis.first.rangeJL(j).lastIndex(); ++k) {
+            LambdaB_x1.insert(Index1D(j,k,XWavelet));
+        }
+        for (int k=basis.first.rangeJR(j).firstIndex(); k<=basis.first.rangeJR(j).lastIndex(); ++k) {
+            LambdaB_x1.insert(Index1D(j,k,XWavelet));
+        }
+    }
+    IndexSet<Index1D> LambdaB_x2;
+    for (int k= basis.second.mra.rangeI(basis.second.j0).firstIndex();
+             k<=basis.second.mra.rangeI(basis.second.j0).lastIndex(); ++k) {
+        LambdaB_x2.insert(Index1D(basis.second.j0,k,XBSpline));
+    }
+    for (int j=basis.second.j0; j<=J; ++j) {
+        for (int k=basis.second.rangeJL(j).firstIndex(); k<=basis.second.rangeJL(j).lastIndex(); ++k) {
+            LambdaB_x2.insert(Index1D(j,k,XWavelet));
+        }
+        for (int k=basis.second.rangeJR(j).firstIndex(); k<=basis.second.rangeJR(j).lastIndex(); ++k) {
+            LambdaB_x2.insert(Index1D(j,k,XWavelet));
+        }
+    }
+
+    for (const_set1d_it it_x1=LambdaB_x1.begin(); it_x1!=LambdaB_x1.end(); ++it_x1) {
+        for (const_set1d_it it_x2=LambdaB_x2.begin(); it_x2!=LambdaB_x2.end(); ++it_x2) {
+            Index2D newindex((*it_x1), (*it_x2));
+            if (C_v.find(newindex)==C_v.end()) {
+                completeMultiTree(basis,newindex,C_v);
+            }
+        }
+    }
 }
 
 template <typename T, typename Basis>
@@ -149,6 +287,50 @@ extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical
                 if (C_v.find(newindex)==C_v.end()) {
                     completeMultiTree(basis,newindex,C_v);
                 }
+            }
+        }
+    }
+}
+
+
+template <typename T, typename Basis>
+void
+completeMultiTree(const Basis &basis, const Index1D &index1d,
+                  Coefficients<Lexicographical,T,Index1D>  &v)
+{
+    int j0 = basis.j0;
+
+    if (v.find(index1d)!=v.end())  return;
+    else                            v[index1d] = 0.;
+
+    int  j = index1d.j;
+    long k = index1d.k;
+
+    Support<typename Basis::T> supp = basis.generator(index1d.xtype).support(j,k);
+    //check x-direction
+    if (j==j0 && index1d.xtype==XWavelet) {
+        int  j_scaling = 0;
+        long k_scaling_first = 0, k_scaling_last = 0;
+        basis.getScalingNeighborsForWavelet(j,k,basis,j_scaling,k_scaling_first,k_scaling_last);
+        assert(j==j_scaling);
+        for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
+            Support<typename Basis::T> new_supp = basis.generator(XBSpline).support(j_scaling,k_scaling);
+            if (overlap(supp,new_supp)>0) {
+                Index1D new_index1d(j_scaling,k_scaling,XBSpline);
+                if (v.find(new_index1d)==v.end()) completeMultiTree(basis,new_index1d,v);
+            }
+        }
+    }
+    else if (j>j0 && index1d.xtype==XWavelet) {
+        int  j_wavelet = 0;
+        long k_wavelet_first = 0, k_wavelet_last = 0;
+        basis.getLowerWaveletNeighborsForWavelet(j,k,basis,j_wavelet,k_wavelet_first,k_wavelet_last);
+        assert(j-1==j_wavelet);
+        for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+            Support<typename Basis::T> new_supp = basis.generator(XWavelet).support(j_wavelet,k_wavelet);
+            if (overlap(supp,new_supp)>0) {
+                Index1D new_index1d(j_wavelet,k_wavelet,XWavelet);
+                if (v.find(new_index1d)==v.end()) completeMultiTree(basis,new_index1d,v);
             }
         }
     }

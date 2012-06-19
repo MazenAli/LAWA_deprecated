@@ -58,6 +58,10 @@ struct UniDirectionalLocalOperator
          Coefficients<Lexicographical,T,Index> &IAIv);
 
     void
+    eval(const Coefficients<Lexicographical,T,Index> &v,
+         Coefficients<Lexicographical,T,Index> &IAIv, const char* evalType);
+
+    void
     nonTreeEval(const Index1D &coordX_col_index, const NotCoordXIndex &notcoordX_col_index,
                 T col_val, IndexSet<Index1D> &row_indices1d,
                 Coefficients<Lexicographical,T,Index> &Av, T eps=0.);

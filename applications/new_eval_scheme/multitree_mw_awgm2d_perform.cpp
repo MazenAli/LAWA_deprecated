@@ -39,8 +39,8 @@ typedef Coefficients<Lexicographical,T,Index2D>::iterator           coeff2d_it;
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff1d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2d_it;
 
-void
-readCoefficientsFromFile(const PrimalBasis &basis, Coefficients<Lexicographical,T,Index2D> &u, const char* filename);
+//void
+//readCoefficientsFromFile(const PrimalBasis &basis, Coefficients<Lexicographical,T,Index2D> &u, const char* filename);
 
 int main (int argc, char *argv[]) {
 
@@ -96,9 +96,9 @@ int main (int argc, char *argv[]) {
         coefffilename << "coeff2d/coeff_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
                       << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType
                       << "__" << iter << ".dat";
-        readCoefficientsFromFile(basis, u, coefffilename.str().c_str());
+        readCoefficientsFromFile(u, coefffilename.str().c_str());
         if (u.size()==0) break;
-
+/*
         Au1 = u;
         Au1.setToZero();
 
@@ -125,10 +125,12 @@ int main (int argc, char *argv[]) {
 
         performfile << u.size() << " " << time_galerkin1 << " " << time_galerkin2
                                 << " " << time_residual1 << " " << time_residual2 << endl;
+*/
     }
     return 0;
 }
 
+/*
 void
 readCoefficientsFromFile(const PrimalBasis &basis, Coefficients<Lexicographical,T,Index2D> &u, const char* filename)
 {
@@ -183,3 +185,4 @@ readCoefficientsFromFile(const PrimalBasis &basis, Coefficients<Lexicographical,
     }
     //cout << "u = " << u << endl;
 }
+*/

@@ -187,6 +187,15 @@ int main (int argc, char *argv[]) {
         r = u;
         r.setToZero();
         extendMultiTree(basis2d, u, r, residualType);
+        /*
+        Index2D maxIndex;
+        Index2D maxWaveletIndex;
+        int *jmax = new int[2];
+        int arrayLength = 2;
+        getLevelInfo(u, maxIndex, maxWaveletIndex, jmax, arrayLength);
+        int J = max(jmax[0],jmax[1]);
+        extendMultiTreeAtBoundary(basis2d, u, r, J+3);
+        */
         localOp2D.eval(u,r,Prec);
         for (coeff2d_it it=r.begin(); it!=r.end(); ++it) {
             (*it).second -= Prec((*it).first) * F((*it).first);

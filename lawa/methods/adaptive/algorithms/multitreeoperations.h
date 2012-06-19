@@ -29,6 +29,11 @@ namespace lawa {
 
 template <typename T, typename Basis>
 void
+extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index1D>  &v,
+                Coefficients<Lexicographical,T,Index1D>  &C_v, const char* residualType);
+
+template <typename T, typename Basis>
+void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
                 Coefficients<Lexicographical,T,Index2D>  &C_v, const char* residualType);
 
@@ -37,15 +42,35 @@ void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
                 Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType);
 
+
+template <typename T, typename Basis>
+void
+extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
+                          Coefficients<Lexicographical,T,Index2D>  &C_v, int J);
+
 template <typename T, typename Basis>
 void
 extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
                           Coefficients<Lexicographical,T,Index3D>  &C_v, int J);
 
+
+
+template <typename T, typename Basis>
+void
+completeMultiTree(const Basis &basis, const Index1D &index1d,
+                  Coefficients<Lexicographical,T,Index1D>  &v);
+
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v);
+
+template <typename T, typename Basis>
+void
+completeMultiTree(const Basis &basis, const Index3D &index3d,
+                  Coefficients<Lexicographical,T,Index3D>  &v);
+
+
 
 template <typename T, typename Basis>
 void

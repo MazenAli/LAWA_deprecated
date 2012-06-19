@@ -87,6 +87,42 @@ template <typename Index, typename FirstLocalOperator, typename SecondLocalOpera
           typename ThirdLocalOperator,typename FourthLocalOperator>
 template <typename Preconditioner>
 void
+CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>
+::eval(Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographical,T,Index> &Av,
+       Preconditioner &P, const char* evalType)
+{
+    for (coeff_it it=v.begin(); it!=v.end(); ++it) {
+        (*it).second *= P[(*it).first];
+    }
+
+    switch (numOfLocalOp)
+    {
+        case 2:
+            firstLocalOp.eval( v, Av, evalType);
+            secondLocalOp.eval(v, Av, evalType);
+            break;
+        case 3:
+            firstLocalOp.eval( v, Av, evalType);
+            secondLocalOp.eval(v, Av, evalType);
+            thirdLocalOp.eval(v, Av, evalType);
+            break;
+        default:
+            std::cerr << "CompoundLocalOperator not yet implemented for " << numOfLocalOp
+                      << " operators. Exit." << std::endl;
+            exit(1);
+    }
+    for (coeff_it it=Av.begin(); it!=Av.end(); ++it) {
+        (*it).second *= P[(*it).first];
+    }
+    for (coeff_it it=v.begin(); it!=v.end(); ++it) {
+        (*it).second *= 1./P[(*it).first];
+    }
+}
+
+template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
+          typename ThirdLocalOperator,typename FourthLocalOperator>
+template <typename Preconditioner>
+void
 CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>::
 apply(Coefficients<Lexicographical,T,Index> &v,
       Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P, T eps)
