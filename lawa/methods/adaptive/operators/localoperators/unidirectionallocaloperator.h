@@ -20,6 +20,7 @@
 #ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_UNIDIRECTIONALLOCALOPERATOR_H
 #define LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_UNIDIRECTIONALLOCALOPERATOR_H 1
 
+#include <cstring>
 #include <lawa/flensforlawa.h>
 #include <lawa/settings/enum.h>
 #include <lawa/constructions/basis.h>

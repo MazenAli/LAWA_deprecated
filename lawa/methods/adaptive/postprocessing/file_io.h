@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 

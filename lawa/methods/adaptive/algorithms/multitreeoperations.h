@@ -22,6 +22,7 @@
 
 
 #include <iostream>
+#include <cstring>
 #include <lawa/constructions/constructions.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 

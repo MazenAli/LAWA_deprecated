@@ -20,6 +20,7 @@
 #ifndef LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_LOCALOPERATOR1D_H
 #define LAWA_METHODS_ADAPTIVE_OPERATORS_LOCALOPERATORS_LOCALOPERATOR1D_H 1
 
+#include <cstring>
 #include <lawa/flensforlawa.h>
 #include <lawa/constructions/basis.h>
 #include <lawa/methods/adaptive/algorithms/localrefinement.h>
