@@ -115,6 +115,7 @@ readCoefficientsFromFile(Coefficients<Lexicographical,T,Index3D> &u, const char*
         exit(1);
         return;
     }
+    infile.close();
     //cout << "u = " << u << endl;
 }
 

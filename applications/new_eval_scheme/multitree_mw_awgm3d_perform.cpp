@@ -1,5 +1,6 @@
 #include <iostream>
 #include <lawa/lawa.h>
+#include <boost/timer.hpp>
 
 using namespace std;
 using namespace lawa;
@@ -84,10 +85,12 @@ int main (int argc, char *argv[]) {
     ofstream performfile(performfilename.str().c_str());
     Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
     Coefficients<Lexicographical,T,Index3D> Au(SIZEHASHINDEX2D);
+    Coefficients<Lexicographical,T,Index3D> res(SIZEHASHINDEX2D);
 
     for (int iter=1; iter<=100; ++iter) {
         u.setToZero();
         Au.setToZero();
+        res.setToZero();
 
         T time_galerkin1 = 0., time_galerkin2 = 0.;
         T time_residual1 = 0., time_residual2 = 0.;
@@ -102,29 +105,59 @@ int main (int argc, char *argv[]) {
         Au = u;
         Au.setToZero();
 
+        cout << "   Computing first matrix vector product for Galerkin system..." << endl;
         time.start();
-        localOp3D.eval(u,Au,Prec);
+        boost::timer boost_timer_galerkin1;
+        localOp3D.eval(u,Au,Prec,"galerkin");
+        double boost_time_galerkin1 = boost_timer_galerkin1.elapsed();
         time.stop();
         time_galerkin1 = time.elapsed();
+        cout << "   ... finished." << endl;
+
         Au.setToZero();
+        cout << "   Computing second matrix vector product for Galerkin system..." << endl;
         time.start();
-        localOp3D.eval(u,Au,Prec);
+        boost::timer boost_timer_galerkin2;
+        localOp3D.eval(u,Au,Prec,"galerkin");
+        double boost_time_galerkin2 = boost_timer_galerkin2.elapsed();
         time.stop();
         time_galerkin2 = time.elapsed();
+        cout << "   ... finished." << endl;
 
-        extendMultiTree(basis3d, u, Au, residualType);
+        cout << "   Computing multi-tree for residual..." << endl;
+        extendMultiTree(basis3d, u, res, residualType);
+        cout << "   ... finished." << endl;
+
+        cout << "   Computing first matrix vector product for residual..." << endl;
         time.start();
-        localOp3D.eval(u,Au,Prec);
+        boost::timer boost_timer_residual1;
+        localOp3D.eval(u,res,Prec);
+        double boost_time_residual1 = boost_timer_residual1.elapsed();
         time.stop();
         time_residual1 = time.elapsed();
+        cout << "   ... finished." << endl;
+
         Au.setToZero();
+        cout << "   Computing second matrix vector product for residual..." << endl;
         time.start();
-        localOp3D.eval(u,Au,Prec);
+        boost::timer boost_timer_residual2;
+        localOp3D.eval(u,res,Prec);
+        double boost_time_residual2 = boost_timer_residual2.elapsed();
         time.stop();
         time_residual2 = time.elapsed();
+        cout << "   ... finished." << endl;
 
-        performfile << u.size() << " " << time_galerkin1 << " " << time_galerkin2
-                                << " " << time_residual1 << " " << time_residual2 << endl;
+        cout << u.size() << " " << res.size() << " "
+                         << time_galerkin1 << " " << time_galerkin2
+                         << " " << time_residual1 << " " << time_residual2 << endl;
+        cout << u.size() << " " << res.size() << " "
+                         << boost_time_galerkin1 << " " << boost_time_galerkin2
+                         << " " << boost_time_residual1 << " " << boost_time_residual2 << endl << endl;
+
+
+        performfile << u.size() << " " << res.size()
+                    << " " << time_galerkin1 << " " << time_galerkin2
+                    << " " << time_residual1 << " " << time_residual2 << endl;
     }
 
     return 0;
