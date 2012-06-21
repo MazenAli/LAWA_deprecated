@@ -174,7 +174,9 @@ nonTreeEval(const Index1D &coordX_col_index, const NotCoordXIndex &notcoordX_col
     for (const_set1d_it it=row_indices1d.begin(); it!=row_indices1d.end(); ++it) {
         T tmp = localOperator1D.Bil((*it),coordX_col_index);
         if (fabs(tmp)<eps) continue;
+        //std::cerr << "Joining Index3D     " << (*it) << " " << notcoordX_col_index << std::endl;
         join((*it), notcoordX_col_index, row_index);
+        //std::cerr << "    -> result:      " << row_index << std::endl << std::endl;
         Av[row_index] += tmp * col_val;
     }
     return;

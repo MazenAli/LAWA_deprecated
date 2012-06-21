@@ -108,6 +108,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
             time.start();
             A.eval(p,Ap,Prec,"galerkin");
             time.stop();
+            std::cerr << "      DEBUG: " << time.elapsed() << std::endl;
             time_mv_linsys += time.elapsed();
             T pAp = p * Ap;
             T alpha = cg_rNormSquare/pAp;
@@ -183,25 +184,24 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr << "        #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
         time.start();
         extendMultiTree(basis, u_leafs, res, residualType);
+        //extendMultiTreeAtBoundary(basis, u, res, J+3);
         time.stop();
         time_multitree_residual = time.elapsed();
-        //extendMultiTreeAtBoundary(basis, u, res, J+3);
         N_residual = res.size();
         std::cerr << "     ... finished after " << time.elapsed() << std::endl;
         std::cerr << "   #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
         std::cerr << "     Computing matrix vector product..." << std::endl;
         time.start();
         A.eval(u,res,Prec);
-        time.stop();
-        time_mv_residual = time.elapsed();
         std::cerr << "     ... finished." << std::endl;
         std::cerr << "     Substracting right-hand side..." << std::endl;
-        time.start();
         for (coeff_it it=res.begin(); it!=res.end(); ++it) {
             (*it).second -= Prec((*it).first) * F((*it).first);
         }
-        Residual = res.norm(2.);
         time.stop();
+        time_mv_residual = time.elapsed();
+        time_multitree_residual += time_mv_residual;
+        Residual = res.norm(2.);
         std::cerr << "   ... finished with Residual: " << Residual << std::endl;
 
         /* ************************************************************************* */

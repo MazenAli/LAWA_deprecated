@@ -19,7 +19,6 @@ typedef OptimizedH1Preconditioner2D<T,Basis2D>                      Precondition
 typedef RefinementBasis::LaplaceOperator1D                          RefinementLaplaceOp1D;
 typedef AdaptiveLaplaceOperator1D<T,Orthogonal,Interval,Multi>      LaplaceOp1D;
 
-
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
                         RefinementLaplaceOp1D,LaplaceOp1D>          LocalOp1D;
@@ -166,9 +165,12 @@ int main (int argc, char *argv[]) {
     residual_error_filename << "error_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
                   << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << ".dat";
     ofstream residual_error_file(residual_error_filename.str().c_str());
+
+    Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
+    Coefficients<Lexicographical,T,Index2D> r_multitree(SIZEHASHINDEX2D);
+
     for (int iter=1; iter<=100; ++iter) {
-        Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
-        Coefficients<Lexicographical,T,Index2D> r(SIZEHASHINDEX2D);
+        Coefficients<Lexicographical,T,Index2D> r_apply(SIZEHASHINDEX2D);
         Coefficients<Lexicographical,T,Index2D> r_eps(SIZEHASHINDEX2D);
         stringstream coefffilename;
         coefffilename << "coeff2d/coeff_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
@@ -184,51 +186,44 @@ int main (int argc, char *argv[]) {
         cout << "Size of r_eps = " << r_eps.size() << endl;
 
         time.start();
-        r = u;
-        r.setToZero();
-        extendMultiTree(basis2d, u, r, residualType);
-        /*
-        Index2D maxIndex;
-        Index2D maxWaveletIndex;
-        int *jmax = new int[2];
-        int arrayLength = 2;
-        getLevelInfo(u, maxIndex, maxWaveletIndex, jmax, arrayLength);
-        int J = max(jmax[0],jmax[1]);
-        extendMultiTreeAtBoundary(basis2d, u, r, J+3);
-        */
-        localOp2D.eval(u,r,Prec);
-        for (coeff2d_it it=r.begin(); it!=r.end(); ++it) {
+        //r = u;
+        r_multitree.setToZero();
+        extendMultiTree(basis2d, u, r_multitree, residualType);
+        localOp2D.eval(u,r_multitree,Prec);
+        for (coeff2d_it it=r_multitree.begin(); it!=r_multitree.end(); ++it) {
             (*it).second -= Prec((*it).first) * F((*it).first);
         }
         time.stop();
-        cout << "Size of new residual = " << r.size() << endl;
+        cout << "Size of multitree residual = " << r_multitree.size() << endl;
         T new_residual_time = time.elapsed();
-        T new_residual_norm = r.norm();
-        int new_residual_length = r.size();
+        T new_residual_norm = r_multitree.norm();
+        int new_residual_length = r_multitree.size();
         //cout << "r = " << r << endl;
 
-        r -= r_eps;
-        T new_residual_diff = r.norm();
+        r_eps -= r_multitree;
+        T new_residual_diff = r_eps.norm();
+        r_eps += r_multitree;
         //cout << "diff = " << r << endl;
 
-        r.clear();
         T apply_residual_norm = 0., apply_residual_norm1 = 0., apply_residual_norm2 = 0.;
         int apply_residual_length = 0, apply_residual_length1 = 0, apply_residual_length2 = 0;
         T apply_residual_diff = 0., apply_residual_diff1 = 0., apply_residual_diff2 = 0.;
         T apply_residual_time = 0., apply_residual_time1 = 0., apply_residual_time2 = 0.;
+
         while(1) {
-            r.setToZero();
+            r_apply.setToZero();
             time.start();
-            localOp2D.apply(u,r,Prec,tol/2.);
-            cout << "      " << r.size() << endl;
+            localOp2D.apply(u,r_apply,Prec,tol/2.);
+            cout << "      " << r_apply.size() << endl;
             //r -= f_eps;
-            r -= THRESH(f_eps,tol/2.,true,true);
+            r_apply -= THRESH(f_eps,tol/2.,true,true);
             time.stop();
-            apply_residual_norm2 = r.norm();
-            apply_residual_length2 = r.size();
+            apply_residual_norm2 = r_apply.norm();
+            apply_residual_length2 = r_apply.size();
             apply_residual_time2 = time.elapsed();
-            r_eps -= r;
+            r_eps -= r_apply;
             apply_residual_diff2 = r_eps.norm();
+            r_eps += r_apply;
             cerr << "   DEBUG: tol = " << tol
                  << ", apply_residual_diff = " << apply_residual_diff2
                  << ", new_residual_diff = " << new_residual_diff
@@ -255,17 +250,18 @@ int main (int argc, char *argv[]) {
                 apply_residual_time1 = apply_residual_time2;
                 tol *= 0.9;
             }
-            r_eps += r;
         }
+
         cout << u.size() << " " << r_eps.norm() << ":" << endl;
-        cout << "     new residual:   " << new_residual_norm << " " << new_residual_diff << " " << new_residual_length << endl;
-        cout << "     apply residual: " << apply_residual_norm << " " << apply_residual_diff << " " << apply_residual_length << endl;
+        cout << "new residual:   " << new_residual_norm << " " << new_residual_diff << " " << new_residual_length << endl;
+        cout << "apply residual: " << apply_residual_norm << " " << apply_residual_diff << " " << apply_residual_length << endl << endl;
 
         residual_error_file << u.size() << " " << exact_residual << " "
                             << new_residual_norm << " " << new_residual_diff << " "
                             << new_residual_length << " " << new_residual_time << " "
                             << apply_residual_norm << " " << apply_residual_diff << " "
                             << apply_residual_length << " " << apply_residual_time <<  endl;
+
     }
     return 0;
 }
@@ -399,3 +395,13 @@ test_extendMultiTree(const Basis2D &basis, const Coefficients<Lexicographical,T,
     }
 }
 */
+
+/*
+        Index2D maxIndex;
+        Index2D maxWaveletIndex;
+        int *jmax = new int[2];
+        int arrayLength = 2;
+        getLevelInfo(u, maxIndex, maxWaveletIndex, jmax, arrayLength);
+        int J = max(jmax[0],jmax[1]);
+        extendMultiTreeAtBoundary(basis2d, u, r, J+3);
+        */

@@ -51,7 +51,7 @@ typedef IndexSet<Index2D>::const_iterator                           const_set2d_
 typedef IndexSet<Index3D>::const_iterator                           const_set3d_it;
 typedef Coefficients<Lexicographical,T,Index3D>::iterator           coeff3d_it;
 typedef Coefficients<Lexicographical,T,Index3D>::const_iterator     const_coeff3d_it;
-
+/*
 int example = 2;
 T u1(T x)   {    return 1.; }
 T u2(T y)   {    return 1.; }
@@ -64,8 +64,8 @@ T ddu2(T y) {    return -33-(T)(1.L/3.L); }
 T ddu3(T z) {    return -33-(T)(1.L/3.L); }
 
 long double EnergyErrorSquared = 14.20158453089639L*14.20158453089639L;
+*/
 
-/*
 int example = 3;
 T u1(T x)   {    return x*x*(1-x)*(1-x); }
 T u2(T y)   {    return y*y*(1-y)*(1-y); }
@@ -78,7 +78,7 @@ T ddu2(T y) {    return 2*(1-y)*(1-y) - 8*y*(1-y) + 2*y*y; }
 T ddu3(T z) {    return 2*(1-z)*(1-z) - 8*z*(1-z) + 2*z*z; }
 
 long double EnergyErrorSquared = 3.*(1.L/630.L * 1.L/630.L * 2.L/105.L);
-*/
+
 T f1(T x)   {   return -ddu1(x); }
 
 T f2(T y)   {   return -ddu2(y); }
