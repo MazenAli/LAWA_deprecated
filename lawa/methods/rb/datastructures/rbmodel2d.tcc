@@ -206,7 +206,7 @@ RBModel2D<T, TruthModel>::reconstruct_u_N(DenseVectorT u, unsigned int N)
     
   CoeffVector u_full;
     for (unsigned int i = 1; i <= N; ++i) {
-        u_full = u_full + u(i) * rb_basis_functions[i-1];
+        u_full = u_full + (u(i) * rb_basis_functions[i-1]);
     }
     
     return u_full;
@@ -399,7 +399,6 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
 						truth->write_riesz_representors(repr_folder, 0);	
 					}
 					std::string RB_folder = foldername;
-                    RB_folder = RB_folder + "/RB";
 					write_RB_data(RB_folder);
 					std::cout << " ... done " << std::endl;
 				}
@@ -795,7 +794,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
 {
 
 	// Initializations for structures that depend on Galerkin or Petrov-Galerkin formulation
-  typename std::vector<typename TruthSolver::OperatorType*>& A_ops = (TruthSolver::Type == Galerkin)? truth->A_operators: truth->A_u_u_operators;
+  typename std::vector<typename TruthSolver::OperatorType*>& A_ops = (TruthSolver::Type == Galerkin || truth->A_u_u_operators.size() == 0)? truth->A_operators: truth->A_u_u_operators;
 
   typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
   std::vector<SparseMatrixT>& A_mats = (TruthSolver::Type == Galerkin)? truth->A_operator_matrices: truth->A_u_u_op_matrices;
@@ -883,7 +882,7 @@ void
 RBModel2D<T, TruthSolver>::update_RB_F_vectors()
 {
 	// Initializations for structures that depend on Galerkin or Petrov-Galerkin formulation
-	typename std::vector<typename TruthSolver::RhsType*>& F_ops = (TruthSolver::Type == Galerkin)? truth->F_operators: truth->F_u_operators;
+	typename std::vector<typename TruthSolver::RhsType*>& F_ops = (TruthSolver::Type == Galerkin || truth->A_u_u_operators.size() == 0)? truth->F_operators: truth->F_u_operators;
 
     typename CoeffVector::const_iterator it;
     if ((n_bf() == 1) && (RB_F_vectors.size() < Q_f())) {

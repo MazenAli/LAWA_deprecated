@@ -521,7 +521,7 @@ assemble_all(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row)
 
 	A_operator_matrices.clear();
 	for(unsigned int q = 0; q < A_operators.size(); ++q){
-	    SparseMatrixT matrix(0,0);
+	    SparseMatrixT matrix(indexset_row.size(),indexset_col.size());
 	    A_operator_matrices.push_back(matrix);
 		assemble_matrix(indexset_col, indexset_row, *A_operators[q], A_operator_matrices[q]);
 	}
@@ -530,7 +530,7 @@ assemble_all(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row)
 
 	A_u_u_op_matrices.clear();
 	for(unsigned int q = 0; q < A_u_u_operators.size(); ++q){
-	    SparseMatrixT matrix(0,0);
+	    SparseMatrixT matrix(indexset_col.size(),indexset_col.size());
 	    A_u_u_op_matrices.push_back(matrix);
 	    assemble_matrix(indexset_col, indexset_col, *A_u_u_operators[q], A_u_u_op_matrices[q]);
 		A_u_u_op_matrices.push_back(matrix);
