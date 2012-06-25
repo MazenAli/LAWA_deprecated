@@ -108,7 +108,7 @@ int main (int argc, char *argv[]) {
     T alpha = 0.7;
     T gamma = 0.005;
     const char* residualType = "standard";
-    T eps   = 1e-6;
+    T eps   = 1e-2;
     Timer time;
 
     /// Basis initialization
@@ -168,6 +168,7 @@ int main (int argc, char *argv[]) {
     //T tol = 3e-07;
     cout << "Norm of f_eps: " << f_eps.norm() << endl;
     T tol = 1.;
+    T thresh_u = 0.;
 
     stringstream residual_error_filename;
     residual_error_filename << "error_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
@@ -175,10 +176,13 @@ int main (int argc, char *argv[]) {
     ofstream residual_error_file(residual_error_filename.str().c_str());
 
     Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
-    Coefficients<Lexicographical,T,Index3D> r_multitree(SIZEHASHINDEX2D);
+    //Coefficients<Lexicographical,T,Index3D> u2(SIZEHASHINDEX2D);
+    //Coefficients<Lexicographical,T,Index3D> tmp(SIZEHASHINDEX2D);
+    //Coefficients<Lexicographical,T,Index3D> r_multitree(SIZEHASHINDEX2D);
+
 
     for (int iter=1; iter<=100; ++iter) {
-        Coefficients<Lexicographical,T,Index3D> r_apply(SIZEHASHINDEX2D);
+        Coefficients<Lexicographical,T,Index3D> r_approx(SIZEHASHINDEX2D);
         Coefficients<Lexicographical,T,Index3D> r_eps(SIZEHASHINDEX2D);
         stringstream coefffilename;
         coefffilename << "coeff3d/coeff_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
@@ -194,62 +198,106 @@ int main (int argc, char *argv[]) {
         cout << "Size of r_eps = " << r_eps.size() << endl;
 
         time.start();
-        //r = u;
-        r_multitree.setToZero();
-        extendMultiTree(basis3d, u, r_multitree, residualType);
-        localOp3D.eval(u,r_multitree,Prec);
-        for (coeff3d_it it=r_multitree.begin(); it!=r_multitree.end(); ++it) {
+        r_approx = u;
+        r_approx.setToZero();
+        extendMultiTree(basis3d, u, r_approx, residualType);
+        localOp3D.eval(u,r_approx,Prec);
+        for (coeff3d_it it=r_approx.begin(); it!=r_approx.end(); ++it) {
             (*it).second -= Prec((*it).first) * F((*it).first);
         }
         time.stop();
-        cout << "Size of multitree residual = " << r_multitree.size() << endl;
+        cout << "Size of multitree residual = " << r_approx.size() << endl;
         T new_residual_time = time.elapsed();
-        T new_residual_norm = r_multitree.norm();
-        int new_residual_length = r_multitree.size();
+        T new_residual_norm = r_approx.norm();
+        int new_residual_length = r_approx.size();
         //cout << "r = " << r << endl;
-
-        r_eps -= r_multitree;
+        r_eps -= r_approx;
         T new_residual_diff = r_eps.norm();
-        r_eps += r_multitree;
+        r_eps += r_approx;
         //cout << "diff = " << r << endl;
 
+        r_approx.clear();
+
+        /*
+        T new_residual_time2 = 0.;
+        T new_residual_norm2 = 0.;
+        int new_residual_length2 = 0;
+        T new_residual_diff2 = 0.;
+        if (thresh_u > 0) {
+            tmp = THRESH(u,thresh_u,true,true);
+            for (const_coeff3d_it it=tmp.begin(); it!=tmp.end(); ++it) {
+                completeMultiTree(basis3d, (*it).first, u2);
+            }
+            for (coeff3d_it it=u2.begin(); it!=u2.end(); ++it) {
+                (*it).second = u[(*it).first];
+            }
+            cout << "#supp u2 = " << u2.size() << endl;
+            r_approx = u2;
+            r_approx.setToZero();
+            time.start();
+            cout << "Computing multi-tree for residual..." << endl;
+            extendMultiTree(basis3d, u2, r_approx, residualType);
+            cout << "... finished." << endl;
+            cout << "Evaluating mv for residual..." << endl;
+            localOp3D.eval(u,r_approx,Prec);
+            cout << "... finished." << endl;
+            cout << "Substracting rhs..." << endl;
+            for (coeff3d_it it=r_approx.begin(); it!=r_approx.end(); ++it) {
+                (*it).second -= Prec((*it).first) * F((*it).first);
+            }
+            cout << "... finished." << endl;
+            time.stop();
+            new_residual_time2 = time.elapsed();
+            new_residual_norm2 = r_approx.norm();
+            new_residual_length2 = r_approx.size();
+            cout << "Computing error in approximation..." << endl;
+            r_eps -= r_approx;
+            cout << "... finished." << endl;
+            new_residual_diff2 = r_eps.norm();
+            cout << "Get r_eps back..." << endl;
+            r_eps += r_approx;
+            cout << "... finished." << endl;
+        }
+        */
         T apply_residual_norm = 0., apply_residual_norm1 = 0., apply_residual_norm2 = 0.;
         int apply_residual_length = 0, apply_residual_length1 = 0, apply_residual_length2 = 0;
         T apply_residual_diff = 0., apply_residual_diff1 = 0., apply_residual_diff2 = 0.;
         T apply_residual_time = 0., apply_residual_time1 = 0., apply_residual_time2 = 0.;
 
+
+
         while(1) {
-            r_apply.setToZero();
+            r_approx.clear();
             time.start();
             cout << "   Apply started..." << endl;
-            localOp3D.apply(u,r_apply,Prec,tol/2.);
-            cout << "   ... finished, output size = " << r_apply.size() << endl;
+            localOp3D.apply(u,r_approx,Prec,tol/2.);
+            cout << "   ... finished, output size = " << r_approx.size() << endl;
             //r -= f_eps;
-            r_apply -= THRESH(f_eps,tol/2.,true,true);
+            r_approx -= THRESH(f_eps,tol/2.,true,true);
             time.stop();
-            apply_residual_norm2 = r_apply.norm();
-            apply_residual_length2 = r_apply.size();
+            apply_residual_norm2 = r_approx.norm();
+            apply_residual_length2 = r_approx.size();
             apply_residual_time2 = time.elapsed();
-            r_eps -= r_apply;
+            r_eps -= r_approx;
             apply_residual_diff2 = r_eps.norm();
-            r_eps += r_apply;
+            r_eps += r_approx;
             cerr << "   DEBUG: tol = " << tol
                  << ", apply_residual_diff = " << apply_residual_diff2
                  << ", new_residual_diff = " << new_residual_diff
                  << ", apply_residual_time = " << time.elapsed() << endl;;
             if (apply_residual_diff2<new_residual_diff)  {
-                if (apply_residual_time2 < apply_residual_time1) {
+                //if (apply_residual_time2 < apply_residual_time1) {
                     apply_residual_norm = apply_residual_norm2;
                     apply_residual_diff = apply_residual_diff2;
                     apply_residual_length = apply_residual_length2;
                     apply_residual_time = apply_residual_time2;
-                }
-                else {
-                    apply_residual_norm = apply_residual_norm1;
-                    apply_residual_diff = apply_residual_diff1;
-                    apply_residual_length = apply_residual_length1;
-                    apply_residual_time = apply_residual_time1;
-                }
+                //}
+                //else {
+                //    apply_residual_norm = apply_residual_norm1;
+                //    apply_residual_diff = apply_residual_diff1;
+                //    apply_residual_length = apply_residual_length1;
+                //    apply_residual_time = apply_residual_time1;
+                //}
                 break;
             }
             else {
@@ -262,8 +310,9 @@ int main (int argc, char *argv[]) {
         }
 
         cout << u.size() << " " << r_eps.norm() << ":" << endl;
-        cout << "new residual:   " << new_residual_norm << " " << new_residual_diff << " " << new_residual_length << endl;
-        cout << "apply residual: " << apply_residual_norm << " " << apply_residual_diff << " " << apply_residual_length << endl << endl;
+        cout << "new residual:   " << new_residual_norm << " " << new_residual_diff << " " << new_residual_length << " " << new_residual_time << endl;
+        //cout << "new residual2:  " << new_residual_norm2 << " " << new_residual_diff2 << " " << new_residual_length2 << " " << new_residual_time2 << endl;
+        cout << "apply residual: " << apply_residual_norm << " " << apply_residual_diff << " " << apply_residual_length << " " << apply_residual_time << endl << endl;
 
         residual_error_file << u.size() << " " << exact_residual << " "
                             << new_residual_norm << " " << new_residual_diff << " "
@@ -271,7 +320,9 @@ int main (int argc, char *argv[]) {
                             << apply_residual_norm << " " << apply_residual_diff << " "
                             << apply_residual_length << " " << apply_residual_time <<  endl;
 
-        eps = min(eps, 0.01*exact_residual);
+        thresh_u = new_residual_norm;
+        eps = min(eps, 0.1*tol);
+        //eps = min(eps, 0.01*new_residual_norm);
 
     }
 
@@ -332,7 +383,7 @@ setUp_f_eps(int example, PrimalBasis &basis,
                               + (*it_x).second * rhs_f2_data[(*it_y).first] * (*it_z).second
                               + (*it_x).second * (*it_y).second * rhs_f3_data[(*it_z).first]
                               ) * Prec(index);
-                    if (fabs(val)>1e-14) f_eps[index] = val;
+                    if (fabs(val)>1e-16) f_eps[index] = val;
                 }
             }
         }
