@@ -156,7 +156,8 @@ apply(Coefficients<Lexicographical,T,Index> &v,
         }
     }
 
-    std::cerr << "      DEBUG: eps = " << eps << ", tol = " << tol << ", delta = " << delta << std::endl;
+    std::cerr << "      DEBUG: eps = " << eps << ", tol = " << tol
+              << ", delta = " << delta << ", length of sum_p w_p = " << support_size_all_buckets << std::endl;
     if (delta>tol || eps < 5e-7) {
         std::cerr << "Warning: delta no longer computable!" << std::endl;
         delta = eps/2.;
@@ -177,10 +178,10 @@ apply(Coefficients<Lexicographical,T,Index> &v,
         if (w_p.size()==0) continue;
         T numerator = w_p.norm(2.) * support_size_all_buckets;
         T denominator = w_p.size() * (eps-delta) / CA;
-        int jp = (int)std::max((std::log(numerator/denominator) / std::log(2.) / gamma )-1, (T)0.);
+        int jp = (int)std::max((std::log(numerator/denominator) / std::log(2.) / gamma )/*-1*/, (T)0.);
 
         if (w_p.size()>1000 && eps > 5e-10) {
-            jp = std::max(0, jp-1);
+            //jp = std::max(0, jp-1);
         }
         for (const_coeff_it it=w_p.begin(); it!=w_p.end(); ++it) {
             if (numOfLocalOp==2) {

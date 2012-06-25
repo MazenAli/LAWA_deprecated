@@ -21,6 +21,11 @@ template <typename T>
     THRESH(const Coefficients<Lexicographical,T,Index2D > &v, T eta, bool deleteBSpline=true,
            bool hp=false);
 
+template <typename T>
+    Coefficients<Lexicographical,T,Index3D >
+    THRESH(const Coefficients<Lexicographical,T,Index3D > &v, T eta, bool deleteBSpline=true,
+           bool hp=false);
+
 template <typename T, typename Index>
     Coefficients<Lexicographical,T,Index >
     THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta, bool hp=false);

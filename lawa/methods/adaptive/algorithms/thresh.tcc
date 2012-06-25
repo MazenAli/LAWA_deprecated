@@ -107,6 +107,54 @@ THRESH(const Coefficients<Lexicographical,T,Index2D> &v, T eta, bool deleteBSpli
     return ret;
 }
 
+
+template <typename T>
+Coefficients<Lexicographical,T,Index3D>
+THRESH(const Coefficients<Lexicographical,T,Index3D> &v, T eta, bool deleteBSpline, bool hp)
+{
+    typedef typename Coefficients<AbsoluteValue,T,Index3D >::iterator it;
+    typedef typename Coefficients<Lexicographical,T,Index3D >::const_iterator const_coeff_it;
+    Coefficients<Lexicographical,T,Index3D > ret;
+    Coefficients<AbsoluteValue,T,Index3D > temp;
+    temp = v;
+    if (hp) {
+        ret = THRESH(temp, eta, true);
+    }
+    else {
+        if (temp.size() > 0) {
+            it lambda = temp.begin();
+            long double sum = 0L, bound = (long double) (temp.norm()*temp.norm() - eta*eta);
+            do {
+                sum += (long double) ((*lambda).first)*((*lambda).first);
+                ++lambda;
+            } while ((lambda != temp.end()) && (sum < bound));
+            temp.erase(lambda, temp.end());
+        }
+        ret = temp;
+    }
+    if (!deleteBSpline) {
+        Coefficients<Lexicographical,T,Index3D> scaling_indices;
+        Coefficients<AbsoluteValue,T,Index3D> abs_scaling_indices;
+        for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
+            if ((*it).first.index1.xtype==XBSpline && (*it).first.index2.xtype==XBSpline
+                    && (*it).first.index3.xtype==XBSpline) {
+                if (ret.count((*it).first)==0) {
+                    scaling_indices.insert(*it);
+                }
+                else {
+                    return ret;
+                }
+            }
+        }
+        if(scaling_indices.size() > 0){
+            abs_scaling_indices = scaling_indices;
+            it max_scaling_index = abs_scaling_indices.begin();
+            ret[(*max_scaling_index).second] = (*max_scaling_index).first;
+        }
+    }
+    return ret;
+}
+
 template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index >
 THRESH(const Coefficients<AbsoluteValue,T,Index > &v, T eta, bool hp)
