@@ -8,7 +8,7 @@ CoefficientsByLevel<T>::CoefficientsByLevel(void)
 
 template <typename T>
 CoefficientsByLevel<T>::CoefficientsByLevel(short _j, size_t n)
-: j(_j), map() /*map(n)*/
+: j(_j), map(n)
 {
     this->set(j,n);
 }

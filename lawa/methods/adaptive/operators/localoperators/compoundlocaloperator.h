@@ -54,6 +54,11 @@ class CompoundLocalOperator {
         template <typename Preconditioner>
         void
         eval(Coefficients<Lexicographical,T,Index> &v,
+             Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P, int operatornumber);
+
+        template <typename Preconditioner>
+        void
+        eval(Coefficients<Lexicographical,T,Index> &v,
              Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P, const char* evalType);
 
         template <typename Preconditioner>

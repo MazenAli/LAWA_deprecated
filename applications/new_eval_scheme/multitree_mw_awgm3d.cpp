@@ -100,8 +100,9 @@ int main (int argc, char *argv[]) {
     T alpha = 0.7;
     T gamma = 0.005;
     const char* residualType = "standard";
+    bool IsMW = true;
     bool compute_f_minus_Au_error = false;
-    bool writeCoefficientsToFile = true;
+    bool writeCoefficientsToFile = false;
     T eps   = 1e-5;
     Timer time;
 
@@ -161,7 +162,7 @@ int main (int argc, char *argv[]) {
     Coefficients<Lexicographical,T,Index3D> f_eps;
 
     MultiTreeAWGM3D multiTreeAWGM3D(basis3d, localOp3D, F, Prec, f_eps);
-    multiTreeAWGM3D.setParameters(alpha, gamma, residualType, compute_f_minus_Au_error,
+    multiTreeAWGM3D.setParameters(alpha, gamma, residualType, IsMW, compute_f_minus_Au_error,
                                   writeCoefficientsToFile);
 
     Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
@@ -183,7 +184,6 @@ int main (int argc, char *argv[]) {
 
     }
     */
-
     return 0;
 }
 

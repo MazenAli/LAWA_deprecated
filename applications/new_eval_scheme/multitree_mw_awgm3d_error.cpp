@@ -176,10 +176,9 @@ int main (int argc, char *argv[]) {
     ofstream residual_error_file(residual_error_filename.str().c_str());
 
     Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
-    //Coefficients<Lexicographical,T,Index3D> u2(SIZEHASHINDEX2D);
-    //Coefficients<Lexicographical,T,Index3D> tmp(SIZEHASHINDEX2D);
+    Coefficients<Lexicographical,T,Index3D> u2(SIZEHASHINDEX2D);
+    Coefficients<Lexicographical,T,Index3D> tmp(SIZEHASHINDEX2D);
     //Coefficients<Lexicographical,T,Index3D> r_multitree(SIZEHASHINDEX2D);
-
 
     for (int iter=1; iter<=100; ++iter) {
         Coefficients<Lexicographical,T,Index3D> r_approx(SIZEHASHINDEX2D);
@@ -190,6 +189,18 @@ int main (int argc, char *argv[]) {
                       << "__" << iter << ".dat";
         readCoefficientsFromFile(u, coefffilename.str().c_str());
         if (u.size()==0) break;
+
+        Index3D maxIndex, maxWaveletIndex;
+        int *jmax = new int[1];
+        int arrayLength = 1;
+        getLevelInfo(u, maxIndex, maxWaveletIndex, jmax, arrayLength);
+        int J = -100;
+        for (int i=0; i<arrayLength; ++i) {
+           if (J<jmax[i]) J=jmax[i];
+        }
+
+
+
         cout << "Size of u: " << u.size() << endl;
         localOp3D.apply(u,r_eps,Prec,eps);
         r_eps -= f_eps;
@@ -197,11 +208,30 @@ int main (int argc, char *argv[]) {
         T exact_residual = r_eps.norm();
         cout << "Size of r_eps = " << r_eps.size() << endl;
 
+        Coefficients<Lexicographical,T,Index3D> r_tmp(SIZEHASHINDEX2D);        r_tmp = u;
         time.start();
-        r_approx = u;
-        r_approx.setToZero();
-        extendMultiTree(basis3d, u, r_approx, residualType);
-        localOp3D.eval(u,r_approx,Prec);
+        r_tmp.setToZero();
+        extendMultiTree(basis3d, u, r_tmp, 1);
+        localOp3D.eval(u,r_tmp,Prec,1);
+        r_approx += r_tmp;
+
+        r_tmp.clear();
+        r_tmp = u;
+        r_tmp.setToZero();
+        extendMultiTree(basis3d, u, r_tmp, 2);
+        localOp3D.eval(u,r_tmp,Prec,2);
+        r_approx += r_tmp;
+
+        r_tmp.clear();
+        r_tmp = u;
+        r_tmp.setToZero();
+        extendMultiTree(basis3d, u, r_tmp, 3);
+        localOp3D.eval(u,r_tmp,Prec,3);
+        r_approx += r_tmp;
+
+        //extendMultiTree(basis3d, u, r_approx, residualType);
+        //extendMultiTreeAtBoundary(basis3d, u, r_approx, J+1);
+        //localOp3D.eval(u,r_approx,Prec);
         for (coeff3d_it it=r_approx.begin(); it!=r_approx.end(); ++it) {
             (*it).second -= Prec((*it).first) * F((*it).first);
         }
@@ -216,9 +246,9 @@ int main (int argc, char *argv[]) {
         r_eps += r_approx;
         //cout << "diff = " << r << endl;
 
+        /*
         r_approx.clear();
 
-        /*
         T new_residual_time2 = 0.;
         T new_residual_norm2 = 0.;
         int new_residual_length2 = 0;
@@ -258,12 +288,13 @@ int main (int argc, char *argv[]) {
             r_eps += r_approx;
             cout << "... finished." << endl;
         }
+
         */
+
         T apply_residual_norm = 0., apply_residual_norm1 = 0., apply_residual_norm2 = 0.;
         int apply_residual_length = 0, apply_residual_length1 = 0, apply_residual_length2 = 0;
         T apply_residual_diff = 0., apply_residual_diff1 = 0., apply_residual_diff2 = 0.;
         T apply_residual_time = 0., apply_residual_time1 = 0., apply_residual_time2 = 0.;
-
 
 
         while(1) {
@@ -320,8 +351,9 @@ int main (int argc, char *argv[]) {
                             << apply_residual_norm << " " << apply_residual_diff << " "
                             << apply_residual_length << " " << apply_residual_time <<  endl;
 
-        thresh_u = new_residual_norm;
-        eps = min(eps, 0.1*tol);
+
+        eps = min(eps, 0.01*tol);
+        //thresh_u = 0.75*new_residual_norm;
         //eps = min(eps, 0.01*new_residual_norm);
 
     }

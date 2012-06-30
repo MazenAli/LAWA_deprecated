@@ -36,12 +36,19 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index1D
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
-                Coefficients<Lexicographical,T,Index2D>  &C_v, const char* residualType);
+                Coefficients<Lexicographical,T,Index2D>  &C_v, const char* residualType,
+                bool IsMW=false);
 
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
-                Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType);
+                Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType,
+                bool IsMW=false);
+
+template <typename T, typename Basis>
+void
+extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
+                Coefficients<Lexicographical,T,Index3D>  &C_v, int coordDirec);
 
 
 template <typename T, typename Basis>
@@ -70,6 +77,12 @@ template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index3D &index3d,
                   Coefficients<Lexicographical,T,Index3D>  &v);
+
+// For L2-orth. multiwavelets only!!
+template <typename T, typename Basis>
+void
+completeMultiTree(const Basis &basis, const Index3D &index3d,
+                  Coefficients<Lexicographical,T,Index3D>  &v, int coordDirec);
 
 
 

@@ -4,7 +4,7 @@ template <typename Index, typename Basis, typename LocalOperator, typename RHS, 
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
 MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_Prec,
               Coefficients<Lexicographical,T,Index> &_f_eps)
-: basis(_basis), A(_A), F(_F), Prec(_Prec), f_eps(_f_eps),
+: basis(_basis), A(_A), F(_F), Prec(_Prec), f_eps(_f_eps), IsMW(false),
   alpha(0.5), gamma(0.1), residualType("standard"), hashMapSize(SIZEHASHINDEX2D),
   compute_f_minus_Au_error(false), write_coefficients_to_file(false)
 {
@@ -15,12 +15,14 @@ template <typename Index, typename Basis, typename LocalOperator, typename RHS, 
 void
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters(T _alpha, T _gamma,
                                                                            const char* _residualType,
+                                                                           bool _IsMW,
                                                                            bool _compute_f_minus_Au_error,
                                                                            bool _write_coefficients_to_file)
 {
     alpha = _alpha;
     gamma = _gamma;
     residualType = _residualType;
+    IsMW = _IsMW;
     compute_f_minus_Au_error = _compute_f_minus_Au_error;
     write_coefficients_to_file = _write_coefficients_to_file;
     std::cerr << "Residual Type: " << residualType << std::endl;
@@ -88,6 +90,8 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
 
 
         /* ******************* CG method for Galerkin system *********************** */
+
+
 
         std::cerr << "   CG method started." << std::endl;
         A.eval(u,r,Prec,"galerkin");
@@ -183,7 +187,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr << "     Computing multi-tree for residual..." << std::endl;
         std::cerr << "        #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
         time.start();
-        extendMultiTree(basis, u_leafs, res, residualType);
+        extendMultiTree(basis, u_leafs, res, residualType, IsMW);
         //extendMultiTreeAtBoundary(basis, u, res, J+3);
         time.stop();
         time_multitree_residual = time.elapsed();
@@ -205,6 +209,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr << "   ... finished with Residual: " << Residual << std::endl;
 
         /* ************************************************************************* */
+
+
+
 
         /* ********************** Computing next index set  ************************ */
 
@@ -296,3 +303,90 @@ writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const c
 }
 
 }   // namespace lawa
+
+
+/*
+        AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Interval,Multi,Orthogonal,Interval,Multi> adHeOp2D(basis,0.);
+        typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
+
+        time.start();
+        IndexSet<Index2D> Lambda;
+        Lambda = supp(u);
+        SparseMatrixT SpaMatA(Lambda.size(),Lambda.size());
+        adHeOp2D.toFlensSparseMatrix(Lambda, Lambda, SpaMatA, 5);
+        time.stop();
+        std::cerr << "   Required time for assembling: " << time.elapsed() << std::endl;
+*/
+
+/* ******************* Computing approximate residual ********************** */
+   // Counter example residual evaluation:
+   // P_{\tilde \Lambda^{(1)}_k} (A \otimes I \cdots I) w_{\Lambda_k} = P_{\tilde \Lambda_k} (A \otimes I \cdots I) w_{\Lambda_k}
+   // does not hold!
+        /*
+        std::cerr << "   Computing residual..." << std::endl;
+        res.setToZero();
+        std::cerr << "     Computing multi-tree for residual..." << std::endl;
+        std::cerr << "        #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
+        time.start();
+        Coefficients<Lexicographical,T,Index3D> r_approx(hashMapSize), tmp;
+        r_approx = u;
+        r_approx.setToZero();
+        extendMultiTree(basis, u, r_approx, residualType, IsMW);
+        std::cerr << "      Size of r_approx: " << r_approx.size() << std::endl;
+        A.eval(u,r_approx,Prec,1);
+        tmp = r_approx;
+        res += r_approx;
+
+        for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
+            if (    (*it).first.index2.xtype==XWavelet && (*it).first.index2.j==0 && (*it).first.index2.k==4
+                 && (*it).first.index3.xtype==XBSpline && (*it).first.index3.j==0 && (*it).first.index3.k==5   ) {
+                std::cerr << (*it).first << std::endl;
+            }
+            if (    (*it).first.index1.xtype==XWavelet && (*it).first.index1.j==1 && (*it).first.index1.k==11) {
+                std::cerr << (*it).first << std::endl;
+            }
+        }
+
+        r_approx.clear();
+        r_approx = u;
+        extendMultiTree(basis, u, r_approx, 1);
+        A.eval(u,r_approx,Prec,1);
+        tmp -= r_approx;
+        for (const_coeff_it it=tmp.begin(); it!=tmp.end(); ++it) {
+            if (fabs((*it).second)>1e-13) {
+                std::cerr << "Difference: " << (*it).first << " " << (*it).second << std::endl;
+                if (tmp.find((*it).first)!=tmp.end()) std::cerr << "Contained in reference res." << std::endl;
+                if (r_approx.find((*it).first)!=r_approx.end()) std::cerr << "Contained in new res." << std::endl;
+            }
+        }
+
+
+        r_approx.clear();
+        r_approx = u;
+        r_approx.setToZero();
+        extendMultiTree(basis, u, r_approx, residualType, IsMW);
+        std::cerr << "      Size of r_approx: " << r_approx.size() << std::endl;
+        A.eval(u,r_approx,Prec,2);
+        res += r_approx;
+
+        r_approx.clear();
+        r_approx = u;
+        r_approx.setToZero();
+        std::cerr << "      Size of r_approx: " << r_approx.size() << std::endl;
+        extendMultiTree(basis, u, r_approx, residualType, IsMW);
+        A.eval(u,r_approx,Prec,3);
+        res += r_approx;
+        N_residual = res.size();
+        std::cerr << "     ... finished after " << time.elapsed() << std::endl;
+        std::cerr << "   #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
+        std::cerr << "     Substracting right-hand side..." << std::endl;
+        for (coeff_it it=res.begin(); it!=res.end(); ++it) {
+            (*it).second -= Prec((*it).first) * F((*it).first);
+        }
+        time.stop();
+        time_multitree_residual = time.elapsed();
+        time_mv_residual = 0;
+        Residual = res.norm(2.);
+        std::cerr << "   ... finished with Residual: " << Residual << std::endl;
+        */
+        /* ************************************************************************* */

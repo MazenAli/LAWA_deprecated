@@ -39,7 +39,7 @@ struct MultiTreeAWGM {
                   Coefficients<Lexicographical,T,Index> &_f_eps);
 
     void
-    setParameters(T _alpha, T _gamma, const char* _residualType,
+    setParameters(T _alpha, T _gamma, const char* _residualType, bool _IsMW,
                   bool _compute_f_minus_Au_error=false, bool _writeCoefficientsToFile=false);
 
     void
@@ -58,6 +58,7 @@ struct MultiTreeAWGM {
     RHS                                     &F;
     Preconditioner                          &Prec;
     Coefficients<Lexicographical,T,Index>   &f_eps;
+    bool                                    IsMW;
     T                                       alpha, gamma;
     const char*                             residualType;
     T                                       eps;

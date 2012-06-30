@@ -94,11 +94,17 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     int j_wavelet_test =  l + testBasis.j0;
     int j_wavelet_trial = l + trialBasis.j0;
 
-    size_t hm_size = 2*COEFFBYLEVELSIZE;
+    //size_t hm_size = COEFFBYLEVELSIZE;
+    size_t hm_size = (size_t)(2*std::max(d.map.size(), PhiPiCheck.map.size()));
 
     // Splitting of B-spline index set $\check{\Phi}$.
     CoefficientsByLevel<T> PhiPiCheck2(l,hm_size);
-    _splitPhiPi(l, c[shifted_l], PhiPiCheck, PhiPiCheck2);
+    if (c[shifted_l].map.size()==trialBasis.cardJ(j_wavelet_trial)) {
+        PhiPiCheck2.map.swap(PhiPiCheck.map);
+    }
+    else {
+        _splitPhiPi(l, c[shifted_l], PhiPiCheck, PhiPiCheck2);
+    }
 
     // Compute underlinePiCheck
     int j_refinement_test = 0;
@@ -115,7 +121,12 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     // Splitting of B-spline coefficient vector $d$.
     //time.start();
     CoefficientsByLevel<T> d2(l,hm_size);
-    _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
+    if (PsiLambdaCheck[shifted_l].map.size()==testBasis.cardJ(j_wavelet_test)) {
+        d2.map.swap(d.map);
+    }
+    else {
+        _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
+    }
     //time.stop();
     //std::cerr << "l = " << l << " : splitting of d took " << time.elapsed() << std::endl;
 
@@ -140,7 +151,12 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     //Compute a(\check{Phi}|_{\check{Pi}^{(2)}} , \hat{\Phi}|_{\hat{Pi}^{(1)}}) d^{(1)}
     _applyRefinementBilinearForm(l, d, PhiPiCheck2);
 
-    PhiPiCheck += PhiPiCheck2;
+    if (c[shifted_l].map.size()==trialBasis.cardJ(j_wavelet_trial)) {
+        PhiPiCheck.map.swap(PhiPiCheck2.map);
+    }
+    else {
+        PhiPiCheck += PhiPiCheck2;
+    }
 
     return;
 
@@ -310,7 +326,10 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
             long k_bspline_first = 0L, k_bspline_last = 0L;
             testBasis.getBSplineNeighborsForWavelet(j_wavelet, k_wavelet, trialRefinementBasis,
                                                     j_bspline, k_bspline_first, k_bspline_last);
+            //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
             for (long k_bspline=k_bspline_first; k_bspline<=k_bspline_last; ++k_bspline) {
+                //Support<T> trialSupp = trialBasis.generator(XBSpline).support(j_bspline,k_bspline);
+                //if (!overlap(testSupp,trialSupp)) continue;
                 by_level_it p_entry_d1 = d1.map.find(k_bspline);
                 if (p_entry_d1!=d1.map.end()) {
                     d2.map[k_bspline] = (*p_entry_d1).second;
@@ -328,10 +347,11 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
             long k_wavelet_first = 0L, k_wavelet_last = 0L;
             trialRefinementBasis.getWaveletNeighborsForBSpline(j_bspline, k_bspline, testBasis,
                                                      j_wavelet, k_wavelet_first, k_wavelet_last);
-
+            //Support<T> trialSupp = trialBasis.generator(XBSpline).support(j_bspline,k_bspline);
             for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+                //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
                 const_by_level_it p_PsiLambdaCheck_l = PsiLambdaCheck_l.map.find(k_wavelet);
-                if (p_PsiLambdaCheck_l!=p_PsiLambdaCheck_l_end) {
+                if (/*overlap(testSupp,trialSupp) &&*/ p_PsiLambdaCheck_l!=p_PsiLambdaCheck_l_end) {
                     d2.map[k_bspline] = (*mu).second;
                     d1.map.erase(k_bspline);
                     break;
