@@ -127,13 +127,13 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
 template <typename T>
 MRA<T,Primal,Interval,Primbs>::~MRA()
 {
-    if (d<=2) {
+    if (d==2) {
         delete[] _innerRefCoeffs;
         delete[] _innerOffsets;
         delete[] _innerL2Norms;
         delete[] _innerH1SemiNorms;
     }
-    else {
+    else if (d==3) {
         delete[] _leftRefCoeffs;
         delete[] _innerRefCoeffs;
         delete[] _rightRefCoeffs;
