@@ -36,10 +36,18 @@ BSpline<T,Dual,Interval,Dijkema>::operator()(T x, int j, long k, unsigned short 
     assert(k<=mra_.rangeI_(j).lastIndex());
     assert(deriv==0);
 
+    if (mra_._bc(0)==1 && mra_._bc(1)==1 && mra_.d!=3 && mra_.d_!=5) {
+        std::cerr << "BSpline<T,Dual,Interval,Dijkema>::operator(...): here is still an error in the "
+                     "evaluation of the right boundary functions." << std::endl;
+    }
+
+    //Todo: There is something wrong with the indexing when Dirichlet bc are enforced (except for
+    //      (d,d_)=(3,5) at the right boundary.
     if (k<=mra_.rangeI_L().lastIndex()) {
         T value = 0.0;
         int l = -mra_.phi_R.a_.lastIndex()+1;
         for (int r=mra_.R_Left.firstRow(); r<=mra_.R_Left.lastRow(); ++r, ++l) {
+            //std::cerr << "Left: k = " << k << ", l = " << l  << ": " << mra_.R_Left(r,k)<< std::endl;
             value += mra_.R_Left(r,k) * mra_.phi_R(x,j,l);
         }
 //        assert(l==-mra_.phi_R.a_.firstIndex());
@@ -51,6 +59,7 @@ BSpline<T,Dual,Interval,Dijkema>::operator()(T x, int j, long k, unsigned short 
         T value = 0.0;
         int l = pow2i<T>(j)-mra_.phi_R.a_.lastIndex()+1;
         for (int r=mra_.R_Right.firstRow(); r<=mra_.R_Right.lastRow(); ++r, ++l) {
+            //std::cerr << "Right: k = " << k << ", l = " << l  << ": " << mra_.R_Right(r,k) << std::endl;
             value += mra_.R_Right(r,k) * mra_.phi_R(x,j,l);
         }
         return value;
