@@ -66,12 +66,17 @@ extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index1D &index1d,
-                  Coefficients<Lexicographical,T,Index1D>  &v);
+                  Coefficients<Lexicographical,T,Index1D>  &v, bool sparsetree=false);
 
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v);
+
+template <typename T, typename Basis>
+void
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec);
 
 template <typename T, typename Basis>
 void
