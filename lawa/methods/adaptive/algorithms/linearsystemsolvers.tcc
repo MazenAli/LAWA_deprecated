@@ -255,7 +255,7 @@ template <typename T, typename Index, typename MA>
 int
 GMRESM_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,Index > &u,
              const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations, 
-						 int assemble_matrix=1, int m=20)
+						 int assemble_matrix, int m)
 {
        typedef typename IndexSet<Index >::const_iterator const_set_it;
        typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -313,7 +313,7 @@ int
 GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol, MA &A, 
 						Coefficients<Lexicographical,T,Index > &u, 
             const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations,
-						int assemble_matrix = 1)
+						int assemble_matrix)
 {
       typedef typename IndexSet<Index >::const_iterator const_set_it;
       typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
@@ -337,6 +337,7 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
 		        toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
           }
 
+
           if (LambdaRow.size() > 0) {
               DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), residual(NumOfRows), Ax(NumOfRows);
               int row_count=1;
@@ -351,6 +352,19 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
                   else               x(row_count) = 0.;
 
               }
+              // ==================================
+              flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_full;
+              densify(cxxblas::NoTrans, A_flens, A_full);
+              std::ofstream A("A.txt");
+              A << A_full << std::endl;
+              A.close();
+
+              std::ofstream F("F.txt");
+              F << rhs << std::endl;
+              F.close();
+              // ==================================
+
+
               int number_of_iterations = lawa::gmres(A_flens,x,rhs, tol, maxIterations);
               Ax = A_flens*x;
               residual = Ax-rhs;
@@ -365,7 +379,79 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
       }							
 							
 }
-						
+
+template <typename T, typename Index, typename MA>
+int
+GMRESM_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol, MA &A,
+						Coefficients<Lexicographical,T,Index > &u,
+            const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations,
+						int assemble_matrix, int m)
+{
+      typedef typename IndexSet<Index >::const_iterator const_set_it;
+      typedef typename Coefficients<Lexicographical,T,Index >::const_iterator const_coeff_it;
+      typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
+      typedef DenseVector<Array<T> >              DeVector;
+      typedef GeMatrix<FullStorage<T, cxxblas::ColMajor> > DeMatrix;
+
+      std::cerr << "GMRESM_Solve_PG called." << std::endl;
+
+      int NumOfRows = (int)LambdaRow.size();
+      int NumOfCols = (int)LambdaCol.size();
+      if (assemble_matrix==0) {   //Algorithm by Saad, p.159
+				std::cerr << " Algorithm GMRESM_PG not implemented yet for assemble_matrix == 0" << std::endl;
+				exit(1);      }
+      else {
+        flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+          if (assemble_matrix==2) {
+						A.toFlensSparseMatrix(LambdaRow, LambdaCol, A_flens, tol);
+          }
+          else {
+		        toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
+          }
+
+
+          if (LambdaRow.size() > 0) {
+              DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), residual(NumOfRows), Ax(NumOfRows);
+              int row_count=1;
+              const_coeff_it f_end = f.end();
+              const_coeff_it u_end = u.end();
+              for (const_set_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
+                  const_coeff_it f_it = f.find(*row);
+                  if (f_it != f_end) rhs(row_count) = (*f_it).second;
+                  else               rhs(row_count) = 0.;
+                  const_coeff_it u_it = u.find(*row);
+                  if (u_it != u_end) x(row_count) = (*u_it).second;
+                  else               x(row_count) = 0.;
+
+              }
+              // ==================================
+              flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_full;
+              densify(cxxblas::NoTrans, A_flens, A_full);
+              std::ofstream A("A.txt");
+              A << A_full << std::endl;
+              A.close();
+
+              std::ofstream F("F.txt");
+              F << rhs << std::endl;
+              F.close();
+              // ==================================
+
+
+              int number_of_iterations = lawa::gmresm(A_flens,x,rhs, tol, m, maxIterations);
+              Ax = A_flens*x;
+              residual = Ax-rhs;
+              res = std::sqrt(residual*residual);
+              row_count = 1;
+              for (const_set_it row=LambdaCol.begin(); row!=LambdaCol.end(); ++row, ++row_count) {
+                  u[*row] = x(row_count);
+              }
+              return number_of_iterations;
+          }
+          else return -1;
+      }
+
+}
+
 						
 template <typename T, typename Index, typename MA>
 int

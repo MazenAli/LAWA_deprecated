@@ -78,6 +78,16 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
  */
 template <typename T, typename Index, typename MA>
 int
+GMRESM_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol, MA &A,
+						Coefficients<Lexicographical,T,Index > &u, const Coefficients<Lexicographical,T,Index > &f,
+						T &res, T tol, int maxIterations, int assemble_matrix = 1, int m=20);
+
+/* @assemble_matrix: "0" -> operate only on hashmap data,
+                     "1" -> use standard routine to assemble stiffness matrix
+                     "2" -> use operator intern routines to assemble stiffness matrix
+ */
+template <typename T, typename Index, typename MA>
+int
 CGLS_Solve(const IndexSet<Index> &LambdaRow, MA &A, Coefficients<Lexicographical,T,Index > &u,
            const Coefficients<Lexicographical,T,Index > &f, T &res, T tol, int maxIterations,
            int assemble_matrix=1);
