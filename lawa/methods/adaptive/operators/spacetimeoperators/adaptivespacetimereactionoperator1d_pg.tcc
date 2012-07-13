@@ -43,7 +43,7 @@ operator()(const Index2D &row_index, const Index2D &col_index)
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     T prec = 1.;
     
-    if (!flens::IsSame<NoPreconditioner<T,Index2D>, TrialPrec>::value) {
+    if (!flens::IsSame<NoPreconditioner<T,Index2D>, TestPrec>::value) {
         // Left precondioning:
         const_coeff_it it_row_index   = P_test_data.find(row_index);
         //  Entry has already been computed:
@@ -58,7 +58,7 @@ operator()(const Index2D &row_index, const Index2D &col_index)
         }
     }
 
-    if (!flens::IsSame<NoPreconditioner<T,Index2D>, TestPrec>::value) {
+    if (!flens::IsSame<NoPreconditioner<T,Index2D>, TrialPrec>::value) {
         // Right precondioning:
         const_coeff_it it_col_index   = P_trial_data.find(col_index);
         //  Entry has already been computed:
@@ -90,7 +90,7 @@ operator()(const Index1D &row_index, const Index2D &col_index)
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     T prec = 1.;
 
-    if (!flens::IsSame<NoPreconditioner<T,Index2D>, TestPrec>::value) {
+    if (!flens::IsSame<NoPreconditioner<T,Index2D>, TrialPrec>::value) {
         // Right precondioning:
         const_coeff_it it_col_index   = P_trial_data.find(col_index);
         //  Entry has already been computed:
