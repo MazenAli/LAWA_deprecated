@@ -32,7 +32,7 @@ class IndexsetTruthSolver_PG {
 public:
   IndexsetTruthSolver_PG(IndexSet<Index>& _indexset_trial, IndexSet<Index>& _indexset_test, 
                       Truth& _truth, SolverCall solmethod,
-                      T _tol = std::numeric_limits<T>::epsilon(), int maxIts = 1000);
+                      T _tol = std::numeric_limits<T>::epsilon(), int maxIts = 5000);
   
   void 
   set_model(Truth& _truth_model);

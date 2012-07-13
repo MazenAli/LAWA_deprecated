@@ -41,37 +41,46 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
   switch(solution_method){
     case call_cg:
 		{
-			T timeMatrixVector = 0;
+		T timeMatrixVector = 0;
     	std::cout << " This only makes sense if TrialBasis == TestBasis !! Are you sure?" << std::endl;
     	if(testbasis_set.size() != trialbasis_set.size()){
       	std::cerr << "Dimension of Trial and Test Basis are different -> Cannot apply CG! " << std::endl;
       	exit(1);
     	}
     	std::cout << "  Start CG Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = CG_Solve(trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
-      std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
-      break;
+    	its = CG_Solve(trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, timeMatrixVector, assemble_matrix);
+    	std::cout << "  CG iterations: " << its << ", residual = " << res << std::endl;
+    	break;
 		}
     case call_gmres:
-    if(testbasis_set.size() != trialbasis_set.size()){
-      std::cerr << "Dimension of Trial and Test Basis are different -> Cannot apply GMRES! " << std::endl;
-      exit(1);
-    }
-    std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = GMRES_Solve_PG(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, assemble_matrix);
-      std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
-      break;
+    	if(testbasis_set.size() != trialbasis_set.size()){
+    		std::cerr << "Dimension of Trial and Test Basis are different -> Cannot apply GMRES! " << std::endl;
+    		exit(1);
+    	}
+    	std::cout << "  Start GMRES Solve: Maximal iterations = " << maxIterations << std::endl;
+    	its = GMRES_Solve_PG(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, assemble_matrix);
+    	std::cout << "  GMRES iterations: " << its << ", residual = " << res << std::endl;
+    	break;
+    case call_gmresm:
+    	if(testbasis_set.size() != trialbasis_set.size()){
+    		std::cerr << "Dimension of Trial and Test Basis are different -> Cannot apply GMRESM! " << std::endl;
+    		exit(1);
+    	}
+    	std::cout << "  Start GMRESM Solve: Maximal iterations = " << maxIterations << std::endl;
+    	its = GMRESM_Solve_PG(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, assemble_matrix);
+    	std::cout << "  GMRESM iterations: " << its << ", residual = " << res << std::endl;
+    	break;
     case call_cgls: 
-      if(testbasis_set.size() < trialbasis_set.size()){
-        std::cerr << "Dimensions of TestBasis smaller than that of TrialBasis -> Cannot apply CGLS! " << std::endl;
-        exit(1);
-      }
-      std::cout << "  Start CGLS Solve: Maximal iterations = " << maxIterations << std::endl; 
-      its = CGLS_Solve(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, assemble_matrix);
-      std::cout << "  CGLS iterations: " << its << ", residual = " << res << std::endl;
+    	if(testbasis_set.size() < trialbasis_set.size()){
+    		std::cerr << "Dimensions of TestBasis smaller than that of TrialBasis -> Cannot apply CGLS! " << std::endl;
+    		exit(1);
+    	}
+    	std::cout << "  Start CGLS Solve: Maximal iterations = " << maxIterations << std::endl;
+    	its = CGLS_Solve(testbasis_set, trialbasis_set, truth_model->lhs_op, u, f, res, tol, maxIterations, assemble_matrix);
+    	std::cout << "  CGLS iterations: " << its << ", residual = " << res << std::endl;
       break;      
     default: 
-      std::cerr << "Method not implemented yet " << std::endl;
+    	std::cerr << "Method not implemented yet " << std::endl;
       break;
   }
   timer1.stop();
