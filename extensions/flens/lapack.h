@@ -140,6 +140,12 @@ int
 geqrf(int m, int n, double *a, int lda, double *tau, double *work, int lwork);
 
 int
+geqp3(int m, int n, float *a, int lda, int *jpvt, float *tau, float *work, int lwork);
+
+int
+geqp3(int m, int n, double *a, int lda, int *jpvt, double *tau, double *work, int lwork);
+
+int
 orgqr(int m, int n, int k, float *a, int lda, const float *tau,
       float *work, int lwork);
 

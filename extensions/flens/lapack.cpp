@@ -142,6 +142,14 @@ extern "C" {
             double *work, int *lwork, int *info);
 
     void
+    sgeqp3_(int *m, int *n, float *a, int *lda, int* jpvt, float *tau,
+            float *work, int *lwork, int *info);
+
+    void
+    dgeqp3_(int *m, int *n, double *a, int *lda, int* jpvt, double *tau,
+            double *work, int *lwork, int *info);
+
+    void
     sorgqr_(int *m, int *n, int *k, float *a, int *lda, const float *tau,
             float *work, int *lwork, int *info);
 
@@ -620,6 +628,22 @@ geqrf(int m, int n, double *a, int lda, double *tau, double *work, int lwork)
 {
     int info;
     dgeqrf_(&m, &n, a, &lda, tau, work, &lwork, &info);
+    return info;
+}
+
+int
+geqp3(int m, int n, float *a, int lda, int *jpvt, float *tau, float *work, int lwork)
+{
+    int info;
+    sgeqp3_(&m, &n, a, &lda, jpvt, tau, work, &lwork, &info);
+    return info;
+}
+
+int
+geqp3(int m, int n, double *a, int lda, int *jpvt, double *tau, double *work, int lwork)
+{
+    int info;
+    dgeqp3_(&m, &n, a, &lda, jpvt, tau, work, &lwork, &info);
     return info;
 }
 

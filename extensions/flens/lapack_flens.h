@@ -89,6 +89,12 @@ template <typename MA, typename VT>
     int
     qrf(GeMatrix<MA> &A, DenseVector<VT> &tau);
 
+//== geqp3 ---------------------------------------------------------------------
+// QR decomposition with column pivoting
+template <typename MA, typename VT>
+	int
+	qp3(GeMatrix<MA> &A, DenseVector<Array<int> >& p, DenseVector<VT> &tau);
+
 //== orgqr ---------------------------------------------------------------------
 template <typename MA, typename VT>
     int

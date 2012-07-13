@@ -192,6 +192,30 @@ qrf(GeMatrix<MA> &A, DenseVector<VT> &tau)
                  tau.engine().data(), work.engine().data(), work.length());
 }
 
+//-- geqp3 ---------------------------------------------------------------------
+
+template <typename MA, typename VT>
+int
+qp3(GeMatrix<MA> &A, DenseVector<Array<int> >& p, DenseVector<VT> &tau)
+{
+    typedef typename MA::ElementType T;
+    T lwork;
+    int info;
+    p.engine().resize(A.numCols());
+    tau.engine().resize(std::min(A.numRows(),A.numCols()));
+
+    // query optimal work space size
+    info = geqp3(A.numRows(), A.numCols(),
+                 A.engine().data(), A.engine().leadingDimension(), p.engine().data(),
+                 tau.engine().data(), &lwork, -1);
+    assert(info==0);
+
+    // allocate work space
+    DenseVector<Array<T> > work(static_cast<int>(lwork));
+    return geqp3(A.numRows(), A.numCols(), A.engine().data(), A.engine().leadingDimension(),
+    			 p.engine().data(), tau.engine().data(), work.engine().data(), work.length());
+}
+
 //-- orgqr ---------------------------------------------------------------------
 
 template <typename MA, typename VT>
