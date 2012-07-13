@@ -9,3 +9,4 @@
 #include <lawa/methods/adaptive/operators/spacetimeoperators/adaptivespacetimereactionoperator1d_pg.h>
 #include <lawa/methods/adaptive/operators/spacetimeoperators/adaptivespacetimeweightedconvectionoperator1d.h>
 #include <lawa/methods/adaptive/operators/spacetimeoperators/adaptivespacetimeweightedconvectionoperator1d_pg.h>
+#include <lawa/methods/adaptive/operators/spacetimeoperators/adaptiveinnerproductW0T.h>
