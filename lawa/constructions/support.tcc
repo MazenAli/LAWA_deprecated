@@ -72,6 +72,13 @@ overlap(const Support<T> &supp1, const Support<T> &supp2, Support<T> &common)
 
 template <typename T>
 T
+contains(const Support<T> &supp1, const Support<T> &supp2)
+{
+    return (supp1.l1 <= supp2.l1 ? true : false ) && (supp1.l2 >= supp2.l2 ? true : false );
+}
+
+template <typename T>
+T
 distance(const Support<T> &supp1, const Support<T> &supp2)
 {
     return std::max((T)0.0, std::max(supp1.l1, supp2.l1) - std::min(supp1.l2, supp2.l2));

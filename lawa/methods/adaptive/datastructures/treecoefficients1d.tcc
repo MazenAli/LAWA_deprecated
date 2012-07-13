@@ -262,7 +262,7 @@ TreeCoefficients1D<T>::norm(T factor)
 
 template<typename T>
 void
-fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
+fromTreeCoefficientsToCoefficients(const TreeCoefficients1D<T> &tree_v,
                                  Coefficients<Lexicographical,T,Index1D> &v)
 {
     for (typename CoefficientsByLevel<T>::const_it it= tree_v.bylevel[0].map.begin();
@@ -280,7 +280,7 @@ fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
 
 template<typename T>
 void
-fromCofficientsToTreeCofficients(const Coefficients<Lexicographical,T,Index1D> &v,
+fromCoefficientsToTreeCoefficients(const Coefficients<Lexicographical,T,Index1D> &v,
                                  TreeCoefficients1D<T> &tree_v)
 {
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator    const_coeff1d_it;

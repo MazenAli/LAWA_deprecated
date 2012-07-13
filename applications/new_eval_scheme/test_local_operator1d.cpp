@@ -42,7 +42,7 @@ typedef Coefficients<Lexicographical,T,Index1D>::iterator           coeff1d_it;
 
 void
 constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
-                    TreeCoefficients1D<T> &LambdaTree, int seed);
+                    TreeCoefficients1D<T> &LambdaTree, bool sparsetree, int seed);
 
 void
 computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
@@ -67,6 +67,7 @@ int main(int argc, char*argv[])
     int d    = atoi(argv[1]);
     int j0   = atoi(argv[2]);
     int J    = atoi(argv[3]);
+    bool sparsetree = true;
 
     int seed = atoi(argv[4]);
     Timer time;
@@ -108,8 +109,8 @@ int main(int argc, char*argv[])
         TreeCoefficients1D<T> Av_ref_tree(COEFFBYLEVELSIZE,basis.j0),
                               Uv_ref_tree(COEFFBYLEVELSIZE,basis.j0),
                               Lv_ref_tree(COEFFBYLEVELSIZE,basis.j0);
-        constructRandomTree(basis, j, true, v_tree, seed);
-        constructRandomTree(basis, j+1, false, Av_tree, seed+37);
+        constructRandomTree(basis, j, true, v_tree, sparsetree, seed);
+        constructRandomTree(basis, j+1, false, Av_tree, sparsetree, seed+37);
         Av_ref_tree = Av_tree;
         Uv_tree     = Av_tree;
         Uv_ref_tree = Av_tree;
@@ -178,7 +179,7 @@ int main(int argc, char*argv[])
 
 void
 constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
-                    TreeCoefficients1D<T> &LambdaTree, int seed)
+                    TreeCoefficients1D<T> &LambdaTree, bool sparsetree, int seed)
 {
     srand ( seed );
     T val = 0.;
@@ -206,6 +207,26 @@ constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
         int random_k2 = rand() % basis.cardJ(j) + 1;
         LambdaTree[j-basis.j0+1].map.operator[](random_k2) = val;
     }
+
+    cout << "Before: LambdaTree = " << LambdaTree << endl;
+
+    Coefficients<Lexicographical,T,Index1D> tmpTree, copyTmpTree;
+    fromTreeCoefficientsToCoefficients(LambdaTree, copyTmpTree);
+    for (coeff1d_it it=copyTmpTree.begin(); it!=copyTmpTree.end(); ++it) {
+        completeMultiTree(basis, (*it).first, tmpTree, sparsetree);
+    }
+
+    for (coeff1d_it it=tmpTree.begin(); it!=tmpTree.end(); ++it) {
+        val = withRandomValues ? ((T)rand() / RAND_MAX) : 0.;
+        (*it).second = val;
+    }
+
+    fromCoefficientsToTreeCoefficients(tmpTree, LambdaTree);
+
+    cout << "After: LambdaTree = " << LambdaTree << endl;
+
+    /*
+    if (sparsetree) cout << "Option "sparsetree=true" not available." << endl;
     for (int i=J-basis.j0+1; i>=2; --i) {
         CoefficientsByLevel<T> *currentlevel;
         currentlevel = &(LambdaTree.bylevel[i]);
@@ -222,6 +243,7 @@ constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
             }
         }
     }
+    */
 }
 
 void
@@ -229,8 +251,8 @@ computeEvalARef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Av_tree)
 {
     Coefficients<Lexicographical,T,Index1D> v, Av;
-    fromTreeCofficientsToCofficients(v_tree, v);
-    fromTreeCofficientsToCofficients(Av_tree, Av);
+    fromTreeCoefficientsToCoefficients(v_tree, v);
+    fromTreeCoefficientsToCoefficients(Av_tree, Av);
 
     if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
          && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
@@ -253,7 +275,7 @@ computeEvalARef(const BilinearForm &Bil, const PrimalBasis &basis,
             (*row).second = val;
         }
     }
-    fromCofficientsToTreeCofficients(Av, Av_tree);
+    fromCoefficientsToTreeCoefficients(Av, Av_tree);
 }
 
 void
@@ -261,8 +283,8 @@ computeEvalURef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Uv_tree)
 {
     Coefficients<Lexicographical,T,Index1D> v, Uv;
-    fromTreeCofficientsToCofficients(v_tree, v);
-    fromTreeCofficientsToCofficients(Uv_tree, Uv);
+    fromTreeCoefficientsToCoefficients(v_tree, v);
+    fromTreeCoefficientsToCoefficients(Uv_tree, Uv);
 
     if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
              && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
@@ -289,7 +311,7 @@ computeEvalURef(const BilinearForm &Bil, const PrimalBasis &basis,
             (*row).second = val;
         }
     }
-    fromCofficientsToTreeCofficients(Uv, Uv_tree);
+    fromCoefficientsToTreeCoefficients(Uv, Uv_tree);
 }
 
 void
@@ -298,8 +320,8 @@ computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Lv_tree)
 {
     Coefficients<Lexicographical,T,Index1D> v, Lv;
-    fromTreeCofficientsToCofficients(v_tree, v);
-    fromTreeCofficientsToCofficients(Lv_tree, Lv);
+    fromTreeCoefficientsToCoefficients(v_tree, v);
+    fromTreeCoefficientsToCoefficients(Lv_tree, Lv);
 
     if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
                  && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
@@ -318,6 +340,6 @@ computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
             (*row).second = val;
         }
     }
-    fromCofficientsToTreeCofficients(Lv, Lv_tree);
+    fromCoefficientsToTreeCoefficients(Lv, Lv_tree);
 }
 

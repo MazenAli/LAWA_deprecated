@@ -4,7 +4,7 @@ template <typename Index, typename Basis, typename LocalOperator, typename RHS, 
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
 MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_Prec,
               Coefficients<Lexicographical,T,Index> &_f_eps)
-: basis(_basis), A(_A), F(_F), Prec(_Prec), f_eps(_f_eps), IsMW(false),
+: basis(_basis), A(_A), F(_F), Prec(_Prec), f_eps(_f_eps), IsMW(false), sparsetree(false),
   alpha(0.5), gamma(0.1), residualType("standard"), hashMapSize(SIZEHASHINDEX2D),
   compute_f_minus_Au_error(false), write_coefficients_to_file(false)
 {
@@ -15,6 +15,7 @@ template <typename Index, typename Basis, typename LocalOperator, typename RHS, 
 void
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters(T _alpha, T _gamma,
                                                                            const char* _residualType,
+                                                                           const char* _treeType,
                                                                            bool _IsMW,
                                                                            bool _compute_f_minus_Au_error,
                                                                            bool _write_coefficients_to_file)
@@ -22,6 +23,8 @@ MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters(T _al
     alpha = _alpha;
     gamma = _gamma;
     residualType = _residualType;
+    if (strcmp(_treeType,"sparsetree")==0) sparsetree = true;
+    else                                   sparsetree = false;
     IsMW = _IsMW;
     compute_f_minus_Au_error = _compute_f_minus_Au_error;
     write_coefficients_to_file = _write_coefficients_to_file;
@@ -187,7 +190,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr << "     Computing multi-tree for residual..." << std::endl;
         std::cerr << "        #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
         time.start();
-        extendMultiTree(basis, u_leafs, res, residualType, IsMW);
+        extendMultiTree(basis, u_leafs, res, residualType, IsMW, sparsetree);
         //extendMultiTreeAtBoundary(basis, u, res, J+3);
         time.stop();
         time_multitree_residual = time.elapsed();
@@ -245,11 +248,14 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         }
 
         // The vector p satisfies the bulk criterion. But it is not yet a multi-tree...
+        std::cerr << "   Size of u before extension: " << u.size() << std::endl;
+        std::cerr << "   Size of extension set: " << p.size() << std::endl;
         for (const_coeff_it it=p.begin(); it!=p.end(); ++it) {
-            completeMultiTree(basis, (*it).first, u);
+            completeMultiTree(basis, (*it).first, u, 0, sparsetree);
         }
+        std::cerr << "   Size of u after extension: " << u.size() << std::endl;
 
-        // Note that r has still supported on the previous Galerkin index set!
+        // Note that r is still supported on the previous Galerkin index set!
         u_leafs.clear();
         for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
             if (r.find((*it).first)==r.end()) u_leafs[(*it).first] = 0.;

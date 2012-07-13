@@ -100,9 +100,10 @@ int main (int argc, char *argv[]) {
     T alpha = 0.7;
     T gamma = 0.005;
     const char* residualType = "standard";
+    const char* treeType = "sparsetree";    // "gradedtree";
     bool IsMW = true;
     bool compute_f_minus_Au_error = false;
-    bool writeCoefficientsToFile = false;
+    bool writeCoefficientsToFile = true;
     T eps   = 1e-5;
     Timer time;
 
@@ -162,7 +163,7 @@ int main (int argc, char *argv[]) {
     Coefficients<Lexicographical,T,Index3D> f_eps;
 
     MultiTreeAWGM3D multiTreeAWGM3D(basis3d, localOp3D, F, Prec, f_eps);
-    multiTreeAWGM3D.setParameters(alpha, gamma, residualType, IsMW, compute_f_minus_Au_error,
+    multiTreeAWGM3D.setParameters(alpha, gamma, residualType, treeType, IsMW, compute_f_minus_Au_error,
                                   writeCoefficientsToFile);
 
     Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
@@ -170,10 +171,11 @@ int main (int argc, char *argv[]) {
 
     stringstream convfilename;
     convfilename << "conv_multitree_mw_awgm_poisson3d_" << example << "_" <<argv[1] << "_"
-                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << ".dat";
+                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << "_"
+                 << treeType << ".dat";
     stringstream coefffilename;
     coefffilename << "coeff_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
-                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType;
+                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << "_" << treeType;
     multiTreeAWGM3D.cg_solve(u, eps, 100, EnergyErrorSquared,
                              convfilename.str().c_str(), coefffilename.str().c_str());
     /*

@@ -3,7 +3,8 @@ namespace lawa {
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index1D>  &v,
-                Coefficients<Lexicographical,T,Index1D>  &C_v, const char* residualType)
+                Coefficients<Lexicographical,T,Index1D>  &C_v, const char* residualType,
+                bool sparsetree)
 {
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff1d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
@@ -14,7 +15,9 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index1D
         C_index = C((*it).first, (T)1., basis);
         if (strcmp(residualType,"standard")==0) {
             for (const_set1d_it newindex=C_index.begin(); newindex!=C_index.end(); ++newindex) {
-                if (C_v.find(*newindex)==C_v.end()) { completeMultiTree(basis,*newindex,C_v); }
+                if (C_v.find(*newindex)==C_v.end()) {
+                    completeMultiTree(basis,*newindex,C_v, sparsetree);
+                }
             }
         }
         else {
@@ -29,7 +32,7 @@ template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
                 Coefficients<Lexicographical,T,Index2D>  &C_v, const char* residualType,
-                bool IsMW)
+                bool IsMW, bool sparsetree)
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff2d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
@@ -75,15 +78,15 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
             for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
                 Index2D newindex((*it_C_index1), (*it).first.index2);
                 if (C_v.find(newindex)==C_v.end()) {
-                    if (IsMW) completeMultiTree(basis,newindex,C_v,1);
-                    else      completeMultiTree(basis,newindex,C_v);
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,1,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
                 }
             }
             for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
                 Index2D newindex((*it).first.index1, (*it_C_index2));
                 if (C_v.find(newindex)==C_v.end()) {
-                    if (IsMW) completeMultiTree(basis,newindex,C_v,2);
-                    else      completeMultiTree(basis,newindex,C_v);
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,2,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
                 }
             }
         }
@@ -92,7 +95,7 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
                 for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
                     Index2D newindex((*it_C_index1), (*it_C_index2));
                     if (C_v.find(newindex)==C_v.end()) {
-                        completeMultiTree(basis,newindex,C_v);
+                        completeMultiTree(basis,newindex,C_v,0,sparsetree);
                     }
                 }
             }
@@ -111,7 +114,7 @@ template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
                 Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType,
-                bool IsMW)
+                bool IsMW, bool sparsetree)
 {
     typedef typename Coefficients<Lexicographical,T,Index3D>::const_iterator const_coeff3d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
@@ -159,22 +162,22 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
             for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
                 Index3D newindex((*it_C_index1), (*it).first.index2, (*it).first.index3);
                 if (C_v.find(newindex)==C_v.end()) {
-                    if (IsMW) completeMultiTree(basis,newindex,C_v,1);
-                    else      completeMultiTree(basis,newindex,C_v);
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,1,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
                 }
             }
             for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
                 Index3D newindex((*it).first.index1, (*it_C_index2), (*it).first.index3);
                 if (C_v.find(newindex)==C_v.end()) {
-                    if (IsMW) completeMultiTree(basis,newindex,C_v,2);
-                    else      completeMultiTree(basis,newindex,C_v);
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,2,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
                 }
             }
             for (const_set1d_it it_C_index3=C_index3.begin(); it_C_index3!=C_index3.end(); ++it_C_index3) {
                 Index3D newindex((*it).first.index1, (*it).first.index2, (*it_C_index3));
                 if (C_v.find(newindex)==C_v.end()) {
-                    if (IsMW) completeMultiTree(basis,newindex,C_v,3);
-                    else      completeMultiTree(basis,newindex,C_v);
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,3,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
                 }
             }
         }
@@ -184,7 +187,7 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
                     for (const_set1d_it it_C_index3=C_index3.begin(); it_C_index3!=C_index3.end(); ++it_C_index3) {
                         Index3D newindex((*it_C_index1), (*it_C_index2), (*it_C_index3));
                         if (C_v.find(newindex)==C_v.end()) {
-                            completeMultiTree(basis,newindex,C_v);
+                            completeMultiTree(basis,newindex,C_v,0,sparsetree);
                         }
                     }
                 }
@@ -198,6 +201,7 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
     return;
 }
 
+/*
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
@@ -281,12 +285,12 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
     }
     return;
 }
-
+*/
 
 template <typename T, typename Basis>
 void
 extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
-                          Coefficients<Lexicographical,T,Index2D>  &C_v, int J)
+                          Coefficients<Lexicographical,T,Index2D>  &C_v, int J, bool sparsetree)
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff2d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
@@ -322,7 +326,7 @@ extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical
         for (const_set1d_it it_x2=LambdaB_x2.begin(); it_x2!=LambdaB_x2.end(); ++it_x2) {
             Index2D newindex((*it_x1), (*it_x2));
             if (C_v.find(newindex)==C_v.end()) {
-                completeMultiTree(basis,newindex,C_v);
+                completeMultiTree(basis,newindex,C_v,0,sparsetree);
             }
         }
     }
@@ -331,7 +335,7 @@ extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical
 template <typename T, typename Basis>
 void
 extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
-                          Coefficients<Lexicographical,T,Index3D>  &C_v, int J)
+                          Coefficients<Lexicographical,T,Index3D>  &C_v, int J, bool sparsetree)
 {
     typedef typename Coefficients<Lexicographical,T,Index3D>::const_iterator const_coeff3d_it;
     typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
@@ -380,7 +384,7 @@ extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical
             for (const_set1d_it it_x3=LambdaB_x3.begin(); it_x3!=LambdaB_x3.end(); ++it_x3) {
                 Index3D newindex((*it_x1), (*it_x2), (*it_x3));
                 if (C_v.find(newindex)==C_v.end()) {
-                    completeMultiTree(basis,newindex,C_v);
+                    completeMultiTree(basis,newindex,C_v,0,sparsetree);
                 }
             }
         }
@@ -481,87 +485,6 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index2D &index2d,
-                  Coefficients<Lexicographical,T,Index2D>  &v)
-{
-    int j0x = basis.first.j0;
-    int j0y = basis.second.j0;
-
-    if (v.find(index2d)!=v.end())  return;
-    else                            v[index2d] = 0.;
-
-
-    Index1D index_x = index2d.index1;
-    Index1D index_y = index2d.index2;
-
-    int  jx = index_x.j, jy = index_y.j;
-    long kx = index_x.k, ky = index_y.k;
-
-    Support<typename Basis::T> supp_x = basis.first.generator(index_x.xtype).support(index_x.j,index_x.k);
-    //check x-direction
-    if (jx==j0x && index_x.xtype==XWavelet) {
-        int  j_scaling = 0;
-        long k_scaling_first = 0, k_scaling_last = 0;
-        basis.first.getScalingNeighborsForWavelet(jx,kx,basis.first,
-                                                  j_scaling,k_scaling_first,k_scaling_last);
-        assert(jx==j_scaling);
-        for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
-            Support<typename Basis::T> new_supp_x = basis.first.generator(XBSpline).support(j_scaling,k_scaling);
-            if (overlap(supp_x,new_supp_x)>0) {
-                Index2D new_index2d(Index1D(j_scaling,k_scaling,XBSpline),index_y);
-                if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v);
-            }
-        }
-    }
-    else if (jx>j0x && index_x.xtype==XWavelet) {
-        int  j_wavelet = 0;
-        long k_wavelet_first = 0, k_wavelet_last = 0;
-        basis.first.getLowerWaveletNeighborsForWavelet(jx,kx,basis.first,
-                                                       j_wavelet,k_wavelet_first,k_wavelet_last);
-        assert(jx-1==j_wavelet);
-        for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
-            Support<typename Basis::T> new_supp_x = basis.first.generator(XWavelet).support(j_wavelet,k_wavelet);
-            if (overlap(supp_x,new_supp_x)>0) {
-                Index2D new_index2d(Index1D(j_wavelet,k_wavelet,XWavelet),index_y);
-                if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v);
-            }
-        }
-    }
-
-    Support<typename Basis::T> supp_y = basis.second.generator(index_y.xtype).support(index_y.j,index_y.k);
-    //check y-direction
-    if (jy==j0y  && index_y.xtype==XWavelet) {
-        int  j_scaling = 0;
-        long k_scaling_first = 0, k_scaling_last = 0;
-        basis.second.getScalingNeighborsForWavelet(jy,ky,basis.second,
-                                                   j_scaling,k_scaling_first,k_scaling_last);
-        assert(jy==j_scaling);
-        for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
-            Support<typename Basis::T> new_supp_y = basis.second.generator(XBSpline).support(j_scaling,k_scaling);
-            if (overlap(supp_y,new_supp_y)>0) {
-                Index2D new_index2d(index_x,Index1D(j_scaling,k_scaling,XBSpline));
-                if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v);
-            }
-        }
-    }
-    else if (jy>j0y && index_y.xtype==XWavelet) {
-        int  j_wavelet = 0;
-        long k_wavelet_first = 0, k_wavelet_last = 0;
-        basis.second.getLowerWaveletNeighborsForWavelet(jy,ky,basis.second,
-                                                        j_wavelet,k_wavelet_first,k_wavelet_last);
-        assert(jy-1==j_wavelet);
-        for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
-            Support<typename Basis::T> new_supp_y = basis.second.generator(XWavelet).support(j_wavelet,k_wavelet);
-            if (overlap(supp_y,new_supp_y)>0) {
-                Index2D new_index2d(index_x,Index1D(j_wavelet,k_wavelet,XWavelet));
-                if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v);
-            }
-        }
-    }
-}
-
-template <typename T, typename Basis>
-void
-completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec)
 {
     int j0_x = basis.first.j0;
@@ -577,7 +500,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
     int  j_x = index_x.j, j_y = index_y.j;
     long k_x = index_x.k, k_y = index_y.k;
 
-    if (coordDirec==1) {
+    if (coordDirec==0 || coordDirec==1) {
         Support<typename Basis::T> supp_x = basis.first.generator(index_x.xtype).support(j_x,k_x);
         //check x-direction
         if (j_x==j0_x && index_x.xtype==XWavelet) {
@@ -609,7 +532,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
             }
         }
     }
-    else if (coordDirec==2) {
+    else if (coordDirec==0 || coordDirec==2) {
         Support<typename Basis::T> supp_y = basis.second.generator(index_y.xtype).support(j_y,k_y);
         //check y-direction
         if (j_y==j0_y  && index_y.xtype==XWavelet) {
@@ -651,7 +574,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index3D &index3d,
-                  Coefficients<Lexicographical,T,Index3D>  &v, int coordDirec)
+                  Coefficients<Lexicographical,T,Index3D>  &v, int coordDirec, bool sparsetree)
 {
     int j0_x = basis.first.j0;
     int j0_y = basis.second.j0;
@@ -668,109 +591,244 @@ completeMultiTree(const Basis &basis, const Index3D &index3d,
     int  j_x = index_x.j, j_y = index_y.j, j_z = index_z.j;
     long k_x = index_x.k, k_y = index_y.k, k_z = index_z.k;
 
-    if (coordDirec==1) {
+    if (coordDirec==0 || coordDirec==1) {
         Support<typename Basis::T> supp_x = basis.first.generator(index_x.xtype).support(j_x,k_x);
         //check x-direction
-        if (j_x==j0_x && index_x.xtype==XWavelet) {
-            int  j_scaling = 0;
-            long k_scaling_first = 0, k_scaling_last = 0;
-            basis.first.getScalingNeighborsForWavelet(j_x,k_x,basis.first,
-                                                      j_scaling,k_scaling_first,k_scaling_last);
-            assert(j_x==j_scaling);
-            for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
-                Support<typename Basis::T> new_supp_x = basis.first.generator(XBSpline).support(j_scaling,k_scaling);
-                if (overlap(supp_x,new_supp_x)>0) {
-                    Index3D new_index3d(Index1D(j_scaling,k_scaling,XBSpline),index_y,index_z);
-                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+        if (!sparsetree) {
+            if (j_x==j0_x && index_x.xtype==XWavelet) {
+                int  j_scaling = 0;
+                long k_scaling_first = 0, k_scaling_last = 0;
+                basis.first.getScalingNeighborsForWavelet(j_x,k_x,basis.first,
+                                                          j_scaling,k_scaling_first,k_scaling_last);
+                assert(j_x==j_scaling);
+                for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
+                    Support<typename Basis::T> new_supp_x = basis.first.generator(XBSpline).support(j_scaling,k_scaling);
+                    if (overlap(supp_x,new_supp_x)>0) {
+                        Index3D new_index3d(Index1D(j_scaling,k_scaling,XBSpline),index_y,index_z);
+                        if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+                    }
+                }
+            }
+            else if (j_x>j0_x && index_x.xtype==XWavelet) {
+                int  j_wavelet = 0;
+                long k_wavelet_first = 0, k_wavelet_last = 0;
+                basis.first.getLowerWaveletNeighborsForWavelet(j_x,k_x,basis.first,
+                                                               j_wavelet,k_wavelet_first,k_wavelet_last);
+                assert(j_x-1==j_wavelet);
+                for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+                    Support<typename Basis::T> new_supp_x = basis.first.generator(XWavelet).support(j_wavelet,k_wavelet);
+                    if (overlap(supp_x,new_supp_x)>0) {
+                        Index3D new_index3d(Index1D(j_wavelet,k_wavelet,XWavelet),index_y,index_z);
+                        if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+                    }
                 }
             }
         }
-        else if (j_x>j0_x && index_x.xtype==XWavelet) {
-            int  j_wavelet = 0;
-            long k_wavelet_first = 0, k_wavelet_last = 0;
-            basis.first.getLowerWaveletNeighborsForWavelet(j_x,k_x,basis.first,
-                                                           j_wavelet,k_wavelet_first,k_wavelet_last);
-            assert(j_x-1==j_wavelet);
-            for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
-                Support<typename Basis::T> new_supp_x = basis.first.generator(XWavelet).support(j_wavelet,k_wavelet);
-                if (overlap(supp_x,new_supp_x)>0) {
-                    Index3D new_index3d(Index1D(j_wavelet,k_wavelet,XWavelet),index_y,index_z);
-                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+        else {
+            int new_j_x = 0;
+            long new_k_x = 0;
+            bool checkPredecessors=true;
+            XType new_type_x = XWavelet;
+            if (j_x==j0_x && index_x.xtype==XWavelet) {
+                basis.first.getLowerEnclosingScaling(j_x,k_x,new_j_x,new_k_x);
+                new_type_x = XBSpline;
+                assert(new_j_x==j_x);
+            }
+            else if (j_x>j0_x && index_x.xtype==XWavelet) {
+                basis.first.getLowerEnclosingWavelet(j_x,k_x,new_j_x,new_k_x);
+                new_type_x = XWavelet;
+                assert(new_j_x==j_x-1);
+            }
+            else checkPredecessors = false;    // Index corresponds to a scaling function -> no predecessor
+
+            if (checkPredecessors) {
+                Index3D new_index3d(Index1D(new_j_x,new_k_x,new_type_x),index_y,index_z);
+                if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+
+                Support<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+
+                long new_k1_x = new_k_x;
+                while (covered_supp_x.l1>supp_x.l1) {
+                    new_k1_x -= 1;
+                    Index3D new_index3d(Index1D(new_j_x,new_k1_x,new_type_x),index_y,index_z);
+                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+                    Support<typename Basis::T> tmp_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k1_x);
+                    covered_supp_x.l1 = std::min(tmp_supp_x.l1, covered_supp_x.l1);
+                    covered_supp_x.l2 = std::max(tmp_supp_x.l2, covered_supp_x.l2);
+                }
+                long new_k2_x = new_k_x;
+                while (covered_supp_x.l2<supp_x.l2) {
+                    new_k2_x += 1;
+                    Index3D new_index3d(Index1D(new_j_x,new_k2_x,new_type_x),index_y,index_z);
+                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+                    Support<typename Basis::T> tmp_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k2_x);
+                    covered_supp_x.l1 = std::min(tmp_supp_x.l1, covered_supp_x.l1);
+                    covered_supp_x.l2 = std::max(tmp_supp_x.l2, covered_supp_x.l2);
                 }
             }
         }
     }
-    else if (coordDirec==2) {
+    if (coordDirec==0 || coordDirec==2) {
         Support<typename Basis::T> supp_y = basis.second.generator(index_y.xtype).support(j_y,k_y);
         //check y-direction
-        if (j_y==j0_y  && index_y.xtype==XWavelet) {
-            int  j_scaling = 0;
-            long k_scaling_first = 0, k_scaling_last = 0;
-            basis.second.getScalingNeighborsForWavelet(j_y,k_y,basis.second,
-                                                       j_scaling,k_scaling_first,k_scaling_last);
-            assert(j_y==j_scaling);
-            for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
-                Support<typename Basis::T> new_supp_y = basis.second.generator(XBSpline).support(j_scaling,k_scaling);
-                if (overlap(supp_y,new_supp_y)>0) {
-                    Index3D new_index3d(index_x,Index1D(j_scaling,k_scaling,XBSpline),index_z);
-                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+        if (!sparsetree) {
+            if (j_y==j0_y  && index_y.xtype==XWavelet) {
+                int  j_scaling = 0;
+                long k_scaling_first = 0, k_scaling_last = 0;
+                basis.second.getScalingNeighborsForWavelet(j_y,k_y,basis.second,
+                                                           j_scaling,k_scaling_first,k_scaling_last);
+                assert(j_y==j_scaling);
+                for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
+                    Support<typename Basis::T> new_supp_y = basis.second.generator(XBSpline).support(j_scaling,k_scaling);
+                    if (overlap(supp_y,new_supp_y)>0) {
+                        Index3D new_index3d(index_x,Index1D(j_scaling,k_scaling,XBSpline),index_z);
+                        if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+                    }
+                }
+            }
+            else if (j_y>j0_y && index_y.xtype==XWavelet) {
+                int  j_wavelet = 0;
+                long k_wavelet_first = 0, k_wavelet_last = 0;
+                basis.second.getLowerWaveletNeighborsForWavelet(j_y,k_y,basis.second,
+                                                                j_wavelet,k_wavelet_first,k_wavelet_last);
+                assert(j_y-1==j_wavelet);
+                for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+                    Support<typename Basis::T> new_supp_y = basis.second.generator(XWavelet).support(j_wavelet,k_wavelet);
+                    if (overlap(supp_y,new_supp_y)>0) {
+                        Index3D new_index3d(index_x,Index1D(j_wavelet,k_wavelet,XWavelet),index_z);
+                        if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+                    }
                 }
             }
         }
-        else if (j_y>j0_y && index_y.xtype==XWavelet) {
-            int  j_wavelet = 0;
-            long k_wavelet_first = 0, k_wavelet_last = 0;
-            basis.second.getLowerWaveletNeighborsForWavelet(j_y,k_y,basis.second,
-                                                            j_wavelet,k_wavelet_first,k_wavelet_last);
-            assert(j_y-1==j_wavelet);
-            for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
-                Support<typename Basis::T> new_supp_y = basis.second.generator(XWavelet).support(j_wavelet,k_wavelet);
-                if (overlap(supp_y,new_supp_y)>0) {
-                    Index3D new_index3d(index_x,Index1D(j_wavelet,k_wavelet,XWavelet),index_z);
-                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+        else {
+            int new_j_y = 0;
+            long new_k_y = 0;
+            bool checkPredecessors=true;
+            XType new_type_y = XWavelet;
+            if (j_y==j0_y && index_y.xtype==XWavelet) {
+                basis.second.getLowerEnclosingScaling(j_y,k_y,new_j_y,new_k_y);
+                new_type_y = XBSpline;
+                assert(new_j_y==j_y);
+            }
+            else if (j_y>j0_y && index_y.xtype==XWavelet) {
+                basis.second.getLowerEnclosingWavelet(j_y,k_y,new_j_y,new_k_y);
+                new_type_y = XWavelet;
+                assert(new_j_y==j_y-1);
+            }
+            else checkPredecessors = false;    // Index corresponds to a scaling function -> no predecessor
+
+            if (checkPredecessors) {
+                Index3D new_index3d(index_x,Index1D(new_j_y,new_k_y,new_type_y),index_z);
+                if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+
+                Support<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+
+                long new_k1_y = new_k_y;
+                while (covered_supp_y.l1>supp_y.l1) {
+                    new_k1_y -= 1;
+                    Index3D new_index3d(index_x,Index1D(new_j_y,new_k1_y,new_type_y),index_z);
+                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+                    Support<typename Basis::T> tmp_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k1_y);
+                    covered_supp_y.l1 = std::min(tmp_supp_y.l1, covered_supp_y.l1);
+                    covered_supp_y.l2 = std::max(tmp_supp_y.l2, covered_supp_y.l2);
+                }
+                long new_k2_y = new_k_y;
+                while (covered_supp_y.l2<supp_y.l2) {
+                    new_k2_y += 1;
+                    Index3D new_index3d(index_x,Index1D(new_j_y,new_k2_y,new_type_y),index_z);
+                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+                    Support<typename Basis::T> tmp_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k2_y);
+                    covered_supp_y.l1 = std::min(tmp_supp_y.l1, covered_supp_y.l1);
+                    covered_supp_y.l2 = std::max(tmp_supp_y.l2, covered_supp_y.l2);
                 }
             }
         }
     }
-    else if (coordDirec==3) {
+    if (coordDirec== 0 || coordDirec==3) {
         Support<typename Basis::T> supp_z = basis.third.generator(index_z.xtype).support(j_z,k_z);
         //check z-direction
-        if (j_z==j0_z  && index_z.xtype==XWavelet) {
-            int  j_scaling = 0;
-            long k_scaling_first = 0, k_scaling_last = 0;
-            basis.third.getScalingNeighborsForWavelet(j_z,k_z,basis.third,
-                                                       j_scaling,k_scaling_first,k_scaling_last);
-            assert(j_z==j_scaling);
-            for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
-                Support<typename Basis::T> new_supp_z = basis.third.generator(XBSpline).support(j_scaling,k_scaling);
-                if (overlap(supp_z,new_supp_z)>0) {
-                    Index3D new_index3d(index_x,index_y,Index1D(j_scaling,k_scaling,XBSpline));
-                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+        if (!sparsetree) {
+            if (j_z==j0_z  && index_z.xtype==XWavelet) {
+                int  j_scaling = 0;
+                long k_scaling_first = 0, k_scaling_last = 0;
+                basis.third.getScalingNeighborsForWavelet(j_z,k_z,basis.third,
+                                                           j_scaling,k_scaling_first,k_scaling_last);
+                assert(j_z==j_scaling);
+                for (long k_scaling=k_scaling_first; k_scaling<=k_scaling_last; ++k_scaling) {
+                    Support<typename Basis::T> new_supp_z = basis.third.generator(XBSpline).support(j_scaling,k_scaling);
+                    if (overlap(supp_z,new_supp_z)>0) {
+                        Index3D new_index3d(index_x,index_y,Index1D(j_scaling,k_scaling,XBSpline));
+                        if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+                    }
+                }
+            }
+            else if (j_z>j0_z && index_z.xtype==XWavelet) {
+                int  j_wavelet = 0;
+                long k_wavelet_first = 0, k_wavelet_last = 0;
+                basis.third.getLowerWaveletNeighborsForWavelet(j_z,k_z,basis.third,
+                                                                j_wavelet,k_wavelet_first,k_wavelet_last);
+                assert(j_z-1==j_wavelet);
+                for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+                    Support<typename Basis::T> new_supp_z = basis.third.generator(XWavelet).support(j_wavelet,k_wavelet);
+                    if (overlap(supp_z,new_supp_z)>0) {
+                        Index3D new_index3d(index_x,index_y,Index1D(j_wavelet,k_wavelet,XWavelet));
+                        if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+                    }
                 }
             }
         }
-        else if (j_z>j0_z && index_z.xtype==XWavelet) {
-            int  j_wavelet = 0;
-            long k_wavelet_first = 0, k_wavelet_last = 0;
-            basis.third.getLowerWaveletNeighborsForWavelet(j_z,k_z,basis.third,
-                                                            j_wavelet,k_wavelet_first,k_wavelet_last);
-            assert(j_z-1==j_wavelet);
-            for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
-                Support<typename Basis::T> new_supp_z = basis.third.generator(XWavelet).support(j_wavelet,k_wavelet);
-                if (overlap(supp_z,new_supp_z)>0) {
-                    Index3D new_index3d(index_x,index_y,Index1D(j_wavelet,k_wavelet,XWavelet));
-                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
+        else {
+            int new_j_z = 0;
+            long new_k_z = 0;
+            bool checkPredecessors=true;
+            XType new_type_z = XWavelet;
+            if (j_z==j0_z && index_z.xtype==XWavelet) {
+                basis.third.getLowerEnclosingScaling(j_z,k_z,new_j_z,new_k_z);
+                new_type_z = XBSpline;
+                assert(new_j_z==j_z);
+            }
+            else if (j_z>j0_z && index_z.xtype==XWavelet) {
+                basis.third.getLowerEnclosingWavelet(j_z,k_z,new_j_z,new_k_z);
+                new_type_z = XWavelet;
+                assert(new_j_z==j_z-1);
+            }
+            else checkPredecessors = false;    // Index corresponds to a scaling function -> no predecessor
+
+            if (checkPredecessors) {
+                Index3D new_index3d(index_x,index_y,Index1D(new_j_z,new_k_z,new_type_z));
+                if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+
+                Support<typename Basis::T> covered_supp_z = basis.third.generator(new_type_z).support(new_j_z,new_k_z);
+
+                long new_k1_z = new_k_z;
+                while (covered_supp_z.l1>supp_z.l1) {
+                    new_k1_z -= 1;
+                    Index3D new_index3d(index_x,index_y,Index1D(new_j_z,new_k1_z,new_type_z));
+                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+                    Support<typename Basis::T> tmp_supp_z = basis.third.generator(new_type_z).support(new_j_z,new_k1_z);
+                    covered_supp_z.l1 = std::min(tmp_supp_z.l1, covered_supp_z.l1);
+                    covered_supp_z.l2 = std::max(tmp_supp_z.l2, covered_supp_z.l2);
+                }
+                long new_k2_z = new_k_z;
+                while (covered_supp_z.l2<supp_z.l2) {
+                    new_k2_z += 1;
+                    Index3D new_index3d(index_x,index_y,Index1D(new_j_z,new_k1_z,new_type_z));
+                    if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
+                    Support<typename Basis::T> tmp_supp_z = basis.third.generator(new_type_z).support(new_j_z,new_k2_z);
+                    covered_supp_z.l1 = std::min(tmp_supp_z.l1, covered_supp_z.l1);
+                    covered_supp_z.l2 = std::max(tmp_supp_z.l2, covered_supp_z.l2);
                 }
             }
         }
     }
-    else {
+    if (coordDirec != 0 && coordDirec != 1 && coordDirec != 2 && coordDirec !=3 ) {
         std::cerr << "completeMultiTree: non-admissible coordinate direction " << coordDirec
                   << std::endl;
     }
     return;
 }
-
+/*
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index3D &index3d,
@@ -885,7 +943,7 @@ completeMultiTree(const Basis &basis, const Index3D &index3d,
     }
     return;
 }
-
+*/
 
 
 

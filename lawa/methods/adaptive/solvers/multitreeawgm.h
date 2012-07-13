@@ -21,6 +21,7 @@
 #define  LAWA_METHODS_ADAPTIVE_SOLVERS_MULTITREEAWGM_H 1
 
 #include <map>
+#include <cstring>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 #include <lawa/methods/adaptive/algorithms/algorithms.h>
 
@@ -39,7 +40,7 @@ struct MultiTreeAWGM {
                   Coefficients<Lexicographical,T,Index> &_f_eps);
 
     void
-    setParameters(T _alpha, T _gamma, const char* _residualType, bool _IsMW,
+    setParameters(T _alpha, T _gamma, const char* _residualType, const char* _treeType, bool _IsMW,
                   bool _compute_f_minus_Au_error=false, bool _writeCoefficientsToFile=false);
 
     void
@@ -61,6 +62,7 @@ struct MultiTreeAWGM {
     bool                                    IsMW;
     T                                       alpha, gamma;
     const char*                             residualType;
+    bool                                    sparsetree;
     T                                       eps;
     size_t                                  hashMapSize;
     bool                                    compute_f_minus_Au_error;

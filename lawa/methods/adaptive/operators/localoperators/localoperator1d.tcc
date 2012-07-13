@@ -38,6 +38,10 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     CoefficientsByLevel<T> d, PhiPiCheck;
     if (TrialBasis::Cons==Multi) {
         int j_bspline = 0;
+        if (PsiLambdaHat[0].map.size()==0) {
+            std::cerr << "ERROR: No scaling functions in tree PsiLambdaHat!" << std::endl;
+            std::cerr << PsiLambdaHat << std::endl;
+        }
         trialLocalRefine.reconstructOnlyMultiScaling(PsiLambdaHat[0], trialBasis.j0, d, j_bspline);
         trialRefinementLevelOffset = j_bspline; //required when using multiwavelets!
     }
@@ -47,6 +51,10 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     if (TestBasis::Cons==Multi) {
         int j_bspline = 0;
         if (strcmp(mode,"L")!=0) {
+            if (PsiLambdaCheck[0].map.size()==0) {
+                std::cerr << "ERROR: No scaling functions in tree PsiLambdaCheck!" << std::endl;
+                std::cerr << PsiLambdaCheck << std::endl;
+            }
             testLocalRefine.reconstructOnlyMultiScaling(PsiLambdaCheck[0], testBasis.j0,
                                                 PhiPiCheck, j_bspline);
             testRefinementLevelOffset = j_bspline; //required when using multiwavelets!

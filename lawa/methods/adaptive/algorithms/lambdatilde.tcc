@@ -393,6 +393,10 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,Interval,Multi
                 }
             }
             for (int k_row=basis.rangeJR(j_row).firstIndex(); k_row<=basis.rangeJR(j_row).lastIndex(); ++k_row) {
+                if (j_row < 0) {
+                    std::cerr << "ERROR: no negative levels allowed here!" << std::endl;
+                    exit(1);
+                }
                 Support<T> supp_row = psi.support(j_row,k_row);
                 //std::cout << "LambdaTilde: Wavelet (" << j_row << ", k_row = " << k_row << "): " << supp_row << std::endl;
                 if (overlap(supp_row, supp) > 0) {

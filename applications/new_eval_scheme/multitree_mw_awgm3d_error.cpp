@@ -108,7 +108,11 @@ int main (int argc, char *argv[]) {
     T alpha = 0.7;
     T gamma = 0.005;
     const char* residualType = "standard";
+    const char* treeType = "sparsetree";    // "gradedtree";
     T eps   = 1e-2;
+    bool sparsetree = false;
+    if (strcmp(treeType,"sparsetree")==0) sparsetree = true;
+
     Timer time;
 
     /// Basis initialization
@@ -171,8 +175,9 @@ int main (int argc, char *argv[]) {
     T thresh_u = 0.;
 
     stringstream residual_error_filename;
-    residual_error_filename << "error_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
-                  << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << ".dat";
+    residual_error_filename << "error_multitree_mw_awgm_poisson3d_" << example << "_"
+                            << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
+                            << residualType << "_" << treeType<< ".dat";
     ofstream residual_error_file(residual_error_filename.str().c_str());
 
     Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
@@ -184,9 +189,17 @@ int main (int argc, char *argv[]) {
         Coefficients<Lexicographical,T,Index3D> r_approx(SIZEHASHINDEX2D);
         Coefficients<Lexicographical,T,Index3D> r_eps(SIZEHASHINDEX2D);
         stringstream coefffilename;
-        coefffilename << "coeff3d/coeff_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
-                      << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType
-                      << "__" << iter << ".dat";
+        if (sparsetree) {
+            coefffilename << "coeff3d_sparsetree/coeff_multitree_mw_awgm_poisson3d_" << example << "_"
+                          << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
+                          << residualType << "_" << treeType << "__" << iter << ".dat";
+        }
+        else {
+            coefffilename << "coeff3d/coeff_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
+                          << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType
+                          << "__" << iter << ".dat";
+
+        }
         readCoefficientsFromFile(u, coefffilename.str().c_str());
         if (u.size()==0) break;
 
@@ -199,8 +212,6 @@ int main (int argc, char *argv[]) {
            if (J<jmax[i]) J=jmax[i];
         }
 
-
-
         cout << "Size of u: " << u.size() << endl;
         localOp3D.apply(u,r_eps,Prec,eps);
         r_eps -= f_eps;
@@ -211,27 +222,10 @@ int main (int argc, char *argv[]) {
         Coefficients<Lexicographical,T,Index3D> r_tmp(SIZEHASHINDEX2D);        r_tmp = u;
         time.start();
         r_tmp.setToZero();
-        extendMultiTree(basis3d, u, r_tmp, 1);
-        localOp3D.eval(u,r_tmp,Prec,1);
-        r_approx += r_tmp;
 
-        r_tmp.clear();
-        r_tmp = u;
-        r_tmp.setToZero();
-        extendMultiTree(basis3d, u, r_tmp, 2);
-        localOp3D.eval(u,r_tmp,Prec,2);
-        r_approx += r_tmp;
-
-        r_tmp.clear();
-        r_tmp = u;
-        r_tmp.setToZero();
-        extendMultiTree(basis3d, u, r_tmp, 3);
-        localOp3D.eval(u,r_tmp,Prec,3);
-        r_approx += r_tmp;
-
-        //extendMultiTree(basis3d, u, r_approx, residualType);
+        extendMultiTree(basis3d, u, r_approx, residualType, sparsetree);
         //extendMultiTreeAtBoundary(basis3d, u, r_approx, J+1);
-        //localOp3D.eval(u,r_approx,Prec);
+        localOp3D.eval(u,r_approx,Prec);
         for (coeff3d_it it=r_approx.begin(); it!=r_approx.end(); ++it) {
             (*it).second -= Prec((*it).first) * F((*it).first);
         }
@@ -357,7 +351,6 @@ int main (int argc, char *argv[]) {
         //eps = min(eps, 0.01*new_residual_norm);
 
     }
-
     return 0;
 }
 
@@ -423,3 +416,24 @@ setUp_f_eps(int example, PrimalBasis &basis,
 
     std::cerr << "#Supp f_eps = " << f_eps.size() << std::endl;
 }
+
+
+/*
+        extendMultiTree(basis3d, u, r_tmp, 1, sparsetree);
+        localOp3D.eval(u,r_tmp,Prec,1);
+        r_approx += r_tmp;
+
+        r_tmp.clear();
+        r_tmp = u;
+        r_tmp.setToZero();
+        extendMultiTree(basis3d, u, r_tmp, 2);
+        localOp3D.eval(u,r_tmp,Prec,2);
+        r_approx += r_tmp;
+
+        r_tmp.clear();
+        r_tmp = u;
+        r_tmp.setToZero();
+        extendMultiTree(basis3d, u, r_tmp, 3);
+        localOp3D.eval(u,r_tmp,Prec,3);
+        r_approx += r_tmp;
+ */

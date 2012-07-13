@@ -31,35 +31,40 @@ namespace lawa {
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index1D>  &v,
-                Coefficients<Lexicographical,T,Index1D>  &C_v, const char* residualType);
+                Coefficients<Lexicographical,T,Index1D>  &C_v, const char* residualType,
+                bool sparsetree=false);
 
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
                 Coefficients<Lexicographical,T,Index2D>  &C_v, const char* residualType,
-                bool IsMW=false);
+                bool IsMW=false, bool sparsetree=false);
 
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
                 Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType,
-                bool IsMW=false);
+                bool IsMW=false, bool sparsetree=false);
 
+/*
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
-                Coefficients<Lexicographical,T,Index3D>  &C_v, int coordDirec);
-
+                Coefficients<Lexicographical,T,Index3D>  &C_v, int coordDirec,
+                bool sparsetree=false);
+*/
 
 template <typename T, typename Basis>
 void
 extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
-                          Coefficients<Lexicographical,T,Index2D>  &C_v, int J);
+                          Coefficients<Lexicographical,T,Index2D>  &C_v, int J,
+                          bool sparsetree=false);
 
 template <typename T, typename Basis>
 void
 extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
-                          Coefficients<Lexicographical,T,Index3D>  &C_v, int J);
+                          Coefficients<Lexicographical,T,Index3D>  &C_v, int J,
+                          bool sparsetree=false);
 
 
 
@@ -71,23 +76,20 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index2D &index2d,
-                  Coefficients<Lexicographical,T,Index2D>  &v);
+                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec=0);
 
-template <typename T, typename Basis>
-void
-completeMultiTree(const Basis &basis, const Index2D &index2d,
-                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec);
-
+// For L2-orth. multiwavelets only!!
+/*
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index3D &index3d,
                   Coefficients<Lexicographical,T,Index3D>  &v);
-
-// For L2-orth. multiwavelets only!!
+*/
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index3D &index3d,
-                  Coefficients<Lexicographical,T,Index3D>  &v, int coordDirec);
+                  Coefficients<Lexicographical,T,Index3D>  &v,
+                  int coordDirec=0, bool sparsetree=false);
 
 
 

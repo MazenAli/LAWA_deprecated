@@ -231,13 +231,13 @@ apply(Coefficients<Lexicographical,T,Index> &v,
                 typename FirstLocalOperator::notCoordXIndex notcoordX_col_index;
 
                 firstLocalOp.split((*it).first, coordX_col_index, notcoordX_col_index);
-                int maxlevel1 = std::min(coordX_col_index.j+jp,30);
+                int maxlevel1 = std::min(coordX_col_index.j+jp,27);
                 Lambda=lambdaTilde1d_PDE(coordX_col_index, firstLocalOp.testBasis_CoordX, jp,
                                            firstLocalOp.trialBasis_CoordX.j0, maxlevel1,false);
                 firstLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
                                          prec_col_index*(*it).second, Lambda, Av, eps);
                 secondLocalOp.split((*it).first, coordX_col_index, notcoordX_col_index);
-                int maxlevel2 = std::min(coordX_col_index.j+jp,30);
+                int maxlevel2 = std::min(coordX_col_index.j+jp,27);
                 Lambda=lambdaTilde1d_PDE(coordX_col_index, secondLocalOp.testBasis_CoordX,jp,
                                            secondLocalOp.testBasis_CoordX.j0, maxlevel2,false);
                 secondLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
@@ -250,21 +250,21 @@ apply(Coefficients<Lexicographical,T,Index> &v,
                 typename FirstLocalOperator::notCoordXIndex notcoordX_col_index;
 
                 firstLocalOp.split((*it).first, coordX_col_index, notcoordX_col_index);
-                int maxlevel1 = std::min(coordX_col_index.j+jp,30);
+                int maxlevel1 = std::min(coordX_col_index.j+jp,27);
                 Lambda=lambdaTilde1d_PDE(coordX_col_index, firstLocalOp.testBasis_CoordX, jp,
                                            firstLocalOp.trialBasis_CoordX.j0, maxlevel1,false);
                 firstLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
                                          prec_col_index*(*it).second, Lambda, Av, eps);
 
                 secondLocalOp.split((*it).first, coordX_col_index, notcoordX_col_index);
-                int maxlevel2 = std::min(coordX_col_index.j+jp,30);
+                int maxlevel2 = std::min(coordX_col_index.j+jp,27);
                 Lambda=lambdaTilde1d_PDE(coordX_col_index, secondLocalOp.testBasis_CoordX,jp,
                                            secondLocalOp.testBasis_CoordX.j0, maxlevel2,false);
                 secondLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
                                           prec_col_index*(*it).second, Lambda, Av, eps);
 
                 thirdLocalOp.split((*it).first, coordX_col_index, notcoordX_col_index);
-                int maxlevel3 = std::min(coordX_col_index.j+jp,30);
+                int maxlevel3 = std::min(coordX_col_index.j+jp,27);
                 Lambda=lambdaTilde1d_PDE(coordX_col_index, thirdLocalOp.testBasis_CoordX,jp,
                                            thirdLocalOp.testBasis_CoordX.j0, maxlevel3,false);
                 thirdLocalOp.nonTreeEval(coordX_col_index, notcoordX_col_index,
