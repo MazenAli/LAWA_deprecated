@@ -499,6 +499,19 @@ assemble_matrix(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
 void
 AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
+assemble_trialprec(IndexSet<Index2D>& indexset, DenseVectorT& vec)
+{
+	vec.engine().resize((int)indexset.size());
+    typedef typename IndexSet<Index2D>::const_iterator const_set_it;
+    int row_count = 1;
+    for (const_set_it row=indexset.begin(); row!=indexset.end(); ++row, ++row_count) {
+	    vec(row_count) = trial_prec(*row);
+	}
+}
+
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
 assemble_testprec(IndexSet<Index2D>& indexset, DenseVectorT& vec)
 {
 	vec.engine().resize((int)indexset.size());
@@ -541,6 +554,33 @@ assemble_all(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row)
 	assemble_testprec(indexset_row, test_prec_vec);
 	assembled_prec_vec = true;
 
+}
+
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec,  typename TestPrec, typename TruthSolver, typename Compression>
+void
+AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver, Compression>::
+assemble_lhs_matrix(IndexSet<Index2D>& indexset_col, IndexSet<Index2D>& indexset_row, SparseMatrixT& matrix)
+{
+	std::cout << "Assemble LHS Matrix for parameter mu = (";
+	for(unsigned int i = 0; i < rb->get_current_param().size(); i++){
+		std::cout << rb->get_current_param()[i] << ", ";
+	}
+	std::cout << ")" << std::endl;
+
+	matrix.resize((int)indexset_row.size(), (int)indexset_col.size());
+
+    typedef typename IndexSet<Index2D>::const_iterator const_set_it;
+    int col_count = 1;
+    for (const_set_it col=indexset_col.begin(); col!=indexset_col.end(); ++col, ++col_count) {
+    	int row_count = 1;
+        for (const_set_it row=indexset_row.begin(); row!=indexset_row.end(); ++row, ++row_count) {
+            T tmp = lhs_op(*row,*col);
+            if (fabs(tmp)>0){
+            	matrix(row_count,col_count) = tmp;
+            }
+        }
+    }
+    matrix.finalize();
 
 }
 
