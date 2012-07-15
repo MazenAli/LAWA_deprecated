@@ -98,9 +98,9 @@ int main (int argc, char *argv[]) {
     int j0  = atoi(argv[2]);
     int J  = atoi(argv[3]);
     T alpha = 0.7;
-    T gamma = 0.005;
+    T gamma = 0.1;
     const char* residualType = "standard";
-    const char* treeType = "gradedtree"; //"sparsetree";
+    const char* treeType = "sparsetree";//"gradedtree";
     bool IsMW = true;
     bool compute_f_minus_Au_error = false;
     bool writeCoefficientsToFile = true;
