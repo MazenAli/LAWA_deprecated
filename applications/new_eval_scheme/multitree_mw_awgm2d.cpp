@@ -48,6 +48,7 @@ typedef Coefficients<Lexicographical,T,Index2D>::iterator           coeff2d_it;
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff1d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2d_it;
 
+
 int example = 2;
 
 T u1(T x)   {    return 1.; }
@@ -109,6 +110,8 @@ int main (int argc, char *argv[]) {
     T alpha = 0.7;
     T gamma = 0.005;
     const char* residualType = "standard";
+    const char* treeType =  "sparsetree";// "gradedtree";
+    bool IsMW = true;
     bool compute_f_minus_Au_error = false;
     bool writeCoefficientsToFile = false;
     T eps   = 1e-5;
@@ -161,18 +164,19 @@ int main (int argc, char *argv[]) {
 
     /// Initialization of multi tree based adaptive wavelet Galerkin method
     MultiTreeAWGM2D multiTreeAWGM2D(basis2d, localOp2D, F, Prec, f_eps);
-    multiTreeAWGM2D.setParameters(alpha, gamma, residualType, compute_f_minus_Au_error,
-                                  writeCoefficientsToFile);
+    multiTreeAWGM2D.setParameters(alpha, gamma, residualType, treeType, IsMW,
+                                  compute_f_minus_Au_error, writeCoefficientsToFile);
 
     Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
     getSparseGridVector(basis2d,u,0,(T)0.2);
 
     stringstream convfilename;
     convfilename << "conv_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
-                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << ".dat";
+                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << "_"
+                 << treeType << ".dat";
     stringstream coefffilename;
     coefffilename << "coeff_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
-                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType;
+                 << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << "_" << treeType;
 
     multiTreeAWGM2D.cg_solve(u, eps, 100, EnergyErrorSquared, convfilename.str().c_str(),
                              coefffilename.str().c_str());
