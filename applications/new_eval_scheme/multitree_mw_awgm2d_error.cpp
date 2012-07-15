@@ -108,9 +108,10 @@ int main (int argc, char *argv[]) {
     int j0  = atoi(argv[2]);
     int J  = atoi(argv[3]);
     T alpha = 0.7;
-    T gamma = 0.005;
+    T gamma = 0.1;
     const char* residualType = "standard";
-    T eps   = 1e-10;
+    const char* treeType = "sparsetree";    // "gradedtree";
+    T eps   = 1e-2;
     Timer time;
 
     /// Basis initialization
@@ -159,8 +160,9 @@ int main (int argc, char *argv[]) {
     T tol = 0.1;
 
     stringstream residual_error_filename;
-    residual_error_filename << "error_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
-                  << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << ".dat";
+    residual_error_filename << "error_multitree_mw_awgm_poisson2d_" << example << "_"
+                            << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
+                            << residualType << "_" << treeType<< ".dat";
     ofstream residual_error_file(residual_error_filename.str().c_str());
 
     Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
@@ -170,9 +172,9 @@ int main (int argc, char *argv[]) {
         Coefficients<Lexicographical,T,Index2D> r_apply(SIZEHASHINDEX2D);
         Coefficients<Lexicographical,T,Index2D> r_eps(SIZEHASHINDEX2D);
         stringstream coefffilename;
-        coefffilename << "coeff2d/coeff_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
-                      << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType
-                      << "__" << iter << ".dat";
+        coefffilename << "coeff2d/coeff_multitree_mw_awgm_poisson2d_" << example << "_"
+                      << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
+                      << residualType << "_" << treeType << "__" << iter << ".dat";
         readCoefficientsFromFile(u, coefffilename.str().c_str());
         if (u.size()==0) break;
         cout << "Size of u: " << u.size() << endl;
@@ -258,6 +260,8 @@ int main (int argc, char *argv[]) {
                             << new_residual_length << " " << new_residual_time << " "
                             << apply_residual_norm << " " << apply_residual_diff << " "
                             << apply_residual_length << " " << apply_residual_time <<  endl;
+
+        eps = min(eps, 0.1*tol);
 
     }
     return 0;

@@ -106,7 +106,7 @@ int main (int argc, char *argv[]) {
     int j0  = atoi(argv[2]);
     int J  = atoi(argv[3]);
     T alpha = 0.7;
-    T gamma = 0.005;
+    T gamma = 0.1;
     const char* residualType = "standard";
     const char* treeType = "sparsetree";    // "gradedtree";
     T eps   = 1e-2;
@@ -172,7 +172,6 @@ int main (int argc, char *argv[]) {
     //T tol = 3e-07;
     cout << "Norm of f_eps: " << f_eps.norm() << endl;
     T tol = 1.;
-    T thresh_u = 0.;
 
     stringstream residual_error_filename;
     residual_error_filename << "error_multitree_mw_awgm_poisson3d_" << example << "_"
@@ -189,17 +188,11 @@ int main (int argc, char *argv[]) {
         Coefficients<Lexicographical,T,Index3D> r_approx(SIZEHASHINDEX2D);
         Coefficients<Lexicographical,T,Index3D> r_eps(SIZEHASHINDEX2D);
         stringstream coefffilename;
-        if (sparsetree) {
-            coefffilename << "coeff3d_sparsetree/coeff_multitree_mw_awgm_poisson3d_" << example << "_"
-                          << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
-                          << residualType << "_" << treeType << "__" << iter << ".dat";
-        }
-        else {
-            coefffilename << "coeff3d/coeff_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
-                          << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType
-                          << "__" << iter << ".dat";
 
-        }
+        coefffilename << "coeff3d/coeff_multitree_mw_awgm_poisson3d_" << example << "_"
+                      << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
+                      << residualType << "_" << treeType << "__" << iter << ".dat";
+
         readCoefficientsFromFile(u, coefffilename.str().c_str());
         if (u.size()==0) break;
 
@@ -240,50 +233,6 @@ int main (int argc, char *argv[]) {
         r_eps += r_approx;
         //cout << "diff = " << r << endl;
 
-        /*
-        r_approx.clear();
-
-        T new_residual_time2 = 0.;
-        T new_residual_norm2 = 0.;
-        int new_residual_length2 = 0;
-        T new_residual_diff2 = 0.;
-        if (thresh_u > 0) {
-            tmp = THRESH(u,thresh_u,true,true);
-            for (const_coeff3d_it it=tmp.begin(); it!=tmp.end(); ++it) {
-                completeMultiTree(basis3d, (*it).first, u2);
-            }
-            for (coeff3d_it it=u2.begin(); it!=u2.end(); ++it) {
-                (*it).second = u[(*it).first];
-            }
-            cout << "#supp u2 = " << u2.size() << endl;
-            r_approx = u2;
-            r_approx.setToZero();
-            time.start();
-            cout << "Computing multi-tree for residual..." << endl;
-            extendMultiTree(basis3d, u2, r_approx, residualType);
-            cout << "... finished." << endl;
-            cout << "Evaluating mv for residual..." << endl;
-            localOp3D.eval(u,r_approx,Prec);
-            cout << "... finished." << endl;
-            cout << "Substracting rhs..." << endl;
-            for (coeff3d_it it=r_approx.begin(); it!=r_approx.end(); ++it) {
-                (*it).second -= Prec((*it).first) * F((*it).first);
-            }
-            cout << "... finished." << endl;
-            time.stop();
-            new_residual_time2 = time.elapsed();
-            new_residual_norm2 = r_approx.norm();
-            new_residual_length2 = r_approx.size();
-            cout << "Computing error in approximation..." << endl;
-            r_eps -= r_approx;
-            cout << "... finished." << endl;
-            new_residual_diff2 = r_eps.norm();
-            cout << "Get r_eps back..." << endl;
-            r_eps += r_approx;
-            cout << "... finished." << endl;
-        }
-
-        */
 
         T apply_residual_norm = 0., apply_residual_norm1 = 0., apply_residual_norm2 = 0.;
         int apply_residual_length = 0, apply_residual_length1 = 0, apply_residual_length2 = 0;
@@ -311,18 +260,18 @@ int main (int argc, char *argv[]) {
                  << ", new_residual_diff = " << new_residual_diff
                  << ", apply_residual_time = " << time.elapsed() << endl;;
             if (apply_residual_diff2<new_residual_diff)  {
-                //if (apply_residual_time2 < apply_residual_time1) {
+                if (apply_residual_time2 < apply_residual_time1) {
                     apply_residual_norm = apply_residual_norm2;
                     apply_residual_diff = apply_residual_diff2;
                     apply_residual_length = apply_residual_length2;
                     apply_residual_time = apply_residual_time2;
-                //}
-                //else {
-                //    apply_residual_norm = apply_residual_norm1;
-                //    apply_residual_diff = apply_residual_diff1;
-                //    apply_residual_length = apply_residual_length1;
-                //    apply_residual_time = apply_residual_time1;
-                //}
+                }
+                else {
+                    apply_residual_norm = apply_residual_norm1;
+                    apply_residual_diff = apply_residual_diff1;
+                    apply_residual_length = apply_residual_length1;
+                    apply_residual_time = apply_residual_time1;
+                }
                 break;
             }
             else {
@@ -345,10 +294,7 @@ int main (int argc, char *argv[]) {
                             << apply_residual_norm << " " << apply_residual_diff << " "
                             << apply_residual_length << " " << apply_residual_time <<  endl;
 
-
-        eps = min(eps, 0.01*tol);
-        //thresh_u = 0.75*new_residual_norm;
-        //eps = min(eps, 0.01*new_residual_norm);
+        eps = min(eps, 0.1*tol);
 
     }
     return 0;
