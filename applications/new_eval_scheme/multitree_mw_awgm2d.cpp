@@ -110,10 +110,10 @@ int main (int argc, char *argv[]) {
     T alpha = 0.7;
     T gamma = 0.1;
     const char* residualType = "standard";
-    const char* treeType =  "sparsetree";// "gradedtree";
+    const char* treeType = "sparsetree"; //"gradedtree";
     bool IsMW = true;
     bool compute_f_minus_Au_error = false;
-    bool writeCoefficientsToFile = true;
+    bool writeCoefficientsToFile = false;
     T eps   = 1e-5;
     Timer time;
 

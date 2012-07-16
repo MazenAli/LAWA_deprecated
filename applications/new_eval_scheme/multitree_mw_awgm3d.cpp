@@ -103,7 +103,7 @@ int main (int argc, char *argv[]) {
     const char* treeType = "sparsetree";//"gradedtree";
     bool IsMW = true;
     bool compute_f_minus_Au_error = false;
-    bool writeCoefficientsToFile = true;
+    bool writeCoefficientsToFile = false;
     T eps   = 1e-5;
     Timer time;
 

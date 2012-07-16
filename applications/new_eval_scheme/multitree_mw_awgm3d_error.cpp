@@ -189,7 +189,7 @@ int main (int argc, char *argv[]) {
         Coefficients<Lexicographical,T,Index3D> r_eps(SIZEHASHINDEX2D);
         stringstream coefffilename;
 
-        coefffilename << "coeff3d/coeff_multitree_mw_awgm_poisson3d_" << example << "_"
+        coefffilename << "coeff_multitree_mw_awgm_poisson3d_" << example << "_"
                       << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
                       << residualType << "_" << treeType << "__" << iter << ".dat";
 

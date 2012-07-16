@@ -220,9 +220,9 @@ apply(Coefficients<Lexicographical,T,Index> &v,
         int jp = (int)std::max((std::log(numerator/denominator) / std::log(2.) / gamma )/*-1*/, (T)0.);
         //int jp = ceil(std::max((std::log(numerator/denominator) / std::log(2.) / gamma )/*-1*/, (T)0.));
 
-        if (w_p.size()>1000 && eps > 5e-10) {
-            jp = std::max(0, jp-1);
-        }
+        //if (w_p.size()>1000 && eps > 5e-10) {
+        //    jp = std::max(0, jp-1);
+        //}
         for (const_coeff_it it=w_p.begin(); it!=w_p.end(); ++it) {
             if (numOfLocalOp==2) {
                 T prec_col_index = P[(*it).first];

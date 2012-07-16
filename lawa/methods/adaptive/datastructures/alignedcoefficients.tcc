@@ -36,6 +36,7 @@ AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex,CoordX>
         else {
             size_t tmp = std::max((size_t)pow2i<long>(J-prinIndex.levelSum()+2),n2);
             Coefficients<Lexicographical,T,AlignedIndex> coeff_x2;
+            //coeff_x2[aligIndex] = (*it).second;
             map[prinIndex] = coeff_x2;
             map_prinindex_it p_prinindex=map.find(prinIndex);
             (*p_prinindex).second.Rehash(tmp);

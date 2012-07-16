@@ -6,7 +6,7 @@ UniDirectionalLocalOperator<Index,CoordX,LocalOperator1D,NotCoordX,NotCoordXInde
 UniDirectionalLocalOperator(LocalOperator1D &_localOperator1D)
 : localOperator1D(_localOperator1D),
   trialBasis_CoordX(_localOperator1D.trialBasis), testBasis_CoordX(_localOperator1D.testBasis),
-  J(4), hashTableLargeLength(6151), hashTableSmallLength(193)
+  J(4), hashTableLargeLength(6151), hashTableSmallLength(193) /*769*/
 {
 
 }
@@ -124,6 +124,12 @@ eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographica
             time.stop();
             time_add_aligned += time.elapsed();
         }
+        /*
+        std::cerr << "      UniDirectionalOperator:   alignment took     " << time_align_v << std::endl;
+        std::cerr << "      UniDirectionalOperator:   set 1d tree took   " << time_setup_tree << std::endl;
+        std::cerr << "      UniDirectionalOperator:   mv 1d took         " << time_mv1d << std::endl;
+        std::cerr << "      UniDirectionalOperator:   add alignment took " << time_add_aligned << std::endl;
+        */
     }
     // Do not use this! It is slow! Only for demonstration purposes!
     else if (strcmp(evalType,"residual_standard")==0) {

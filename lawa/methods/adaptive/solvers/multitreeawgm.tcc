@@ -191,7 +191,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr << "        #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
         time.start();
         extendMultiTree(basis, u_leafs, res, residualType, IsMW, sparsetree);
-        //extendMultiTreeAtBoundary(basis, u, res, J+3);
+        //extendMultiTreeAtBoundary(basis, u, res, J+1, sparsetree);
         time.stop();
         time_multitree_residual = time.elapsed();
         N_residual = res.size();
@@ -200,6 +200,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr << "     Computing matrix vector product..." << std::endl;
         time.start();
         A.eval(u,res,Prec);
+        //A.eval(u,res,Prec,"residual_standard");
         std::cerr << "     ... finished." << std::endl;
         std::cerr << "     Substracting right-hand side..." << std::endl;
         for (coeff_it it=res.begin(); it!=res.end(); ++it) {
