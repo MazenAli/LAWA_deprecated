@@ -82,14 +82,7 @@ struct TreeCoefficients1D
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator    const_coeff1d_it;
     typedef typename std::list<const Index1D*>::const_iterator                  const_indexlist_it;
 
-    TreeCoefficients1D(void);
-
-    TreeCoefficients1D(int basis_j0);
-
     TreeCoefficients1D(size_t n, int basis_j0);
-
-    void
-    set(size_t n, int basis_j0);
 
     TreeCoefficients1D<T>&
     operator=(const TreeCoefficients1D<T> &_coeff);
@@ -109,17 +102,11 @@ struct TreeCoefficients1D
     TreeCoefficients1D<T>&
     operator+=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
 
-    TreeCoefficients1D<T>&
-    operator+=(const TreeCoefficients1D<T> &_coeff);
-
     const CoefficientsByLevel<T>&
     operator[](short j)  const;
 
     CoefficientsByLevel<T>&
     operator[](short j);
-
-    void
-    insert(const Index1D &lambda, T val);
 
     template<typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
     void

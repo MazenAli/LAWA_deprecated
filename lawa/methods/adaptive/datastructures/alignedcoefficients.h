@@ -87,62 +87,6 @@ struct AlignedCoefficients
 
 };
 
-template <typename T, typename Index, typename PrincipalIndex, CoordinateDirection X>
-struct AlignedTreeCoefficients
-{
-    #ifdef TRONE
-        typedef typename std::tr1::unordered_map<PrincipalIndex,
-                                                 TreeCoefficients1D<T>,
-                                                 index_hashfunction<PrincipalIndex>,
-                                                 index_eqfunction<PrincipalIndex> >
-                         IndexToCoefficientsMap;
-    #else
-        typedef typename __gnu_cxx::hash_map<PrincipalIndex,
-                                             TreeCoefficients1D<T>,
-                                             index_hashfunction<PrincipalIndex>,
-                                             index_eqfunction<PrincipalIndex> >
-                         IndexToCoefficientsMap;
-    #endif
-
-    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator        const_coeff_index_it;
-    typedef typename IndexToCoefficientsMap::const_iterator                       const_map_prindex_it;
-    typedef typename IndexToCoefficientsMap::iterator                             map_prinindex_it;
-
-
-    AlignedTreeCoefficients(int _j0);
-
-    AlignedTreeCoefficients(int _j0, size_t n1, size_t n2);
-
-    /// Case 1: PrincipalIndex = Index1D, AlignedIndex = Index"(n-1)"D -> Index = Index"n"D
-    ///         Let now Index = (\lambda_1,...,\lambda_n). Then the principal index and the
-    ///         aligned index are determined by CoordX. E.g. when CoordX=XTwo, we get
-    ///         principal index = \lambda_2, aligned index = (\lambda_1,\lambda_3,...,\lambda_n)
-    /// Case 2: PrincipalIndex = Index"n-1"D, AlignedIndex = Index1D -> Index = Index"n"D
-    ///         Let now Index = (\lambda_1,...,\lambda_n). Then the principal index and the
-    ///         aligned index are determined by CoordX. E.g. when CoordX=XTwo, we get
-    ///         principal index = (\lambda_1,\lambda_3,...,\lambda_n), aligned index = \lambda_2
-
-    void
-    align(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
-
-    void
-    align(const Coefficients<Lexicographical,T,Index> &coeff, IndexSet<PrincipalIndex> &prinIndices,
-          short J=0);
-
-    void
-    align_ExcludeAndOrthogonal(const Coefficients<Lexicographical,T,Index> &coeff,
-                               const Coefficients<Lexicographical,T,Index> &exclude,
-                               const IndexSet<PrincipalIndex> &orthogonal, short J=0);
-
-    IndexToCoefficientsMap map;
-
-    int j0;
-    size_t n1, n2;
-
-};
-
-
-
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
 struct AlignedCoefficients2
 {

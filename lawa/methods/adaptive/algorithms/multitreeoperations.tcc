@@ -1163,54 +1163,54 @@ extendMultiTree2(const Basis &basis, const Index2D &index2d, const int offset, I
 }   // namespace lawa
 
 /*
- * Support<typename Basis::T> supp_y = basis.second.generator(index_y.xtype).support(j_y,k_y);
-    //check y-direction
-    int new_j_y = 0;
-    long new_k_y_first = 0, new_k_y_last = 0;
-    XType new_type_y = XWavelet;
-    if (j_y==j0_y && index_y.xtype==XWavelet) {
-        basis.second.getScalingNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
-        new_type_y = XBSpline;
-        assert(new_j_y==j_y);
+ *
+bool
+comp_support(const Support<double> &supp1, const Support<double> &supp2) {
+return supp1.l1<=supp2.l1 ? true : false;
+}
+ *
+ *
+std::vector<Support<T> > intersectingSupports;
+bool foundPredecessor = false;
+for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+    Index3D new_index3d(Index1D(new_j_x,new_k_x,new_type_x),index_y,index_z);
+    if (v.find(new_index3d)!=v.end()) {
+        Support<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+        intersectingSupports.push_back(covered_supp_x);
+        if (covered_supp_x.l1<=supp_x.l1 && covered_supp_x.l2>=supp_x.l2) {
+            foundPredecessor = true;
+            break;
+        }
     }
-    else if (j_y>j0_y && index_y.xtype==XWavelet) {
-        basis.second.getLowerWaveletNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
-        new_type_y = XWavelet;
-        assert(new_j_y==j_y-1);
-    }
-    else return;
+}
 
-    if (!sparsetree) {
-        for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
-            Support<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
-            if (overlap(supp_y,new_supp_y)>0) {
-                Index3D new_index3d(index_x,Index1D(new_j_y,new_k_y,new_type_y),index_z);
-                if (v.find(new_index3d)==v.end()) completeMultiTree(basis,new_index3d,v,coordDirec);
-            }
-        }
+if (!foundPredecessor && intersectingSupports.size()>0) {
+    std::cerr << "Before sorting: " << std::endl;
+    for (typename std::vector<Support<T> >::const_iterator it=intersectingSupports.begin();
+          it!=intersectingSupports.end(); ++it) {
+        std::cerr << (*it) << " " << supp_x <<  std::endl;
     }
-    else {
-        bool foundPredecessor = false;
-        for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
-            Support<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
-            if (covered_supp_y.l1<=supp_y.l1 && covered_supp_y.l2>=supp_y.l2) {
-                Index3D new_index3d(index_x,Index1D(new_j_y,new_k_y,new_type_y),index_z);
-                if (v.find(new_index3d)!=v.end()) {
-                    foundPredecessor = true;
-                    break;
-                }
-            }
-        }
-
-        if (!foundPredecessor) {
-            for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
-                Support<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
-                if (covered_supp_y.l1<=supp_y.l1 && covered_supp_y.l2>=supp_y.l2) {
-                    Index3D new_index3d(index_x,Index1D(new_j_y,new_k_y,new_type_y),index_z);
-                    completeMultiTree(basis,new_index3d,v,coordDirec,sparsetree);
-                    break;
-                }
-            }
-        }
+    std::cerr << "After sorting:  " << std::endl;
+    sort(intersectingSupports.begin(), intersectingSupports.end(), comp_support);
+    for (typename std::vector<Support<T> >::const_iterator it=intersectingSupports.begin();
+          it!=intersectingSupports.end(); ++it) {
+        std::cerr << (*it) << " " << supp_x << std::endl;
     }
+    std::cerr << std::endl;
+    typename std::vector<Support<T> >::const_iterator it1=intersectingSupports.begin();
+    typename std::vector<Support<T> >::const_iterator it2=intersectingSupports.begin();
+    ++it2;
+    Support<T> jointSupport = (*it1);
+    while (it2!=intersectingSupports.end()) {
+        if (overlap((*it1),(*it2))) {
+            jointSupport.l1 = std::min((*it1).l1, jointSupport.l1);
+            jointSupport.l2 = std::max((*it2).l2, jointSupport.l2);
+        }
+        else {
+            break;
+        }
+        ++it1; ++it2;
+    }
+    if (jointSupport.l1<=supp_x.l1 && jointSupport.l2>=supp_x.l2) foundPredecessor=true;
+}
  */

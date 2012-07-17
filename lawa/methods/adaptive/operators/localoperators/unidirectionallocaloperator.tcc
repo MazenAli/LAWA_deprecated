@@ -136,54 +136,47 @@ eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographica
     else if (strcmp(evalType,"residual")==0) {
         IndexSet<NotCoordXIndex> prinIndices(hashTableLargeLength);
         time.start();
-        //NotCoordXAlignedTreeCoefficients notCoordXAligned_v(n1,n2);
-        //notCoordXAligned_v.align(v,prinIndices,J);
-        //NotCoordXAlignedTreeCoefficients notCoordXAligned_IAIv(n1,n2);
-        //notCoordXAligned_IAIv.align_ExcludeAndOrthogonal(IAIv,v,prinIndices,J);
-        NotCoordXAlignedTreeCoefficients notCoordXAligned_v(trialBasis_CoordX.j0,n1,n2);
+        NotCoordXAlignedCoefficients notCoordXAligned_v(n1,n2);
         notCoordXAligned_v.align(v,prinIndices,J);
-        NotCoordXAlignedTreeCoefficients notCoordXAligned_IAIv(testBasis_CoordX.j0,n1,n2);
+        time.stop();
+        T time_align_v1 = time.elapsed();
+        time.start();
+        NotCoordXAlignedCoefficients notCoordXAligned_IAIv(n1,n2);
         notCoordXAligned_IAIv.align_ExcludeAndOrthogonal(IAIv,v,prinIndices,J);
         time.stop();
-        T time_align_v = time.elapsed();
+        T time_align_v2 = time.elapsed();
 
         T time_setup_tree = 0.;
         T time_mv1d = 0.;
         T time_add_aligned = 0.;
 
-        for (typename NotCoordXAlignedTreeCoefficients::const_map_prindex_it it =notCoordXAligned_v.map.begin();
-                                                                             it!=notCoordXAligned_v.map.end(); ++it) {
+        for (typename NotCoordXAlignedCoefficients::const_map_prindex_it it =notCoordXAligned_v.map.begin();
+                                                                         it!=notCoordXAligned_v.map.end(); ++it) {
             time.start();
-            //TreeCoefficients1D<T> PsiLambdaHat_CoordX(n2,trialBasis_CoordX.j0);
-            //PsiLambdaHat_CoordX = (*it).second;
+            TreeCoefficients1D<T> PsiLambdaHat_CoordX(n2,trialBasis_CoordX.j0);
+            PsiLambdaHat_CoordX = (*it).second;
 
-            //TreeCoefficients1D<T> PsiLambdaCheck_CoordX(n2,testBasis_CoordX.j0);
-            //PsiLambdaCheck_CoordX = PsiLambdaHat_CoordX;
-            //PsiLambdaCheck_CoordX += notCoordXAligned_IAIv.map[(*it).first];
-            //int maxTreeLevel = PsiLambdaCheck_CoordX.getMaxTreeLevel();
-            //PsiLambdaCheck_CoordX.setToZero();
+            TreeCoefficients1D<T> PsiLambdaCheck_CoordX(n2,testBasis_CoordX.j0);
+            PsiLambdaCheck_CoordX = PsiLambdaHat_CoordX;
+            PsiLambdaCheck_CoordX += notCoordXAligned_IAIv.map[(*it).first];
 
-            notCoordXAligned_IAIv.map[(*it).first] += (*it).second;
-            notCoordXAligned_IAIv.map[(*it).first].setToZero();
-            notCoordXAligned_IAIv.map[(*it).first].getMaxTreeLevel();
-
-
+            int maxTreeLevel = PsiLambdaCheck_CoordX.getMaxTreeLevel();
+            PsiLambdaCheck_CoordX.setToZero();
             time.stop();
             time_setup_tree += time.elapsed();
 
             time.start();
-            //localOperator1D.eval(PsiLambdaHat_CoordX, PsiLambdaCheck_CoordX, "A");
-            localOperator1D.eval((*it).second, notCoordXAligned_IAIv.map[(*it).first], "A");
+            localOperator1D.eval(PsiLambdaHat_CoordX, PsiLambdaCheck_CoordX, "A");
             time.stop();
             time_mv1d += time.elapsed();
 
             time.start();
-            notCoordXAligned_IAIv.map[(*it).first].template addTo<Index,NotCoordXIndex,NotCoordX>((*it).first,IAIv);
-            //PsiLambdaCheck_CoordX.template addTo<Index,NotCoordXIndex,NotCoordX>((*it).first,IAIv);
+            PsiLambdaCheck_CoordX.template addTo<Index,NotCoordXIndex,NotCoordX>((*it).first,IAIv);
             time.stop();
             time_add_aligned += time.elapsed();
         }
-        std::cerr << "      UniDirectionalOperator:   alignment took     " << time_align_v << std::endl;
+        std::cerr << "      UniDirectionalOperator:   alignment1 took     " << time_align_v1 << std::endl;
+        std::cerr << "      UniDirectionalOperator:   alignment2 took     " << time_align_v2 << std::endl;
         std::cerr << "      UniDirectionalOperator:   set 1d tree took   " << time_setup_tree << std::endl;
         std::cerr << "      UniDirectionalOperator:   mv 1d took         " << time_mv1d << std::endl;
         std::cerr << "      UniDirectionalOperator:   add alignment took " << time_add_aligned << std::endl;
