@@ -199,7 +199,8 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr << "   #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
         std::cerr << "     Computing matrix vector product..." << std::endl;
         time.start();
-        A.eval(u,res,Prec);
+        //A.eval(u,res,Prec);
+        A.eval(u,res,Prec,"residual");
         //A.eval(u,res,Prec,"residual_standard");
         std::cerr << "     ... finished." << std::endl;
         std::cerr << "     Substracting right-hand side..." << std::endl;

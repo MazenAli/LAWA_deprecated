@@ -46,6 +46,171 @@ AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex,CoordX>
     //std::cerr << "AlignedCoefficients: " << map.size() << " " << map.bucket_count() << std::endl;
 }
 
+template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex,
+          CoordinateDirection CoordX>
+void
+AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex,CoordX>
+::align(const Coefficients<Lexicographical,T,Index> &coeff, IndexSet<PrincipalIndex> &prinIndices,
+        short J)
+{
+    Split<Index,PrincipalIndex,AlignedIndex,CoordX> split;
+    for (const_coeff_index_it it=coeff.begin(); it!=coeff.end(); ++it) {
+        PrincipalIndex prinIndex;
+        AlignedIndex   aligIndex;
+        split((*it).first,prinIndex,aligIndex);
+        map_prinindex_it p_prinindex=map.find(prinIndex);
+        if (p_prinindex!=map.end()) {
+            (*p_prinindex).second.operator[](aligIndex) = (*it).second;
+        }
+        else {
+            prinIndices.insert(prinIndex);
+            size_t tmp = std::max((size_t)pow2i<long>(J-prinIndex.levelSum()+2),n2);
+            Coefficients<Lexicographical,T,AlignedIndex> coeff_x2;
+            //coeff_x2[aligIndex] = (*it).second;
+            map[prinIndex] = coeff_x2;
+            map_prinindex_it p_prinindex=map.find(prinIndex);
+            (*p_prinindex).second.Rehash(tmp);
+            (*p_prinindex).second.operator[](aligIndex) = (*it).second;
+        }
+    }
+}
+
+template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex,
+          CoordinateDirection CoordX>
+void
+AlignedCoefficients<T,Index,PrincipalIndex,AlignedIndex,CoordX>
+::align_ExcludeAndOrthogonal(const Coefficients<Lexicographical,T,Index> &coeff,
+                             const Coefficients<Lexicographical,T,Index> &exclude,
+                             const IndexSet<PrincipalIndex> &orthogonal, short J)
+{
+    Split<Index,PrincipalIndex,AlignedIndex,CoordX> split;
+    for (const_coeff_index_it it=coeff.begin(); it!=coeff.end(); ++it) {
+        if (exclude.find((*it).first)!=exclude.end()) continue;
+
+        PrincipalIndex prinIndex;
+        AlignedIndex   aligIndex;
+        split((*it).first,prinIndex,aligIndex);
+        if (orthogonal.find(prinIndex)==orthogonal.end()) continue;
+
+        map_prinindex_it p_prinindex=map.find(prinIndex);
+        if (p_prinindex!=map.end()) {
+            (*p_prinindex).second.operator[](aligIndex) = (*it).second;
+        }
+        else {
+            size_t tmp = std::max((size_t)pow2i<long>(J-prinIndex.levelSum()+2),n2);
+            Coefficients<Lexicographical,T,AlignedIndex> coeff_x2;
+            //coeff_x2[aligIndex] = (*it).second;
+            map[prinIndex] = coeff_x2;
+            map_prinindex_it p_prinindex=map.find(prinIndex);
+            (*p_prinindex).second.Rehash(tmp);
+            (*p_prinindex).second.operator[](aligIndex) = (*it).second;
+        }
+    }
+}
+
+
+template <typename T, typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
+AlignedTreeCoefficients<T,Index,PrincipalIndex,CoordX>::
+AlignedTreeCoefficients(int _j0)
+: map(), j0(_j0), n1(0), n2(0)
+{
+
+}
+
+template <typename T, typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
+AlignedTreeCoefficients<T,Index,PrincipalIndex,CoordX>::
+AlignedTreeCoefficients(int _j0, size_t _n1,size_t _n2)
+: map(_n1), j0(_j0), n1(_n1), n2(_n2)
+{
+
+}
+
+template <typename T, typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
+void
+AlignedTreeCoefficients<T,Index,PrincipalIndex,CoordX>
+::align(const Coefficients<Lexicographical,T,Index> &coeff, short J)
+{
+    Split<Index,PrincipalIndex,Index1D,CoordX> split;
+    for (const_coeff_index_it it=coeff.begin(); it!=coeff.end(); ++it) {
+        PrincipalIndex prinIndex;
+        Index1D   aligIndex;
+        split((*it).first,prinIndex,aligIndex);
+        map_prinindex_it p_prinindex=map.find(prinIndex);
+        if (p_prinindex!=map.end()) {
+            (*p_prinindex).second.insert(aligIndex, (*it).second);
+        }
+        else {
+            size_t tmp = std::max((size_t)pow2i<long>(J-prinIndex.levelSum()+2),n2);
+            TreeCoefficients1D<T> coeff_alig(j0);
+            //coeff_x2[aligIndex] = (*it).second;
+            map[prinIndex] = coeff_alig;
+            map_prinindex_it p_prinindex=map.find(prinIndex);
+            (*p_prinindex).second.set(tmp,j0);
+            (*p_prinindex).second.insert(aligIndex, (*it).second);
+        }
+    }
+    //std::cerr << "AlignedCoefficients: " << map.size() << " " << map.bucket_count() << std::endl;
+}
+
+template <typename T, typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
+void
+AlignedTreeCoefficients<T,Index,PrincipalIndex,CoordX>
+::align(const Coefficients<Lexicographical,T,Index> &coeff, IndexSet<PrincipalIndex> &prinIndices,
+        short J)
+{
+    Split<Index,PrincipalIndex,Index1D,CoordX> split;
+    for (const_coeff_index_it it=coeff.begin(); it!=coeff.end(); ++it) {
+        PrincipalIndex prinIndex;
+        Index1D   aligIndex;
+        split((*it).first,prinIndex,aligIndex);
+        map_prinindex_it p_prinindex=map.find(prinIndex);
+        if (p_prinindex!=map.end()) {
+            (*p_prinindex).second.insert(aligIndex, (*it).second);
+        }
+        else {
+            prinIndices.insert(prinIndex);
+            size_t tmp = std::max((size_t)pow2i<long>(J-prinIndex.levelSum()+2),n2);
+            TreeCoefficients1D<T> coeff_alig(j0);
+            //coeff_x2[aligIndex] = (*it).second;
+            map[prinIndex] = coeff_alig;
+            map_prinindex_it p_prinindex=map.find(prinIndex);
+            (*p_prinindex).second.set(tmp,j0);
+            (*p_prinindex).second.insert(aligIndex, (*it).second);
+        }
+    }
+}
+
+template <typename T, typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
+void
+AlignedTreeCoefficients<T,Index,PrincipalIndex,CoordX>
+::align_ExcludeAndOrthogonal(const Coefficients<Lexicographical,T,Index> &coeff,
+                             const Coefficients<Lexicographical,T,Index> &exclude,
+                             const IndexSet<PrincipalIndex> &orthogonal, short J)
+{
+    Split<Index,PrincipalIndex,Index1D,CoordX> split;
+    for (const_coeff_index_it it=coeff.begin(); it!=coeff.end(); ++it) {
+        if (exclude.find((*it).first)!=exclude.end()) continue;
+
+        PrincipalIndex prinIndex;
+        Index1D   aligIndex;
+        split((*it).first,prinIndex,aligIndex);
+        if (orthogonal.find(prinIndex)==orthogonal.end()) continue;
+
+        map_prinindex_it p_prinindex=map.find(prinIndex);
+        if (p_prinindex!=map.end()) {
+            (*p_prinindex).second.insert(aligIndex, (*it).second);
+        }
+        else {
+            size_t tmp = std::max((size_t)pow2i<long>(J-prinIndex.levelSum()+2),n2);
+            TreeCoefficients1D<T> coeff_alig(j0);
+            //coeff_x2[aligIndex] = (*it).second;
+            map[prinIndex] = coeff_alig;
+            map_prinindex_it p_prinindex=map.find(prinIndex);
+            (*p_prinindex).second.set(tmp,j0);
+            (*p_prinindex).second.insert(aligIndex, (*it).second);
+        }
+    }
+}
 
 /*
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>

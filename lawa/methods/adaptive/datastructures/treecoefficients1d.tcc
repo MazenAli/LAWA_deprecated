@@ -18,13 +18,18 @@ void
 CoefficientsByLevel<T>::set(short _j, size_t n)
 {
     j = _j;
-
+    #ifdef TRONE
+        map.rehash(n);
+    #else
+        map.resize(n);
+    #endif
+    /*
     #ifdef TRONE
         if (n>4000) map.rehash(n);
     #else
         if (n>4000) map.resize(n);
     #endif
-
+    */
 }
 
 template <typename T>
@@ -72,6 +77,26 @@ std::ostream& operator<<(std::ostream &s, const CoefficientsByLevel<T> &_coeff_b
 
 
 template <typename T>
+TreeCoefficients1D<T>::TreeCoefficients1D(void)
+: offset(0), maxTreeLevel(JMAX)
+{
+    for (int l=0; l<=JMAX; ++l) {
+        CoefficientsByLevel<T> tmp;
+        bylevel[l] = tmp;
+    }
+}
+
+template <typename T>
+TreeCoefficients1D<T>::TreeCoefficients1D(int basis_j0)
+: offset(basis_j0-1), maxTreeLevel(JMAX)
+{
+    for (int l=0; l<=JMAX; ++l) {
+        CoefficientsByLevel<T> tmp;
+        bylevel[l] = tmp;
+    }
+}
+
+template <typename T>
 TreeCoefficients1D<T>::TreeCoefficients1D(size_t n, int basis_j0)
 : offset(basis_j0-1), maxTreeLevel(JMAX)
 {
@@ -79,6 +104,16 @@ TreeCoefficients1D<T>::TreeCoefficients1D(size_t n, int basis_j0)
         CoefficientsByLevel<T> tmp;
         bylevel[l] = tmp;
         bylevel[l].set(l,n);
+    }
+}
+
+template <typename T>
+void
+TreeCoefficients1D<T>::set(size_t n, int basis_j0)
+{
+    offset = basis_j0-1;
+    for (int l=0; l<=maxTreeLevel; ++l) {
+        this->bylevel[l].set(l,n);
     }
 }
 
@@ -164,6 +199,40 @@ TreeCoefficients1D<T>::operator-=(const TreeCoefficients1D<T> &_coeff)
 }
 
 template <typename T>
+TreeCoefficients1D<T>&
+TreeCoefficients1D<T>::operator+=(const Coefficients<Lexicographical,T,Index1D> &_coeff)
+{
+    for (const_coeff1d_it it=_coeff.begin(); it!=_coeff.end(); ++it) {
+        short j     = (*it).first.j;
+        long  k     = (*it).first.k;
+        XType xtype = (*it).first.xtype;
+
+        if (xtype==XBSpline) {
+            this->bylevel[j-1-offset].map[k] += (*it).second;
+        }
+        else {
+            this->bylevel[j-offset].map[k] += (*it).second;
+        }
+    }
+    return *this;
+}
+
+template <typename T>
+TreeCoefficients1D<T>&
+TreeCoefficients1D<T>::operator+=(const TreeCoefficients1D<T> &_coeff)
+{
+    assert(offset=_coeff.offset);
+    for (int l=0; l<=maxTreeLevel; ++l) {
+        if (_coeff.bylevel[l].map.size()!=0) {
+            for (const_by_level_it it=_coeff.bylevel[l].map.begin(); it!=_coeff.bylevel[l].map.end(); ++it) {
+                this->bylevel[l].map[(*it).first] += (*it).second;
+            }
+        }
+    }
+    return *this;
+}
+
+template <typename T>
 const CoefficientsByLevel<T>&
 TreeCoefficients1D<T>::operator[](short i) const
 {
@@ -180,11 +249,27 @@ TreeCoefficients1D<T>::operator[](short i)
 }
 
 template <typename T>
+void
+TreeCoefficients1D<T>::insert(const Index1D &lambda, T val)
+{
+    short j     = lambda.j;
+    long  k     = lambda.k;
+    XType xtype = lambda.xtype;
+    if (xtype==XBSpline) {
+        this->bylevel[j-1-offset].map[k] = val;
+    }
+    else {
+        this->bylevel[j-offset].map[k] = val;
+    }
+}
+
+template <typename T>
 template<typename Index, typename PrincipalIndex, CoordinateDirection CoordX>
 void
 TreeCoefficients1D<T>::addTo(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v)
 {
     Join<Index,PrincipalIndex,Index1D,CoordX> join;
+    // Splitting into separate sums does not payoff... (why?).
     for (int l=0; l<=maxTreeLevel; ++l) {
         if (this->bylevel[l].map.size()==0) continue;
         XType xtype_row_y;

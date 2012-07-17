@@ -44,6 +44,7 @@ struct UniDirectionalLocalOperator
     typedef typename TreeCoefficients1D<T>::by_level_it                    by_level_it;
 
     typedef AlignedCoefficients<T,Index,NotCoordXIndex,Index1D,NotCoordX>  NotCoordXAlignedCoefficients;
+    typedef AlignedTreeCoefficients<T,Index,NotCoordXIndex,NotCoordX>      NotCoordXAlignedTreeCoefficients;
 
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator const_coeff1d_it;
     typedef typename IndexSet<Index1D>::const_iterator                       const_set1d_it;
