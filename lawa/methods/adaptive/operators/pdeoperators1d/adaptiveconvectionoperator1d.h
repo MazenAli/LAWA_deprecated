@@ -30,7 +30,7 @@
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
 #include <lawa/preconditioners/preconditioners.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+//#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 
 namespace lawa {
 

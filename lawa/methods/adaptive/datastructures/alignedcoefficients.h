@@ -72,13 +72,20 @@ struct AlignedCoefficients
     void
     align(const Coefficients<Lexicographical,T,Index> &coeff, short J=0);
 
+    void
+    align(const Coefficients<Lexicographical,T,Index> &coeff, IndexSet<PrincipalIndex> &prinIndices,
+          short J=0);
+
+    void
+    align_ExcludeAndOrthogonal(const Coefficients<Lexicographical,T,Index> &coeff,
+                               const Coefficients<Lexicographical,T,Index> &exclude,
+                               const IndexSet<PrincipalIndex> &orthogonal, short J=0);
+
     IndexToCoefficientsMap map;
 
     size_t n1, n2;
 
 };
-
-
 
 template <typename T, typename Index, typename PrincipalIndex, typename AlignedIndex>
 struct AlignedCoefficients2

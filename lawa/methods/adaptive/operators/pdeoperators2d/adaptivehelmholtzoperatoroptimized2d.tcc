@@ -1,8 +1,8 @@
 namespace lawa {
 
 
-template <typename T, DomainType Domain1, DomainType Domain2>
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+template <typename T, DomainType Domain>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis, T _c)
 : basis(_basis), c(_c),
   cA(0.), CA(0.), kappa(0.),
@@ -11,6 +11,28 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
   P_data()
 {
     T cA_x=0., CA_x=0., cA_y=0., CA_y = 0.;
+    if (Domain==R) {
+        //todo: change to c/2.
+        AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi> helmholtzOp1D_x(basis.first,c);
+        cA_x = helmholtzOp1D_x.cA;
+        CA_x = helmholtzOp1D_x.CA;
+        AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi> helmholtzOp1D_y(basis.second,c);
+        cA_y = helmholtzOp1D_y.cA;
+        CA_y = helmholtzOp1D_y.CA;
+    }
+    else if (Domain==Interval) {
+        AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi> helmholtzOp1D_x(basis.first,0.);
+        cA_x = helmholtzOp1D_x.cA;
+        CA_x = helmholtzOp1D_x.CA;
+        AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi> helmholtzOp1D_y(basis.second,0.);
+        cA_y = helmholtzOp1D_y.cA;
+        CA_y = helmholtzOp1D_y.CA;
+    }
+    else {
+        assert(0);
+    }
+/*
+
     std::cout << "AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>: "
               << "j0_x=" << basis.first.j0 << ", j0_y=" << basis.second.j0 << std::endl;
     if (basis.first.d==2 && basis.second.d==2 && c==1.) {
@@ -42,34 +64,26 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
         else assert(0);
 
     }
+*/
     cA = std::min(cA_x,cA_y);
     CA = std::max(CA_x,CA_y);
     kappa = CA/cA;
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 T
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::operator()(const Index2D &row_index, const Index2D &col_index)
 {
-    /*
-    if (     (row_index).index1.val!=(col_index).index1.val
-          && (row_index).index2.val!=(col_index).index2.val  ) {
-        return 0.;
-    }
-    */
-
     T id_x = 0., dd_y = 0.;
     if ((row_index).index1.k==(col_index).index1.k && (row_index).index1.j==(col_index).index1.j &&
         (row_index).index1.xtype==(col_index).index1.xtype) {
-//    if ((row_index).index1.val==(col_index).index1.val) {
         id_x = 1.;
         dd_y = laplace_data1d(row_index.index2,col_index.index2);
     }
     T id_y = 0., dd_x = 0.;
     if ((row_index).index2.k==(col_index).index2.k && (row_index).index2.j==(col_index).index2.j &&
         (row_index).index2.xtype==(col_index).index2.xtype) {
-    //if ((row_index).index2.val==(col_index).index2.val) {
         id_y = 1.;
         dd_x = laplace_data1d(row_index.index1,col_index.index1);
     }
@@ -83,9 +97,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     }
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 T
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::prec(const Index2D &index)
 {
     T prec = 1.;
@@ -104,9 +118,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     return prec;
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::mv(const IndexSet<Index2D> &LambdaRow, const Coefficients<Lexicographical,T,Index2D> &v)
 {
     Coefficients<Lexicographical,T,Index2D> ret;
@@ -183,9 +197,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     return ret;
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 void
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
                       SparseMatrixT &A_flens, int J)
 {
@@ -258,9 +272,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     A_flens.finalize();
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 void
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::toFlensSparseMatrix(const IndexSet<Index2D>& LambdaRow, const IndexSet<Index2D>& LambdaCol,
                       SparseMatrixT &A_flens, T eps)
 {
@@ -278,23 +292,20 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     this->toFlensSparseMatrix(LambdaRow,LambdaCol,A_flens,J);
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 Coefficients<Lexicographical,T,Index2D>
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::apply(const Coefficients<Lexicographical,T,Index2D> &v, int k, int J, cxxblas::Transpose /*trans*/)
 {
     Coefficients<Lexicographical,T,Index2D> ret;
     if (v.size() == 0) return ret;
-
-    for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
-        ret[(*it).first] = c * (*it).second * this->prec((*it).first);
-    }
 
     Coefficients<AbsoluteValue,T,Index2D> temp;
     temp = v;
 
     int s = 0, count = 0;
     for (const_abs_coeff2d_it it = temp.begin(); (it != temp.end()) && (s<=k); ++it) {
+        ret[(*it).second] += c * (*it).first * this->prec((*it).second);
         Index1D col_index_x = (*it).second.index1;
         Index1D col_index_y = (*it).second.index2;
 
@@ -332,9 +343,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     return ret;
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 void
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
         Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose /*trans*/)
 {
@@ -346,11 +357,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     ret = this->apply(v, k);
     return ret;
 */
-
     Coefficients<Bucket,T,Index2D> v_bucket;
     T tol = 0.5*eps/CA;
     v_bucket.bucketsort(v,tol);
-    //std::cerr << "APPLY: NumOfBuckets=" << v_bucket.buckets.size() << std::endl;
     long double squared_v_norm = (long double)std::pow(v.norm(2.),(T)2.);
     long double squared_v_bucket_norm = 0.;
     T delta=0.;
@@ -366,6 +375,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
             break;
         }
     }
+
+    if (delta>tol) delta = eps/2.;
     //std::cerr << "APPLY: squared_v_norm=" << squared_v_norm << ", squared_v_bucket_norm=" << squared_v_bucket_norm << std::endl;
 
     for (int i=0; i<l; ++i) {
@@ -391,15 +402,12 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
             int maxlevel_y = std::min(col_index_y.j+jp,36);
             Lambda_x=lambdaTilde1d_PDE(col_index_x, basis.first, jp, basis.first.j0,
                                        maxlevel_x,false);
-
             Lambda_y=lambdaTilde1d_PDE(col_index_y, basis.second,jp, basis.second.j0,
                                        maxlevel_y,false);
-
             for (const_set1d_it row_x = Lambda_x.begin(); row_x != Lambda_x.end(); ++row_x) {
                 Index2D row_index(*row_x, col_index_y);
                 ret[row_index] += this->laplace_data1d(*row_x, col_index_x) * prec_col_index * (*it).second;
             }
-
             for (const_set1d_it row_y = Lambda_y.begin(); row_y != Lambda_y.end(); ++row_y) {
                 Index2D row_index(col_index_x, *row_y);
                 ret[row_index] += this->laplace_data1d(*row_y, col_index_y) * prec_col_index * (*it).second;
@@ -413,9 +421,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     //return ret;
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 void
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::apply(const Coefficients<Lexicographical,T,Index2D> &v, T eps,
         const IndexSet<Index2D> &Lambda, Coefficients<Lexicographical,T,Index2D> &ret, cxxblas::Transpose /*trans*/)
 {
@@ -499,9 +507,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     return;// ret;
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 int
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::findK(const Coefficients<AbsoluteValue,T,Index2D> &v, T eps)
 {
     int d=basis.first.d;
@@ -548,9 +556,9 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domai
     return std::min(k_eps,25);    //higher level differences result in translation indices that cannot be stored in int.
 }
 
-template <typename T, DomainType Domain1, DomainType Domain2>
+template <typename T, DomainType Domain>
 void
-AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 ::clear()
 {
 

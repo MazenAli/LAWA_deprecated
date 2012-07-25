@@ -45,6 +45,16 @@
 
 namespace lawa {
 
+struct lt_int_vs_int
+{
+    inline
+    bool operator()(const std::pair<int,int> &left, const std::pair<int,int> &right) const
+    {
+        if (left.first != right.first) return left.first < right.first;
+        else                           return left.second < right.second;
+    }
+};
+
 template <typename T, typename Basis2D, typename S1_x, typename S1_y, typename S2_x, typename S2_y>
 class TensorSparseGrid2D {
 

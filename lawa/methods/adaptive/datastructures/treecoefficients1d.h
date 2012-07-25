@@ -99,6 +99,9 @@ struct TreeCoefficients1D
     TreeCoefficients1D<T>&
     operator-=(const TreeCoefficients1D<T> &_coeff);
 
+    TreeCoefficients1D<T>&
+    operator+=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
+
     const CoefficientsByLevel<T>&
     operator[](short j)  const;
 
@@ -132,12 +135,12 @@ struct TreeCoefficients1D
 
 template<typename T>
 void
-fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
+fromTreeCoefficientsToCoefficients(const TreeCoefficients1D<T> &tree_v,
                                  Coefficients<Lexicographical,T,Index1D> &v);
 
 template<typename T>
 void
-fromCofficientsToTreeCofficients(const Coefficients<Lexicographical,T,Index1D> &v,
+fromCoefficientsToTreeCoefficients(const Coefficients<Lexicographical,T,Index1D> &v,
                                  TreeCoefficients1D<T> &tree_v);
 
 template<typename T, typename ScalingOperator>

@@ -24,7 +24,7 @@
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+#include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 
 namespace lawa {
 
@@ -44,9 +44,9 @@ struct AdaptiveIdentityOperator2D
     typedef IdentityOperator1D<T, Basis_x>                           IdentityOperator_x;
     typedef IdentityOperator1D<T, Basis_y>                           IdentityOperator_y;
 
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_x,
+    typedef MapMatrix<T, Index1D, IdentityOperator_x,
                                Compression1D_x, NoPreconditioner1D>  DataReaction_x;
-    typedef MapMatrixWithZeros<T, Index1D, IdentityOperator_y,
+    typedef MapMatrix<T, Index1D, IdentityOperator_y,
                                Compression1D_y, NoPreconditioner1D>  DataReaction_y;
 
     AdaptiveIdentityOperator2D(const Basis2D &_basis, T _entrybound=0.,

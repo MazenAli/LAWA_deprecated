@@ -23,7 +23,7 @@ typedef MapMatrix<T,Index1D,HelmholtzOp,Compression,Preconditioner> MA;
 
 //APPLY definitions
 typedef Parameters<T, Basis1D, HelmholtzOp, Preconditioner>         Params;
-typedef SYM_APPLY_1D<T,Index1D,Basis1D,Params,MA>                   APPLY;
+//typedef SYM_APPLY_1D<T,Index1D,Basis1D,Params,MA>                   APPLY;
 
 
 
@@ -50,7 +50,7 @@ int main (int argc, char *argv[]) {
     Basis1D basis(d,j0);
     Coefficients<Lexicographical,T,Index1D> u, Au;
     Coefficients<AbsoluteValue,T,Index1D> u_abs;
-
+/*
     IndexSet<Index1D> Lambda;
     for (int k=set_K_left; k<=set_K_right; ++k) {
         Lambda.insert(Index1D(j0,k,XBSpline));
@@ -104,7 +104,7 @@ int main (int argc, char *argv[]) {
         cout << "   " << s_tilde_level << " " << diff.norm(2.) << endl;
     }
     apply_conv_file.close();
-
+*/
 
 
 

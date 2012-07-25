@@ -30,7 +30,7 @@
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/preconditioners/preconditioners.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+//#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
 #include <lawa/methods/adaptive/operators/pdeoperators1d/adaptivelaplaceoperator1d.h>
 #include <lawa/methods/adaptive/operators/pdeoperators1d/adaptiveidentityoperator1d.h>
 
@@ -43,8 +43,8 @@ struct AdaptiveHelmholtzOperatorOptimized2D
 
 };
 
-template <typename T, DomainType Domain1, DomainType Domain2>
-struct AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogonal,Domain2,Multi>
+template <typename T, DomainType Domain>
+struct AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain,Multi>
 {
     typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
@@ -53,18 +53,18 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain1,Multi,Orthogona
     typedef typename Coefficients<Lexicographical,T,Index2D>::iterator        coeff2d_it;
     typedef typename Coefficients<AbsoluteValue,T,Index2D>::const_iterator    const_abs_coeff2d_it;
 
-    typedef Basis<T,Orthogonal,Domain1,Multi>                                 Basis_x;
-    typedef Basis<T,Orthogonal,Domain2,Multi>                                 Basis_y;
-    typedef TensorBasis2D<Adaptive,Basis_x,Basis_y>                         Basis2D;
+    typedef Basis<T,Orthogonal,Domain,Multi>                                 Basis_x;
+    typedef Basis<T,Orthogonal,Domain,Multi>                                 Basis_y;
+    typedef TensorBasis2D<Adaptive,Basis_x,Basis_y>                           Basis2D;
 
-    ct_assert(   IsRealline<typename Basis2D::FirstBasisType>::value
-              && IsRealline<typename Basis2D::SecondBasisType>::value);
+    //ct_assert(   IsRealline<typename Basis2D::FirstBasisType>::value
+    //          && IsRealline<typename Basis2D::SecondBasisType>::value);
 
     typedef CompressionPDE1D<T, Basis_x>                                      Compression1D_x;
     typedef CompressionPDE1D<T, Basis_y>                                      Compression1D_y;
     typedef CompressionPDE2D<T, Basis2D>                                      Compression2D;
 
-    typedef AdaptiveLaplaceOperator1D<T,Orthogonal,R,Multi>                   DataLaplace1D;
+    typedef AdaptiveLaplaceOperator1D<T,Orthogonal,Domain,Multi>              DataLaplace1D;
 
     AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis2d, T _c);
 

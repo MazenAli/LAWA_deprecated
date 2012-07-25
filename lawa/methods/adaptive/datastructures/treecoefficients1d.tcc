@@ -8,7 +8,7 @@ CoefficientsByLevel<T>::CoefficientsByLevel(void)
 
 template <typename T>
 CoefficientsByLevel<T>::CoefficientsByLevel(short _j, size_t n)
-: j(_j), map() /*map(n)*/
+: j(_j), map(n)
 {
     this->set(j,n);
 }
@@ -164,6 +164,25 @@ TreeCoefficients1D<T>::operator-=(const TreeCoefficients1D<T> &_coeff)
 }
 
 template <typename T>
+TreeCoefficients1D<T>&
+TreeCoefficients1D<T>::operator+=(const Coefficients<Lexicographical,T,Index1D> &_coeff)
+{
+    for (const_coeff1d_it it=_coeff.begin(); it!=_coeff.end(); ++it) {
+        short j     = (*it).first.j;
+        long  k     = (*it).first.k;
+        XType xtype = (*it).first.xtype;
+
+        if (xtype==XBSpline) {
+            this->bylevel[j-1-offset].map[k] += (*it).second;
+        }
+        else {
+            this->bylevel[j-offset].map[k] += (*it).second;
+        }
+    }
+    return *this;
+}
+
+template <typename T>
 const CoefficientsByLevel<T>&
 TreeCoefficients1D<T>::operator[](short i) const
 {
@@ -185,6 +204,7 @@ void
 TreeCoefficients1D<T>::addTo(const PrincipalIndex &lambda, Coefficients<Lexicographical,T,Index> &v)
 {
     Join<Index,PrincipalIndex,Index1D,CoordX> join;
+    // Splitting into separate sums does not payoff... (why?).
     for (int l=0; l<=maxTreeLevel; ++l) {
         if (this->bylevel[l].map.size()==0) continue;
         XType xtype_row_y;
@@ -262,7 +282,7 @@ TreeCoefficients1D<T>::norm(T factor)
 
 template<typename T>
 void
-fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
+fromTreeCoefficientsToCoefficients(const TreeCoefficients1D<T> &tree_v,
                                  Coefficients<Lexicographical,T,Index1D> &v)
 {
     for (typename CoefficientsByLevel<T>::const_it it= tree_v.bylevel[0].map.begin();
@@ -280,7 +300,7 @@ fromTreeCofficientsToCofficients(const TreeCoefficients1D<T> &tree_v,
 
 template<typename T>
 void
-fromCofficientsToTreeCofficients(const Coefficients<Lexicographical,T,Index1D> &v,
+fromCoefficientsToTreeCoefficients(const Coefficients<Lexicographical,T,Index1D> &v,
                                  TreeCoefficients1D<T> &tree_v)
 {
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator    const_coeff1d_it;

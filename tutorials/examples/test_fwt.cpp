@@ -27,6 +27,7 @@ int main (int argc, char *argv[]) {
     PrimalBasis basis(d,d_,j0);
     DualBasis   dual_basis(d,d_,j0);
     if (withDirichletBC) {
+        cout << "Enforcing homogeneous Dirichlet boundary conditions." << endl;
         basis.enforceBoundaryCondition<DirichletBC>();
         dual_basis.enforceBoundaryCondition<DirichletBC>();
     }
@@ -46,7 +47,6 @@ int main (int argc, char *argv[]) {
 
     DenseVectorT c_multi(basis.mra.rangeI(J));
     fwt(c_single, dual_basis, J-1, c_multi);
-
 
     DenseVectorT c_diff(basis.mra.rangeI(J));
     c_diff = c - c_multi;

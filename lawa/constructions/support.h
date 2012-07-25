@@ -55,6 +55,10 @@ template <typename T>
             Support<T> &common);
 
 template <typename T>
+    bool
+    contains(const Support<T> &supp1, const Support<T> &supp2);
+
+template <typename T>
     T
     distance(const Support<T> &supp1, const Support<T> &supp2);
 

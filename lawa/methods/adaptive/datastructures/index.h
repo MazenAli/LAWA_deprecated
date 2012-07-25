@@ -41,7 +41,7 @@ static boost::hash<long int> hash_long;
 struct Index1D
 {
     short j;
-    long k;
+    int k;
     XType xtype;
 
     Index1D(void);

@@ -427,6 +427,8 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,Interval,Multi> 
         basis.getWaveletNeighborsForScaling(j, k, basis,
                                             j_wavelet, k_wavelet_first, k_wavelet_last);
         assert(j_wavelet==j);
+        k_wavelet_first = std::max((long)basis.rangeJ(j_wavelet).firstIndex(), k_wavelet_first-basis._numInnerParts);
+        k_wavelet_last  = std::min((long)basis.rangeJ(j_wavelet).lastIndex(),  k_wavelet_last+basis._numInnerParts);
         for (int k_wavelet = k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
             if (overlap(supp, psi.support(j_wavelet,k_wavelet))>0) {
                 ret.insert(Index1D(j_wavelet,k_wavelet,XWavelet));
@@ -440,6 +442,8 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,Interval,Multi> 
         basis.getHigherWaveletNeighborsForWavelet(j, k, basis,
                                                   j_wavelet, k_wavelet_first, k_wavelet_last);
         assert(j_wavelet==j+1);
+        k_wavelet_first = std::max((long)basis.rangeJ(j_wavelet).firstIndex(), k_wavelet_first-basis._numInnerParts);
+        k_wavelet_last  = std::min((long)basis.rangeJ(j_wavelet).lastIndex(),  k_wavelet_last+basis._numInnerParts);
         for (int k_wavelet = k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
             if (overlap(supp, psi.support(j_wavelet,k_wavelet))>0) {
                 ret.insert(Index1D(j_wavelet,k_wavelet,XWavelet));

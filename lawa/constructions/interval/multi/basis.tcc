@@ -825,6 +825,50 @@ Basis<T,Orthogonal,Interval,Multi>::rangeJR(int j) const
 }
 
 template <typename T>
+void
+Basis<T,Orthogonal,Interval,Multi>::getLowerEnclosingScaling(int j_wavelet, long k_wavelet,
+                                                             int &j_scaling, long &k_scaling) const
+{
+    j_scaling = j_wavelet;
+    if (k_wavelet<=rangeJL(j_wavelet).lastIndex()) {
+        k_scaling = mra.rangeI(j_scaling).firstIndex();
+        return;
+    }
+    if (k_wavelet>=rangeJR(j_wavelet).firstIndex()) {
+        k_scaling = mra.rangeI(j_scaling).lastIndex();
+        return;
+    }
+    long k_tilde = (k_wavelet / _numInnerParts + 1) * mra._numInnerParts;
+    long k_scaling_first = k_tilde - 2* mra._numInnerParts - 2;
+    k_scaling_first = std::max(k_scaling_first, (long)mra.rangeI(j_scaling).firstIndex());
+    long k_scaling_last  = k_tilde + 2* mra._numInnerParts + 2;
+    k_scaling_last  = std::min(k_scaling_last, (long)mra.rangeI(j_scaling).lastIndex());
+    k_scaling = (k_scaling_last + k_scaling_first) / 2;
+}
+
+template <typename T>
+void
+Basis<T,Orthogonal,Interval,Multi>::getLowerEnclosingWavelet(int j_wavelet1, long k_wavelet1,
+                                                             int &j_wavelet2, long &k_wavelet2) const
+{
+    j_wavelet2 = j_wavelet1 - 1;
+    if (k_wavelet1<=this->rangeJL(j_wavelet1).lastIndex()) {
+        k_wavelet2 = 1;
+        return;
+    }
+    if (k_wavelet1>=this->rangeJR(j_wavelet1).firstIndex()) {
+        k_wavelet2 = rangeJR(j_wavelet2).lastIndex();
+        return;
+    }
+    long k_tilde = k_wavelet1 / 2;
+    long k_wavelet_first = k_tilde - 2*_numInnerParts;
+    k_wavelet_first = std::max(k_wavelet_first, (long)rangeJ(j_wavelet2).firstIndex());
+    long k_wavelet_last  = k_tilde + 2*_numInnerParts;
+    k_wavelet_last  = std::min(k_wavelet_last,  (long)rangeJ(j_wavelet2).lastIndex());
+    k_wavelet2 = (k_wavelet_last + k_wavelet_first) / 2;
+}
+
+template <typename T>
 template <typename SecondBasis>
 void
 Basis<T,Orthogonal,Interval,Multi>

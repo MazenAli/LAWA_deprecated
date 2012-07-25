@@ -244,6 +244,24 @@ P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda)
 }
 
 template <typename T, typename Index>
+void
+P(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Index> &v)
+{
+    typedef typename IndexSet<Index>::const_iterator const_set_it;
+    typedef typename Coefficients<Lexicographical,T,Index>::iterator coeff_it;
+    IndexSet<Index> indicesToBeDeleted(v.size());
+    for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
+        if (v.find(*lambda) == v.end()) {
+            indicesToBeDeleted.insert(*lambda);
+        }
+    }
+    for (const_set_it lambda = indicesToBeDeleted.begin(); lambda != indicesToBeDeleted.end(); ++lambda) {
+        v.erase(*lambda);
+    }
+    return;
+}
+
+template <typename T, typename Index>
 IndexSet<Index>
 supp(const Coefficients<Lexicographical,T,Index> &v)
 {
@@ -381,7 +399,10 @@ Coefficients<Bucket,T,Index>::bucketsort(const Coefficients<Lexicographical,T,In
         }
     }
     //std::cerr << "Supremum norm = " << supremumnorm << std::endl;
-    int NumOfBuckets = std::max(0,(int)(2*std::log(supremumnorm*std::sqrt(_coeff.size())/eps)/std::log(T(2))));
+    int NumOfBuckets = std::max(0,(int)(2*std::log(supremumnorm*std::sqrt(_coeff.size())/eps)/std::log(T(2)))+1);
+
+    //std::cerr << "   Bucketsort: " << std::pow(2.,-0.5*NumOfBuckets)*supremumnorm*std::sqrt(_coeff.size())
+    //          << " " << eps << std::endl;
 
 
     for (int i=0; i<NumOfBuckets; ++i) {

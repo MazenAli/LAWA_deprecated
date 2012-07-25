@@ -21,6 +21,7 @@
 #define  LAWA_METHODS_ADAPTIVE_SOLVERS_GHSADWAV_H 1
 
 #include <map>
+#include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 #include <lawa/methods/adaptive/algorithms/algorithms.h>
 
@@ -62,6 +63,7 @@ struct GHS_ADWAV {
         T                cA, CA, kappa;
         T                alpha, omega, gamma, theta;
         T                eps;
+        size_t           hms_galerkin, hms_residual; // hms = hash map size
 };
 
 

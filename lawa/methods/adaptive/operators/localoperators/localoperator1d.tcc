@@ -1,26 +1,47 @@
 namespace lawa {
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
-::LocalOperator1D(const TestBasis &_testBasis, const TrialBasis &_trialBasis, BilinearForm &_Bil)
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm,
+          typename BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
+::LocalOperator1D(const TestBasis &_testBasis, const TrialBasis &_trialBasis,
+                  RefinementBilinearForm &_RefinementBil)
 : testBasis(_testBasis), trialBasis(_trialBasis),
   testRefinementBasis(testBasis.refinementbasis), trialRefinementBasis(trialBasis.refinementbasis),
-  Bil(_Bil),
+  RefinementBil(_RefinementBil), Bil(_RefinementBil),
   testLocalRefine(testBasis), trialLocalRefine(trialBasis),
   testRefinementLevelOffset(testBasis.j0), trialRefinementLevelOffset(trialBasis.j0)
 {
     assert(testBasis.j0==trialBasis.j0);    // Using different scales is not meaningful.
 }
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm,
+          typename BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
+::LocalOperator1D(const TestBasis &_testBasis, const TrialBasis &_trialBasis,
+                  RefinementBilinearForm &_RefinementBil, BilinearForm &_Bil)
+: testBasis(_testBasis), trialBasis(_trialBasis),
+  testRefinementBasis(testBasis.refinementbasis), trialRefinementBasis(trialBasis.refinementbasis),
+  RefinementBil(_RefinementBil), Bil(_Bil),
+  testLocalRefine(testBasis), trialLocalRefine(trialBasis),
+  testRefinementLevelOffset(testBasis.j0), trialRefinementLevelOffset(trialBasis.j0)
+{
+    assert(testBasis.j0==trialBasis.j0);    // Using different scales is not meaningful.
+}
+
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm,
+          typename BilinearForm>
 void
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::eval(const TreeCoefficients1D<T> &PsiLambdaHat, TreeCoefficients1D<T> &PsiLambdaCheck,
        const char* mode)
 {
     CoefficientsByLevel<T> d, PhiPiCheck;
     if (TrialBasis::Cons==Multi) {
         int j_bspline = 0;
+        if (PsiLambdaHat[0].map.size()==0) {
+            std::cerr << "ERROR: No scaling functions in tree PsiLambdaHat!" << std::endl;
+            std::cerr << PsiLambdaHat << std::endl;
+        }
         trialLocalRefine.reconstructOnlyMultiScaling(PsiLambdaHat[0], trialBasis.j0, d, j_bspline);
         trialRefinementLevelOffset = j_bspline; //required when using multiwavelets!
     }
@@ -30,6 +51,10 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     if (TestBasis::Cons==Multi) {
         int j_bspline = 0;
         if (strcmp(mode,"L")!=0) {
+            if (PsiLambdaCheck[0].map.size()==0) {
+                std::cerr << "ERROR: No scaling functions in tree PsiLambdaCheck!" << std::endl;
+                std::cerr << PsiLambdaCheck << std::endl;
+            }
             testLocalRefine.reconstructOnlyMultiScaling(PsiLambdaCheck[0], testBasis.j0,
                                                 PhiPiCheck, j_bspline);
             testRefinementLevelOffset = j_bspline; //required when using multiwavelets!
@@ -47,7 +72,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     else if (strcmp(mode,"U")==0)           this->_evalU(0, d, PsiLambdaHat, PhiPiCheck, PsiLambdaCheck);
     else if (strcmp(mode,"L")==0)           this->_evalL(0, d, PsiLambdaHat, PsiLambdaCheck);
     else {
-        std::cerr << "LocalOperator1D<TestBasis, TrialBasis, BilinearForm>: Unknow mode"
+        std::cerr << "LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm>: Unknow mode"
                   << mode << ". Exit." << std::endl;
         exit(1);
         return;
@@ -61,9 +86,9 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     }
 }
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_evalA(int l, CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
         CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck)
 {
@@ -77,11 +102,17 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     int j_wavelet_test =  l + testBasis.j0;
     int j_wavelet_trial = l + trialBasis.j0;
 
-    size_t hm_size = 2*COEFFBYLEVELSIZE;
+    //size_t hm_size = COEFFBYLEVELSIZE;
+    size_t hm_size = (size_t)(2*std::max(d.map.size(), PhiPiCheck.map.size()));
 
     // Splitting of B-spline index set $\check{\Phi}$.
     CoefficientsByLevel<T> PhiPiCheck2(l,hm_size);
-    _splitPhiPi(l, c[shifted_l], PhiPiCheck, PhiPiCheck2);
+    if (c[shifted_l].map.size()==trialBasis.cardJ(j_wavelet_trial)) {
+        PhiPiCheck2.map.swap(PhiPiCheck.map);
+    }
+    else {
+        _splitPhiPi(l, c[shifted_l], PhiPiCheck, PhiPiCheck2);
+    }
 
     // Compute underlinePiCheck
     int j_refinement_test = 0;
@@ -92,13 +123,18 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
 
     //Compute a(\check{Phi}|_{\check{Pi}^{(1)}} , \hat{\Phi}|_{\hat{Pi}}) d
     //time.start();
-    _applyBilinearForm(l, d, PhiPiCheck);
+    _applyRefinementBilinearForm(l, d, PhiPiCheck);
     //time.stop();
 
     // Splitting of B-spline coefficient vector $d$.
     //time.start();
     CoefficientsByLevel<T> d2(l,hm_size);
-    _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
+    if (PsiLambdaCheck[shifted_l].map.size()==testBasis.cardJ(j_wavelet_test)) {
+        d2.map.swap(d.map);
+    }
+    else {
+        _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
+    }
     //time.stop();
     //std::cerr << "l = " << l << " : splitting of d took " << time.elapsed() << std::endl;
 
@@ -121,17 +157,22 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                                PsiLambdaCheck[shifted_l], j_wavelet_test);
 
     //Compute a(\check{Phi}|_{\check{Pi}^{(2)}} , \hat{\Phi}|_{\hat{Pi}^{(1)}}) d^{(1)}
-    _applyBilinearForm(l, d, PhiPiCheck2);
+    _applyRefinementBilinearForm(l, d, PhiPiCheck2);
 
-    PhiPiCheck += PhiPiCheck2;
+    if (c[shifted_l].map.size()==trialBasis.cardJ(j_wavelet_trial)) {
+        PhiPiCheck.map.swap(PhiPiCheck2.map);
+    }
+    else {
+        PhiPiCheck += PhiPiCheck2;
+    }
 
     return;
 
 }
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_evalU(int l, CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
         CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck)
 {
@@ -157,7 +198,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                                 PhiPiunderlineCheck, j_refinement_test);
 
     //Compute a(\check{Phi}|_{\check{Pi}^{(1)}} , \hat{\Phi}|_{\hat{Pi}}) d
-    _applyBilinearForm(l, d, PhiPiCheck);
+    _applyRefinementBilinearForm(l, d, PhiPiCheck);
 
     // Compute underline d
     CoefficientsByLevel<T> help, underline_d(l+1,hm_size);
@@ -174,16 +215,16 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                                PsiLambdaCheck[shifted_l], j_wavelet_test);
 
     //Compute a(\check{Phi}|_{\check{Pi}^{(2)}} , \hat{\Phi}|_{\hat{Pi}^{(1)}}) d^{(1)}
-    _applyBilinearForm(l, d, PhiPiCheck2);
+    _applyRefinementBilinearForm(l, d, PhiPiCheck2);
 
     PhiPiCheck += PhiPiCheck2;
 
     return;
 }
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_evalL(int l, CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
          TreeCoefficients1D<T> &PsiLambdaCheck)
 {
@@ -215,7 +256,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                                  help,        j_wavelet_trial,
                                  underline_d, j_refinement_trial);
 
-    _applyBilinearForm(l+1, underline_d, PhiPiunderlineCheck);
+    _applyRefinementBilinearForm(l+1, underline_d, PhiPiunderlineCheck);
 
     testLocalRefine.decompose_(PhiPiunderlineCheck,
                                help,                      j_bspline_test,
@@ -232,9 +273,9 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     return;
 }
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_splitPhiPi(int l, const CoefficientsByLevel<T> &c_l, CoefficientsByLevel<T> &PhiPiCheck1,
                  CoefficientsByLevel<T> &PhiPiCheck2) const
 {
@@ -278,9 +319,9 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     }
 }
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_splitd(int l, const CoefficientsByLevel<T> &PsiLambdaCheck_l,
           CoefficientsByLevel<T> &d1, CoefficientsByLevel<T> &d2) const
 {
@@ -293,7 +334,10 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
             long k_bspline_first = 0L, k_bspline_last = 0L;
             testBasis.getBSplineNeighborsForWavelet(j_wavelet, k_wavelet, trialRefinementBasis,
                                                     j_bspline, k_bspline_first, k_bspline_last);
+            //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
             for (long k_bspline=k_bspline_first; k_bspline<=k_bspline_last; ++k_bspline) {
+                //Support<T> trialSupp = trialBasis.generator(XBSpline).support(j_bspline,k_bspline);
+                //if (!overlap(testSupp,trialSupp)) continue;
                 by_level_it p_entry_d1 = d1.map.find(k_bspline);
                 if (p_entry_d1!=d1.map.end()) {
                     d2.map[k_bspline] = (*p_entry_d1).second;
@@ -311,10 +355,11 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
             long k_wavelet_first = 0L, k_wavelet_last = 0L;
             trialRefinementBasis.getWaveletNeighborsForBSpline(j_bspline, k_bspline, testBasis,
                                                      j_wavelet, k_wavelet_first, k_wavelet_last);
-
+            //Support<T> trialSupp = trialBasis.generator(XBSpline).support(j_bspline,k_bspline);
             for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+                //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
                 const_by_level_it p_PsiLambdaCheck_l = PsiLambdaCheck_l.map.find(k_wavelet);
-                if (p_PsiLambdaCheck_l!=p_PsiLambdaCheck_l_end) {
+                if (/*overlap(testSupp,trialSupp) &&*/ p_PsiLambdaCheck_l!=p_PsiLambdaCheck_l_end) {
                     d2.map[k_bspline] = (*mu).second;
                     d1.map.erase(k_bspline);
                     break;
@@ -324,10 +369,10 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
     }
 }
 
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
-::_applyBilinearForm(int l, const CoefficientsByLevel<T> &d, CoefficientsByLevel<T> &PhiPiCheck)
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
+::_applyRefinementBilinearForm(int l, const CoefficientsByLevel<T> &d, CoefficientsByLevel<T> &PhiPiCheck)
 {
     if (d.map.size()==0 || PhiPiCheck.map.size()==0) return;
     if (d.map.size() > PhiPiCheck.map.size()) {
@@ -346,8 +391,8 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
             for (long k_bspline2=k_bspline2_first; k_bspline2<=k_bspline2_last; ++k_bspline2) {
                 const_by_level_it p_entry_d = d.map.find(k_bspline2);
                 if (p_entry_d!=p_d_end) {
-                    val += (long double)(Bil(XBSpline, j_bspline1, k_bspline1,
-                                             XBSpline, j_bspline2, k_bspline2) * (*p_entry_d).second);
+                    val += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
+                                                       XBSpline, j_bspline2, k_bspline2) * (*p_entry_d).second);
                 }
             }
             (*mu).second += val;
@@ -369,8 +414,8 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                 by_level_it p_PhiPiCheck=PhiPiCheck.map.find(k_bspline1);
                 if (p_PhiPiCheck!=PhiPiCheck.map.end()) {
                     (*p_PhiPiCheck).second
-                    += (long double)(Bil(XBSpline, j_bspline1, k_bspline1,
-                                         XBSpline, j_bspline2, k_bspline2) * (*mu).second);
+                    += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
+                                                   XBSpline, j_bspline2, k_bspline2) * (*mu).second);
                 }
             }
         }
@@ -388,9 +433,9 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
 
 
 /*
-template <typename TestBasis, typename TrialBasis, typename BilinearForm>
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void
-LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_evalA_nonRecursive(CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
                       CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck)
 {
@@ -424,7 +469,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
                                     PhiPiCheck,                 j_refinement_test);
 
         //Compute a(\check{Phi}|_{\check{Pi}^{(1)}} , \hat{\Phi}|_{\hat{Pi}}) d
-        _applyBilinearForm(l, d, PhiPiCheck1[l]);
+        _applyRefinementBilinearForm(l, d, PhiPiCheck1[l]);
 
         // Splitting of B-spline coefficient vector $d$.
         CoefficientsByLevel<T> d2(l,hm_size);
@@ -433,7 +478,7 @@ LocalOperator1D<TestBasis, TrialBasis, BilinearForm>
         //std::cout << " d2  = " << d2 << std::endl;
 
         //Compute a(\check{Phi}|_{\check{Pi}^{(2)}} , \hat{\Phi}|_{\hat{Pi}^{(1)}}) d^{(1)}
-        _applyBilinearForm(l, d, PhiPiCheck2[l]);
+        _applyRefinementBilinearForm(l, d, PhiPiCheck2[l]);
 
         // Compute underline d
         d.map.clear();

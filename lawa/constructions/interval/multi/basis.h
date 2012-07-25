@@ -104,6 +104,13 @@ class Basis<_T,Orthogonal,Interval,Multi>
 
         Basis<T,Orthogonal,Interval,MultiRefinement> refinementbasis;
 
+        void
+        getLowerEnclosingScaling(int j_wavelet, long k_wavelet,
+                                 int &j_scaling, long &k_scaling) const;
+
+        void
+        getLowerEnclosingWavelet(int j_wavelet1, long k_wavelet1,
+                                 int &j_wavelet2, long &k_wavelet2) const;
 
         /// Returns the range of indicated functions from SecondBasis whose supports
         /// intersect the support of a given (multi-)scaling with level j_scaling and translation index

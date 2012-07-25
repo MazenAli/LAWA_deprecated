@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef ADAPTIVE_POSTPROCESSING_PLOTTING_H
-#define ADAPTIVE_POSTPROCESSING_PLOTTING_H 1
+#ifndef LAWA_METHODS_ADAPTIVE_POSTPROCESSING_PLOTTING_H
+#define LAWA_METHODS_ADAPTIVE_POSTPROCESSING_PLOTTING_H 1
 
 #include <iostream>
 #include <fstream>
@@ -107,5 +107,5 @@ plotScatterCoeff(const Coefficients<Lexicographical,T,Index3D> &coeff, const Bas
 
 #include <lawa/methods/adaptive/postprocessing/plotting.tcc>
 
-#endif // ADAPTIVE_POSTPROCESSING_PLOTTING_H
+#endif // LAWA_METHODS_ADAPTIVE_POSTPROCESSING_PLOTTING_H
 

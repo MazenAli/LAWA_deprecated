@@ -24,12 +24,13 @@
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>
 #include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators2d/helmholtzoperator2d.h>
 #include <lawa/preconditioners/preconditioners.h>
-#include <lawa/methods/adaptive/datastructures/hashmapmatrixwithzeros.h>
+
 
 namespace lawa {
 
