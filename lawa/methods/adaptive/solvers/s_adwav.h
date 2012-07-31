@@ -69,6 +69,8 @@ class S_ADWAV {
 
         const Basis &basis;
     
+        bool relative_thresh;
+
     private:
         MA &A;
         RHS &F;
@@ -79,7 +81,6 @@ class S_ADWAV {
         int MaxSizeLambda;
         T resStopTol;
         std::vector<int> Jmaxvec;
-        
 
 };
 

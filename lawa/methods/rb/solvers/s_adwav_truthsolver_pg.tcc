@@ -183,7 +183,7 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 void
 S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::set_parameters(T _contraction, T _threshTol, T _linTol, T _resTol, 
-              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, std::vector<int> _Jmaxvec)
+              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, bool relative_thresh, std::vector<int> _Jmaxvec)
 {
     params.contraction = _contraction;
     params.threshTol = _threshTol;
@@ -204,12 +204,14 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
                            params.resTol, params.NumOfIts, params.MaxItsPerThreshTol, 
                            params.eps, params.MaxSizeLambda, params.resStopTol,
                            params.Jmaxvec);
+    s_adwav.relative_thresh = relative_thresh;
     
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 void
-S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::set_parameters_repr_F(T _contraction, T _threshTol, T _linTol, T _resTol, int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, std::vector<int> _Jmaxvec)
+S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::set_parameters_repr_F(T _contraction, T _threshTol, T _linTol, T _resTol,
+		int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, bool relative_thresh, std::vector<int> _Jmaxvec)
 {
     params_repr_F.contraction = _contraction;
     params_repr_F.threshTol = _threshTol;
@@ -230,12 +232,14 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
                            params_repr_F.resTol, params_repr_F.NumOfIts, params_repr_F.MaxItsPerThreshTol, 
                            params_repr_F.eps, params_repr_F.MaxSizeLambda, params_repr_F.resStopTol,
                            params_repr_F.Jmaxvec);
-    
+    repr_s_adwav_F.relative_thresh = relative_thresh;
+
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 void
-S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::set_parameters_repr_A(T _contraction, T _threshTol, T _linTol, T _resTol, int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, std::vector<int> _Jmaxvec)
+S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::set_parameters_repr_A(T _contraction, T _threshTol, T _linTol, T _resTol,
+		int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, bool relative_thresh, std::vector<int> _Jmaxvec)
 {
     params_repr_A.contraction = _contraction;
     params_repr_A.threshTol = _threshTol;
@@ -256,7 +260,8 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
                            params_repr_A.resTol, params_repr_A.NumOfIts, params_repr_A.MaxItsPerThreshTol, 
                            params_repr_A.eps, params_repr_A.MaxSizeLambda, params_repr_A.resStopTol,
                            params_repr_A.Jmaxvec);
-    
+    repr_s_adwav_A.relative_thresh = relative_thresh;
+
 }
      
 } // namespace lawa

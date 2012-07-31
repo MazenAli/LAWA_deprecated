@@ -53,19 +53,19 @@ class S_ADWAV_TruthSolver_PG {
         void
         set_parameters(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
                       int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
-                      int _MaxSizeLambda = 400, T _resStopTol = 0.1,
+                      int _MaxSizeLambda = 400, T _resStopTol = 0.1, bool relative_thresh = false,
                       std::vector<int> _Jmaxvec = std::vector<int>(0));
         
         void
         set_parameters_repr_F(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
                             int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
-                            int _MaxSizeLambda = 400, T _resStopTol = 0.1,
+                            int _MaxSizeLambda = 400, T _resStopTol = 0.1, bool relative_thresh = false,
                             std::vector<int> _Jmaxvec = std::vector<int>(0));
 
         void
         set_parameters_repr_A(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4, 
                             int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
-                            int _MaxSizeLambda = 400, T _resStopTol = 0.1,
+                            int _MaxSizeLambda = 400, T _resStopTol = 0.1, bool relative_thresh = false,
                             std::vector<int> _Jmaxvec = std::vector<int>(0));
     
     /* Public member functions */

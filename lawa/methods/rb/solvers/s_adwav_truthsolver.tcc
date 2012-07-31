@@ -198,7 +198,7 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::reset_repr_s_adwav_A()
 template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void
 S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters(T _contraction, T _threshTol, T _linTol, T _resTol, 
-              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
+              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, bool relative_thresh)
 {
     params.contraction = _contraction;
     params.threshTol = _threshTol;
@@ -212,13 +212,14 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters(T _contr
     s_adwav.set_parameters(params.contraction, params.threshTol, params.linTol, 
                            params.resTol, params.NumOfIts, params.MaxItsPerThreshTol, 
                            params.eps, params.MaxSizeLambda, params.resStopTol);
+    s_adwav.relative_thresh = relative_thresh;
     
 }
 
 template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void
 S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters_repr_F(T _contraction, T _threshTol, T _linTol, T _resTol, 
-              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
+              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, bool relative_thresh)
 {
     params_repr_F.contraction = _contraction;
     params_repr_F.threshTol = _threshTol;
@@ -233,13 +234,15 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters_repr_F(T
     repr_s_adwav_F.set_parameters(params_repr_F.contraction, params_repr_F.threshTol, params_repr_F.linTol, 
                            params_repr_F.resTol, params_repr_F.NumOfIts, params_repr_F.MaxItsPerThreshTol, 
                            params_repr_F.eps, params_repr_F.MaxSizeLambda, params_repr_F.resStopTol);
-    
+    repr_s_adwav_F.relative_thresh = relative_thresh;
+
+
 }
 
 template <typename T, typename Basis, typename Prec, typename Index, typename Compression>
 void
 S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters_repr_A(T _contraction, T _threshTol, T _linTol, T _resTol, 
-              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol)
+              int _NumOfIterations, int _MaxItsPerThreshTol, T _eps, int _MaxSizeLambda, T _resStopTol, bool relative_thresh)
 {
     params_repr_A.contraction = _contraction;
     params_repr_A.threshTol = _threshTol;
@@ -254,7 +257,8 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::set_parameters_repr_A(T
     repr_s_adwav_A.set_parameters(params_repr_A.contraction, params_repr_A.threshTol, params_repr_A.linTol, 
                            params_repr_A.resTol, params_repr_A.NumOfIts, params_repr_A.MaxItsPerThreshTol, 
                            params_repr_A.eps, params_repr_A.MaxSizeLambda, params_repr_A.resStopTol);
-    
+    repr_s_adwav_A.relative_thresh = relative_thresh;
+
 }
      
 } // namespace lawa

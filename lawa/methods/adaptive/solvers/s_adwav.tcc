@@ -29,7 +29,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::S_ADWAV(const Basis &_basis, MA &_A, RHS &_F, T _
                                   T _resStopTol, std::vector<int> _Jmaxvec)
     : basis(_basis), A(_A), F(_F), contraction(_contraction), threshTol(start_threshTol), linTol(start_linTol),
       resTol(start_resTol), NumOfIterations(_NumOfIterations), MaxItsPerThreshTol(_MaxItsPerThreshTol), eps(_eps),
-      MaxSizeLambda(_MaxSizeLambda), resStopTol(_resStopTol), Jmaxvec(_Jmaxvec)
+      MaxSizeLambda(_MaxSizeLambda), resStopTol(_resStopTol), Jmaxvec(_Jmaxvec), relative_thresh(false)
 {
     if(Jmaxvec.size() == 0){
         Jmaxvec.push_back(INT_MAX);
@@ -221,7 +221,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, in
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         //std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
-        int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 1000, timeMatrixVector, assemble_matrix);
+        int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 10000, timeMatrixVector, assemble_matrix);
         linsolve_iterations[its] = iterations;
         //std::cout << "   ...finished." << std::endl;
 
@@ -229,7 +229,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, in
         //std::cout << "Before THRESH: " << u << std::endl;
         //std::cout << "||u||_2 = " << u.norm(2.) << ", threshTol = " << threshTol << std::endl;
         // u = THRESH(u,threshTol*u.norm(2.),false);
-        u = THRESH(u,threshTol,false, basis.first.d > 3 ? true : false);
+        if(relative_thresh){
+        	u = THRESH(u,threshTol*u.norm(2.),false, basis.d > 3 ? true : false);
+        }
+        else{
+        	u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        }
 
 				//int jmin,jmax;
         //getMinAndMaxLevel(LambdaActive, jmin, jmax);
@@ -277,8 +282,14 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, in
         toliters[its] = linTol;
 
         //r = THRESH(r,threshTol*r.norm(2.));
-        r = THRESH(r,threshTol, false, basis.first.d > 3 ? true : false);
-				LambdaActive = LambdaThresh+supp(r);
+        if(relative_thresh){
+        	r = THRESH(r,threshTol*r.norm(2.),false, basis.d > 3 ? true : false);
+        }
+        else{
+        	r = THRESH(r,threshTol,false, basis.d > 3 ? true : false);
+        }
+
+		LambdaActive = LambdaThresh+supp(r);
 
 
         //Check if residual is decreasing, if not decrease threshold tolerance
@@ -353,7 +364,7 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
         T r_norm_LambdaActive = 0.0;
         std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
         int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 1000, timeMatrixVector, assemble_matrix);
-        std::cout << "   ...finished." << std::endl;
+        std::cout << "   ...finished with residual " << r_norm_LambdaActive << std::endl;
 
         //Threshold step
         //u = THRESH(u,threshTol);
@@ -395,7 +406,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg_WO_XBSpline(const IndexSet<Index> &Initi
         file << LambdaThresh.size() << " " << estim_res << " " << Error_H_energy << std::endl;
 
         //r = THRESH(r,threshTol);
-				r = THRESH(r,threshTol, false, basis.first.d > 3 ? true : false);
+        if(relative_thresh){
+        	r = THRESH(r,threshTol*r.norm(2.),false, basis.d > 3 ? true : false);
+        }
+        else{
+        	r = THRESH(r,threshTol,false, basis.d > 3 ? true : false);
+        }
         LambdaActive = LambdaActive+supp(r);
 
         //Check if residual is decreasing, if not decrease threshold tolerance
@@ -460,13 +476,19 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda,
         std::cout << "   GMRES solver started with N = " << LambdaActive.size() << std::endl;
         int maxIterations = 10000;
         int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, maxIterations, assemble_matrix);
-        std::cout << "   ...finished." << std::endl;
+        std::cout << "   ...finished with residual " << r_norm_LambdaActive << std::endl;
 
 
 
         //Threshold step
         // u = THRESH(u,threshTol);
-        u = THRESH(u,threshTol, false, basis.first.d > 3 ? true : false);
+        if(relative_thresh){
+        	u = THRESH(u,threshTol*u.norm(2.),false, basis.first.d > 3 ? true : false);
+        }
+        else{
+        	u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        }
+
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
@@ -504,8 +526,12 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda,
         residuals[its] = estim_res;
 
         //r = THRESH(r,threshTol);
-		r = THRESH(r,threshTol, false, basis.first.d > 3 ? true : false);
-
+        if(relative_thresh){
+        	r = THRESH(r,threshTol*r.norm(2.),false, basis.d > 3 ? true : false);
+        }
+        else{
+        	r = THRESH(r,threshTol,false, basis.d > 3 ? true : false);
+        }
         //LambdaActive = LambdaThresh+supp(r);
         LambdaActive = LambdaActive+supp(r);
 
@@ -575,16 +601,22 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda
         
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
-				int maxIterations = 1000;
+		int maxIterations = 10000;
         std::cout << "   GMRESM solver started with N = " << LambdaActive.size() << std::endl;
         int iterations = GMRESM_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, maxIterations, assemble_matrix);
-        std::cout << "   ...finished." << std::endl;
+        std::cout << "   ...finished with residual " << r_norm_LambdaActive << std::endl;
         
         
         
         //Threshold step
         //u = THRESH(u,threshTol);
-        u = THRESH(u,threshTol, false, basis.first.d > 3 ? true : false);
+        if(relative_thresh){
+        	u = THRESH(u,threshTol*u.norm(2.),false, basis.first.d > 3 ? true : false);
+        }
+        else{
+        	u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        }
+
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
@@ -622,7 +654,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmresm(const IndexSet<Index> &InitialLambda
         residuals[its] = estim_res;
         
         //r = THRESH(r,threshTol);
-        r = THRESH(r,threshTol, false, basis.first.d > 3 ? true : false);
+        if(relative_thresh){
+        	r = THRESH(r,threshTol*r.norm(2.),false, basis.d > 3 ? true : false);
+        }
+        else{
+        	r = THRESH(r,threshTol,false, basis.d > 3 ? true : false);
+        }
+
         //LambdaActive = LambdaThresh+supp(r);
         LambdaActive = LambdaActive+supp(r);
         
