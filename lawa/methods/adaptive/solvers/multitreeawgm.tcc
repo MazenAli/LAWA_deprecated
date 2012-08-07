@@ -51,6 +51,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
 
     Timer time;
     Timer iteration_time;
+    Timer galerkin_time;
 
     for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
         u_leafs[(*it).first] = 0.;
@@ -64,6 +65,8 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
     file.precision(16);
 
     T time_total_comp = 0.;
+    T time_total_galerkin = 0.;
+    T time_total_residual = 0.;
     for (int iter=1; iter<=NumOfIterations; ++iter) {
         T time_mv_linsys = 0.;
         T time_mv_residual = 0.;
@@ -91,13 +94,15 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr.precision(6);
         std::cerr << "   ...finished." << std::endl;
 
-
         /* ******************* CG method for Galerkin system *********************** */
 
 
-
+        T time_galerkin = 0.;
+        galerkin_time.start();
         std::cerr << "   CG method started." << std::endl;
+        std::cerr << "DEBUG: Size of r = " << r.size() << std::endl;
         A.eval(u,r,Prec,"galerkin");
+        std::cerr << "DEBUG: Size of r = " << r.size() << std::endl;
         r -= p;
         p = r;
         p *= (T)(-1.);
@@ -138,11 +143,17 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
             writeCoefficientsToFile(u, iter, coefffilename);
         }
 
+        galerkin_time.stop();
+        time_galerkin = galerkin_time.elapsed();
+        time_total_galerkin += time_galerkin;
         /* ************************************************************************* */
 
         /* ***************** Errors and some info on the solution ******************** */
 
         std::cerr << "   Computing energy error..." << std::endl;
+        T EnergyError =  0.;
+        T f_minus_Au_error = 0.;
+        /*
         Ap.setToZero();
         A.eval(u,Ap,Prec,"galerkin");
         T uAu = Ap*u;
@@ -150,15 +161,14 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
             fu += (*it).second*Prec((*it).first) * F((*it).first);
         }
-        T EnergyError =  sqrt(fabs(EnergyNormSquared - 2*fu + uAu));
+        EnergyError =  sqrt(fabs(EnergyNormSquared - 2*fu + uAu));
         std::cerr << "   ... finished with energy error: " << EnergyError << std::endl;
 
-        T f_minus_Au_error = 0.;
         if (compute_f_minus_Au_error) {
             compute_f_minus_Au(u, 1e-9, f_minus_Au_error);
         }
-
-
+        */
+        /*
         getLevelInfo(u, maxIndex, maxWaveletIndex, jmax, arrayLength);
         int J = -100;
         for (int i=0; i<arrayLength; ++i) {
@@ -174,7 +184,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
             std::cerr << " " << jmax[i];
         }
         std::cerr << std::endl;
-
+        */
         //bool useSupportCenter=true;
         //plotScatterCoeff(u, basis, "u_coeff", useSupportCenter);
         //std::cerr << "Please hit enter." << std::endl;
@@ -186,10 +196,10 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         /* ******************* Computing approximate residual ********************** */
 
         std::cerr << "   Computing residual..." << std::endl;
-        res.setToZero();
         std::cerr << "     Computing multi-tree for residual..." << std::endl;
         std::cerr << "        #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
         time.start();
+        res.setToZero();
         extendMultiTree(basis, u_leafs, res, residualType, IsMW, sparsetree);
         //extendMultiTreeAtBoundary(basis, u, res, J+1, sparsetree);
         time.stop();
@@ -208,9 +218,10 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
             (*it).second -= Prec((*it).first) * F((*it).first);
         }
         time.stop();
+        Residual = res.norm(2.);
         time_mv_residual = time.elapsed();
         time_multitree_residual += time_mv_residual;
-        Residual = res.norm(2.);
+        time_total_residual += time_multitree_residual;
         std::cerr << "   ... finished with Residual: " << Residual << std::endl;
 
         /* ************************************************************************* */
@@ -219,7 +230,6 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
 
 
         /* ********************** Computing next index set  ************************ */
-
         long double P_Lambda_Residual_square = 0.0L;
         if (u.size() > 0) {
             for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
@@ -243,7 +253,6 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
                 }
             }
         }
-
         // Above we set res = res-res|_{supp u}. Now we change this back.
         for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
             res[(*it).first] = 0.;
@@ -253,7 +262,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         std::cerr << "   Size of u before extension: " << u.size() << std::endl;
         std::cerr << "   Size of extension set: " << p.size() << std::endl;
         for (const_coeff_it it=p.begin(); it!=p.end(); ++it) {
-            completeMultiTree(basis, (*it).first, u, 0, sparsetree);
+            if (u.find((*it).first)==u.end()) {
+                completeMultiTree(basis, (*it).first, u, 0, sparsetree);
+            }
         }
         std::cerr << "   Size of u after extension: " << u.size() << std::endl;
 
@@ -262,7 +273,6 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
         for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
             if (r.find((*it).first)==r.end()) u_leafs[(*it).first] = 0.;
         }
-
         /* ************************************************************************* */
 
         iteration_time.stop();
@@ -270,7 +280,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations,
 
         file << N << " " << N_residual << " " << time_total_comp << " " << EnergyError
                   << " " << Residual << " " << f_minus_Au_error << " "
-                  << time_mv_linsys << " " << time_mv_residual << " " << time_multitree_residual << std::endl;
+                  << time_mv_linsys << " " << time_mv_residual << " " << time_multitree_residual
+                  << " " << time_galerkin << " " << time_total_galerkin
+                  << " " << time_total_residual << std::endl;
 
     }
     file.close();

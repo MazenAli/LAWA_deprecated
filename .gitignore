@@ -119,3 +119,5 @@ applications/new_eval_scheme/multitree_mw_awgm3d_error
 applications/new_eval_scheme/visualize_tree1d
 tutorials/examples/plot_dual_generators
 applications/new_eval_scheme/bestNterm3d
+applications/new_eval_scheme/coeff3d/output.log
+applications/new_eval_scheme/bestNterm2d

@@ -41,6 +41,7 @@ struct CoefficientsByLevel
 {
     #ifdef TRONE
         typedef typename std::tr1::unordered_map<long, T> TranslationIndexToValueMap;
+        //typedef typename std::map<long, T> TranslationIndexToValueMap;
     #else
         typedef typename __gnu_cxx::hash_map<long, T> TranslationIndexToValueMap;
     #endif
