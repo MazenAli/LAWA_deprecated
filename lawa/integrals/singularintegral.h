@@ -43,8 +43,6 @@ struct SingularIntegral
 
     T kernel(T x) const;
 
-    T xTimeskernel(T x) const;
-
     const SingularKernel &singularkernel;
     const First &first;
     const Second &second;
@@ -53,6 +51,41 @@ struct SingularIntegral
                 j2, deriv2;
     mutable long k1, k2;
     mutable XType e1, e2;
+};
+
+template <typename _T>
+struct Poly {
+
+    typedef _T T;
+    Poly(int _d) : d(_d) {  };
+
+    T
+    operator()(T x) const { return std::pow(x,T(d-1)); }
+
+    int d;
+};
+
+template <typename SingularKernel, typename FirstPolynomial, typename SecondPolynomial>
+struct SingularIntegralPP
+{
+    typedef typename FirstPolynomial::T T;
+
+    SingularIntegralPP(const SingularKernel &singularkernel, const FirstPolynomial &first,
+                       const SecondPolynomial &second);
+
+    T
+    operator()(T a1, T b1, T a2, T b2) const;
+
+    T p1(T x) const;
+
+    T p2(T x) const;
+
+    T kernel(T x) const;
+
+    const SingularKernel   &singularkernel;
+    const FirstPolynomial  &first;
+    const SecondPolynomial &second;
+    mutable SingularQuadrature<SingularIntegralPP<SingularKernel,FirstPolynomial,SecondPolynomial> > singularquadrature;
 };
 
 } // namespace lawa

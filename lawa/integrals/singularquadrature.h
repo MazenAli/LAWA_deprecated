@@ -35,6 +35,9 @@ class SingularQuadrature
         SingularQuadrature(const SingularIntegral &_singularintegral);
 
         void
+        setLegendreOrder(int order_eta);
+
+        void
         setParameters(int order, int n, double sigma, double mu, double omega);
 
         const long double
@@ -44,13 +47,26 @@ class SingularQuadrature
         const SingularIntegral &singularintegral;
 
     private:
+        long double
+        _integrate_singular_diagonal(long double a1, long double b1, long double a2, long double b2,
+                                     long double eps);
+
+        long double
+        _integrate_singular_corner(long double a1, long double b1, long double a2, long double b2,
+                                   long double eps);
+
+        long double
+        _integrate_nonsingular(long double a1, long double b1, long double a2, long double b2,
+                               long double eps);
+
         static void
         _legendre(int order);
 
-        void
+        static void
         _hp_composite_legendre(int n, double sigma, double mu);
 
-        int _order;          //Legendre order for tensor product rule
+        int _order_eta;      //Legendre order for tensor product rule
+        int _order;
         int _n;              //parameters for composite variable order Gauss-Legendre quadrature
         double _sigma;
         double _mu;
