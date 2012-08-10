@@ -86,15 +86,45 @@ SingularQuadrature<SingularIntegral>::operator()(long double a1, long double b1,
 {
     //std::cerr << "[" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
     if (fabs(a1-a2)<1e-15 && fabs(b1-b2)<1e-15) {
-        std::cerr << "   _integrate_singular_diagonal" << std::endl;
+        std::cerr << "   _integrate_singular_diagonal [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
         return _integrate_singular_diagonal(a1, b1, a2, b2, eps);
     }
-    else if (fabs(a1-b2)<1e-15 || fabs(a2-b1)<1e-15) {
-        std::cerr << "   _integrate_singular_corner" << std::endl;
-        return _integrate_singular_corner(a1, b1, a2, b2, eps);
+    else if (fabs(a1-b2)<1e-15) {   // Corner singularity in (a1,b2)
+        std::cerr << "   _integrate_singular_corner for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
+        long double h1 = b1-a1, h2 = b2-a2;
+        if (h1 < h2) {
+            //std::cerr << "     First case" << std::endl;
+            return   _integrate_singular_corner(a1, b1, b2-h1, b2, (long double)1e-10)
+                   + _integrate_nonsingular(a1, b1, a2, b2-h1, (long double)1e-10);
+        }
+        else if (h1 > h2) {
+            //std::cerr << "     Second case" << std::endl;
+            return   _integrate_singular_corner(a1, a1+h2, a2, b2, (long double)1e-10)
+                   + _integrate_nonsingular(a1+h2, b1, a2, b2, (long double)1e-10);
+        }
+        else {  // Quadratic domain
+            std::cerr << "      quadratic domain" << std::endl;
+            return _integrate_singular_corner(a1, b1, a2, b2, eps);
+        }
+    }
+    else if (fabs(a2-b1)<1e-15) {   // Corner singularity in (b1,a2)
+        std::cerr << "   _integrate_singular_corner for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
+        long double h1 = b1-a1, h2 = b2-a2;
+        if (h1 < h2) {
+            return   _integrate_singular_corner(a1, b1, a2, a2+h1, (long double)1e-10)
+                   + _integrate_nonsingular(a1, b1, a2+h1, b2, (long double)1e-10);
+        }
+        else if (h1 > h2) {
+            return   _integrate_singular_corner(b1-h2, b1, a2, b2, (long double)1e-10)
+                   + _integrate_nonsingular(a1, b1-h2, a2, b2, (long double)1e-10);
+        }
+        else {  // Quadratic domain
+            return _integrate_singular_corner(a1, b1, a2, b2, eps);
+        }
+
     }
     else {
-        std::cerr << "   _integrate_nonsingular" << std::endl;
+        std::cerr << "   _integrate_nonsingular for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
         return _integrate_nonsingular(a1, b1, a2, b2, eps);
     }
 
@@ -137,39 +167,19 @@ SingularQuadrature<SingularIntegral>::_integrate_singular_corner(long double a1,
     long double ret = 0.L;
     long double h = (b1-a1);
     long double _a1, _a2, _b1, _b2, _h1, _h2;
+    long double factor = 1.L;
     if (fabs(a1-b2)<1e-15) {
+        std::cerr << "        corner (a1,b2)" << std::endl;
         _a1 = a1, _b1 = b1, _a2 = b2, _b2 = a2; _h1 = h, _h2 = -h;
     }
     else {
-        _a1 = b1, _b1 = a1, _a2 = a2, _b2 = b2; _h1 = -h, _h2 = h;
+        _a1 = b1, _b1 = a1, _a2 = a2, _b2 = b2; _h1 = -h, _h2 = h;  factor = -1.L;
     }
-    /*
-    for (int i=1; i<=_order; ++i) {
-        long double xi = _legendreknots(_order,i);
-        long double kernel_val_xi_Times_xi = singularintegral.kernel(h*xi) * xi;
-        if (xi<1e-14) kernel_val_xi_Times_xi = 0.L;
-        long double kernel_val_One_Plus_xi_Times_One_Minus_xi = singularintegral.kernel(h*(1+xi)) * (1-xi);
-        for (int j=1; j<=_order_eta; ++j) {
-            long double eta = _legendreknots(_order_eta,j);
-            long double productweight = _legendreweights(_order,i) * _legendreweights(_order_eta,j);
-
-            long double val1 =   singularintegral.p1(_h1*(xi*eta)+_a1)
-                               * singularintegral.p2(_h2*(xi*(1-eta))+_a2) * kernel_val_xi_Times_xi;
-            ret += productweight * val1;
-            long double val2 =  singularintegral.p1(_h1*(xi+eta*(1-xi))+_a1)
-                              * singularintegral.p2(_h2*(1+eta*(xi-1))+_a2) * kernel_val_One_Plus_xi_Times_One_Minus_xi;
-            ret += productweight * val2;
-        }
-    }
-    std::cerr << "   Num of points: " << _order_eta * _order << std::endl;
-    return h*h*ret;
-    */
-
     int hp_legendre_N = _hp_legendrenumofpoints(_n);
     for (int i=1; i<=hp_legendre_N; ++i) {
         long double xi = _hp_legendreknots(_n,i);
-        long double kernel_val_xi_Times_xi = singularintegral.kernel(h*xi) * xi;
-        long double kernel_val_One_Plus_xi_Times_One_Minus_xi = singularintegral.kernel(h*(1+xi)) * (1-xi);
+        long double kernel_val_xi_Times_xi = singularintegral.kernel(factor*h*xi) * xi;
+        long double kernel_val_One_Plus_xi_Times_One_Minus_xi = singularintegral.kernel(factor*h*(1+xi)) * (1-xi);
         for (int j=1; j<=_order_eta; ++j) {
             long double eta = _legendreknots(_order_eta,j);
             long double productweight = _hp_legendreweights(_n,i) * _legendreweights(_order_eta,j);
@@ -182,9 +192,8 @@ SingularQuadrature<SingularIntegral>::_integrate_singular_corner(long double a1,
             ret += productweight * val2;
         }
     }
-    std::cerr << "   Num of points: " << _order_eta * hp_legendre_N << std::endl;
+    //std::cerr << "   Num of points: " << _order_eta * hp_legendre_N << std::endl;
     return h*h*ret;
-
 }
 
 template <typename SingularIntegral>
@@ -334,3 +343,28 @@ SingularQuadrature<SingularIntegral>::_hp_composite_legendre(int max_n, double s
 }
 
 }   // namespace lawa
+
+
+/*
+ *
+ *     for (int i=1; i<=_order; ++i) {
+        long double xi = _legendreknots(_order,i);
+        long double kernel_val_xi_Times_xi = singularintegral.kernel(h*xi) * xi;
+        if (xi<1e-14) kernel_val_xi_Times_xi = 0.L;
+        long double kernel_val_One_Plus_xi_Times_One_Minus_xi = singularintegral.kernel(h*(1+xi)) * (1-xi);
+        for (int j=1; j<=_order_eta; ++j) {
+            long double eta = _legendreknots(_order_eta,j);
+            long double productweight = _legendreweights(_order,i) * _legendreweights(_order_eta,j);
+
+            long double val1 =   singularintegral.p1(_h1*(xi*eta)+_a1)
+                               * singularintegral.p2(_h2*(xi*(1-eta))+_a2) * kernel_val_xi_Times_xi;
+            ret += productweight * val1;
+            long double val2 =  singularintegral.p1(_h1*(xi+eta*(1-xi))+_a1)
+                              * singularintegral.p2(_h2*(1+eta*(xi-1))+_a2) * kernel_val_One_Plus_xi_Times_One_Minus_xi;
+            ret += productweight * val2;
+        }
+    }
+    std::cerr << "   Num of points: " << _order_eta * _order << std::endl;
+    return h*h*ret;
+ *
+ */

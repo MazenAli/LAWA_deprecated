@@ -7,11 +7,13 @@ typename RestrictTo<!IsDual<First>::value and !IsDual<Second>::value, typename F
 _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral)
 {
 
+
     typedef typename First::T T;
     // note: called phi_... but can also be a wavelet.
     Support<T> supp_x = singularintegral.first.generator(singularintegral.e1).support(singularintegral.j1,singularintegral.k1);
     Support<T> supp_y = singularintegral.second.generator(singularintegral.e2).support(singularintegral.j2,singularintegral.k2);
 
+    std::cerr << "Integrate: [" << supp_x.l1 << ", " <<supp_x.l2 << "], [" << supp_y.l1 << ", " << supp_y.l2 << "]" << std::endl;
     DenseVector<Array<T> > SingularPoints_x =
              singularintegral.first.generator(singularintegral.e1).singularSupport(singularintegral.j1,singularintegral.k1);
     DenseVector<Array<T> > SingularPoints_y =
@@ -51,7 +53,6 @@ _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral
         it_y2=AllSingularPoints_y.begin(); ++it_y2;
         while (it_y2!=AllSingularPoints_y.end()) {
             long double a2 = (*it_y1), b2 = (*it_y2);
-            //std::cerr << "Integrate: [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
             ret += singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
             ++it_y1; ++it_y2;
         }
@@ -60,7 +61,6 @@ _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral
 
     return (T)ret;
 }
-
 
 template <typename SingularKernel, typename FirstPolynomial, typename SecondPolynomial>
 typename FirstPolynomial::T
@@ -71,57 +71,17 @@ _integrate(const SingularIntegralPP<SingularKernel,FirstPolynomial,SecondPolynom
     typedef typename FirstPolynomial::T T;
 
     if (a2>b1+1e-14 || a1>b2+1e-14) {
-        std::cerr << " No singularity" << std::endl;
+        //std::cerr << " No singularity" << std::endl;
         return singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
     }
-    else if (fabs(a1-b2)<=1e-14) {
-        std::cerr << " Corner singularity in (a1,b2)" << std::endl;
-        if (fabs(fabs(a2-a1)-fabs(b2-b1))<1e-14) {  //quadratic domain contain corner singularity
-            std::cerr << "   Quadratic domain" << std::endl;
-            return singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
-        }
-        std::cerr << "   Non-Quadratic domain" << std::endl;
-        if (a2-a1 < b2-b1) {    // Corner singularity in (a1,b2)
-            long double h = b1-a1;
-            long double ret = 0.L;
-            ret += singularintegral.singularquadrature(a1, b1, a2, b2-h, (long double)1e-10);
-            ret += singularintegral.singularquadrature(a1, b1, b2-h, b2, (long double)1e-10);
-            return ret;
-        }
-        else {
-            long double h = b2-a2;
-            long double ret = 0.L;
-            ret += singularintegral.singularquadrature(a1, a1+h, a2, b2, (long double)1e-10);
-            ret += singularintegral.singularquadrature(a1+h, b1, a2, b2, (long double)1e-10);
-            return ret;
-        }
-    }
-    else if (fabs(b1-a2)<=1e-14) {  // Corner singularity in (b1,a2)
-        std::cerr << " Corner singularity in (b1,a2)" << std::endl;
-        if (fabs(fabs(a2-a1)-fabs(b2-b1))<1e-14) {  //quadratic domain contain corner singularity
-            std::cerr << "   Quadratic domain" << std::endl;
-            return singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
-        }
-        std::cerr << "   Non-Quadratic domain" << std::endl;
-        if (a2-a1 < b2-b1) {
-            long double h = b1-a1;
-            long double ret = 0.L;
-            ret += singularintegral.singularquadrature(a1, b1, a2, a2+h, (long double)1e-10);
-            ret += singularintegral.singularquadrature(a1, b1, a2+h, b2, (long double)1e-10);
-            return ret;
-        }
-        else {
-            long double h = b2-a2;
-            long double ret = 0.L;
-            ret += singularintegral.singularquadrature(a1, b1-h, a2, b2, (long double)1e-10);
-            ret += singularintegral.singularquadrature(b1-h, b1, a2, b2, (long double)1e-10);
-            return ret;
-        }
+    else if (fabs(a1-b2)<=1e-14 || fabs(b1-a2)<=1e-14) {
+        //std::cerr << " Corner singularity" << std::endl;
+        return singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
     }
     else {
-        std::cerr << " Diagonal singularity" << std::endl;
+        //std::cerr << " Diagonal singularity" << std::endl;
         if (fabs(a2-a1)<1e-14 && fabs(b2-b1)<1e-14) {  //quadratic domain with diagonal singularity
-            std::cerr << "   Quadratic domain" << std::endl;
+            //std::cerr << "   Quadratic domain" << std::endl;
             return singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
         }
         DenseVector<Array<T> > SingularPoints_x(2); SingularPoints_x = a1, b1;
@@ -160,10 +120,8 @@ _integrate(const SingularIntegralPP<SingularKernel,FirstPolynomial,SecondPolynom
             it_y2=AllSingularPoints_y.begin(); ++it_y2;
             while (it_y2!=AllSingularPoints_y.end()) {
                 long double _a2 = (*it_y1), _b2 = (*it_y2);
-                std::cerr << "Integrate: [" << _a1 << ", " << _b1 << "], [" << _a2 << ", " << _b2 << "]" << std::endl;
-                T tmp = _integrate(singularintegral, _a1, _b1, _a2, _b2);
+                T tmp = singularintegral.singularquadrature(_a1, _b1, _a2, _b2, (long double)1e-10);
                 ret += tmp;
-                std::cerr << "Integrate: [" << _a1 << ", " << _b1 << "], [" << _a2 << ", " << _b2 << "]: " << tmp << std::endl;
                 ++it_y1; ++it_y2;
             }
             ++it_x1; ++it_x2;
