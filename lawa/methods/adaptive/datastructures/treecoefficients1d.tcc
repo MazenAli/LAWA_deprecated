@@ -21,6 +21,8 @@ CoefficientsByLevel<T>::set(short _j, size_t n)
 
     #ifdef TRONE
         if (n>4000) map.rehash(n);
+    #elif BOOST
+        if (n>4000) map.rehash(n);
     #else
         if (n>4000) map.resize(n);
     #endif

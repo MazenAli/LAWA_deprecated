@@ -23,6 +23,8 @@
 #include <utility>
 #ifdef TRONE
     #include <tr1/unordered_map>
+#elif BOOST
+    #include <boost/unordered_map.hpp>
 #else
     #include <ext/hash_map>
 #endif
@@ -43,6 +45,9 @@ struct MapMatrix
 #ifdef TRONE
     typedef typename std::tr1::unordered_map<Entry<Index>, T, entry_hashfunction<Index>,
                                                              entry_eqfunction<Index> > EntryMap;
+#elif BOOST
+    typedef typename boost::unordered_map<Entry<Index>, T, entry_hashfunction<Index>,
+                                                                 entry_eqfunction<Index> > EntryMap;
 #else
     typedef typename __gnu_cxx::hash_map<Entry<Index>, T, entry_hashfunction<Index>,
                                                              entry_eqfunction<Index> > EntryMap;

@@ -41,7 +41,8 @@ endif
 # compilation modes ------------------------------------------------------------
 
 #HASHTYPE = -DGNUCXX
-HASHTYPE = -DTRONE
+#HASHTYPE = -DBOOST
+HASHTYPE = -DTRONE -DBOOST_HAS_TR1_TUPLE
 
 # --- debug mode -----------------------
 DEBUGLAWA += -DCHECK_INTERVAL_CONSTRUCTION
@@ -56,8 +57,8 @@ RELEASEMODE = -O3 -DNDEBUG $(HASHTYPE) -fPIC
 PROFILEMODE = -p -g -DNDEBUG $(HASHTYPE)
 
 # --- select compilation-mode here by commenting / uncommenting
-CXXFLAGS += $(DEBUGMODE)
-#CXXFLAGS += $(RELEASEMODE)
+#CXXFLAGS += $(DEBUGMODE)
+CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 #CPPFLAGS += -D_GLIBCXX_PERMIT_BACKWARD_HASH

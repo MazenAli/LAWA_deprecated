@@ -22,6 +22,8 @@
 
 #ifdef TRONE
     #include <tr1/unordered_map>
+#elif BOOST
+    #include <boost/unordered_map.hpp>
 #else
     #include <ext/hash_map>
 #endif
@@ -45,6 +47,10 @@ template <typename T, typename Index>
 struct Coefficients<Lexicographical,T,Index> : public std::tr1::unordered_map<Index, T,
                                                                        index_hashfunction<Index>,
                                                                        index_eqfunction<Index> >
+#elif BOOST
+struct Coefficients<Lexicographical,T,Index> : public boost::unordered_map<Index, T,
+                                                                       index_hashfunction<Index>,
+                                                                       index_eqfunction<Index> >
 #else
 struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index, T,
                                                                        index_hashfunction<Index>,
@@ -57,6 +63,14 @@ struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index,
     #ifdef TRONE
     Coefficients(size_t n)
      :std::tr1::unordered_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::unordered_map(n)
+     {
+
+     }
+    void
+    Rehash(size_t n) { this->rehash(n); }
+    #elif BOOST
+    Coefficients(size_t n)
+     :boost::unordered_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::unordered_map(n)
      {
 
      }
