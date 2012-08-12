@@ -124,3 +124,4 @@ applications/new_eval_scheme/bestNterm2d
 tutorials/examples/singularquadrature
 validate/test_boost_headers
 applications/finance/test_cgmy_matrixentry
+validate/test_mpfr_support

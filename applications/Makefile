@@ -1,7 +1,7 @@
 SUBDIRS := unbounded_domains new_eval_scheme
 ifdef BOOST_HOME 
-ifdef GSL_INC_HOME 
-ifdef GSL_LIB_HOME
+ifdef MPREC_INC_HOME 
+ifdef MPREC_LIB_HOME
     SUBDIRS += finance
 endif
 endif
