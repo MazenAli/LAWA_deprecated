@@ -18,6 +18,8 @@
 */
 #include <lawa/aux/timer.h>
 #include <limits.h>
+#include <sstream>
+#include <fstream>
 
 namespace lawa {
 
@@ -221,9 +223,23 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, in
         //Galerkin step
         T r_norm_LambdaActive = 0.0;
         //std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
+
+		//=========================================
+		std::stringstream rhsoutfilename;
+		rhsoutfilename << "SAdwav_CG_RHS_Iteration_" << its;
+		saveCoeffVector2D(f, basis, rhsoutfilename.str().c_str());
+		//=========================================
+		
+		
         int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 10000, timeMatrixVector, assemble_matrix);
         linsolve_iterations[its] = iterations;
         //std::cout << "   ...finished." << std::endl;
+
+		//=========================================
+		std::stringstream uoutfilename;
+		uoutfilename << "SAdwav_CG_U_Iteration_" << its;
+		saveCoeffVector2D(u, basis, uoutfilename.str().c_str());
+		//=========================================
 
         //Threshold step
         //std::cout << "Before THRESH: " << u << std::endl;
@@ -739,7 +755,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda, 
 
         //Threshold step
         //u = THRESH(u,threshTol);
-        u = THRESH(u,threshTol, false, basis.first.d > 3 ? true : false);
+        if(relative_thresh){
+        	u = THRESH(u,threshTol*u.norm(2.),false, basis.first.d > 3 ? true : false);
+        }
+        else{
+        	u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
+        }
+
         solutions[its] = u;
         LambdaThresh = supp(u);
         std::cout << "    Size of thresholded u = " << LambdaThresh.size() << std::endl;
@@ -771,7 +793,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cgls(const IndexSet<Index> &InitialLambda, 
         file << u.size() << " " << LambdaActive.size() << " " << estim_res << " " << iterations << " " << r_norm_LambdaActive << std::endl;
 
         //r = THRESH(r,threshTol);
-        r = THRESH(r,threshTol, false, basis.first.d > 3 ? true : false);
+        if(relative_thresh){
+        	r = THRESH(r,threshTol*r.norm(2.),false, basis.d > 3 ? true : false);
+        }
+        else{
+        	r = THRESH(r,threshTol,false, basis.d > 3 ? true : false);
+        }
+
         LambdaActive = LambdaThresh+supp(r);
 
         //Check if residual is decreasing, if not decrease threshold tolerance
