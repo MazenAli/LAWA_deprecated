@@ -27,7 +27,8 @@ class S_ADWAV_TruthSolver_PG {
         typedef typename Truth::Operator_LHS_Representor                            MatrixOp;
         typedef typename Truth::Operator_RHS_BilFormRepresentor                     RHS_BilFormRepr;
         typedef typename Truth::Operator_RHS_FunctionalRepresentor                  RHS_FctRepr;
-        
+        typedef typename Truth::Operator_Residual_Representor                		RHS_ResRepr;
+
     public:
         
     /* Public member functions */
@@ -44,6 +45,9 @@ class S_ADWAV_TruthSolver_PG {
         Coefficients<Lexicographical,T,Index>
         repr_solve_A();       
         
+        Coefficients<Lexicographical,T,Index>
+        repr_solve_totalRes(RHS_ResRepr& res_repr_op);
+
         void 
         set_model(Truth& _truth_model); 
         
@@ -67,6 +71,12 @@ class S_ADWAV_TruthSolver_PG {
                             int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2, 
                             int _MaxSizeLambda = 400, T _resStopTol = 0.1, bool relative_thresh = false,
                             std::vector<int> _Jmaxvec = std::vector<int>(0));
+
+        void
+        set_parameters_repr_res(T _contraction, T _threshTol, T _linTol=1e-6, T _resTol=1e-4,
+                            int _NumOfIterations=10, int _MaxItsPerThreshTol=5, T _eps=1e-2,
+                            int _MaxSizeLambda = 400, T _resStopTol = 0.1, bool relative_thresh = false,
+                            std::vector<int> _Jmaxvec = std::vector<int>(0));
     
     /* Public member functions */
         
@@ -86,6 +96,7 @@ class S_ADWAV_TruthSolver_PG {
         
         void
         reset_repr_s_adwav_A();
+
             
     /* Private members */
         

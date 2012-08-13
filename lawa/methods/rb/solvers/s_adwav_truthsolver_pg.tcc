@@ -139,6 +139,44 @@ S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
 }
 
 template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
+Coefficients<Lexicographical,T,Index>
+S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::repr_solve_totalRes(RHS_ResRepr& res_repr_op)
+{
+
+	S_ADWAV<T, Index, TestBasis, MatrixOp, RHS_ResRepr> repr_s_adwav_res(truth_model->testbasis, truth_model->repr_lhs_op, res_repr_op, 0.125, 0.1);
+	repr_s_adwav_res.set_parameters(params_repr_F.contraction, 0.0001, params_repr_F.linTol,
+            params_repr_F.resTol, params_repr_F.NumOfIts, params_repr_F.MaxItsPerThreshTol,
+            params_repr_F.eps, params_repr_F.MaxSizeLambda, params_repr_F.resStopTol,
+            params_repr_F.Jmaxvec);
+
+    // Construct initial index set, based on splines on minimal level(s)
+    IndexSet<Index> InitialLambda;
+    if (flens::IsSame<Index2D, Index>::value) {
+        Range<int> R_x = repr_s_adwav_res.basis.first.mra.rangeI(repr_s_adwav_res.basis.first.j0);
+        Range<int> R_y = repr_s_adwav_res.basis.second.mra.rangeI(repr_s_adwav_res.basis.second.j0);
+        for (int k_x = R_x.firstIndex(); k_x <= R_x.lastIndex(); ++k_x) {
+            for (int k_y = R_y.firstIndex(); k_y <= R_y.lastIndex(); ++k_y) {
+                Index1D index_x(repr_s_adwav_res.basis.first.j0, k_x, XBSpline);
+                Index1D index_y(repr_s_adwav_res.basis.second.j0, k_y, XBSpline);
+                InitialLambda.insert(Index2D(index_x, index_y));
+             }
+        }
+    }
+    std::cout << "Initial Lambda of Size " << InitialLambda.size() << std::endl;
+
+    Timer timer;
+    timer.start();
+    repr_s_adwav_res.solve_cg(InitialLambda);
+    timer.stop();
+    std::cout << "S_adwav finished in " << timer.elapsed() << " seconds" << std::endl;
+
+    std::cout << "Memory Repr Total Res: " << repr_s_adwav_res.solutions.size() << " S_adwav-solutions with " << supp(repr_s_adwav_res.solutions[repr_s_adwav_res.solutions.size() - 1]).size() << " BF" << std::endl;
+
+    return repr_s_adwav_res.solutions[repr_s_adwav_res.solutions.size() - 1];
+
+}
+
+template <typename T, typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec, typename Index, typename Compression>
 void 
 S_ADWAV_TruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Compression>::clear_solver()
 {
