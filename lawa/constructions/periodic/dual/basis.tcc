@@ -48,7 +48,7 @@ const BasisFunction<T,Dual,Periodic,CDF> &
 Basis<T,Dual,Periodic,CDF>::generator(XType xtype) const
 {
     if (xtype==XBSpline) {
-        return mra.phi_;
+        return mra_.phi_;
     } else {
         return psi_;
     }
