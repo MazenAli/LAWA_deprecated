@@ -160,7 +160,7 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
     typedef AdaptiveLaplaceOperator1D<T,Primal,Domain2,SparseMulti>           DataLaplace1D_y;
     typedef AdaptiveIdentityOperator1D<T,Primal,Domain2,SparseMulti>          DataIdentity1D_y;
 
-    AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis2d, T _c);
+    AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis2d, T _c, T _a_x=1., T _a_y=1.);
 
     T
     operator()(const Index2D &row_index, const Index2D &col_index);
@@ -199,6 +199,7 @@ struct AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,
 
     const Basis2D              &basis;
     T c;
+    T a_x, a_y;
     T thresh;
 
     T cA, CA, kappa;

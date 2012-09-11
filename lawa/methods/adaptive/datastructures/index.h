@@ -29,7 +29,7 @@ namespace lawa {
 
 static boost::hash<long int> hash_long;
 
-#define JMINOFFSET                  0
+#define JMINOFFSET                 10
 #define JMAX                       40
 #define SIZEHASHINDEX1D         12869//196613
 #define SIZELARGEHASHINDEX1D    72869//1572869
@@ -41,7 +41,7 @@ static boost::hash<long int> hash_long;
 struct Index1D
 {
     short j;
-    int k;
+    long k;
     XType xtype;
 
     Index1D(void);
@@ -314,12 +314,13 @@ struct index_hashfunction<Index1D>
     size_t operator()(const Index1D& index) const
     {
         // Note: hash_values is taken mod "length of hashtable" automatically!!
+        /*
         long pow2ij = (1L << (index.j+JMINOFFSET+index.xtype));
         size_t hash_value = (pow2ij + index.k);
 
         return hash_value;
+        */
 
-        /*
         int val = index.xtype;
         val = (((val << 16) | (unsigned short) index.j));
 
@@ -327,14 +328,14 @@ struct index_hashfunction<Index1D>
         boost::hash_combine(hash_value, val);
         boost::hash_combine(hash_value, index.k);
         return hash_value;
-        */
+
     }
 };
 
 template <>
 struct index_hashfunction<Index2D>
 {
-
+    /*
     // performs better without storing 2^l values... why??
     index_hashfunction(void)
     {
@@ -357,8 +358,8 @@ struct index_hashfunction<Index2D>
         size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
         return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
     }
+    */
 
-    /*
     inline
     size_t operator()(const Index2D& index) const
     {
@@ -375,7 +376,7 @@ struct index_hashfunction<Index2D>
 
         return hash_value;
     }
-    */
+
 };
 
 template <>

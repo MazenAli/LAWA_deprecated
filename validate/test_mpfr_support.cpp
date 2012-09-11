@@ -33,7 +33,7 @@ int main()
    std::cout << "1.4142135623730950488016887242096980785696718753769" << std::endl;
    std::cout << std::setprecision(50) << sqrt(mpfr_class(2)) << std::endl;
    std::cout << std::setprecision(50) << test_d << std::endl;
-   std::cout << std::setprecision(50) << std::sqrt(2.L) << std::endl << std::endl << std::endl;
+   std::cout << std::setprecision(50) << sqrt(2.L) << std::endl << std::endl << std::endl;
 
    std::cout << "0.88658142871925912508091761239199431116828551763805" << std::endl;
    std::cout << std::setprecision(50) << boost::math::tgamma(sqrt(mpfr_class(2)),policy<digits10<20> >()) << std::endl;

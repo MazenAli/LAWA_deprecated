@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <lawa/lawa.h>
+#include <lawa/methods/adaptive/datastructures/treecoefficients1d.h>
 
 using namespace std;
 using namespace lawa;
@@ -129,7 +130,7 @@ int main(int argc, char*argv[])
     TreeCoefficients1D<T> u_tree(4096,basis.j0);
     Coefficients<Lexicographical,T,Index1D> u, u_loc_single;
     constructRandomTree(basis, J, u_tree);
-    fromTreeCofficientsToCofficients(u_tree,u);
+    fromTreeCoefficientsToCoefficients(u_tree,u);
     IndexSet<Index1D> supp_u;
     supp_u = supp(u);
     for (const_set1d_it it=supp_u.begin(); it!=supp_u.end(); ++it) {

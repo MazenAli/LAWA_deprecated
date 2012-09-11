@@ -137,11 +137,15 @@ T
 Coefficients<Lexicographical,T,Index>::operator*(const Coefficients<Lexicographical,T,Index> &_coeff2) const
 {
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_it;
-    Coefficients<Lexicographical,T,Index> _coeff1 = *this;
-    long double ret = 0L;
+    //Coefficients<Lexicographical,T,Index> _coeff1 = *this;
+    long double ret = 0.L;
     if (_coeff2.size() > 0) {
         for (const_it lambda = _coeff2.begin(); lambda != _coeff2.end(); ++lambda) {
-            ret += (long double)(_coeff1.operator[]((*lambda).first) * (*lambda).second);
+            const_it mu = (*this).find(((*lambda).first));
+            if (mu!=(*this).end()) {
+                ret += (long double)( (*mu).second * (*lambda).second );
+            }
+            //ret += (long double)((*this).operator[]((*lambda).first) * (*lambda).second);
         }
     }
     return (T)ret;
@@ -223,6 +227,7 @@ operator*(T alpha, const Coefficients<Lexicographical,T,Index> &_coeff) {
     return ret;
 }
 
+
 template <typename T, typename Index>
 Coefficients<Lexicographical,T,Index>
 P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda)
@@ -243,16 +248,17 @@ P(const Coefficients<Lexicographical,T,Index> &v, const IndexSet<Index> &Lambda)
     return ret;
 }
 
+
 template <typename T, typename Index>
 void
 P(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Index> &v)
 {
     typedef typename IndexSet<Index>::const_iterator const_set_it;
-    typedef typename Coefficients<Lexicographical,T,Index>::iterator coeff_it;
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator const_coeff_it;
     IndexSet<Index> indicesToBeDeleted(v.size());
-    for (const_set_it lambda = Lambda.begin(); lambda != Lambda.end(); ++lambda) {
-        if (v.find(*lambda) == v.end()) {
-            indicesToBeDeleted.insert(*lambda);
+    for (const_coeff_it it = v.begin(); it != v.end(); ++it) {
+        if (Lambda.find((*it).first) == Lambda.end()) {
+            indicesToBeDeleted.insert((*it).first);
         }
     }
     for (const_set_it lambda = indicesToBeDeleted.begin(); lambda != indicesToBeDeleted.end(); ++lambda) {

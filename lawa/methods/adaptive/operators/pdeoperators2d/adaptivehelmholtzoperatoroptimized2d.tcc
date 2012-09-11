@@ -568,8 +568,8 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain
 
 template <typename T, DomainType Domain1, DomainType Domain2>
 AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
-::AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis, T _c)
-: basis(_basis), c(_c),
+::AdaptiveHelmholtzOperatorOptimized2D(const Basis2D &_basis, T _c, T _a_x, T _a_y)
+: basis(_basis), c(_c), a_x(_a_x), a_y(_a_y), thresh(0.),
   cA(0.), CA(0.), kappa(0.),
   compression_1d_x(basis.first), compression_1d_y(basis.second), compression(basis),
   laplace_data1d_x(basis.first), identity_data1d_x(basis.first),
@@ -624,7 +624,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         }
     }
 
-    T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
+    T val = (a_x*dd_x*id_y + a_y*id_x*dd_y + c*id_x*id_y);
     val *= this->prec(row_index) * this->prec(col_index);
     if (fabs(val)>thresh) {
         return val;
@@ -650,7 +650,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         T prec_id_y = identity_data1d_y(index.index2,index.index2);
         T prec_dd_x = laplace_data1d_x(index.index1,index.index1);
         T prec_dd_y = laplace_data1d_y(index.index2,index.index2);
-        T tmp = 1./std::sqrt(fabs(prec_dd_x*prec_id_y + prec_id_x*prec_dd_y + c*prec_id_x*prec_id_y ));
+        T tmp = 1./std::sqrt(fabs(a_x*prec_dd_x*prec_id_y + a_y*prec_id_x*prec_dd_y + c*prec_id_x*prec_id_y ));
         P_data[index] = tmp;
         prec *= tmp;
     }
@@ -758,7 +758,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
                     id_y = LambdaRowSparseIdentity_y[*row_y];
                     dd_y = LambdaRowSparseLaplace_y[*row_y];
 
-                    T val = (dd_x*id_y + id_x*dd_y + c*id_x*id_y);
+                    T val = (a_x*dd_x*id_y + a_y*id_x*dd_y + c*id_x*id_y);
 
                     T prec_row_index = this->prec(row_index);
                     T prec_val = prec_row_index* val * prec_col_index;
@@ -832,7 +832,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         for (const_set1d_it row_y=LambdaRowSparse_y.begin(); row_y!=LambdaRowSparse_y.end(); ++row_y) {
             T dd_y = laplace_data1d_y(*row_y,col_index_y);
             T id_y = identity_data1d_y(*row_y,col_index_y);
-            T val2_y = (dd_y + 0.5*c*id_y);
+            T val2_y = (a_y*dd_y + 0.5*c*id_y);
 
             for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
                 Index2D row_index((*coeff_x_it).first,*row_y);
@@ -915,7 +915,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
         for (const_set1d_it row_x=LambdaRowSparse_x.begin(); row_x!=LambdaRowSparse_x.end(); ++row_x) {
             T id_x = identity_data1d_x(*row_x,col_index_x);
             T dd_x = laplace_data1d_x(*row_x,col_index_x);
-            T val_x = dd_x + 0.5*c*id_x;
+            T val_x = a_x*dd_x + 0.5*c*id_x;
             for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                 Index2D row_index(*row_x,(*coeff_y_it).first);
                 T val = val_x * (*coeff_y_it).second;
@@ -984,7 +984,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             if (Lambda_y.find(*row_y)==Lambda_y_end) continue;
             T dd_y = laplace_data1d_y(*row_y,col_index_y);
             T id_y = identity_data1d_y(*row_y,col_index_y);
-            T val2_y = (dd_y + 0.5*c*id_y);
+            T val2_y = (a_y*dd_y + 0.5*c*id_y);
 
             for (const_coeff1d_it coeff_x_it=(*it).second.begin(); coeff_x_it!=(*it).second.end(); ++coeff_x_it) {
                 Index2D row_index((*coeff_x_it).first,*row_y);
@@ -1079,7 +1079,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2
             if (Lambda_x.find(*row_x)==Lambda_x_end) continue;
             T id_x = identity_data1d_x(*row_x,col_index_x);
             T dd_x = laplace_data1d_x(*row_x,col_index_x);
-            T val_x = dd_x + 0.5*c*id_x;
+            T val_x = a_x*dd_x + 0.5*c*id_x;
             for (const_coeff1d_it coeff_y_it=(*it).second.begin(); coeff_y_it!=(*it).second.end(); ++coeff_y_it) {
                 Index2D row_index(*row_x,(*coeff_y_it).first);
                 if (Lambda.find(row_index)==Lambda_end) continue;
