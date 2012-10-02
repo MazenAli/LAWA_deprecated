@@ -18,7 +18,7 @@ TensorRefSols_PDE_Interval_RPlus<T>::convection_y;
 
 template <typename T>
 T
-TensorRefSols_PDE_Interval_RPlus<T>::diffusion;
+TensorRefSols_PDE_Interval_RPlus<T>::diffusion_y;
 
 template <typename T>
 flens::DenseVector<Array<T> >
@@ -48,28 +48,28 @@ TensorRefSols_PDE_Interval_RPlus<T>::H1_deltas_y;
 template <typename T>
 void
 TensorRefSols_PDE_Interval_RPlus<T>::setExample(int _nr, T _reaction, T _convection_x, T _convection_y,
-                                            T _diffusion)
+                                                T _diffusion_y)
 {
     reaction     =_reaction;
     convection_x =_convection_x;
     convection_y =_convection_y;
-    diffusion =_diffusion;
+    diffusion_y  =_diffusion_y;
     assert(reaction>=0);
     nr=_nr;
 
     if (nr==1) {
         sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
         sing_pts_y.engine().resize(1); sing_pts_y(1) = 1./3.;
-        deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = diffusion*1.5*exp(1./3.);
-        deltas_y.engine().resize(1,2); deltas_y(1,1) = 1./3.; deltas_y(1,2) = diffusion*(7.*exp(1./3.)-6.);
+        deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = 1.5*exp(1./3.);
+        deltas_y.engine().resize(1,2); deltas_y(1,1) = 1./3.; deltas_y(1,2) = diffusion_y*(7.*exp(1./3.)-6.);
         H1_deltas_x.engine().resize(1,2); H1_deltas_x(1,1) = 1./3.; H1_deltas_x(1,2) = 1.5*exp(1./3.);
         H1_deltas_y.engine().resize(1,2); H1_deltas_y(1,1) = 1./3.; H1_deltas_y(1,2) = (7.*exp(1./3.)-6.);;
     }
     else if (nr==2) {
         sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
         sing_pts_y.engine().resize(1); sing_pts_y(1) = 1./3.;
-        deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = diffusion*15*exp(1./3.);
-        deltas_y.engine().resize(1,2); deltas_y(1,1) = 1./3.; deltas_y(1,2) = diffusion*(1.1*exp(1./3.)-0.1);
+        deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = 15*exp(1./3.);
+        deltas_y.engine().resize(1,2); deltas_y(1,1) = 1./3.; deltas_y(1,2) = diffusion_y*(1.1*exp(1./3.)-0.1);
         H1_deltas_x.engine().resize(1,2); H1_deltas_x(1,1) = 1./3.; H1_deltas_x(1,2) = 15*exp(1./3.);
         H1_deltas_y.engine().resize(1,2); H1_deltas_y(1,1) = 1./3.; H1_deltas_y(1,2) = (1.1*exp(1./3.)-0.1);
     }
@@ -114,7 +114,7 @@ template <typename T>
 T
 TensorRefSols_PDE_Interval_RPlus<T>::rhs_x(T x)
 {
-    return -diffusion*exact_x(x,2) + convection_x*exact_x(x,1) + 0.5*reaction*exact_x(x,0);
+    return -exact_x(x,2) + convection_x*exact_x(x,1) + 0.5*reaction*exact_x(x,0);
 }
 
 template <typename T>
@@ -128,7 +128,7 @@ template <typename T>
 T
 TensorRefSols_PDE_Interval_RPlus<T>::rhs_y(T y)
 {
-    return -diffusion*exact_y(y,2) + convection_y*exact_y(y,1) + 0.5*reaction*exact_y(y,0);
+    return -diffusion_y*exact_y(y,2) + convection_y*exact_y(y,1) + 0.5*reaction*exact_y(y,0);
 }
 
 template <typename T>
@@ -240,6 +240,23 @@ TensorRefSols_PDE_Interval_RPlus<T>::H1norm()
         long double H1semi_x_sq = 75.*(-1.+exp(2./3.));
         long double H1semi_y_sq = (1./20.)*(-9.-2.*exp(1./3.) + 11.*exp(2./3.));
         long double H1norm = std::sqrt(L2norm_x_sq*L2norm_y_sq + L2norm_x_sq*H1semi_y_sq + H1semi_x_sq*L2norm_y_sq);
+        ret = H1norm;
+    }
+    return ret;
+}
+
+template <typename T>
+T
+TensorRefSols_PDE_Interval_RPlus<T>::Energynorm()
+{
+    T ret = 0.;
+    if (nr==2) {
+        long double L2norm_x_sq = 50.*(11.-12.*exp(1./3.)+3.*exp(2./3.));
+        long double L2norm_y_sq = (1./6.)*(41. - 72.*exp(1./3.) + 33.*exp(2./3.));
+        long double H1semi_x_sq = 75.*(-1.+exp(2./3.));
+        long double H1semi_y_sq = (1./20.)*(-9.-2.*exp(1./3.) + 11.*exp(2./3.));
+        long double H1norm = std::sqrt(L2norm_x_sq*L2norm_y_sq + diffusion_y*L2norm_x_sq*H1semi_y_sq
+                                       +reaction*H1semi_x_sq*L2norm_y_sq);
         ret = H1norm;
     }
     return ret;
