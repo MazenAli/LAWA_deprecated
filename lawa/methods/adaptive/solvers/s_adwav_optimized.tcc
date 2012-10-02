@@ -57,7 +57,7 @@ solve(const IndexSet<Index> &InitialLambda, Coefficients<Lexicographical,T,Index
             iterations = CG_Solve(Lambda, A, u, f, r_norm_Lambda, linTol, 100, timeMatrixVector, assemble_matrix);
         }
         else if (strcmp(linsolvertype,"gmres")==0) {
-            iterations = GMRES_Solve(Lambda, A, u, f, r_norm_Lambda, std::min(1e-2,0.5*old_res),100, assemble_matrix);
+            iterations = GMRES_Solve(Lambda, A, u, f, r_norm_Lambda, std::min(1e-2,0.5*old_res),35, assemble_matrix);
         }
         else if (strcmp(linsolvertype,"cgls")==0) {
             iterations = CGLS_Solve(Lambda, A, u, f, r_norm_Lambda, std::min(1e-2,0.5*old_res),1000, assemble_matrix);
@@ -104,7 +104,8 @@ solve(const IndexSet<Index> &InitialLambda, Coefficients<Lexicographical,T,Index
             PP_f = PP_F(supp(u_tmp));
             T fu = u_tmp*PP_f;
             PP_Au = PP_A.mv(supp(u_tmp), u_tmp);
-            T uAu = u*PP_Au;
+            T uAu = u_tmp*PP_Au;
+            std::cerr << "   Estim. energy norm squared: " << u*PP_Au << ", ref. value: " << std::pow(H1norm,2.) << std::endl;
             Error_H_energy = sqrt(fabs(std::pow(H1norm,2.)- 2*fu + uAu));
         }
 //        if (H1norm>0) Error_H_energy = computeErrorInH1Norm(A, F, u, H1norm, true);
