@@ -18,42 +18,32 @@
  */
 
 
-#ifndef APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H
-#define APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H 1
+#ifndef APPLICATIONS_FINANCE_OPTIONS_OPTION_H
+#define APPLICATIONS_FINANCE_OPTIONS_OPTION_H 1
 
-#include <applications/finance/processes/processtypes.h>
+#include <applications/finance/options/optiontypes1d.h>
+#include <applications/finance/options/optiontypesnd.h>
 
 namespace lawa {
 
-template < typename T, ProcessType1D Type>
-struct ProcessParameters1D
+template <typename T,OptionType1D Type>
+struct Option1D
 {
 
 };
 
-template <typename T>
-struct ProcessParameters1D<T,CGMY>
+template <typename T,OptionTypenD Type>
+struct Option2D
 {
-  ProcessParameters1D(T _r, T _k_C, T _k_G, T _k_M, T _k_Y);
 
-  T r;
-  T k_C;
-  T k_G;
-  T k_M;
-  T k_Y;
 };
 
-template <typename T>
-struct ProcessParameters1D<T,BlackScholes>
+template <typename T,OptionTypenD Type>
+struct Option3D
 {
-    ProcessParameters1D(T _r, T _sigma);
 
-    T r;
-    T sigma;
 };
 
 }   // namespace lawa
 
-#include <applications/finance/processes/processparameters1d.tcc>
-
-#endif  // APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H
+#endif  // APPLICATIONS_FINANCE_OPTIONS_OPTION_H

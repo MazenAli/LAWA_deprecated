@@ -1,4 +1,4 @@
-SUBDIRS := unbounded_domains new_eval_scheme
+SUBDIRS := unbounded_domains new_eval_scheme canutoproject
 ifdef BOOST_HOME 
 ifdef MPREC_INC_HOME 
 ifdef MPREC_LIB_HOME

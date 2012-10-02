@@ -18,42 +18,32 @@
  */
 
 
-#ifndef APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H
-#define APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H 1
+#ifndef APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS2D_H
+#define APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS2D_H 1
 
 #include <applications/finance/processes/processtypes.h>
 
 namespace lawa {
 
-template < typename T, ProcessType1D Type>
-struct ProcessParameters1D
+template < typename T, ProcessType2D Type>
+struct ProcessParameters2D
 {
 
 };
 
 template <typename T>
-struct ProcessParameters1D<T,CGMY>
+struct ProcessParameters2D<T,BlackScholes2D>
 {
-  ProcessParameters1D(T _r, T _k_C, T _k_G, T _k_M, T _k_Y);
+  ProcessParameters2D(T _r, T _sigma1, T _sigma2, T _rho, T _u11, T _u12, T _u21, T _u22);
 
   T r;
-  T k_C;
-  T k_G;
-  T k_M;
-  T k_Y;
-};
-
-template <typename T>
-struct ProcessParameters1D<T,BlackScholes>
-{
-    ProcessParameters1D(T _r, T _sigma);
-
-    T r;
-    T sigma;
+  T sigma1, sigma2;
+  T rho;
+  T u11, u12, u21, u22;
 };
 
 }   // namespace lawa
 
-#include <applications/finance/processes/processparameters1d.tcc>
+#include <applications/finance/processes/processparameters2d.tcc>
 
-#endif  // APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H
+#endif  // APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS2D_H

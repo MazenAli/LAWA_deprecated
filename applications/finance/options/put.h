@@ -23,7 +23,7 @@
 
 #include <boost/math/distributions/normal.hpp>
 
-#include <applications/finance/options/option1d.h>
+#include <applications/finance/options/option.h>
 #include <applications/finance/options/optionparameters1d.h>
 #include <applications/finance/processes/processes.h>
 #include <applications/finance/fourierpricing/fourierpricing.h>

@@ -1,6 +1,6 @@
 /*
   This file is part of LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
+  Copyright (C) 2008-2011  Sebastian Kestler, Kristina Steih, Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,43 +17,17 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-#ifndef APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H
-#define APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H 1
-
-#include <applications/finance/processes/processtypes.h>
+#ifndef APPLICATIONS_FINANCE_OPTIONS_OPTIONTYPESND_H
+#define APPLICATIONS_FINANCE_OPTIONS_OPTIONTYPESND_H 1
 
 namespace lawa {
 
-template < typename T, ProcessType1D Type>
-struct ProcessParameters1D
-{
 
-};
-
-template <typename T>
-struct ProcessParameters1D<T,CGMY>
-{
-  ProcessParameters1D(T _r, T _k_C, T _k_G, T _k_M, T _k_Y);
-
-  T r;
-  T k_C;
-  T k_G;
-  T k_M;
-  T k_Y;
-};
-
-template <typename T>
-struct ProcessParameters1D<T,BlackScholes>
-{
-    ProcessParameters1D(T _r, T _sigma);
-
-    T r;
-    T sigma;
+enum OptionTypenD {
+    BasketPut,
+    BasketDigitalPut
 };
 
 }   // namespace lawa
 
-#include <applications/finance/processes/processparameters1d.tcc>
-
-#endif  // APPLICATIONS_FINANCE_PROCESSES_PROCESSPARAMETERS1D_H
+#endif  // APPLICATIONS_FINANCE_OPTIONS_OPTIONTYPESND_H

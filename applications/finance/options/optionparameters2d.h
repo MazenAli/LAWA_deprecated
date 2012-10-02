@@ -1,6 +1,6 @@
 /*
   This file is part of LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008-2011  Sebastian Kestler, Kristina Steih, Mario Rometsch, Alexander Stippler.
+  Copyright (C) 2008-2011  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,21 +17,34 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES1D_H
-#define APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES1D_H 1
+
+#ifndef APPLICATIONS_FINANCE_OPTIONS_OPTIONPARAMETERS2D_H
+#define APPLICATIONS_FINANCE_OPTIONS_OPTIONPARAMETERS2D_H 1
+
+
+#include <applications/finance/options/optiontypesnd.h>
 
 namespace lawa {
 
-enum ProcessType1D { BlackScholes,
-                     CGMY,
-                     CGMYe,
-                     GH,
-                     KouJD,
-                     Meixner,
-                     MertonJD,
-                     NIG
+template < typename T, OptionTypenD OType>
+struct OptionParameters2D
+{
+
 };
 
-} // namespace lawa
+template <typename T>
+struct OptionParameters2D<T,BasketPut> {
 
-#endif // APPLICATIONS_FINANCE_PROCESSES_PROCESSTYPES1D_H
+    OptionParameters2D(T _strike, T _maturity, T weight1, T weight2, bool _earlyExercise);
+
+    T strike;
+    T maturity;
+    T weight1, weight2;
+    bool earlyExercise;
+};
+
+}   // namespace lawa
+
+#include <applications/finance/options/optionparameters2d.tcc>
+
+#endif  // APPLICATIONS_FINANCE_OPTIONS_OPTIONPARAMETERS2D_H

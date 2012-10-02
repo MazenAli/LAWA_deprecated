@@ -35,7 +35,7 @@ struct OptionParameters1D
 template <typename T>
 struct OptionParameters1D<T,Put> {
 
-    OptionParameters1D(T _strike, T _maturity, T _earlyExercise);
+    OptionParameters1D(T _strike, T _maturity, bool _earlyExercise);
 
     T strike;
     T maturity;
