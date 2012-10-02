@@ -132,3 +132,4 @@ applications/new_eval_scheme/thetascheme_multitree_mw_awgm2d
 applications/canutoproject/lineartensorinterpolation2d
 applications/canutoproject/lineartensorinterpolation2d_pic
 applications/finance/test_newtonsolver_gsl
+applications/canutoproject/quasiinterpolation2d

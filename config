@@ -57,8 +57,8 @@ RELEASEMODE = -O3 -DNDEBUG $(HASHTYPE) -fPIC
 PROFILEMODE = -p -g -DNDEBUG $(HASHTYPE)
 
 # --- select compilation-mode here by commenting / uncommenting
-#CXXFLAGS += $(DEBUGMODE)
-CXXFLAGS += $(RELEASEMODE)
+CXXFLAGS += $(DEBUGMODE)
+#CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 #CPPFLAGS += -D_GLIBCXX_PERMIT_BACKWARD_HASH
@@ -82,10 +82,10 @@ ifdef MPREC_LIB_HOME
    LDFLAGS += -L$(MPREC_LIB_HOME) -lmpfr -lgmpxx -lgmp 
 endif
 
-#ifdef GSL_INC_HOME
-#  CPPFLAGS += -I$(GSL_INC_HOME)
-#endif
+ifdef GSL_INC_HOME
+  CPPFLAGS += -I$(GSL_INC_HOME)
+endif
 
-#ifdef GSL_LIB_HOME
-#  LDFLAGS += -L$(GSL_LIB_HOME) -lgsl
-#endif
+ifdef GSL_LIB_HOME
+  LDFLAGS += -L$(GSL_LIB_HOME) -lgsl
+endif
