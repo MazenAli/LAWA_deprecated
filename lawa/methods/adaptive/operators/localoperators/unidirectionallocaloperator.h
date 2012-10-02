@@ -49,7 +49,7 @@ struct UniDirectionalLocalOperator
     typedef typename IndexSet<Index1D>::const_iterator                       const_set1d_it;
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator   const_coeff_it;
 
-    UniDirectionalLocalOperator(LocalOperator1D &_localOperator1D);
+    UniDirectionalLocalOperator(LocalOperator1D &_localOperator1D, T _factor=1.);
 
     void
     setParameters(int _J, size_t _hashTableLargeLength, size_t _hashTableSmallLength);
@@ -73,6 +73,8 @@ struct UniDirectionalLocalOperator
     int                      J;
     size_t                   hashTableLargeLength;
     size_t                   hashTableSmallLength;
+
+    T                        factor;
 
     Split<Index,Index1D,NotCoordXIndex,CoordX> split;
     Join<Index,Index1D,NotCoordXIndex,CoordX>  join;

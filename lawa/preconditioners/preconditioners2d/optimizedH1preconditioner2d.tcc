@@ -3,9 +3,30 @@ namespace lawa {
 template <typename T, typename Basis2D>
 OptimizedH1Preconditioner2D<T,Basis2D>::OptimizedH1Preconditioner2D(const Basis2D &basis,
                                                                     T _a_x, T _a_y, T _c)
-    : basis_x(basis.first), basis_y(basis.second), a_x(_a_x), a_y(_a_y), c(_c)
+    : basis_x(basis.first), basis_y(basis.second), a_x(_a_x), a_y(_a_y), c(_c),
+      factor_a_x(_a_x), factor_a_y(_a_y), factor_c(_c)
 {
 
+}
+
+template <typename T, typename Basis2D>
+void
+OptimizedH1Preconditioner2D<T,Basis2D>::setParameters(T _a_x, T _a_y, T _c)
+{
+    a_x = _a_x;
+    a_y = _a_y;
+    c   = _c;
+    factor_a_x = _a_x;
+    factor_a_y = _a_y;
+    factor_c = _c;
+}
+
+template <typename T, typename Basis2D>
+void
+OptimizedH1Preconditioner2D<T,Basis2D>::setThetaTimeStepParameters(T theta, T timestep)
+{
+    factor_a_x = a_x*theta*timestep;
+    factor_a_y = a_y*theta*timestep;
 }
 
 template <typename T, typename Basis2D>
@@ -23,7 +44,7 @@ OptimizedH1Preconditioner2D<T,Basis2D>::operator()(XType xtype1, int j1, long k1
     dd_y = basis_y.generator(xtype2).getH1SemiNorm(j2,k2);
     dd_y *= dd_y;
 
-    return (T)1./std::sqrt(a_x*dd_x*id_y + a_y*id_x*dd_y + c*id_x*id_y);
+    return (T)1./std::sqrt(factor_a_x*dd_x*id_y + factor_a_y*id_x*dd_y + factor_c*id_x*id_y);
 }
 
 template <typename T, typename Basis2D>

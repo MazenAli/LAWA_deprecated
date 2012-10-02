@@ -601,7 +601,7 @@ plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Bas
                  const char* filename, bool useSupportCenter)
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
-
+    std::cerr << "plotScatterCoeff: #supp u = " << coeff.size() << std::endl;
     std::stringstream datafilename;
     datafilename << filename << ".dat";
     std::ofstream datafile(datafilename.str().c_str());

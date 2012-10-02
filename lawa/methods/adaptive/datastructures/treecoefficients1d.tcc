@@ -185,6 +185,19 @@ TreeCoefficients1D<T>::operator+=(const Coefficients<Lexicographical,T,Index1D> 
 }
 
 template <typename T>
+TreeCoefficients1D<T>&
+TreeCoefficients1D<T>::operator*=(T factor)
+{
+    long double norm=0.L;
+    for (int l=0; l<=maxTreeLevel; ++l) {
+        for (by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
+            (*it).second *= factor;
+        }
+    }
+    return *this;
+}
+
+template <typename T>
 const CoefficientsByLevel<T>&
 TreeCoefficients1D<T>::operator[](short i) const
 {

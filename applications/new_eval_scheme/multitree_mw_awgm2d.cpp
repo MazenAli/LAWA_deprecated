@@ -163,9 +163,9 @@ int main (int argc, char *argv[]) {
     }
 
     /// Initialization of multi tree based adaptive wavelet Galerkin method
-    MultiTreeAWGM2D multiTreeAWGM2D(basis2d, localOp2D, F, Prec, f_eps);
+    MultiTreeAWGM2D multiTreeAWGM2D(basis2d, localOp2D, F, Prec/*, f_eps*/);
     multiTreeAWGM2D.setParameters(alpha, gamma, residualType, treeType, IsMW,
-                                  compute_f_minus_Au_error, writeCoefficientsToFile);
+                                  /*compute_f_minus_Au_error,*/ writeCoefficientsToFile);
 
     Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
     getSparseGridVector(basis2d,u,0,(T)0.2);
@@ -178,7 +178,7 @@ int main (int argc, char *argv[]) {
     coefffilename << "coeff_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
                  << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << "_" << treeType;
 
-    multiTreeAWGM2D.cg_solve(u, eps, 100, EnergyErrorSquared, convfilename.str().c_str(),
+    multiTreeAWGM2D.cg_solve(u, eps, 100, 1e-2, EnergyErrorSquared, convfilename.str().c_str(),
                              coefffilename.str().c_str());
 
     plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.1, "multiTreeAWGM_sol");

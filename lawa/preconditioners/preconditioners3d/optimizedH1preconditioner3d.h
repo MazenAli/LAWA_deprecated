@@ -32,6 +32,9 @@ class OptimizedH1Preconditioner3D
     public:
         OptimizedH1Preconditioner3D(const Basis3D &_basis, T _a_x=1., T _a_y=1., T _a_z=1., T _c=1.);
 
+        void
+        setParameters(T _a_x, T _a_y, T _a_z, T _c);
+
         T
         operator()(XType xtype_x, int j_x, long k_x,
                    XType xtype_y, int j_y, long k_y,

@@ -10,6 +10,13 @@ OptimizedH1Preconditioner3D<T,Basis3D>::OptimizedH1Preconditioner3D(const Basis3
 }
 
 template <typename T, typename Basis3D>
+void
+OptimizedH1Preconditioner3D<T,Basis3D>::setParameters(T _a_x, T _a_y, T _a_z, T _c)
+{
+    a_x = _a_x; a_y = _a_y; a_z = _a_z; c = _c;
+}
+
+template <typename T, typename Basis3D>
 T
 OptimizedH1Preconditioner3D<T,Basis3D>::operator()(XType xtype_x, int j_x, long k_x,
                                                    XType xtype_y, int j_y, long k_y,

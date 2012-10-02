@@ -82,4 +82,17 @@ operator()(const Index3D &index3d)
     return val_x1 * val_x2 * val_x3;
 }
 
+template <typename T, typename Index, typename RHSIntegral_x1, typename RHSIntegral_x2,
+          typename RHSIntegral_x3, typename RHSIntegral_x4,typename RHSIntegral_x5>
+void
+AdaptiveSeparableRhs<T,Index,RHSIntegral_x1,RHSIntegral_x2,RHSIntegral_x3,RHSIntegral_x4,RHSIntegral_x5>::
+clear()
+{
+    f_data_x1.clear();
+    f_data_x2.clear();
+    f_data_x3.clear();
+    f_data_x4.clear();
+    f_data_x5.clear();
+}
+
 }   // namespace lawa
