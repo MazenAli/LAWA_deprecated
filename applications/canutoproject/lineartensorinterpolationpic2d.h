@@ -44,6 +44,12 @@ struct LinearTensorInterpolationPic2D
     static T
     evaluateInterpolation(T x1, T x2);
 
+    static T
+    evaluateLiftingFunction(T x1, T x2);
+
+    static T
+    evaluateInterpolationMinusLiftingFunction(T x1, T x2);
+
     static void
     plotInterpolation(const char* filename, T h1, T h2);
 
