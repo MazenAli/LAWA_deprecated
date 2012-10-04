@@ -21,27 +21,56 @@ AdaptivePayoffQuadrature2D<BasketPut,PayoffIntegral>::integrate(T a1, T b1, T a2
     T payoff_b1a2 = payoffintegral.payoff(b1,a2);
     T payoff_b1b2 = payoffintegral.payoff(b1,b2);
 
-    if (payoff_a1a2>thresh && payoff_a1b2>thresh && payoff_b1a2>thresh && payoff_b1b2>thresh) {
+    if (payoff_a1a2>0. && payoff_a1b2>0. && payoff_b1a2>0. && payoff_b1b2>0.) {
         return this->integrate_smooth(a1, b1, a2, b2);
     }
-    if (payoff_a1a2<thresh && payoff_a1b2<thresh && payoff_b1a2<thresh && payoff_b1b2<thresh) {
+    if (payoff_a1a2==0 && payoff_a1b2==0 && payoff_b1a2==0 && payoff_b1b2==0) {
         return 0.;
     }
 
     T y1a2, y1b2, a1y2, b1y2;
-    if (fabs(payoff_a1a2-payoff_a1b2)>thresh) {
+    T val = 0.;
+    if ( (payoff_a1a2==0 && payoff_a1b2>0) || (payoff_a1a2>0 && payoff_a1b2==0) ) {
         a1y2 = this->find_intersectionpoint_y2_given_y1(a1);
+        if ( (payoff_a1a2==0 && payoff_b1a2>0) || (payoff_a1a2>0 && payoff_b1a2==0) )  {
+            y1a2 = this->find_intersectionpoint_y1_given_y2(a2);
+            val += this->integrate_singular(a1,y1a2,a2,a1y2);
+            val += this->integrate_smooth(y1a2,b1,a2,a1y2);
+            val += this->integrate_smooth(a1,y1a2,a1y2,b2);
+            val += this->integrate_smooth(y1a2,b1,a1y2,b2);
+            return val;
+        }
+        if ( (payoff_a1b2==0 && payoff_b1b2>0) || (payoff_a1b2>0 && payoff_b1b2==0) ) {
+            y1b2 = this->find_intersectionpoint_y1_given_y2(b2);
+            val += this->integrate_smooth(a1,y1b2,a2,a1y2);
+            val += this->integrate_smooth(y1b2,b1,a2,a1y2);
+            val += this->integrate_singular(a1,y1b2,a1y2,b2);
+            val += this->integrate_smooth(y1b2,b2,a1y2,b2);
+            return val;
+        }
     }
-    if (fabs(payoff_b1a2-payoff_b1b2)>thresh) {
+    if ( (payoff_b1a2==0 && payoff_b1b2>0) || (payoff_b1a2>0 && payoff_b1b2==0) ) {
         b1y2 = this->find_intersectionpoint_y2_given_y1(b1);
+        if ( (payoff_a1a2==0 && payoff_b1a2>0) || (payoff_a1a2>0 && payoff_b1a2==0) ) {
+            y1a2 = this->find_intersectionpoint_y1_given_y2(a2);
+            val += this->integrate_smooth(a1,y1a2,a2,b1y2);
+            val += this->integrate_singular(y1a2,b1,a2,b1y2);
+            val += this->integrate_smooth(a1,y1a2,b1y2,b2);
+            val += this->integrate_smooth(y1a2,b1,b1y2,b2);
+            return val;
+        }
+        if ( (payoff_a1b2==0 && payoff_b1b2>0) && (payoff_a1b2>0 && payoff_b1b2==0) ) {
+            y1b2 = this->find_intersectionpoint_y1_given_y2(b2);
+            val += this->integrate_smooth(a1,y1b2,a2,b1y2);
+            val += this->integrate_smooth(y1b2,b1,a2,b1y2);
+            val += this->integrate_smooth(a1,y1b2,b1y2,b2);
+            val += this->integrate_singular(y1b2,b2,b1y2,b2);
+            return val;
+        }
     }
 
-    if (fabs(payoff_a1a2-payoff_b1a2)>thresh) {
-        y1a2 = this->find_intersectionpoint_y1_given_y2(a2);
-    }
-    if (fabs(payoff_a1b2-payoff_b1b2)>thresh) {
-        y1b2 = this->find_intersectionpoint_y1_given_y2(b2);
-    }
+
+
     return 0.;
 }
 
