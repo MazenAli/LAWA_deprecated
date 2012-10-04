@@ -54,7 +54,7 @@ int main (int argc, char *argv[]) {
     Function2D<T> func_linearTensorInterpolPic2D(LinearTensorInterpolationPic2D<T>::evaluateInterpolationMinusLiftingFunction,
                                                  LinearTensorInterpolationPic2D<T>::sing_pts_x,
                                                  LinearTensorInterpolationPic2D<T>::sing_pts_y);
-    int order = 4, deriv_x = 0, deriv_y = 0;
+    int order = 1, deriv_x = 0, deriv_y = 0;
     NoPreconditioner<T,Index2D> noPrec;
 
     Integral_LinearTensorInterpolPic2D integral_linearTensorInterpolPic2D(basis2d, func_linearTensorInterpolPic2D, order, deriv_x, deriv_y);
@@ -69,6 +69,9 @@ int main (int argc, char *argv[]) {
     T alpha = 0.7;
     T gamma = 0.1;
     T eps   = 1e-8;
+
+    T weighted_region_a1 = 0.15, weighted_region_b1 = 0.45;
+    T weighted_region_a2 = 0.3,  weighted_region_b2 = 0.65;
 
     const char* residualType = "standard";
     bool sparsetree = true;
@@ -184,10 +187,14 @@ int main (int argc, char *argv[]) {
                 u_leafs[(*it).first] = res[(*it).first];;
             }
         }
-        cout << "      u = " << u << endl;
-        stringstream plotfilename, plotfilename2;
-        plotfilename << "image_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
-        plotfilename2 << "image2_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
+
+
+        stringstream plotfilename, plotfilename2, coefffilename;
+        plotfilename  << "image_test_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
+        plotfilename2 << "image_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
+        coefffilename << "image_coeff_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
+        plotScatterCoeff(u, basis2d, coefffilename.str().c_str(), true);
+
         //plotImageApproximation2D(linearTensorInterpolPic2D, basis2d, u, 0., 1., 0., 1., pow2i<T>(-refinementLevel1), plotfilename.str().c_str());
         if (iter==1) {
             //plotImageApproximation2D(linearTensorInterpolPic2D, basis2d, u_leafs, currentEvaluations, 0., 1, 0., 1., plotfilename2.str().c_str());
