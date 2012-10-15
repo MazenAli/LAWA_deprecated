@@ -121,6 +121,10 @@ class RBModel2D {
                      SolverCall call = call_cg, bool write_during_training = false, const char* foldername="training_adaptive");
         
         void
+        train_strong_Greedy(const std::vector<T>& init_param, T tol, int Nmax, const char* filename = "Training.txt",
+                     SolverCall call = call_cg, bool write_during_training = false, const char* foldername="training_adaptive");
+
+        void
         generate_uniform_trainingset(std::vector<int>& param_nbs_per_dim);
         
         void
@@ -150,6 +154,8 @@ class RBModel2D {
         std::vector<FullColMatrixT>     RB_A_matrices;
         std::vector<DenseVectorT>       RB_F_vectors;
         std::vector<DenseVectorT>       RB_output_vectors;
+        FullColMatrixT  				RB_inner_product;
+
 
         TruthModel*                     truth;
 
@@ -193,10 +199,7 @@ class RBModel2D {
         
         std::vector<T>  min_param;
         std::vector<T>  max_param;
-        
-        
-        FullColMatrixT  RB_inner_product;
-        
+
         // Reference Parameter defining the inner product norm
         // Needed for min-Theta approach
         std::vector<T>  ref_param;

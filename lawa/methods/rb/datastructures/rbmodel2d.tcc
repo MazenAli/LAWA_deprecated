@@ -8,6 +8,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace  lawa {
 
@@ -457,6 +458,131 @@ RBModel2D<T, TruthModel>::train_Greedy(const std::vector<T>& init_param, T tol, 
     } while ((N < Nmax) && (maxerr > tol));
     
 }
+
+template <typename T, typename TruthModel>
+void
+RBModel2D<T, TruthModel>::train_strong_Greedy(const std::vector<T>& init_param, T tol, int Nmax,
+												const char* filename, SolverCall call,
+												bool write_during_training,
+                                                const char* foldername)
+{
+
+	// Calculate all truth solutions
+	std::map<std::vector<T>, CoeffVector> truth_sols;
+    for (unsigned int n = 0; n < Xi_train.size(); ++n) {
+    	set_current_param(Xi_train[n]);
+    	CoeffVector u = truth->truth_solve();
+    	truth_sols.insert(std::pair<std::vector<T>, CoeffVector>(Xi_train[n], u));
+    }
+
+
+    // Initial Snapshot
+    set_current_param(init_param);
+
+    std::ofstream error_file(filename);
+    error_file << "# N   mu   Error " << std::endl;
+
+    // Delete init parameter from training sample
+    for(unsigned int i = 0; i < Xi_train.size(); ++i) {
+        bool is_param = false;
+        for(unsigned int l = 0; l < init_param.size(); ++l) {
+            if(Xi_train[i][l] == init_param[l]){
+                is_param = true;
+            }
+            else {
+                is_param = false;
+                break;
+            }
+        }
+        if( is_param == true) {
+            Xi_train.erase(Xi_train.begin() + i);
+        }
+    }
+
+    T maxerr;
+    int N = 0;
+    do {
+        std::cout << " ================================================= " << std::endl << std::endl;
+        std::cout << "Adding Snapshot at mu = " ;
+        for(unsigned int i = 0; i < get_current_param().size(); ++i){
+            std::cout << get_current_param()[i]  << " ";
+        }
+        std::cout << std::endl << std::endl;
+
+        error_file << N+1 << " ";
+        for(unsigned int i = 0; i < get_current_param().size(); ++i){
+            error_file << get_current_param()[i]  << " ";
+        }
+
+        //CoeffVector u = truth->truth_solve();
+        //add_to_basis(u);
+        add_to_basis((*truth_sols.find(get_current_param())).second);
+        N++;
+
+		if(write_during_training){
+			std::cout << "Writing Data.... " << std::endl;
+			if(mkdir(foldername, 0777) == -1)
+		  {
+				  std::cerr << "In RBModel::train_Greedy: directory " << foldername << " already exists, overwriting contents." << std::endl;
+		  }
+			std::string bf_folder = foldername;
+			bf_folder = bf_folder + "/bf";
+			write_basis_functions(bf_folder, N);
+			std::string repr_folder = foldername;
+			repr_folder = repr_folder + "/representors";
+			truth->write_riesz_representors(repr_folder,N);
+			if(N == 1){
+				truth->write_riesz_representors(repr_folder, 0);
+			}
+			std::string RB_folder = foldername;
+			write_RB_data(RB_folder);
+			std::cout << " ... done " << std::endl;
+		}
+
+
+        std::cout << std::endl;
+        maxerr = 0;
+        int next_Mu = 0;
+        std::cout << "Start strong Greedy search for new parameter " << std::endl;
+        for (unsigned int n = 0; n < Xi_train.size(); ++n) {
+
+            set_current_param(Xi_train[n]);
+            std::cout << "    Parameter set to " ;
+            for(unsigned int i = 0; i < Xi_train[n].size(); ++i){
+                std::cout << Xi_train[n][i] << " ";
+            }
+            std::cout << std::endl;
+
+            DenseVectorT u_N = RB_solve(N, Xi_train[n], call);
+
+            //T error_est = RB_errorbound(u_N, Xi_train[n]);
+            CoeffVector diff = reconstruct_u_N(u_N, N);
+            diff -= (*truth_sols.find(Xi_train[n])).second;
+            T error_est = truth->inner_product(diff, diff);
+
+
+            std::cout << "Training parameter ";
+            for(unsigned int i = 0; i < Xi_train[n].size(); ++i){
+                std::cout << Xi_train[n][i] << " ";
+            }
+            std::cout  << ": Error = " << std::scientific << error_est << std::endl;
+            if ( error_est > maxerr) {
+                maxerr = error_est;
+                next_Mu = n;
+            }
+        }
+
+        error_file << " " << maxerr << std::endl;
+
+        std::cout << std::endl << "Greedy Error = " << std::scientific << maxerr << std::endl << std::endl;
+
+        set_current_param(Xi_train[next_Mu]);
+        Xi_train.erase(Xi_train.begin() + next_Mu);
+
+    } while ((N < Nmax) && (maxerr > tol));
+
+}
+
 
 template <typename T, typename TruthModel>
 void
