@@ -90,6 +90,9 @@ struct AdaptivePayoffQuadrature2D<BasketPut,PayoffIntegral>
     T
     integrate_singular(T a1, T b1, T a2, T b2);
 
+    bool
+    contains_singularity(T a1, T b1, T a2, T b2);
+
     T
     find_intersectionpoint_y1_given_y2(T y2);
 

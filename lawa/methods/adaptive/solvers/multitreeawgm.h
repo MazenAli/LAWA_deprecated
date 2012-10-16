@@ -53,9 +53,6 @@ struct MultiTreeAWGM {
 //    void
 //    compute_f_minus_Au(Coefficients<Lexicographical,T,Index> &u, T _eps, T &f_minus_Au_error);
 
-    void
-    writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const char* filename);
-
     const Basis                             &basis;
     LocalOperator                           &Op;
     RHS                                     &F;

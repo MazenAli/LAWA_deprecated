@@ -30,6 +30,11 @@ namespace lawa {
 
 template<typename T, typename Index>
 void
+writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const char* filename);
+
+
+template<typename T, typename Index>
+void
 readCoefficientsFromFile(Coefficients<Lexicographical,T,Index2D> &u, const char* filename);
 
 

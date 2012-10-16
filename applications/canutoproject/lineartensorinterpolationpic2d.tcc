@@ -47,6 +47,7 @@ LinearTensorInterpolationPic2D<T>::readPicture(const char* filename)
 
     N1 = numOfRows-1;
     N2 = numOfCols-1;
+    std::cerr << "N1 = " << N1 << ", N2 = " << N2 << std::endl;
     coeffs.engine().resize(_(0,N1),_(0,N2));
 
     sing_pts_x.engine().resize(N1+1);
@@ -86,35 +87,59 @@ LinearTensorInterpolationPic2D<T>::readPicture(const char* filename)
 
 template <typename T>
 T
-LinearTensorInterpolationPic2D<T>::evaluateInterpolation(T x1, T x2) {
+LinearTensorInterpolationPic2D<T>::evaluateInterpolation(T x1, T x2, int deriv_x1, int deriv_x2) {
 
     T y1 = N1*x1, y2 = N2*x2;
     int k11 = std::floor(y1), k12 = std::ceil(y1);
     int k21 = std::floor(y2), k22 = std::ceil(y2);
 
+    T ret = 0.;
     if ((k11==k12) && (k21==k22)) {
-        return  coeffs(k11,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0);
+        ret =  coeffs(k11,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2);
     }
     else if ((k11!=k12) && (k21==k22)) {
-        return   coeffs(k11,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0)
-               + coeffs(k12,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k12,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0);
+        ret =   coeffs(k11,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2)
+              + coeffs(k12,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k12,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2);
     }
     else if ((k11==k12) && (k21!=k22)) {
-        return   coeffs(k11,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0)
-               + coeffs(k11,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k22,0);
+        ret =    coeffs(k11,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2)
+               + coeffs(k11,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k22,deriv_x2);
     }
     else {
-        return   coeffs(k11,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0)
-               + coeffs(k11,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k22,0)
-               + coeffs(k12,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k12,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0)
-               + coeffs(k12,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k12,0) * linearTensorInterpolBasis.mra.phi(y2,0,k22,0);
+        ret =    coeffs(k11,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2)
+               + coeffs(k11,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k22,deriv_x2)
+               + coeffs(k12,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k12,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2)
+               + coeffs(k12,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k12,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k22,deriv_x2);
     }
+
+    T factor1 = deriv_x1==1 ? N1 : 1;
+    T factor2 = deriv_x2==1 ? N2 : 1;
+    return factor1 * factor2 * ret;
 
 }
 
 template <typename T>
 T
-LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(T x1, T x2) {
+LinearTensorInterpolationPic2D<T>::evaluateInterpolation(T x1, T x2) {
+    return LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,0);
+}
+
+template <typename T>
+T
+LinearTensorInterpolationPic2D<T>::dx1_evaluateInterpolation(T x1, T x2) {
+    return LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,1,0);
+}
+
+template <typename T>
+T
+LinearTensorInterpolationPic2D<T>::dx2_evaluateInterpolation(T x1, T x2) {
+    return LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,1);
+}
+
+
+template <typename T>
+T
+LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(T x1, T x2, int deriv_x1, int deriv_x2) {
 
     T y1 = N1*x1, y2 = N2*x2;
 
@@ -146,58 +171,97 @@ LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(T x1, T x2) {
 
     //std::cerr << "corner = " << corner << ", edge = " << edge << std::endl;
 
+    T ret = 0.;
+
     if (corner>0) {
         if (corner==1) {
-            return   coeffs(k1_firstIndex,k2_firstIndex)   * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,0)   * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,0)
-                   + coeffs(k1_firstIndex,k2_firstIndex+1) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,0)   * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex+1,0)
-                   + coeffs(k1_firstIndex+1,k2_firstIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex+1,0) * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,0);
+            ret =    coeffs(k1_firstIndex,k2_firstIndex)   * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,deriv_x1)   * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,deriv_x2)
+                   + coeffs(k1_firstIndex,k2_firstIndex+1) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,deriv_x1)   * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex+1,deriv_x2)
+                   + coeffs(k1_firstIndex+1,k2_firstIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex+1,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,deriv_x2);
         }
         else if (corner==2) {
-            return   coeffs(k1_lastIndex-1,k2_firstIndex)  * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex-1,0)  * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,0)
-                   + coeffs(k1_lastIndex,k2_firstIndex)    * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,0)    * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,0)
-                   + coeffs(k1_lastIndex,k2_firstIndex+1)  * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,0)    * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex+1,0);
+            ret =    coeffs(k1_lastIndex-1,k2_firstIndex)  * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex-1,deriv_x1)  * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,deriv_x2)
+                   + coeffs(k1_lastIndex,k2_firstIndex)    * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,deriv_x1)    * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,deriv_x2)
+                   + coeffs(k1_lastIndex,k2_firstIndex+1)  * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,deriv_x1)    * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex+1,deriv_x2);
         }
         else if (corner==3) {
-            return   coeffs(k1_lastIndex,k2_lastIndex-1)   * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,0)    * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex-1,0)
-                   + coeffs(k1_lastIndex,k2_lastIndex)     * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,0)    * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,0)
-                   + coeffs(k1_lastIndex-1,k2_lastIndex)   * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex-1,0)  * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,0);
+            ret =    coeffs(k1_lastIndex,k2_lastIndex-1)   * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,deriv_x1)    * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex-1,deriv_x2)
+                   + coeffs(k1_lastIndex,k2_lastIndex)     * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,deriv_x1)    * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,deriv_x2)
+                   + coeffs(k1_lastIndex-1,k2_lastIndex)   * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex-1,deriv_x1)  * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,deriv_x2);
         }
         else if (corner==4) {
-            return   coeffs(k1_firstIndex+1,k2_lastIndex)  * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex+1,0) * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,0)
-                   + coeffs(k1_firstIndex,k2_lastIndex)    * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,0)   * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,0)
-                   + coeffs(k1_firstIndex,k2_lastIndex-1)  * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,0)   * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex-1,0);
+            ret =    coeffs(k1_firstIndex+1,k2_lastIndex)  * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex+1,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,deriv_x2)
+                   + coeffs(k1_firstIndex,k2_lastIndex)    * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,deriv_x1)   * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,deriv_x2)
+                   + coeffs(k1_firstIndex,k2_lastIndex-1)  * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,deriv_x1)   * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex-1,deriv_x2);
         }
     }
     else {
         if (edge==1) {
-            if (k11!=k12) return   coeffs(k11,k2_firstIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,0)
-                                 + coeffs(k12,k2_firstIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k12,0) * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,0);
-            else          return   coeffs(k11,k2_firstIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,0);
+            if (k11!=k12) ret =    coeffs(k11,k2_firstIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,deriv_x2)
+                                 + coeffs(k12,k2_firstIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k12,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,deriv_x2);
+            else          ret =    coeffs(k11,k2_firstIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k2_firstIndex,deriv_x2);
         }
         else if (edge==2) {
-            if (k21!=k22) return   coeffs(k1_lastIndex,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0)
-                                 + coeffs(k1_lastIndex,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,0) * linearTensorInterpolBasis.mra.phi(y2,0,k22,0);
-            else          return   coeffs(k1_lastIndex,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0);
+            if (k21!=k22) ret =    coeffs(k1_lastIndex,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2)
+                                 + coeffs(k1_lastIndex,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k22,deriv_x2);
+            else          ret =    coeffs(k1_lastIndex,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k1_lastIndex,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2);
         }
         else if (edge==3) {
-            if (k11!=k12) return   coeffs(k11,k2_lastIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,0)
-                                 + coeffs(k12,k2_lastIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k12,0) * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,0);
-            else          return   coeffs(k11,k2_lastIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k11,0) * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,0);
+            if (k11!=k12) ret =    coeffs(k11,k2_lastIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,deriv_x2)
+                                 + coeffs(k12,k2_lastIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k12,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,deriv_x2);
+            else          ret =    coeffs(k11,k2_lastIndex) * linearTensorInterpolBasis.mra.phi(y1,0,k11,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k2_lastIndex,deriv_x2);
         }
         else if (edge==4) {
-            if (k21!=k22) return   coeffs(k1_firstIndex,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0)
-                                 + coeffs(k1_firstIndex,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,0) * linearTensorInterpolBasis.mra.phi(y2,0,k22,0);
-            else          return   coeffs(k1_firstIndex,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,0) * linearTensorInterpolBasis.mra.phi(y2,0,k21,0);
+            if (k21!=k22) ret =    coeffs(k1_firstIndex,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2)
+                                 + coeffs(k1_firstIndex,k22) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k22,deriv_x2);
+            else          ret =    coeffs(k1_firstIndex,k21) * linearTensorInterpolBasis.mra.phi(y1,0,k1_firstIndex,deriv_x1) * linearTensorInterpolBasis.mra.phi(y2,0,k21,deriv_x2);
         }
     }
 
-    return 0.;
+    T factor1 = deriv_x1==1 ? N1 : 1;
+    T factor2 = deriv_x2==1 ? N2 : 1;
+    return factor1 * factor2 * ret;
+
 }
 
 template <typename T>
 T
+LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(T x1, T x2) {
+    return LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1, x2, 0, 0);
+}
+
+template <typename T>
+T
+LinearTensorInterpolationPic2D<T>::dx1_evaluateLiftingFunction(T x1, T x2) {
+    return LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1, x2, 1, 0);
+}
+
+template <typename T>
+T
+LinearTensorInterpolationPic2D<T>::dx2_evaluateLiftingFunction(T x1, T x2) {
+    return LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1, x2, 0, 1);
+}
+
+
+template <typename T>
+T
 LinearTensorInterpolationPic2D<T>::evaluateInterpolationMinusLiftingFunction(T x1, T x2) {
-    return LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2) - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2);
+    return   LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,0)
+           - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,0,0);
+}
+
+template <typename T>
+T
+LinearTensorInterpolationPic2D<T>::dx1_evaluateInterpolationMinusLiftingFunction(T x1, T x2) {
+    return   LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,1,0)
+           - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,1,0);
+}
+
+template <typename T>
+T
+LinearTensorInterpolationPic2D<T>::dx2_evaluateInterpolationMinusLiftingFunction(T x1, T x2) {
+    return   LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,1)
+           - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,0,1);
 }
 
 template <typename T>

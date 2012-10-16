@@ -85,6 +85,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
             r[(*it).first] = 0.;
             p[(*it).first] = tmp;
         }
+
         std::cerr.precision(16);
         //std::cerr << "      || f ||_{ell_2} = " << p.norm((T)2.) << std::endl;
         std::cerr.precision(6);
@@ -414,23 +415,6 @@ compute_f_minus_Au(Coefficients<Lexicographical,T,Index> &u, T eps, T &f_minus_A
     return;// Au.norm(2.);
 }
 */
-
-template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
-void
-MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
-writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const char* filename)
-{
-    std::stringstream filenamestr;
-    filenamestr << filename << "__" << i << ".dat";
-    std::ofstream file(filenamestr.str().c_str());
-    file.precision(20);
-    std::cerr << "Started writing into file..." << std::endl;
-    for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
-        file << (*it).first << " " << (*it).second << std::endl;
-    }
-    file.close();
-    std::cerr << "... finished." << std::endl;
-}
 
 }   // namespace lawa
 

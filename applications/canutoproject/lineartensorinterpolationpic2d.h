@@ -35,6 +35,7 @@ struct LinearTensorInterpolationPic2D
     static int N1, N2;
     static DenseVectorT sing_pts_x, sing_pts_y;
     static DenseMatrixT coeffs;
+    static int deriv_x, deriv_y;
 
     static PrimalBasis  linearTensorInterpolBasis;
 
@@ -42,13 +43,40 @@ struct LinearTensorInterpolationPic2D
     readPicture(const char* filename);
 
     static T
+    evaluateInterpolation(T x1, T x2, int deriv_x1, int deriv_x2);
+
+    static T
     evaluateInterpolation(T x1, T x2);
+
+    static T
+    dx1_evaluateInterpolation(T x1, T x2);
+
+    static T
+    dx2_evaluateInterpolation(T x1, T x2);
+
+
+    static T
+    evaluateLiftingFunction(T x1, T x2, int deriv_x1, int deriv_x2);
 
     static T
     evaluateLiftingFunction(T x1, T x2);
 
     static T
+    dx1_evaluateLiftingFunction(T x1, T x2);
+
+    static T
+    dx2_evaluateLiftingFunction(T x1, T x2);
+
+
+    static T
     evaluateInterpolationMinusLiftingFunction(T x1, T x2);
+
+    static T
+    dx1_evaluateInterpolationMinusLiftingFunction(T x1, T x2);
+
+    static T
+    dx2_evaluateInterpolationMinusLiftingFunction(T x1, T x2);
+
 
     static void
     plotInterpolation(const char* filename, T h1, T h2);

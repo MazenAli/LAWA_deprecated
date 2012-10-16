@@ -89,6 +89,34 @@ AdaptivePayoffQuadrature2D<BasketPut,PayoffIntegral>::integrate_singular(T a1, T
 }
 
 template <typename PayoffIntegral>
+bool
+AdaptivePayoffQuadrature2D<BasketPut,PayoffIntegral>::contains_singularity(T a1, T b1, T a2, T b2)
+{
+    T weight1 = payoffintegral.option.optionparameters.weight1;
+    T weight2 = payoffintegral.option.optionparameters.weight2;
+    T u11     = payoffintegral.processparameters.u11;
+    T u12     = payoffintegral.processparameters.u12;
+    T u21     = payoffintegral.processparameters.u21;
+    T u22     = payoffintegral.processparameters.u22;
+
+    T val_a1a2 = weight1*std::exp(u11*a1+u21*a2) + weight2*std::exp(u12*a1+u22*a2) - 1;
+    T val_a1b2 = weight1*std::exp(u11*a1+u21*b2) + weight2*std::exp(u12*a1+u22*b2) - 1;
+    T val_b1a2 = weight1*std::exp(u11*b1+u21*a2) + weight2*std::exp(u12*b1+u22*a2) - 1;
+    T val_b1b2 = weight1*std::exp(u11*b1+u21*b2) + weight2*std::exp(u12*b1+u22*b2) - 1;
+
+    // if the values have different signs, then the singularity enters the integration domain at
+    // the corresponding axis
+    if (val_a1a2*val_b1a2 < 0) return true;
+    if (val_b1a2*val_b1b2 < 0) return true;
+    if (val_b1b2*val_a1b2 < 0) return true;
+    if (val_a1b2*val_a1a2 < 0) return true;
+
+
+
+
+}
+
+template <typename PayoffIntegral>
 typename PayoffIntegral::T
 AdaptivePayoffQuadrature2D<BasketPut,PayoffIntegral>::find_intersectionpoint_y1_given_y2(T y2)
 {

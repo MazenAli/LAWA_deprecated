@@ -1,5 +1,24 @@
 namespace lawa {
 
+template<typename T, typename Index>
+void
+writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const char* filename)
+{
+    typedef typename Coefficients<Lexicographical,T,Index>::const_iterator    const_coeff_it;
+
+    std::stringstream filenamestr;
+    filenamestr << filename << "__" << i << ".dat";
+    std::ofstream file(filenamestr.str().c_str());
+    file.precision(20);
+    std::cerr << "Started writing into file..." << std::endl;
+    for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
+        file << (*it).first << " " << (*it).second << std::endl;
+    }
+    file.close();
+    std::cerr << "... finished." << std::endl;
+}
+
+
 template<typename T>
 void
 readCoefficientsFromFile(Coefficients<Lexicographical,T,Index2D> &u, const char* filename)

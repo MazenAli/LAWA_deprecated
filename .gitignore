@@ -134,3 +134,6 @@ applications/canutoproject/lineartensorinterpolation2d_pic
 applications/finance/test_newtonsolver_gsl
 applications/canutoproject/quasiinterpolation2d
 applications/new_eval_scheme/visualize_idea_new_residual
+applications/canutoproject/poisson2d_pic
+applications/canutoproject/plotApproxFromCoeff2d_pic
+applications/canutoproject/claudiocanuto3.jpg

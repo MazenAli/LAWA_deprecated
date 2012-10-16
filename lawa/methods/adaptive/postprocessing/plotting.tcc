@@ -613,7 +613,7 @@ plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Bas
             XType xtype_x=(*it).first.index1.xtype, xtype_y=(*it).first.index2.xtype;
 
             Support<T> supp_x = basis.first.generator(xtype_x).support(j_x,k_x);
-            Support<T> supp_y = basis.first.generator(xtype_y).support(j_y,k_y);
+            Support<T> supp_y = basis.second.generator(xtype_y).support(j_y,k_y);
 
             T x=0., y=0.;
             x = (supp_x.l2 + supp_x.l1)/(T)2.;
