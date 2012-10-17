@@ -913,7 +913,7 @@ AdaptiveRBTruth2D_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, TruthSolver,
     typename Coefficients<Lexicographical,T,Index2D>::const_iterator it;
     for (it = current_bf->begin(); it != current_bf->end(); ++it) {
         //val += (*it).second * (*current_op)((*it).first, lambda) ;
-        val += (*it).second * (*current_op)(lambda, (*it).first) ;
+        val += (*it).second * (*current_op)(lambda, (*it).first);
     }
     
     return - thisTruth->get_test_prec(lambda) * val;

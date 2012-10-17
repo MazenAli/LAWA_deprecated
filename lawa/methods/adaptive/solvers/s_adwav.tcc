@@ -224,22 +224,25 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_cg(const IndexSet<Index> &InitialLambda, in
         T r_norm_LambdaActive = 0.0;
         //std::cout << "   CG solver started with N = " << LambdaActive.size() << std::endl;
 
+        /*
 		//=========================================
 		std::stringstream rhsoutfilename;
 		rhsoutfilename << "SAdwav_CG_RHS_Iteration_" << its;
 		saveCoeffVector2D(f, basis, rhsoutfilename.str().c_str());
 		//=========================================
-		
+		*/
 		
         int iterations = CG_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, 10000, timeMatrixVector, assemble_matrix);
         linsolve_iterations[its] = iterations;
         //std::cout << "   ...finished." << std::endl;
 
+        /*
 		//=========================================
 		std::stringstream uoutfilename;
 		uoutfilename << "SAdwav_CG_U_Iteration_" << its;
 		saveCoeffVector2D(u, basis, uoutfilename.str().c_str());
 		//=========================================
+		*/
 
         //Threshold step
         //std::cout << "Before THRESH: " << u << std::endl;
