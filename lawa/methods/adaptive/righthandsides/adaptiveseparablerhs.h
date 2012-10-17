@@ -50,6 +50,9 @@ class AdaptiveSeparableRhs
     T
     operator()(const Index3D &index3d);
 
+    void
+    clear();
+
     const RHSIntegral_x1                    &integral_x1;
     Coefficients<Lexicographical,T,Index1D> &f_data_x1;
     const RHSIntegral_x2                    &integral_x2;

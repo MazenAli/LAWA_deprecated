@@ -27,7 +27,7 @@
 #include <gsl/gsl_fft_complex.h>
 #include <gsl/gsl_interp.h>
 
-#include <applications/finance/processes/processtypes1d.h>
+#include <applications/finance/processes/processtypes.h>
 #include <applications/finance/fourierpricing/cgmycharacteristicfunction1d.h>
 #include <applications/finance/fourierpricing/characteristicfunction1d.h>
 

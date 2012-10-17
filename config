@@ -41,7 +41,8 @@ endif
 # compilation modes ------------------------------------------------------------
 
 #HASHTYPE = -DGNUCXX
-HASHTYPE = -DTRONE
+#HASHTYPE = -DBOOST
+HASHTYPE = -DTRONE -DBOOST_HAS_TR1_TUPLE
 
 # --- debug mode -----------------------
 DEBUGLAWA += -DCHECK_INTERVAL_CONSTRUCTION
@@ -56,8 +57,8 @@ RELEASEMODE = -O3 -DNDEBUG $(HASHTYPE) -fPIC
 PROFILEMODE = -p -g -DNDEBUG $(HASHTYPE)
 
 # --- select compilation-mode here by commenting / uncommenting
-CXXFLAGS += $(DEBUGMODE)
-#CXXFLAGS += $(RELEASEMODE)
+#CXXFLAGS += $(DEBUGMODE)
+CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 #CPPFLAGS += -D_GLIBCXX_PERMIT_BACKWARD_HASH
@@ -66,6 +67,19 @@ CPPFLAGS += -I$(FLENS_HOME) -I$(LAWA_HOME)
 
 ifdef BOOST_HOME
   CPPFLAGS += -I$(BOOST_HOME)
+endif
+
+ifdef GMPFRXX_HOME
+   CPPFLAGS += -I$(GMPFRXX_HOME)
+   LDFLAGS += -L$(GMPFRXX_HOME) -lgmpfrxx
+endif
+
+ifdef MPREC_INC_HOME
+   CPPFLAGS += -I$(MPREC_INC_HOME)
+endif
+
+ifdef MPREC_LIB_HOME
+   LDFLAGS += -L$(MPREC_LIB_HOME) -lmpfr -lgmpxx -lgmp 
 endif
 
 ifdef GSL_INC_HOME

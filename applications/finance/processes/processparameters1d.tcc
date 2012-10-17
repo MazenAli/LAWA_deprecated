@@ -13,4 +13,5 @@ ProcessParameters1D<T,BlackScholes>::ProcessParameters1D(T _r, T _sigma)
 {
 
 }
+
 }   // namespace lawa

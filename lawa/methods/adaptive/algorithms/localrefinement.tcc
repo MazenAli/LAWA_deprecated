@@ -13,7 +13,7 @@ LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,I
                                            Coefficients<Lexicographical,T,Index1D> &u_loc_single) const
 {
     TreeCoefficients1D<T> u_tree(255,basis.j0);
-    fromCofficientsToTreeCofficients(u, u_tree);
+    fromCoefficientsToTreeCoefficients(u, u_tree);
     int j_bspline = j_scaling;
     int j_wavelet = j_scaling;
 

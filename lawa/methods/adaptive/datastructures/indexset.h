@@ -22,6 +22,8 @@
 
 #ifdef TRONE
     #include <tr1/unordered_set>
+#elif BOOST
+    #include <boost/unordered_set.hpp>
 #else
     #include <ext/hash_set>
 #endif
@@ -37,6 +39,8 @@ namespace lawa {
 template <typename Index>
 #ifdef TRONE
 struct IndexSet : std::tr1::unordered_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >
+#elif BOOST
+struct IndexSet : boost::unordered_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >
 #else
 struct IndexSet : __gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >
 #endif

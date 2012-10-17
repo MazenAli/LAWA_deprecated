@@ -44,7 +44,8 @@ typedef AdaptivePDEOperatorOptimized2D<T,Primal,Interval,SparseMulti,
 typedef AdaptiveHelmholtzOperatorOptimized2D<T,Primal,Interval,SparseMulti,
                                              Primal,RPlus,SparseMulti>      SparseMW_H1_MA;
 
-typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D,SparseMW_MA>   SparseMW_Prec;
+typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D,SparseMW_MA>       SparseMW_Prec;
+typedef DiagonalPreconditionerAdaptiveOperator<T,Index2D,SparseMW_H1_MA>    SparseMW_H1_Prec;
 
 //Righthandsides definitions (separable)
 typedef SeparableRHS2D<T,SparseMW_Basis2D >                             SparseMW_SeparableRhsIntegral2D;
@@ -54,10 +55,12 @@ typedef SumOfTwoRHSIntegrals<T,Index2D,SparseMW_SeparableRhsIntegral2D,
 
 typedef RHS<T,Index2D,SparseMW_SumOfSeparableRhsIntegral2D,
             SparseMW_Prec>                                              SparseMW_SumOfSeparableRhs;
+typedef RHS<T,Index2D,SparseMW_SumOfSeparableRhsIntegral2D,
+            SparseMW_H1_Prec>                                           SparseMW_H1_SumOfSeparableRhs;
 
 //Algorithm definition
 typedef S_ADWAV_Optimized<T,Index2D,SparseMW_MA,SparseMW_SumOfSeparableRhs,
-                          SparseMW_H1_MA,SparseMW_SumOfSeparableRhs>    SparseMW_S_ADWAV_SOLVER_Optim_SeparableRhs;
+                          SparseMW_H1_MA,SparseMW_H1_SumOfSeparableRhs>    SparseMW_S_ADWAV_SOLVER_Optim_SeparableRhs;
 
 int main (int argc, char *argv[]) {
     if (argc!=8) {
@@ -72,7 +75,7 @@ int main (int argc, char *argv[]) {
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
-    T reaction=1., convection_x=0., convection_y=0., diffusion=1.;
+    T reaction=1., convection_x=0., convection_y=0., diffusion_y=0.0001;
     T contraction = 0.125;
     T threshTol = 0.1;
     T cgTol = 0.1*threshTol;//1e-12;
@@ -86,15 +89,15 @@ int main (int argc, char *argv[]) {
     stringstream convfilename;
     convfilename << "s_adwav_conv_interval_rplus_pde2d_" << argv[1] << "_" << argv[2] << "_"
                  << argv[3] << "_" << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
-                 << convection_y << "_" << argv[6] << ".dat";
+                 << convection_y << "_ay_" << diffusion_y << "_" << argv[6] << ".dat";
     stringstream plotfilename;
     plotfilename << "s_adwav_plot_interval_rplus_pde2d_" << argv[1] << "_" << argv[2] << "_"
                  << argv[3] << "_" << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
-                 << convection_y << "_" << argv[6];
+                 << convection_y << "_ay_" << diffusion_y << "_" << argv[6];
     stringstream coefffilename;
     coefffilename << "s_adwav_coeff_interval_rplus_pde2d_" << argv[1] << "_" << argv[2] << "_"
                   << argv[3] << "_" << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
-                  << convection_y << "_" << argv[6];
+                  << convection_y << "_ay_" << diffusion_y << "_" << argv[6];
 
     //Righthand side construction for tensor solution
     if (strcmp(argv[1],"CDF")==0) {
@@ -111,15 +114,16 @@ int main (int argc, char *argv[]) {
         SparseMW_RPlusBasis1D           SparseMW_basis_y(d,j0_y);
         SparseMW_basis_y.enforceBoundaryCondition<DirichletBC>();
         SparseMW_Basis2D                SparseMW_basis2d(SparseMW_basis_x,SparseMW_basis_y);
-        SparseMW_MA            SparseMW_A(SparseMW_basis2d,reaction,convection_x,convection_y,diffusion);
+        SparseMW_MA            SparseMW_A(SparseMW_basis2d,reaction,convection_x,convection_y,diffusion_y);
         //SparseMW_MA            SparseMW_A(SparseMW_basis2d,1.);
         SparseMW_H1_MA         SparseMW_H1_A(SparseMW_basis2d,1.);
 
         SparseMW_Prec          SparseMW_P(SparseMW_A);
+        SparseMW_H1_Prec       SparseMW_H1_P(SparseMW_H1_A);
 
         int order = 20;
         TensorRefSols_PDE_Interval_RPlus<T> refsol;
-        refsol.setExample(example, reaction, convection_x, convection_y, diffusion);
+        refsol.setExample(example, reaction, convection_x, convection_y, diffusion_y);
 
         SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
                                         refsol.exact_y, refsol.sing_pts_y);
@@ -138,7 +142,7 @@ int main (int argc, char *argv[]) {
         SparseMW_SeparableRhsIntegral2D      SparseMW_H1_rhsintegral_x(SparseMW_basis2d, PP_SepFunc1, refsol.H1_deltas_x, no_deltas, order);
         SparseMW_SeparableRhsIntegral2D      SparseMW_H1_rhsintegral_y(SparseMW_basis2d, PP_SepFunc2, no_deltas, refsol.H1_deltas_y, order);
         SparseMW_SumOfSeparableRhsIntegral2D SparseMW_H1_rhsintegral2d(SparseMW_H1_rhsintegral_x,SparseMW_H1_rhsintegral_y);
-        SparseMW_SumOfSeparableRhs           SparseMW_H1_F(SparseMW_H1_rhsintegral2d,SparseMW_P);
+        SparseMW_H1_SumOfSeparableRhs        SparseMW_H1_F(SparseMW_H1_rhsintegral2d,SparseMW_H1_P);
 
         SparseMW_S_ADWAV_SOLVER_Optim_SeparableRhs SparseMW_s_adwav_solver_optim
                         (SparseMW_A, SparseMW_F, SparseMW_H1_A, SparseMW_H1_F,
@@ -160,7 +164,7 @@ int main (int argc, char *argv[]) {
         stringstream rhsfilename;
         rhsfilename << "rhs_interval_rplus_pde2d_" << argv[1] << "_" << argv[2] << "_" << argv[3]
                     << "_" << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
-                    << convection_y << "_" << argv[6] << ".dat";
+                    << convection_y << "_ay_" << diffusion_y << "_" << argv[6] << ".dat";
 
         Coefficients<Lexicographical,T,Index2D> f;
         IndexSet<Index2D> Lambda, LambdaHelp;

@@ -266,12 +266,12 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF>::apply(const Coefficients<L
         T numerator = w_p.norm(2.) * support_size_all_buckets;
         //T denominator = w_p.size() * 0.5*tol / CA;
         T denominator = w_p.size() * (eps-delta) / CA;
-        std::cout << "Bucket " << i << ": numerator=" << numerator << ", denominator=" << denominator << std::endl;
+        //std::cout << "Bucket " << i << ": numerator=" << numerator << ", denominator=" << denominator << std::endl;
         if (denominator < 0) {
-            std::cout << "Bucket " << i << ": eps=" << eps << ", delta=" << delta << std::endl;
+            //std::cout << "Bucket " << i << ": eps=" << eps << ", delta=" << delta << std::endl;
         }
         int jp = (int)std::max(std::log(numerator/denominator) / std::log(2.) / (basis.d-1.5), 0.);
-        std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
+        //std::cout << "Bucket " << i << ": #wp= " << w_p.size() << ", jp=" << jp << std::endl;
         jp = std::min(jp,36);
         for (const_coeff1d_it it=w_p.begin(); it!=w_p.end(); ++it) {
             Index1D colindex = (*it).first;

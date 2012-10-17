@@ -32,6 +32,12 @@ class OptimizedH1Preconditioner2D
     public:
         OptimizedH1Preconditioner2D(const Basis2D &_basis, T _a_x=1., T _a_y=1., T _c=1.);
 
+        void
+        setParameters(T _a_x, T _a_y, T _c);
+
+        void
+        setThetaTimeStepParameters(T theta, T timestep);
+
         T
         operator()(XType xtype_x, int j_x, long k_x,
                    XType xtype_y, int j_y, long k_y) const;
@@ -49,7 +55,8 @@ class OptimizedH1Preconditioner2D
         const Basis_x &basis_x;
         const Basis_y &basis_y;
 
-        const T a_x, a_y, c;
+        T a_x, a_y, c;
+        T factor_a_x, factor_a_y, factor_c;
 };
 
 }   // namespace lawa

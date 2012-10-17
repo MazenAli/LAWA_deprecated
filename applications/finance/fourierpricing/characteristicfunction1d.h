@@ -20,7 +20,7 @@
 #ifndef APPLICATIONS_FINANCE_PROCESSES_CHARACTERISTICFUNCTION1D_H
 #define APPLICATIONS_FINANCE_PROCESSES_CHARACTERISTICFUNCTION1D_H 1
 
-#include <applications/finance/processes/processtypes1d.h>
+#include <applications/finance/processes/processtypes.h>
 
 namespace lawa {
 

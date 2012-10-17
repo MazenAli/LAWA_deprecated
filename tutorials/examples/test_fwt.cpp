@@ -42,11 +42,15 @@ int main (int argc, char *argv[]) {
         }
     }
 
+    cout << "c1 = " << c << endl;
+
     DenseVectorT c_single(basis.mra.rangeI(J));
     ifwt(c, basis, J-1, c_single);
 
     DenseVectorT c_multi(basis.mra.rangeI(J));
     fwt(c_single, dual_basis, J-1, c_multi);
+
+    cout << "c2 = " << c_multi << endl;
 
     DenseVectorT c_diff(basis.mra.rangeI(J));
     c_diff = c - c_multi;

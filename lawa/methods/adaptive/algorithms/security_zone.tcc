@@ -445,6 +445,9 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,Interval,Multi> 
         k_wavelet_first = std::max((long)basis.rangeJ(j_wavelet).firstIndex(), k_wavelet_first-basis._numInnerParts);
         k_wavelet_last  = std::min((long)basis.rangeJ(j_wavelet).lastIndex(),  k_wavelet_last+basis._numInnerParts);
         for (int k_wavelet = k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+            if (j_wavelet >= 28) {
+                std::cerr << "Level too large!!" << std::endl;
+            }
             if (overlap(supp, psi.support(j_wavelet,k_wavelet))>0) {
                 ret.insert(Index1D(j_wavelet,k_wavelet,XWavelet));
             }

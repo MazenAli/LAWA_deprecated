@@ -18,19 +18,38 @@
  */
 
 
-#ifndef APPLICATIONS_FINANCE_OPTIONS_OPTION1D_H
-#define APPLICATIONS_FINANCE_OPTIONS_OPTION1D_H 1
+#ifndef APPLICATIONS_FINANCE_OPTIONS_BASKETPUT2D_H
+#define APPLICATIONS_FINANCE_OPTIONS_BASKETPUT2D_H 1
 
-#include <applications/finance/options/optiontypes1d.h>
+#include <boost/math/distributions/normal.hpp>
+
+#include <applications/finance/options/option.h>
+#include <applications/finance/options/optionparameters2d.h>
+#include <applications/finance/processes/processes.h>
+#include <applications/finance/fourierpricing/fourierpricing.h>
 
 namespace lawa {
 
-template <typename T,OptionType1D Type>
-struct Option1D
+template <typename T>
+struct Option2D<T,BasketPut>
 {
+    Option2D(const OptionParameters2D<T,BasketPut> &_optionparameters);
 
+    T
+    payoff(T S1, T S2) const;
+
+    T
+    payoff_log(T x1, T x2) const;
+
+
+    T
+    value(const ProcessParameters2D<T,BlackScholes2D> &processparameters, T S, T t);
+
+    OptionParameters2D<T,BasketPut> optionparameters;
 };
 
-}   // namespace lawa
+} // namespace lawa
 
-#endif  // APPLICATIONS_FINANCE_OPTIONS_OPTION1D_H
+#include <applications/finance/options/basketput2d.tcc>
+
+#endif // APPLICATIONS_FINANCE_OPTIONS_BASKETPUT2D_H

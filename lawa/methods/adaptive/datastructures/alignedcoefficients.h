@@ -22,6 +22,8 @@
 
 #ifdef TRONE
     #include <tr1/unordered_map>
+#elif BOOST
+    #include <boost/unordered_map.hpp>
 #else
     #include <ext/hash_map>
 #endif
@@ -37,6 +39,12 @@ struct AlignedCoefficients
 {
     #ifdef TRONE
         typedef typename std::tr1::unordered_map<PrincipalIndex,
+                                                 Coefficients<Lexicographical,T,AlignedIndex>,
+                                                 index_hashfunction<PrincipalIndex>,
+                                                 index_eqfunction<PrincipalIndex> >
+                         IndexToCoefficientsMap;
+    #elif BOOST
+        typedef typename boost::unordered_map<PrincipalIndex,
                                                  Coefficients<Lexicographical,T,AlignedIndex>,
                                                  index_hashfunction<PrincipalIndex>,
                                                  index_eqfunction<PrincipalIndex> >

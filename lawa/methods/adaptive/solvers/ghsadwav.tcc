@@ -13,14 +13,14 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GHS_ADWAV(AdaptiveOperator &_A, RHS &_F
     gamma = 0.5 * (1./6.) * 1./sqrt(kappa) * (alpha-omega)/(1+omega);
     theta = 2./7.;
     if (IsIndex1D<Index>::value) {
-        if (A.basis.d==2) {
-            hms_galerkin = 6151;
-            hms_residual = 24593;
-        }
-        else {
+        //if (A.basis.d==2) {
+        //    hms_galerkin = 6151;
+        //    hms_residual = 24593;
+        //}
+        //else {
             hms_galerkin = 3079;
             hms_residual = 12289;
-        }
+        //}
     }
     else if (IsIndex2D<Index>::value) {
         hms_galerkin = 3145739;

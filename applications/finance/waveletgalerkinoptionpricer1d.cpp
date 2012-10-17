@@ -3,7 +3,7 @@
 #include <flens/flens.h>
 #include <lawa/lawa.h>
 #include <applications/finance/fourierpricing/fourierpricing.h>
-#include <applications/finance/initialconditions/initialcondition1d.h>
+#include <applications/finance/initialconditions/initialconditions.h>
 #include <applications/finance/options/options.h>
 #include <applications/finance/operators/operators.h>
 #include <applications/finance/processes/processes.h>

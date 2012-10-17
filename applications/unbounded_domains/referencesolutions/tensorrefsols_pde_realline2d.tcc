@@ -18,7 +18,7 @@ TensorRefSols_PDE_Realline2D<T>::convection_y;
 
 template <typename T>
 T
-TensorRefSols_PDE_Realline2D<T>::diffusion;
+TensorRefSols_PDE_Realline2D<T>::diffusion_y;
 
 template <typename T>
 flens::DenseVector<Array<T> >
@@ -53,34 +53,34 @@ TensorRefSols_PDE_Realline2D<T>::H1_deltas_y;
 template <typename T>
 void
 TensorRefSols_PDE_Realline2D<T>::setExample(int _nr, T _reaction, T _convection_x, T _convection_y,
-                                            T _diffusion)
+                                            T _diffusion_y)
 {
     reaction     =_reaction;
     convection_x =_convection_x;
     convection_y =_convection_y;
-    diffusion =_diffusion;
+    diffusion_y =_diffusion_y;
     assert(reaction>=0);
     nr=_nr;
 
     if (nr==2) {
         sing_pts_x.engine().resize(1); sing_pts_x(1) = singpt_ex2;
         sing_pts_y.engine().resize(1); sing_pts_y(1) = singpt_ex2;
-        deltas_x.engine().resize(1,2); deltas_x(1,1) = singpt_ex2; deltas_x(1,2) = diffusion*0.2;
-        deltas_y.engine().resize(1,2); deltas_y(1,1) = singpt_ex2; deltas_y(1,2) = diffusion*1.;
+        deltas_x.engine().resize(1,2); deltas_x(1,1) = singpt_ex2; deltas_x(1,2) = 0.2;
+        deltas_y.engine().resize(1,2); deltas_y(1,1) = singpt_ex2; deltas_y(1,2) = diffusion_y*1.;
         H1_deltas_x.engine().resize(1,2); H1_deltas_x(1,1) = singpt_ex2; H1_deltas_x(1,2) = 0.2;
         H1_deltas_y.engine().resize(1,2); H1_deltas_y(1,1) = singpt_ex2; H1_deltas_y(1,2) = 1.;
     }
     if (nr==3) {
         sing_pts_x.engine().resize(1); sing_pts_x(1) = 1./3.;
-        deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = diffusion*4.;
+        deltas_x.engine().resize(1,2); deltas_x(1,1) = 1./3.; deltas_x(1,2) = 4.;
         H1_deltas_x.engine().resize(1,2); H1_deltas_x(1,1) = 1./3.; H1_deltas_x(1,2) = 4.;
     }
     if (nr==5) {
         sing_pts_x.engine().resize(3); sing_pts_x = 0., 1./3., 1.;
         deltas_x.engine().resize(3,2);
-        deltas_x(1,1) = 0.;    deltas_x(1,2) = diffusion*(-4.);
-        deltas_x(2,1) = 1./3.; deltas_x(2,2) = diffusion*(4.*exp(1./3.)+2.*exp(-0.5*(1./3.-1.)));
-        deltas_x(3,1) = 1.;    deltas_x(3,2) = diffusion*(-2.);
+        deltas_x(1,1) = 0.;    deltas_x(1,2) = -4.;
+        deltas_x(2,1) = 1./3.; deltas_x(2,2) =  4.*exp(1./3.)+2.*exp(-0.5*(1./3.-1.));
+        deltas_x(3,1) = 1.;    deltas_x(3,2) = -2.;
         H1_deltas_x.engine().resize(3,2);
         H1_deltas_x(1,1) = 0.;    H1_deltas_x(1,2) = -4.;
         H1_deltas_x(2,1) = 1./3.; H1_deltas_x(2,2) = 4.*exp(1./3.)+2.*exp(-0.5*(1./3.-1.));
@@ -88,9 +88,9 @@ TensorRefSols_PDE_Realline2D<T>::setExample(int _nr, T _reaction, T _convection_
 
         sing_pts_y.engine().resize(3); sing_pts_y = 0., 1./3., 1.;
         deltas_y.engine().resize(3,2);
-        deltas_y(1,1) = 0.;    deltas_y(1,2) = diffusion*(-4.);
-        deltas_y(2,1) = 1./3.; deltas_y(2,2) = diffusion*(4.*exp(1./3.)+2.*exp(-0.5*(1./3.-1.)));
-        deltas_y(3,1) = 1.;    deltas_y(3,2) = diffusion*(-2.);
+        deltas_y(1,1) = 0.;    deltas_y(1,2) = diffusion_y*(-4.);
+        deltas_y(2,1) = 1./3.; deltas_y(2,2) = diffusion_y*(4.*exp(1./3.)+2.*exp(-0.5*(1./3.-1.)));
+        deltas_y(3,1) = 1.;    deltas_y(3,2) = diffusion_y*(-2.);
         H1_deltas_y.engine().resize(3,2);
         H1_deltas_y(1,1) = 0.;    H1_deltas_y(1,2) = -4.;
         H1_deltas_y(2,1) = 1./3.; H1_deltas_y(2,2) = 4.*exp(1./3.)+2.*exp(-0.5*(1./3.-1.));
@@ -138,7 +138,7 @@ template <typename T>
 T
 TensorRefSols_PDE_Realline2D<T>::rhs_x(T x)
 {
-    return -diffusion*exact_x(x,2) + convection_x*exact_x(x,1) + 0.5*reaction*exact_x(x,0);
+    return -exact_x(x,2) + convection_x*exact_x(x,1) + 0.5*reaction*exact_x(x,0);
 }
 
 template <typename T>
@@ -152,7 +152,7 @@ template <typename T>
 T
 TensorRefSols_PDE_Realline2D<T>::rhs_y(T y)
 {
-    return -diffusion*exact_y(y,2) + convection_y*exact_y(y,1) + 0.5*reaction*exact_y(y,0);
+    return -diffusion_y*exact_y(y,2) + convection_y*exact_y(y,1) + 0.5*reaction*exact_y(y,0);
 }
 
 template <typename T>
@@ -294,6 +294,21 @@ TensorRefSols_PDE_Realline2D<T>::H1norm()
         T i1 = 8.*(11.-12.*exp(1./3.)+3.*exp(2./3.));
         T i2 = 12.*(-1+exp(2./3.));
         return sqrt(i1*i1+2*i1*i2);
+    }
+    return ret;
+}
+
+template <typename T>
+T
+TensorRefSols_PDE_Realline2D<T>::Energynorm()
+{
+    T ret = 0.;
+    if (nr==2) {
+        T i11   = 10.;
+        T i22   = 2.;
+        T ddi11 = 0.1;
+        T ddi22 = 0.5;
+        ret = sqrt(ddi11*i22 + diffusion_y*i11*ddi22 + reaction*i11*i22);
     }
     return ret;
 }

@@ -20,7 +20,7 @@
 #ifndef APPLICATIONS_FINANCE_KERNELS_KERNEL_H
 #define APPLICATIONS_FINANCE_KERNELS_KERNEL_H 1
 
-#include <applications/finance/processes/processtypes1d.h>
+#include <applications/finance/processes/processtypes.h>
 
 namespace lawa {
 

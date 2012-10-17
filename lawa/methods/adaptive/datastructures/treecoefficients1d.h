@@ -22,6 +22,8 @@
 
 #ifdef TRONE
     #include <tr1/unordered_map>
+#elif BOOST
+    #include <boost/unordered_map.hpp>
 #else
     #include <ext/hash_set>
 #endif
@@ -41,6 +43,9 @@ struct CoefficientsByLevel
 {
     #ifdef TRONE
         typedef typename std::tr1::unordered_map<long, T> TranslationIndexToValueMap;
+        //typedef typename std::map<long, T> TranslationIndexToValueMap;
+    #elif BOOST
+        typedef typename boost::unordered_map<long, T> TranslationIndexToValueMap;
     #else
         typedef typename __gnu_cxx::hash_map<long, T> TranslationIndexToValueMap;
     #endif
@@ -101,6 +106,9 @@ struct TreeCoefficients1D
 
     TreeCoefficients1D<T>&
     operator+=(const Coefficients<Lexicographical,T,Index1D> &_coeff);
+
+    TreeCoefficients1D<T>&
+    operator*=(T factor);
 
     const CoefficientsByLevel<T>&
     operator[](short j)  const;

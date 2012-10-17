@@ -73,24 +73,24 @@ int main (int argc, char *argv[]) {
     int d_  =atoi(argv[3]);
     int j0_x=atoi(argv[4]);
     int j0_y=atoi(argv[5]);
-    T reaction=1., convection_x=0., convection_y=0., diffusion=1.;
+    T reaction=1., convection_x=0., convection_y=0., diffusion_y=1.;
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
     stringstream rhsfilename;
     rhsfilename << "rhs/rhs_interval_rplus_pde2d_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
                 << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
-                << convection_y << "_" << argv[6] << ".dat";
+                << convection_y << "_ay_" << diffusion_y << "_" << argv[6] << ".dat";
 
     stringstream convfilename;
     convfilename << "ghs_adwav_conv_interval_rplus_helmholtz2d_" << argv[1] << "_" << argv[2] << "_"
-                 << argv[3] << "_" << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
-                 << convection_y << "_" << argv[6] << ".dat";
+                 << argv[3] << "_" << argv[4] << "_" << argv[5] << "_c_" << reaction << "_ay_"
+                 << diffusion_y << "_" << argv[6] << ".dat";
 
     stringstream coefffilename;
     coefffilename << "ghs_adwav_coeff_interval_rplus_helmholtz2d_" << argv[1] << "_" << argv[2] << "_"
-                  << argv[3] << "_" << argv[4] << "_" << argv[5] << "_cx_" << convection_x << "_cy_"
-                  << convection_y << "_" << argv[6] << ".dat";
+                  << argv[3] << "_" << argv[4] << "_" << argv[5] << "_c_" << reaction << "_ay_"
+                  << diffusion_y << "_" << argv[6] << ".dat";
 
     int order=40;
 
@@ -99,11 +99,11 @@ int main (int argc, char *argv[]) {
     SparseMW_RPlusBasis1D    SparseMW_basis_y(d,j0_y);
     SparseMW_basis_y.enforceBoundaryCondition<DirichletBC>();
     SparseMW_Basis2D SparseMW_basis2d(SparseMW_basis_x,SparseMW_basis_y);
-    SparseMW_MA      SparseMW_A(SparseMW_basis2d,1.);
+    SparseMW_MA      SparseMW_A(SparseMW_basis2d,reaction,diffusion_y);
     SparseMW_Prec    SparseMW_P(SparseMW_A);
 
     TensorRefSols_PDE_Interval_RPlus<T> refsol;
-    refsol.setExample(example, reaction, convection_x, convection_y, diffusion);
+    refsol.setExample(example, reaction, convection_x, convection_y, diffusion_y);
 
     SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
                                     refsol.exact_y, refsol.sing_pts_y);
@@ -123,7 +123,7 @@ int main (int argc, char *argv[]) {
 
     Coefficients<Lexicographical,T,Index2D> u;
     u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
-                                        NumOfIterations, refsol.H1norm());
+                                        NumOfIterations, refsol.Energynorm());
 
     plot2D<T,SparseMW_Basis2D,SparseMW_Prec>(SparseMW_basis2d, u, SparseMW_P, refsol.exact,
                                0., 1., 0., 10., pow2i<T>(-5), "example_interval_rplus");

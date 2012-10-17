@@ -32,15 +32,16 @@ struct TensorRefSols_PDE_Realline2D
     static T reaction;
     static T convection_x;
     static T convection_y;
-    static T diffusion;
+    static T diffusion_y;
 
     static DenseVector<Array<T> > sing_pts_x, sing_pts_y;   //aligned singularities
     static T singpt_ex2;
     static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > deltas_x, deltas_y;
     static flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > H1_deltas_x, H1_deltas_y;
 
+    // diffusion_x is assumed to be 1!!
     static void
-    setExample(int _nr, T _reaction, T _convection_x, T _convection_y, T _diffusion);
+    setExample(int _nr, T _reaction, T _convection_x, T _convection_y, T _diffusion_y);
 
     static T
     exact(T x, T y);
@@ -77,6 +78,9 @@ struct TensorRefSols_PDE_Realline2D
 
     static T
     H1norm();
+
+    static T
+    Energynorm();
 };
 
 }   // namespace lawa

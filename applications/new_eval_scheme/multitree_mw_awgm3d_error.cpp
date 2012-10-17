@@ -4,7 +4,7 @@
 using namespace std;
 using namespace lawa;
 
-typedef long double T;
+typedef double T;
 
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    DenseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                          DenseVectorT;
@@ -59,6 +59,8 @@ T du3(T z)  {    return 0.; }
 T ddu1(T x) {    return -33-(T)(1.L/3.L); }
 T ddu2(T y) {    return -33-(T)(1.L/3.L); }
 T ddu3(T z) {    return -33-(T)(1.L/3.L); }
+
+T test(T x) {   return 100.; }
 
 long double EnergyErrorSquared = 14.20158453089639L*14.20158453089639L;
 
@@ -141,7 +143,7 @@ int main (int argc, char *argv[]) {
 
     Function<T>                    fct_u1(u1,sing_pts_x), fct_f1(f1,sing_pts_x);
     Function<T>                    fct_u2(u2,sing_pts_y), fct_f2(f2,sing_pts_y);
-    Function<T>                    fct_u3(u2,sing_pts_z), fct_f3(f2,sing_pts_z);
+    Function<T>                    fct_u3(u3,sing_pts_z), fct_f3(f3,sing_pts_z);
     RHSWithPeaks1D<T,PrimalBasis>  rhs_u1(basis, fct_u1, no_deltas, order);
     RHSWithPeaks1D<T,PrimalBasis>  rhs_f1(basis, fct_f1, no_deltas, order);
     RHSWithPeaks1D<T,PrimalBasis>  rhs_u2(basis, fct_u2, no_deltas, order);
@@ -187,14 +189,25 @@ int main (int argc, char *argv[]) {
     for (int iter=1; iter<=100; ++iter) {
         Coefficients<Lexicographical,T,Index3D> r_approx(SIZEHASHINDEX2D);
         Coefficients<Lexicographical,T,Index3D> r_eps(SIZEHASHINDEX2D);
-        stringstream coefffilename;
 
-        coefffilename << "coeff_multitree_mw_awgm_poisson3d_" << example << "_"
+        stringstream coefffilename;
+        coefffilename << "coeff3d/coeff_multitree_mw_awgm_poisson3d_" << example << "_"
                       << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
                       << residualType << "_" << treeType << "__" << iter << ".dat";
 
         readCoefficientsFromFile(u, coefffilename.str().c_str());
         if (u.size()==0) break;
+
+        /*
+        bool useSupportCenter=true;
+        stringstream scatterplotfilename;
+        scatterplotfilename << "scattercoeff_multitree_mw_awgm_poisson3d_" << example << "_"
+                      << argv[1] << "_" << argv[2] << "_" << alpha << "_" << gamma << "_"
+                      << residualType << "_" << treeType << "__" << iter;
+        plotScatterCoeff(u, basis3d, scatterplotfilename.str().c_str(), useSupportCenter);
+        std::cerr << "Please hit enter." << std::endl;
+        continue;
+        */
 
         Index3D maxIndex, maxWaveletIndex;
         int *jmax = new int[1];
@@ -313,6 +326,8 @@ setUp_f_eps(int example, PrimalBasis &basis,
 {
     int j0 = basis.j0;
 
+
+
     if (example==2) {
         for (int k=basis.mra.rangeIL(j0).firstIndex(); k<=basis.mra.rangeIL(j0).lastIndex(); ++k) {
             Index1D index1d(j0,k,XBSpline);
@@ -382,4 +397,18 @@ setUp_f_eps(int example, PrimalBasis &basis,
         extendMultiTree(basis3d, u, r_tmp, 3);
         localOp3D.eval(u,r_tmp,Prec,3);
         r_approx += r_tmp;
+ */
+
+/*
+ *     DenseVectorT sing_pts;
+    DenseMatrixT no_deltas;
+    Function<T>                    fct_u1(test,sing_pts), fct_u2(u2,sing_pts), fct_u3(u3,sing_pts);
+    RHSWithPeaks1D<T,PrimalBasis>  test_rhs_u1(basis, fct_u1, no_deltas, 8);
+    RHSWithPeaks1D<T,PrimalBasis>  test_rhs_u2(basis, fct_u2, no_deltas, 8);
+    RHSWithPeaks1D<T,PrimalBasis>  test_rhs_u3(basis, fct_u3, no_deltas, 8);
+
+    T val2 = (  test_rhs_u1((*it_x).first) * test_rhs_u2((*it_y).first)
+                              * test_rhs_u3((*it_z).first) ) * Prec(index);
+                    cout << (*it_x).first << " " << (*it_y).first << " " << (*it_z).first << ": " << val << " " << val2 << endl;
+ *
  */

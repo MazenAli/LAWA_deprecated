@@ -118,9 +118,16 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
         int N = Lambda.size();
         if (assemble_matrix==0) {   //Algorithm by Saad, p.159
 
-            Coefficients<Lexicographical,T,Index> v, w_j;
+            Coefficients<Lexicographical,T,Index> v(2*u.size()), w_j(2*u.size());
             Coefficients<Lexicographical,T,Index> V[CGMRES_ITER+1];
 
+            /*
+            Coefficients<Lexicographical,T,Index> v(2*u.size()), w_j(2*u.size());
+            Coefficients<Lexicographical,T,Index> V[CGMRES_ITER+1];
+            for (int i=0;i<=CGMRES_ITER; ++i) {
+                V[i].rehash(2*u.size());
+            }
+            */
 
             for (int iter=1; iter<=maxIterations/CGMRES_ITER; ++iter) {
                 v.setToZero();

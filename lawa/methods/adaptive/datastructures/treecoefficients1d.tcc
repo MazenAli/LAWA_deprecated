@@ -21,6 +21,8 @@ CoefficientsByLevel<T>::set(short _j, size_t n)
 
     #ifdef TRONE
         if (n>4000) map.rehash(n);
+    #elif BOOST
+        if (n>4000) map.rehash(n);
     #else
         if (n>4000) map.resize(n);
     #endif
@@ -177,6 +179,19 @@ TreeCoefficients1D<T>::operator+=(const Coefficients<Lexicographical,T,Index1D> 
         }
         else {
             this->bylevel[j-offset].map[k] += (*it).second;
+        }
+    }
+    return *this;
+}
+
+template <typename T>
+TreeCoefficients1D<T>&
+TreeCoefficients1D<T>::operator*=(T factor)
+{
+    long double norm=0.L;
+    for (int l=0; l<=maxTreeLevel; ++l) {
+        for (by_level_it it=this->bylevel[l].map.begin(); it!=this->bylevel[l].map.end(); ++it) {
+            (*it).second *= factor;
         }
     }
     return *this;

@@ -160,11 +160,8 @@ int main (int argc, char *argv[]) {
     CompoundRhsIntegral3D          F(rhs1,rhs2,rhs3);
 
     /// Initialization of multi tree based adaptive wavelet Galerkin method
-    Coefficients<Lexicographical,T,Index3D> f_eps;
-
-    MultiTreeAWGM3D multiTreeAWGM3D(basis3d, localOp3D, F, Prec, f_eps);
-    multiTreeAWGM3D.setParameters(alpha, gamma, residualType, treeType, IsMW, compute_f_minus_Au_error,
-                                  writeCoefficientsToFile);
+    MultiTreeAWGM3D multiTreeAWGM3D(basis3d, localOp3D, F, Prec);
+    multiTreeAWGM3D.setParameters(alpha, gamma, residualType, treeType, IsMW, writeCoefficientsToFile);
 
     Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
     getSparseGridVector(basis3d,u,0,(T)0.2);
@@ -176,7 +173,7 @@ int main (int argc, char *argv[]) {
     stringstream coefffilename;
     coefffilename << "coeff_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
                  << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << "_" << treeType;
-    multiTreeAWGM3D.cg_solve(u, eps, 100, EnergyErrorSquared,
+    multiTreeAWGM3D.cg_solve(u, eps, 100, 1e-2, EnergyErrorSquared,
                              convfilename.str().c_str(), coefffilename.str().c_str());
     /*
     for (int j=0; j<=20; ++j) {

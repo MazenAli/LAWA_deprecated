@@ -36,29 +36,28 @@ struct MultiTreeAWGM {
     typedef typename Coefficients<Lexicographical,T,Index>::iterator          coeff_it;
     typedef typename Coefficients<Lexicographical,T,Index>::const_iterator    const_coeff_it;
 
-    MultiTreeAWGM(const Basis &_basis, LocalOperator &_A, RHS &_F, Preconditioner &_Prec,
-                  Coefficients<Lexicographical,T,Index> &_f_eps);
+    MultiTreeAWGM(const Basis &_basis, LocalOperator &_Op, RHS &_F, Preconditioner &_Prec);
 
     void
     setParameters(T _alpha, T _gamma, const char* _residualType, const char* _treeType, bool _IsMW,
-                  bool _compute_f_minus_Au_error=false, bool _writeCoefficientsToFile=false);
+                  /*bool _compute_f_minus_Au_error=false,*/ bool _writeCoefficientsToFile=false);
 
     void
-    cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations=100,
+    cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations=100, T _init_cgtol=1e-2,
              T EnergyNorm=0., const char *filename="conv.dat", const char *coefffilename="coeff.dat");
 
     void
-    compute_f_minus_Au(Coefficients<Lexicographical,T,Index> &u,
-                       /*Coefficients<Lexicographical,T,Index> &Au,*/ T _eps, T &f_minus_Au_error);
+    approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations=100, T _init_cgtol=1e-2,
+             T EnergyNorm=0., const char *filename="conv.dat", const char *coefffilename="coeff.dat");
 
-    void
-    writeCoefficientsToFile(Coefficients<Lexicographical,T,Index> &u, int i, const char* filename);
+//    void
+//    compute_f_minus_Au(Coefficients<Lexicographical,T,Index> &u, T _eps, T &f_minus_Au_error);
 
     const Basis                             &basis;
-    LocalOperator                           &A;
+    LocalOperator                           &Op;
     RHS                                     &F;
     Preconditioner                          &Prec;
-    Coefficients<Lexicographical,T,Index>   &f_eps;
+//    Coefficients<Lexicographical,T,Index>   &f_eps;
     bool                                    IsMW;
     T                                       alpha, gamma;
     const char*                             residualType;

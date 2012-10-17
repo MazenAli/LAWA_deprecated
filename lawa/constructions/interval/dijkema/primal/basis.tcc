@@ -70,18 +70,22 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
 template <typename T>
 Basis<T,Primal,Interval,Dijkema>::~Basis()
 {
-    delete[] _leftRefCoeffs,
-    delete[] _innerRefCoeffs,
-    delete[] _rightRefCoeffs;
-    delete[] _leftOffsets,
-    delete[] _innerOffsets,
-    delete[] _rightOffsets;
-    delete[] _leftL2Norms;
-    delete[] _innerL2Norms;
-    delete[] _rightL2Norms;
-    delete[] _leftH1SemiNorms;
-    delete[] _innerH1SemiNorms;
-    delete[] _rightH1SemiNorms;
+    if (((_bc(0)==1) && (_bc(1)==1)) || (d==2 && d_==2)) {
+        delete[] _leftRefCoeffs,
+        delete[] _innerRefCoeffs,
+        delete[] _rightRefCoeffs;
+        delete[] _leftOffsets,
+        delete[] _innerOffsets,
+        delete[] _rightOffsets;
+    }
+    if ((_bc(0)==1) && (_bc(1)==1)) {
+        delete[] _leftL2Norms;
+        delete[] _innerL2Norms;
+        delete[] _rightL2Norms;
+        delete[] _leftH1SemiNorms;
+        delete[] _innerH1SemiNorms;
+        delete[] _rightH1SemiNorms;
+    }
 }
 
 template <typename T>

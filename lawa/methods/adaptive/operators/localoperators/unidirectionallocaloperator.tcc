@@ -3,12 +3,12 @@ namespace lawa {
 template <typename Index, CoordinateDirection CoordX, typename LocalOperator1D,
                           CoordinateDirection NotCoordX, typename NotCoordXIndex>
 UniDirectionalLocalOperator<Index,CoordX,LocalOperator1D,NotCoordX,NotCoordXIndex>::
-UniDirectionalLocalOperator(LocalOperator1D &_localOperator1D)
+UniDirectionalLocalOperator(LocalOperator1D &_localOperator1D, T _factor)
 : localOperator1D(_localOperator1D),
   trialBasis_CoordX(_localOperator1D.trialBasis), testBasis_CoordX(_localOperator1D.testBasis),
-  J(4), hashTableLargeLength(6151), hashTableSmallLength(193) /*769*/
+  J(4), hashTableLargeLength(6151), hashTableSmallLength(193) /*769*/, factor(_factor)
 {
-
+    std::cerr << "UniDirectionalLocalOperator: factor = " << factor << std::endl;
 }
 
 template <typename Index, CoordinateDirection CoordX, typename LocalOperator1D,
@@ -64,17 +64,19 @@ eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographica
         time.stop();
         time_mv1d += time.elapsed();
 
+        if (factor!=1.) PsiLambdaCheck_CoordX *= factor;
+
         time.start();
         PsiLambdaCheck_CoordX.template addTo<Index,NotCoordXIndex,NotCoordX>((*it).first,IAIv);
         time.stop();
         time_add_aligned += time.elapsed();
     }
-
+    /*
     std::cerr << "      UniDirectionalOperator:   alignment took     " << time_align_v << std::endl;
     std::cerr << "      UniDirectionalOperator:   set 1d tree took   " << time_setup_tree << std::endl;
     std::cerr << "      UniDirectionalOperator:   mv 1d took         " << time_mv1d << std::endl;
     std::cerr << "      UniDirectionalOperator:   add alignment took " << time_add_aligned << std::endl;
-
+    */
 }
 
 template <typename Index, CoordinateDirection CoordX, typename LocalOperator1D,
@@ -119,6 +121,8 @@ eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographica
             localOperator1D.eval(PsiLambdaHat_CoordX, PsiLambdaCheck_CoordX, "A");
             time.stop();
             time_mv1d += time.elapsed();
+
+            if (factor!=1.) PsiLambdaCheck_CoordX *= factor;
 
             time.start();
             PsiLambdaCheck_CoordX.template addTo<Index,NotCoordXIndex,NotCoordX>((*it).first,IAIv);
@@ -170,16 +174,20 @@ eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographica
             time.stop();
             time_mv1d += time.elapsed();
 
+            if (factor!=1.) PsiLambdaCheck_CoordX *= factor;
+
             time.start();
             PsiLambdaCheck_CoordX.template addTo<Index,NotCoordXIndex,NotCoordX>((*it).first,IAIv);
             time.stop();
             time_add_aligned += time.elapsed();
         }
+        /*
         std::cerr << "      UniDirectionalOperator:   alignment1 took     " << time_align_v1 << std::endl;
         std::cerr << "      UniDirectionalOperator:   alignment2 took     " << time_align_v2 << std::endl;
         std::cerr << "      UniDirectionalOperator:   set 1d tree took   " << time_setup_tree << std::endl;
         std::cerr << "      UniDirectionalOperator:   mv 1d took         " << time_mv1d << std::endl;
         std::cerr << "      UniDirectionalOperator:   add alignment took " << time_add_aligned << std::endl;
+        */
     }
     else if (strcmp(evalType,"residual_experimental")==0) {
         time.start();
@@ -213,6 +221,8 @@ eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographica
             localOperator1D.eval(PsiLambdaHat_CoordX, PsiLambdaCheck_CoordX, "A");
             time.stop();
             time_mv1d += time.elapsed();
+
+            if (factor!=1.) PsiLambdaCheck_CoordX *= factor;
 
             time.start();
             PsiLambdaCheck_CoordX.template addTo<Index,NotCoordXIndex,NotCoordX>((*it).first,IAIv);

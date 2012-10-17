@@ -42,6 +42,9 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
 #ifdef TRONE
     typedef std::tr1::unordered_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
             IndexConeContainer;
+#elif BOOST
+    typedef boost::unordered_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
 #else
     typedef __gnu_cxx::hash_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
             IndexConeContainer;
@@ -122,6 +125,9 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
 
 #ifdef TRONE
     typedef std::tr1::unordered_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
+#elif BOOST
+    typedef boost::unordered_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
             IndexConeContainer;
 #else
     typedef __gnu_cxx::hash_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >

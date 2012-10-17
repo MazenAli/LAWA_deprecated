@@ -116,12 +116,14 @@ int main (int argc, char *argv[]) {
     int j0_x=atoi(argv[4]);
     int j0_y=atoi(argv[5]);
     T c = 1.;
+    T diffusion_y = 0.0001;
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
     stringstream rhsfilename;
     rhsfilename << "rhs/rhs_realline_pde2d_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
-                << argv[4] << "_" << argv[5] << "_cx_0_cy_0_" << argv[6] << ".dat";
+                << argv[4] << "_" << argv[5] << "_cx_0_cy_0_ay_" << diffusion_y << "_"
+                << argv[6] << ".dat";
 
     /*
     stringstream rhsfilename;
@@ -130,7 +132,8 @@ int main (int argc, char *argv[]) {
     */
     stringstream convfilename;
     convfilename << "ghs_adwav_conv_realline_helmholtz2d_" << argv[1] << "_" << argv[2] << "_"
-                 << argv[3] << "_" << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
+                 << argv[3] << "_" << argv[4] << "_" << argv[5] << "_c_" << c << "_ay_"
+                 << diffusion_y << "_" << argv[6] << ".dat";
 
     int order=20;
 
@@ -210,13 +213,13 @@ int main (int argc, char *argv[]) {
         SparseMW_Basis1D SparseMW_basis_x(d,j0_x);
         SparseMW_Basis1D SparseMW_basis_y(d,j0_y);
         SparseMW_Basis2D SparseMW_basis2d(SparseMW_basis_x,SparseMW_basis_y);
-        SparseMW_MA      SparseMW_A(SparseMW_basis2d,1.);
+        SparseMW_MA      SparseMW_A(SparseMW_basis2d,1.,diffusion_y);
         SparseMW_Prec    SparseMW_P(SparseMW_A);
         int assemble_matrix = 0;    //compute matrix vector product solely on index set
         if (example==1 || example==2 || example==3) {
 
             TensorRefSols_PDE_Realline2D<T> refsol;
-            refsol.setExample(example, 1., 0., 0., 1.);
+            refsol.setExample(example, 1., 0., 0., diffusion_y);
             SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
                                             refsol.exact_y, refsol.sing_pts_y);
 
@@ -235,7 +238,7 @@ int main (int argc, char *argv[]) {
 
             Coefficients<Lexicographical,T,Index2D> u;
             u = SparseMW_ghs_adwav_solver.SOLVE(SparseMW_F.norm_estimate, 1e-16, convfilename.str().c_str(),
-                                                NumOfIterations, refsol.H1norm());
+                                                NumOfIterations, refsol.Energynorm());
         }
     }
     return 0;
