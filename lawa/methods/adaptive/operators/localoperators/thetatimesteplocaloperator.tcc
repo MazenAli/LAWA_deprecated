@@ -74,6 +74,17 @@ ThetaTimeStepLocalOperator<Index,StiffnessMatrixLocalOperator,MassMatrixLocalOpe
 }
 
 template <typename Index, typename StiffnessMatrixLocalOperator, typename MassMatrixLocalOperator>
+void
+ThetaTimeStepLocalOperator<Index,StiffnessMatrixLocalOperator,MassMatrixLocalOperator>
+::eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographical,T,Index> &Av)
+{
+    StiffnessMatrixLocalOp.eval(v, Av);
+    Av *= (theta*timestep);
+    if (MassIsIdentity) Av += v;
+    else                MassMatrixLocalOp.eval(v, Av);
+}
+
+template <typename Index, typename StiffnessMatrixLocalOperator, typename MassMatrixLocalOperator>
 template <typename Preconditioner>
 void
 ThetaTimeStepLocalOperator<Index,StiffnessMatrixLocalOperator,MassMatrixLocalOperator>
