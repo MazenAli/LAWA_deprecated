@@ -11,8 +11,8 @@ saveCoeffVector2D(const Coefficients<Lexicographical,T,Index2D> &coeff, const Ba
   std::ofstream data(filename);
 
 	if(!data.good()){
-		std::cerr << "Could not open data file " << std::endl;
-		exit(1);
+	    std::cerr << "File " << filename << " could not be opened for writing" << std::endl;
+	    exit(1);
 	}
   data.precision(40);
   data << "# Center_x Center_y Value Xtype1 j1 k1 Xtype2 j2 k2" << std::endl;
