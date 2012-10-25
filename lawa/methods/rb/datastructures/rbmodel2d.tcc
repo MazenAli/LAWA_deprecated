@@ -558,7 +558,7 @@ RBModel2D<T, TruthModel>::train_strong_Greedy(const std::vector<T>& init_param, 
             //T error_est = RB_errorbound(u_N, Xi_train[n]);
             CoeffVector diff = reconstruct_u_N(u_N, N);
             diff -= (*truth_sols.find(Xi_train[n])).second;
-            T error_est = truth->inner_product(diff, diff);
+            T error_est = sqrt(truth->inner_product(diff, diff));
 
 
             std::cout << "Training parameter ";
