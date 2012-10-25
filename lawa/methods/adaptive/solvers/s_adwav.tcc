@@ -497,7 +497,13 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda,
         int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, maxIterations, assemble_matrix);
         std::cout << "   ...finished with residual " << r_norm_LambdaActive << std::endl;
 
-
+        /*
+		//=========================================
+		std::stringstream uoutfilename;
+		uoutfilename << "SAdwav_GMRES_U_Iteration_" << its;
+		saveCoeffVector2D(u, basis, uoutfilename.str().c_str());
+		//=========================================
+		*/
 
         //Threshold step
         // u = THRESH(u,threshTol);
@@ -507,6 +513,14 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda,
         else{
         	u = THRESH(u,threshTol,false, basis.d > 3 ? true : false);
         }
+
+        /*
+		//=========================================
+		std::stringstream uthreshoutfilename;
+		uthreshoutfilename << "SAdwav_GMRES_UTHRESH_Iteration_" << its;
+		saveCoeffVector2D(u, basis, uthreshoutfilename.str().c_str());
+		//=========================================
+        */
 
         solutions[its] = u;
         LambdaThresh = supp(u);
@@ -588,6 +602,17 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve_gmres(const IndexSet<Index> &InitialLambda,
             break;
         }
     }
+
+    // Solve on active set again to avoid "wrong" solution wrt LambdaActive
+    T r_norm_LambdaActive = 0.0;
+    LambdaActive = supp(u);
+    f = F(LambdaActive);
+    std::cout << "   GMRES solver started with N = " << LambdaActive.size() << std::endl;
+    int maxIterations = 10000;
+    int iterations = GMRES_Solve(LambdaActive, A, u, f, r_norm_LambdaActive, linTol, maxIterations, assemble_matrix);
+    std::cout << "   ...finished with residual " << r_norm_LambdaActive << std::endl;
+
+	solutions[solutions.size()-1] = u;
 }
 
 template <typename T, typename Index, typename Basis, typename MA, typename RHS>
