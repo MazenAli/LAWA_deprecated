@@ -253,15 +253,15 @@ LinearTensorInterpolationPic2D<T>::evaluateInterpolationMinusLiftingFunction(T x
 template <typename T>
 T
 LinearTensorInterpolationPic2D<T>::dx1_evaluateInterpolationMinusLiftingFunction(T x1, T x2) {
-    return   LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,1,0)
-           - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,1,0);
+    return   0.001*(LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,1,0)
+           - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,1,0) );
 }
 
 template <typename T>
 T
 LinearTensorInterpolationPic2D<T>::dx2_evaluateInterpolationMinusLiftingFunction(T x1, T x2) {
-    return   LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,1)
-           - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,0,1);
+    return   0.001*(LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,1)
+           - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,0,1) );
 }
 
 template <typename T>

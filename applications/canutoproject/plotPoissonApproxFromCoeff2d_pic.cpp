@@ -38,7 +38,7 @@ int main (int argc, char *argv[]) {
     Basis2D basis2d(basis, basis);
 
     /// Initialization of preconditioner
-    Preconditioner  Prec(basis2d,1.,1.,1.);
+    Preconditioner  Prec(basis2d,0.001,0.001,1.);
 
     LinearTensorInterpolationPic2D<T> linearTensorInterpolPic2D;
     cout << "Reading image data and computing linear tensor interpolation of image data..." << endl;
@@ -66,10 +66,9 @@ int main (int argc, char *argv[]) {
         DenseMatrixT currentEvaluations(_(0,PlotPts1-1), _(0,PlotPts2-1));
         u.clear();
         stringstream coefffilename;
-        coefffilename << "coeff_poisson2d_pic_" << alpha << "_" << gamma << "_" << residualType << "_"
+        coefffilename << "coeff_poissonpic2pic2d_" << alpha << "_" << gamma << "_" << residualType << "_"
                       << treeType << "__" << iter << ".dat";
-        //coefffilename << "coeff_image_" << alpha << "_" << gamma << "_" << residualType << "_"
-        //              << iter << "__" << iter << ".dat";
+
         readCoefficientsFromFile(u, coefffilename.str().c_str());
 
         for (coeff2d_it it=u.begin(); it!=u.end(); ++it) {
@@ -81,8 +80,8 @@ int main (int argc, char *argv[]) {
         }
 
         stringstream plotfilename, scattercoefffilename;
-        plotfilename << "image_poisson2d_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
-        scattercoefffilename << "image_poisson2d_coeff_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
+        plotfilename << "image_poissonpic2pic2d_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
+        scattercoefffilename << "image_poissonpic2pic2d_coeff_" << alpha << "_" << gamma << "_" << residualType << "_" << iter;
 
         plotImageScatterCoeff2D(linearTensorInterpolPic2D, basis2d, u, scattercoefffilename.str().c_str());
 
@@ -150,7 +149,7 @@ plotImageApproximation2D(const LinearTensorInterpolationPic2D<T> linearTensorInt
             T x2 = i2*h2;
 
             T appr = currentEvaluations(i1,i2) + linearTensorInterpolationPic.evaluateLiftingFunction(x1,x2);
-            T exact= linearTensorInterpolationPic.dx1_evaluateInterpolation(x1,x2);
+            T exact= linearTensorInterpolationPic.evaluateInterpolation(x1,x2);
 
             exact = std::max(exact,(T)0.); appr = std::max(appr,(T)0.);
             exact = std::min(exact,(T)1.); appr = std::min(appr,(T)1.);

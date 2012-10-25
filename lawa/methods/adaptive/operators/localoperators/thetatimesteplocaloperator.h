@@ -52,6 +52,11 @@ class ThetaTimeStepLocalOperator {
         evalA(Coefficients<Lexicographical,T,Index> &v,
               Coefficients<Lexicographical,T,Index> &Av, const char* evalType);
 
+
+        void
+        eval(const Coefficients<Lexicographical,T,Index> &v,
+             Coefficients<Lexicographical,T,Index> &Av);
+
         template <typename Preconditioner>
         void
         eval(Coefficients<Lexicographical,T,Index> &v,
