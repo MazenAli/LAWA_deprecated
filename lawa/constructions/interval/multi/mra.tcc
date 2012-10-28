@@ -298,7 +298,7 @@ MRA<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
 
             _innerH1SemiNorms = new long double[3];
             _innerH1SemiNorms[0] = std::sqrt(12.L);
-            _innerH1SemiNorms[1] = std::sqrt(75.2727272727272727273L);;
+            _innerH1SemiNorms[1] = std::sqrt(75.2727272727272727273L);
             _innerH1SemiNorms[2] = std::sqrt(52.4415584415584415584L);
 
 

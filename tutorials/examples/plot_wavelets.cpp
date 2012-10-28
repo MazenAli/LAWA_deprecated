@@ -14,7 +14,8 @@ typedef double T;
 ///     Dijkema Basis over an interval
 //typedef Basis<T,Primal,Interval,Dijkema> Basis1D;
 ///     L2 orthonormal Basis over an interval
-typedef Basis<T,Orthogonal,Interval,Multi> Basis1D;
+//typedef Basis<T,Orthogonal,R,Multi> Basis1D;
+typedef Basis<T,Orthogonal,R,MultiRefinement> Basis1D;
 
 ///  Typedefs for integral:
 typedef Integral<Gauss,Basis1D,Basis1D> IntegralBasis1DvsBasis1D;
@@ -26,6 +27,10 @@ getRange(const Basis<T,Primal,Interval,Cons>& basis, int j, XType type);
 template<Construction Cons>
 Range<int>
 getRange(const Basis<T,Orthogonal,Interval,Cons>& basis, int j, XType type);
+
+template<Construction Cons>
+Range<int>
+getRange(const Basis<T,Orthogonal,R,Cons>& basis, int j, XType type);
 
 template<Construction Cons>
 Range<int>
@@ -47,7 +52,10 @@ int main (int argc, char *argv[]) {
 
     //Basis1D basis(d,d_,j0);
     Basis1D basis(d,j0);
-    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
+    //if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
+    T a = -5., b = 5.;
+    //T a = -1., b = 1.;
+
 
     //IntegralBasis1DvsBasis1D integral(basis,basis);
 
@@ -55,7 +63,7 @@ int main (int argc, char *argv[]) {
     /// Plot scaling function and wavelets
 
     ofstream plotfile_scaling("scaling.txt");
-    for (T x=0.; x<=1.; x+=pow2i<T>(-12)) {
+    for (T x=a; x<=b; x+=pow2i<T>(-6)) {
         plotfile_scaling << x;
         for (int k=scalingrange.firstIndex(); k<=scalingrange.lastIndex(); ++k) {
             plotfile_scaling << " " << basis.generator(XBSpline)(x,j0,k,0);
@@ -73,7 +81,7 @@ int main (int argc, char *argv[]) {
     }
 
     ofstream plotfile_wavelet("wavelet.txt");
-    for (T x=0.; x<=1.; x+=pow2i<T>(-12)) {
+    for (T x=a; x<=b; x+=pow2i<T>(-6)) {
         plotfile_wavelet << x;
         for (int j=j0; j<=J-1; ++j) {
             Range<int> waveletrange = getRange(basis, j, XWavelet);
@@ -118,6 +126,18 @@ getRange(const Basis<T,Orthogonal,Interval,Cons>& basis, int j, XType type)
     }
     else {
         return basis.rangeJ(j);
+    }
+}
+
+template<Construction Cons>
+Range<int>
+getRange(const Basis<T,Orthogonal,R,Cons>& basis, int j, XType type)
+{
+    if (type==XBSpline) {
+        return Range<int>(-15,15);
+    }
+    else {
+        return Range<int>(-15,15);
     }
 }
 

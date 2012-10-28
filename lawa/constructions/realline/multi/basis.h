@@ -38,11 +38,12 @@ class Basis<_T,Orthogonal,R,Multi>
         static const DomainType Domain = R;
         static const Construction Cons = Multi;
 
-        typedef BasisFunction<T,Orthogonal,R,Multi> BasisFunctionType;
-        typedef BSpline<T,Orthogonal,R,Multi>       BSplineType;
-        typedef Wavelet<T,Orthogonal,R,Multi>       WaveletType;
+        typedef Basis<T,Orthogonal,R,MultiRefinement>   RefinementBasis;
+        typedef BasisFunction<T,Orthogonal,R,Multi>     BasisFunctionType;
+        typedef BSpline<T,Orthogonal,R,Multi>           BSplineType;
+        typedef Wavelet<T,Orthogonal,R,Multi>           WaveletType;
 
-        Basis(const int d, const int j=-1);
+        Basis(const int d, const int j);
 
         int
         level() const;
@@ -53,11 +54,84 @@ class Basis<_T,Orthogonal,R,Multi>
         const BasisFunctionType &
         generator(XType xtype) const;
 
+        //void
+        //getLowerEnclosingScaling(int j_wavelet, long k_wavelet,
+        //                         int &j_scaling, long &k_scaling) const;
+
+        //void
+        //getLowerEnclosingWavelet(int j_wavelet1, long k_wavelet1,
+        //                         int &j_wavelet2, long &k_wavelet2) const;
+
+        /// Returns the range of indicated functions from SecondBasis whose supports
+        /// intersect the support of a given (multi-)scaling with level j_scaling and translation index
+        /// k_scaling from the current Basis. This is required for tree-based algorithms.
+        /// The returned level of the scaling is chosen s.t. the corresponding refinements live
+        /// on the same scale.
+        template <typename SecondBasis>
+            void
+            getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
+                                          const SecondBasis &secondbasis,
+                                          int &j_scaling2, long &k_scaling_first,
+                                          long &k_scaling_last) const;
+
+        template <typename SecondBasis>
+            void
+            getWaveletNeighborsForScaling(int j_scaling, long k_scaling,
+                                          const SecondBasis &secondbasis,
+                                          int &j_wavelet, long &k_wavelet_first,
+                                          long &k_wavelet_last) const;
+
+        /// Returns the range of indicated functions from SecondBasis and SecondRefinementBasis
+        /// whose supports intersect the support of a given wavelet with level j_wavelet and
+        /// translation index k_wavelet from the current Basis. This is required for tree-based algorithms.
+        /// The returned level of the functions is chosen s.t. there is "no scale difference", i.e.,
+        /// the corresponding refinements should live on the same scale.
+        template <typename SecondRefinementBasis>
+            void
+            getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
+                                          const SecondRefinementBasis &secondrefinementbasis,
+                                          int &j_bspline, long &k_bspline_first,
+                                          long &k_bspline_last) const;
+
+        template <typename SecondBasis>
+            void
+            getScalingNeighborsForWavelet(int j_wavelet, long k_wavelet,
+                                          const SecondBasis &secondbasis,
+                                          int &j_scaling, long &k_scaling_first,
+                                          long &k_scaling_last) const;
+
+        template <typename SecondBasis>
+            void
+            getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                          const SecondBasis &secondbasis,
+                                          int &j_wavelet2, long &k_wavelet_first,
+                                          long &k_wavelet_last) const;
+
+        template <typename SecondBasis>
+            void
+            getLowerWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                               const SecondBasis &secondbasis,
+                                               int &j_wavelet2, long &k_wavelet_first,
+                                               long &k_wavelet_last) const;
+
+        template <typename SecondBasis>
+            void
+            getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                               const SecondBasis &secondbasis,
+                                               int &j_wavelet2, long &k_wavelet_first,
+                                               long &k_wavelet_last) const;
+
         MRA<T,Orthogonal,R,Multi> mra;
 
         const int d, j0;
 
         Wavelet<T,Orthogonal,R,Multi> psi;
+
+        Basis<T,Orthogonal,R,MultiRefinement> refinementbasis;
+
+        unsigned int _numSplines;
+        //int _addRefinementLevel;    //B-splines for refinement are needed on higher levels
+        //int _shiftFactor;           //Needed since we have multiple B-spline generators for refinement.
 
 
     private:

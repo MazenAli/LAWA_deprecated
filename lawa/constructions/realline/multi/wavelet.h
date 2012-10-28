@@ -59,14 +59,22 @@ class Wavelet<_T,Orthogonal,R,Multi>
         T
         tic(int j) const;
 
-//TODO        int polynomialOrder;
+        DenseVector<Array<long double> > *
+        getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
+
+        int
+        getRefinementLevel(int j) const;
+
         const int d;
         const int vanishingMoments;
         unsigned int _numSplines;
 
-    private:
+//    private:      // should be private one fine day
 
         typedef T (*Evaluator)(T x, unsigned short deriv);
+
+        void
+        _initialize(int d);
         
         long
         _shift(long k) const;
@@ -80,6 +88,12 @@ class Wavelet<_T,Orthogonal,R,Multi>
 
         Support<T> _max_support;
 
+        DenseVector<Array<long double> > *_refCoeffs;
+        long double                      *_H1SemiNorms;
+        long                             *_offsets;
+        T                                _initialticsize;
+        int                              _addRefinementLevel;    //B-splines for refinement are needed on higher levels
+        int                              _shiftFactor;           //Needed since we have multiple B-spline generators for refinement.
     
 };
     
