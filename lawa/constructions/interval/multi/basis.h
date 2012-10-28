@@ -87,22 +87,6 @@ class Basis<_T,Orthogonal,Interval,Multi>
 
         const flens::Range<int>
         rangeJR(const int j=-1) const;
-    
-        MRA<T,Orthogonal,Interval,Multi> mra;
-
-        const int d;
-        const int j0;          // minimal used(!) level.
-
-        unsigned int _numLeftParts,
-                     _numInnerParts,
-                     _numRightParts;
-
-        int _addRefinementLevel;    //B-splines for refinement are needed on higher levels
-        int _shiftFactor;           //Needed since we have multiple B-spline generators for refinement.
-
-        Wavelet<T,Orthogonal,Interval,Multi> psi;
-
-        Basis<T,Orthogonal,Interval,MultiRefinement> refinementbasis;
 
         void
         getLowerEnclosingScaling(int j_wavelet, long k_wavelet,
@@ -172,9 +156,24 @@ class Basis<_T,Orthogonal,Interval,Multi>
                                                int &j_wavelet2, long &k_wavelet_first,
                                                long &k_wavelet_last) const;
 
+        MRA<T,Orthogonal,Interval,Multi> mra;
+
+        const int d;
+        const int j0;          // minimal used(!) level.
+
+        unsigned int _numLeftParts,
+                     _numInnerParts,
+                     _numRightParts;
+
+        int _addRefinementLevel;    //B-splines for refinement are needed on higher levels
+        int _shiftFactor;           //Needed since we have multiple B-spline generators for refinement.
+
+        Wavelet<T,Orthogonal,Interval,Multi> psi;
+
+        Basis<T,Orthogonal,Interval,MultiRefinement> refinementbasis;
 
 
-    private:
+   // private:      // should be private one fine day
         DenseVector<Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
                                        // bc(1) = 1 -> Dirichlet BC right.
@@ -196,9 +195,6 @@ class Basis<_T,Orthogonal,Interval,Multi>
                                *_innerSingularSupport, 
                                *_rightSingularSupport;
         
-        // Refinement coefficients for representation in B-splines, only d \in \{2,3\} so far,
-        // because d=4 for multiwavelets requires cubic Hermite B-splines which are not used
-        // in the biorthogonal construction
         DenseVector<Array<long double> > *_leftRefCoeffs,
                                          *_innerRefCoeffs,
                                          *_rightRefCoeffs;

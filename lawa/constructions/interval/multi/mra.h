@@ -85,6 +85,8 @@ class MRA<_T,Orthogonal,Interval,Multi>
         BSpline<T,Orthogonal,Interval,Multi> phi;
         
     private:
+        typedef T (*Evaluator)(T x, unsigned short deriv);
+
         DenseVector<Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
                                        // bc(1) = 1 -> Dirichlet BC right.
@@ -93,8 +95,6 @@ class MRA<_T,Orthogonal,Interval,Multi>
     
         friend class BSpline<T,Orthogonal,Interval,Multi>;
         friend class Basis<T,Orthogonal,Interval,Multi>;
-    
-        typedef T (*Evaluator)(T x, unsigned short deriv);
         
         unsigned int _numLeftParts, 
                      _numInnerParts, 
@@ -109,9 +109,6 @@ class MRA<_T,Orthogonal,Interval,Multi>
                                *_innerSingularSupport, 
                                *_rightSingularSupport;
 
-        // Refinement coefficients for representation in B-splines, only d \in \{2,3\} so far,
-        // because d=4 for multiwavelets requires cubic Hermite B-splines which are not used
-        // in the biorthogonal construction
         DenseVector<Array<long double> > *_leftRefCoeffs,
                                          *_innerRefCoeffs,
                                          *_rightRefCoeffs;
