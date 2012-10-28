@@ -72,6 +72,7 @@ int main (int argc, char *argv[]) {
     T eps   = 1e-5;
     Timer time;
 
+    T diffusion_coeff = 0.001;
 
     /// Basis initialization
     //PrimalBasis       basis(d,d_,j0);
@@ -83,17 +84,18 @@ int main (int argc, char *argv[]) {
     /// Operator initialization
     LaplaceOp1D                  laplaceOp1D(basis);
     LocalOp1D                    localOp1D(basis,basis,refinementbasis.LaplaceOp1D,laplaceOp1D);
-    UniDirectionalLocalOpXOne2D  uniDirectionalOpXOne2D(localOp1D,0.001);
-    UniDirectionalLocalOpXTwo2D  uniDirectionalOpXTwo2D(localOp1D,0.001);
+    UniDirectionalLocalOpXOne2D  uniDirectionalOpXOne2D(localOp1D,diffusion_coeff);
+    UniDirectionalLocalOpXTwo2D  uniDirectionalOpXTwo2D(localOp1D,diffusion_coeff);
     CompoundLocalOperator2D      localOp2D(uniDirectionalOpXOne2D,uniDirectionalOpXTwo2D);
     ThetaTimeStepLocalOperator2D localOpPlusId2D(1.,1.,localOp2D);
 
     /// Initialization of preconditioner
-    Preconditioner2D  Prec(basis2d,0.001,0.001,1.);
+    Preconditioner2D  Prec(basis2d, diffusion_coeff, diffusion_coeff, 1.);
     NoPreconditioner2D  NoPrec;
 
     /// Initialization of rhs
     LinearTensorInterpolationPic2D<T> linearTensorInterpolPic2D;
+    linearTensorInterpolPic2D.diffusion_coeff = diffusion_coeff;
     cout << "Reading image data and computing linear tensor interpolation of image data..." << endl;
     linearTensorInterpolPic2D.readPicture("claudiocanutogrey2.txt");
     cout << "... finished." << endl;
@@ -146,28 +148,3 @@ int main (int argc, char *argv[]) {
 
     return 0;
 }
-
-
-/*
- * Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D), f(SIZEHASHINDEX2D), Au(SIZEHASHINDEX2D);
-    for (int k1=basis.mra.rangeI(j0).firstIndex(); k1<=basis.mra.rangeI(j0).lastIndex(); ++k1) {
-        Index1D index1(j0,k1,XBSpline);
-        for (int k2=basis.mra.rangeI(j0).firstIndex(); k2<=basis.mra.rangeI(j0).lastIndex(); ++k2) {
-            Index1D index2(j0,k2,XBSpline);
-            Index2D index(index1,index2);
-            u[index] = integral3_linearTensorInterpolPic2D(index);
-            f[index] = Prec(index) * F_linearTensorInterpolPic2D(index);
-            Au[index] = 0.;
-        }
-    }
-
-    localOpPlusId2D.eval(u, Au, Prec, "galerkin");
-
-    cout << "u = " << u << endl;
-    cout << "Au = " << Au << endl;
-    cout << "f = " <<  f << endl;
-
-    Au -= f;
-    cout << "Error norm: " << Au.norm(2.) << endl;
- */
-
