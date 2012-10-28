@@ -36,6 +36,7 @@ struct LinearTensorInterpolationPic2D
     static DenseVectorT sing_pts_x, sing_pts_y;
     static DenseMatrixT coeffs;
     static int deriv_x, deriv_y;
+    static T diffusion_coeff;
 
     static PrimalBasis  linearTensorInterpolBasis;
 

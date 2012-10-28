@@ -21,6 +21,10 @@ flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
 LinearTensorInterpolationPic2D<T>::coeffs;
 
 template <typename T>
+T
+LinearTensorInterpolationPic2D<T>::diffusion_coeff;
+
+template <typename T>
 Basis<T,Primal,R,CDF>
 LinearTensorInterpolationPic2D<T>::linearTensorInterpolBasis(2,2,0);
 
@@ -45,6 +49,7 @@ LinearTensorInterpolationPic2D<T>::readPicture(const char* filename)
         infile.close();
     }
 
+    diffusion_coeff = 1.;
     N1 = numOfRows-1;
     N2 = numOfCols-1;
     std::cerr << "N1 = " << N1 << ", N2 = " << N2 << std::endl;
@@ -127,13 +132,13 @@ LinearTensorInterpolationPic2D<T>::evaluateInterpolation(T x1, T x2) {
 template <typename T>
 T
 LinearTensorInterpolationPic2D<T>::dx1_evaluateInterpolation(T x1, T x2) {
-    return LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,1,0);
+    return diffusion_coeff*LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,1,0);
 }
 
 template <typename T>
 T
 LinearTensorInterpolationPic2D<T>::dx2_evaluateInterpolation(T x1, T x2) {
-    return LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,1);
+    return diffusion_coeff*LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,1);
 }
 
 
@@ -233,13 +238,13 @@ LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(T x1, T x2) {
 template <typename T>
 T
 LinearTensorInterpolationPic2D<T>::dx1_evaluateLiftingFunction(T x1, T x2) {
-    return LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1, x2, 1, 0);
+    return diffusion_coeff*LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1, x2, 1, 0);
 }
 
 template <typename T>
 T
 LinearTensorInterpolationPic2D<T>::dx2_evaluateLiftingFunction(T x1, T x2) {
-    return LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1, x2, 0, 1);
+    return diffusion_coeff*LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1, x2, 0, 1);
 }
 
 
@@ -253,14 +258,14 @@ LinearTensorInterpolationPic2D<T>::evaluateInterpolationMinusLiftingFunction(T x
 template <typename T>
 T
 LinearTensorInterpolationPic2D<T>::dx1_evaluateInterpolationMinusLiftingFunction(T x1, T x2) {
-    return   0.001*(LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,1,0)
+    return   diffusion_coeff*(LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,1,0)
            - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,1,0) );
 }
 
 template <typename T>
 T
 LinearTensorInterpolationPic2D<T>::dx2_evaluateInterpolationMinusLiftingFunction(T x1, T x2) {
-    return   0.001*(LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,1)
+    return   diffusion_coeff*(LinearTensorInterpolationPic2D<T>::evaluateInterpolation(x1,x2,0,1)
            - LinearTensorInterpolationPic2D<T>::evaluateLiftingFunction(x1,x2,0,1) );
 }
 
