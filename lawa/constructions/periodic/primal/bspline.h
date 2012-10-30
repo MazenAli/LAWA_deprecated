@@ -55,6 +55,22 @@ struct BSpline<_T,Primal,Periodic,CDF>
     T
 /**/tic(int j) const;                       // -> ???
 
+    /**
+     * Get refinement coefficients in _DIJKEMA_ Basis
+     */
+    DenseVector<Array<long double> > *
+    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first, long &split, long &refinement_k_restart) const;
+
+    int
+    getRefinementLevel(int j) const;
+
+//
+//    T
+//    getL2Norm(int j, long k) const;
+//
+//    T
+//    getH1SemiNorm(int j, long k) const;
+
     const DenseVector<Array<T> > &
     mask() const;                           // mask of original Spline on R
 

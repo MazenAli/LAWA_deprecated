@@ -25,6 +25,61 @@ template <typename T>
 MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
     : d(_d), d_(_d_), j0(j), M0(phi), _j(j), mu(d&1), phi(*this)
 {
+
+    // Refinement coefficients only in double prec. available due to missing support of higher
+    // precision in blas routines.
+    if (d==2) {
+
+		// inner part
+		_RefCoeffs = new DenseVector<Array<long double> >[1];
+		_RefCoeffs[0].engine().resize(3,0);
+		_RefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
+		_innerOffsets = new long[1];
+        _innerOffsets[0] =  -2;
+
+		/*
+		 * TODO
+		 */
+		/*
+		_innerOffsets[0] =  -2;
+		_innerL2Norms = new long double[1];
+		_innerL2Norms[0] =  0.;
+		_innerH1SemiNorms = new long double[1];
+		_innerH1SemiNorms[0] =  0.;
+		*/
+	}
+    else if (d==3){
+		// inner part
+		_RefCoeffs = new DenseVector<Array<long double> >[1];
+        _RefCoeffs[0].engine().resize(4,0);
+        _RefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+		_innerOffsets = new long[1];
+        _innerOffsets[0] =  -3;
+
+		/*
+		 * TODO
+		 */
+		/*
+		_innerOffsets[0] =  -2;
+		_innerL2Norms = new long double[1];
+		_innerL2Norms[0] =  0.;
+		_innerH1SemiNorms = new long double[1];
+		_innerH1SemiNorms[0] =  0.;
+		*/
+    }
+
+}
+
+template <typename T>
+MRA<T,Primal,Periodic,CDF>::~MRA()
+{
+	delete[] _RefCoeffs;
+	delete[] _innerOffsets;
+	/*
+	 * TODO
+	 */
+	//delete[] _innerL2Norms;
+	//delete[] _innerH1SemiNorms;
 }
 
 template <typename T>

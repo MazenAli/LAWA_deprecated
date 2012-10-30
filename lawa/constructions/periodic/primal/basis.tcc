@@ -26,6 +26,25 @@ Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
     : d(_d), d_(_d_), j0(j), mra(d,d_,j), mra_(d,d_,j), 
       psi(d,d_), M1(psi), _j(j), refinementbasis(_d, _d_, j)
 {
+	if(d == 2 && d_ == 2){
+        _RefCoeffs = new DenseVector<Array<long double> >[1];
+        _RefCoeffs[0].engine().resize(5,0);
+        _RefCoeffs[0] = 1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+
+        /*
+         * TODO
+         */
+
+	}
+}
+
+template <typename T>
+Basis<T,Primal,Periodic, CDF>::~Basis()
+{
+	delete[] _RefCoeffs;
+	/*
+	 * TODO
+	 */
 }
 
 template <typename T>
