@@ -40,6 +40,8 @@ class MRA<_T,Primal,Periodic,CDF>
 
         MRA(int _d, int _d_, int j=0);
 
+        ~MRA();
+
         int
         level() const;
 
@@ -49,15 +51,43 @@ class MRA<_T,Primal,Periodic,CDF>
         int
         cardI(int j) const;
 
+        int
+        cardIL(int j=0) const;
+
+        int
+        cardII(int j) const;
+
+        int
+        cardIR(int j=0) const;
+
         Range<int>
         rangeI(int j) const;
 
-        const int d, d_, j0;
+
+        Range<int>
+        rangeIL(int j=0) const;
+
+        Range<int>
+        rangeII(int j) const;
+
+        Range<int>
+        rangeIR(int j) const;
+
+
+        const int d, d_, j0, mu; // mu = mu(d) = d&1
         BSpline<T,Primal,Periodic,CDF> phi;
         RefinementMatrix<T,Periodic,CDF> M0;
         
+        // do I need this?
+        // const int l1, l2;
+
     protected:
         mutable int _j;
+
+    private:
+
+        friend class BSpline<T,Primal,Periodic,CDF>;
+
 };
 
 } // namespace lawa

@@ -39,11 +39,14 @@ class Basis<_T,Primal,Periodic,CDF>
         static const DomainType Domain = Periodic;
         static const Construction Cons = CDF;
 
-        typedef BasisFunction<T,Primal,Periodic,CDF> BasisFunctionType;
-        typedef BSpline<T,Primal,Periodic,CDF> BSplineType;
-        typedef Wavelet<T,Primal,Periodic,CDF> WaveletType;
+        typedef Basis<T,Primal,Interval,Dijkema>        RefinementBasis;
+        typedef BasisFunction<T,Primal,Periodic,CDF> 	BasisFunctionType;
+        typedef BSpline<T,Primal,Periodic,CDF> 			BSplineType;
+        typedef Wavelet<T,Primal,Periodic,CDF> 			WaveletType;
 
         Basis(int _d, int _d_, int j=0);
+
+        ~Basis();
 
         int
         level() const;
@@ -57,8 +60,26 @@ class Basis<_T,Primal,Periodic,CDF>
         int
         cardJ(int j) const;
 
-        Range<int>
+        int
+        cardJL(int j = 0) const;
+
+        int
+        cardJI(int j) const;
+
+        int
+        cardJR(int j = 0) const;
+
+        const Range<int>
         rangeJ(int j) const;
+
+        const Range<int>
+        rangeJL(int j) const;
+
+        const Range<int>
+        rangeJI(int j) const;
+
+        const Range<int>
+        rangeJR(int j) const;
 
         const int d, d_, j0;
         MRA<T,Primal,Periodic,CDF> mra;
@@ -66,8 +87,11 @@ class Basis<_T,Primal,Periodic,CDF>
         Wavelet<T,Primal,Periodic,CDF> psi;
         RefinementMatrix<T,Periodic,CDF> M1;
         
+        Basis<T,Primal,Interval,Dijkema> refinementbasis;
+
     private:
         mutable int _j;
+        DenseVector<Array<long double> > *_RefCoeffs;
 };
 
 } // namespace lawa

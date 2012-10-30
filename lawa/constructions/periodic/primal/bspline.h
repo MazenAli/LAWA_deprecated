@@ -36,9 +36,9 @@ struct BSpline<_T,Primal,Periodic,CDF>
     static const DomainType Domain = Periodic;
     static const Construction Cons = CDF;
 
-    BSpline(int _d);                        // Periodized Bspline on [0,1]
+    //BSpline(int _d);                        // Periodized Bspline on [0,1]
 
-    BSpline(const MRA<T,Primal,Periodic,CDF> &mra);
+    BSpline(const MRA<T,Primal,Periodic,CDF> &_mra);
 
     virtual
     ~BSpline();
@@ -59,7 +59,9 @@ struct BSpline<_T,Primal,Periodic,CDF>
     mask() const;                           // mask of original Spline on R
 
     const int d, mu;
-    const BSpline<T, Primal, R, CDF> phiR;  // ''original'' Bspline on R    
+    const BSpline<T, Primal, R, CDF> phiR;  // ''original'' Bspline on R
+
+    const MRA<T,Primal,Periodic,CDF> &mra;
 };
 
 } // namespace lawa

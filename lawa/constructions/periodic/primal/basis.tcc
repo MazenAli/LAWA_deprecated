@@ -24,7 +24,7 @@ namespace lawa {
 template <typename T>
 Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
     : d(_d), d_(_d_), j0(j), mra(d,d_,j), mra_(d,d_,j), 
-      psi(d,d_), M1(psi), _j(j)
+      psi(d,d_), M1(psi), _j(j), refinementbasis(_d, _d_, j)
 {
 }
 
@@ -64,13 +64,66 @@ Basis<T,Primal,Periodic,CDF>::cardJ(int j) const
 }
 
 template <typename T>
-Range<int>
+int
+Basis<T,Primal,Periodic,CDF>::cardJL(int /*j*/) const
+{
+	return std::max( std::ceil((d + d_ - 2)/2.0 - 1), 0.0);
+}
+
+template <typename T>
+int
+Basis<T,Primal,Periodic,CDF>::cardJI(int j) const
+{
+    assert(j>=j0);
+
+    return std::max(pow2i<T>(j) - cardJL() - cardJR(), 0.0);
+}
+
+template <typename T>
+int
+Basis<T,Primal,Periodic,CDF>::cardJR(int /*j*/) const
+{
+    return std::ceil((d + d_)/2.0 - 1) + 1;
+}
+
+template <typename T>
+const Range<int>
 Basis<T,Primal,Periodic,CDF>::rangeJ(int j) const
 {
     assert(j>=j0);
 
     return Range<int>(1,pow2i<T>(j));
 }
+
+
+template <typename T>
+const Range<int>
+Basis<T,Primal,Periodic,CDF>::rangeJL(int j) const
+{
+    assert(j>=j0);
+
+    return Range<int>(1,cardJL());
+}
+
+
+template <typename T>
+const Range<int>
+Basis<T,Primal,Periodic,CDF>::rangeJI(int j) const
+{
+    assert(j>=j0);
+
+    return Range<int>(cardJL() + 1,pow2i<T>(j) - cardJR());
+}
+
+template <typename T>
+const Range<int>
+Basis<T,Primal,Periodic,CDF>::rangeJR(int j) const
+{
+    assert(j>=j0);
+
+    return Range<int>(pow2i<T>(j) - std::ceil((d + d_)/2.0 - 1), pow2i<T>(j));
+}
+
 
 } // namespace lawa
 

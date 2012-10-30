@@ -29,16 +29,16 @@ namespace lawa {
 
 using namespace flens;
 
-template <typename T>
-BSpline<T,Primal,Periodic,CDF>::BSpline(int _d)
-    : d(_d), mu(d&1), phiR(_d)
-{
-    assert(_d>0);
-}
+//template <typename T>
+//BSpline<T,Primal,Periodic,CDF>::BSpline(int _d)
+//    : d(_d), mu(d&1), phiR(_d)
+//{
+//    assert(_d>0);
+//}
 
 template <typename T>
-BSpline<T,Primal,Periodic,CDF>::BSpline(const MRA<T,Primal,Periodic,CDF> &mra)
-    : d(mra.d), mu(d&1), phiR(d)
+BSpline<T,Primal,Periodic,CDF>::BSpline(const MRA<T,Primal,Periodic,CDF> &_mra)
+    : d(_mra.d), mu(d&1), phiR(d), mra(_mra)
 {
     assert(d>0);
 }
@@ -117,6 +117,34 @@ T
 BSpline<T,Primal,Periodic,CDF>::tic(int j) const
 {
     return pow2i<T>(-j);
+}
+
+template <typename T>
+DenseVector<Array<long double> > *
+BSpline<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
+											  long &split, long &refinement_k_restart) const
+{
+	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
+	// Left part
+	if(k <= mra.rangeIL(j).lastIndex()){
+		return &(mra._RefCoeffs[0]);
+	}
+	// Inner part
+	if(k <= mra.rangeII(j).lastIndex()){
+        refinement_k_first = 2*k+mra._innerOffsets[0];
+        return &(mra._RefCoeffs[0]);
+	}
+	// Right part
+	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
+	return &(mra._RefCoeffs[0]);
+
+}
+
+template <typename T>
+int
+BSpline<T,Primal,Periodic,CDF>::getRefinementLevel(int j) const
+{
+	return j+1;
 }
 
 template <typename T>
