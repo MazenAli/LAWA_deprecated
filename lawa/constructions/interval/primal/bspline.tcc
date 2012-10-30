@@ -81,8 +81,13 @@ BSpline<T,Primal,Interval,Cons>::getRefinementLevel(int j) const
 
 template <typename T, Construction Cons>
 DenseVector<Array<long double> > *
-BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
+												long &split, long &refinement_k_restart) const
 {
+	// No split necessary, so set default values
+	split=-1;
+	refinement_k_restart = -1;
+
     refinement_j = j + 1;
     // left boundary
     if (k<mra.rangeII(j).firstIndex()) {
