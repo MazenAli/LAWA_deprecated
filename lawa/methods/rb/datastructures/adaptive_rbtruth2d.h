@@ -53,7 +53,8 @@ class AdaptiveRBTruth2D{
     public:
 
         static const VariationalFormulationType Type = Galerkin;
-        typedef Operator2D<T> OperatorType;
+        typedef Operator2D<T> 			OperatorType;
+        typedef AdaptiveRhs<T, Index2D> RhsType;
 
     /* Public member functions */
         
