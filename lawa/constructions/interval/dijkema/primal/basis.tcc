@@ -320,8 +320,8 @@ getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
                               const SecondRefinementBasis &secondrefinementbasis,
                               int &j_wavelet, long &k_wavelet_first, long &k_wavelet_last) const
 {
-    ct_assert(SecondRefinementBasis::Side==Primal and SecondRefinementBasis::Domain==Interval
-               and SecondRefinementBasis::Cons==Dijkema);
+    //ct_assert(SecondRefinementBasis::Side==Primal and SecondRefinementBasis::Domain==Interval
+    //           and SecondRefinementBasis::Cons==Dijkema);
     j_wavelet = j_bspline;
     Support<T> supp = refinementbasis.mra.phi.support(j_bspline,k_bspline);
     T a = supp.l1, b = supp.l2;
