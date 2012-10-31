@@ -27,13 +27,21 @@ Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
       psi(d,d_), M1(psi), _j(j), refinementbasis(_d, _d_, j)
 {
 	if(d == 2 && d_ == 2){
-        _RefCoeffs = new DenseVector<Array<long double> >[1];
-        _RefCoeffs[0].engine().resize(5,0);
-        _RefCoeffs[0] = 1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+        _periodicRefCoeffs = new DenseVector<Array<long double> >[1];
+        _periodicRefCoeffs[0].engine().resize(5,0);
+        _periodicRefCoeffs[0] = 1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
 
-        /*
-         * TODO
-         */
+        _rightRefCoeffs = new DenseVector<Array<long double> >[2];
+        _rightRefCoeffs[0].engine().resize(6,0);
+        _rightRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)),
+        					  1.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)) + 1.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+
+        _rightRefCoeffs[1].engine().resize(6,0);
+        _rightRefCoeffs[1] =  1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)) - 3.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+
+		_split = new long[2];
+		_split[0] = 5;
+		_split[1] = 3;
 
 	}
 }
@@ -41,7 +49,7 @@ Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
 template <typename T>
 Basis<T,Primal,Periodic, CDF>::~Basis()
 {
-	delete[] _RefCoeffs;
+	delete[] _periodicRefCoeffs;
 	/*
 	 * TODO
 	 */

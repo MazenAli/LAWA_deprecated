@@ -60,15 +60,11 @@ struct Wavelet<_T,Primal,Periodic,CDF>
     T
     tic(int j) const;
 
-    /*
-     * TODO
-     */
-
     DenseVector<Array<long double> > *
-    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const {};
+    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
 
     int
-    getRefinementLevel(int j) const {};
+    getRefinementLevel(int j) const;
 
     const DenseVector<Array<T> > &
     mask() const;

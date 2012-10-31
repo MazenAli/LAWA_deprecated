@@ -117,6 +117,19 @@ Wavelet<T,Primal,Periodic,CDF>::tic(int j) const
 }
 
 template <typename T>
+DenseVector<Array<long double> > *
+Wavelet<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+{
+
+}
+
+template <typename T>
+int
+Wavelet<T,Primal,Periodic,CDF>::getRefinementLevel(int j) const {
+	return j+1;
+}
+
+template <typename T>
 const DenseVector<Array<T> > &
 Wavelet<T,Primal,Periodic,CDF>::mask() const
 {

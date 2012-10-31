@@ -177,7 +177,9 @@ class Basis<_T,Primal,Periodic,CDF>
     private:
         mutable int _j;
 
-        DenseVector<Array<long double> > *_RefCoeffs;
+        DenseVector<Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
+
+        long* _split;
 };
 
 } // namespace lawa
