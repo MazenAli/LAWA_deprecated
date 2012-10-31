@@ -19,6 +19,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <limits>
 
 namespace lawa {
 
@@ -85,8 +86,8 @@ BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j,
 												long &split, long &refinement_k_restart) const
 {
 	// No split necessary, so set default values
-	split=-1;
-	refinement_k_restart = -1;
+	split = std::numeric_limits<long>::infinity();
+	refinement_k_restart = 1;
 
     refinement_j = j + 1;
     // left boundary

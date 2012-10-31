@@ -88,7 +88,7 @@ class MRA<_T,Primal,Periodic,CDF>
 
         friend class BSpline<T,Primal,Periodic,CDF>;
 
-        DenseVector<Array<long double> > *_RefCoeffs;
+        DenseVector<Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
 
         long double *_leftL2Norms,  *_leftH1SemiNorms,
                     *_innerL2Norms, *_innerH1SemiNorms,
@@ -96,7 +96,8 @@ class MRA<_T,Primal,Periodic,CDF>
 
         long *_leftOffsets,
              *_innerOffsets,
-             *_rightOffsets;
+             *_rightOffsets,
+             *_split;
 };
 
 } // namespace lawa

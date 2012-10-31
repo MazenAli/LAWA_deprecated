@@ -20,6 +20,7 @@
 #include <cassert>
 #include <cmath>
 #include <lawa/flensforlawa.h>
+#include <limits>
 
 #include <lawa/math/math.h>
 #include <lawa/constructions/realline/primal/bspline.h>
@@ -124,19 +125,27 @@ DenseVector<Array<long double> > *
 BSpline<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
 											  long &split, long &refinement_k_restart) const
 {
+    refinement_j = j + 1;
+
+	split = std::numeric_limits<long>::infinity();
+	refinement_k_restart = 1;
+
 	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
 	// Left part
 	if(k <= mra.rangeIL(j).lastIndex()){
-		return &(mra._RefCoeffs[0]);
+		return &(mra._periodicRefCoeffs[0]);
 	}
 	// Inner part
 	if(k <= mra.rangeII(j).lastIndex()){
         refinement_k_first = 2*k+mra._innerOffsets[0];
-        return &(mra._RefCoeffs[0]);
+        return &(mra._periodicRefCoeffs[0]);
 	}
 	// Right part
 	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
-	return &(mra._RefCoeffs[0]);
+	refinement_k_first = 2*k + mra._innerOffsets[0];
+	split = mra._split[k - mra.rangeIR(j).firstIndex()];
+	refinement_k_restart = 1;
+	return &(mra._rightRefCoeffs[0]);
 
 }
 

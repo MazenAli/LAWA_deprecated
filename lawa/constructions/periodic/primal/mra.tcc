@@ -31,11 +31,17 @@ MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
     if (d==2) {
 
 		// inner part
-		_RefCoeffs = new DenseVector<Array<long double> >[1];
-		_RefCoeffs[0].engine().resize(3,0);
-		_RefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
+		_periodicRefCoeffs = new DenseVector<Array<long double> >[1];
+		_periodicRefCoeffs[0].engine().resize(3,0);
+		_periodicRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
 		_innerOffsets = new long[1];
-        _innerOffsets[0] =  -2;
+        _innerOffsets[0] =  0;
+
+        _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+		_rightRefCoeffs[0].engine().resize(4,0);
+		_rightRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
+		_split = new long[1];
+		_split[0] = 2;
 
 		/*
 		 * TODO
@@ -50,9 +56,9 @@ MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
 	}
     else if (d==3){
 		// inner part
-		_RefCoeffs = new DenseVector<Array<long double> >[1];
-        _RefCoeffs[0].engine().resize(4,0);
-        _RefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+		_periodicRefCoeffs = new DenseVector<Array<long double> >[1];
+        _periodicRefCoeffs[0].engine().resize(4,0);
+        _periodicRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
 		_innerOffsets = new long[1];
         _innerOffsets[0] =  -3;
 
@@ -73,7 +79,7 @@ MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
 template <typename T>
 MRA<T,Primal,Periodic,CDF>::~MRA()
 {
-	delete[] _RefCoeffs;
+	delete[] _periodicRefCoeffs;
 	delete[] _innerOffsets;
 	/*
 	 * TODO
