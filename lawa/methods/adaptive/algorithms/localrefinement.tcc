@@ -77,8 +77,8 @@ LocalRefinement<PrimalBasis>::reconstruct(const CoefficientsByLevel<T> &u_bsplin
     }
     //assert(j1_refinement==j2_refinement);
     if(j1_refinement!=j2_refinement) {
-        std::cerr << "ERROR: j_bspline = " << j_bspline << ", j_wavelet = " << j_wavelet << std::endl;
-        std::cerr << "       j1_refinement = " << j1_refinement << ", j2_refinement = " << j2_refinement << std::endl;
+        std::cerr << "LocalRefinement<PrimalBasis> ERROR: j_bspline = " << j_bspline << ", j_wavelet = " << j_wavelet << std::endl;
+        std::cerr << "                                j1_refinement = " << j1_refinement << ", j2_refinement = " << j2_refinement << std::endl;
     }
     j_refinement = j2_refinement;
 }

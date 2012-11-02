@@ -40,12 +40,12 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
     if (d==2 && d_==2) {
         // left part
         _leftRefCoeffs = new DenseVector<Array<long double> >[2];
-        _leftRefCoeffs[0].engine().resize(3,0);
-        _leftRefCoeffs[0] =  1.2374368670764579, -0.3535533905932737, -0.1767766952966368;
+        _leftRefCoeffs[0].engine().resize(4,0);
+        _leftRefCoeffs[0] =  -1.060660171779819194, 0.795495128834866838, -0.176776695296636810, -0.088388347648318405;
         _leftRefCoeffs[1].engine().resize(5,0);
         _leftRefCoeffs[1] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _leftOffsets = new long[2];
-        _leftOffsets[0] =  2;
+        _leftOffsets[0] =  1;
         _leftOffsets[1] =  2;
 
         // inner part
@@ -59,8 +59,8 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
         _rightRefCoeffs = new DenseVector<Array<long double> >[2];
         _rightRefCoeffs[0].engine().resize(5,0);
         _rightRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
-        _rightRefCoeffs[1].engine().resize(3,0);
-        _rightRefCoeffs[1] =  -0.1767766952966368, -0.3535533905932737, 1.2374368670764579;
+        _rightRefCoeffs[1].engine().resize(4,0);
+        _rightRefCoeffs[1] =  -0.088388347648318613, -0.176776695296637226, 0.795495128834866505, -1.060660171779819638;
         _rightOffsets = new long[2];
         _rightOffsets[0] =  - 2;
         _rightOffsets[1] =    0;

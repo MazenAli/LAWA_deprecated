@@ -87,7 +87,7 @@ class Basis<_T,Orthogonal,R,MultiRefinement>
                                           int &j_wavelet, long &k_wavelet_first,
                                           long &k_wavelet_last) const;
 
-/*
+
         class LaplaceOperator1D {
             public:
                 LaplaceOperator1D(int _d,
@@ -100,9 +100,8 @@ class Basis<_T,Orthogonal,R,MultiRefinement>
                 int d;
                 const Basis<_T,Orthogonal,R,MultiRefinement> &refinementbasis;
 
-                DenseVector<Array<long double> > outer_values;
-                DenseVector<Array<long double> > inner_values1;
-                DenseVector<Array<long double> > inner_values2;
+                DenseVector<Array<long double> > values1;
+                DenseVector<Array<long double> > values2;
         };
 
         class IdentityOperator1D {
@@ -117,14 +116,12 @@ class Basis<_T,Orthogonal,R,MultiRefinement>
                 int d;
                 const Basis<_T,Orthogonal,R,MultiRefinement> &refinementbasis;
 
-                DenseVector<Array<long double> > outer_values;
-                DenseVector<Array<long double> > inner_values1;
-                DenseVector<Array<long double> > inner_values2;
+                DenseVector<Array<long double> > values1;
+                DenseVector<Array<long double> > values2;
         };
 
         LaplaceOperator1D  LaplaceOp1D;
         IdentityOperator1D IdentityOp1D;
-*/
 
         MRA<T,Orthogonal,R,MultiRefinement> mra;
 
