@@ -112,13 +112,18 @@ Wavelet<T,Primal,Interval,Cons>::tic(int j) const
 
 template <typename T, Construction Cons>
 DenseVector<Array<long double> > *
-Wavelet<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+Wavelet<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
+												long &split, long &refinement_k_restart) const
 {
-    k -= 1;
+	// No split necessary, so set default values
+	refinement_k_restart = 1;
+
+	k -= 1;
     refinement_j = j + 1;
     // left boundary
     if (k<basis.cardJL(j)) {
         refinement_k_first = basis._leftOffsets[k];
+    	split = basis._leftRefCoeffs[k].length() + 1;
         return &(basis._leftRefCoeffs[k]);
     }
     // inner part

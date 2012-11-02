@@ -86,7 +86,6 @@ BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j,
 												long &split, long &refinement_k_restart) const
 {
 	// No split necessary, so set default values
-	split = std::numeric_limits<long>::infinity();
 	refinement_k_restart = 1;
 
     refinement_j = j + 1;
@@ -94,11 +93,13 @@ BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j,
     if (k<mra.rangeII(j).firstIndex()) {
         int type  = k % mra.cardIL(j);
         refinement_k_first = mra._leftOffsets[type];
+        split = mra._leftRefCoeffs[type].length()+1;
         return &(mra._leftRefCoeffs[type]);
     }
     // inner part
     if (k<=mra.rangeII(j).lastIndex()) {
         refinement_k_first = 2*k+mra._innerOffsets[0];
+        split = mra._innerRefCoeffs[0].length()+1;
         return &(mra._innerRefCoeffs[0]);
     }
     // right part
@@ -106,6 +107,7 @@ BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j,
     int type  = (mra.rangeI(j).lastIndex()-k);
     long shift = pow2i<long>(j)-1;
     refinement_k_first =2*shift+mra._rightOffsets[type];
+    split = mra._rightRefCoeffs[type].length()+1;
     return &(mra._rightRefCoeffs[type]);
 }
 

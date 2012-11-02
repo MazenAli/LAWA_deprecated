@@ -121,7 +121,7 @@ int main(int argc, char*argv[])
 
     //test_getBSplineNeighborsForWavelet(basis, refinementbasis);
 
-    test_getScalingNeighborsForWavelet(basis);
+   // test_getScalingNeighborsForWavelet(basis);
 
     //test_getWaveletNeighborsForWavelet(basis);
 
@@ -148,7 +148,9 @@ test_refinementOfBSpline(const PrimalBasis &basis, const RefinementBasis &refine
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
             long refinement_k_first = 0L;
-            refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first);
+            long split = 0L;
+            long refinement_k_restart = 0L;
+            refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
             for (T x=0.; x<=1.; x+=pow2i<T>(-10-j)) {
                 T reference_value = refinementbasis.generator(XBSpline).operator()(x,j,k,deriv);
                 T refinement_value = 0.L;
@@ -184,7 +186,9 @@ test_refinementOfScaling(const PrimalBasis &basis, const RefinementBasis &refine
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
             long refinement_k_first = 0L;
-            refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first);
+            long split = 0L;
+            long refinement_k_restart = 0L;
+            refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
             cout << "j = " << j << ", k = " << k << ", refinement_j = "
                            << refinement_j << ", refinement_k_first = " << refinement_k_first << endl;
             cout << refinementbasis.mra.rangeI(refinement_j) << endl;
@@ -227,7 +231,9 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
             long refinement_k_first = 0L;
-            refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first);
+            long split = 0L;
+            long refinement_k_restart = 0L;
+            refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
             cout << "j = " << j << ", k = " << k << ", refinement_j = "
                  << refinement_j << ", refinement_k_first = " << refinement_k_first << endl;
             for (T x=0.L; x<=1.L; x+=pow2i<long double>(-8-j)) {
