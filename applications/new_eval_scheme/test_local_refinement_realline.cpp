@@ -20,7 +20,7 @@ typedef PrimalBasis::RefinementBasis                                RefinementBa
 typedef Integral<Gauss,PrimalBasis,PrimalBasis>                     MultiWaveletIntegral;
 typedef Integral<Gauss,RefinementBasis,RefinementBasis>             MultiRefinementIntegral;
 
-int K = 30;
+int K = 34;
 
 void
 test_refinementOfBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis, int deriv);
@@ -70,7 +70,7 @@ int main(int argc, char*argv[])
     int d  = atoi(argv[1]);
     int j0 = atoi(argv[2]);
     int J  = atoi(argv[3]);
-    int deriv = 0;
+    int deriv = 1;
 
     /// Basis initialization, using Dirichlet boundary conditions
     PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
@@ -125,7 +125,7 @@ int main(int argc, char*argv[])
 
     //test_getLowerWaveletNeighborsForWavelet(basis);
 
-    test_getHigherWaveletNeighborsForWavelet(basis);
+    //test_getHigherWaveletNeighborsForWavelet(basis);
 
     return 0;
 
@@ -137,7 +137,7 @@ test_refinementOfBSpline(const PrimalBasis &basis, const RefinementBasis &refine
     DenseVectorLD *refCoeffs;
     cout << " ******** Refinement of B-splines **********" << endl;
     for (int j=refinementbasis.mra.j0; j<=refinementbasis.mra.j0+4; ++j) {
-        for (int k= -10; k<=10; ++k) {
+        for (int k= -K; k<=K; ++k) {
             cout << "  k = " << k  << " " << refinementbasis.generator(XBSpline).support(j,k) << " "
                  << refinementbasis.generator(XBSpline).singularSupport(j,k) << endl;
             ofstream plotfile_scaling("refinement_interval.txt");
@@ -177,7 +177,7 @@ test_refinementOfScaling(const PrimalBasis &basis, const RefinementBasis &refine
     DenseVectorLD *refCoeffs;
     cout << " ******* Refinement of multiscalings *******" << endl;
     for (int j=basis.j0; j<=basis.j0+4; ++j) {
-        for (int k=-20; k<=20; ++k) {
+        for (int k=-K; k<=K; ++k) {
             ofstream plotfile_scaling("refinement_interval_multiscaling.txt");
             T abs_error = 0.L, rel_error = 0.L;
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
@@ -220,7 +220,7 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
     cout << " *******************************************" << endl;
     cout << " ******* Refinement of multiwavelets *******" << endl;
     for (int j=basis.j0; j<=basis.j0+4; ++j) {
-        for (int k=-20; k<=20; ++k) {
+        for (int k=-K; k<=K; ++k) {
             ofstream plotfile_wavelet("refinement_interval_multiwavelet.txt");
             T abs_error = 0.L, rel_error = 0.L;
             T x_rel_crit = 0.L, x_abs_crit = 0.L;

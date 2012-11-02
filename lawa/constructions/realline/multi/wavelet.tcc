@@ -195,7 +195,7 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
 
         case 3:
             _numSplines = 6;
-            _initialticsize = pow2i<T>(-3);
+            _initialticsize = pow2i<T>(-4);
             _addRefinementLevel = 4;
             _shiftFactor        = 16;
 
@@ -320,7 +320,7 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
 
         case 4:
             _numSplines = 6;
-            _initialticsize = pow2i<T>(-2);
+            _initialticsize = pow2i<T>(-4);
             _addRefinementLevel = 3;
             _shiftFactor        = 16;
 

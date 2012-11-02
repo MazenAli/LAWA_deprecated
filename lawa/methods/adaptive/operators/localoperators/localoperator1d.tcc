@@ -107,12 +107,14 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 
     // Splitting of B-spline index set $\check{\Phi}$.
     CoefficientsByLevel<T> PhiPiCheck2(l,hm_size);
-    if (c[shifted_l].map.size()==trialBasis.cardJ(j_wavelet_trial)) {
-        PhiPiCheck2.map.swap(PhiPiCheck.map);
-    }
-    else {
-        _splitPhiPi(l, c[shifted_l], PhiPiCheck, PhiPiCheck2);
-    }
+
+    /// Optimization: does not compile / work for realline bases
+    //if (c[shifted_l].map.size()==trialBasis.cardJ(j_wavelet_trial)) {
+    //    PhiPiCheck2.map.swap(PhiPiCheck.map);
+    //}
+    //else {
+    _splitPhiPi(l, c[shifted_l], PhiPiCheck, PhiPiCheck2);
+    //}
 
     // Compute underlinePiCheck
     int j_refinement_test = 0;
@@ -129,12 +131,13 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     // Splitting of B-spline coefficient vector $d$.
     //time.start();
     CoefficientsByLevel<T> d2(l,hm_size);
-    if (PsiLambdaCheck[shifted_l].map.size()==testBasis.cardJ(j_wavelet_test)) {
-        d2.map.swap(d.map);
-    }
-    else {
-        _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
-    }
+    /// Optimization: does not compile / work for realline bases
+    //if (PsiLambdaCheck[shifted_l].map.size()==testBasis.cardJ(j_wavelet_test)) {
+    //    d2.map.swap(d.map);
+    //}
+    //else {
+    _splitd(l, PsiLambdaCheck[shifted_l], d, d2);
+    //}
     //time.stop();
     //std::cerr << "l = " << l << " : splitting of d took " << time.elapsed() << std::endl;
 
@@ -159,12 +162,13 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     //Compute a(\check{Phi}|_{\check{Pi}^{(2)}} , \hat{\Phi}|_{\hat{Pi}^{(1)}}) d^{(1)}
     _applyRefinementBilinearForm(l, d, PhiPiCheck2);
 
-    if (c[shifted_l].map.size()==trialBasis.cardJ(j_wavelet_trial)) {
-        PhiPiCheck.map.swap(PhiPiCheck2.map);
-    }
-    else {
-        PhiPiCheck += PhiPiCheck2;
-    }
+    /// Optimization: does not compile / work for realline bases
+    //if (c[shifted_l].map.size()==trialBasis.cardJ(j_wavelet_trial)) {
+    //    PhiPiCheck.map.swap(PhiPiCheck2.map);
+    //}
+    //else {
+    PhiPiCheck += PhiPiCheck2;
+    //}
 
     return;
 

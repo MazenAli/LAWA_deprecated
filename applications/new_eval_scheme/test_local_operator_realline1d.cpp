@@ -8,24 +8,23 @@ using namespace lawa;
 /// Several typedefs for notational convenience.
 
 ///  Typedefs for Flens data types:
-typedef double T;
+typedef long double T;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 
 ///  Typedefs for problem components:
 
 ///  Wavelet basis over an interval
-typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-//typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+typedef Basis<T, Orthogonal, R, Multi>                              PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 ///  Underlying bilinear form
 typedef LaplaceOperator1D<T,PrimalBasis>                            BilinearForm;
 typedef RefinementBasis::LaplaceOperator1D                          RefinementBilinearForm;
 typedef LaplaceOperator1D<T,RefinementBasis>                        RefinementBilinearFormTest;
-//typedef IdentityOperator1D<T,PrimalBasis>                         BilinearForm;
-//typedef RefinementBasis::IdentityOperator1D                       RefinementBilinearForm;
-//typedef IdentityOperator1D<T,RefinementBasis>                     RefinementBilinearFormTest;
+//typedef IdentityOperator1D<T,PrimalBasis>                           BilinearForm;
+//typedef RefinementBasis::IdentityOperator1D                         RefinementBilinearForm;
+//typedef IdentityOperator1D<T,RefinementBasis>                       RefinementBilinearFormTest;
 
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
@@ -35,6 +34,8 @@ typedef CoefficientsByLevel<T>::const_it                            const_coeffb
 typedef IndexSet<Index1D>::const_iterator                           const_set1d_it;
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff1d_it;
 typedef Coefficients<Lexicographical,T,Index1D>::iterator           coeff1d_it;
+
+int K = 20;         // maximum translation index
 
 void
 constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
@@ -71,25 +72,27 @@ int main(int argc, char*argv[])
     /// Basis initialization, using Dirichlet boundary conditions
     PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
     //PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
-    basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis &refinementbasis = basis.refinementbasis;
 
     /// Operator initialization
-    BilinearForm            Bil(basis);
+    BilinearForm                    Bil(basis);
+    RefinementBilinearFormTest      RefinementBilTest(refinementbasis);
     LocOp1D localOperator1D(basis,basis,refinementbasis.LaplaceOp1D);
     //LocOp1D localOperator1D(basis,basis,refinementbasis.IdentityOp1D);
+    //LocOp1D localOperator1D(basis,basis,RefinementBilTest);
 
-    RefinementBilinearFormTest  RefinementBilTest(refinementbasis);
-    int j=j0+4;
-    for (int k1=refinementbasis.mra.rangeI(j).firstIndex(); k1<=refinementbasis.mra.rangeI(j).lastIndex(); ++k1) {
-        for (int k2=refinementbasis.mra.rangeI(j).firstIndex(); k2<=refinementbasis.mra.rangeI(j).lastIndex(); ++k2) {
+
+    int j=j0+2;
+    for (int k1=-K; k1<=K; ++k1) {
+        for (int k2=-K; k2<=K; ++k2) {
             if (abs(k1-k2)>9) continue;
             T val1 = RefinementBilTest(XBSpline, j, k1, XBSpline, j, k2);
-            T val2 = refinementbasis.IdentityOp1D(XBSpline, j, k1, XBSpline, j, k2);
-            if (fabs(val1-val2)>1e-14) {
-                cout << "[" << j << ", (" << k1 << "," << k2 << ")]: " << val1 << " " << val2
-                << " " << pow2i<T>(j) << endl;
-            }
+            T val2 = refinementbasis.LaplaceOp1D(XBSpline, j, k1, XBSpline, j, k2);
+            //T val2 = refinementbasis.IdentityOp1D(XBSpline, j, k1, XBSpline, j, k2);
+            //if (fabs(val1-val2)>1e-13) {
+                cout << "[" << j << ", (" << k1 << "," << k2 << ")]: " <<  val1
+                << " " << val2 << " " << pow2i<T>(j) << endl;
+            //}
         }
     }
 
@@ -106,7 +109,12 @@ int main(int argc, char*argv[])
                               Uv_ref_tree(COEFFBYLEVELSIZE,basis.j0),
                               Lv_ref_tree(COEFFBYLEVELSIZE,basis.j0);
         constructRandomTree(basis, j, true, v_tree, sparsetree, seed);
+        cout << "#supp v_tree = " << v_tree.size() << endl;
         constructRandomTree(basis, j+1, false, Av_tree, sparsetree, seed+37);
+        cout << "#supp Av_tree = " << Av_tree.size() << endl;
+        //Av_tree = v_tree;
+        //Av_tree.setToZero();
+        //constructRandomTree(basis, j+1, false, Av_tree, sparsetree, seed+37);
         Av_ref_tree = Av_tree;
         Uv_tree     = Av_tree;
         Uv_ref_tree = Av_tree;
@@ -170,6 +178,7 @@ int main(int argc, char*argv[])
         ct_file << N << " " << time_evalA << " " << time_evalU << " " << time_evalL << endl;
     }
     ct_file.close();
+
     return 0;
 }
 
@@ -180,27 +189,31 @@ constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
     srand ( seed );
     T val = 0.;
     /*
-    for (int k=basis.mra.rangeI(basis.j0).firstIndex(); k<=basis.mra.rangeI(basis.j0).lastIndex(); ++k) {
+    for (int k=-2*K; k<=2*K; ++k) {
         val = withRandomValues ? (rand() / (T)RAND_MAX) : 0.;
         LambdaTree[0].map.operator[](k) = val;
     }
+
     for (int j=basis.j0; j<=J; ++j) {
-        for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
+        //for (int k=-K; k<=K; ++k) {
+        int k = 0;
             val = withRandomValues ? (rand() / (T)RAND_MAX) : 0.;
             LambdaTree.bylevel[j-basis.j0+1].map.operator[](k) = val;
-        }
+        //}
     }
     */
-    for (int k=basis.mra.rangeI(basis.j0).firstIndex(); k<=basis.mra.rangeI(basis.j0).lastIndex(); ++k) {
+    //cout << "LambdaTree = " << LambdaTree << endl;
+
+    for (int k=-K; k<=K; ++k) {
         val = withRandomValues ? ((T)rand() / RAND_MAX) : 0.;
         LambdaTree[0].map.operator[](k) = val;
     }
     for (int j=basis.j0; j<=J; ++j) {
         val = withRandomValues ? ((T)rand() / RAND_MAX) : 0.;
-        int random_k1 = rand() % basis.cardJ(j) + 1;
+        int random_k1 = rand() % (4*K+1) + 1;
         LambdaTree[j-basis.j0+1].map.operator[](random_k1) = val;
         val = withRandomValues ? ((T)rand() / RAND_MAX) : 0.;
-        int random_k2 = rand() % basis.cardJ(j) + 1;
+        int random_k2 = rand() % (4*K+1) + 1;
         LambdaTree[j-basis.j0+1].map.operator[](random_k2) = val;
     }
 
@@ -218,6 +231,7 @@ constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
     }
 
     fromCoefficientsToTreeCoefficients(tmpTree, LambdaTree);
+
 
     cout << "After: LambdaTree = " << LambdaTree << endl;
 
@@ -250,8 +264,9 @@ computeEvalARef(const BilinearForm &Bil, const PrimalBasis &basis,
     fromTreeCoefficientsToCoefficients(v_tree, v);
     fromTreeCoefficientsToCoefficients(Av_tree, Av);
 
-    if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
-         && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
+    if (    (flens::IsSame<Basis<T,Orthogonal,R,Multi>, PrimalBasis>::value)
+         && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,R,Multi> >, BilinearForm>::value) ) {
+        cout << "Using orthogonality..." << endl;
         for (coeff1d_it row=Av.begin(); row!=Av.end(); ++row) {
             T val = 0.L;
             for (const_coeff1d_it col=v.begin(); col!=v.end(); ++col) {
@@ -263,6 +278,7 @@ computeEvalARef(const BilinearForm &Bil, const PrimalBasis &basis,
         }
     }
     else {
+        cout << "Not using orthogonality..." << endl;
         for (coeff1d_it row=Av.begin(); row!=Av.end(); ++row) {
             T val = 0.L;
             for (const_coeff1d_it col=v.begin(); col!=v.end(); ++col) {
@@ -282,8 +298,9 @@ computeEvalURef(const BilinearForm &Bil, const PrimalBasis &basis,
     fromTreeCoefficientsToCoefficients(v_tree, v);
     fromTreeCoefficientsToCoefficients(Uv_tree, Uv);
 
-    if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
-             && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
+    if (    (flens::IsSame<Basis<T,Orthogonal,R,Multi>, PrimalBasis>::value)
+             && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,R,Multi> >, BilinearForm>::value) ) {
+        cout << "Using orthogonality..." << endl;
         for (coeff1d_it row=Uv.begin(); row!=Uv.end(); ++row) {
             T val = 0.L;
             for (const_coeff1d_it col=v.begin(); col!=v.end(); ++col) {
@@ -295,6 +312,7 @@ computeEvalURef(const BilinearForm &Bil, const PrimalBasis &basis,
         }
     }
     else {
+        cout << "Not using orthogonality..." << endl;
         for (coeff1d_it row=Uv.begin(); row!=Uv.end(); ++row) {
             long double val = 0.L;
             for (const_coeff1d_it col=v.begin(); col!=v.end(); ++col) {
@@ -319,8 +337,8 @@ computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
     fromTreeCoefficientsToCoefficients(v_tree, v);
     fromTreeCoefficientsToCoefficients(Lv_tree, Lv);
 
-    if (    (flens::IsSame<Basis<T,Orthogonal,Interval,Multi>, PrimalBasis>::value)
-                 && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,Interval,Multi> >, BilinearForm>::value) ) {
+    if (    (flens::IsSame<Basis<T,Orthogonal,R,Multi>, PrimalBasis>::value)
+                 && (flens::IsSame<IdentityOperator1D<T, Basis<T,Orthogonal,R,Multi> >, BilinearForm>::value) ) {
         return;
     }
     else {
