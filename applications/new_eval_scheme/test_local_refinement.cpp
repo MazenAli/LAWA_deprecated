@@ -8,13 +8,13 @@ using namespace lawa;
 /// Several typedefs for notational convenience.
 
 ///  Typedefs for Flens data types:
-typedef long double T;
+typedef double T;
 typedef flens::DenseVector<flens::Array<long double> >              DenseVectorLD;
 
 ///  Typedefs for problem components:
 ///     Multiwavelet basis over an interval
-typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-//typedef Basis<T, Primal, Interval, Dijkema>                       PrimalBasis;
+//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+typedef Basis<T, Primal, Interval, Dijkema>                       PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 typedef Integral<Gauss,PrimalBasis,PrimalBasis>                     MultiWaveletIntegral;
@@ -74,9 +74,9 @@ int main(int argc, char*argv[])
     int deriv = 0;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
-    //PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
-    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
+    //PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
+    PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
+    //if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis& refinementbasis = basis.refinementbasis;
 
     /// Test refinement of B-splines
@@ -90,7 +90,7 @@ int main(int argc, char*argv[])
 
     /// Test refinement of multiwavelets: We check the refinement of wavelets in terms of B-splines.
 
-    //test_refinementOfWavelet(basis, refinementbasis, deriv);
+    test_refinementOfWavelet(basis, refinementbasis, deriv);
 
     /// Check for B-spline neighbors: Given a B-spline, we need to determine the B-splines whose
     /// supports intersect the one of the B-spline. Here, both sides are assumed to be on the same
@@ -121,7 +121,7 @@ int main(int argc, char*argv[])
 
     //test_getBSplineNeighborsForWavelet(basis, refinementbasis);
 
-    test_getScalingNeighborsForWavelet(basis);
+    //test_getScalingNeighborsForWavelet(basis);
 
     //test_getWaveletNeighborsForWavelet(basis);
 
@@ -132,7 +132,6 @@ int main(int argc, char*argv[])
 
     return 0;
 }
-
 
 void
 test_refinementOfBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis, int deriv)
