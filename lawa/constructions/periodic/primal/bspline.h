@@ -59,7 +59,8 @@ struct BSpline<_T,Primal,Periodic,CDF>
      * Get refinement coefficients in _DIJKEMA_ Basis
      */
     DenseVector<Array<long double> > *
-    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first, long &split, long &refinement_k_restart) const;
+    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
+    				long &split, long &refinement_k_restart) const;
 
     int
     getRefinementLevel(int j) const;

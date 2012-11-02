@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <lawa/lawa.h>
+#include <limits>
 
 using namespace std;
 using namespace lawa;
@@ -86,12 +87,12 @@ int main(int argc, char*argv[])
 
     //test_refinementOfBSpline(basis, refinementbasis, deriv);
 
-    /// Test refinement of multiscaling functions. In case biorthogonal wavelet bases, this is just
+    /// Test refinement of scaling functions. In case biorthogonal wavelet bases, this is just
     /// the same as the test above as here, the scaling function are already B-splines.
 
     test_refinementOfScaling(basis, refinementbasis, deriv);
 
-    /// Test refinement of multiwavelets: We check the refinement of wavelets in terms of B-splines.
+    /// Test refinement of wavelets: We check the refinement of wavelets in terms of B-splines.
 
     //test_refinementOfWavelet(basis, refinementbasis, deriv);
 
@@ -186,7 +187,7 @@ test_refinementOfScaling(const PrimalBasis &basis, const RefinementBasis &refine
     cout << " ******* Refinement of Scaling Functions *******" << endl;
     for (int j=basis.j0; j<=basis.j0+4; ++j) {
         for (int k=basis.mra.rangeI(j).firstIndex(); k<=basis.mra.rangeI(j).lastIndex(); ++k) {
-            ofstream plotfile_scaling("refinement_interval_scaling.txt");
+            ofstream plotfile_scaling("refinement_periodic_scaling.txt");
             T abs_error = 0.L, rel_error = 0.L;
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
@@ -203,7 +204,7 @@ test_refinementOfScaling(const PrimalBasis &basis, const RefinementBasis &refine
                 T reference_value = basis.generator(XBSpline)(x,j,k,deriv);
                 T refinement_value = 0.;
 				// First part of coefficients
-				for (int i=(*refCoeffs).firstIndex(); i< (*refCoeffs).firstIndex()+split; ++i) {
+				for (int i=(*refCoeffs).firstIndex(); i<= std::min((*refCoeffs).firstIndex()+split-1, (long int)(*refCoeffs).lastIndex()); ++i) {
 					refinement_value +=   (T)(*refCoeffs).operator()(i)
 										* refinementbasis.generator(XBSpline).operator()(x,refinement_j,refinement_k_first+i,deriv);
 				}
@@ -239,25 +240,40 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
 {
     DenseVectorLD *refCoeffs;
     cout << " *******************************************" << endl;
-    cout << " ******* Refinement of multiwavelets *******" << endl;
+    cout << " ******* Refinement of Wavelets *******" << endl;
     for (int j=basis.j0; j<=basis.j0+4; ++j) {
         for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
-            ofstream plotfile_wavelet("refinement_interval_multiwavelet.txt");
+            ofstream plotfile_wavelet("refinement_periodic_wavelet.txt");
             T abs_error = 0.L, rel_error = 0.L;
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
             long refinement_k_first = 0L;
-            refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first);
+            long split = std::numeric_limits<long>::max();
+            long refinement_k_restart = 1;
+            refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
             cout << "j = " << j << ", k = " << k << ", refinement_j = "
-                 << refinement_j << ", refinement_k_first = " << refinement_k_first << endl;
+                           << refinement_j << ", refinement_k_first = " << refinement_k_first
+                           << ", split = " << split << ", refinement_k_restart = " << refinement_k_restart << endl;
+            cout << *refCoeffs << endl;
+            cout << refinementbasis.mra.rangeI(j+1) << " Split after: " << refinement_k_first+(*refCoeffs).firstIndex()+split-1 << " , end at " << refinement_k_first+(*refCoeffs).lastIndex() << endl;
             for (T x=0.L; x<=1.L; x+=pow2i<long double>(-8-j)) {
                 T reference_value = basis.generator(XWavelet)(x,j,k,deriv);
                 T refinement_value = 0.L;
-                for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
 
-                    refinement_value +=   (T)(*refCoeffs).operator()(i)
-                                        * refinementbasis.generator(XBSpline).operator()(x,refinement_j,refinement_k_first+i,deriv);
-                }
+				// First part of coefficients
+				for (int i=(*refCoeffs).firstIndex(); i<= std::min((*refCoeffs).firstIndex()+split-1, (long int)(*refCoeffs).lastIndex()); ++i) {
+					//std::cout << i << std::endl;
+					refinement_value +=   (T)(*refCoeffs).operator()(i)
+										* refinementbasis.generator(XBSpline).operator()(x,refinement_j,refinement_k_first+i,deriv);
+				}
+				// Second part of coefficients: i is still index in coefficient vector
+				for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
+					// index i has to be "wrapped" to be appropriate index in refinement basis
+					refinement_value +=   (T)(*refCoeffs).operator()(i)
+										* refinementbasis.generator(XBSpline).operator()(x,refinement_j,
+													refinement_k_restart+i-((*refCoeffs).firstIndex()+split),deriv);
+				}
+
                 T tmp1 = fabs(reference_value-refinement_value)/fabs(reference_value);
                 T tmp2 = fabs(reference_value-refinement_value);
                 if (rel_error<=tmp1 && fabs(reference_value)>1e-15) { rel_error = tmp1; x_rel_crit = x;    }

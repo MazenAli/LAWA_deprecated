@@ -80,7 +80,9 @@ template <typename T>
 MRA<T,Primal,Periodic,CDF>::~MRA()
 {
 	delete[] _periodicRefCoeffs;
+	delete[] _rightRefCoeffs;
 	delete[] _innerOffsets;
+	delete[] _split;
 	/*
 	 * TODO
 	 */

@@ -23,7 +23,7 @@ namespace lawa {
 
 using namespace flens;
 
-template <typename T>
+/*template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_)
     : d(_d), d_(_d_), mu(d&1),
       vanishingMoments(_d_), psiR(_d, _d_)
@@ -39,11 +39,12 @@ Wavelet<T,Primal,Periodic,CDF>::Wavelet(const BSpline<T,Primal,Periodic,CDF> &_p
       vanishingMoments(d_), psiR(d, d_)
 {
 }
+*/
 
 template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis)
     : d(_basis.d), d_(_basis.d_), mu(d&1),
-      vanishingMoments(d_), psiR(d,d_) 
+      vanishingMoments(d_), psiR(d,d_), basis(_basis)
 {
 }
 
@@ -118,9 +119,36 @@ Wavelet<T,Primal,Periodic,CDF>::tic(int j) const
 
 template <typename T>
 DenseVector<Array<long double> > *
-Wavelet<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+Wavelet<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
+												long &split, long &refinement_k_restart) const
 {
+    refinement_j = j + 1;
 
+	refinement_k_restart = 1;
+
+	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
+	// Left part
+	if(k <= basis.rangeJL(j).lastIndex()){
+		std::cout << "Left: " << std::endl;
+		std::cerr << "Ooops! Not implemented yet! " << std::endl;
+    	split = basis._periodicRefCoeffs[0].length() + 1;
+    	return &(basis._periodicRefCoeffs[0]);
+	}
+	// Inner part
+	if(k <= basis.rangeJI(j).lastIndex()){
+		std::cout << "Inner: " << std::endl;
+        refinement_k_first = 2*k + basis._innerOffsets[0];
+    	split = basis._periodicRefCoeffs[0].length() + 1;
+    	return &(basis._periodicRefCoeffs[0]);
+	}
+	// Right part
+	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
+	std::cout << "Right: " << std::endl;
+	int type = k - basis.rangeJR(j).firstIndex();
+	refinement_k_first = 2*k + basis._innerOffsets[0];
+	split = basis._split[type];
+	refinement_k_restart = 1;
+	return &(basis._rightRefCoeffs[type]);
 }
 
 template <typename T>

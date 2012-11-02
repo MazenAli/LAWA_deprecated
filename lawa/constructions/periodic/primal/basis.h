@@ -177,9 +177,12 @@ class Basis<_T,Primal,Periodic,CDF>
     private:
         mutable int _j;
 
+        friend class Wavelet<T,Primal,Periodic,CDF>;
+
+
         DenseVector<Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
 
-        long* _split;
+        long 	*_innerOffsets, *_split;
 };
 
 } // namespace lawa

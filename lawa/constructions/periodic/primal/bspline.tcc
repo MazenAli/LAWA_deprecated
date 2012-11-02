@@ -20,7 +20,6 @@
 #include <cassert>
 #include <cmath>
 #include <lawa/flensforlawa.h>
-#include <limits>
 
 #include <lawa/math/math.h>
 #include <lawa/constructions/realline/primal/bspline.h>
@@ -127,17 +126,19 @@ BSpline<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, 
 {
     refinement_j = j + 1;
 
-	split = std::numeric_limits<long>::infinity();
 	refinement_k_restart = 1;
 
 	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
 	// Left part
 	if(k <= mra.rangeIL(j).lastIndex()){
+		std::cerr << "Oops! I never expected there to be a left BSpline! " << std::endl;
+		split = mra._periodicRefCoeffs[0].length() + 1;
 		return &(mra._periodicRefCoeffs[0]);
 	}
 	// Inner part
 	if(k <= mra.rangeII(j).lastIndex()){
         refinement_k_first = 2*k+mra._innerOffsets[0];
+        split = mra._periodicRefCoeffs[0].length() + 1;
         return &(mra._periodicRefCoeffs[0]);
 	}
 	// Right part

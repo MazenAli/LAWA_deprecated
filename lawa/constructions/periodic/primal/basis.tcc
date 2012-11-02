@@ -24,24 +24,26 @@ namespace lawa {
 template <typename T>
 Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
     : d(_d), d_(_d_), j0(j), mra(d,d_,j), mra_(d,d_,j), 
-      psi(d,d_), M1(psi), _j(j), refinementbasis(_d, _d_, j)
+      psi(*this), M1(psi), _j(j), refinementbasis(_d, _d_, j)
 {
 	if(d == 2 && d_ == 2){
         _periodicRefCoeffs = new DenseVector<Array<long double> >[1];
         _periodicRefCoeffs[0].engine().resize(5,0);
         _periodicRefCoeffs[0] = 1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
 
+		_innerOffsets = new long[1];
+        _innerOffsets[0] = 0;
+
         _rightRefCoeffs = new DenseVector<Array<long double> >[2];
         _rightRefCoeffs[0].engine().resize(6,0);
-        _rightRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)),
-        					  1.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)) + 1.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+        _rightRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
 
         _rightRefCoeffs[1].engine().resize(6,0);
-        _rightRefCoeffs[1] =  1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)) - 3.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
+        _rightRefCoeffs[1] =  1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)) , - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
 
 		_split = new long[2];
-		_split[0] = 5;
-		_split[1] = 3;
+		_split[0] = 4;
+		_split[1] = 2;
 
 	}
 }
@@ -50,9 +52,9 @@ template <typename T>
 Basis<T,Primal,Periodic, CDF>::~Basis()
 {
 	delete[] _periodicRefCoeffs;
-	/*
-	 * TODO
-	 */
+	delete[] _rightRefCoeffs;
+	delete[] _innerOffsets;
+	delete[] _split;
 }
 
 template <typename T>

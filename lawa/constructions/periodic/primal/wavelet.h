@@ -41,10 +41,10 @@ struct Wavelet<_T,Primal,Periodic,CDF>
     static const DomainType Domain = Periodic;
     static const Construction Cons = CDF;
 
-    Wavelet(int _d, int _d_);
+   // Wavelet(int _d, int _d_);
 
-    Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
-            const BSpline<T,Dual,Periodic,CDF> &_phi_);
+   // Wavelet(const BSpline<T,Primal,Periodic,CDF> &_phi,
+   //         const BSpline<T,Dual,Periodic,CDF> &_phi_);
 
     Wavelet(const Basis<T,Primal,Periodic,CDF> &_basis);
 
@@ -61,7 +61,8 @@ struct Wavelet<_T,Primal,Periodic,CDF>
     tic(int j) const;
 
     DenseVector<Array<long double> > *
-    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
+    getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
+    				long &split, long &refinement_k_restart) const;
 
     int
     getRefinementLevel(int j) const;
@@ -75,6 +76,8 @@ struct Wavelet<_T,Primal,Periodic,CDF>
     const int d, d_, mu;
     const int vanishingMoments;
     const Wavelet<T, Primal, R, CDF> psiR;
+
+    const Basis<T,Primal,Periodic,CDF> &basis;
 };
 
 } // namespace lawa
