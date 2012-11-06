@@ -98,6 +98,12 @@ class Basis<_T,Primal,Interval,Dijkema>
                                           int &j_wavelet, long &k_wavelet_first,
                                           long &k_wavelet_last) const;
 
+        void
+        getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
+                                      const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                                      int &j_wavelet, long &k_wavelet_first,
+                                      long &k_wavelet_last) const;
+
         template <typename SecondRefinementBasis>
             void
             getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,

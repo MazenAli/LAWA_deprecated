@@ -311,17 +311,20 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 }
 
 
-
+/*
+ * TODO: change fct s.t. wavelets are from an (arbitrary) SecondBasis,
+ * 		 splines from _this_ basis (which is the refinement basis)
+ */
 template <typename T>
-template <typename SecondRefinementBasis>
+template <typename SecondBasis>
 void
 Basis<T,Primal,Interval,Dijkema>::
 getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
-                              const SecondRefinementBasis &secondrefinementbasis,
+                              const SecondBasis &secondbasis,
                               int &j_wavelet, long &k_wavelet_first, long &k_wavelet_last) const
 {
-    //ct_assert(SecondRefinementBasis::Side==Primal and SecondRefinementBasis::Domain==Interval
-    //           and SecondRefinementBasis::Cons==Dijkema);
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+              and SecondBasis::Cons==Dijkema);
     j_wavelet = j_bspline;
     Support<T> supp = refinementbasis.mra.phi.support(j_bspline,k_bspline);
     T a = supp.l1, b = supp.l2;
@@ -343,6 +346,57 @@ getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
 
 
     return;
+}
+
+template <typename T>
+void
+Basis<T,Primal,Interval,Dijkema>::
+getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
+                              const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                              int &j_wavelet, long &k_wavelet_first,
+                              long &k_wavelet_last) const
+{
+    j_wavelet = j_bspline;
+
+    // Translation index on intervals = periodic index + 1 // Is that right for d > 2??
+
+    // Get wavelets for (periodic) translation index
+    long kminR, kmaxR;
+    // Left Boundary
+    if(k_bspline <= mra.rangeIL(j_bspline).lastIndex()){
+    	std::cout << "Left" << std::endl;
+        k_bspline--;
+        kminR = - std::ceil(0.5*(secondbasis.d + secondbasis.d_)) + 1;
+        kmaxR = k_bspline + secondbasis.d - 1 + std::ceil(0.5*((secondbasis.d&1)+secondbasis.d_)) - 1;
+    }
+    // Right Boundary
+    else if (k_bspline >= mra.rangeIR(j_bspline).firstIndex()){
+    	std::cout << "Right" << std::endl;
+    	k_bspline--;
+        kminR = k_bspline - secondbasis.d + std::ceil(0.5*((secondbasis.d&1)-secondbasis.d_)) + 1;
+        kmaxR =  pow2i<T>(j_bspline) - 1 + std::ceil(0.5*(secondbasis.d+secondbasis.d_)) - 1;
+    }
+    // Inner Bspline
+    else{
+    	std::cout << "Inner" << std::endl;
+
+        k_bspline--;
+
+        kminR = k_bspline - secondbasis.d + std::floor(0.5*((secondbasis.d&1)-secondbasis.d_)) + 1;
+        kmaxR = k_bspline + secondbasis.d - 1 + std::ceil(0.5*((secondbasis.d&1)+secondbasis.d_)) - 1;
+    }
+
+    // Wrap Indizes
+    k_wavelet_first = kminR >= 1? kminR : secondbasis.rangeJ(j_wavelet).lastIndex() + kminR;
+    k_wavelet_last = kmaxR <= secondbasis.rangeJ(j_wavelet).lastIndex()? kmaxR : kmaxR - secondbasis.rangeJ(j_wavelet).lastIndex();
+
+    // If we need complete basis anyway, just take consecutive index set
+    if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
+    	k_wavelet_first = secondbasis.rangeJ(j_wavelet).firstIndex();
+    	k_wavelet_last = secondbasis.rangeJ(j_wavelet).lastIndex();
+    }
+
+
 }
 
 template <typename T>
