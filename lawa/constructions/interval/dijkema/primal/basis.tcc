@@ -47,6 +47,11 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
         _leftOffsets = new long[2];
         _leftOffsets[0] =  1;
         _leftOffsets[1] =  2;
+        _leftL2Norms = new long double[2];
+        _leftL2Norms[0] =  std::sqrt(0.5L);   _leftL2Norms[1] =  std::sqrt(0.75L);
+        _leftH1SemiNorms  = new long double[2];
+        _leftH1SemiNorms[0] =  std::sqrt(17.625L);
+        _leftH1SemiNorms[1] =  std::sqrt(16.5L);
 
         // inner part
         _innerRefCoeffs = new DenseVector<Array<long double> >[1];
@@ -54,6 +59,10 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
         _innerRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _innerOffsets = new long[1];
         _innerOffsets[0] =  -2;
+        _innerL2Norms = new long double[1];
+        _innerL2Norms[0] =  std::sqrt(0.75L);
+        _innerH1SemiNorms  = new long double[1];
+        _innerH1SemiNorms[0] =  std::sqrt(16.5L);
 
         // inner part
         _rightRefCoeffs = new DenseVector<Array<long double> >[2];
@@ -64,6 +73,11 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
         _rightOffsets = new long[2];
         _rightOffsets[0] =  - 2;
         _rightOffsets[1] =    0;
+        _rightL2Norms = new long double[2];
+        _rightL2Norms[0] =  std::sqrt(0.75L);   _rightL2Norms[1] =  std::sqrt(0.5L);
+        _rightH1SemiNorms  = new long double[2];
+        _rightH1SemiNorms[0] =  std::sqrt(16.5L);
+        _rightH1SemiNorms[1] =  std::sqrt(17.625L);
     }
 }
 
@@ -311,10 +325,6 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 }
 
 
-/*
- * TODO: change fct s.t. wavelets are from an (arbitrary) SecondBasis,
- * 		 splines from _this_ basis (which is the refinement basis)
- */
 template <typename T>
 template <typename SecondBasis>
 void
