@@ -65,12 +65,12 @@ struct BSpline<_T,Primal,Periodic,CDF>
     int
     getRefinementLevel(int j) const;
 
-//
-//    T
-//    getL2Norm(int j, long k) const;
-//
-//    T
-//    getH1SemiNorm(int j, long k) const;
+
+    T
+    getL2Norm(int j, long k) const;
+
+    T
+    getH1SemiNorm(int j, long k) const;
 
     const DenseVector<Array<T> > &
     mask() const;                           // mask of original Spline on R

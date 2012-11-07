@@ -45,6 +45,10 @@ Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
 		_split[0] = 4;
 		_split[1] = 2;
 
+		_periodicL2Norms = new long double[1];
+		_periodicL2Norms[0] = std::sqrt(3.L/4.L);
+		_periodicH1SemiNorms = new long double[1];
+		_periodicH1SemiNorms[0] = std::sqrt(16.5L);
 	}
 }
 
@@ -55,6 +59,8 @@ Basis<T,Primal,Periodic, CDF>::~Basis()
 	delete[] _rightRefCoeffs;
 	delete[] _innerOffsets;
 	delete[] _split;
+	delete[] _periodicL2Norms;
+	delete[] _periodicH1SemiNorms;
 }
 
 template <typename T>

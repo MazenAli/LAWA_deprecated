@@ -43,35 +43,14 @@ MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
 		_split = new long[1];
 		_split[0] = 2;
 
-		/*
-		 * TODO
-		 */
-		/*
-		_innerOffsets[0] =  -2;
-		_innerL2Norms = new long double[1];
-		_innerL2Norms[0] =  0.;
-		_innerH1SemiNorms = new long double[1];
-		_innerH1SemiNorms[0] =  0.;
-		*/
+		_periodicL2Norms = new long double[1];
+		_periodicL2Norms[0] =  std::sqrt(2.L/3.L);;
+		_periodicH1SemiNorms = new long double[1];
+		_periodicH1SemiNorms[0] = std::sqrt(2.L);
+
 	}
     else if (d==3){
-		// inner part
-		_periodicRefCoeffs = new DenseVector<Array<long double> >[1];
-        _periodicRefCoeffs[0].engine().resize(4,0);
-        _periodicRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
-		_innerOffsets = new long[1];
-        _innerOffsets[0] =  -3;
 
-		/*
-		 * TODO
-		 */
-		/*
-		_innerOffsets[0] =  -2;
-		_innerL2Norms = new long double[1];
-		_innerL2Norms[0] =  0.;
-		_innerH1SemiNorms = new long double[1];
-		_innerH1SemiNorms[0] =  0.;
-		*/
     }
 
 }
@@ -83,11 +62,8 @@ MRA<T,Primal,Periodic,CDF>::~MRA()
 	delete[] _rightRefCoeffs;
 	delete[] _innerOffsets;
 	delete[] _split;
-	/*
-	 * TODO
-	 */
-	//delete[] _innerL2Norms;
-	//delete[] _innerH1SemiNorms;
+	delete[] _periodicL2Norms;
+	delete[] _periodicH1SemiNorms;
 }
 
 template <typename T>

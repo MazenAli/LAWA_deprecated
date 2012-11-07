@@ -90,9 +90,7 @@ class MRA<_T,Primal,Periodic,CDF>
 
         DenseVector<Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
 
-        long double *_leftL2Norms,  *_leftH1SemiNorms,
-                    *_innerL2Norms, *_innerH1SemiNorms,
-                    *_rightL2Norms, *_rightH1SemiNorms;
+        long double *_periodicL2Norms,  *_periodicH1SemiNorms;
 
         long *_leftOffsets,
              *_innerOffsets,

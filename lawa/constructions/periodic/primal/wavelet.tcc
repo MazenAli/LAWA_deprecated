@@ -158,6 +158,21 @@ Wavelet<T,Primal,Periodic,CDF>::getRefinementLevel(int j) const {
 }
 
 template <typename T>
+T
+Wavelet<T,Primal,Periodic,CDF>::getL2Norm(int j, long k) const
+{
+    return basis._periodicL2Norms[0];
+}
+
+template <typename T>
+T
+Wavelet<T,Primal,Periodic,CDF>::getH1SemiNorm(int j, long k) const
+{
+    T pow2ij = (T)(1L << j);
+    return pow2ij*basis._periodicH1SemiNorms[0];
+}
+
+template <typename T>
 const DenseVector<Array<T> > &
 Wavelet<T,Primal,Periodic,CDF>::mask() const
 {

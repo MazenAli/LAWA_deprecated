@@ -160,6 +160,7 @@ class Basis<_T,Primal,Periodic,CDF>
         DenseVector<Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
 
         long 	*_innerOffsets, *_split;
+        long double *_periodicL2Norms,  *_periodicH1SemiNorms;
 };
 
 } // namespace lawa
