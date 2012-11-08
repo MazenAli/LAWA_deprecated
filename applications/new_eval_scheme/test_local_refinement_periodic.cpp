@@ -192,8 +192,8 @@ test_refinementOfScaling(const PrimalBasis &basis, const RefinementBasis &refine
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
             long refinement_k_first = 0L;
-            long split = -1L;
-            long refinement_k_restart = -1L;
+            long split = 100.L;
+            long refinement_k_restart = 100.L;
             refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
             cout << "j = " << j << ", k = " << k << ", refinement_j = "
                            << refinement_j << ", refinement_k_first = " << refinement_k_first
@@ -241,7 +241,7 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
     DenseVectorLD *refCoeffs;
     cout << " *******************************************" << endl;
     cout << " ******* Refinement of Wavelets *******" << endl;
-    for (int j=basis.j0; j<=basis.j0+4; ++j) {
+    for (int j=basis.j0+6; j<=basis.j0+7; ++j) {
         for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
             ofstream plotfile_wavelet("refinement_periodic_wavelet.txt");
             T abs_error = 0.L, rel_error = 0.L;

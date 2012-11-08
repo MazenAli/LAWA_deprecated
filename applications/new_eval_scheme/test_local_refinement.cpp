@@ -148,8 +148,8 @@ test_refinementOfBSpline(const PrimalBasis &basis, const RefinementBasis &refine
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
             long refinement_k_first = 0L;
-            long split = 0L;
-            long refinement_k_restart = 0L;
+            long split = 100L;
+            long refinement_k_restart = 100L;
             refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
             for (T x=0.; x<=1.; x+=pow2i<T>(-10-j)) {
                 T reference_value = refinementbasis.generator(XBSpline).operator()(x,j,k,deriv);
@@ -186,8 +186,8 @@ test_refinementOfScaling(const PrimalBasis &basis, const RefinementBasis &refine
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
             long refinement_k_first = 0L;
-            long split = 0L;
-            long refinement_k_restart = 0L;
+            long split = 100L;
+            long refinement_k_restart = 100L;
             refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
             cout << "j = " << j << ", k = " << k << ", refinement_j = "
                            << refinement_j << ", refinement_k_first = " << refinement_k_first << endl;
@@ -231,8 +231,8 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
             T x_rel_crit = 0.L, x_abs_crit = 0.L;
             int refinement_j = 0;
             long refinement_k_first = 0L;
-            long split = 0L;
-            long refinement_k_restart = 0L;
+            long split = 100L;
+            long refinement_k_restart = 100L;
             refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
             cout << "j = " << j << ", k = " << k << ", refinement_j = "
                  << refinement_j << ", refinement_k_first = " << refinement_k_first << endl;
