@@ -374,21 +374,21 @@ getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
     long kminR, kmaxR;
     // Left Boundary
     if(k_bspline <= mra.rangeIL(j_bspline).lastIndex()){
-    	std::cout << "Left" << std::endl;
+    	//std::cout << "Left" << std::endl;
         k_bspline--;
         kminR = - std::ceil(0.5*(secondbasis.d + secondbasis.d_)) + 1;
         kmaxR = k_bspline + secondbasis.d - 1 + std::ceil(0.5*((secondbasis.d&1)+secondbasis.d_)) - 1;
     }
     // Right Boundary
     else if (k_bspline >= mra.rangeIR(j_bspline).firstIndex()){
-    	std::cout << "Right" << std::endl;
+    	//std::cout << "Right" << std::endl;
     	k_bspline--;
         kminR = k_bspline - secondbasis.d + std::ceil(0.5*((secondbasis.d&1)-secondbasis.d_)) + 1;
         kmaxR =  pow2i<T>(j_bspline) - 1 + std::ceil(0.5*(secondbasis.d+secondbasis.d_)) - 1;
     }
     // Inner Bspline
     else{
-    	std::cout << "Inner" << std::endl;
+    	//std::cout << "Inner" << std::endl;
 
         k_bspline--;
 

@@ -7,6 +7,9 @@ LocalRefinement<PrimalBasis>::LocalRefinement(const PrimalBasis &_basis)
 
 }
 
+/*
+ * TODO
+ */
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,Index1D> &u, int j_scaling,
@@ -18,7 +21,7 @@ LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,I
     int j_wavelet = j_scaling;
 
     CoefficientsByLevel<T> u_bspline;
-    if (PrimalBasis::Cons==Multi && basis.d>1) {
+    if ((PrimalBasis::Cons==Multi && basis.d>1) || PrimalBasis::Domain==Periodic) {
         this->reconstructOnlyMultiScaling(u_tree.bylevel[0], j_scaling, u_bspline, j_bspline);
         u_tree.bylevel[0] = u_bspline;
     }
@@ -26,19 +29,40 @@ LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,I
     int imax = u_tree.getMaxTreeLevel();
     for (int i=0; i<imax; ++i) {
         int  j_refinement = j_bspline + i;
-	CoefficientsByLevel<T> help;
-	help = u_tree[i];
+        CoefficientsByLevel<T> help;
+        help = u_tree[i];
         for (const_coeffbylevel_it it=help.map.begin(); it!=help.map.end(); ++it) {
+
             long k_refinement = (*it).first;
             int test_j_wavelet = 0;
             long k_first = 0L, k_last = 0L;
             refinementbasis.getWaveletNeighborsForBSpline(j_refinement,k_refinement, basis, test_j_wavelet, k_first, k_last);
+
             assert(test_j_wavelet==j_wavelet+i);
             bool has_neighbor=false;
-            for (long k=k_first; k<=k_last; ++k) {
-                if (   u_tree[i+1].map.find(k)!=u_tree[i+1].map.end()) {
-                    has_neighbor = true;
-                    break;
+
+            if(k_first < k_last){
+                for (long k=k_first; k<=k_last; ++k) {
+                    if (   u_tree[i+1].map.find(k)!=u_tree[i+1].map.end()) {
+                        has_neighbor = true;
+                        break;
+                    }
+                }
+            }
+            else{
+                for (long k=k_first; k<=(long int) refinementbasis.rangeJ(test_j_wavelet).lastIndex(); ++k) {
+                    if (   u_tree[i+1].map.find(k)!=u_tree[i+1].map.end()) {
+                        has_neighbor = true;
+                        break;
+                    }
+                }
+                if(!has_neighbor){
+                	for(long k = refinementbasis.rangeJ(test_j_wavelet).firstIndex(); k <= k_last; ++k){
+                        if (   u_tree[i+1].map.find(k)!=u_tree[i+1].map.end()) {
+                            has_neighbor = true;
+                            break;
+                        }
+                	}
                 }
             }
             if (!has_neighbor) {
@@ -91,11 +115,19 @@ LocalRefinement<PrimalBasis>::reconstructOnlyMultiScaling
 {
     DenseVectorLD *refCoeffs;
     long k_refinement_first = 0L;
+    long split = 100.L;
+    long k_refinement_restart = 100.L;
+
     for (const_coeffbylevel_it it=u_scaling.map.begin(); it!=u_scaling.map.end(); ++it) {
-        refCoeffs = basis.mra.phi.getRefinement(j,(*it).first,j_refinement,k_refinement_first);
-        for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
+        refCoeffs = basis.mra.phi.getRefinement(j,(*it).first,j_refinement,k_refinement_first, split, k_refinement_restart);
+    	// First part of coefficients (= all coefficients, if basis is not periodic
+        for (int i=(*refCoeffs).firstIndex(); i<= std::min((*refCoeffs).firstIndex()+split-1, (long int)(*refCoeffs).lastIndex()); ++i) {
             u_loc_single.map[k_refinement_first+i] += (*refCoeffs).operator()(i) * (*it).second;
         }
+    	// Second part of coefficients: i is still index in coefficient vector
+        for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
+            u_loc_single.map[k_refinement_restart+i-((*refCoeffs).firstIndex()+split)] += (*refCoeffs).operator()(i) * (*it).second;
+    	}
     }
 }
 
@@ -108,10 +140,18 @@ LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T coeff,
     DenseVectorLD *refCoeffs;
     j_refinement = 0;
     long k_refinement_first = 0L;
-    refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,j_refinement,k_refinement_first);
-    for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
+    long split = 100.L;
+    long k_refinement_restart = 100.L;
+    refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,j_refinement,k_refinement_first, split, k_refinement_restart);
+
+	// First part of coefficients (= all coefficients, if basis is not periodic
+    for (int i=(*refCoeffs).firstIndex(); i<= std::min((*refCoeffs).firstIndex()+split-1, (long int)(*refCoeffs).lastIndex()); ++i) {
         u_loc_single.map[k_refinement_first+i] += (*refCoeffs).operator()(i) * coeff;
     }
+	// Second part of coefficients: i is still index in coefficient vector
+    for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
+        u_loc_single.map[k_refinement_restart+i-((*refCoeffs).firstIndex()+split)] += (*refCoeffs).operator()(i) * coeff;
+	}
 }
 
 template <typename PrimalBasis>
@@ -123,13 +163,23 @@ LocalRefinement<PrimalBasis>::reconstructWavelet(int j, long k, T coeff,
     DenseVectorLD *refCoeffs;
     j_refinement = 0;
     long k_refinement_first = 0L;
-    refCoeffs = basis.psi.getRefinement(j,k,j_refinement,k_refinement_first);
-    for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
+    long split = 100.L;
+    long k_refinement_restart = 100.L;
+    refCoeffs = basis.psi.getRefinement(j,k,j_refinement,k_refinement_first, split, k_refinement_restart);
+
+	// First part of coefficients (= all coefficients, if basis is not periodic
+    for (int i=(*refCoeffs).firstIndex(); i<= std::min((*refCoeffs).firstIndex()+split-1, (long int)(*refCoeffs).lastIndex()); ++i) {
         u_loc_single.map[k_refinement_first+i] += (*refCoeffs).operator()(i) * coeff;
     }
+	// Second part of coefficients: i is still index in coefficient vector
+    for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
+        u_loc_single.map[k_refinement_restart+i-((*refCoeffs).firstIndex()+split)] += (*refCoeffs).operator()(i) * coeff;
+	}
 }
 
-
+/*
+ * TODO
+ */
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::decompose_(const CoefficientsByLevel<T>  &u_loc_single,
@@ -147,6 +197,9 @@ LocalRefinement<PrimalBasis>::decompose_(const CoefficientsByLevel<T>  &u_loc_si
     }
 }
 
+/*
+ * TODO
+ */
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::decompose_OnlyMultiScaling(const CoefficientsByLevel<T>  &u_loc_single,
@@ -160,6 +213,9 @@ LocalRefinement<PrimalBasis>::decompose_OnlyMultiScaling(const CoefficientsByLev
     }
 }
 
+/*
+ * TODO
+ */
 template <typename PrimalBasis>
 typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T> &u_loc_single,
@@ -181,6 +237,9 @@ LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T> &u_
     return val;
 }
 
+/*
+ * TODO
+ */
 template <typename PrimalBasis>
 typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_loc_single,
@@ -202,6 +261,9 @@ LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_
     return val;
 }
 
+/*
+ * TODO
+ */
 template <typename PrimalBasis>
 typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T> &u_loc_single,
