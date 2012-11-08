@@ -32,16 +32,20 @@ MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
 
 		// inner part
 		_periodicRefCoeffs = new DenseVector<Array<long double> >[1];
-		_periodicRefCoeffs[0].engine().resize(3,0);
-		_periodicRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
-		_innerOffsets = new long[1];
-        _innerOffsets[0] =  0;
+		//_periodicRefCoeffs[0].engine().resize(3,0);
+		//_periodicRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
+		_periodicRefCoeffs[0].engine().resize(1,0);
+		_periodicRefCoeffs[0] =  1.L;
+		_periodicOffsets = new long[1];
+        _periodicOffsets[0] =  1;
 
         _rightRefCoeffs = new DenseVector<Array<long double> >[1];
-		_rightRefCoeffs[0].engine().resize(4,0);
-		_rightRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
+		_rightRefCoeffs[0].engine().resize(2,0);
+		_rightRefCoeffs[0] =  1.L, 1.L;
 		_split = new long[1];
-		_split[0] = 2;
+		_split[0] = 1;
+		_rightOffsets = new long[1];
+        _rightOffsets[0] =  1;
 
 		_periodicL2Norms = new long double[1];
 		_periodicL2Norms[0] =  std::sqrt(2.L/3.L);;
@@ -60,7 +64,8 @@ MRA<T,Primal,Periodic,CDF>::~MRA()
 {
 	delete[] _periodicRefCoeffs;
 	delete[] _rightRefCoeffs;
-	delete[] _innerOffsets;
+	delete[] _periodicOffsets;
+	delete[] _rightOffsets;
 	delete[] _split;
 	delete[] _periodicL2Norms;
 	delete[] _periodicH1SemiNorms;

@@ -56,7 +56,7 @@ struct BSpline<_T,Primal,Periodic,CDF>
 /**/tic(int j) const;                       // -> ???
 
     /**
-     * Get refinement coefficients in _DIJKEMA_ Basis
+     * Get coefficients in _DIJKEMA_ Basis (not really a refinement here!!)
      */
     DenseVector<Array<long double> > *
     getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,

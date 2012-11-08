@@ -124,7 +124,7 @@ DenseVector<Array<long double> > *
 BSpline<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
 											  long &split, long &refinement_k_restart) const
 {
-    refinement_j = j + 1;
+    refinement_j = j;
 
 	refinement_k_restart = 1;
 
@@ -137,13 +137,13 @@ BSpline<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, 
 	}
 	// Inner part
 	if(k <= mra.rangeII(j).lastIndex()){
-        refinement_k_first = 2*k+mra._innerOffsets[0];
+        refinement_k_first = k + mra._periodicOffsets[0];
         split = mra._periodicRefCoeffs[0].length() + 1;
         return &(mra._periodicRefCoeffs[0]);
 	}
 	// Right part
 	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
-	refinement_k_first = 2*k + mra._innerOffsets[0];
+	refinement_k_first = k + mra._rightOffsets[0];
 	split = mra._split[k - mra.rangeIR(j).firstIndex()];
 	refinement_k_restart = 1;
 	return &(mra._rightRefCoeffs[0]);

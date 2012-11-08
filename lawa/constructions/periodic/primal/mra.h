@@ -93,7 +93,7 @@ class MRA<_T,Primal,Periodic,CDF>
         long double *_periodicL2Norms,  *_periodicH1SemiNorms;
 
         long *_leftOffsets,
-             *_innerOffsets,
+             *_periodicOffsets,
              *_rightOffsets,
              *_split;
 };

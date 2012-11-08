@@ -129,21 +129,18 @@ Wavelet<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, 
 	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
 	// Left part
 	if(k <= basis.rangeJL(j).lastIndex()){
-		std::cout << "Left: " << std::endl;
 		std::cerr << "Ooops! Not implemented yet! " << std::endl;
     	split = basis._periodicRefCoeffs[0].length() + 1;
     	return &(basis._periodicRefCoeffs[0]);
 	}
 	// Inner part
 	if(k <= basis.rangeJI(j).lastIndex()){
-		std::cout << "Inner: " << std::endl;
         refinement_k_first = 2*k + basis._innerOffsets[0];
     	split = basis._periodicRefCoeffs[0].length() + 1;
     	return &(basis._periodicRefCoeffs[0]);
 	}
 	// Right part
 	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
-	std::cout << "Right: " << std::endl;
 	int type = k - basis.rangeJR(j).firstIndex();
 	refinement_k_first = 2*k + basis._innerOffsets[0];
 	split = basis._split[type];
