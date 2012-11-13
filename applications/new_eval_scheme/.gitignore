@@ -1,0 +1,13 @@
+*.txt
+test_local_decomposition
+test_local_reconstruction
+test_local_refinement
+test_local_reconstruction_periodic
+test_local_refinement_periodic
+bestNterm2d
+bestNterm3d
+getDijkemaRefinements
+getPeriodicRefinements
+*.eps
+*.gps
+*.pdf

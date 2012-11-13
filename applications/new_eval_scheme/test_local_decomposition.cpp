@@ -12,14 +12,16 @@ using namespace lawa;
 /// Several typedefs for notational convenience.
 
 ///  Typedefs for Flens data types:
-typedef long double T;
+//typedef long double T;
+typedef double T;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 
 ///  Typedefs for problem components:
 ///  Wavelet basis over an interval
-typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
 //typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+typedef Basis<T, Primal, Periodic, CDF>		                         PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 ///  Wavelet integrals
@@ -47,9 +49,9 @@ int main(int argc, char*argv[])
     int j_scaling  = j_wavelet;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
-    //PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
-    basis.enforceBoundaryCondition<DirichletBC>();
+    //PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
+    PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
+    //basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis &refinementbasis = basis.refinementbasis;
 
     /// Integral initialization
@@ -80,7 +82,7 @@ int main(int argc, char*argv[])
              k<=refinementbasis.mra.rangeI(j_refinement-1).lastIndex(); ++k) {
         f_bspline.map.operator[](k) = 0.;
     }
-    if (PrimalBasis::Cons==Multi) {
+    if (PrimalBasis::Cons==Multi || PrimalBasis::Domain==Periodic) {
         for (int k =basis.mra.rangeI(j_scaling).firstIndex();
                  k<=basis.mra.rangeI(j_scaling).lastIndex(); ++k) {
             f_scaling.map.operator[](k) = 0.;
@@ -108,7 +110,7 @@ int main(int argc, char*argv[])
     cout << endl;
 
     /// In case of multiscalings, we have to further decompose the refinement B-splines.
-    if (PrimalBasis::Cons==Multi) {
+    if (PrimalBasis::Cons==Multi || PrimalBasis::Domain==Periodic) {
         LocalRefine.decompose_OnlyMultiScaling(f_bspline, f_scaling, j_scaling);
         cout << "************** Scaling Decompositions *************" << endl;
         for (const_coeffbylevel_it it=f_scaling.map.begin(); it!=f_scaling.map.end(); ++it) {

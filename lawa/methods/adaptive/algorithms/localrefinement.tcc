@@ -7,9 +7,6 @@ LocalRefinement<PrimalBasis>::LocalRefinement(const PrimalBasis &_basis)
 
 }
 
-/*
- * TODO
- */
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,Index1D> &u, int j_scaling,
@@ -177,9 +174,6 @@ LocalRefinement<PrimalBasis>::reconstructWavelet(int j, long k, T coeff,
 	}
 }
 
-/*
- * TODO
- */
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::decompose_(const CoefficientsByLevel<T>  &u_loc_single,
@@ -197,9 +191,6 @@ LocalRefinement<PrimalBasis>::decompose_(const CoefficientsByLevel<T>  &u_loc_si
     }
 }
 
-/*
- * TODO
- */
 template <typename PrimalBasis>
 void
 LocalRefinement<PrimalBasis>::decompose_OnlyMultiScaling(const CoefficientsByLevel<T>  &u_loc_single,
@@ -213,9 +204,6 @@ LocalRefinement<PrimalBasis>::decompose_OnlyMultiScaling(const CoefficientsByLev
     }
 }
 
-/*
- * TODO
- */
 template <typename PrimalBasis>
 typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T> &u_loc_single,
@@ -226,20 +214,37 @@ LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T> &u_
     DenseVectorLD *refCoeffs;
     int refinement_j = 0;
     long refinement_k_first = 0L;
+    long split = 100L;
+    long refinement_k_restart = 1L;
     T val = 0.;
-    refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first);
+    refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
+/*
     for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
         u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
         if (u_loc_single_ptr!=u_loc_single_end) {
             val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
         }
     }
+*/
+
+	// First part of coefficients
+	for (int i=(*refCoeffs).firstIndex(); i<= std::min( ((*refCoeffs).firstIndex()+split-1) , (long int)(*refCoeffs).lastIndex()); ++i) {
+    	u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
+        if (u_loc_single_ptr!=u_loc_single_end) {
+            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
+        }
+	}
+	// Second part of coefficients: i is still index in coefficient vector
+	for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
+		long index = refinement_k_restart+i-((*refCoeffs).firstIndex()+split);
+        u_loc_single_ptr=u_loc_single.map.find(index);
+        if (u_loc_single_ptr!=u_loc_single_end) {
+            val += (*refCoeffs).operator()(index) * (*u_loc_single_ptr).second;
+        }
+	}
     return val;
 }
 
-/*
- * TODO
- */
 template <typename PrimalBasis>
 typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_loc_single,
@@ -250,20 +255,36 @@ LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_
     DenseVectorLD *refCoeffs;
     int refinement_j = 0;
     long refinement_k_first = 0L;
+    long split = 100L;
+    long refinement_k_restart = 0L;
     T val = 0.;
-    refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first);
-    for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
+    refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
+    /*for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
         u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
         if (u_loc_single_ptr!=u_loc_single_end) {
             val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
         }
-    }
+    }*/
+
+	// First part of coefficients
+	for (int i=(*refCoeffs).firstIndex(); i<= std::min( ((*refCoeffs).firstIndex()+split-1) , (long int)(*refCoeffs).lastIndex()); ++i) {
+    	u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
+        if (u_loc_single_ptr!=u_loc_single_end) {
+            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
+        }
+	}
+	// Second part of coefficients: i is still index in coefficient vector
+	for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
+		long index = refinement_k_restart+i-((*refCoeffs).firstIndex()+split);
+        u_loc_single_ptr=u_loc_single.map.find(index);
+        if (u_loc_single_ptr!=u_loc_single_end) {
+            val += (*refCoeffs).operator()(index) * (*u_loc_single_ptr).second;
+        }
+	}
+
     return val;
 }
 
-/*
- * TODO
- */
 template <typename PrimalBasis>
 typename PrimalBasis::T
 LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T> &u_loc_single,
@@ -274,14 +295,32 @@ LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T> &u_
     DenseVectorLD *refCoeffs;
     int refinement_j = 0;
     long refinement_k_first = 0L;
+    long split = 100L;
+    long refinement_k_restart = 0L;
     T val = 0.;
-    refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first);
-    for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
+    refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first,split,refinement_k_restart);
+    /*for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
         u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
         if (u_loc_single_ptr!=u_loc_single_end) {
             val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
         }
-    }
+    }*/
+
+	// First part of coefficients
+	for (int i=(*refCoeffs).firstIndex(); i<= std::min( ((*refCoeffs).firstIndex()+split-1) , (long int)(*refCoeffs).lastIndex()); ++i) {
+    	u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
+        if (u_loc_single_ptr!=u_loc_single_end) {
+            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
+        }
+	}
+	// Second part of coefficients: i is still index in coefficient vector
+	for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
+		long index = refinement_k_restart+i-((*refCoeffs).firstIndex()+split);
+        u_loc_single_ptr=u_loc_single.map.find(index);
+        if (u_loc_single_ptr!=u_loc_single_end) {
+            val += (*refCoeffs).operator()(index) * (*u_loc_single_ptr).second;
+        }
+	}
     return val;
 }
 
