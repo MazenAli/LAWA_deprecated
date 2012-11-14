@@ -159,6 +159,12 @@ struct IsPeriodic<BSpline<T,Side,Periodic,Cons> >
     static const bool value = true;
 };
 
+template <typename T, FunctionSide Side, Construction Cons>
+struct IsPeriodic<Basis<T,Side,Periodic,Cons> >
+{
+    static const bool value = true;
+};
+
 //--- IsRealline
 template <typename X>
 struct IsRealline
@@ -247,6 +253,20 @@ struct IsIndex3D<Index3D>
 {
     static const bool value = true;
 };
+
+//--- Wrapper for SFINAE, where the desired RestrictTo::Type
+//	  is _not_ the template parameter that is tested
+//	  (happens when you artificially choose test template parameters
+//	   from pre-existing function parameter lists in order to
+//     partially specialize given functions for class (not function)
+//     template parameters, see e.g. localoperator1d)
+template<bool testvalue, typename testtype>
+struct SFINAE_Wrapper
+{
+	static const bool value = testvalue;
+};
+
+
 
 } // namespace lawa
  

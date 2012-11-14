@@ -79,13 +79,32 @@ class LocalOperator1D {
         _evalL(int l, CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
                TreeCoefficients1D<T> &PsiLambdaCheck);
 
-        void
-        _splitPhiPi(int l, const CoefficientsByLevel<T> &c_l, CoefficientsByLevel<T> &PhiPiCheck1,
-                    CoefficientsByLevel<T> &PhiPiCheck2) const;
+        /*
+         * To partially specialize for periodic basis, we use SFINAE
+         */
+        // Non-Periodic version
+        template<typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<TrialBasis>::value, T_>::value, void>::Type
+        _splitPhiPi(int l, const CoefficientsByLevel<T_> &c_l, CoefficientsByLevel<T_> &PhiPiCheck1,
+                    CoefficientsByLevel<T_> &PhiPiCheck2) const;
 
-        void
-        _splitd(int l, const CoefficientsByLevel<T> &PsiLambdaCheck_l,
-                CoefficientsByLevel<T> &d1, CoefficientsByLevel<T> &d2) const;
+        // Periodic version
+        template<typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<TrialBasis>::value, T_>::value, void>::Type
+        _splitPhiPi(int l, const CoefficientsByLevel<T_> &c_l, CoefficientsByLevel<T_> &PhiPiCheck1,
+                    CoefficientsByLevel<T_> &PhiPiCheck2) const;
+
+        // Non-Periodic version
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<TestBasis>::value, T_>::value, void>::Type
+        _splitd(int l, const CoefficientsByLevel<T_> &PsiLambdaCheck_l,
+                CoefficientsByLevel<T_> &d1, CoefficientsByLevel<T_> &d2) const;
+
+        // Periodic Version
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<TestBasis>::value, T_>::value, void>::Type
+        _splitd(int l, const CoefficientsByLevel<T_> &PsiLambdaCheck_l,
+                CoefficientsByLevel<T_> &d1, CoefficientsByLevel<T_> &d2) const;
 
         void
         _applyRefinementBilinearForm(int l, const CoefficientsByLevel<T> &d,

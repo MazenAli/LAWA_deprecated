@@ -277,12 +277,63 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     return;
 }
 
+// Non-Periodic Version
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
-void
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<TrialBasis>::value, T_>::value, void>::Type
 LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
-::_splitPhiPi(int l, const CoefficientsByLevel<T> &c_l, CoefficientsByLevel<T> &PhiPiCheck1,
-                 CoefficientsByLevel<T> &PhiPiCheck2) const
+::_splitPhiPi(int l, const CoefficientsByLevel<T_> &c_l, CoefficientsByLevel<T_> &PhiPiCheck1, CoefficientsByLevel<T_> &PhiPiCheck2) const
 {
+    if (c_l.map.size()==0) return;
+
+    if (c_l.map.size()>PhiPiCheck1.map.size()) {
+        const_by_level_it p_c_l_end = c_l.map.end();
+        int j_bspline = l + testRefinementLevelOffset;
+        for (const_by_level_it mu=PhiPiCheck1.map.begin(); mu!=PhiPiCheck1.map.end(); ++mu) {
+            long k_bspline = (*mu).first;
+            int  j_wavelet = 0;
+            long k_wavelet_first = 0L, k_wavelet_last = 0L;
+            testRefinementBasis.getWaveletNeighborsForBSpline(j_bspline, k_bspline, trialBasis,
+                                                    j_wavelet, k_wavelet_first, k_wavelet_last);
+
+            for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+                const_by_level_it p_entry_c_l = c_l.map.find(k_wavelet);
+                if (p_entry_c_l!=p_c_l_end) {
+                    PhiPiCheck2.map[k_bspline] = 0.;
+                    PhiPiCheck1.map.erase(k_bspline);
+                    break;
+                }
+			}
+        }
+    }
+    else {
+        int j_wavelet = l + trialBasis.j0;
+        for (const_by_level_it mu=c_l.map.begin(); mu!=c_l.map.end(); ++mu) {
+            long k_wavelet = (*mu).first;
+            int  j_bspline = 0;
+            long k_bspline_first = 0L, k_bspline_last = 0L;
+            trialBasis.getBSplineNeighborsForWavelet(j_wavelet, k_wavelet, testRefinementBasis,
+                                                     j_bspline, k_bspline_first, k_bspline_last);
+            //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
+            for (long k_bspline=k_bspline_first; k_bspline<=k_bspline_last; ++k_bspline) {
+                const_by_level_it p_PhiPiCheck1 = PhiPiCheck1.map.find(k_bspline);
+                if (p_PhiPiCheck1!=PhiPiCheck1.map.end()) {
+                    PhiPiCheck2.map[k_bspline] = 0.;
+                    PhiPiCheck1.map.erase(k_bspline);
+                }
+            }
+        }
+    }
+}
+
+// Periodic Version
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<TrialBasis>::value, T_>::value, void>::Type
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
+::_splitPhiPi(int l, const CoefficientsByLevel<T_> &c_l, CoefficientsByLevel<T_> &PhiPiCheck1, CoefficientsByLevel<T_> &PhiPiCheck2) const
+{
+
     if (c_l.map.size()==0) return;
 
     if (c_l.map.size()>PhiPiCheck1.map.size()) {
@@ -348,14 +399,14 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
                 }
             }
             else{
-                for (long k_bspline=k_bspline_first; k_bspline<=trialRefinementBasis.mra.rangeI(j_bspline).lastIndex(); ++k_bspline) {
+                for (long k_bspline=k_bspline_first; k_bspline<=testRefinementBasis.mra.rangeI(j_bspline).lastIndex(); ++k_bspline) {
                     const_by_level_it p_PhiPiCheck1 = PhiPiCheck1.map.find(k_bspline);
                     if (p_PhiPiCheck1!=PhiPiCheck1.map.end()) {
                         PhiPiCheck2.map[k_bspline] = 0.;
                         PhiPiCheck1.map.erase(k_bspline);
                     }
             	}
-				for (long k_bspline=trialRefinementBasis.mra.rangeI(j_bspline).firstIndex(); k_bspline <= k_bspline_last; ++k_bspline) {
+				for (long k_bspline=testRefinementBasis.mra.rangeI(j_bspline).firstIndex(); k_bspline <= k_bspline_last; ++k_bspline) {
 	                const_by_level_it p_PhiPiCheck1 = PhiPiCheck1.map.find(k_bspline);
 	                if (p_PhiPiCheck1!=PhiPiCheck1.map.end()) {
 	                    PhiPiCheck2.map[k_bspline] = 0.;
@@ -367,11 +418,64 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     }
 }
 
+// Non-Periodic Version
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
-void
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<TestBasis>::value, T_>::value, void>::Type
 LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
-::_splitd(int l, const CoefficientsByLevel<T> &PsiLambdaCheck_l,
-          CoefficientsByLevel<T> &d1, CoefficientsByLevel<T> &d2) const
+::_splitd(int l, const CoefficientsByLevel<T_> &PsiLambdaCheck_l,
+          CoefficientsByLevel<T_> &d1, CoefficientsByLevel<T_> &d2) const
+{
+    if (PsiLambdaCheck_l.map.size()==0) return;
+    if (d1.map.size()>PsiLambdaCheck_l.map.size()) {
+        int j_wavelet = l + testBasis.j0;
+        for (const_by_level_it mu=PsiLambdaCheck_l.map.begin(); mu!=PsiLambdaCheck_l.map.end(); ++mu) {
+            long k_wavelet = (*mu).first;
+            int  j_bspline = 0;
+            long k_bspline_first = 0L, k_bspline_last = 0L;
+            testBasis.getBSplineNeighborsForWavelet(j_wavelet, k_wavelet, trialRefinementBasis,
+                                                    j_bspline, k_bspline_first, k_bspline_last);
+            //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
+            for (long k_bspline=k_bspline_first; k_bspline<=k_bspline_last; ++k_bspline) {
+                //Support<T> trialSupp = trialBasis.generator(XBSpline).support(j_bspline,k_bspline);
+                //if (!overlap(testSupp,trialSupp)) continue;
+                by_level_it p_entry_d1 = d1.map.find(k_bspline);
+                if (p_entry_d1!=d1.map.end()) {
+                    d2.map[k_bspline] = (*p_entry_d1).second;
+                    d1.map.erase(p_entry_d1);
+                }
+            }
+        }
+    }
+    else {
+        const_by_level_it p_PsiLambdaCheck_l_end = PsiLambdaCheck_l.map.end();
+        int j_bspline = l + trialRefinementLevelOffset;
+        for (const_by_level_it mu=d1.map.begin(); mu!=d1.map.end(); ++mu) {
+            long k_bspline = (*mu).first;
+            int  j_wavelet = 0;
+            long k_wavelet_first = 0L, k_wavelet_last = 0L;
+            trialRefinementBasis.getWaveletNeighborsForBSpline(j_bspline, k_bspline, testBasis,
+                                                     j_wavelet, k_wavelet_first, k_wavelet_last);
+            for (long k_wavelet=k_wavelet_first; k_wavelet<=k_wavelet_last; ++k_wavelet) {
+                //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
+                const_by_level_it p_PsiLambdaCheck_l = PsiLambdaCheck_l.map.find(k_wavelet);
+                if (/*overlap(testSupp,trialSupp) &&*/ p_PsiLambdaCheck_l!=p_PsiLambdaCheck_l_end) {
+                    d2.map[k_bspline] = (*mu).second;
+                    d1.map.erase(k_bspline);
+                    break;
+                }
+			}
+        }
+    }
+}
+
+// Periodic Version
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<TestBasis>::value, T_>::value, void>::Type
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
+::_splitd(int l, const CoefficientsByLevel<T_> &PsiLambdaCheck_l,
+          CoefficientsByLevel<T_> &d1, CoefficientsByLevel<T_> &d2) const
 {
     if (PsiLambdaCheck_l.map.size()==0) return;
     if (d1.map.size()>PsiLambdaCheck_l.map.size()) {
@@ -438,7 +542,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
             }
             else{
             	bool is_break = false;
-                for (long k_wavelet=k_wavelet_first; k_wavelet<=trialBasis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
+                for (long k_wavelet=k_wavelet_first; k_wavelet<=testBasis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
                     //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
                     const_by_level_it p_PsiLambdaCheck_l = PsiLambdaCheck_l.map.find(k_wavelet);
                     if (/*overlap(testSupp,trialSupp) &&*/ p_PsiLambdaCheck_l!=p_PsiLambdaCheck_l_end) {
@@ -448,7 +552,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
                     }
             	}
                 if(!is_break){
-                    for (long k_wavelet=trialBasis.rangeJ(j_wavelet).firstIndex(); k_wavelet <= k_wavelet_last; ++k_wavelet) {
+                    for (long k_wavelet=testBasis.rangeJ(j_wavelet).firstIndex(); k_wavelet <= k_wavelet_last; ++k_wavelet) {
                         //Support<T> testSupp = testBasis.generator(XWavelet).support(j_wavelet,k_wavelet);
                         const_by_level_it p_PsiLambdaCheck_l = PsiLambdaCheck_l.map.find(k_wavelet);
                         if (/*overlap(testSupp,trialSupp) &&*/ p_PsiLambdaCheck_l!=p_PsiLambdaCheck_l_end) {
@@ -463,6 +567,8 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     }
 }
 
+
+// No need to specialize for periodic bases, as it uses only refinement bases (which are never periodic)
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void
 LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
@@ -482,30 +588,12 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
             testRefinementBasis.getBSplineNeighborsForBSpline(j_bspline1, k_bspline1,
                                trialRefinementBasis, j_bspline2, k_bspline2_first, k_bspline2_last);
 
-            if(k_bspline2_first < k_bspline2_last){
-                for (long k_bspline2=k_bspline2_first; k_bspline2<=k_bspline2_last; ++k_bspline2) {
-                    const_by_level_it p_entry_d = d.map.find(k_bspline2);
-                    if (p_entry_d!=p_d_end) {
-                        val += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
-                                                           XBSpline, j_bspline2, k_bspline2) * (*p_entry_d).second);
-                    }
+            for (long k_bspline2=k_bspline2_first; k_bspline2<=k_bspline2_last; ++k_bspline2) {
+                const_by_level_it p_entry_d = d.map.find(k_bspline2);
+                if (p_entry_d!=p_d_end) {
+                    val += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
+                                                       XBSpline, j_bspline2, k_bspline2) * (*p_entry_d).second);
                 }
-            }
-            else{
-                for (long k_bspline2=k_bspline2_first; k_bspline2<=trialRefinementBasis.mra.rangeI(j_bspline2).lastIndex(); ++k_bspline2) {
-                    const_by_level_it p_entry_d = d.map.find(k_bspline2);
-                    if (p_entry_d!=p_d_end) {
-                        val += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
-                                                           XBSpline, j_bspline2, k_bspline2) * (*p_entry_d).second);
-                    }
-            	}
-                for (long k_bspline2=trialRefinementBasis.mra.rangeI(j_bspline2).firstIndex(); k_bspline2<=k_bspline2_last; ++k_bspline2) {
-                    const_by_level_it p_entry_d = d.map.find(k_bspline2);
-                    if (p_entry_d!=p_d_end) {
-                        val += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
-                                                           XBSpline, j_bspline2, k_bspline2) * (*p_entry_d).second);
-                    }
-				}
             }
 
             (*mu).second += val;
@@ -524,33 +612,13 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
             trialRefinementBasis.getBSplineNeighborsForBSpline(j_bspline2, k_bspline2,
                                 testRefinementBasis, j_bspline1, k_bspline1_first, k_bspline1_last);
 
-            if(k_bspline1_first < k_bspline1_last){
-                for (long k_bspline1=k_bspline1_first; k_bspline1<=k_bspline1_last; ++k_bspline1) {
-                    by_level_it p_PhiPiCheck=PhiPiCheck.map.find(k_bspline1);
-                    if (p_PhiPiCheck!=PhiPiCheck.map.end()) {
-                        (*p_PhiPiCheck).second
-                        += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
-                                                       XBSpline, j_bspline2, k_bspline2) * (*mu).second);
-                    }
+            for (long k_bspline1=k_bspline1_first; k_bspline1<=k_bspline1_last; ++k_bspline1) {
+                by_level_it p_PhiPiCheck=PhiPiCheck.map.find(k_bspline1);
+                if (p_PhiPiCheck!=PhiPiCheck.map.end()) {
+                    (*p_PhiPiCheck).second
+                    += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
+                                                   XBSpline, j_bspline2, k_bspline2) * (*mu).second);
                 }
-            }
-            else{
-                for (long k_bspline1=k_bspline1_first; k_bspline1<=testRefinementBasis.mra.rangeI(j_bspline1).lastIndex(); ++k_bspline1) {
-                    by_level_it p_PhiPiCheck=PhiPiCheck.map.find(k_bspline1);
-                    if (p_PhiPiCheck!=PhiPiCheck.map.end()) {
-                        (*p_PhiPiCheck).second
-                        += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
-                                                       XBSpline, j_bspline2, k_bspline2) * (*mu).second);
-                    }
-            	}
-                for (long k_bspline1=testRefinementBasis.mra.rangeI(j_bspline1).firstIndex(); k_bspline1<=k_bspline1_last; ++k_bspline1) {
-                    by_level_it p_PhiPiCheck=PhiPiCheck.map.find(k_bspline1);
-                    if (p_PhiPiCheck!=PhiPiCheck.map.end()) {
-                        (*p_PhiPiCheck).second
-                        += (long double)(RefinementBil(XBSpline, j_bspline1, k_bspline1,
-                                                       XBSpline, j_bspline2, k_bspline2) * (*mu).second);
-                    }
-				}
             }
         }
     }
