@@ -67,14 +67,31 @@ extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical
                           bool sparsetree=false);
 
 
-
+/*
+ * To partially specialize for periodic basis, we use SFINAE
+ */
+// Non-Periodic version
 template <typename T, typename Basis>
-void
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<Basis>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index1D &index1d,
                   Coefficients<Lexicographical,T,Index1D>  &v, bool sparsetree=false);
 
+// Periodic version
 template <typename T, typename Basis>
-void
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<Basis>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index1D &index1d,
+                  Coefficients<Lexicographical,T,Index1D>  &v, bool sparsetree=false);
+
+// Non-Periodic version
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<Basis>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  int coordDirec=0, bool sparsetree=false);
+
+// Periodic version
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<Basis>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
                   int coordDirec=0, bool sparsetree=false);
