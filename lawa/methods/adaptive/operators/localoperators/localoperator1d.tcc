@@ -48,7 +48,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
     else {
         d = PsiLambdaHat[0];
     }
-    if (TestBasis::Cons==Multi || TrialBasis::Domain==Periodic) {
+    if (TestBasis::Cons==Multi || TestBasis::Domain==Periodic) {
         int j_bspline = 0;
         if (strcmp(mode,"L")!=0) {
             if (PsiLambdaCheck[0].map.size()==0) {
@@ -78,7 +78,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
         return;
     }
 
-    if ((TestBasis::Cons==Multi || TrialBasis::Domain==Periodic) && strcmp(mode,"L")!=0) {
+    if ((TestBasis::Cons==Multi || TestBasis::Domain==Periodic) && strcmp(mode,"L")!=0) {
         testLocalRefine.decompose_OnlyMultiScaling(PhiPiCheck, PsiLambdaCheck[0], testBasis.j0);
     }
     else {

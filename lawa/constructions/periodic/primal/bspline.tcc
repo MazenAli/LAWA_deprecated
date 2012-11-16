@@ -154,7 +154,7 @@ template <typename T>
 int
 BSpline<T,Primal,Periodic,CDF>::getRefinementLevel(int j) const
 {
-	return j+1;
+	return j;
 }
 
 template <typename T>
