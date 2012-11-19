@@ -239,7 +239,7 @@ LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T> &u_
 		long index = refinement_k_restart+i-((*refCoeffs).firstIndex()+split);
         u_loc_single_ptr=u_loc_single.map.find(index);
         if (u_loc_single_ptr!=u_loc_single_end) {
-            val += (*refCoeffs).operator()(index) * (*u_loc_single_ptr).second;
+            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
         }
 	}
     return val;
@@ -278,7 +278,7 @@ LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_
 		long index = refinement_k_restart+i-((*refCoeffs).firstIndex()+split);
         u_loc_single_ptr=u_loc_single.map.find(index);
         if (u_loc_single_ptr!=u_loc_single_end) {
-            val += (*refCoeffs).operator()(index) * (*u_loc_single_ptr).second;
+            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
         }
 	}
 
@@ -299,6 +299,7 @@ LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T> &u_
     long refinement_k_restart = 0L;
     T val = 0.;
     refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first,split,refinement_k_restart);
+
     /*for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
         u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
         if (u_loc_single_ptr!=u_loc_single_end) {
@@ -318,7 +319,7 @@ LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T> &u_
 		long index = refinement_k_restart+i-((*refCoeffs).firstIndex()+split);
         u_loc_single_ptr=u_loc_single.map.find(index);
         if (u_loc_single_ptr!=u_loc_single_end) {
-            val += (*refCoeffs).operator()(index) * (*u_loc_single_ptr).second;
+            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
         }
 	}
     return val;
