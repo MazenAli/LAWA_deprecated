@@ -480,7 +480,7 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
     int  j = index1d.j;
     long k = index1d.k;
 
-    Support<typename Basis::T> supp = basis.generator(index1d.xtype).support(j,k);
+    PeriodicSupport<typename Basis::T> supp = basis.generator(index1d.xtype).support(j,k);
 
     int new_j = 0;
     long new_k_first = 0, new_k_last = 0;
@@ -502,7 +502,7 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
         if (!sparsetree) {
         	if(new_k_first < new_k_last){
                 for (long new_k=new_k_first; new_k<=new_k_last; ++new_k) {
-                    Support<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
+                    PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
                     if (overlap(supp,new_supp)>0) {
                         Index1D new_index1d(Index1D(new_j,new_k,new_type));
                         if (v.find(new_index1d)==v.end()) completeMultiTree(basis,new_index1d,v);
@@ -521,14 +521,14 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
         			lastIndex = basis.rangeJ(new_j).lastIndex();
         		}
                 for (long new_k=new_k_first; new_k <= lastIndex ; ++new_k) {
-                    Support<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
+                    PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
                     if (overlap(supp,new_supp)>0) {
                         Index1D new_index1d(Index1D(new_j,new_k,new_type));
                         if (v.find(new_index1d)==v.end()) completeMultiTree(basis,new_index1d,v);
                     }
                 }
                 for (long new_k=firstIndex; new_k <=new_k_last ; ++new_k) {
-                    Support<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
+                    PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
                     if (overlap(supp,new_supp)>0) {
                         Index1D new_index1d(Index1D(new_j,new_k,new_type));
                         if (v.find(new_index1d)==v.end()) completeMultiTree(basis,new_index1d,v);
@@ -541,9 +541,10 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 
         	if(new_k_first < new_k_last){
                 for (long new_k=new_k_first; new_k<=new_k_last; ++new_k) {
-                    Support<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
-                    if (covered_supp.l1<=supp.l1 && covered_supp.l2>=supp.l2) {
-                        Index1D new_index1d(Index1D(new_j,new_k,new_type));
+                    PeriodicSupport<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
+                    //if (covered_supp.l1<=supp.l1 && covered_supp.l2>=supp.l2) {
+                    if(minimal_overlap(covered_supp, supp) >= supp.length()){
+                    	Index1D new_index1d(Index1D(new_j,new_k,new_type));
                         if (v.find(new_index1d)!=v.end()) {
                             foundPredecessor = true;
                             break;
@@ -564,8 +565,8 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
         		}
 
         		for(long new_k = new_k_first; new_k <= lastIndex; ++new_k){
-                    Support<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
-                    if (covered_supp.l1<=supp.l1 && covered_supp.l2>=supp.l2) {
+                    PeriodicSupport<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
+                    if(minimal_overlap(covered_supp, supp) >= supp.length()){
                         Index1D new_index1d(Index1D(new_j,new_k,new_type));
                         if (v.find(new_index1d)!=v.end()) {
                             foundPredecessor = true;
@@ -575,8 +576,8 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
         		}
                 if(!foundPredecessor){
                 	for (long new_k=firstIndex; new_k<=new_k_last; ++new_k) {
-                        Support<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
-                        if (covered_supp.l1<=supp.l1 && covered_supp.l2>=supp.l2) {
+                        PeriodicSupport<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
+                        if(minimal_overlap(covered_supp, supp) >= supp.length()){
                             Index1D new_index1d(Index1D(new_j,new_k,new_type));
                             if (v.find(new_index1d)!=v.end()) {
                                 foundPredecessor = true;
@@ -591,8 +592,8 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 
             	if(new_k_first < new_k_last){
                     for (long new_k=new_k_first; new_k<=new_k_last; ++new_k) {
-                        Support<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
-                        if (covered_supp.l1<=supp.l1 && covered_supp.l2>=supp.l2) {
+                        PeriodicSupport<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
+                        if(minimal_overlap(covered_supp, supp) >= supp.length()){
                             Index1D new_index1d(Index1D(new_j,new_k,new_type));
                             completeMultiTree(basis,new_index1d,v,sparsetree);
                             break;
@@ -612,8 +613,8 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
             		}
             		bool is_break = false;
                     for (long new_k=new_k_first; new_k <= lastIndex ; ++new_k) {
-                        Support<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
-                        if (covered_supp.l1<=supp.l1 && covered_supp.l2>=supp.l2) {
+                        PeriodicSupport<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
+                        if(minimal_overlap(covered_supp, supp) >= supp.length()){
                             Index1D new_index1d(Index1D(new_j,new_k,new_type));
                             completeMultiTree(basis,new_index1d,v,sparsetree);
                             is_break = true;
@@ -622,8 +623,8 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
                     }
                     if(is_break == false){
                         for (long new_k=firstIndex; new_k <=new_k_last ; ++new_k) {
-                            Support<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
-                            if (covered_supp.l1<=supp.l1 && covered_supp.l2>=supp.l2) {
+                            PeriodicSupport<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
+                            if(minimal_overlap(covered_supp, supp) >= supp.length()){
                                 Index1D new_index1d(Index1D(new_j,new_k,new_type));
                                 completeMultiTree(basis,new_index1d,v,sparsetree);
                                 break;
