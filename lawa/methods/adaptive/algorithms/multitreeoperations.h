@@ -128,12 +128,28 @@ template <typename T, typename Basis>
 void
 getSparseGridVector(const Basis &basis, Coefficients<Lexicographical,T,Index3D> &v, int j, T gamma);
 
+// Non-Periodic version
 template <typename Index, typename Basis>
-void
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+					and !IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambda);
 
+// Periodic version
 template <typename Index, typename Basis>
-void
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+					or IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
+extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambda);
+
+// Non-Periodic version
+template <typename Index, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+					and !IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
+extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
+
+// Periodic version
+template <typename Index, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+					or IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
 
 
