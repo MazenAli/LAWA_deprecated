@@ -50,9 +50,15 @@ class LocalRefinement
 
         // Computes the common local refinement of a scaling coefficient vector (including
         // multiscaling!!) and a multilevel wavelet coefficient vector (including multiwavelets!!).
-        void
-        reconstruct(const Coefficients<Lexicographical,T,Index1D> &u, int j_scaling,
-                    Coefficients<Lexicographical,T,Index1D> &u_loc_single) const;
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        reconstruct(const Coefficients<Lexicographical,T_,Index1D> &u, int j_scaling,
+                    Coefficients<Lexicographical,T_,Index1D> &u_loc_single) const;
+
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        reconstruct(const Coefficients<Lexicographical,T_,Index1D> &u, int j_scaling,
+                    Coefficients<Lexicographical,T_,Index1D> &u_loc_single) const;
 
         // Computes the common local refinement of a b-spline vector (not multiscaling!!) and a
         // wavelet (including multi-wavelets!!).
@@ -62,19 +68,37 @@ class LocalRefinement
                     CoefficientsByLevel<T> &u_loc_single,    int &j_refinement) const;
 
         //Computes the local refinement of a multiscaling representation
-        void
-        reconstructOnlyMultiScaling(const CoefficientsByLevel<T> &u_scaling, int j,
-                                    CoefficientsByLevel<T> &u_loc_single, int &j_refinement) const;
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        reconstructOnlyMultiScaling(const CoefficientsByLevel<T_> &u_scaling, int j,
+                                    CoefficientsByLevel<T_> &u_loc_single, int &j_refinement) const;
+
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        reconstructOnlyMultiScaling(const CoefficientsByLevel<T_> &u_scaling, int j,
+                                    CoefficientsByLevel<T_> &u_loc_single, int &j_refinement) const;
 
     private:
         //Computes the local refinement of a B-spline (not multiscaling!!)
-        void
-        reconstructBSpline(int j, long k, T coeff, CoefficientsByLevel<T> &u_loc_single,
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        reconstructBSpline(int j, long k, T_ coeff, CoefficientsByLevel<T_> &u_loc_single,
+                           int &j_refinement) const;
+
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        reconstructBSpline(int j, long k, T_ coeff, CoefficientsByLevel<T_> &u_loc_single,
                            int &j_refinement) const;
 
         //Computes the local refinement of a Wavelet (also multiwavelet!!)
-        void
-        reconstructWavelet(int j, long k, T coeff, CoefficientsByLevel<T> &u_loc_single,
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        reconstructWavelet(int j, long k, T_ coeff, CoefficientsByLevel<T_> &u_loc_single,
+                           int &j_refinement) const;
+
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        reconstructWavelet(int j, long k, T_ coeff, CoefficientsByLevel<T_> &u_loc_single,
                            int &j_refinement) const;
 
     public:
@@ -91,20 +115,35 @@ class LocalRefinement
         // Computes $M^{\lambda;j,0}^T C where $\lambda$ corresponds to a (multi)-scaling
         // index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and $\Phi_{j+1}$ corresponds
         // to a (local) refinement B-spline vector.
-        T
-        decompose_Scaling(const CoefficientsByLevel<T> &u_loc_single, int j, long k) const;
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        decompose_Scaling(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
+
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        decompose_Scaling(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
 
         // Computes $M^{\lambda;j,0}^T C where $\lambda$ corresponds to a (refinement)-bspline
         // index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and $\Phi_{j+1}$ corresponds
         // to a (local) refinement B-spline vector.
-        T
-        decompose_BSpline(const CoefficientsByLevel<T> &u_loc_single, int j, long k) const;
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        decompose_BSpline(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
+
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        decompose_BSpline(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
 
         // Computes $M^{\lambda;j,1}^T C where $\lambda$ corresponds to a
         // (multi)-wavelet index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and
         // $\Phi_{j+1}$ corresponds to a (local) refinement B-spline vector.
-        T
-        decompose_Wavelet(const CoefficientsByLevel<T> &u_loc_single, int j, long k) const;
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        decompose_Wavelet(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
+
+        template <typename T_>
+        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        decompose_Wavelet(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
 };
 
 

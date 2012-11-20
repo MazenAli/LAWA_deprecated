@@ -7,10 +7,70 @@ LocalRefinement<PrimalBasis>::LocalRefinement(const PrimalBasis &_basis)
 
 }
 
+// Non-Periodic version
 template <typename PrimalBasis>
-void
-LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T,Index1D> &u, int j_scaling,
-                                           Coefficients<Lexicographical,T,Index1D> &u_loc_single) const
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T_,Index1D> &u, int j_scaling,
+                                           Coefficients<Lexicographical,T_,Index1D> &u_loc_single) const
+{
+    TreeCoefficients1D<T> u_tree(255,basis.j0);
+    fromCoefficientsToTreeCoefficients(u, u_tree);
+    int j_bspline = j_scaling;
+    int j_wavelet = j_scaling;
+
+    CoefficientsByLevel<T> u_bspline;
+    if ((PrimalBasis::Cons==Multi && basis.d>1) || PrimalBasis::Domain==Periodic) {
+        this->reconstructOnlyMultiScaling(u_tree.bylevel[0], j_scaling, u_bspline, j_bspline);
+        u_tree.bylevel[0] = u_bspline;
+    }
+
+    int imax = u_tree.getMaxTreeLevel();
+    for (int i=0; i<imax; ++i) {
+        int  j_refinement = j_bspline + i;
+        CoefficientsByLevel<T> help;
+        help = u_tree[i];
+        for (const_coeffbylevel_it it=help.map.begin(); it!=help.map.end(); ++it) {
+
+            long k_refinement = (*it).first;
+            int test_j_wavelet = 0;
+            long k_first = 0L, k_last = 0L;
+            refinementbasis.getWaveletNeighborsForBSpline(j_refinement,k_refinement, basis, test_j_wavelet, k_first, k_last);
+
+            assert(test_j_wavelet==j_wavelet+i);
+            bool has_neighbor=false;
+
+            for (long k=k_first; k<=k_last; ++k) {
+                if (   u_tree[i+1].map.find(k)!=u_tree[i+1].map.end()) {
+                    has_neighbor = true;
+                    break;
+                }
+            }
+
+            if (!has_neighbor) {
+                u_tree[i].map.erase((*it).first);
+                u_loc_single[Index1D(j_refinement,k_refinement,XBSpline)] = (*it).second;
+            }
+        }
+
+        CoefficientsByLevel<T> u_loc_single_jP1;
+        int test_j_refinement = 0;
+        this->reconstruct(u_tree[i], j_bspline+i, u_tree[i+1], j_wavelet+i, u_loc_single_jP1, test_j_refinement);
+        assert(test_j_refinement==j_refinement+1);
+        u_tree[i+1] = u_loc_single_jP1;
+    }
+    for (const_coeffbylevel_it it=u_tree[imax].map.begin(); it!=u_tree[imax].map.end(); ++it) {
+        u_loc_single[Index1D(j_bspline+imax,(*it).first,XBSpline)] = (*it).second;
+    }
+    return;
+}
+
+// Periodic version
+template <typename PrimalBasis>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T_,Index1D> &u, int j_scaling,
+                                           Coefficients<Lexicographical,T_,Index1D> &u_loc_single) const
 {
     TreeCoefficients1D<T> u_tree(255,basis.j0);
     fromCoefficientsToTreeCoefficients(u, u_tree);
@@ -104,11 +164,34 @@ LocalRefinement<PrimalBasis>::reconstruct(const CoefficientsByLevel<T> &u_bsplin
     j_refinement = j2_refinement;
 }
 
+// Non-Periodic Version
 template <typename PrimalBasis>
-void
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
 LocalRefinement<PrimalBasis>::reconstructOnlyMultiScaling
-                               (const CoefficientsByLevel<T> &u_scaling, int j,
-                                CoefficientsByLevel<T> &u_loc_single, int &j_refinement) const
+                               (const CoefficientsByLevel<T_> &u_scaling, int j,
+                                CoefficientsByLevel<T_> &u_loc_single, int &j_refinement) const
+{
+    DenseVectorLD *refCoeffs;
+    long k_refinement_first = 0L;
+    long split = 100.L;
+    long k_refinement_restart = 100.L;
+
+    for (const_coeffbylevel_it it=u_scaling.map.begin(); it!=u_scaling.map.end(); ++it) {
+        refCoeffs = basis.mra.phi.getRefinement(j,(*it).first,j_refinement,k_refinement_first, split, k_refinement_restart);
+        for (int i=(*refCoeffs).firstIndex(); i<= (long int)(*refCoeffs).lastIndex(); ++i) {
+            u_loc_single.map[k_refinement_first+i] += (*refCoeffs).operator()(i) * (*it).second;
+        }
+    }
+}
+
+// Periodic Version
+template <typename PrimalBasis>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+LocalRefinement<PrimalBasis>::reconstructOnlyMultiScaling
+                               (const CoefficientsByLevel<T_> &u_scaling, int j,
+                                CoefficientsByLevel<T_> &u_loc_single, int &j_refinement) const
 {
     DenseVectorLD *refCoeffs;
     long k_refinement_first = 0L;
@@ -128,10 +211,33 @@ LocalRefinement<PrimalBasis>::reconstructOnlyMultiScaling
     }
 }
 
+
+// Non-Periodic Version
 template <typename PrimalBasis>
-void
-LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T coeff,
-                                                  CoefficientsByLevel<T> &u_loc_single,
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T_ coeff,
+                                                  CoefficientsByLevel<T_> &u_loc_single,
+                                                  int &j_refinement) const
+{
+    DenseVectorLD *refCoeffs;
+    j_refinement = 0;
+    long k_refinement_first = 0L;
+    long split = 100.L;
+    long k_refinement_restart = 100.L;
+    refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,j_refinement,k_refinement_first, split, k_refinement_restart);
+
+    for (int i=(*refCoeffs).firstIndex(); i<= (long int)(*refCoeffs).lastIndex(); ++i) {
+        u_loc_single.map[k_refinement_first+i] += (*refCoeffs).operator()(i) * coeff;
+    }
+}
+
+// Periodic Version
+template <typename PrimalBasis>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T_ coeff,
+                                                  CoefficientsByLevel<T_> &u_loc_single,
                                                   int &j_refinement) const
 {
     DenseVectorLD *refCoeffs;
@@ -151,10 +257,32 @@ LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T coeff,
 	}
 }
 
+// Non-Periodic Version
 template <typename PrimalBasis>
-void
-LocalRefinement<PrimalBasis>::reconstructWavelet(int j, long k, T coeff,
-                                                  CoefficientsByLevel<T> &u_loc_single,
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+LocalRefinement<PrimalBasis>::reconstructWavelet(int j, long k, T_ coeff,
+                                                  CoefficientsByLevel<T_> &u_loc_single,
+                                                  int &j_refinement) const
+{
+    DenseVectorLD *refCoeffs;
+    j_refinement = 0;
+    long k_refinement_first = 0L;
+    long split = 100.L;
+    long k_refinement_restart = 100.L;
+    refCoeffs = basis.psi.getRefinement(j,k,j_refinement,k_refinement_first, split, k_refinement_restart);
+
+    for (int i=(*refCoeffs).firstIndex(); i<= (long int)(*refCoeffs).lastIndex(); ++i) {
+        u_loc_single.map[k_refinement_first+i] += (*refCoeffs).operator()(i) * coeff;
+    }
+}
+
+//Periodic Version
+template <typename PrimalBasis>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+LocalRefinement<PrimalBasis>::reconstructWavelet(int j, long k, T_ coeff,
+                                                  CoefficientsByLevel<T_> &u_loc_single,
                                                   int &j_refinement) const
 {
     DenseVectorLD *refCoeffs;
@@ -204,9 +332,12 @@ LocalRefinement<PrimalBasis>::decompose_OnlyMultiScaling(const CoefficientsByLev
     }
 }
 
+
+// Non-Periodic Version
 template <typename PrimalBasis>
-typename PrimalBasis::T
-LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T> &u_loc_single,
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T_> &u_loc_single,
                                                  int j, long k) const
 {
     const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
@@ -218,14 +349,34 @@ LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T> &u_
     long refinement_k_restart = 1L;
     T val = 0.;
     refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
-/*
+
     for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
         u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
         if (u_loc_single_ptr!=u_loc_single_end) {
             val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
         }
     }
-*/
+
+    return val;
+}
+
+
+// Periodic Version
+template <typename PrimalBasis>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T_> &u_loc_single,
+                                                 int j, long k) const
+{
+    const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
+    const_coeffbylevel_it u_loc_single_ptr;
+    DenseVectorLD *refCoeffs;
+    int refinement_j = 0;
+    long refinement_k_first = 0L;
+    long split = 100L;
+    long refinement_k_restart = 1L;
+    T val = 0.;
+    refCoeffs = basis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
 
 	// First part of coefficients
 	for (int i=(*refCoeffs).firstIndex(); i<= std::min( ((*refCoeffs).firstIndex()+split-1) , (long int)(*refCoeffs).lastIndex()); ++i) {
@@ -245,9 +396,11 @@ LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T> &u_
     return val;
 }
 
+// Non-Periodic Version
 template <typename PrimalBasis>
-typename PrimalBasis::T
-LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_loc_single,
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T_> &u_loc_single,
                                                  int j, long k) const
 {
     const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
@@ -259,12 +412,31 @@ LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_
     long refinement_k_restart = 0L;
     T val = 0.;
     refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
-    /*for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
+    for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
         u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
         if (u_loc_single_ptr!=u_loc_single_end) {
             val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
         }
-    }*/
+    }
+    return val;
+}
+
+// Periodic Version
+template <typename PrimalBasis>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T_> &u_loc_single,
+                                                 int j, long k) const
+{
+    const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
+    const_coeffbylevel_it u_loc_single_ptr;
+    DenseVectorLD *refCoeffs;
+    int refinement_j = 0;
+    long refinement_k_first = 0L;
+    long split = 100L;
+    long refinement_k_restart = 0L;
+    T val = 0.;
+    refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
 
 	// First part of coefficients
 	for (int i=(*refCoeffs).firstIndex(); i<= std::min( ((*refCoeffs).firstIndex()+split-1) , (long int)(*refCoeffs).lastIndex()); ++i) {
@@ -285,9 +457,40 @@ LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_
     return val;
 }
 
+
+// Non-Periodic Version
 template <typename PrimalBasis>
-typename PrimalBasis::T
-LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T> &u_loc_single,
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T_> &u_loc_single,
+                                                 int j, long k) const
+{
+    const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
+    const_coeffbylevel_it u_loc_single_ptr;
+    DenseVectorLD *refCoeffs;
+    int refinement_j = 0;
+    long refinement_k_first = 0L;
+    long split = 100L;
+    long refinement_k_restart = 0L;
+    T val = 0.;
+    refCoeffs = basis.psi.getRefinement(j,k,refinement_j,refinement_k_first,split,refinement_k_restart);
+
+    for (int i=(*refCoeffs).firstIndex(); i<=(*refCoeffs).lastIndex(); ++i) {
+        u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
+        if (u_loc_single_ptr!=u_loc_single_end) {
+            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
+        }
+    }
+
+    return val;
+}
+
+
+// Periodic Version
+template <typename PrimalBasis>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T_> &u_loc_single,
                                                  int j, long k) const
 {
     const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
