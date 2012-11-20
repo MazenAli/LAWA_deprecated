@@ -76,10 +76,22 @@ struct LocalOperator2D {
                  const Coefficients<Lexicographical,T,Index2D> &IAUIv_ref,
                  const Coefficients<Lexicographical,T,Index2D> &AAv_ref) /*const*/;
 
-    void
-    initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T,Index2D> &v,
-                                    const Coefficients<Lexicographical,T,Index2D> &LIIAv,
-                                    Coefficients<Lexicographical,T,Index2D> &IAv) const;
+    /*
+     * To partially specialize for periodic basis, we use SFINAE
+     */
+    // Non-Periodic version
+    template <typename T_>
+    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+    initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
+                                    const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
+                                    Coefficients<Lexicographical,T_,Index2D> &IAv) const;
+
+    // Periodic version
+    template <typename T_>
+    typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+    initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
+                                    const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
+                                    Coefficients<Lexicographical,T_,Index2D> &IAv) const;
 
     void
     initializeIntermediateVectorUIv(const Coefficients<Lexicographical,T,Index2D> &v,
@@ -94,10 +106,19 @@ struct LocalOperator2D {
     evalLI(const Coefficients<Lexicographical,T,Index2D> &z,
               Coefficients<Lexicographical,T,Index2D> &LIz) /*const*/;
 
-    void
-    evalUI(const Coefficients<Lexicographical,T,Index2D> &z,
-           const Coefficients<Lexicographical,T,Index1D> &Pe1_UIz,
-           Coefficients<Lexicographical,T,Index2D> &UIz) /*const*/;
+    // Non-Periodic version
+    template <typename T_>
+    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+    evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
+           const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
+           Coefficients<Lexicographical,T_,Index2D> &UIz) /*const*/;
+
+    // Periodic version
+    template <typename T_>
+    typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+    evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
+           const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
+           Coefficients<Lexicographical,T_,Index2D> &UIz) /*const*/;
 
 
     LocalOperator1          &localoperator1;

@@ -163,12 +163,14 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
 }
 
+//Non-periodic version
 template <typename LocalOperator1, typename LocalOperator2>
-void
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
 LocalOperator2D<LocalOperator1, LocalOperator2>
-::initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T,Index2D> &v,
-                                  const Coefficients<Lexicographical,T,Index2D> &LIIAv,
-                                  Coefficients<Lexicographical,T,Index2D> &IAv) const
+::initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
+                                  const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
+                                  Coefficients<Lexicographical,T_,Index2D> &IAv) const
 {
     IAv.clear();
     size_t n1 = hashTableLargeLength;
@@ -238,6 +240,135 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
 }
 
+//Periodic version
+template <typename LocalOperator1, typename LocalOperator2>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+LocalOperator2D<LocalOperator1, LocalOperator2>
+::initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
+                                  const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
+                                  Coefficients<Lexicographical,T_,Index2D> &IAv) const
+{
+    IAv.clear();
+    size_t n1 = hashTableLargeLength;
+    size_t n2 = hashTableSmallLength;
+
+    XOneAlignedCoefficients x1aligned_LIIAv(n1,n2);
+    x1aligned_LIIAv.align(LIIAv,J);
+
+
+
+
+    Coefficients<Lexicographical,T,Index1D> Pe1_v(n1);
+    for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
+        if (Pe1_v.find((*col).first.index1)==Pe1_v.end()) {
+            Pe1_v[(*col).first.index1] = 0.;
+        }
+    }
+
+    for (const_coeff1d_it row_x=Pe1_v.begin(); row_x!=Pe1_v.end(); ++row_x) {
+        XType xtype_row_x = (*row_x).first.xtype;
+        int   j_row_x = (*row_x).first.j;
+        long  k_row_x = (*row_x).first.k;
+        //IndexSet<Index1D> Lambda_y(98317);
+        IndexSet<Index1D> Lambda_y;
+        if (xtype_row_x==XWavelet) {
+            int j_col_x = 0;
+            long k_col_x_first = 0, k_col_x_last = 0;
+            trialBasis_x1.getHigherWaveletNeighborsForWavelet(j_row_x, k_row_x, testBasis_x1,
+                                                              j_col_x,k_col_x_first,k_col_x_last);
+            assert(j_row_x == j_col_x-1);
+            Support<T> supp_row_x = trialBasis_x1.psi.support(j_row_x,k_row_x);
+            if(k_col_x_first < k_col_x_last){
+				for (long k_col_x=k_col_x_first; k_col_x<=k_col_x_last; ++k_col_x) {
+					if (overlap(supp_row_x,testBasis_x1.psi.support(j_col_x,k_col_x))>0) {
+						Index1D col_x(j_col_x,k_col_x,XWavelet);
+						typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
+						if (it!=x1aligned_LIIAv.map.end()) {
+							for (const_coeff1d_it row_y=(*it).second.begin(); row_y!=(*it).second.end(); ++row_y) {
+								Lambda_y.insert((*row_y).first);
+							}
+						}
+					}
+				}
+            }
+            else{
+				for (long k_col_x=k_col_x_first; k_col_x<=trialBasis_x1.rangeJ(j_col_x).lastIndex(); ++k_col_x) {
+					if (overlap(supp_row_x,testBasis_x1.psi.support(j_col_x,k_col_x))>0) {
+						Index1D col_x(j_col_x,k_col_x,XWavelet);
+						typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
+						if (it!=x1aligned_LIIAv.map.end()) {
+							for (const_coeff1d_it row_y=(*it).second.begin(); row_y!=(*it).second.end(); ++row_y) {
+								Lambda_y.insert((*row_y).first);
+							}
+						}
+					}
+				}
+				for (long k_col_x=trialBasis_x1.rangeJ(j_col_x).firstIndex(); k_col_x<=k_col_x_last; ++k_col_x) {
+					if (overlap(supp_row_x,testBasis_x1.psi.support(j_col_x,k_col_x))>0) {
+						Index1D col_x(j_col_x,k_col_x,XWavelet);
+						typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
+						if (it!=x1aligned_LIIAv.map.end()) {
+							for (const_coeff1d_it row_y=(*it).second.begin(); row_y!=(*it).second.end(); ++row_y) {
+								Lambda_y.insert((*row_y).first);
+							}
+						}
+					}
+				}
+            }
+        }
+        else {
+            int j_col_x = 0;
+            long k_col_x_first = 0, k_col_x_last = 0;
+            trialBasis_x1.getWaveletNeighborsForScaling(j_row_x, k_row_x, testBasis_x1,
+                                                        j_col_x,k_col_x_first,k_col_x_last);
+            assert(j_row_x == j_col_x);
+            Support<T> supp_row_x = trialBasis_x1.mra.phi.support(j_row_x,k_row_x);
+            if(k_col_x_first < k_col_x_last){
+				for (long k_col_x=k_col_x_first; k_col_x<=k_col_x_last; ++k_col_x) {
+					if (overlap(supp_row_x,testBasis_x1.psi.support(j_col_x,k_col_x))>0) {
+						Index1D col_x(j_col_x,k_col_x,XWavelet);
+						typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
+						if (it!=x1aligned_LIIAv.map.end()) {
+							for (const_coeff1d_it row_y=(*it).second.begin(); row_y!=(*it).second.end(); ++row_y) {
+								Lambda_y.insert((*row_y).first);
+							}
+						}
+					}
+				}
+            }
+            else{
+				for (long k_col_x=k_col_x_first; k_col_x<=trialBasis_x1.rangeJ(j_col_x).lastIndex(); ++k_col_x) {
+                    if (overlap(supp_row_x,testBasis_x1.psi.support(j_col_x,k_col_x))>0) {
+                        Index1D col_x(j_col_x,k_col_x,XWavelet);
+                        typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
+                        if (it!=x1aligned_LIIAv.map.end()) {
+                            for (const_coeff1d_it row_y=(*it).second.begin(); row_y!=(*it).second.end(); ++row_y) {
+                                Lambda_y.insert((*row_y).first);
+                            }
+                        }
+                    }
+                }
+				for (long k_col_x=trialBasis_x1.rangeJ(j_col_x).firstIndex(); k_col_x<=k_col_x_last; ++k_col_x) {
+					if (overlap(supp_row_x,testBasis_x1.psi.support(j_col_x,k_col_x))>0) {
+						Index1D col_x(j_col_x,k_col_x,XWavelet);
+						typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_LIIAv.map.find(col_x);
+						if (it!=x1aligned_LIIAv.map.end()) {
+							for (const_coeff1d_it row_y=(*it).second.begin(); row_y!=(*it).second.end(); ++row_y) {
+								Lambda_y.insert((*row_y).first);
+							}
+						}
+					}
+				}
+            }
+        }
+        for (const_set1d_it row_y=Lambda_y.begin(); row_y!=Lambda_y.end(); ++row_y) {
+            IAv[Index2D((*row_x).first,(*row_y))] = 0.;
+        }
+    }
+
+}
+
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
@@ -272,10 +403,13 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     T time_mv1d = 0.;
     T time_add_aligned = 0.;
 
+    //std::cout << "evalIA with z = " << z << ", IAz = " << IAz << std::endl;
+
     for (typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_z.map.begin();
                                                             it!=x1aligned_z.map.end(); ++it) {
         time.start();
         Index1D row_x = (*it).first;
+        //std::cout << "Index: " << row_x << std::endl;
         TreeCoefficients1D<T> PsiLambdaHat_x2(n2,trialBasis_x2.j0);
         PsiLambdaHat_x2 = (*it).second;
         TreeCoefficients1D<T> PsiLambdaCheck_x2(n2,testBasis_x2.j0);
@@ -286,6 +420,8 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         PsiLambdaCheck_x2.setToZero();
         time.stop();
         time_setup_tree += time.elapsed();
+//        std::cout << "PsiLambdaHat_x2: " << PsiLambdaHat_x2 << std::endl;
+//        std::cout << "PsiLambdaCheck_x2: " << PsiLambdaCheck_x2 << std::endl;
 
 
         time.start();
@@ -296,6 +432,8 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
         time.start();
         PsiLambdaCheck_x2.template addTo<Index2D,Index1D,XOne>(row_x,IAz);
+
+        //std::cout << "IAz = " << IAz << std::endl;
         time.stop();
         time_add_aligned += time.elapsed();
     }
@@ -369,12 +507,15 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     return;
 }
 
+
+//Non-periodic version
 template <typename LocalOperator1, typename LocalOperator2>
-void
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
 LocalOperator2D<LocalOperator1, LocalOperator2>
-::evalUI(const Coefficients<Lexicographical,T,Index2D> &z,
-         const Coefficients<Lexicographical,T,Index1D> &Pe1_UIz,
-         Coefficients<Lexicographical,T,Index2D> &UIz) /*const*/
+::evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
+         const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
+         Coefficients<Lexicographical,T_,Index2D> &UIz) /*const*/
 {
     size_t n1 = hashTableLargeLength;
     size_t n2 = hashTableSmallLength;
@@ -439,6 +580,140 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
                     if (   overlap(supp1,testBasis_x1.psi.support(j_wavelet2,k_wavelet2) ) >0
                         && Pe1_UIz.find(Index1D(j_wavelet2,k_wavelet2,XWavelet))!=Pe1_UIz.end() ) {
                         PsiLambdaCheck_x1[i].map[k_wavelet2] = 0.;
+                    }
+                }
+            }
+        }
+
+        PsiLambdaCheck_x1.setMaxTreeLevel(maxTreeLevel);
+        time.stop();
+        time_initial_outputset += time.elapsed();
+
+        time.start();
+        localoperator1.eval(PsiLambdaHat_x1, PsiLambdaCheck_x1, "U");
+        time.stop();
+        time_mv1d += time.elapsed();
+
+
+        time.start();
+        PsiLambdaCheck_x1.template addTo<Index2D,Index1D,XTwo>(row_y,UIz);
+        time.stop();
+        time_add_aligned += time.elapsed();
+    }
+    /*
+    std::cerr << "      evalUI: x2align of v took       " << time_x2align_z << std::endl;
+    std::cerr << "      evalUI: time for initial output " << time_initial_outputset << std::endl;
+    std::cerr << "      evalUI: set up of trees took    " << time_setup_tree << std::endl;
+    std::cerr << "      evalUI: matrix vector 1d took   " << time_mv1d << std::endl;
+    std::cerr << "      evalUI: add aligned result      " << time_add_aligned << std::endl;
+    */
+    return;
+}
+
+// Periodic version
+template <typename LocalOperator1, typename LocalOperator2>
+template <typename T_>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+LocalOperator2D<LocalOperator1, LocalOperator2>
+::evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
+         const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
+         Coefficients<Lexicographical,T_,Index2D> &UIz) /*const*/
+{
+    size_t n1 = hashTableLargeLength;
+    size_t n2 = hashTableSmallLength;
+
+    Timer time;
+    time.start();
+    XTwoAlignedCoefficients x2aligned_z(n1,n2);
+    x2aligned_z.align(z,J);
+    time.stop();
+    T time_x2align_z = time.elapsed();
+
+    T time_initial_outputset = 0.;
+    T time_setup_tree = 0.;
+    T time_mv1d = 0.;
+    T time_add_aligned = 0.;
+
+
+    for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
+                                                            it!=x2aligned_z.map.end(); ++it) {
+        time.start();
+        Index1D row_y = (*it).first;
+        TreeCoefficients1D<T> PsiLambdaHat_x1(n2,trialBasis_x1.j0);
+        PsiLambdaHat_x1 = (*it).second;
+        time.stop();
+        time_setup_tree += time.elapsed();
+
+        int maxTreeLevel = PsiLambdaHat_x1.getMaxTreeLevel();
+
+
+        time.start();
+        TreeCoefficients1D<T> PsiLambdaCheck_x1(n2,testBasis_x1.j0);
+        // Checking scaling functions
+        for (const_by_level_it level_it =PsiLambdaHat_x1[0].map.begin();
+                               level_it!=PsiLambdaHat_x1[0].map.end(); ++level_it) {
+            int  j_scaling1 = trialBasis_x1.j0;
+            long k_scaling1 = (*level_it).first;
+            int  j_scaling2 = 0;
+            long k_scaling_first = 0, k_scaling_last = 0;
+            trialBasis_x1.getScalingNeighborsForScaling(j_scaling1,k_scaling1, testBasis_x1,
+                                                        j_scaling2,k_scaling_first,k_scaling_last);
+            assert(j_scaling1==j_scaling2);
+            Support<T> supp1 = trialBasis_x1.mra.phi.support(j_scaling1,k_scaling1);
+            if(k_scaling_first < k_scaling_last){
+				for (int k_scaling2=k_scaling_first; k_scaling2<=k_scaling_last; ++k_scaling2) {
+					if (   overlap(supp1, testBasis_x1.mra.phi.support(j_scaling2,k_scaling2) ) >0
+						&& Pe1_UIz.find(Index1D(j_scaling2,k_scaling2,XBSpline))!=Pe1_UIz.end() ) {
+						PsiLambdaCheck_x1[0].map[k_scaling2] = 0.;
+					}
+				}
+            }
+            else{
+                for (int k_scaling2=k_scaling_first; k_scaling2<=testBasis_x1.mra.rangeI(j_scaling2).lastIndex(); ++k_scaling2) {
+                    if (   overlap(supp1, testBasis_x1.mra.phi.support(j_scaling2,k_scaling2) ) >0
+                        && Pe1_UIz.find(Index1D(j_scaling2,k_scaling2,XBSpline))!=Pe1_UIz.end() ) {
+                        PsiLambdaCheck_x1[0].map[k_scaling2] = 0.;
+                    }
+                }
+                for (int k_scaling2=testBasis_x1.mra.rangeI(j_scaling2).firstIndex(); k_scaling2<=k_scaling_last; ++k_scaling2) {
+                    if (   overlap(supp1, testBasis_x1.mra.phi.support(j_scaling2,k_scaling2) ) >0
+                        && Pe1_UIz.find(Index1D(j_scaling2,k_scaling2,XBSpline))!=Pe1_UIz.end() ) {
+                        PsiLambdaCheck_x1[0].map[k_scaling2] = 0.;
+                    }
+                }
+            }
+        }
+        for (int i=1; i<=maxTreeLevel; ++i) {
+            for (const_by_level_it level_it =PsiLambdaHat_x1[i].map.begin();
+                                   level_it!=PsiLambdaHat_x1[i].map.end(); ++level_it) {
+                int  j_wavelet1 = trialBasis_x1.j0+i-1;
+                long k_wavelet1 = (*level_it).first;
+                int  j_wavelet2 = 0;
+                long k_wavelet_first = 0, k_wavelet_last = 0;
+                trialBasis_x1.getWaveletNeighborsForWavelet(j_wavelet1,k_wavelet1, testBasis_x1,
+                                                            j_wavelet2,k_wavelet_first,k_wavelet_last);
+                assert(j_wavelet1==j_wavelet2);
+                Support<T> supp1 = trialBasis_x1.psi.support(j_wavelet1,k_wavelet1);
+                if(k_wavelet_first < k_wavelet_last){
+					for (int k_wavelet2=k_wavelet_first; k_wavelet2<=k_wavelet_last; ++k_wavelet2) {
+						if (   overlap(supp1,testBasis_x1.psi.support(j_wavelet2,k_wavelet2) ) >0
+							&& Pe1_UIz.find(Index1D(j_wavelet2,k_wavelet2,XWavelet))!=Pe1_UIz.end() ) {
+							PsiLambdaCheck_x1[i].map[k_wavelet2] = 0.;
+						}
+					}
+                }
+                else{
+                    for (int k_wavelet2=k_wavelet_first; k_wavelet2<=testBasis_x1.rangeJ(j_wavelet2).lastIndex(); ++k_wavelet2) {
+                        if (   overlap(supp1,testBasis_x1.psi.support(j_wavelet2,k_wavelet2) ) >0
+                            && Pe1_UIz.find(Index1D(j_wavelet2,k_wavelet2,XWavelet))!=Pe1_UIz.end() ) {
+                            PsiLambdaCheck_x1[i].map[k_wavelet2] = 0.;
+                        }
+                    }
+                    for (int k_wavelet2=testBasis_x1.rangeJ(j_wavelet2).firstIndex(); k_wavelet2<=k_wavelet_last; ++k_wavelet2) {
+                        if (   overlap(supp1,testBasis_x1.psi.support(j_wavelet2,k_wavelet2) ) >0
+                            && Pe1_UIz.find(Index1D(j_wavelet2,k_wavelet2,XWavelet))!=Pe1_UIz.end() ) {
+                            PsiLambdaCheck_x1[i].map[k_wavelet2] = 0.;
+                        }
                     }
                 }
             }
