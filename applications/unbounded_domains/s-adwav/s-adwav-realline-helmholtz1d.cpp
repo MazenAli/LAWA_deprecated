@@ -110,9 +110,6 @@ int main (int argc, char *argv[]) {
 
     cout << "Initializing S-ADWAV, jmin = " << j0 << endl;
 
-
-
-
     IndexSet<Index1D> InitialLambda;
     InitialLambda.insert(Index1D(j0,1,XBSpline));
 
@@ -141,7 +138,7 @@ int main (int argc, char *argv[]) {
         MW_Rhs                MW_F(MW_rhsintegral1d,MW_prec);
         MW_S_ADWAV_SOLVER     MW_s_adwav_solver(MW_basis, MW_A, MW_F,
                                                 contraction, threshTol, cgTol, resTol,
-                                                NumOfIterations, 4, 1e-7, 100000);
+                                                NumOfIterations, 2, 1e-7, 100000);
 
         MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(),
                                 2, refsol.H1norm());

@@ -408,8 +408,8 @@ LambdaForEigenvalues(const MW_Basis1D &basis, int jmin, int jmax, bool w_XBSplin
     int wavelet_count = 0;
 
     for (int j=jmin; j<=jmax; ++j) {
-        k_left = std::floor(-pow2i<T>(j)*r-basis.psi.max_support().l2);
-        k_right =std::ceil(pow2i<T>(j)*r-basis.psi.max_support().l1);
+        k_left  = std::min(int(std::floor(-pow2i<T>(j)*r-basis.psi.max_support().l2)),-20);
+        k_right = std::max(int(std::ceil(pow2i<T>(j)*r-basis.psi.max_support().l1)),20);
         for (int k_help=k_left; k_help<=k_right; ++k_help) {
             for (int k=(k_help-1)*numWavelets; k<=k_help*numWavelets-1; ++k) {
                 //cout << "XWavelet: " << basis.psi.support(j,k) << " [" << -r << ", " << r << "]" << endl;
@@ -419,8 +419,8 @@ LambdaForEigenvalues(const MW_Basis1D &basis, int jmin, int jmax, bool w_XBSplin
         }
     }
     int scaling_count = 0;
-    k_left  = int(std::floor(-pow2i<T>(jmin)*r-basis.mra.phi.max_support().l2));
-    k_right = int(std::ceil(  pow2i<T>(jmin)*r-basis.mra.phi.max_support().l1));
+    k_left  = std::min(int(std::floor(-pow2i<T>(jmin)*r-basis.mra.phi.max_support().l2)),-20);
+    k_right = std::max(int(std::ceil(  pow2i<T>(jmin)*r-basis.mra.phi.max_support().l1)),20);
     for (int k_help=k_left; k_help<=k_right; ++k_help) {
         for (int k=(k_help-1)*numScaling+1; k<=k_help*numScaling; ++k) {
             //cout << "XBSpline:" << basis.mra.phi.support(jmin,k) << " [" << -r << ", " << r << "]" << endl;

@@ -261,7 +261,7 @@ int main (int argc, char *argv[]) {
 
             MW_S_ADWAV_SOLVER_SeparableRhs MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
                                                          threshTol, cgTol, resTol, NumOfIterations,
-                                                         2, 1e-2,1000000);
+                                                         1, 1e-2,1000000);
             MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 2,
                                     refsol.H1norm());
 
@@ -302,11 +302,11 @@ int main (int argc, char *argv[]) {
             rhsfile.close();
 
             stringstream plot_filename;
-            plot_filename << "s-adwav-realline-helmholtz2d-plot_" << example << "_" << d << "_" << d_
+            plot_filename << "s_adwav_plot_realline_helmholtz2d_" << example << "_" << d << "_" << d_
                           << "_" << j0_x << "_" << j0_y;
             cout << "Plot of solution started." << endl;
             plot2D(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, refsol.exact,
-                   -40., 40., -40., 40., pow2i<T>(-3), plot_filename.str().c_str());
+                   -10., 10., -10., 10., pow2i<T>(-3), plot_filename.str().c_str());
             cout << "Plot of solution finished." << endl;
         }
         else if (example==4) {
@@ -426,7 +426,6 @@ int main (int argc, char *argv[]) {
                rhsfile.close();
             }
 
-
         }
     }
     else if (strcmp(argv[1],"SparseMW")==0) {
@@ -458,7 +457,6 @@ int main (int argc, char *argv[]) {
                                                          1, 1e-2,1000000);
             SparseMW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 0,
                                           refsol.H1norm());
-
 
             stringstream rhsfilename;
                         rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
@@ -503,7 +501,7 @@ int main (int argc, char *argv[]) {
             rhsfile.close();
 
             stringstream plot_filename;
-            plot_filename << "s-adwav-realline-helmholtz2d-plot_" << example << "_" << d << "_" << d_
+            plot_filename << "s_adwav_plot_realline_helmholtz2d_" << example << "_" << d << "_" << d_
                           << "_" << j0_x << "_" << j0_y;
             cout << "Plot of solution started." << endl;
             plot2D(SparseMW_basis2d, SparseMW_s_adwav_solver.solutions[NumOfIterations-1], SparseMW_P, refsol.exact, -10., 10., -10., 10.,

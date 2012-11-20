@@ -91,10 +91,10 @@ class Basis<_T,Primal,Interval,Dijkema>
         /// The returned level j_wavelet or j_bspline2 is chosen s.t. there is "no scale difference"
         /// i.e., if we refine both functions the corresponding refinements should
         /// live on the same scale.
-        template <typename SecondBasis>
+        template <typename SecondRefinementBasis>
             void
             getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
-                                          const SecondBasis &secondbasis,
+                                          const SecondRefinementBasis &secondbasis,
                                           int &j_wavelet, long &k_wavelet_first,
                                           long &k_wavelet_last) const;
 
@@ -130,10 +130,10 @@ class Basis<_T,Primal,Interval,Dijkema>
         /// translation index k_wavelet from the current Basis. This is required for tree-based algorithms.
         /// The returned level of the functions is chosen s.t. there is "no scale difference", i.e.,
         /// the corresponding refinements should live on the same scale.
-        template <typename SecondRefinementBasis>
+        template <typename SecondBasis>
             void
             getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
-                                          const SecondRefinementBasis &secondrefinementbasis,
+                                          const SecondBasis &secondrefinementbasis,
                                           int &j_bspline, long &k_bspline_first,
                                           long &k_bspline_last) const;
 

@@ -12,10 +12,10 @@ typedef double T;
 
 ///  Typedefs for basis construction:
 ///     Dijkema Basis over an interval
-//typedef Basis<T,Primal,Interval,Dijkema> Basis1D;
+typedef Basis<T,Primal,Interval,Dijkema> Basis1D;
 ///     L2 orthonormal Basis over an interval
 //typedef Basis<T,Orthogonal,R,Multi> Basis1D;
-typedef Basis<T,Orthogonal,R,MultiRefinement> Basis1D;
+//typedef Basis<T,Orthogonal,R,MultiRefinement> Basis1D;
 
 ///  Typedefs for integral:
 typedef Integral<Gauss,Basis1D,Basis1D> IntegralBasis1DvsBasis1D;
@@ -50,14 +50,14 @@ int main (int argc, char *argv[]) {
     int j0 = atoi(argv[3]);
     int J = atoi(argv[4]);
 
-    //Basis1D basis(d,d_,j0);
-    Basis1D basis(d,j0);
-    //if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
-    T a = -5., b = 5.;
-    //T a = -1., b = 1.;
+    Basis1D basis(d,d_,j0);
+    //Basis1D basis(d,j0);
+    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
+    //T a = -5., b = 5.;
+    T a = 0., b = 1.;
 
 
-    //IntegralBasis1DvsBasis1D integral(basis,basis);
+    IntegralBasis1DvsBasis1D integral(basis,basis);
 
     Range<int> scalingrange = getRange(basis, j0, XBSpline);
     /// Plot scaling function and wavelets
@@ -69,12 +69,12 @@ int main (int argc, char *argv[]) {
             plotfile_scaling << " " << basis.generator(XBSpline)(x,j0,k,0);
             if (x==0.) {
                 cout << "supp phi_{"<< j0 << "," << k << "} = " << basis.generator(XBSpline).support(j0,k) << endl;
-                //cout << "||phi_{" << j0 << "," << k << "}||^2_L2 = "
-                     //<< basis.generator(XBSpline).getL2Norm(j0,k) << " "
-                     //<< std::sqrt(integral(j0,k,XBSpline,0, j0,k,XBSpline,0)) << endl;
-                //cout << "||d/dx  phi_{" << j0 << "," << k << "}||^2_L2 = "
-                     //<< basis.generator(XBSpline).getH1SemiNorm(j0,k) << " "
-                     //<< std::sqrt(integral(j0,k,XBSpline,1, j0,k,XBSpline,1)) << endl << endl;
+                cout << "||phi_{" << j0 << "," << k << "}||^2_L2 = "
+                     << basis.generator(XBSpline).getL2Norm(j0,k) << " "
+                     << std::sqrt(integral(j0,k,XBSpline,0, j0,k,XBSpline,0)) << endl;
+                cout << "||d/dx  phi_{" << j0 << "," << k << "}||^2_L2 = "
+                     << basis.generator(XBSpline).getH1SemiNorm(j0,k) << " "
+                     << std::sqrt(integral(j0,k,XBSpline,1, j0,k,XBSpline,1)) << endl << endl;
             }
         }
         plotfile_scaling << endl;
@@ -89,12 +89,12 @@ int main (int argc, char *argv[]) {
                 plotfile_wavelet << " " << basis.generator(XWavelet)(x,j,k,0);
                 if (x==0.) {
                     cout << "supp psi_{"<< j << "," << k << "} = " << basis.generator(XWavelet).support(j,k) << endl;
-                    //cout << "||psi_{" << j << "," << k << "}||^2_L2 = "
-                         //<< basis.generator(XWavelet).getL2Norm(j,k) << " "
-                         //<< std::sqrt(integral(j,k,XWavelet,0, j,k,XWavelet,0)) << endl;
-                    //cout << "||d/dx  psi_{" << j << "," << k << "}||^2_L2 = "
-                         //<< basis.generator(XWavelet).getH1SemiNorm(j,k) << " "
-                         //<< std::sqrt(integral(j,k,XWavelet,1, j,k,XWavelet,1)) << endl << endl;
+                    cout << "||psi_{" << j << "," << k << "}||^2_L2 = "
+                         << basis.generator(XWavelet).getL2Norm(j,k) << " "
+                         << std::sqrt(integral(j,k,XWavelet,0, j,k,XWavelet,0)) << endl;
+                    cout << "||d/dx  psi_{" << j << "," << k << "}||^2_L2 = "
+                         << basis.generator(XWavelet).getH1SemiNorm(j,k) << " "
+                         << std::sqrt(integral(j,k,XWavelet,1, j,k,XWavelet,1)) << endl << endl;
                 }
             }
         }

@@ -313,15 +313,15 @@ Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 
 
 template <typename T>
-template <typename SecondRefinementBasis>
+template <typename SecondBasis>
 void
 Basis<T,Primal,Interval,Dijkema>::
 getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
-                              const SecondRefinementBasis &secondrefinementbasis,
+                              const SecondBasis &secondbasis,
                               int &j_wavelet, long &k_wavelet_first, long &k_wavelet_last) const
 {
-    ct_assert(SecondRefinementBasis::Side==Primal and SecondRefinementBasis::Domain==Interval
-               and SecondRefinementBasis::Cons==Dijkema);
+    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+               and SecondBasis::Cons==Dijkema);
     j_wavelet = j_bspline;
     Support<T> supp = refinementbasis.mra.phi.support(j_bspline,k_bspline);
     T a = supp.l1, b = supp.l2;

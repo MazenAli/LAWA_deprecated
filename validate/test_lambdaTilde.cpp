@@ -7,11 +7,11 @@ using namespace lawa;
 typedef double T;
 
 /// Thresh bound
-const T thresh = 1e-30;
+const T thresh = 1e-16;
 
 // Basis definitions
 const FunctionSide functionside = Orthogonal;
-const DomainType   domain = Interval;
+const DomainType   domain = R;
 const Construction construction = Multi;
 
 const T leftbound=-10.;   //for realline constructions, we only consider wavelets with support intersecting [left,right]
@@ -35,11 +35,11 @@ typedef IndexSet<Index1D>::const_iterator                           const_set_it
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff_it;
 
 template <typename T>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j);
 
 template <typename T>
-Range<long>
+Range<int>
 getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j);
 
 template <typename T>
@@ -47,19 +47,19 @@ Range<int>
 getRange(const Basis<T,Orthogonal,Interval,Multi> &basis, XType e, int j);
 
 template <typename T>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j);
 
 template <typename T>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j);
 
 template <typename T, Construction Cons>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j);
 
 template <typename T, Construction Cons>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,Periodic,Cons> &basis, XType e, int j);
 
 
@@ -76,7 +76,7 @@ int main (int argc, char *argv[]) {
 
     //Basis1D basis(d,d_,j0);
     Basis1D         basis(d,j0);
-    basis.enforceBoundaryCondition<DirichletBC>();
+    //basis.enforceBoundaryCondition<DirichletBC>();
     HelmholtzOp     op(basis,1.);
     //IdentityOp       op(basis);
     Preconditioner  p(basis);
@@ -96,7 +96,7 @@ int main (int argc, char *argv[]) {
      * -> First, we check the difference between the calculated coefficient vector and the sparsity
      *    pattern, i.e., we check if the sparsity pattern is reliable.
      * -> Second, we check which entries appear in the coefficient vector which do not appear
-     *    in the sparsity patter, i.e., we check if the sparsity pattern is efficient.
+     *    in the sparsity pattern, i.e., we check if the sparsity pattern is efficient.
      */
 
     //Test B-Spline column indices:
@@ -136,14 +136,14 @@ int main (int argc, char *argv[]) {
                     max_error_col_index = col_index;
                     max_error_row_index = (*it).first;
                 }
-                /*
+
                 cout << "Error: " << col_index << ": " << (*it).first << ", "
                      << basis.generator(XBSpline).singularSupport(j0,k_col)
                      << " " << basis.generator((*it).first.xtype).singularSupport((*it).first.j,(*it).first.k)
                      << " is missing: ";
                 printf("%E",fabs((*it).second));
                 cout << endl << endl;
-                */
+                getchar();
             }
         }
 
@@ -216,13 +216,13 @@ int main (int argc, char *argv[]) {
                         max_error_col_index = col_index;
                         max_error_row_index = (*it).first;
                     }
-                    //cout << "Error: " << col_index << ": " << (*it).first << ", "
-                    //     << basis.generator(XWavelet).singularSupport(j_col,k_col)
-                    //     << " " << basis.generator((*it).first.xtype).singularSupport((*it).first.j,(*it).first.k)
-                    //     << " is missing: ";
-                    //printf("%E",fabs((*it).second));
-                    //cout << endl << endl;
-                    //getchar();
+                    cout << "Error: " << col_index << ": " << (*it).first << ", "
+                         << basis.generator(XWavelet).singularSupport(j_col,k_col)
+                         << " " << basis.generator((*it).first.xtype).singularSupport((*it).first.j,(*it).first.k)
+                         << " is missing: ";
+                    printf("%E",fabs((*it).second));
+                    cout << endl << endl;
+                    getchar();
                 }
             }
             for (const_set_it it=lambdaTilde_nonzeros.begin(); it!=lambdaTilde_nonzeros.end();++it) {
@@ -251,7 +251,7 @@ int main (int argc, char *argv[]) {
 
 
 template <typename T>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j)
 {
     T l1 = basis.generator(e).support(0,0).l1;
@@ -260,7 +260,7 @@ getRange(const Basis<T,Primal,R,CDF> &basis, XType e, int j)
 }
 
 template <typename T>
-Range<long>
+Range<int>
 getRange(const Basis<T,Orthogonal,R,Multi> &basis, XType e, int j)
 {
     const BSpline<T,Orthogonal,R,Multi> &phi = basis.mra.phi;
@@ -293,7 +293,7 @@ getRange(const Basis<T,Orthogonal,Interval,Multi> &basis, XType e, int j)
 }
 
 template <typename T>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j)
 {
     const BSpline<T,Primal,R,SparseMulti> &phi = basis.mra.phi;
@@ -318,7 +318,7 @@ getRange(const Basis<T,Primal,R,SparseMulti> &basis, XType e, int j)
 }
 
 template <typename T>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j)
 {
     const BSpline<T,Primal,RPlus,SparseMulti> &phi = basis.mra.phi;
@@ -341,12 +341,12 @@ getRange(const Basis<T,Primal,RPlus,SparseMulti> &basis, XType e, int j)
         mintranslationindex = 1;
     }
 
-    return Range<long>((long)std::max(long(pow2i<T>(j)*leftbound-numFunc),mintranslationindex),
+    return Range<int>((long)std::max(long(pow2i<T>(j)*leftbound-numFunc),mintranslationindex),
              long(pow2i<T>(j)*rightbound+numFunc));
 }
 
 template <typename T, Construction Cons>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j)
 {
     if (e==XBSpline)    return basis.mra.rangeI(j);
@@ -354,7 +354,7 @@ getRange(const Basis<T,Primal,Interval,Cons> &basis, XType e, int j)
 }
 
 template <typename T, Construction Cons>
-Range<long>
+Range<int>
 getRange(const Basis<T,Primal,Periodic,Cons> &basis, XType e, int j)
 {
     if (e==XBSpline)    return basis.mra.rangeI(j);
