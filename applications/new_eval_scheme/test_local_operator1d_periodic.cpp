@@ -21,12 +21,13 @@ typedef Basis<T, Primal, Periodic, CDF>		                          PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 ///  Underlying bilinear form
-//typedef LaplaceOperator1D<T,PrimalBasis>                            BilinearForm;
+typedef LaplaceOperator1D<T,PrimalBasis>                            BilinearForm;
 //typedef RefinementBasis::LaplaceOperator1D                          RefinementBilinearForm;
+typedef LaplaceOperator1D<T,RefinementBasis>                        RefinementBilinearForm;
 //typedef LaplaceOperator1D<T,RefinementBasis>                        RefinementBilinearFormTest;
-typedef IdentityOperator1D<T,PrimalBasis>                         BilinearForm;
+//typedef IdentityOperator1D<T,PrimalBasis>                         BilinearForm;
 //typedef RefinementBasis::IdentityOperator1D                       RefinementBilinearForm;
-typedef IdentityOperator1D<T,RefinementBasis>                     RefinementBilinearForm;
+//typedef IdentityOperator1D<T,RefinementBasis>                     RefinementBilinearForm;
 
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
@@ -81,7 +82,7 @@ int main(int argc, char*argv[])
     LocOp1D localOperator1D(basis,basis, RefineBil);
 
     stringstream ct_filename;
-    ct_filename << "comptime_locOp1d_" << d << "_" << j0 << "_" << J << ".dat";
+    ct_filename << "comptime_locOp1d_" << d << "_" << j0 << "_" << J << "_periodic.dat";
     ofstream ct_file(ct_filename.str().c_str());
 
 
@@ -112,9 +113,9 @@ int main(int argc, char*argv[])
         time.stop();
         time_evalA = time.elapsed();
         cout << "Elapsed time for evalA: " << time_evalA << endl;
-        //cout << "v_tree = " << v_tree << endl;
-        //cout << "Av_tree_ref = " << Av_ref_tree << endl;
-        //cout << "Av_tree = " << Av_tree << endl;
+//        cout << "v_tree = " << v_tree << endl;
+//        cout << "Av_tree_ref = " << Av_ref_tree << endl;
+//        cout << "Av_tree = " << Av_tree << endl;
         Av_ref_tree -= Av_tree;
         //cout << "diff = " << Av_ref_tree << endl;
         cout << "Error norm: " << Av_ref_tree.norm(2.) << endl;
@@ -130,9 +131,9 @@ int main(int argc, char*argv[])
         time.stop();
         time_evalU = time.elapsed();
         cout << "Elapsed time for evalU: " << time_evalU << endl;
-        //cout << "v_tree = " << v_tree << endl;
-        //cout << "Uv_tree_ref = " << Uv_ref_tree << endl;
-        //cout << "Uv_tree = " << Uv_tree << endl;
+//        cout << "v_tree = " << v_tree << endl;
+//        cout << "Uv_tree_ref = " << Uv_ref_tree << endl;
+//        cout << "Uv_tree = " << Uv_tree << endl;
         Uv_ref_tree -= Uv_tree;
         cout << "Error norm: " << Uv_ref_tree.norm(2.) << endl;
         cout << " **********************************" << endl << endl;

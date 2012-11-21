@@ -11,22 +11,24 @@ using namespace lawa;
 
 /// Several typedefs for notational convenience.
 
+///  Typedefs for Flens data types:
 typedef double T;
+typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
+typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
+
+///  Typedefs for problem components:
 
 ///  Wavelet basis over an interval
-//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-typedef Basis<T, Primal, Periodic, CDF>		                         PrimalBasis;
+typedef Basis<T, Primal, Periodic, CDF>	                            PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
-bool isL2Orthonormal_x = false;
-bool isL2Orthonormal_y = false;
 
 typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 
 ///  Underlying bilinear form
-typedef IdentityOperator1D<T,PrimalBasis>                           BilinearForm_x;
-typedef IdentityOperator1D<T,RefinementBasis>                       RefinementBilinearForm_x;
-typedef IdentityOperator1D<T,PrimalBasis>                           BilinearForm_y;
-typedef IdentityOperator1D<T,RefinementBasis>                       RefinementBilinearForm_y;
+typedef AdaptiveWeightedPDEOperator1D<T,Primal,Periodic, CDF>	    BilinearForm_x;
+typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    RefinementBilinearForm_x;
+typedef AdaptiveWeightedPDEOperator1D<T,Primal,Periodic, CDF>	    BilinearForm_y;
+typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    RefinementBilinearForm_y;
 
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
@@ -72,6 +74,15 @@ refComputationAAv(BilinearForm_x &Bil_x, BilinearForm_y &Bil_y,
                   const Coefficients<Lexicographical,T,Index2D> &v,
                   Coefficients<Lexicographical,T,Index2D> &AAv);
 
+T p1(T x)  {   return (x-0.5)*(x-0.5)+1.; /*1.;*/  }
+
+T dp1(T x) {   return 2*(x-0.5);          /*0.;*/  }
+
+T p2(T y)  {   return (y-0.5)*(y-0.5)+1.; /*1.;*/  }
+
+T dp2(T y) {   return 2*(y-0.5);         /*0.;*/  }
+
+
 int main (int argc, char *argv[]) {
 
 #ifdef TRONE
@@ -90,28 +101,32 @@ int main (int argc, char *argv[]) {
     int J  = atoi(argv[3]);
 
     int numOfIter=J;
-    bool useSparseGrid=true;
-    bool calcRefSol=true;
+    bool calcRefSol=false;
 
     /// Basis initialization, using Dirichlet boundary conditions
     PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
+    //basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis &refinementbasis = basis.refinementbasis;
     Basis2D basis2d(basis,basis);
 
     /// Operator initialization
-    BilinearForm_x    Bil_x(basis);
-    BilinearForm_y    Bil_y(basis);
-    RefinementBilinearForm_x  RefineBil_x(refinementbasis);
-    RefinementBilinearForm_y  RefineBil_y(refinementbasis);
+    DenseVectorT p1_singPts, p2_singPts;
+    Function<T> reaction_coeff(p1, p1_singPts);
+    Function<T> convection_coeff(p1, p1_singPts);
+    Function<T> diffusion_coeff(p1, p1_singPts);
+    RefinementBilinearForm_x  RefinementBil_x(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
+    RefinementBilinearForm_y  RefinementBil_y(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
+    BilinearForm_x  Bil_x(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
+    BilinearForm_y  Bil_y(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
+    LocalOp1D_x localOperator_x(basis,basis,RefinementBil_x);
+    LocalOp1D_y localOperator_y(basis,basis,RefinementBil_y);
 
-    LocalOp1D_x localOperator_x(basis,basis,RefineBil_x);
-    LocalOp1D_y localOperator_y(basis,basis,RefineBil_y);
     LocalOp2D   localop2d(localOperator_x,localOperator_y);
     localop2d.setJ(9);
 
     Timer time;
 
-    ofstream file2("comptimes_mv2d_periodic.dat");
+    ofstream file2("multitree_mv2d_periodic.dat");
 
     T old_time = 1.;
     T old_N = 1.;
@@ -125,54 +140,50 @@ int main (int argc, char *argv[]) {
     for (int j=0; j<=numOfIter; ++j) {
 
         IndexSet<Index2D> checkLambda, Lambda;
-        Coefficients<Lexicographical,T,Index2D> test;
 
-        if (useSparseGrid) {
-            IndexSet<Index2D> checkLambda2, Lambda2;
-            getSparseGridIndexSet(basis,checkLambda,j,0.2);
-            getSparseGridIndexSet(basis,checkLambda2,j,0.2);
-            getSparseGridIndexSet(basis,Lambda,j,0.2);
-            getSparseGridIndexSet(basis,Lambda2,j,0.2);
 
-            FillWithZeros(checkLambda,test);
-            cout << "#checkLambda  = " << checkLambda.size() << ", " << test.size() << endl;
-            Index1D index1_x(j0+j+4,4,XWavelet);
-            Index1D index1_y(j0+j+4,1,XWavelet);
-            Index2D new_index1(index1_x,index1_y);
-            completeMultiTree(basis2d,new_index1,test);
-            extendMultiTree( basis2d,new_index1,checkLambda);
-            extendMultiTree2(basis2d,new_index1,20,checkLambda2);
-            cout<< "#checkLambda1 = " << checkLambda.size() << endl;
-            cout<< "#checkLambda2 = " << checkLambda2.size() << endl;
-            cout<< "#test =         " << test.size() << endl;
+        T threshTol = 0.6;
+        int ell=1;
+        int example = 2;
+        //readIndexSetFromFile(Lambda,"Lambda",example,d,threshTol,ell,j);
+        //readIndexSetFromFile(checkLambda,"checkLambda",example,d,threshTol,ell,j);
 
-            cout << "#Lambda  = " << Lambda.size() << endl;
-            Index1D index2_x(j0+j+4,6,XWavelet);
-            Index1D index2_y(j0+j+4,2,XWavelet);
-            Index2D new_index2(index2_x,index2_y);
-            extendMultiTree( basis2d,new_index2,Lambda);
-            extendMultiTree2(basis2d,new_index2,20,Lambda2);
-            cout<< "#Lambda1 = " << Lambda.size() << endl;
-            cout<< "#Lambda2 = " << Lambda2.size() << endl;
-        }
-        else {
-            T threshTol = 0.6;
-            int ell=1;
-            int example = 2;
-            readIndexSetFromFile(Lambda,"Lambda",example,d,threshTol,ell,j);
-            readIndexSetFromFile(checkLambda,"Lambda",example,d,threshTol,ell,j);
-            cout << "Size of Lambda:      " << Lambda.size() << endl;
-            cout << "Size of checkLambda: " << checkLambda.size() << endl;
-            if (Lambda.size()==0) return 0;
-        }
+        // Construct index set Lambda
+        Coefficients<Lexicographical,T,Index2D> aux_coeffs;
+        getSparseGridIndexSet(basis,Lambda,j,0.2);
+        FillWithZeros(Lambda,aux_coeffs);
+        Index1D index1_x(j0+j+4,13,XWavelet);
+        Index1D index1_y(j0+j+4,4,XWavelet);
+        Index2D new_index1(index1_x,index1_y);
+        //completeMultiTree(basis2d,new_index1,aux_coeffs, 0, true);
+        //Lambda = supp(aux_coeffs);
+        extendMultiTree( basis2d,new_index1,Lambda);
+        //cout << Lambda << endl;
+
+        aux_coeffs.clear();
+        getSparseGridIndexSet(basis,checkLambda,j,0.2);
+        FillWithZeros(checkLambda,aux_coeffs);
+        Index1D index2_x(j0+j+4,7,XWavelet);
+        Index1D index2_y(j0+j+4,17,XWavelet);
+        Index2D new_index2(index2_x,index2_y);
+        //completeMultiTree(basis2d,new_index2,aux_coeffs, 0, true);
+        //checkLambda = supp(aux_coeffs);
+        extendMultiTree( basis2d,new_index2,checkLambda);
+        //cout << checkLambda << endl;
+
+        cout << "Size of Lambda:      " << Lambda.size() << endl;
+        cout << "Size of checkLambda: " << checkLambda.size() << endl;
+        if (Lambda.size()==0) return 0;
 
         Coefficients<Lexicographical,T,Index2D> v(SIZEHASHINDEX2D);
+
+
         getRandomCoefficientVector(Lambda,v);
 
         if (calcRefSol) {
+            T time_evalAA1 = 0.;
             Coefficients<Lexicographical,T,Index2D> LIIAv(SIZEHASHINDEX2D);
             Coefficients<Lexicographical,T,Index2D> IAUIv(SIZEHASHINDEX2D);
-            T time_evalAA1 = 0.;
             Coefficients<Lexicographical,T,Index2D> IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref;
             IndexSet<Index1D> checkLambda_x;
             for (const_set2d_it it=checkLambda.begin(); it!=checkLambda.end(); ++it) {
@@ -254,6 +265,7 @@ int main (int argc, char *argv[]) {
             localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
                            time_IAv1, time_IAv2, time_LIv, time_UIv);
 
+            AAv.setToZero();
             time.start();
             localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
                            time_IAv1, time_IAv2, time_LIv, time_UIv);
@@ -269,6 +281,8 @@ int main (int argc, char *argv[]) {
                                << " " << time_IAv1/time_IAv1_old << " " << time_IAv2/time_IAv2_old
                                << " " << time_LIv/time_LIv_old << " " << time_UIv/time_UIv_old << endl;
             cout << "**** New scheme finished ****" << endl << endl;
+            // Attention: For large output sets, computation times are not exactly linear since
+            // hash maps are too small.
             N_old = N;
             time_intermediate1_old=time_intermediate1; time_intermediate2_old=time_intermediate2;
             time_IAv1_old=time_IAv1; time_IAv2_old=time_IAv2; time_LIv_old=time_LIv;
@@ -279,9 +293,9 @@ int main (int argc, char *argv[]) {
         old_time = time_evalAA1;
     }
 
+
     return 0;
 }
-
 
 void
 getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j, T gamma)
@@ -400,14 +414,7 @@ refComputationIAv(BilinearForm_y &Bil_y, const Coefficients<Lexicographical,T,In
             Index1D col_x = (*col).first.index1;
             Index1D col_y = (*col).first.index2;
             if (row_x.xtype==col_x.xtype && row_x.j==col_x.j && row_x.k==col_x.k) {
-                if (isL2Orthonormal_y) {
-                    if (row_y.xtype==col_y.xtype && row_y.j==col_y.j && row_y.k==col_y.k) {
-                        val +=  (*col).second;
-                    }
-                }
-                else {
-                    val +=  Bil_y(row_y,col_y) * (*col).second;
-                }
+                val +=  Bil_y(row_y,col_y) * (*col).second;
             }
         }
         (*row).second = val;
@@ -419,7 +426,6 @@ void
 refComputationLIIAv(BilinearForm_x &Bil_x, const Coefficients<Lexicographical,T,Index2D> &IAv,
                     Coefficients<Lexicographical,T,Index2D> &LIIAv)
 {
-    if (isL2Orthonormal_y) return;
     for (coeff2d_it row=LIIAv.begin(); row!=LIIAv.end(); ++row) {
         T val = 0.;
         Index1D row_x = (*row).first.index1;
@@ -450,16 +456,9 @@ refComputationUIv(BilinearForm_x &Bil_x, const Coefficients<Lexicographical,T,In
             Index1D col_x = (*col).first.index1;
             Index1D col_y = (*col).first.index2;
             if (row_y.xtype==col_y.xtype && row_y.j==col_y.j && row_y.k==col_y.k) {
-                if (isL2Orthonormal_x) {
-                    if (row_x.xtype==col_x.xtype && row_x.j==col_x.j && row_x.k==col_x.k) {
-                        val += (*col).second;
-                    }
-                }
-                else {
-                    if (    (row_x.xtype==XBSpline) || ((row_x.xtype==XWavelet && col_x.xtype==XWavelet
-                                     && row_x.j<=col_x.j)) ) {
-                        val += Bil_x(row_x,col_x) * (*col).second;
-                    }
+                if (    (row_x.xtype==XBSpline) || ((row_x.xtype==XWavelet && col_x.xtype==XWavelet
+                                 && row_x.j<=col_x.j)) ) {
+                    val += Bil_x(row_x,col_x) * (*col).second;
                 }
             }
         }
@@ -480,14 +479,7 @@ refComputationIAUIv(BilinearForm_y &Bil_y, const Coefficients<Lexicographical,T,
             Index1D col_x = (*col).first.index1;
             Index1D col_y = (*col).first.index2;
             if (row_x.xtype==col_x.xtype && row_x.j==col_x.j && row_x.k==col_x.k) {
-                if (isL2Orthonormal_y) {
-                    if (row_y.xtype==col_y.xtype && row_y.j==col_y.j && row_y.k==col_y.k) {
-                        val +=   (*col).second;
-                    }
-                }
-                else {
-                    val +=   Bil_y(row_y,col_y) * (*col).second;
-                }
+                val +=   Bil_y(row_y,col_y) * (*col).second;
             }
         }
         (*row).second = val;
@@ -506,15 +498,7 @@ refComputationAAv(BilinearForm_x &Bil_x, BilinearForm_y &Bil_y,
         for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
             Index1D col_x = (*col).first.index1;
             Index1D col_y = (*col).first.index2;
-            if (isL2Orthonormal_x && isL2Orthonormal_y) {
-                if (row_x.xtype==col_x.xtype && row_x.j==col_x.j && row_x.k==col_x.k &&
-                    row_y.xtype==col_y.xtype && row_y.j==col_y.j && row_y.k==col_y.k) {
-                    val +=   (*col).second;
-                }
-            }
-            else {
                 val +=   Bil_x(row_x,col_x) * Bil_y(row_y,col_y) * (*col).second;
-            }
         }
         (*row).second = val;
     }

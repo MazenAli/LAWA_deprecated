@@ -94,7 +94,7 @@ int main(int argc, char*argv[])
 
     /// Test refinement of wavelets: We check the refinement of wavelets in terms of B-splines.
 
-    //test_refinementOfWavelet(basis, refinementbasis, deriv);
+     test_refinementOfWavelet(basis, refinementbasis, deriv);
 
     /// Check for B-spline neighbors: Given a B-spline, we need to determine the B-splines whose
     /// supports intersect the one of the B-spline. Here, both sides are assumed to be on the same
@@ -131,7 +131,7 @@ int main(int argc, char*argv[])
 
     //test_getLowerWaveletNeighborsForWavelet(basis);
 
-    test_getHigherWaveletNeighborsForWavelet(basis);
+    //test_getHigherWaveletNeighborsForWavelet(basis);
 
 
     return 0;
@@ -143,7 +143,7 @@ test_refinementOfBSpline(const PrimalBasis &basis, const RefinementBasis &refine
 {
     DenseVectorLD *refCoeffs;
     cout << " ******** Refinement of B-splines **********" << endl;
-    for (int j=refinementbasis.mra.j0; j<=refinementbasis.mra.j0+4; ++j) {
+    for (int j=refinementbasis.mra.j0; j<=refinementbasis.mra.j0+1; ++j) {
         cout << "j = " << j << ": " << refinementbasis.mra.cardI(j) << " " << refinementbasis.mra.rangeI(j) << endl;
         for (int k= refinementbasis.mra.rangeI(j).firstIndex(); k<=refinementbasis.mra.rangeI(j).lastIndex(); ++k) {
             cout << "  k = " << k  << " " << refinementbasis.generator(XBSpline).support(j,k) << " "
@@ -241,7 +241,7 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
     DenseVectorLD *refCoeffs;
     cout << " *******************************************" << endl;
     cout << " ******* Refinement of Wavelets *******" << endl;
-    for (int j=basis.j0+6; j<=basis.j0+7; ++j) {
+    for (int j=basis.j0+1; j<=basis.j0+2; ++j) {
         for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
             ofstream plotfile_wavelet("refinement_periodic_wavelet.txt");
             T abs_error = 0.L, rel_error = 0.L;
