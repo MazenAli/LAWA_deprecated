@@ -55,7 +55,7 @@ computeErrorInH1Norm(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Ind
     T fu  = f_H*u;
     std::cerr << "   Estimated Energy norm squared: " << uAu << std::endl;
 
-    return std::sqrt(fabs(std::pow(HNormOfExactSolution,2.)- 2*fu + uAu));
+    return std::sqrt(fabs(std::pow(HNormOfExactSolution,(T)2.)- 2*fu + uAu));
 
 }
 

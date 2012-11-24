@@ -25,7 +25,7 @@
 #define ROW_SIZE 4*8192
 #define COL_SIZE 4*2048
 
-typedef double T;
+typedef long double T;
 using namespace lawa;
 using namespace std;
 
@@ -155,6 +155,7 @@ int main (int argc, char *argv[]) {
 
     //Righthand side construction for tensor solution
     if (strcmp(argv[1],"CDF")==0) {
+        /*
         CDF_Basis1D       CDF_basis_x(d,d_,j0_x);
         CDF_Basis1D       CDF_basis_y(d,d_,j0_y);
         CDF_Basis2D       CDF_basis2d(CDF_basis_x,CDF_basis_y);
@@ -233,6 +234,7 @@ int main (int argc, char *argv[]) {
                                                CDF_P, refsol.exact, -4., 4, -4., 4., pow2i<T>(-4), "example5");
             }
         }
+        */
     }
     else if (strcmp(argv[1],"MW")==0) {
         MW_Basis1D       MW_basis_x(d,j0_x);
@@ -274,7 +276,7 @@ int main (int argc, char *argv[]) {
             Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
 
             IndexSet<Index2D> Extension;
-            Extension = C(Lambda,1.,MW_basis2d);
+            Extension = C(Lambda,(T)1.,MW_basis2d);
             Lambda = Lambda + Extension;
             f = MW_F(Lambda);
             Coefficients<AbsoluteValue,T,Index2D> f_abs;
@@ -284,7 +286,7 @@ int main (int argc, char *argv[]) {
             ofstream rhsfile(rhsfilename.str().c_str());
             rhsfile << f.norm(2.) << endl;
             for (int k=0; k<=30; ++k) {
-                T eta=pow(2.,(T)-k);
+                T eta=pow((T)2.,(T)-k);
                 f = MW_F(eta);
                 cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
 
@@ -306,7 +308,7 @@ int main (int argc, char *argv[]) {
                           << "_" << j0_x << "_" << j0_y;
             cout << "Plot of solution started." << endl;
             plot2D(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, refsol.exact,
-                   -10., 10., -10., 10., pow2i<T>(-3), plot_filename.str().c_str());
+                   (T)-10., (T)10., (T)-10., (T)10., pow2i<T>(-3), plot_filename.str().c_str());
             cout << "Plot of solution finished." << endl;
         }
         else if (example==4) {
@@ -332,7 +334,7 @@ int main (int argc, char *argv[]) {
             Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
 
             IndexSet<Index2D> Extension;
-            Extension = C(Lambda,4.,MW_basis2d);
+            Extension = C(Lambda,(T)4.,MW_basis2d);
             Lambda = Lambda + Extension;
             f = MW_F(Lambda);
             Coefficients<AbsoluteValue,T,Index2D> f_abs;
@@ -342,7 +344,7 @@ int main (int argc, char *argv[]) {
             ofstream rhsfile(rhsfilename.str().c_str());
             rhsfile << f.norm(2.) << endl;
             for (int k=0; k<=30; ++k) {
-                T eta=pow(2.,(T)-k);
+                T eta=pow((T)2.,(T)-k);
                 f = MW_F(eta);
                 cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
 
@@ -369,8 +371,8 @@ int main (int argc, char *argv[]) {
             Function2D<T> Func2d_x(refsol.exact_dx, refsol.sing_pts_x, refsol.sing_pts_y);
             Function2D<T> Func2d_y(refsol.exact_dy, refsol.sing_pts_x, refsol.sing_pts_y);
 
-            if (d==2) {
-                int order = 20;
+            if (d==2 || d==3) {
+                int order = 40;
                 MW_NonSeparableRhsIntegralFG2D       MW_rhsintegral_reaction(MW_basis2d, Func2d, order);
                 MW_NonSeparableRhsIntegralFG2D       MW_rhsintegral_diffusion_x(MW_basis2d, Func2d_x, order, 1, 0);
                 MW_NonSeparableRhsIntegralFG2D       MW_rhsintegral_diffusion_y(MW_basis2d, Func2d_y, order, 0, 1);
@@ -380,50 +382,52 @@ int main (int argc, char *argv[]) {
                 MW_SumOfNonSeparableRhs2D            MW_F(MW_rhsintegral2d,MW_P);
                 MW_S_ADWAV_SOLVER_SumNonSeparableRhs MW_s_adwav_solver(MW_basis2d, MW_A, MW_F, contraction,
                                                               threshTol, cgTol, resTol, NumOfIterations,
-                                                              3, 1e-2,1000000);
+                                                              2, 1e-2,1000000);
                 MW_s_adwav_solver.solve(InitialLambda, "cg", convfilename.str().c_str(), 2,
                                          refsol.H1norm());
 
+                std::cerr << "Started plotting..." << std::endl;
                 plot2D<T,MW_Basis2D,MW_Prec>(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1],
-                                             MW_P, refsol.exact, -4., 4, -4., 4., pow2i<T>(-4), "example5");
+                                             MW_P, refsol.exact, -4., 4, -4., 4., pow2i<T>(-5), "example5");
+                std::cerr << "... finished." << std::endl;
 
                 stringstream rhsfilename;
-               rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
-                           << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
+                rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"
+                            << argv[4] << "_" << argv[5] << "_" << c << "_" << argv[6] << ".dat";
 
-               Coefficients<Lexicographical,T,Index2D> f;
-               IndexSet<Index2D> Lambda;
-               Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
+                Coefficients<Lexicographical,T,Index2D> f;
+                IndexSet<Index2D> Lambda;
+                Lambda = supp(MW_s_adwav_solver.solutions[NumOfIterations-1]);
 
-               IndexSet<Index2D> Extension;
-               Extension = C(Lambda,4.,MW_basis2d);
-               Lambda = Lambda + Extension;
-               Extension = C(Lambda,4.,MW_basis2d);
-               Lambda = Lambda + Extension;
-               f = MW_F(Lambda);
-               Coefficients<AbsoluteValue,T,Index2D> f_abs;
-               f_abs = f;
-               cout << f.norm(2.) << " " << f_abs.norm(2.) << endl;
+                IndexSet<Index2D> Extension;
+                Extension = C(Lambda,(T)4.,MW_basis2d);
+                Lambda = Lambda + Extension;
+                Extension = C(Lambda,(T)4.,MW_basis2d);
+                Lambda = Lambda + Extension;
+                f = MW_F(Lambda);
+                Coefficients<AbsoluteValue,T,Index2D> f_abs;
+                f_abs = f;
+                cout << f.norm(2.) << " " << f_abs.norm(2.) << endl;
 
-               ofstream rhsfile(rhsfilename.str().c_str());
-               rhsfile << f.norm(2.) << endl;
-               for (int k=0; k<=30; ++k) {
-                   T eta=pow(2.,(T)-k);
-                   f = MW_F(eta);
-                   cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
+                ofstream rhsfile(rhsfilename.str().c_str());
+                rhsfile << f.norm(2.) << endl;
+                for (int k=0; k<=30; ++k) {
+                    T eta=pow((T)2.,(T)-k);
+                    f = MW_F(eta);
+                    cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
 
-                   IndexSet<Index2D> supp_f;
-                   supp_f = supp(f);
-                   rhsfile << "#," << eta << endl;
-                   for (const_set2d_it it=supp_f.begin(); it!=supp_f.end(); ++it) {
-                       if (Lambda.count(*it)>0) {
-                           Lambda.erase(*it);
-                           rhsfile << *it << endl;
-                       }
-                   }
-                   rhsfile << endl;
-               }
-               rhsfile.close();
+                    IndexSet<Index2D> supp_f;
+                    supp_f = supp(f);
+                    rhsfile << "#," << eta << endl;
+                    for (const_set2d_it it=supp_f.begin(); it!=supp_f.end(); ++it) {
+                        if (Lambda.count(*it)>0) {
+                            Lambda.erase(*it);
+                            rhsfile << *it << endl;
+                        }
+                    }
+                    rhsfile << endl;
+                }
+                rhsfile.close();
             }
 
         }
@@ -467,10 +471,10 @@ int main (int argc, char *argv[]) {
             Lambda = supp(SparseMW_s_adwav_solver.solutions[NumOfIterations-1]);
 
             IndexSet<Index2D> Extension;
-            Extension = C(Lambda,0.25,SparseMW_basis2d);
+            Extension = C(Lambda,(T)0.25,SparseMW_basis2d);
             Lambda = Lambda + Extension;
             std::cerr << "  Size of enlarged Lambda: " << Lambda.size() << std::endl;
-            Extension = C(Lambda,0.25,SparseMW_basis2d);
+            Extension = C(Lambda,(T)0.25,SparseMW_basis2d);
             Lambda = Lambda + Extension;
             std::cerr << "  Size of enlarged Lambda: " << Lambda.size() << std::endl;
 //            Extension = C(Lambda,4.,SparseMW_basis2d);
@@ -483,7 +487,7 @@ int main (int argc, char *argv[]) {
             ofstream rhsfile(rhsfilename.str().c_str());
             rhsfile << f.norm(2.) << endl;
             for (int k=0; k<=50; ++k) {
-                T eta=pow(2.,(T)-k);
+                T eta=pow((T)2.,(T)-k);
                 f = SparseMW_F(eta);
                 cout << "Size of index set for eta = " << eta  << ": " << f.size() << endl;
 
@@ -504,7 +508,7 @@ int main (int argc, char *argv[]) {
             plot_filename << "s_adwav_plot_realline_helmholtz2d_" << example << "_" << d << "_" << d_
                           << "_" << j0_x << "_" << j0_y;
             cout << "Plot of solution started." << endl;
-            plot2D(SparseMW_basis2d, SparseMW_s_adwav_solver.solutions[NumOfIterations-1], SparseMW_P, refsol.exact, -10., 10., -10., 10.,
+            plot2D(SparseMW_basis2d, SparseMW_s_adwav_solver.solutions[NumOfIterations-1], SparseMW_P, refsol.exact, (T)-10., (T)10., (T)-10., (T)10.,
                    pow2i<T>(-3), plot_filename.str().c_str());
             cout << "Plot of solution finished." << endl;
         }

@@ -38,12 +38,13 @@ template <typename _Integral2D>
 class Quadrature2D<SparseGridGP,_Integral2D>
 {
     public:
-        typedef typename _Integral2D::T T;
+        //typedef typename _Integral2D::T T;
+        typedef double T;
 
         Quadrature2D(const _Integral2D &integral);
 
-        const T
-        operator()(T ax, T bx, T ay, T by) const;
+        const double
+        operator()(double ax, double bx, double ay, double by) const;
 
         void setOrder(int order);
         void setLevel(int level);

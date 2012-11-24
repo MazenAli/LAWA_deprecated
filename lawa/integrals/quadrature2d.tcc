@@ -29,8 +29,9 @@ Quadrature2D<SparseGridGP,_Integral2D>::Quadrature2D(const _Integral2D &integral
 }
 
 template <typename _Integral2D>
-const typename _Integral2D::T
-Quadrature2D<SparseGridGP,_Integral2D>::operator()(T ax, T bx, T ay, T by) const
+//const typename _Integral2D::T
+const double
+Quadrature2D<SparseGridGP,_Integral2D>::operator()(double ax, double bx, double ay, double by) const
 {
     if ((ax == bx) || (ay == by)) {
         return 0.;
