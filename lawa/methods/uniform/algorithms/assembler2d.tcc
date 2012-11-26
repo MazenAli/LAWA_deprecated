@@ -35,8 +35,8 @@ assembleStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol)
 {   
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
-    FirstBasis b1 = basis.first;
-    SecondBasis b2 = basis.second;
+    const FirstBasis& b1 = basis.first;
+    const SecondBasis& b2 = basis.second;
     
     UniformIndex2D<Basis> I(basis, J_x, J_y);
     
@@ -391,8 +391,8 @@ Assembler2D<T, Basis>::assembleRHS(RHSIntegral& rhs, int J_x, int J_y)
 {
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
-    FirstBasis b1 = basis.first;
-    SecondBasis b2 = basis.second;
+    const FirstBasis& b1 = basis.first;
+    const SecondBasis& b2 = basis.second;
     
     UniformIndex2D<Basis> I(basis, J_x, J_y);
      
@@ -470,8 +470,8 @@ assemblePreconditioner(Preconditioner& P, int J_x, int J_y)
 {
     typedef typename Basis::FirstBasisType FirstBasis;
     typedef typename Basis::SecondBasisType SecondBasis;
-    FirstBasis b1 = basis.first;
-    SecondBasis b2 = basis.second;
+    const FirstBasis& b1 = basis.first;
+    const SecondBasis& b2 = basis.second;
     
     UniformIndex2D<Basis> I(basis, J_x, J_y);
     
