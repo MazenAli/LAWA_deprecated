@@ -303,13 +303,14 @@ int main (int argc, char *argv[]) {
             }
             rhsfile.close();
 
+            cout << "Plot of solution started." << endl;
             stringstream plot_filename;
             plot_filename << "s_adwav_plot_realline_helmholtz2d_" << example << "_" << d << "_" << d_
                           << "_" << j0_x << "_" << j0_y;
-            cout << "Plot of solution started." << endl;
             plot2D(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, refsol.exact,
-                   (T)-10., (T)10., (T)-10., (T)10., pow2i<T>(-3), plot_filename.str().c_str());
+                   (T)-20., (T)20., (T)-20., (T)20., pow2i<T>(-4), plot_filename.str().c_str());
             cout << "Plot of solution finished." << endl;
+
         }
         else if (example==4) {
             int order = 27;
@@ -388,8 +389,13 @@ int main (int argc, char *argv[]) {
 
                 std::cerr << "Started plotting..." << std::endl;
                 plot2D<T,MW_Basis2D,MW_Prec>(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1],
-                                             MW_P, refsol.exact, -4., 4, -4., 4., pow2i<T>(-5), "example5");
+                                             MW_P, refsol.exact, -12., 12., -12., 12., pow2i<T>(-5), "example5");
                 std::cerr << "... finished." << std::endl;
+
+
+                MW_rhsintegral_reaction.integral2d.quadrature.setOrder(8);
+                MW_rhsintegral_diffusion_x.integral2d.quadrature.setOrder(8);
+                MW_rhsintegral_diffusion_y.integral2d.quadrature.setOrder(8);
 
                 stringstream rhsfilename;
                 rhsfilename << "rhs_realline_helmholtz_" << argv[1] << "_" << argv[2] << "_" << argv[3] << "_"

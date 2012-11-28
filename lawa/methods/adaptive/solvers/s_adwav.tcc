@@ -104,6 +104,10 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
 
         timer.stop();
 
+        std::stringstream coefffile;
+        coefffile << "s_adwav_coeffs_" << its;
+        plotScatterCoeff2D(u, A.basis.first, A.basis.second, coefffile.str().c_str());
+
         std::cout << "Computing error..." << std::endl;
         T time1 = timer.elapsed();
 

@@ -120,6 +120,11 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
         nu_kM1 = nu_k;
         time.stop();
         total_time += time.elapsed();
+
+        std::stringstream coeff_filename;
+        coeff_filename << "adwav_coeff_" << w_k.size();
+        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coeff_filename.str().c_str());
+
         std::cerr << std::endl;
     }
     return w_k;
