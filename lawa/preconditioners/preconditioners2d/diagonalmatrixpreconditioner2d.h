@@ -40,6 +40,9 @@ class DiagonalMatrixPreconditioner2D
         T
         operator()(const Index2D &index) const;
 
+        T
+        operator[](const Index2D &index) const;
+
     private:
         const BilinearForm &_a;
 
