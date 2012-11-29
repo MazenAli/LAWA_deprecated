@@ -50,7 +50,8 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
             IndexConeContainer;
 #endif
 
-    IndexConeContainer indexConeContainer(v.size());
+    IndexConeContainer indexConeContainer_x(v.size());
+    IndexConeContainer indexConeContainer_y(v.size());
 
     for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
         C_v[(*it).first] = (T)0.;
@@ -60,21 +61,21 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
         //C_index2 = C((*it).first.index2, (T)1., basis.second);
 
         IndexConeContainer::const_iterator indexConeContainer_ptr;
-        indexConeContainer_ptr = indexConeContainer.find((*it).first.index1);
-        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+        indexConeContainer_ptr = indexConeContainer_x.find((*it).first.index1);
+        if (indexConeContainer_ptr!=indexConeContainer_x.end()) {
             C_index1 = (*indexConeContainer_ptr).second;
         }
         else {
             C_index1 = C((*it).first.index1, (T)1., basis.first);
-            indexConeContainer[(*it).first.index1] = C_index1;
+            indexConeContainer_x[(*it).first.index1] = C_index1;
         }
-        indexConeContainer_ptr = indexConeContainer.find((*it).first.index2);
-        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+        indexConeContainer_ptr = indexConeContainer_y.find((*it).first.index2);
+        if (indexConeContainer_ptr!=indexConeContainer_y.end()) {
             C_index2 = (*indexConeContainer_ptr).second;
         }
         else {
             C_index2 = C((*it).first.index2, (T)1., basis.second);
-            indexConeContainer[(*it).first.index2] = C_index2;
+            indexConeContainer_y[(*it).first.index2] = C_index2;
         }
 
         if (strcmp(residualType,"standard")==0) {
@@ -134,35 +135,37 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
             IndexConeContainer;
 #endif
 
-    IndexConeContainer indexConeContainer(v.size());
+    IndexConeContainer indexConeContainer_x(v.size());
+    IndexConeContainer indexConeContainer_y(v.size());
+    IndexConeContainer indexConeContainer_z(v.size());
 
     for (const_coeff3d_it it=v.begin(); it!=v.end(); ++it) {
         C_v[(*it).first] = (T)0.;
         IndexSet<Index1D > C_index1, C_index2, C_index3;
         IndexConeContainer::const_iterator indexConeContainer_ptr;
-        indexConeContainer_ptr = indexConeContainer.find((*it).first.index1);
-        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+        indexConeContainer_ptr = indexConeContainer_x.find((*it).first.index1);
+        if (indexConeContainer_ptr!=indexConeContainer_x.end()) {
             C_index1 = (*indexConeContainer_ptr).second;
         }
         else {
             C_index1 = C((*it).first.index1, (T)1., basis.first);
-            indexConeContainer[(*it).first.index1] = C_index1;
+            indexConeContainer_x[(*it).first.index1] = C_index1;
         }
-        indexConeContainer_ptr = indexConeContainer.find((*it).first.index2);
-        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+        indexConeContainer_ptr = indexConeContainer_y.find((*it).first.index2);
+        if (indexConeContainer_ptr!=indexConeContainer_y.end()) {
             C_index2 = (*indexConeContainer_ptr).second;
         }
         else {
             C_index2 = C((*it).first.index2, (T)1., basis.second);
-            indexConeContainer[(*it).first.index2] = C_index2;
+            indexConeContainer_y[(*it).first.index2] = C_index2;
         }
-        indexConeContainer_ptr = indexConeContainer.find((*it).first.index3);
-        if (indexConeContainer_ptr!=indexConeContainer.end()) {
+        indexConeContainer_ptr = indexConeContainer_z.find((*it).first.index3);
+        if (indexConeContainer_ptr!=indexConeContainer_z.end()) {
             C_index3 = (*indexConeContainer_ptr).second;
         }
         else {
             C_index3 = C((*it).first.index3, (T)1., basis.second);
-            indexConeContainer[(*it).first.index3] = C_index3;
+            indexConeContainer_z[(*it).first.index3] = C_index3;
         }
         if (strcmp(residualType,"standard")==0) {
             for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
