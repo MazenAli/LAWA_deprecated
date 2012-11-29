@@ -84,6 +84,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
             T tmp = Prec((*it).first) * F((*it).first);
             r[(*it).first] = 0.;
             p[(*it).first] = tmp;
+            Ap[(*it).first] = 0.;
         }
 
         std::cerr.precision(16);
