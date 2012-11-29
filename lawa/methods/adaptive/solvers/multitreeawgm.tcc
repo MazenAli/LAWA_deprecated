@@ -84,11 +84,12 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
             T tmp = Prec((*it).first) * F((*it).first);
             r[(*it).first] = 0.;
             p[(*it).first] = tmp;
+            Ap[(*it).first] = tmp;
         }
 
-        std::cerr.precision(16);
-        //std::cerr << "      || f ||_{ell_2} = " << p.norm((T)2.) << std::endl;
-        std::cerr.precision(6);
+//        std::cerr.precision(16);
+//        std::cerr << "      || f ||_{ell_2} = " << p.norm((T)2.) << std::endl;
+//        std::cerr.precision(6);
         //std::cerr << "      ...finished." << std::endl;
 
         /* ******************* CG method for Galerkin system *********************** */
@@ -99,7 +100,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         //std::cerr << "      CG method started." << std::endl;
         //std::cerr << "DEBUG: Size of r = " << r.size() << std::endl;
         Op.eval(u,r,Prec,"galerkin");
-        //std::cerr << "DEBUG: Size of r = " << r.size() << std::endl;
+        //std::cerr << "DEBUG: Size of r = " << r.size() << " with norm "<< r.norm(2.) << std::endl;
         r -= p;
         p = r;
         p *= (T)(-1.);
@@ -117,7 +118,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
             time.start();
             Op.eval(p,Ap,Prec,"galerkin");
             time.stop();
-            //std::cerr << "      DEBUG: " << time.elapsed() << std::endl;
+//            std::cerr << "      DEBUG: " << time.elapsed() << std::endl;
+//            std::cerr << "      DEBUG: A*p = " << Ap << std::endl;
+//            std::cerr << "      DEBUG: p = " << p << std::endl;
             time_mv_linsys += time.elapsed();
             T pAp = p * Ap;
             T alpha = cg_rNormSquare/pAp;
@@ -192,25 +195,28 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
 
         /* ******************* Computing approximate residual ********************** */
 
-        //std::cerr << "      Computing residual..." << std::endl;
-        //std::cerr << "         Computing multi-tree for residual..." << std::endl;
-        //std::cerr << "           #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
+//        std::cerr << "      Computing residual..." << std::endl;
+//        std::cerr << "         Computing multi-tree for residual..." << std::endl;
+//        std::cerr << "           #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
         time.start();
         res.setToZero();
         extendMultiTree(basis, u_leafs, res, residualType, IsMW, sparsetree);
+//        std::cerr << "          u_leafs = " << u_leafs << std::endl;
+//        std::cerr << "          res = " << res << std::endl;
+
         //extendMultiTreeAtBoundary(basis, u, res, J+1, sparsetree);
         time.stop();
         time_multitree_residual = time.elapsed();
         N_residual = res.size();
-        //std::cerr << "         ... finished after " << time.elapsed() << std::endl;
-        //std::cerr << "      #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
-        //std::cerr << "         Computing matrix vector product..." << std::endl;
+//        std::cerr << "         ... finished after " << time.elapsed() << std::endl;
+//        std::cerr << "      #supp u = " << u.size() << ", #supp r = " << res.size() << std::endl;
+//        std::cerr << "         Computing matrix vector product..." << std::endl;
         time.start();
         //A.eval(u,res,Prec);
         Op.eval(u,res,Prec,"residual");
         //Op.eval(u,res,Prec,"residual_standard");
-        //std::cerr << "         ... finished." << std::endl;
-        //std::cerr << "         Substracting right-hand side..." << std::endl;
+//        std::cerr << "         ... finished." << std::endl;
+//        std::cerr << "         Substracting right-hand side..." << std::endl;
         for (coeff_it it=res.begin(); it!=res.end(); ++it) {
             (*it).second -= Prec((*it).first) * F((*it).first);
         }
@@ -219,7 +225,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         time_mv_residual = time.elapsed();
         time_multitree_residual += time_mv_residual;
         time_total_residual += time_multitree_residual;
-        //std::cerr << "      ... finished." << std::endl;
+//        std::cerr << "      ... finished." << std::endl;
         std::cerr << "      Residual: " << Residual << std::endl;
         if (Residual <= _eps) {
             std::cerr << "      Target tolerance reached: Residual = " << Residual
@@ -242,10 +248,11 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         }
         if (res.size()!=0) {
             T threshbound = std::sqrt(1-alpha*alpha) * res.norm((T)2.)/std::sqrt(T(res.size()));
+//            std::cerr << "      Threshbound: " << threshbound << std::endl;
             Coefficients<Bucket,T,Index> r_bucket;
             r_bucket.bucketsort(res, threshbound);
-            //std::cerr << "         ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_Residual_square)
-            //          << ", alpha*Residual = " << alpha*Residual << std::endl;
+//            std::cerr << "         ||P_{Lambda}r ||_2 = " << std::sqrt(P_Lambda_Residual_square)
+//                      << ", alpha*Residual = " << alpha*Residual << std::endl;
 
             for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
                 P_Lambda_Residual_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
@@ -262,14 +269,15 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         }
 
         // The vector p satisfies the bulk criterion. But it is not yet a multi-tree...
-        //std::cerr << "      Size of u before extension: " << u.size() << std::endl;
-        //std::cerr << "      Size of extension set: " << p.size() << std::endl;
+//        std::cerr << "      Size of u before extension: " << u.size() << std::endl;
+//        std::cerr << "      Size of extension set: " << p.size() << std::endl;
         for (const_coeff_it it=p.begin(); it!=p.end(); ++it) {
             if (u.find((*it).first)==u.end()) {
                 completeMultiTree(basis, (*it).first, u, 0, sparsetree);
             }
         }
-        //std::cerr << "      Size of u after extension: " << u.size() << std::endl;
+//        std::cerr << "      Size of u after extension: " << u.size() << std::endl;
+//        std::cerr << " u = " << u << std::endl;
 
         // Note that r is still supported on the previous Galerkin index set!
         u_leafs.clear();
