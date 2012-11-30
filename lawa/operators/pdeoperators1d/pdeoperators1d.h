@@ -6,6 +6,8 @@
 #include <lawa/operators/pdeoperators1d/weightedhelmholtzoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedidentityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedlaplaceoperator1d.h>
-#include <lawa/operators/pdeoperators1d/weightedpdeoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedconvectionoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedconvectionoperator1d_pg.h>
+#include <lawa/operators/pdeoperators1d/weightedpdeoperator1d.h>
+#include <lawa/operators/pdeoperators1d/weightedpdeoperator1d_pg.h>
+
