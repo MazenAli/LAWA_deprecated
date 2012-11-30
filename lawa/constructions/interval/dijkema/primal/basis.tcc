@@ -336,22 +336,22 @@ getWaveletNeighborsForBSpline(int j_bspline, long k_bspline,
     ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
               and SecondBasis::Cons==Dijkema);
     j_wavelet = j_bspline;
-    Support<T> supp = refinementbasis.mra.phi.support(j_bspline,k_bspline);
+    Support<T> supp = mra.phi.support(j_bspline,k_bspline);
     T a = supp.l1, b = supp.l2;
 
     if (a==0.L) {
         k_wavelet_first = 1;
-        k_wavelet_last = k_wavelet_first + cardJL(j_wavelet) + d/2;
-        k_wavelet_last  = std::min(k_wavelet_last, (long)rangeJR(j_wavelet).lastIndex());
+        k_wavelet_last = k_wavelet_first + secondbasis.cardJL(j_wavelet) + d/2;
+        k_wavelet_last  = std::min(k_wavelet_last, (long)secondbasis.rangeJR(j_wavelet).lastIndex());
         return;
     }
     if (0<a && b<1.L) {
-        k_wavelet_first  = std::max((long)rangeJL(j_wavelet).firstIndex(), k_bspline - (d+d_) + 1);
-        k_wavelet_last   = std::min((long)rangeJR(j_wavelet).lastIndex(),  k_bspline + (d+d_) - 1);
+        k_wavelet_first  = std::max((long)secondbasis.rangeJL(j_wavelet).firstIndex(), k_bspline - (d+d_) + 1);
+        k_wavelet_last   = std::min((long)secondbasis.rangeJR(j_wavelet).lastIndex(),  k_bspline + (d+d_) - 1);
         return;
     }
-    k_wavelet_last   = rangeJ(j_wavelet).lastIndex();
-    k_wavelet_first  = k_wavelet_last - (cardJR(j_wavelet) + d/2) + 1;
+    k_wavelet_last   = secondbasis.rangeJ(j_wavelet).lastIndex();
+    k_wavelet_first  = k_wavelet_last - (secondbasis.cardJR(j_wavelet) + d/2) + 1;
     k_wavelet_first  = std::max(1L, k_wavelet_first);
 
 
@@ -425,17 +425,17 @@ getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
     Support<T> supp = mra.phi.support(j_bspline1,k_bspline1);
     T a = supp.l1, b = supp.l2;
     if (a==0.L) {
-        k_bspline2_first = (long)mra.rangeI(j_bspline2).firstIndex();
-        k_bspline2_last  = std::min(k_bspline1 + d, (long)mra.rangeI(j_bspline2).lastIndex());
+        k_bspline2_first = (long)secondrefinementbasis.mra.rangeI(j_bspline2).firstIndex();
+        k_bspline2_last  = std::min(k_bspline1 + d, (long)secondrefinementbasis.mra.rangeI(j_bspline2).lastIndex());
         return;
     }
     if (b<1.L) {
-        k_bspline2_first = std::max(k_bspline1-d+1, (long)mra.rangeI(j_bspline2).firstIndex());
-        k_bspline2_last  = std::min(k_bspline1+d-1, (long)mra.rangeI(j_bspline2).lastIndex());
+        k_bspline2_first = std::max(k_bspline1-d+1, (long)secondrefinementbasis.mra.rangeI(j_bspline2).firstIndex());
+        k_bspline2_last  = std::min(k_bspline1+d-1, (long)secondrefinementbasis.mra.rangeI(j_bspline2).lastIndex());
         return;
     }
-    k_bspline2_first = std::max((long)mra.rangeI(j_bspline2).firstIndex(),k_bspline1 - d);
-    k_bspline2_last  = (long)mra.rangeI(j_bspline2).lastIndex();
+    k_bspline2_first = std::max((long)secondrefinementbasis.mra.rangeI(j_bspline2).firstIndex(),k_bspline1 - d);
+    k_bspline2_last  = (long)secondrefinementbasis.mra.rangeI(j_bspline2).lastIndex();
 
     return;
 }
@@ -482,19 +482,19 @@ getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet, const SecondBasis &
     Support<T> supp = psi.support(j_wavelet,k_wavelet);
     T a = supp.l1, b = supp.l2;
     if (a==0.) {
-        k_bspline_first = mra.rangeI(j_bspline).firstIndex();
-        k_bspline_last =  k_bspline_first+ mra.cardIL(j_bspline) + d + 2;
-        k_bspline_last  = std::min(k_bspline_last, (long)mra.rangeIR(j_bspline).lastIndex());
+        k_bspline_first = secondbasis.mra.rangeI(j_bspline).firstIndex();
+        k_bspline_last =  k_bspline_first+ secondbasis.mra.cardIL(j_bspline) + d + 2;
+        k_bspline_last  = std::min(k_bspline_last, (long)secondbasis.mra.rangeIR(j_bspline).lastIndex());
         return;
     }
     if (0.<a && b<1.) {
-        k_bspline_first = std::max((long)mra.rangeIL(j_bspline).firstIndex(), k_wavelet - (d+d_) + 1);
-        k_bspline_last  = std::min((long)mra.rangeIR(j_bspline).lastIndex(),  k_wavelet + (d+d_) - 1);
+        k_bspline_first = std::max((long)secondbasis.mra.rangeIL(j_bspline).firstIndex(), k_wavelet - (d+d_) + 1);
+        k_bspline_last  = std::min((long)secondbasis.mra.rangeIR(j_bspline).lastIndex(),  k_wavelet + (d+d_) - 1);
         return;
     }
-    k_bspline_last   = mra.rangeI(j_bspline).lastIndex();
-    k_bspline_first  = k_bspline_last - (mra.cardIR(j_bspline) + d + 2);
-    k_bspline_first  = std::max((long)mra.rangeIL(j_bspline).firstIndex(), k_bspline_first);
+    k_bspline_last   = secondbasis.mra.rangeI(j_bspline).lastIndex();
+    k_bspline_first  = k_bspline_last - (secondbasis.mra.cardIR(j_bspline) + d + 2);
+    k_bspline_first  = std::max((long)secondbasis.mra.rangeIL(j_bspline).firstIndex(), k_bspline_first);
 }
 
 template <typename T>
@@ -527,17 +527,17 @@ Basis<T,Primal,Interval,Dijkema>::getWaveletNeighborsForWavelet(int j_wavelet1, 
     Support<T> supp = psi.support(j_wavelet1,k_wavelet1);
     T a = supp.l1, b = supp.l2;
     if (a==0.L) {
-        k_wavelet_first = (long)rangeJ(j_wavelet2).firstIndex();
-        k_wavelet_last  = std::min(k_wavelet1 + 2*d, (long)rangeJ(j_wavelet2).lastIndex());
+        k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
+        k_wavelet_last  = std::min(k_wavelet1 + 2*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
         return;
     }
     if (b<1.L) {
-        k_wavelet_first = std::max(k_wavelet1-2*d+1, (long)rangeJ(j_wavelet2).firstIndex());
-        k_wavelet_last  = std::min(k_wavelet1+2*d-1, (long)rangeJ(j_wavelet2).lastIndex());
+        k_wavelet_first = std::max(k_wavelet1-2*d+1, (long)secondbasis.rangeJ(j_wavelet2).firstIndex());
+        k_wavelet_last  = std::min(k_wavelet1+2*d-1, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
         return;
     }
-    k_wavelet_first = std::max((long)rangeJ(j_wavelet2).firstIndex(),k_wavelet1 - 2*d);
-    k_wavelet_last  = (long)rangeJ(j_wavelet2).lastIndex();
+    k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_wavelet1 - 2*d);
+    k_wavelet_last  = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
 
     return;
 }
@@ -559,17 +559,17 @@ Basis<T,Primal,Interval,Dijkema>::getLowerWaveletNeighborsForWavelet(int j_wavel
     T a = supp.l1, b = supp.l2;
     long k_tilde = k_wavelet1/2;
     if (a==0.L) {
-        k_wavelet_first = (long)rangeJ(j_wavelet2).firstIndex();
-        k_wavelet_last  = std::min(k_tilde + 2*d, (long)rangeJ(j_wavelet2).lastIndex());
+        k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
+        k_wavelet_last  = std::min(k_tilde + 2*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
         return;
     }
     if (b<1.L) {
-        k_wavelet_first = std::max(k_tilde-2*d+1, (long)rangeJ(j_wavelet2).firstIndex());
-        k_wavelet_last  = std::min(k_tilde+2*d-1, (long)rangeJ(j_wavelet2).lastIndex());
+        k_wavelet_first = std::max(k_tilde-2*d+1, (long)secondbasis.rangeJ(j_wavelet2).firstIndex());
+        k_wavelet_last  = std::min(k_tilde+2*d-1, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
         return;
     }
-    k_wavelet_first = std::max((long)rangeJ(j_wavelet2).firstIndex(),k_tilde - 2*d);
-    k_wavelet_last  = (long)rangeJ(j_wavelet2).lastIndex();
+    k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_tilde - 2*d);
+    k_wavelet_last  = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
 
     return;
 }
@@ -591,17 +591,17 @@ Basis<T,Primal,Interval,Dijkema>::getHigherWaveletNeighborsForWavelet(int j_wave
     T a = supp.l1, b = supp.l2;
     long k_tilde = k_wavelet1*2;
     if (a==0.L) {
-        k_wavelet_first = (long)rangeJ(j_wavelet2).firstIndex();
-        k_wavelet_last  = std::min(k_tilde + 3*d, (long)rangeJ(j_wavelet2).lastIndex());
+        k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
+        k_wavelet_last  = std::min(k_tilde + 3*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
         return;
     }
     if (b<1.L) {
-        k_wavelet_first = std::max(k_tilde-2*d-1, (long)rangeJ(j_wavelet2).firstIndex());
-        k_wavelet_last  = std::min(k_tilde+2*d+1, (long)rangeJ(j_wavelet2).lastIndex());
+        k_wavelet_first = std::max(k_tilde-2*d-1, (long)secondbasis.rangeJ(j_wavelet2).firstIndex());
+        k_wavelet_last  = std::min(k_tilde+2*d+1, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
         return;
     }
-    k_wavelet_first = std::max((long)rangeJ(j_wavelet2).firstIndex(),k_tilde - 3*d);
-    k_wavelet_last  = (long)rangeJ(j_wavelet2).lastIndex();
+    k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_tilde - 3*d);
+    k_wavelet_last  = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
 
     return;
 }
