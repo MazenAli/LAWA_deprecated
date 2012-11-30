@@ -86,19 +86,29 @@ class Basis<_T,Primal,Periodic,CDF>
         /// k_scaling from the current Basis. This is required for tree-based algorithms.
         /// The returned level is chosen s.t. the corresponding refinements live
         /// on the same scale.
-        template <typename SecondBasis>
-            void
-            getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
-                                          const SecondBasis &secondbasis,
-                                          int &j_scaling2, long &k_scaling_first,
-                                          long &k_scaling_last) const;
+        void
+        getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
+        							  const Basis<T,Primal,Periodic,CDF> &secondbasis,
+        							  int &j_scaling2, long &k_scaling_first,
+        							  long &k_scaling_last) const;
 
-        template <typename SecondBasis>
-            void
-            getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1,
-                                          const SecondBasis &secondbasis,
-                                          int &j_wavelet, long &k_wavelet_first,
-                                          long &k_wavelet_last) const;
+        void
+        getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
+        							  const Basis<T,Primal,Interval,Dijkema> &secondbasis,
+        							  int &j_scaling2, long &k_scaling_first,
+        							  long &k_scaling_last) const;
+
+        void
+        getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1,
+        							  const Basis<T,Primal,Periodic,CDF> &secondbasis,
+        							  int &j_wavelet, long &k_wavelet_first,
+        							  long &k_wavelet_last) const;
+
+        void
+        getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1,
+        							  const Basis<T,Primal,Interval,Dijkema> &secondbasis,
+        							  int &j_wavelet, long &k_wavelet_first,
+        							  long &k_wavelet_last) const;
 
         /// Returns the range of indicated functions from SecondBasis and SecondRefinementBasis
         /// whose supports intersect the support of a given wavelet with level j_wavelet and
@@ -106,42 +116,50 @@ class Basis<_T,Primal,Periodic,CDF>
         /// The returned level of the functions is chosen s.t. there is "no scale difference", i.e.,
         /// the corresponding refinements should live on the same scale.
         template <typename SecondRefinementBasis>
-            void
-            getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
-                                          const SecondRefinementBasis &secondrefinementbasis,
-                                          int &j_bspline, long &k_bspline_first,
-                                          long &k_bspline_last) const;
+		void
+		getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
+									  const SecondRefinementBasis &secondrefinementbasis,
+									  int &j_bspline, long &k_bspline_first,
+									  long &k_bspline_last) const;
 
         template <typename SecondBasis>
-            void
-            getScalingNeighborsForWavelet(int j_wavelet, long k_wavelet,
-                                          const SecondBasis &secondbasis,
-                                          int &j_scaling, long &k_scaling_first,
-                                          long &k_scaling_last) const;
+		void
+		getScalingNeighborsForWavelet(int j_wavelet, long k_wavelet,
+									  const SecondBasis &secondbasis,
+									  int &j_scaling, long &k_scaling_first,
+									  long &k_scaling_last) const;
+
+        void
+        getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                      const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                                      int &j_wavelet2, long &k_wavelet_first,
+                                      long &k_wavelet_last) const;
+
+        void
+        getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                      const Basis<T,Primal,Interval,Dijkema> &secondbasis,
+                                      int &j_wavelet2, long &k_wavelet_first,
+                                      long &k_wavelet_last) const;
+
 
         template <typename SecondBasis>
-            void
-            getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                                          const SecondBasis &secondbasis,
-                                          int &j_wavelet2, long &k_wavelet_first,
-                                          long &k_wavelet_last) const;
-        /*
-         * TODO
-         */
+		void
+		getLowerWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+										   const SecondBasis &secondbasis,
+										   int &j_wavelet2, long &k_wavelet_first,
+										   long &k_wavelet_last) const;
 
-        template <typename SecondBasis>
-            void
-            getLowerWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                                               const SecondBasis &secondbasis,
-                                               int &j_wavelet2, long &k_wavelet_first,
-                                               long &k_wavelet_last) const;
+		void
+		getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+										   const Basis<T,Primal,Periodic,CDF> &secondbasis,
+										   int &j_wavelet2, long &k_wavelet_first,
+										   long &k_wavelet_last) const;
 
-        template <typename SecondBasis>
-            void
-            getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                                               const SecondBasis &secondbasis,
-                                               int &j_wavelet2, long &k_wavelet_first,
-                                               long &k_wavelet_last) const;
+        void
+        getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                           const Basis<T,Primal,Interval,Dijkema> &secondbasis,
+                                           int &j_wavelet2, long &k_wavelet_first,
+                                           long &k_wavelet_last) const;
 
         const int d, d_, j0;
         MRA<T,Primal,Periodic,CDF> mra;

@@ -160,14 +160,12 @@ Basis<T,Primal,Periodic,CDF>::rangeJR(int j) const
 }
 
 template <typename T>
-template <typename SecondBasis>
 void
 Basis<T,Primal,Periodic,CDF>::getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
-							  const SecondBasis &secondbasis,
+							  const Basis<T,Primal,Periodic,CDF> &secondbasis,
 							  int &j_scaling2, long &k_scaling_first,
 							  long &k_scaling_last) const
 {
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Periodic and SecondBasis::Cons==CDF);
     j_scaling2 = j_scaling1;
 
     long kminR = k_scaling1 - d + 1;
@@ -183,14 +181,59 @@ Basis<T,Primal,Periodic,CDF>::getScalingNeighborsForScaling(int j_scaling1, long
 }
 
 template <typename T>
-template <typename SecondBasis>
+void
+Basis<T,Primal,Periodic,CDF>::getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
+							  const Basis<T,Primal,Interval,Dijkema> &secondbasis,
+							  int &j_scaling2, long &k_scaling_first,
+							  long &k_scaling_last) const
+{
+    j_scaling2 = j_scaling1;
+
+    // Use that k_interval = k_periodic + 1
+
+    // Interval neighbours:
+    long k_int = k_scaling1 + 1;
+    PeriodicSupport<T> supp = mra.phi.support(j_scaling1,k_scaling1);
+    if(supp.gaplength() == 0){
+        if (supp.l1==0.L) {
+            k_scaling_first = (long)secondbasis.mra.rangeI(j_scaling2).firstIndex();
+            k_scaling_last  = std::min(k_int + d - 1, (long)secondbasis.mra.rangeI(j_scaling2).lastIndex());
+            return;
+        }
+        if (supp.l2<1.L) {
+            k_scaling_first = std::max(k_int-d+1, (long)secondbasis.mra.rangeI(j_scaling2).firstIndex());
+            k_scaling_last  = std::min(k_int+d-1, (long)secondbasis.mra.rangeI(j_scaling2).lastIndex());
+            return;
+        }
+        k_scaling_first = std::max((long)secondbasis.mra.rangeI(j_scaling2).firstIndex(),k_int - d + 1);
+        k_scaling_last  = (long)secondbasis.mra.rangeI(j_scaling2).lastIndex();
+    }
+    else{
+    	// First Index: same as for 0 < l1 above
+        k_scaling_first = std::max((long)secondbasis.mra.rangeI(j_scaling2).firstIndex(),k_int - d + 1);
+        // Last Index: similar as for l2 < 1 above, but for different k
+        long k_break = 1 + k_scaling1 - mra.rangeIR(j_scaling1).firstIndex();
+        k_scaling_last = std::min(k_break+d-1, (long)secondbasis.mra.rangeI(j_scaling2).lastIndex());
+
+        if(k_scaling_first <= k_scaling_last+1){
+        	k_scaling_first = (long)secondbasis.mra.rangeI(j_scaling2).firstIndex();
+        	k_scaling_last = (long)secondbasis.mra.rangeI(j_scaling2).lastIndex();
+        }
+    }
+
+    if(k_scaling_first == k_scaling_last || k_scaling_first == k_scaling_last+1){
+    	k_scaling_first = (long)secondbasis.mra.rangeI(j_scaling2).firstIndex();
+    	k_scaling_last = (long)secondbasis.mra.rangeI(j_scaling2).lastIndex();
+    }
+}
+
+template <typename T>
 void
 Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1,
-							  const SecondBasis &secondbasis,
+							  const Basis<T,Primal,Periodic,CDF> &secondbasis,
 							  int &j_wavelet, long &k_wavelet_first,
 							  long &k_wavelet_last) const
 {
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Periodic and SecondBasis::Cons==CDF);
     j_wavelet = j_scaling1;
 
     long kminR = k_scaling1 - d + std::floor(0.5*((d&1)-d_)) + 1;
@@ -202,6 +245,56 @@ Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForScaling(int j_scaling1, long
     if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
     	k_wavelet_first = rangeJ(j_wavelet).firstIndex();
     	k_wavelet_last = rangeJ(j_wavelet).lastIndex();
+    }
+}
+
+template <typename T>
+void
+Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1,
+							  const Basis<T,Primal,Interval,Dijkema> &secondbasis,
+							  int &j_wavelet, long &k_wavelet_first,
+							  long &k_wavelet_last) const
+{
+    j_wavelet = j_scaling1;
+
+    // Use that k_interval = k_periodic + 1
+    // Interval neighbours:
+    long k_int = k_scaling1 + 1;
+
+    PeriodicSupport<T> supp = mra.phi.support(j_scaling1,k_scaling1);
+
+    if(supp.gaplength()==0){
+        if (supp.l1==0.L) {
+            k_wavelet_first = 1;
+            k_wavelet_last = k_wavelet_first + secondbasis.cardJL(j_wavelet) + d/2;
+            k_wavelet_last  = std::min(k_wavelet_last, (long)secondbasis.rangeJR(j_wavelet).lastIndex());
+            return;
+        }
+        if (0<supp.l1 && supp.l2<1.L) {
+            k_wavelet_first  = std::max((long)secondbasis.rangeJL(j_wavelet).firstIndex(), k_int - (d+d_) + 1);
+            k_wavelet_last   = std::min((long)secondbasis.rangeJR(j_wavelet).lastIndex(),  k_int + (d+d_) - 1);
+            return;
+        }
+        k_wavelet_last   = secondbasis.rangeJ(j_wavelet).lastIndex();
+        k_wavelet_first  = k_wavelet_last - (secondbasis.cardJR(j_wavelet) + d/2) + 1;
+        k_wavelet_first  = std::max(1L, k_wavelet_first);
+    }
+    else{
+        k_wavelet_first  = std::max((long)secondbasis.rangeJL(j_wavelet).firstIndex(), k_int - (d+d_) + 1);
+        long k_break = 1 + k_scaling1 - mra.rangeIR(j_scaling1).firstIndex();
+        k_wavelet_last   = std::min((long)secondbasis.rangeJR(j_wavelet).lastIndex(),  k_break + (d+d_) - 1);
+
+        if(k_wavelet_first <= k_wavelet_last+1){
+        	k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet).firstIndex();
+        	k_wavelet_last = (long)secondbasis.rangeJ(j_wavelet).lastIndex();
+        	return;
+        }
+
+    }
+
+    if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
+    	k_wavelet_first = secondbasis.rangeJ(j_wavelet).firstIndex();
+    	k_wavelet_last = secondbasis.rangeJ(j_wavelet).lastIndex();
     }
 }
 
@@ -280,14 +373,12 @@ Basis<T,Primal,Periodic,CDF>::getScalingNeighborsForWavelet(int j_wavelet, long 
 
 
 template <typename T>
-template <typename SecondBasis>
 void
 Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                              const SecondBasis &secondbasis,
+                              const Basis<T,Primal,Periodic,CDF> &secondbasis,
                               int &j_wavelet2, long &k_wavelet_first,
                               long &k_wavelet_last) const
 {
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Periodic and SecondBasis::Cons==CDF);
     j_wavelet2 = j_wavelet1;
 
 
@@ -300,6 +391,51 @@ Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForWavelet(int j_wavelet1, long
     if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
     	k_wavelet_first = rangeJ(j_wavelet2).firstIndex();
     	k_wavelet_last = rangeJ(j_wavelet2).lastIndex();
+    }
+}
+
+template <typename T>
+void
+Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                              const Basis<T,Primal,Interval,Dijkema> &secondbasis,
+                              int &j_wavelet2, long &k_wavelet_first,
+                              long &k_wavelet_last) const
+{
+    j_wavelet2 = j_wavelet1;
+
+    // Use that k_interval = k_periodic + 1
+    long k_tilde = (k_wavelet1 + 1)*2;
+
+    PeriodicSupport<T> supp = psi.support(j_wavelet1,k_wavelet1);
+    if(supp.gaplength()==0){
+        if (supp.l1==0.L) {
+            k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
+            k_wavelet_last  = std::min(k_wavelet1 + 2*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
+            return;
+        }
+        if (supp.l2<1.L) {
+            k_wavelet_first = std::max(k_wavelet1-2*d+1, (long)secondbasis.rangeJ(j_wavelet2).firstIndex());
+            k_wavelet_last  = std::min(k_wavelet1+2*d-1, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
+            return;
+        }
+        k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_wavelet1 - 2*d);
+        k_wavelet_last  = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
+    }
+    else{
+        k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_wavelet1 - 2*d);
+        long k_break = 1 + k_wavelet1 - rangeJR(j_wavelet1).firstIndex();
+        k_wavelet_last  = std::min(k_break + 2*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
+
+        if(k_wavelet_first <= k_wavelet_last+1){
+        	k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
+        	k_wavelet_last = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
+        	return;
+        }
+    }
+
+    if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
+    	k_wavelet_first = secondbasis.rangeJ(j_wavelet2).firstIndex();
+    	k_wavelet_last = secondbasis.rangeJ(j_wavelet2).lastIndex();
     }
 }
 
@@ -328,14 +464,12 @@ Basis<T,Primal,Periodic,CDF>::getLowerWaveletNeighborsForWavelet(int j_wavelet1,
 }
 
 template <typename T>
-template <typename SecondBasis>
 void
 Basis<T,Primal,Periodic,CDF>::getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                                   const SecondBasis &secondbasis,
+                                   const Basis<T,Primal,Periodic,CDF> &secondbasis,
                                    int &j_wavelet2, long &k_wavelet_first,
                                    long &k_wavelet_last) const
 {
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Periodic and SecondBasis::Cons==CDF);
     j_wavelet2 = j_wavelet1+1;
 
 
@@ -348,6 +482,52 @@ Basis<T,Primal,Periodic,CDF>::getHigherWaveletNeighborsForWavelet(int j_wavelet1
     if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
     	k_wavelet_first = rangeJ(j_wavelet2).firstIndex();
     	k_wavelet_last = rangeJ(j_wavelet2).lastIndex();
+    }
+}
+
+template <typename T>
+void
+Basis<T,Primal,Periodic,CDF>::getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                   const Basis<T,Primal,Interval,Dijkema> &secondbasis,
+                                   int &j_wavelet2, long &k_wavelet_first,
+                                   long &k_wavelet_last) const
+{
+    j_wavelet2 = j_wavelet1+1;
+
+    // Use that k_interval = k_periodic + 1
+    long k_tilde = (k_wavelet1 + 1)*2;
+
+    // Interval calculations
+    PeriodicSupport<T> supp = psi.support(j_wavelet1,k_wavelet1);
+    if(supp.gaplength() == 0){
+        if (supp.l1==0.L) {
+            k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
+            k_wavelet_last  = std::min(k_tilde + 3*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
+            return;
+        }
+        if (supp.l2<1.L) {
+            k_wavelet_first = std::max(k_tilde-2*d-1, (long)secondbasis.rangeJ(j_wavelet2).firstIndex());
+            k_wavelet_last  = std::min(k_tilde+2*d+1, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
+            return;
+        }
+        k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_tilde - 3*d);
+        k_wavelet_last  = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
+    }
+    else{
+        k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_tilde - 3*d);
+        long k_break = 1 + k_wavelet1 - rangeJR(j_wavelet1).firstIndex();
+        k_wavelet_last  = std::min(k_break+3*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
+
+        if(k_wavelet_first <= k_wavelet_last+1){
+        	k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
+        	k_wavelet_last = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
+        	return;
+        }
+    }
+
+    if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
+    	k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
+    	k_wavelet_last = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
     }
 }
 
