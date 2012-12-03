@@ -11,3 +11,13 @@ getPeriodicRefinements
 *.eps
 *.gps
 *.pdf
+*.dat
+multitree_awgm_helmholtz2d_periodic
+multitree_helmholtz2d_periodic
+multitree_mv2d_mixedbases
+multitree_mv2d_periodic
+test_completeMultiTree
+test_extendMultiTree_periodic
+test_local_operator1d_periodic
+test_local_operator2d_periodic
+test_local_operator2d_per-int

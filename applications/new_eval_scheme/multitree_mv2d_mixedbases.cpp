@@ -19,23 +19,27 @@ typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT
 ///  Typedefs for problem components:
 
 ///  Wavelet basis over an interval
-typedef Basis<T, Primal, Periodic, CDF>	                            PrimalBasis;
-typedef PrimalBasis::RefinementBasis                                RefinementBasis;
+typedef Basis<T, Primal, Periodic, CDF>	                            PeriodicBasis;
+typedef Basis<T, Primal, Interval, Dijkema>							IntervalBasis;
+typedef PeriodicBasis::RefinementBasis                              PeriodicRefinementBasis;
+typedef IntervalBasis::RefinementBasis                              IntervalRefinementBasis;
 
-typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
+typedef TensorBasis2D<Adaptive,PeriodicBasis,IntervalBasis>             Basis2D_Trial;
+typedef TensorBasis2D<Adaptive,IntervalBasis,IntervalBasis>             Basis2D_Test;
 
 ///  Underlying bilinear form
-typedef AdaptiveWeightedPDEOperator1D<T,Primal,Periodic, CDF>	    BilinearForm_x;
-typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    RefinementBilinearForm_x;
-typedef AdaptiveWeightedPDEOperator1D<T,Primal,Periodic, CDF>	    BilinearForm_y;
-typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>    RefinementBilinearForm_y;
+typedef AdaptiveWeightedPDEOperator1D_PG<T,PeriodicBasis,IntervalBasis>	    BilinearForm_x;           // !!!!! has testbasis != trialbasis
+typedef AdaptiveWeightedPDEOperator1D_PG<T,PeriodicRefinementBasis,
+										IntervalRefinementBasis	> 	RefinementBilinearForm_x;
+typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>	  		BilinearForm_y;
+typedef AdaptiveWeightedPDEOperator1D<T,Primal,Interval,Dijkema>	  		RefinementBilinearForm_y;
 
 ///  Local operator in 1d
-typedef LocalOperator1D<PrimalBasis,PrimalBasis,
+typedef LocalOperator1D<IntervalBasis,PeriodicBasis,
                         RefinementBilinearForm_x>                   LocalOp1D_x;
-typedef LocalOperator1D<PrimalBasis,PrimalBasis,
+typedef LocalOperator1D<IntervalBasis,IntervalBasis,
                         RefinementBilinearForm_y>                   LocalOp1D_y;
-typedef LocalOperator2D<LocalOp1D_x, LocalOp1D_y>                   LocalOp2D;
+typedef LocalOperator2D<LocalOp1D_x, LocalOp1D_y>                 	LocalOp2D;
 
 ///  Iterators
 typedef IndexSet<Index1D>::const_iterator                           const_set1d_it;
@@ -43,8 +47,12 @@ typedef IndexSet<Index2D>::const_iterator                           const_set2d_
 typedef Coefficients<Lexicographical,T,Index2D>::iterator           coeff2d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2d_it;
 
+typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XOne>             XOneAlignedCoefficients;
+typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XTwo>             XTwoAlignedCoefficients;
+
+template <typename Basis2D>
 void
-getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j, T gamma=0.);
+getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, T gamma=0.);
 
 void
 readIndexSetFromFile(IndexSet<Index2D> &Lambda, const char* indexset, int example, int d,
@@ -74,16 +82,25 @@ refComputationAAv(BilinearForm_x &Bil_x, BilinearForm_y &Bil_y,
                   const Coefficients<Lexicographical,T,Index2D> &v,
                   Coefficients<Lexicographical,T,Index2D> &AAv);
 
-T p1(T x)  {   return (x-0.5)*(x-0.5)+1.; /*1.;*/  }
+//T p1(T x)  {   return -4*(x-0.5)*(x-0.5)+1.; /*1.;*/  }
 
-T dp1(T x) {   return 2*(x-0.5);          /*0.;*/  }
+//T dp1(T x) {   return -8*(x-0.5);          /*0.;*/  }
 
-T p2(T y)  {   return (y-0.5)*(y-0.5)+1.; /*1.;*/  }
+//T p2(T y)  {   return -4*(y-0.5)*(y-0.5)+1.; /*1.;*/  }
 
-T dp2(T y) {   return 2*(y-0.5);         /*0.;*/  }
+//T dp2(T y) {   return -8*(y-0.5);         /*0.;*/  }
 
 
-int main (int argc, char *argv[]) {
+T p1(T x)  {   return 1.;}
+
+T dp1(T x) {   return 0.;  }
+
+T p2(T y)  {   return 1.;  }
+
+T dp2(T y) {   return 0.;  }
+
+
+ int main (int argc, char *argv[]) {
 
 #ifdef TRONE
     cout << "using tr1." << endl;
@@ -101,32 +118,35 @@ int main (int argc, char *argv[]) {
     int J  = atoi(argv[3]);
 
     int numOfIter=J;
-    bool calcRefSol=false;
+    bool calcRefSol=true;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
-    //basis.enforceBoundaryCondition<DirichletBC>();
-    RefinementBasis &refinementbasis = basis.refinementbasis;
-    Basis2D basis2d(basis,basis);
+    PeriodicBasis periodicbasis(d, d, j0);      // For biorthogonal wavelet bases
+    IntervalBasis intervalbasis(d, d, j0);      // For biorthogonal wavelet bases
+    intervalbasis.enforceBoundaryCondition<DirichletBC>();
+    PeriodicRefinementBasis &periodicrefinementbasis = periodicbasis.refinementbasis;
+    IntervalRefinementBasis &intervalrefinementbasis = intervalbasis.refinementbasis;
+    Basis2D_Trial basis2d_trial(periodicbasis,intervalbasis);
+    Basis2D_Test basis2d_test(intervalbasis,intervalbasis);
 
     /// Operator initialization
     DenseVectorT p1_singPts, p2_singPts;
     Function<T> reaction_coeff(p1, p1_singPts);
-    Function<T> convection_coeff(p1, p1_singPts);
+    Function<T> convection_coeff(dp1, p1_singPts);
     Function<T> diffusion_coeff(p1, p1_singPts);
-    RefinementBilinearForm_x  RefinementBil_x(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
-    RefinementBilinearForm_y  RefinementBil_y(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
-    BilinearForm_x  Bil_x(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
-    BilinearForm_y  Bil_y(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
-    LocalOp1D_x localOperator_x(basis,basis,RefinementBil_x);
-    LocalOp1D_y localOperator_y(basis,basis,RefinementBil_y);
+    RefinementBilinearForm_x  RefinementBil_x(periodicrefinementbasis,intervalrefinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
+    RefinementBilinearForm_y  RefinementBil_y(intervalrefinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
+    BilinearForm_x  Bil_x(periodicbasis, intervalbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
+    BilinearForm_y  Bil_y(intervalbasis, reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
+    LocalOp1D_x localOperator_x(intervalbasis,periodicbasis,RefinementBil_x);
+    LocalOp1D_y localOperator_y(intervalbasis,intervalbasis,RefinementBil_y);
 
     LocalOp2D   localop2d(localOperator_x,localOperator_y);
     localop2d.setJ(9);
 
     Timer time;
 
-    ofstream file2("multitree_mv2d_periodic.dat");
+    ofstream file2("multitree_mv2d_mixedbases.dat");
 
     T old_time = 1.;
     T old_N = 1.;
@@ -150,36 +170,66 @@ int main (int argc, char *argv[]) {
 
         // Construct index set Lambda
         Coefficients<Lexicographical,T,Index2D> aux_coeffs;
-        getSparseGridIndexSet(basis,Lambda,j,0.2);
-        cout << "Sparse Grid Lambda: " << Lambda << endl;
+        getSparseGridIndexSet(basis2d_trial,Lambda,j,0.2);
+        //cout << "Sparse Grid Lambda: " << Lambda << endl;
         FillWithZeros(Lambda,aux_coeffs);
-        Index1D index1_x(j0+j+4,13,XWavelet);
-        Index1D index1_y(j0+j+4,4,XWavelet);
+        //Index1D index1_x(j0+j+4,42,XWavelet);
+        //Index1D index1_y(j0+j+4,4,XWavelet);
+        Index1D index1_x(j0+j+4,32,XWavelet);
+        Index1D index1_y(j0+j+4,2,XWavelet);
         Index2D new_index1(index1_x,index1_y);
-        completeMultiTree(basis2d,new_index1,aux_coeffs, 0, true);
+        completeMultiTree(basis2d_trial,new_index1,aux_coeffs, 0, true);
         Lambda = supp(aux_coeffs);
-        //extendMultiTree( basis2d,new_index1,Lambda);
-        cout << "Extended Lambda: " << Lambda << endl;
+        //extendMultiTree( basis2d_trial,new_index1,Lambda);
+        //cout << "Extended Lambda: " << Lambda << endl;
+        cout << "Treestructure Lambda: " << endl;
+		cout << "X1 Alignment " << endl;
+	    XOneAlignedCoefficients x1aligned_Lambda(6151,193);
+	    x1aligned_Lambda.align(aux_coeffs,j0+j+4);
+	    for (XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_Lambda.map.begin();
+	                                                            it!=x1aligned_Lambda.map.end(); ++it) {
+	    	cout << (*it).first << (*it).second;
+	    }
+
+		cout << "X2 Alignment " << endl;
+	    XTwoAlignedCoefficients x2aligned(6151,193);
+	    x2aligned.align(aux_coeffs,J+j0);
+	    for (XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned.map.begin();
+	                                                            it!=x2aligned.map.end(); ++it) {
+	    	cout << (*it).first << (*it).second << endl;
+	    }
 
         aux_coeffs.clear();
-        getSparseGridIndexSet(basis,checkLambda,j,0.2);
+        getSparseGridIndexSet(basis2d_test,checkLambda,j,0.2);
+        //cout << "Sparse Grid checkLambda: " << checkLambda << endl;
         FillWithZeros(checkLambda,aux_coeffs);
-        Index1D index2_x(j0+j+4,7,XWavelet);
-        Index1D index2_y(j0+j+4,17,XWavelet);
+        //Index1D index2_x(j0+j+4,7,XWavelet);
+        //Index1D index2_y(j0+j+4,17,XWavelet);
+        Index1D index2_x(j0+j+4,4,XWavelet);
+        Index1D index2_y(j0+j+4,1,XWavelet);
         Index2D new_index2(index2_x,index2_y);
-        completeMultiTree(basis2d,new_index2,aux_coeffs, 0, true);
+        completeMultiTree(basis2d_test,new_index2,aux_coeffs, 0, true);
         checkLambda = supp(aux_coeffs);
-        //extendMultiTree( basis2d,new_index2,checkLambda);
-        cout << "Extended CheckLambda: " << checkLambda << endl;
+        //extendMultiTree( basis2d_test,new_index2,checkLambda);
+        //cout << "Extended CheckLambda: " << checkLambda << endl;
+        cout << "Treestructure checkLambda: " << endl;
+        /*XOneAlignedCoefficients x1aligned_checkLambda(6151,193);
+	    x1aligned_checkLambda.align(aux_coeffs,j0+j+4);
+	    for (XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_checkLambda.map.begin();
+	                                                            it!=x1aligned_checkLambda.map.end(); ++it) {
+	    	cout << (*it).first << (*it).second;
+	    }*/
 
         cout << "Size of Lambda:      " << Lambda.size() << endl;
         cout << "Size of checkLambda: " << checkLambda.size() << endl;
+
         if (Lambda.size()==0) return 0;
 
         Coefficients<Lexicographical,T,Index2D> v(SIZEHASHINDEX2D);
 
 
         getRandomCoefficientVector(Lambda,v);
+        //cout << "Random Vector v = " << v << endl;
 
         if (calcRefSol) {
             T time_evalAA1 = 0.;
@@ -195,6 +245,7 @@ int main (int argc, char *argv[]) {
                 IAUIv_ref[*it] = 0.;
                 AAv_ref[*it] = 0.;
             }
+            //cout << "IAUIv = " << IAUIv << endl;
             for (const_coeff2d_it col=v.begin(); col!=v.end(); ++col) {
                 Index1D col_x = (*col).first.index1;
                 Index1D col_y = (*col).first.index2;
@@ -203,8 +254,8 @@ int main (int argc, char *argv[]) {
                     Index1D row_y = (*row).index2;
                     if (     (row_x.xtype==XWavelet && col_x.xtype==XBSpline)
                           || (row_x.xtype==XWavelet && col_x.xtype==XWavelet && row_x.j > col_x.j)) {
-                        PeriodicSupport<T> col_supp_x = basis.generator(col_x.xtype).support(col_x.j,col_x.k);
-                        PeriodicSupport<T> row_supp_x = basis.generator(row_x.xtype).support(row_x.j,row_x.k);
+                        PeriodicSupport<T> col_supp_x = periodicbasis.generator(col_x.xtype).support(col_x.j,col_x.k);
+                        Support<T> row_supp_x = intervalbasis.generator(row_x.xtype).support(row_x.j,row_x.k);
                         if (overlap(col_supp_x,row_supp_x)>0) {
                             Index2D index(col_x,row_y);
                             IAv_ref[index] = 0.;
@@ -219,11 +270,14 @@ int main (int argc, char *argv[]) {
                     Index1D row_x = (*row);
                     if (     (row_x.xtype==XBSpline)
                           || (row_x.xtype==XWavelet && col_x.xtype==XWavelet && row_x.j <= col_x.j)) {
-                    	PeriodicSupport<T> col_supp_x = basis.generator(col_x.xtype).support(col_x.j,col_x.k);
-                    	PeriodicSupport<T> row_supp_x = basis.generator(row_x.xtype).support(row_x.j,row_x.k);
+                    	PeriodicSupport<T> col_supp_x = periodicbasis.generator(col_x.xtype).support(col_x.j,col_x.k);
+                    	Support<T> row_supp_x = intervalbasis.generator(row_x.xtype).support(row_x.j,row_x.k);
                         if (overlap(col_supp_x,row_supp_x)>0) {
                             Index2D index(row_x,col_y);
                             UIv_ref[index] = 0.;
+                        }
+                        else{
+                        	cout << "Throw out (" << col_x.j << ","<< col_x.k << ") , (" << row_x.j << ","<<row_x.k << ")" << endl;
                         }
                     }
                 }
@@ -231,7 +285,7 @@ int main (int argc, char *argv[]) {
             cout << "Size of checkLambda: " << checkLambda.size() << endl;
             cout << "Size of Lambda:      " << Lambda.size() << endl;
             cout << "Size of IAv:         " << IAv_ref.size() << endl;
-            cout << "Size of UIv:         " << UIv_ref.size() << endl;
+            cout << "Size of UIv:         " << UIv_ref.size() << UIv_ref << endl;
             cout << "Size of v:           " << v.size() << endl;
 
             cout << "Reference calculation started..." << endl;
@@ -264,7 +318,7 @@ int main (int argc, char *argv[]) {
             cout << "   #v = " << Lambda.size() << endl;
 
             localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
-                           time_IAv1, time_IAv2, time_LIv, time_UIv);
+                            time_IAv1, time_IAv2, time_LIv, time_UIv);
 
             AAv.setToZero();
             time.start();
@@ -298,33 +352,44 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
+template <typename Basis2D>
 void
-getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j, T gamma)
+getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, T gamma)
 {
-    int j0 = basis.j0;
-    for (long k1=basis.mra.rangeI(j0).firstIndex(); k1<=basis.mra.rangeI(j0).lastIndex(); ++k1) {
-        for (long k2=basis.mra.rangeI(j0).firstIndex(); k2<=basis.mra.rangeI(j0).lastIndex(); ++k2) {
-            Index1D row(j0,k1,XBSpline);
-            Index1D col(j0,k2,XBSpline);
+    int j0_1 = basis.first.j0;
+    int j0_2 = basis.second.j0;
+    for (long k1=basis.first.mra.rangeI(j0_1).firstIndex(); k1<=basis.first.mra.rangeI(j0_1).lastIndex(); ++k1) {
+        for (long k2=basis.second.mra.rangeI(j0_2).firstIndex(); k2<=basis.second.mra.rangeI(j0_2).lastIndex(); ++k2) {
+            Index1D row(j0_1,k1,XBSpline);
+            Index1D col(j0_2,k2,XBSpline);
             Lambda.insert(Index2D(row,col));
         }
         for (int i2=1; i2<=j; ++i2) {
-            int j2=j0+i2-1;
-            for (long k2=basis.rangeJ(j2).firstIndex(); k2<=basis.rangeJ(j2).lastIndex(); ++k2) {
-                Index1D row(j0,k1,XBSpline);
+            int j2=j0_2+i2-1;
+            for (long k2=basis.second.rangeJ(j2).firstIndex(); k2<=basis.second.rangeJ(j2).lastIndex(); ++k2) {
+                Index1D row(j0_1,k1,XBSpline);
                 Index1D col(j2,k2,XWavelet);
                 Lambda.insert(Index2D(row,col));
-                Lambda.insert(Index2D(col,row));
+            }
+        }
+    }
+    for (long k2=basis.second.mra.rangeI(j0_2).firstIndex(); k2<=basis.second.mra.rangeI(j0_2).lastIndex(); ++k2) {
+        for (int i1=1; i1<=j; ++i1) {
+            int j1=j0_1+i1-1;
+            for (long k1=basis.first.rangeJ(j1).firstIndex(); k1<=basis.second.rangeJ(j1).lastIndex(); ++k1) {
+                Index1D row(j1,k1,XWavelet);
+                Index1D col(j0_2,k2,XBSpline);
+                Lambda.insert(Index2D(row,col));
             }
         }
     }
     for (int i1=1; i1<=j; ++i1) {
-        int j1=j0+i1-1;
+        int j1=j0_1+i1-1;
         for (int i2=1; i1+i2<=j; ++i2) {
             if (T(i1+i2)-gamma*max(i1,i2)>(1-gamma)*j) continue;
-            int j2=j0+i2-1;
-            for (long k1=basis.rangeJ(j1).firstIndex(); k1<=basis.rangeJ(j1).lastIndex(); ++k1) {
-                for (long k2=basis.rangeJ(j2).firstIndex(); k2<=basis.rangeJ(j2).lastIndex(); ++k2) {
+            int j2=j0_2+i2-1;
+            for (long k1=basis.first.rangeJ(j1).firstIndex(); k1<=basis.first.rangeJ(j1).lastIndex(); ++k1) {
+                for (long k2=basis.second.rangeJ(j2).firstIndex(); k2<=basis.second.rangeJ(j2).lastIndex(); ++k2) {
                     Index1D row(j1,k1,XWavelet);
                     Index1D col(j2,k2,XWavelet);
                     Lambda.insert(Index2D(row,col));

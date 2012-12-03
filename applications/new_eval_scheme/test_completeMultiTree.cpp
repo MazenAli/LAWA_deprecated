@@ -24,6 +24,8 @@ typedef TensorBasis2D<Adaptive,PeriodicBasis,PeriodicBasis>         PeriodicBasi
 typedef TensorBasis2D<Adaptive,PeriodicBasis,IntervalBasis>         PeriodicIntervalBasis2D;
 typedef TensorBasis2D<Adaptive,IntervalBasis,PeriodicBasis>         IntervalPeriodicBasis2D;
 
+typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XOne>             XOneAlignedCoefficients;
+typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XTwo>             XTwoAlignedCoefficients;
 
 template<typename Basis>
 void
@@ -50,6 +52,7 @@ int main (int argc, char *argv[]) {
 
     /// Basis initialization
     IntervalBasis intervalbasis(d, d, j0);
+    intervalbasis.enforceBoundaryCondition<DirichletBC>();
     IntervalRefinementBasis &intervalrefinementbasis = intervalbasis.refinementbasis;
     IntervalBasis2D intervalbasis2d(intervalbasis,intervalbasis);
     PeriodicBasis periodicbasis(d, d, j0);
@@ -99,14 +102,20 @@ int main (int argc, char *argv[]) {
 		IndexSet<Index2D> Lambda_Interval, Lambda_Periodic, Lambda_PeriodicInterval, Lambda_IntervalPeriodic;
 		Coefficients<Lexicographical,T,Index2D> Coeffs_Interval, Coeffs_Periodic, Coeffs_PeriodicInterval, Coeffs_IntervalPeriodic;
 		
-		Index1D index1_x_i(j0+j+2,16,XWavelet);
+		/*Index1D index1_x_i(j0+j+2,16,XWavelet);
 	    Index1D index1_y_i(j0+j+1,2,XWavelet);
 		Index1D index1_x_p(j0+j+2,15,XWavelet);
 	    Index1D index1_y_p(j0+j+1,1,XWavelet);
+	    */
+
+        Index1D index1_x_p(j0+j+4,42,XWavelet);
+        Index1D index1_y_p(j0+j+4,4,XWavelet);
+        Index1D index1_x_i(j0+j+4,7,XWavelet);
+        Index1D index1_y_i(j0+j+4,17,XWavelet);
 
 		cout << "===== INTERVAL x INTERVAL : j = " << j << " ======= " << endl;
-		//getSparseGridIndexSet(intervalbasis,Lambda_Interval,j,0.2);
-		//FillWithZeros(Lambda_Interval, Coeffs_Interval);
+		getSparseGridIndexSet(intervalbasis2d,Lambda_Interval,j,0.2);
+		FillWithZeros(Lambda_Interval, Coeffs_Interval);
 		
 		cout << "Sparse Grid 2D: " << Lambda_Interval.size() << endl;// << Lambda_Interval << endl;		
 	    Index2D new_index1_i(index1_x_i,index1_y_i);
@@ -116,9 +125,25 @@ int main (int argc, char *argv[]) {
 		completeMultiTree(intervalbasis2d,new_index1_i,Coeffs_Interval,0,true);
 		cout << "Extended Coeffs: " << Coeffs_Interval.size() << endl << Coeffs_Interval << endl;
 		
+		/*cout << "X1 Alignment " << endl;
+	    XOneAlignedCoefficients x1aligned(6151,193);
+	    x1aligned.align(Coeffs_Interval,J+j0);
+	    for (XOneAlignedCoefficients::const_map_prindex_it it=x1aligned.map.begin();
+	                                                            it!=x1aligned.map.end(); ++it) {
+	    	cout << (*it).first << (*it).second << endl;
+	    }
+
+		cout << "X2 Alignment " << endl;
+	    XTwoAlignedCoefficients x2aligned(6151,193);
+	    x2aligned.align(Coeffs_Interval,J+j0);
+	    for (XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned.map.begin();
+	                                                            it!=x2aligned.map.end(); ++it) {
+	    	cout << (*it).first << (*it).second << endl;
+	    }*/
+
 		cout << "===== PERIODIC x PERIODIC : j = " << j << " ======= " << endl;
-		//getSparseGridIndexSet(periodicbasis,Lambda_Periodic,j,0.2);
-		//FillWithZeros(Lambda_Periodic, Coeffs_Periodic);
+		getSparseGridIndexSet(periodicbasis2d,Lambda_Periodic,j,0.2);
+		FillWithZeros(Lambda_Periodic, Coeffs_Periodic);
 		
 		cout << "Sparse Grid 2D: " << Lambda_Periodic.size() << endl;// << Lambda_Periodic << endl;		
 	    Index2D new_index1_p(index1_x_p,index1_y_p);
@@ -128,11 +153,14 @@ int main (int argc, char *argv[]) {
 		completeMultiTree(periodicbasis2d,new_index1_p,Coeffs_Periodic,0,true);
 		cout << "Extended Coeffs: " << Coeffs_Periodic.size() << endl << Coeffs_Periodic << endl;
 		
-		cout << "===== PERIODIC x  INTERVAL : j = " << j << " ======= " << endl;
-		//getSparseGridIndexSet(periodicbasis,Lambda_Periodic,j,0.2);
-		//FillWithZeros(Lambda_Periodic, Coeffs_Periodic);
 
-		cout << "Sparse Grid 2D: " << Lambda_PeriodicInterval.size() << endl;// << Lambda_Periodic << endl;
+
+
+		cout << "===== PERIODIC x  INTERVAL : j = " << j << " ======= " << endl;
+		getSparseGridIndexSet(periodicintervalbasis2d,Lambda_PeriodicInterval,j,0.2);
+		FillWithZeros(Lambda_PeriodicInterval, Coeffs_PeriodicInterval);
+
+		cout << "Sparse Grid 2D: " << Lambda_PeriodicInterval.size() << Lambda_Periodic << endl;
 	    Index2D new_index1_pi(index1_x_p,index1_y_i);
 		cout << "Adding Index " << new_index1_pi << " with support "
 			 << periodicintervalbasis2d.first.generator(index1_x_p.xtype).support(index1_x_p.j, index1_x_p.k)
@@ -140,9 +168,28 @@ int main (int argc, char *argv[]) {
 		completeMultiTree(periodicintervalbasis2d,new_index1_pi,Coeffs_PeriodicInterval,0,true);
 		cout << "Extended Coeffs: " << Coeffs_PeriodicInterval.size() << endl << Coeffs_PeriodicInterval << endl;
 
+		cout << "X1 Alignment " << endl;
+	    XOneAlignedCoefficients x1aligned(6151,193);
+	    x1aligned.align(Coeffs_PeriodicInterval,J+j0);
+	    for (XOneAlignedCoefficients::const_map_prindex_it it=x1aligned.map.begin();
+	                                                            it!=x1aligned.map.end(); ++it) {
+	    	cout << (*it).first << (*it).second << endl;
+	    }
+
+		cout << "X2 Alignment " << endl;
+	    XTwoAlignedCoefficients x2aligned(6151,193);
+	    x2aligned.align(Coeffs_PeriodicInterval,J+j0);
+	    for (XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned.map.begin();
+	                                                            it!=x2aligned.map.end(); ++it) {
+	    	cout << (*it).first << (*it).second << endl;
+	    }
+
+
+
+
 		cout << "===== INTERVAL x PERIODIC : j = " << j << " ======= " << endl;
-		//getSparseGridIndexSet(periodicbasis,Lambda_Periodic,j,0.2);
-		//FillWithZeros(Lambda_Periodic, Coeffs_Periodic);
+		getSparseGridIndexSet(intervalperiodicbasis2d,Lambda_IntervalPeriodic,j,0.2);
+		FillWithZeros(Lambda_IntervalPeriodic, Coeffs_IntervalPeriodic);
 
 		cout << "Sparse Grid 2D: " << Lambda_IntervalPeriodic.size() << endl;// << Lambda_Periodic << endl;
 	    Index2D new_index1_ip(index1_x_i,index1_y_p);
@@ -160,34 +207,44 @@ int main (int argc, char *argv[]) {
 }
 
 
-template<typename Basis>
+template <typename Basis2D>
 void
-getSparseGridIndexSet(const Basis &basis, IndexSet<Index2D> &Lambda, int j, T gamma)
+getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, T gamma)
 {
-    int j0 = basis.j0;
-    for (long k1=basis.mra.rangeI(j0).firstIndex(); k1<=basis.mra.rangeI(j0).lastIndex(); ++k1) {
-        for (long k2=basis.mra.rangeI(j0).firstIndex(); k2<=basis.mra.rangeI(j0).lastIndex(); ++k2) {
-            Index1D row(j0,k1,XBSpline);
-            Index1D col(j0,k2,XBSpline);
+    int j0_1 = basis.first.j0;
+    int j0_2 = basis.second.j0;
+    for (long k1=basis.first.mra.rangeI(j0_1).firstIndex(); k1<=basis.first.mra.rangeI(j0_1).lastIndex(); ++k1) {
+        for (long k2=basis.second.mra.rangeI(j0_2).firstIndex(); k2<=basis.second.mra.rangeI(j0_2).lastIndex(); ++k2) {
+            Index1D row(j0_1,k1,XBSpline);
+            Index1D col(j0_2,k2,XBSpline);
             Lambda.insert(Index2D(row,col));
         }
         for (int i2=1; i2<=j; ++i2) {
-            int j2=j0+i2-1;
-            for (long k2=basis.rangeJ(j2).firstIndex(); k2<=basis.rangeJ(j2).lastIndex(); ++k2) {
-                Index1D row(j0,k1,XBSpline);
+            int j2=j0_2+i2-1;
+            for (long k2=basis.second.rangeJ(j2).firstIndex(); k2<=basis.second.rangeJ(j2).lastIndex(); ++k2) {
+                Index1D row(j0_1,k1,XBSpline);
                 Index1D col(j2,k2,XWavelet);
                 Lambda.insert(Index2D(row,col));
-                Lambda.insert(Index2D(col,row));
+            }
+        }
+    }
+    for (long k2=basis.second.mra.rangeI(j0_2).firstIndex(); k2<=basis.second.mra.rangeI(j0_2).lastIndex(); ++k2) {
+        for (int i1=1; i1<=j; ++i1) {
+            int j1=j0_1+i1-1;
+            for (long k1=basis.first.rangeJ(j1).firstIndex(); k1<=basis.second.rangeJ(j1).lastIndex(); ++k1) {
+                Index1D row(j1,k1,XWavelet);
+                Index1D col(j0_2,k2,XBSpline);
+                Lambda.insert(Index2D(row,col));
             }
         }
     }
     for (int i1=1; i1<=j; ++i1) {
-        int j1=j0+i1-1;
+        int j1=j0_1+i1-1;
         for (int i2=1; i1+i2<=j; ++i2) {
             if (T(i1+i2)-gamma*max(i1,i2)>(1-gamma)*j) continue;
-            int j2=j0+i2-1;
-            for (long k1=basis.rangeJ(j1).firstIndex(); k1<=basis.rangeJ(j1).lastIndex(); ++k1) {
-                for (long k2=basis.rangeJ(j2).firstIndex(); k2<=basis.rangeJ(j2).lastIndex(); ++k2) {
+            int j2=j0_2+i2-1;
+            for (long k1=basis.first.rangeJ(j1).firstIndex(); k1<=basis.first.rangeJ(j1).lastIndex(); ++k1) {
+                for (long k2=basis.second.rangeJ(j2).firstIndex(); k2<=basis.second.rangeJ(j2).lastIndex(); ++k2) {
                     Index1D row(j1,k1,XWavelet);
                     Index1D col(j2,k2,XWavelet);
                     Lambda.insert(Index2D(row,col));
