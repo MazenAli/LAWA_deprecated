@@ -20,6 +20,7 @@ typedef flens::DenseVector<flens::Array<long double> >              DenseVectorL
 typedef Basis<T, Primal, Periodic, CDF>                       PrimalBasis;
 typedef Basis<T, Primal, Interval, Dijkema>                       SecondBasis;
 typedef PrimalBasis::RefinementBasis                          RefinementBasis;
+typedef SecondBasis::RefinementBasis                          SecondRefinementBasis;
 
 typedef Integral<Gauss,PrimalBasis,PrimalBasis>                     MultiWaveletIntegral;
 typedef Integral<Gauss,RefinementBasis,RefinementBasis>             MultiRefinementIntegral;
@@ -78,7 +79,7 @@ test_precisionOfGenerators();
 
 int main(int argc, char*argv[])
 {
-    cout.precision(20);
+     cout.precision(20);
     if (argc!=4) {
         cout << "Usage: " << argv[0] << " d j0 J" << endl;
         return 0;
@@ -93,13 +94,15 @@ int main(int argc, char*argv[])
     //PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
     PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
     SecondBasis secondbasis(d, d, j0);     // For biorthogonal wavelet bases
+    secondbasis.enforceBoundaryCondition<DirichletBC>();
 
     //if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis& refinementbasis = basis.refinementbasis;
+    SecondRefinementBasis& secondrefinementbasis = secondbasis.refinementbasis;
 
     /// Test refinement of B-splines
 
-    //test_refinementOfBSpline(basis, refinementbasis, deriv);
+   //test_refinementOfBSpline(basis, refinementbasis, deriv);
 
     /// Test refinement of scaling functions. In case biorthogonal wavelet bases, this is just
     /// the same as the test above as here, the scaling function are already B-splines.
@@ -135,22 +138,23 @@ int main(int argc, char*argv[])
 
     //test_getScalingNeighborsForScaling(basis);
 
-    //test_getScalingNeighborsForScaling(basis, secondbasis);
+    test_getScalingNeighborsForScaling(basis, secondbasis);
 
     //test_getWaveletNeighborsForScaling(basis);
-    // test_getWaveletNeighborsForScaling(basis, secondbasis);
+    test_getWaveletNeighborsForScaling(basis, secondbasis);
 
     //test_getBSplineNeighborsForWavelet(basis, refinementbasis);
+    test_getBSplineNeighborsForWavelet(basis, secondrefinementbasis);
 
-    //test_getScalingNeighborsForWavelet(basis);
+    test_getScalingNeighborsForWavelet(basis);
 
     //test_getWaveletNeighborsForWavelet(basis);
     test_getWaveletNeighborsForWavelet(basis, secondbasis);
 
-    //test_getLowerWaveletNeighborsForWavelet(basis);
+    test_getLowerWaveletNeighborsForWavelet(basis);
 
     //test_getHigherWaveletNeighborsForWavelet(basis);
-    //test_getHigherWaveletNeighborsForWavelet(basis, secondbasis);
+    test_getHigherWaveletNeighborsForWavelet(basis, secondbasis);
 
 
     return 0;
@@ -313,7 +317,7 @@ void
 test_getBSplineNeighborsForBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis)
 {
     cout << " ******** BSpline neighbors for BSpline **********" << endl;
-    for (int j_bspline1=refinementbasis.j0; j_bspline1<refinementbasis.j0+4; ++j_bspline1) {
+    for (int j_bspline1=refinementbasis.j0; j_bspline1<refinementbasis.j0+2; ++j_bspline1) {
         for (long k_bspline1= refinementbasis.mra.rangeI(j_bspline1).firstIndex();
                   k_bspline1<=refinementbasis.mra.rangeI(j_bspline1).lastIndex(); ++k_bspline1) {
             int j_bspline2=0;
@@ -355,7 +359,7 @@ void
 test_getWaveletNeighborsForBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis)
 {
     cout << " ******** Wavelet neighbors for BSpline **********" << endl;
-    for (int refinement_j=refinementbasis.j0+2; refinement_j<=refinementbasis.j0+4; ++refinement_j) {
+    for (int refinement_j=refinementbasis.j0+2; refinement_j<=refinementbasis.j0+2; ++refinement_j) {
         for (int refinement_k =refinementbasis.mra.rangeI(refinement_j).firstIndex();
                  refinement_k<=refinementbasis.mra.rangeI(refinement_j).lastIndex(); ++refinement_k) {
             int j=0;
@@ -405,7 +409,7 @@ void
 test_getScalingNeighborsForScaling(const PrimalBasis &basis)
 {
     cout << " ******** Scaling neighbors for Scaling **********" << endl;
-    for (int j_scaling1=basis.j0; j_scaling1<basis.j0+6; ++j_scaling1) {
+    for (int j_scaling1=basis.j0; j_scaling1<basis.j0+2; ++j_scaling1) {
         for (long k_scaling1= basis.mra.rangeI(j_scaling1).firstIndex();
                   k_scaling1<=basis.mra.rangeI(j_scaling1).lastIndex(); ++k_scaling1) {
             int j_scaling2=0;
@@ -456,7 +460,7 @@ void
 test_getScalingNeighborsForScaling(const PrimalBasis &basis, const SecondBasis &secondbasis)
 {
     cout << " ******** Scaling neighbors for Scaling **********" << endl;
-    for (int j_scaling1=basis.j0; j_scaling1<basis.j0+6; ++j_scaling1) {
+    for (int j_scaling1=basis.j0; j_scaling1<basis.j0+2; ++j_scaling1) {
         for (long k_scaling1= basis.mra.rangeI(j_scaling1).firstIndex();
                   k_scaling1<=basis.mra.rangeI(j_scaling1).lastIndex(); ++k_scaling1) {
             int j_scaling2=0;
@@ -465,7 +469,7 @@ test_getScalingNeighborsForScaling(const PrimalBasis &basis, const SecondBasis &
                                                 j_scaling2, k_scaling_first, k_scaling_last);
             cout << "Scaling (" << j_scaling1 << "," << k_scaling1 << "): "
                                 << j_scaling2 << " , [" << k_scaling_first << "," << k_scaling_last << "], "
-                                << basis.mra.rangeI(j_scaling2) << endl;
+                                << secondbasis.mra.rangeI(j_scaling2) << endl;
             if(k_scaling_first <= k_scaling_last){
 				for (long k_scaling2=secondbasis.mra.rangeI(j_scaling2).firstIndex();
 						  k_scaling2<k_scaling_first; ++k_scaling2) {
@@ -508,7 +512,7 @@ void
 test_getWaveletNeighborsForScaling(const PrimalBasis &basis)
 {
     cout << " ******** Wavelet neighbors for Scaling **********" << endl;
-    for (int j_scaling=basis.j0; j_scaling<basis.j0+6; ++j_scaling) {
+    for (int j_scaling=basis.j0; j_scaling<basis.j0+2; ++j_scaling) {
         for (long k_scaling= basis.mra.rangeI(j_scaling).firstIndex();
                   k_scaling<=basis.mra.rangeI(j_scaling).lastIndex(); ++k_scaling) {
             int j_wavelet=0;
@@ -559,7 +563,7 @@ void
 test_getWaveletNeighborsForScaling(const PrimalBasis &basis, const SecondBasis &secondbasis)
 {
     cout << " ******** Wavelet neighbors for Scaling **********" << endl;
-    for (int j_scaling=basis.j0; j_scaling<basis.j0+6; ++j_scaling) {
+    for (int j_scaling=basis.j0; j_scaling<basis.j0+2; ++j_scaling) {
         for (long k_scaling= basis.mra.rangeI(j_scaling).firstIndex();
                   k_scaling<=basis.mra.rangeI(j_scaling).lastIndex(); ++k_scaling) {
             int j_wavelet=0;
@@ -610,7 +614,7 @@ void
 test_getBSplineNeighborsForWavelet(const PrimalBasis &basis, const RefinementBasis &refinementbasis)
 {
     cout << " ******** BSpline neighbors for Wavelet **********" << endl;
-    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+4; ++j_wavelet) {
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+2; ++j_wavelet) {
         for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
                   k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
             int j_bspline=0;
@@ -661,7 +665,7 @@ void
 test_getScalingNeighborsForWavelet(const PrimalBasis &basis)
 {
     cout << " ******** Scaling neighbors for Wavelet **********" << endl;
-    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+6; ++j_wavelet) {
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+2; ++j_wavelet) {
         for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
                   k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
             int j_scaling=0;
@@ -712,7 +716,7 @@ void
 test_getWaveletNeighborsForWavelet(const PrimalBasis &basis)
 {
     cout << " ******** Wavelet neighbors for Wavelet **********" << endl;
-    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+6; ++j_wavelet) {
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+2; ++j_wavelet) {
         for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
                   k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
             int j_wavelet2=0;
@@ -763,7 +767,7 @@ void
 test_getWaveletNeighborsForWavelet(const PrimalBasis &basis, const SecondBasis &secondbasis)
 {
     cout << " ******** Wavelet neighbors for Wavelet **********" << endl;
-    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+6; ++j_wavelet) {
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+2; ++j_wavelet) {
         for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
                   k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
             int j_wavelet2=0;
@@ -814,7 +818,7 @@ void
 test_getLowerWaveletNeighborsForWavelet(const PrimalBasis &basis)
 {
     cout << " ******** Lower wavelet neighbors for Wavelet **********" << endl;
-    for (int j_wavelet=basis.j0+1; j_wavelet<basis.j0+6; ++j_wavelet) {
+    for (int j_wavelet=basis.j0+1; j_wavelet<basis.j0+3; ++j_wavelet) {
         for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
                   k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
             int j_wavelet2=0;
@@ -865,7 +869,7 @@ void
 test_getHigherWaveletNeighborsForWavelet(const PrimalBasis &basis)
 {
     cout << " ******** Higher wavelet neighbors for Wavelet **********" << endl;
-    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+6; ++j_wavelet) {
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+2; ++j_wavelet) {
         for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
                   k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
             int j_wavelet2=0;
@@ -916,7 +920,7 @@ void
 test_getHigherWaveletNeighborsForWavelet(const PrimalBasis &basis, const SecondBasis &secondbasis)
 {
     cout << " ******** Higher wavelet neighbors for Wavelet **********" << endl;
-    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+6; ++j_wavelet) {
+    for (int j_wavelet=basis.j0; j_wavelet<basis.j0+2; ++j_wavelet) {
         for (long k_wavelet= basis.rangeJ(j_wavelet).firstIndex();
                   k_wavelet<=basis.rangeJ(j_wavelet).lastIndex(); ++k_wavelet) {
             int j_wavelet2=0;

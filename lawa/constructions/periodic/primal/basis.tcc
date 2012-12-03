@@ -332,8 +332,10 @@ Basis<T,Primal,Periodic,CDF>::getBSplineNeighborsForWavelet(int j_wavelet, long 
     }
     else{
         // If not, we have to shift the translation indizes
-        k_bspline_first++;
-        k_bspline_last++;
+    	long firstIndex = (long)secondrefinementbasis.mra.rangeI(j_bspline).firstIndex();
+    	long lastIndex = (long)secondrefinementbasis.mra.rangeI(j_bspline).lastIndex();
+        k_bspline_first = std::max(std::min(++k_bspline_first, lastIndex), firstIndex);
+        k_bspline_last  = std::max(std::min(++k_bspline_last, lastIndex), firstIndex);
     }
 
     // Test if we can drop the left or right boundary spline
@@ -366,8 +368,8 @@ Basis<T,Primal,Periodic,CDF>::getScalingNeighborsForWavelet(int j_wavelet, long 
     k_scaling_last = kmaxR <= (long)mra.rangeI(j_scaling).lastIndex()? kmaxR : kmaxR - (long)mra.rangeI(j_scaling).lastIndex();
 
     if(k_scaling_first == k_scaling_last || k_scaling_first == k_scaling_last+1){
-    	k_scaling_first = (long)mra.rangeI(j_scaling).firstIndex();
-    	k_scaling_last = (long)mra.rangeI(j_scaling).lastIndex();
+    	k_scaling_first = (long)secondbasis.mra.rangeI(j_scaling).firstIndex();
+    	k_scaling_last = (long)secondbasis.mra.rangeI(j_scaling).lastIndex();
     }
 }
 
