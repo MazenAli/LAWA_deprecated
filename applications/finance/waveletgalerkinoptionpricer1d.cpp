@@ -19,12 +19,30 @@ typedef flens::DiagonalMatrix<T>                                    DiagonalMatr
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 const OptionType1D optiontype = Put;
-OptionParameters1D<T,Put> optionparameters(80.0, 1., false);
+T strike = 100.;
+T maturity = 1.;
+T S0 = 100.;
+OptionParameters1D<T,Put> optionparameters(strike, maturity, false);
 
-const ProcessType1D  processtype  = BlackScholes;
-ProcessParameters1D<T,BlackScholes>   processparameters(0.04, 0.2);
-//ProcessParameters1D<T,CGMY>             processparameters(0.04, 1., 2.4, 4.5, 1.8 );
+//const ProcessType1D  processtype  = BlackScholes;
+//ProcessParameters1D<T,BlackScholes>   processparameters(0.04, 0.2);
+
+/* Reference values for Europ. option from Fang & Oosterlee (2008) and Almendral & Oosterlee (2007)
+ * Option parameters strike = 100, maturity = 1, SO = 100
+ * Process parameters for CGMY: r = 0.1, C = 1, G = M = 5, Y =1.5   49.790905469 (call)
+ * Process parameters for CGMY: r = 0.1, C = 1, G = M = 5, Y =0.8   14.789424 (put)
+ * Process parameters for CGMY: r = 0.1, C = 1, G = M = 5, Y =0.1    6.353404 (put)
+ */
+
+const ProcessType1D  processtype  = CGMY;
+//ProcessParameters1D<T,CGMY>             processparameters(0.1, 1., 5., 5., 1.5 );
+//ProcessParameters1D<T,CGMY>             processparameters(0.1, 1., 5., 5., 0.8 );
+//ProcessParameters1D<T,CGMY>             processparameters(0.1, 1., 5., 5., 0.1 );
+ProcessParameters1D<T,CGMY>             processparameters(0.04, 1., 2.4, 4.5, 1.8 );
+
+//const ProcessType1D  processtype  = CGMYe;
 //ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 2.4, 4.5, 1.8, 0.1 );
+//ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 5., 5., 1.5, 0.1 );
 
 
 typedef Basis<T,Primal,Interval,Dijkema>        Basis1D;
@@ -52,7 +70,6 @@ typedef TimeStepping<T,
 const T                         eta=2.;
 ExponentialWeightFunction1D<T>  exponentialweight;
 
-
 template<typename T, OptionType1D OType, ProcessType1D PType, typename Basis>
 void
 ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
@@ -64,7 +81,7 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
 int
 main(int argc, char *argv[])
 {
-    cout.precision(8);
+    cout.precision(12);
     if (argc != 6) {
         cerr << "usage: " << argv[0] << " j0 J theta timesteps use_excess_to_payoff" << endl;
         exit(1);
@@ -83,28 +100,47 @@ main(int argc, char *argv[])
 
     exponentialweight.setEta(eta);
     T                       timestep = optionparameters.maturity/T(timesteps);
-    T                       R1=4.;
-    T                       R2=4.;
+    T                       R1=6.;
+    T                       R2=6.;
     Basis1D                 basis(d,d_,j0);
     basis.enforceBoundaryCondition<DirichletBC>();
 
-
     int                             order=20;
     Option1D<T,optiontype>  option(optionparameters);
+
+
+    cout << "Reference option value put : " << option.value(processparameters, S0, 0) << endl;
+    cout << "Reference option value call: " << option.value(processparameters, S0, 0) + S0 - strike*exp(-processparameters.r*maturity) << endl;
+
+    std::stringstream filename;
+    filename << "wavelet_galerkin_option_pricer1d_conv_" << R1 << "_" << R2 << "_" << strike << "_"
+             << maturity << "_" << processparameters.k_C << "_" << processparameters.k_G << "_"
+             << processparameters.k_M << "_" << processparameters.k_Y << ".txt";
+    std::ofstream convfile(filename.str().c_str());
 
     for (int J=j0; J<=j_max; ++J) {
         Timer time;
         time.start();
         DenseVectorT u(basis.mra.rangeI(J)), u0(basis.mra.rangeI(J));
         if (use_excess_to_payoff==1) {
+            cout << "Initializing operator..." << endl;
             FinanceOp                         finance_op(basis, processparameters, 0., R1, R2, order, J);
+            cout << "... finished." << endl;
+            cout << "Initializing rhs..." << endl;
             OptionRhs                         rhs(optionparameters, processparameters, basis,
                                                   R1, R2);
+            cout << "... finished." << endl;
             //ScalarProduct1D                   scalarproduct(basis);
+            cout << "Initializing time stepper..." << endl;
             ThetaStepScalarProduct1D          scheme(theta, basis, finance_op, rhs,
                                                      true, false, 0., 1e-12);
+            cout << "... finished." << endl;
+            cout << "Initializing timestepping scheme..." << endl;
             TimeStepperScalarProduct1D        timestepmethod(scheme, timestep, timesteps, J);
+            cout << "... finished." << endl;
+            cout << "Time step solver started..." << endl;
             u = timestepmethod.solve(u0, false);
+            cout << "... finished." << endl;
         }
         else {
             Function<T>                    weightFct(exponentialweight.weight,
@@ -139,8 +175,9 @@ main(int argc, char *argv[])
                                       L2error, Linftyerror, R1, R2, use_excess_to_payoff);
         cout      << J << " " << basis.mra.cardI(J) << " " << comp_time << " "
                   << L2error << " " << Linftyerror << endl;
+        convfile  << J << " " << basis.mra.cardI(J) << " " << comp_time << " "
+                  << L2error << " " << Linftyerror << endl;
     }
-
 
 
     return 0;
@@ -160,22 +197,32 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
     std::stringstream filename2;
     filename2 << "tmp2.txt";
     std::ofstream plotFile2(filename2.str().c_str());
-    T maturity = option.optionparameters.maturity;
-    T strike   = option.optionparameters.strike;
+    T tmp_maturity = option.optionparameters.maturity;
+    T tmp_strike   = option.optionparameters.strike;
     T r        = processparameters.r;
+
+
+    T approxPutS0  = exp(-r*tmp_maturity)*(1./sqrt(R1+R2))*evaluate(basis, J, u, (r*tmp_maturity+R1)/(R1+R2), 0);
+    T approxCallS0 = approxPutS0 + S0 - tmp_strike*exp(-processparameters.r*tmp_maturity);
+    T exactPutS0   = option.value(processparameters, tmp_strike, 0);
+    T exactCallS0  = exactPutS0 + S0 - tmp_strike*exp(-processparameters.r*tmp_maturity);
+    std::cout << "Reference value put : " << exactPutS0 << ", approximated value: " << approxPutS0 << std::endl;
+    std::cout << "Reference value call: " << exactCallS0 << ", approximated value: " << approxCallS0 << std::endl;
+
 
     L2error     = 0.;
     Linftyerror = 0.;
     T h = pow2i<T>(-J-2)*(R1+R2);
-    T delta = pow2i<T>(0);
+    T delta = 0.05;//pow2i<T>(0);
+    std::cerr << "Error computation started..." << std::endl;
     for (T x=-delta*R1; x<=delta*R2; x+=h) {
         T P_u0   = (1./sqrt(R1+R2))*evaluate(basis, J, u0, (x+R1)/(R1+R2), 0);
         T approx = (1./sqrt(R1+R2))*evaluate(basis, J, u, (x+R1)/(R1+R2), 0);
         T exact = 0.;
-        T spot = strike*std::exp(x-r*maturity);
-        exact = std::exp(r*maturity)*option.value(processparameters, spot, 0);
+        T spot = tmp_strike*std::exp(x-r*tmp_maturity);
+        exact = std::exp(r*tmp_maturity)*option.value(processparameters, spot, 0);
 
-        if (use_excess_to_payoff==1) exact -= option.payoff(strike*exp(x));
+        if (use_excess_to_payoff==1) exact -= option.payoff(tmp_strike*exp(x));
 
         if ((fabs(x+delta*R1)<1e-12) || (fabs(x-delta*R2) < 1e-12)) {
             L2error += 0.5*h*std::pow(approx-exact,2.);
@@ -195,6 +242,7 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
     plotFile.close();
     plotFile2.close();
     L2error = sqrt(L2error);
+    std::cerr << "...finished." << std::endl;
 }
 
 

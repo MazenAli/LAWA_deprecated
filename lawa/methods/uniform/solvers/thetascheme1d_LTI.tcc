@@ -60,7 +60,8 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
         pcg(P,lhsmatrix, u, rhs, lintol);
     }
     else {
-        pgmres(P,lhsmatrix, u, rhs, lintol);
+        //pgmres(P,lhsmatrix, u, rhs, lintol);
+        pgmres(P,lhsmatrix, u, rhs, lintol, 20);
     }
     //std::cout << cg(lhsmatrix, u, rhs) << "cg iterations" << std::endl;
     //std::cout << pcg(P, lhsmatrix, u, rhs) << "pcg iterations" << std::endl;

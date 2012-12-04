@@ -1,13 +1,13 @@
 namespace lawa {
 
 template <typename T, typename Basis1D>
-FinanceOperator1D<T, CGMY, Basis1D>::FinanceOperator1D
-                                    (const Basis1D& _basis,
-                                     const ProcessParameters1D<T,CGMY> &_processparameters,
-                                     const T _eta, T _R1, T _R2, int order,
-                                     const int _internal_compression_level,
-                                     T _convection, T _reaction, const bool _use_predef_convection,
-                                     const bool _use_predef_reaction)
+FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
+                                      (const Basis1D& _basis,
+                                       const ProcessParameters1D<T,CGMYe> &_processparameters,
+                                       const T _eta, T _R1, T _R2, int order,
+                                       const int _internal_compression_level,
+                                       T _convection, T _reaction, const bool _use_predef_convection,
+                                       const bool _use_predef_reaction)
     : basis(_basis), processparameters(_processparameters), kernel(processparameters),
       R1(_R1), R2(_R2), internal_compression_level(_internal_compression_level),
       convection(_convection), reaction(_reaction),
@@ -29,18 +29,17 @@ FinanceOperator1D<T, CGMY, Basis1D>::FinanceOperator1D
 
 template <typename T, typename Basis1D>
 T
-FinanceOperator1D<T, CGMY, Basis1D>::operator()(XType xtype1, int j1, int k1,
-                                                XType xtype2, int j2, int k2) const
+FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
+                                                 XType xtype2, int j2, int k2) const
 {
    typedef typename std::map<T,T>::const_iterator const_it;
 
    if (internal_compression_level>-1) {
-       //T compr_c=0.1;
-       T compr_c=1.;
+       T compr_c=0.1;
        T compr_alpha=T(2*basis.d)/T(2*basis.d_+processparameters.k_Y);
        if (xtype1==XWavelet && xtype2==XWavelet) {
            int J=internal_compression_level;
-           T delta = compr_c*std::max(pow2i<T>(-std::min(j1,j2)),
+           T delta = 0.1*std::max(pow2i<T>(-std::min(j1,j2)),
                                       pow2i<T>(-(J-1)+compr_alpha*(2*(J-1)-j1-j2)));
            if ( ( distance(basis.generator(xtype1).support(j1,k1),
                            basis.generator(xtype2).support(j2,k2)) > delta/(R1+R2))
@@ -52,7 +51,10 @@ FinanceOperator1D<T, CGMY, Basis1D>::operator()(XType xtype1, int j1, int k1,
    }
 
    T pde_val = 0.;
+   T sigma = processparameters.sigma;
    pde_val += convection * OneDivR2pR1 * integral(j1,k1,xtype1,0,j2,k2,xtype2,1);
+   pde_val += 0.5*sigma*sigma*( OneDivR2pR1*OneDivR2pR1 * integral(j1,k1,xtype1,1,j2,k2,xtype2,1)
+                                           +OneDivR2pR1 * integral(j1,k1,xtype1,0,j2,k2,xtype2,1) );
    if (!use_predef_reaction) {
        pde_val += reaction * integral(j1,k1,xtype1,0,j2,k2,xtype2,0);
    }
@@ -145,4 +147,4 @@ FinanceOperator1D<T, CGMY, Basis1D>::operator()(XType xtype1, int j1, int k1,
    return pde_val - int_val;
 }
 
-}    //namespace lawa
+}   // namespace lawa
