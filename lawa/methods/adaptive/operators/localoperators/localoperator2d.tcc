@@ -667,7 +667,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
             trialBasis_x1.getScalingNeighborsForScaling(j_scaling1,k_scaling1, testBasis_x1,
                                                         j_scaling2,k_scaling_first,k_scaling_last);
             assert(j_scaling1==j_scaling2);
-            Support<T> supp1 = trialBasis_x1.mra.phi.support(j_scaling1,k_scaling1);
+            PeriodicSupport<T> supp1 = trialBasis_x1.mra.phi.support(j_scaling1,k_scaling1);
             if(k_scaling_first < k_scaling_last){
 				for (int k_scaling2=k_scaling_first; k_scaling2<=k_scaling_last; ++k_scaling2) {
 					if (   overlap(supp1, testBasis_x1.mra.phi.support(j_scaling2,k_scaling2) ) >0
@@ -701,7 +701,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
                 trialBasis_x1.getWaveletNeighborsForWavelet(j_wavelet1,k_wavelet1, testBasis_x1,
                                                             j_wavelet2,k_wavelet_first,k_wavelet_last);
                 assert(j_wavelet1==j_wavelet2);
-                Support<T> supp1 = trialBasis_x1.psi.support(j_wavelet1,k_wavelet1);
+                PeriodicSupport<T> supp1 = trialBasis_x1.psi.support(j_wavelet1,k_wavelet1);
                 if(k_wavelet_first < k_wavelet_last){
 					for (int k_wavelet2=k_wavelet_first; k_wavelet2<=k_wavelet_last; ++k_wavelet2) {
 						if (   overlap(supp1,testBasis_x1.psi.support(j_wavelet2,k_wavelet2) ) >0
