@@ -670,7 +670,7 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
                     }
         		}
                 if(!foundPredecessor){
-                	covering_k = lastIndex;
+                	if(!foundCoveredSupp){ covering_k = lastIndex;}
             		for(long new_k = new_k_first; new_k <= lastIndex; ++new_k){
                         PeriodicSupport<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
                         if(minimal_overlap(covered_supp, supp) >= supp.length()){
@@ -1050,7 +1050,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 						}
 					}
 					if(!foundPredecessor){
-	                	covering_k = lastIndex;
+	                	if(!foundCoveredSupp){ covering_k = lastIndex;}
 						for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
 							PeriodicSupport<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 							if(minimal_overlap(covered_supp_x, supp_x) >= supp_x.length()){
@@ -1253,7 +1253,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 						}
 					}
 					if(!foundPredecessor){
-						covering_k = lastIndex;
+	                	if(!foundCoveredSupp){ covering_k = lastIndex;}
 						for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
 							PeriodicSupport<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 							if(minimal_overlap(covered_supp_y, supp_y) >= supp_y.length()){
@@ -1473,7 +1473,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 						}
 					}
 					if(!foundPredecessor){
-						covering_k = lastIndex;
+						if(!foundCoveredSupp){covering_k = lastIndex;}
 						for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
 							PeriodicSupport<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 							if(minimal_overlap(covered_supp_x, supp_x) >= supp_x.length()){
@@ -1842,7 +1842,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 						}
 					}
 					if(!foundPredecessor){
-						covering_k = lastIndex;
+						if(!foundCoveredSupp){covering_k = lastIndex;}
 						for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
 							PeriodicSupport<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 							if(minimal_overlap(covered_supp_y, supp_y) >= supp_y.length()){
