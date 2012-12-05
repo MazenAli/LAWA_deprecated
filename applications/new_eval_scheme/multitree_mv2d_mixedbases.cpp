@@ -184,7 +184,7 @@ T dp2(T y) {   return 0.;  }
         //cout << "Extended Lambda: " << Lambda << endl;
         cout << "Treestructure Lambda: " << endl;
 		cout << "X1 Alignment " << endl;
-	    XOneAlignedCoefficients x1aligned_Lambda(6151,193);
+	    /*XOneAlignedCoefficients x1aligned_Lambda(6151,193);
 	    x1aligned_Lambda.align(aux_coeffs,j0+j+4);
 	    for (XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_Lambda.map.begin();
 	                                                            it!=x1aligned_Lambda.map.end(); ++it) {
@@ -197,7 +197,7 @@ T dp2(T y) {   return 0.;  }
 	    for (XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned.map.begin();
 	                                                            it!=x2aligned.map.end(); ++it) {
 	    	cout << (*it).first << (*it).second << endl;
-	    }
+	    }*/
 
         aux_coeffs.clear();
         getSparseGridIndexSet(basis2d_test,checkLambda,j,0.2);
@@ -276,16 +276,13 @@ T dp2(T y) {   return 0.;  }
                             Index2D index(row_x,col_y);
                             UIv_ref[index] = 0.;
                         }
-                        else{
-                        	cout << "Throw out (" << col_x.j << ","<< col_x.k << ") , (" << row_x.j << ","<<row_x.k << ")" << endl;
-                        }
                     }
                 }
             }
             cout << "Size of checkLambda: " << checkLambda.size() << endl;
             cout << "Size of Lambda:      " << Lambda.size() << endl;
             cout << "Size of IAv:         " << IAv_ref.size() << endl;
-            cout << "Size of UIv:         " << UIv_ref.size() << UIv_ref << endl;
+            cout << "Size of UIv:         " << UIv_ref.size() << endl;
             cout << "Size of v:           " << v.size() << endl;
 
             cout << "Reference calculation started..." << endl;

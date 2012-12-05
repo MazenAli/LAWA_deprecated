@@ -43,6 +43,10 @@ void
 constructRandomTree(const Basis &basis, int J, bool withRandomValues,
                     TreeCoefficients1D<T> &LambdaTree, bool sparsetree, int seed);
 
+template <typename Basis>
+void
+getFullBasis(const Basis &basis, int J, Coefficients<Lexicographical,T,Index1D> & coeffs);
+
 void
 computeEvalLRef(const BilinearForm &Bil, const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Lv_tree);
 
@@ -52,7 +56,7 @@ computeEvalURef(const BilinearForm &Bil, const TreeCoefficients1D<T> &v_tree, Tr
 void
 computeEvalARef(const BilinearForm &Bil, const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Av_tree);
 
-int main(int argc, char*argv[])
+  int main(int argc, char*argv[])
 {
     cout.precision(20);
     if (argc!=5) {
@@ -87,15 +91,45 @@ int main(int argc, char*argv[])
     ofstream ct_file(ct_filename.str().c_str());
 
 
-    for (int j=j0; j<=J; ++j) {
+    for (int j=j0+1; j<=j0+1; ++j) {
         T time_evalA = 0., time_evalU = 0., time_evalL = 0.;
         TreeCoefficients1D<T> v_tree(389,basis.j0), Av_tree(389,basis.j0),
                               Uv_tree(COEFFBYLEVELSIZE,basis.j0), Lv_tree(COEFFBYLEVELSIZE,basis.j0);
         TreeCoefficients1D<T> Av_ref_tree(COEFFBYLEVELSIZE,basis.j0),
                               Uv_ref_tree(COEFFBYLEVELSIZE,basis.j0),
                               Lv_ref_tree(COEFFBYLEVELSIZE,basis.j0);
-        constructRandomTree(basis, j, true, v_tree, sparsetree, seed);
-        constructRandomTree(secondbasis, j+1, false, Av_tree, sparsetree, seed+37);
+
+        // Seems to work
+        //constructRandomTree(basis, j, true, v_tree, sparsetree, seed);
+        //constructRandomTree(secondbasis, j+1, false, Av_tree, sparsetree, seed+37);
+        //
+
+		Coefficients<Lexicographical,T,Index1D> Coeffs_Interval, Coeffs_Periodic;
+		Index1D index1_per(j+4,32,XWavelet);
+		Index1D index1_int(j+4,4,XWavelet);
+		completeMultiTree(basis,index1_per,Coeffs_Periodic,true);
+		completeMultiTree(secondbasis,index1_int,Coeffs_Interval,true);
+//	    Coeffs_Interval[Index1D(j0,3,XBSpline)] = 0;
+//	    Coeffs_Interval[Index1D(j0,4,XBSpline)] = 0;
+		//Coeffs_Periodic[Index1D(3,2,XWavelet)] = 0;
+
+
+        //getFullBasis(basis, j+4, Coeffs_Periodic);
+        //getFullBasis(secondbasis, j+4, Coeffs_Interval);
+
+	    for (Coefficients<Lexicographical,T,Index1D>::iterator it=Coeffs_Periodic.begin(); it!=Coeffs_Periodic.end(); ++it) {
+	    	(*it).second = T(rand()) / T(RAND_MAX);
+	    	cout << (*it).first << " " << basis.generator((*it).first.xtype).support((*it).first.j,(*it).first.k) << endl;
+	    }
+
+
+ 	    fromCoefficientsToTreeCoefficients(Coeffs_Periodic, v_tree);
+		fromCoefficientsToTreeCoefficients(Coeffs_Interval, Av_tree);
+
+		cout << "V-Tree: " << v_tree << endl;
+		cout << "Av-Tree : " << Av_tree << endl;
+
+
         Av_ref_tree = Av_tree;
         Uv_tree     = Av_tree;
         Uv_ref_tree = Av_tree;
@@ -230,6 +264,22 @@ constructRandomTree(const Basis &basis, int J, bool withRandomValues,
         }
     }
     */
+}
+
+template <typename Basis>
+void
+getFullBasis(const Basis &basis, int J, Coefficients<Lexicographical,T,Index1D> & coeffs){
+
+	int j0 = basis.j0;
+	for(long k = basis.mra.rangeI(j0).firstIndex(); k <= basis.mra.rangeI(j0).lastIndex(); ++k){
+		coeffs[Index1D(j0, k, XBSpline)] = 0;
+	}
+	for(int j = j0; j <= J; ++j){
+		for(long k = basis.rangeJ(j).firstIndex(); k <= basis.rangeJ(j).lastIndex(); ++k){
+			coeffs[Index1D(j, k, XWavelet)] = 0;
+		}
+	}
+
 }
 
 void

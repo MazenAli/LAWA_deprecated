@@ -76,7 +76,7 @@ int main(int argc, char*argv[])
     /// Basis initialization, using Dirichlet boundary conditions
     //PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
     PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
-    //if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
+    if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis& refinementbasis = basis.refinementbasis;
 
     /// Test refinement of B-splines
@@ -90,7 +90,7 @@ int main(int argc, char*argv[])
 
     /// Test refinement of multiwavelets: We check the refinement of wavelets in terms of B-splines.
 
-    test_refinementOfWavelet(basis, refinementbasis, deriv);
+    //test_refinementOfWavelet(basis, refinementbasis, deriv);
 
     /// Check for B-spline neighbors: Given a B-spline, we need to determine the B-splines whose
     /// supports intersect the one of the B-spline. Here, both sides are assumed to be on the same
@@ -106,7 +106,7 @@ int main(int argc, char*argv[])
 
     //test_getWaveletNeighborsForBSpline(basis, refinementbasis);
 
-    //test_getScalingNeighborsForScaling(basis);
+    test_getScalingNeighborsForScaling(basis);
 
     //test_getWaveletNeighborsForScaling(basis);
 

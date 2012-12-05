@@ -123,7 +123,14 @@ int main(int argc, char*argv[])
     /// representation
     TreeCoefficients1D<T> u_tree(4096,basis.j0);
     Coefficients<Lexicographical,T,Index1D> u, u_loc_single;
-    constructRandomTree(basis, J, u_tree);
+    //constructRandomTree(basis, J, u_tree);
+	Index1D index1_per(j+4,32,XWavelet);
+	//Index1D index1_int(j+4,4,XWavelet);
+	completeMultiTree(basis,index1_per,u,true);
+    for (Coefficients<Lexicographical,T,Index1D>::iterator it=u.begin(); it!=u.end(); ++it) {
+    	(*it).second = T(rand()) / T(RAND_MAX);
+    }
+
     fromTreeCoefficientsToCoefficients(u_tree,u);
     IndexSet<Index1D> supp_u;
     supp_u = supp(u);

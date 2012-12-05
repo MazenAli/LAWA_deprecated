@@ -25,20 +25,20 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,SecondBasis>             TrialBasis2D
 typedef TensorBasis2D<Adaptive,SecondBasis,SecondBasis>             TestBasis2D;
 
 ///  Underlying bilinear form
-/*typedef IdentityOperator1D_PG<T,PrimalBasis,SecondBasis>            BilinearForm_x;
+typedef IdentityOperator1D_PG<T,PrimalBasis,SecondBasis>            BilinearForm_x;
 typedef IdentityOperator1D_PG<T,RefinementBasis,
 						SecondRefinementBasis>                      RefinementBilinearForm_x;
 typedef IdentityOperator1D_PG<T,SecondBasis,SecondBasis>            BilinearForm_y;
 typedef IdentityOperator1D_PG<T,SecondRefinementBasis,
 						SecondRefinementBasis>                      RefinementBilinearForm_y;
-*/
-typedef LaplaceOperator1D_PG<T,PrimalBasis,SecondBasis>            BilinearForm_x;
+
+/*typedef LaplaceOperator1D_PG<T,PrimalBasis,SecondBasis>            BilinearForm_x;
 typedef LaplaceOperator1D_PG<T,RefinementBasis,
 						SecondRefinementBasis>                      RefinementBilinearForm_x;
 typedef IdentityOperator1D_PG<T,SecondBasis,SecondBasis>            BilinearForm_y;
 typedef IdentityOperator1D_PG<T,SecondRefinementBasis,
 						SecondRefinementBasis>                      RefinementBilinearForm_y;
-
+*/
 
 ///  Local operator in 1d
 typedef LocalOperator1D<SecondBasis,PrimalBasis,
@@ -52,6 +52,9 @@ typedef IndexSet<Index1D>::const_iterator                           const_set1d_
 typedef IndexSet<Index2D>::const_iterator                           const_set2d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::iterator           coeff2d_it;
 typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2d_it;
+
+typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XOne>             XOneAlignedCoefficients;
+typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XTwo>             XTwoAlignedCoefficients;
 
 template <typename Basis2D>
 void
@@ -139,7 +142,7 @@ int main (int argc, char *argv[]) {
       time_IAv1_old=0., time_IAv2_old=0., time_LIv_old=0., time_UIv_old=0.;
     int N = 0, N_old = 0;
 
-    for (int j=0; j<=numOfIter; ++j) {
+    for (int j=1; j<=J; ++j) {
 
         IndexSet<Index2D> checkLambda, Lambda;
         Coefficients<Lexicographical,T,Index2D> test, test2;
@@ -164,9 +167,10 @@ int main (int argc, char *argv[]) {
             cout<< "#test =         " << test.size() << endl;
             checkLambda = supp(test);
 
+
             cout << "#Lambda  = " << Lambda.size() << endl;
             FillWithZeros(Lambda,test2);
-            Index1D index2_x(j0+j+4,6,XWavelet);
+            Index1D index2_x(j0+j+4,32 ,XWavelet);
             Index1D index2_y(j0+j+4,2,XWavelet);
             Index2D new_index2(index2_x,index2_y);
             completeMultiTree(trialbasis2d,new_index2,test2,0,true);
@@ -175,6 +179,7 @@ int main (int argc, char *argv[]) {
             //cout<< "#Lambda1 = " << Lambda.size() << endl;
             //cout<< "#Lambda2 = " << Lambda2.size() << endl;
             Lambda = supp(test2);
+
         }
         else {
             T threshTol = 0.6;
@@ -239,9 +244,10 @@ int main (int argc, char *argv[]) {
             }
             cout << "Size of checkLambda: " << checkLambda.size() << endl;
             cout << "Size of Lambda:      " << Lambda.size() << endl;
-            cout << "Size of IAv:         " << IAv_ref.size() << endl;
-            cout << "Size of UIv:         " << UIv_ref.size() << endl;
+            cout << "Size of IAv:         " << IAv_ref.size()  << endl;
+            cout << "Size of UIv:         " << UIv_ref.size()  << endl;
             cout << "Size of v:           " << v.size() << endl;
+            cout << "Size of AAv:         " << AAv_ref.size()   << endl;
 
             cout << "Reference calculation started..." << endl;
             refComputationIAv(Bil_y, v, IAv_ref);
@@ -261,6 +267,7 @@ int main (int argc, char *argv[]) {
             time.stop();
             time_evalAA1 = time.elapsed();
             cout << "New scheme finished." << endl;
+
         }
         else {
             Coefficients<Lexicographical,T,Index2D> AAv(SIZEHASHINDEX2D);

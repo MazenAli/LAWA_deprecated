@@ -101,7 +101,7 @@ int main (int argc, char *argv[]) {
     int J  = atoi(argv[3]);
 
     int numOfIter=J;
-    bool calcRefSol=false;
+    bool calcRefSol=true;
 
     /// Basis initialization, using Dirichlet boundary conditions
     PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
@@ -114,8 +114,8 @@ int main (int argc, char *argv[]) {
     Function<T> reaction_coeff(p1, p1_singPts);
     Function<T> convection_coeff(p1, p1_singPts);
     Function<T> diffusion_coeff(p1, p1_singPts);
-    BilinearForm_x  RefinementBil_x(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
-    BilinearForm_y  RefinementBil_y(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
+    RefinementBilinearForm_x  RefinementBil_x(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
+    RefinementBilinearForm_y  RefinementBil_y(basis.refinementbasis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
     BilinearForm_x  Bil_x(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,true,true,false);
     BilinearForm_y  Bil_y(basis,reaction_coeff,convection_coeff,diffusion_coeff,10,false,true,true);
     LocalOp1D_x localOperator_x(basis,basis,RefinementBil_x);
@@ -145,8 +145,31 @@ int main (int argc, char *argv[]) {
         T threshTol = 0.6;
         int ell=1;
         int example = 2;
-        readIndexSetFromFile(Lambda,"Lambda",example,d,threshTol,ell,j);
+        /*readIndexSetFromFile(Lambda,"Lambda",example,d,threshTol,ell,j);
         readIndexSetFromFile(checkLambda,"checkLambda",example,d,threshTol,ell,j);
+        */
+
+        // Construct index set Lambda
+        Coefficients<Lexicographical,T,Index2D> aux_coeffs;
+        getSparseGridIndexSet(basis,Lambda,j,0.2);
+        FillWithZeros(Lambda,aux_coeffs);
+        Index1D index1_x(j0+j+4,13,XWavelet);
+        Index1D index1_y(j0+j+4,4,XWavelet);
+        Index2D new_index1(index1_x,index1_y);
+        completeMultiTree(basis2d,new_index1,aux_coeffs, 0, true);
+        Lambda = supp(aux_coeffs);
+        cout << Lambda << endl;
+
+        aux_coeffs.clear();
+        getSparseGridIndexSet(basis,checkLambda,j,0.2);
+        FillWithZeros(checkLambda,aux_coeffs);
+        Index1D index2_x(j0+j+4,7,XWavelet);
+        Index1D index2_y(j0+j+4,17,XWavelet);
+        Index2D new_index2(index2_x,index2_y);
+        completeMultiTree(basis2d,new_index2,aux_coeffs, 0, true);
+        checkLambda = supp(aux_coeffs);
+        cout << checkLambda << endl;
+
         cout << "Size of Lambda:      " << Lambda.size() << endl;
         cout << "Size of checkLambda: " << checkLambda.size() << endl;
         if (Lambda.size()==0) return 0;
@@ -273,7 +296,42 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
-
+void
+getSparseGridIndexSet(const PrimalBasis &basis, IndexSet<Index2D> &Lambda, int j, T gamma)
+{
+    int j0 = basis.j0;
+    for (long k1=basis.mra.rangeI(j0).firstIndex(); k1<=basis.mra.rangeI(j0).lastIndex(); ++k1) {
+        for (long k2=basis.mra.rangeI(j0).firstIndex(); k2<=basis.mra.rangeI(j0).lastIndex(); ++k2) {
+            Index1D row(j0,k1,XBSpline);
+            Index1D col(j0,k2,XBSpline);
+            Lambda.insert(Index2D(row,col));
+        }
+        for (int i2=1; i2<=j; ++i2) {
+            int j2=j0+i2-1;
+            for (long k2=basis.rangeJ(j2).firstIndex(); k2<=basis.rangeJ(j2).lastIndex(); ++k2) {
+                Index1D row(j0,k1,XBSpline);
+                Index1D col(j2,k2,XWavelet);
+                Lambda.insert(Index2D(row,col));
+                Lambda.insert(Index2D(col,row));
+            }
+        }
+    }
+    for (int i1=1; i1<=j; ++i1) {
+        int j1=j0+i1-1;
+        for (int i2=1; i1+i2<=j; ++i2) {
+            if (T(i1+i2)-gamma*max(i1,i2)>(1-gamma)*j) continue;
+            int j2=j0+i2-1;
+            for (long k1=basis.rangeJ(j1).firstIndex(); k1<=basis.rangeJ(j1).lastIndex(); ++k1) {
+                for (long k2=basis.rangeJ(j2).firstIndex(); k2<=basis.rangeJ(j2).lastIndex(); ++k2) {
+                    Index1D row(j1,k1,XWavelet);
+                    Index1D col(j2,k2,XWavelet);
+                    Lambda.insert(Index2D(row,col));
+                }
+            }
+        }
+    }
+    return;
+}
 
 void
 readIndexSetFromFile(IndexSet<Index2D> &Lambda, const char* indexset, int example, int d,
