@@ -80,14 +80,8 @@ class LocalRefinement
 
     private:
         //Computes the local refinement of a B-spline (not multiscaling!!)
-        template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
-        reconstructBSpline(int j, long k, T_ coeff, CoefficientsByLevel<T_> &u_loc_single,
-                           int &j_refinement) const;
-
-        template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
-        reconstructBSpline(int j, long k, T_ coeff, CoefficientsByLevel<T_> &u_loc_single,
+        void
+        reconstructBSpline(int j, long k, T coeff, CoefficientsByLevel<T> &u_loc_single,
                            int &j_refinement) const;
 
         //Computes the local refinement of a Wavelet (also multiwavelet!!)
@@ -126,13 +120,8 @@ class LocalRefinement
         // Computes $M^{\lambda;j,0}^T C where $\lambda$ corresponds to a (refinement)-bspline
         // index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and $\Phi_{j+1}$ corresponds
         // to a (local) refinement B-spline vector.
-        template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
-        decompose_BSpline(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
-
-        template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
-        decompose_BSpline(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
+        typename PrimalBasis::T
+        decompose_BSpline(const CoefficientsByLevel<T> &u_loc_single, int j, long k) const;
 
         // Computes $M^{\lambda;j,1}^T C where $\lambda$ corresponds to a
         // (multi)-wavelet index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and

@@ -212,12 +212,10 @@ LocalRefinement<PrimalBasis>::reconstructOnlyMultiScaling
 }
 
 
-// Non-Periodic Version
 template <typename PrimalBasis>
-template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
-LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T_ coeff,
-                                                  CoefficientsByLevel<T_> &u_loc_single,
+void
+LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T coeff,
+                                                  CoefficientsByLevel<T> &u_loc_single,
                                                   int &j_refinement) const
 {
     DenseVectorLD *refCoeffs;
@@ -230,31 +228,6 @@ LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T_ coeff,
     for (int i=(*refCoeffs).firstIndex(); i<= (long int)(*refCoeffs).lastIndex(); ++i) {
         u_loc_single.map[k_refinement_first+i] += (*refCoeffs).operator()(i) * coeff;
     }
-}
-
-// Periodic Version
-template <typename PrimalBasis>
-template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
-LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T_ coeff,
-                                                  CoefficientsByLevel<T_> &u_loc_single,
-                                                  int &j_refinement) const
-{
-    DenseVectorLD *refCoeffs;
-    j_refinement = 0;
-    long k_refinement_first = 0L;
-    long split = 100.L;
-    long k_refinement_restart = 100.L;
-    refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,j_refinement,k_refinement_first, split, k_refinement_restart);
-
-	// First part of coefficients (= all coefficients, if basis is not periodic
-    for (int i=(*refCoeffs).firstIndex(); i<= std::min((*refCoeffs).firstIndex()+split-1, (long int)(*refCoeffs).lastIndex()); ++i) {
-        u_loc_single.map[k_refinement_first+i] += (*refCoeffs).operator()(i) * coeff;
-    }
-	// Second part of coefficients: i is still index in coefficient vector
-    for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
-        u_loc_single.map[k_refinement_restart+i-((*refCoeffs).firstIndex()+split)] += (*refCoeffs).operator()(i) * coeff;
-	}
 }
 
 // Non-Periodic Version
@@ -396,11 +369,9 @@ LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T_> &u
     return val;
 }
 
-// Non-Periodic Version
 template <typename PrimalBasis>
-template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
-LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T_> &u_loc_single,
+typename PrimalBasis::T
+LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_loc_single,
                                                  int j, long k) const
 {
     const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
@@ -420,43 +391,6 @@ LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T_> &u
     }
     return val;
 }
-
-// Periodic Version
-template <typename PrimalBasis>
-template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
-LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T_> &u_loc_single,
-                                                 int j, long k) const
-{
-    const_coeffbylevel_it u_loc_single_end = u_loc_single.map.end();
-    const_coeffbylevel_it u_loc_single_ptr;
-    DenseVectorLD *refCoeffs;
-    int refinement_j = 0;
-    long refinement_k_first = 0L;
-    long split = 100L;
-    long refinement_k_restart = 0L;
-    T val = 0.;
-    refCoeffs = refinementbasis.mra.phi.getRefinement(j,k,refinement_j,refinement_k_first, split, refinement_k_restart);
-
-	// First part of coefficients
-	for (int i=(*refCoeffs).firstIndex(); i<= std::min( ((*refCoeffs).firstIndex()+split-1) , (long int)(*refCoeffs).lastIndex()); ++i) {
-    	u_loc_single_ptr=u_loc_single.map.find(refinement_k_first+i);
-        if (u_loc_single_ptr!=u_loc_single_end) {
-            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
-        }
-	}
-	// Second part of coefficients: i is still index in coefficient vector
-	for (int i= (*refCoeffs).firstIndex()+split; i <= (*refCoeffs).lastIndex(); ++i) {
-		long index = refinement_k_restart+i-((*refCoeffs).firstIndex()+split);
-        u_loc_single_ptr=u_loc_single.map.find(index);
-        if (u_loc_single_ptr!=u_loc_single_end) {
-            val += (*refCoeffs).operator()(i) * (*u_loc_single_ptr).second;
-        }
-	}
-
-    return val;
-}
-
 
 // Non-Periodic Version
 template <typename PrimalBasis>
