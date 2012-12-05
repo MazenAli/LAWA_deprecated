@@ -150,3 +150,6 @@ applications/unbounded_domains/validate/test_reallinemwbasis
 applications/canutoproject/claudiocanutogrey3_L2/ClaudioCanutoGrey3_func_16.plot Alias
 applications/new_eval_scheme/test_local_operator_realline1d
 applications/new_eval_scheme/test_local_reconstruction_realline
+refinement_*.txt
+interval_*.txt
+

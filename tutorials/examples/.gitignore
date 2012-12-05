@@ -6,3 +6,4 @@ pde1d
 spacetime_heat_periodicTime
 fixedpoint_heat_periodicTime
 multigrid_heat_periodicTime
+u_helmholtz_pi.txt
