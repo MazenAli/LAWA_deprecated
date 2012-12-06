@@ -14,15 +14,15 @@ void
 FourierPricer1D<T,PType>::solve(T A, int J)
 {
     int N = 1 << J;
-    T delta = A/T(N-1);
+    double delta = A/T(N-1);
     //T data[2*N];
-    T *data;
-    data = (T*)malloc( 2*N * sizeof(T) );
-    T a=-std::log(K1/S0);
+    double *data;
+    data = (double*)malloc( 2*N * sizeof(double) );
+    double a=-std::log(K1/S0);
 
     for (int i = 0; i < N; i++)
     {
-        T x = -0.5*A+delta*i;
+        double x = -0.5*A+delta*i;
         gsl_complex tmp = zeta(x);
         tmp = gsl_complex_mul(tmp,gsl_complex_exp(gsl_complex_rect(0,a*i*delta)));
         data[2*i] = tmp.dat[0]; data[2*i+1] = tmp.dat[1];
@@ -32,16 +32,16 @@ FourierPricer1D<T,PType>::solve(T A, int J)
     int n = std::ceil(((double)N/(double)(N-1)*A/(2*M_PI))*(a+log(K2/S0)))+1;
     //T _xa[n];
     //T _ya[n];
-    T *_xa;
-    T *_ya;
-    _xa = (T*)malloc( n * sizeof(T) );
-    _ya = (T*)malloc( n * sizeof(T) );
+    double *_xa;
+    double *_ya;
+    _xa = (double*)malloc( n * sizeof(double) );
+    _ya = (double*)malloc( n * sizeof(double) );
 
 
     for (int i = 0; i < n; i++)
     {
         gsl_complex fft = gsl_complex_rect(data[2*i],data[2*i+1]); //todo: tankov (p.366) funktionswerte abziehen
-        T u = -a+(2*M_PI*i)/(N*delta);
+        double u = -a+(2*M_PI*i)/(N*delta);
         gsl_complex factor = gsl_complex_exp(gsl_complex_rect(0.0,u*0.5*A));
         gsl_complex res = gsl_complex_mul(fft,factor);
 

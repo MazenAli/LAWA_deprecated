@@ -53,7 +53,7 @@ struct FourierPricer1D
     T                                      K1, K2;           //range of strike prices [K1,K2]
     gsl_interp                             *interpol;
     gsl_interp_accel                       *accel;
-    T                                      *xa,*ya;
+    double                                 *xa,*ya;
 
 };
 

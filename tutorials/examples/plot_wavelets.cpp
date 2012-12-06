@@ -12,8 +12,10 @@ typedef double T;
 
 ///  Typedefs for basis construction:
 ///     Dijkema Basis over an interval
-typedef Basis<T,Primal,Interval,Dijkema> Basis1D;
+//typedef Basis<T,Primal,Interval,Dijkema> Basis1D;
 ///     L2 orthonormal Basis over an interval
+typedef Basis<T,Orthogonal,Interval,Multi> Basis1D;
+
 //typedef Basis<T,Orthogonal,R,Multi> Basis1D;
 //typedef Basis<T,Orthogonal,R,MultiRefinement> Basis1D;
 
@@ -50,8 +52,8 @@ int main (int argc, char *argv[]) {
     int j0 = atoi(argv[3]);
     int J = atoi(argv[4]);
 
-    Basis1D basis(d,d_,j0);
-    //Basis1D basis(d,j0);
+    //Basis1D basis(d,d_,j0);
+    Basis1D basis(d,j0);
     if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     //T a = -5., b = 5.;
     T a = 0., b = 1.;

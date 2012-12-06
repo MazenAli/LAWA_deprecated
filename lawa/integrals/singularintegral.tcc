@@ -13,7 +13,7 @@ _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral
     Support<T> supp_x = singularintegral.first.generator(singularintegral.e1).support(singularintegral.j1,singularintegral.k1);
     Support<T> supp_y = singularintegral.second.generator(singularintegral.e2).support(singularintegral.j2,singularintegral.k2);
 
-    std::cerr << "Integrate: [" << supp_x.l1 << ", " <<supp_x.l2 << "], [" << supp_y.l1 << ", " << supp_y.l2 << "]" << std::endl;
+    //std::cerr << "Integrate: [" << supp_x.l1 << ", " <<supp_x.l2 << "], [" << supp_y.l1 << ", " << supp_y.l2 << "]" << std::endl;
     DenseVector<Array<T> > SingularPoints_x =
              singularintegral.first.generator(singularintegral.e1).singularSupport(singularintegral.j1,singularintegral.k1);
     DenseVector<Array<T> > SingularPoints_y =
@@ -53,7 +53,9 @@ _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral
         it_y2=AllSingularPoints_y.begin(); ++it_y2;
         while (it_y2!=AllSingularPoints_y.end()) {
             long double a2 = (*it_y1), b2 = (*it_y2);
-            ret += singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
+            long double tmp = singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
+            ret += tmp;
+            //std::cerr << "   [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]: " << tmp << std::endl;
             ++it_y1; ++it_y2;
         }
         ++it_x1; ++it_x2;

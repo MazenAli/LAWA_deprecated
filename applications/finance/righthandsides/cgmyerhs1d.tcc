@@ -4,11 +4,13 @@ namespace lawa {
 template <typename T, typename Basis1D>
 OptionRHS1D<T, Put, CGMYe, Basis1D>::OptionRHS1D(const OptionParameters1D<T,Put> &_optionparameters,
                                                 const ProcessParameters1D<T,CGMYe> &_processparameters,
-                                                const Basis1D &_basis, T _R1, T _R2)
+                                                const Basis1D &_basis, T _R1, T _R2,
+                                                bool _excessToPayoff)
 : optionparameters(_optionparameters), processparameters(_processparameters),
   basis(_basis), kernel(_processparameters),
   R1(_R1), R2(_R2),
-  OneDivSqrtR2pR1(1./std::sqrt(R2+R1)), OneDivR2pR1(1./(R2+R1)), R1DivR1pR2(R1/(R1+R2))
+  OneDivSqrtR2pR1(1./std::sqrt(R2+R1)), OneDivR2pR1(1./(R2+R1)), R1DivR1pR2(R1/(R1+R2)),
+  excessToPayoff(_excessToPayoff)
 {
     if (R1==0 && R2==1) {
         OneDivSqrtR2pR1=1.;
@@ -27,6 +29,7 @@ OptionRHS1D<T, Put, CGMYe, Basis1D>::operator()(XType xtype, int j, int k) const
     T K = optionparameters.strike;
     T sigma = processparameters.sigma;
 
+    if (!excessToPayoff) return 0.;
 
     if (basis.d==2) {
         T ret = 0.;

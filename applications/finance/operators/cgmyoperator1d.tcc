@@ -4,8 +4,7 @@ template <typename T, typename Basis1D>
 FinanceOperator1D<T, CGMY, Basis1D>::FinanceOperator1D
                                     (const Basis1D& _basis,
                                      const ProcessParameters1D<T,CGMY> &_processparameters,
-                                     const T _eta, T _R1, T _R2, int order,
-                                     const int _internal_compression_level,
+                                     T _R1, T _R2, int order, const int _internal_compression_level,
                                      T _convection, T _reaction, const bool _use_predef_convection,
                                      const bool _use_predef_reaction)
     : basis(_basis), processparameters(_processparameters), kernel(processparameters),

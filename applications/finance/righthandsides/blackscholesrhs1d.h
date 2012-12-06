@@ -34,7 +34,7 @@ struct OptionRHS1D<T, Put, BlackScholes, Basis1D>
 {
     OptionRHS1D(const OptionParameters1D<T,Put> &_optionparameters,
                 const ProcessParameters1D<T,BlackScholes> &_processparameters,
-                const Basis1D &_basis, T _R1=0., T _R2=1.);
+                const Basis1D &_basis, T _R1=0., T _R2=1., bool _excessToPayoff=true);
 
     T
     operator()(XType xtype, int j, int k) const;
@@ -53,6 +53,7 @@ struct OptionRHS1D<T, Put, BlackScholes, Basis1D>
     const Basis1D                               &basis;
     T                                           R1, R2;
     T                                           OneDivSqrtR2pR1, OneDivR2pR1, R1DivR1pR2;
+    bool                                        excessToPayoff;
 };
 
 }   // namespoce lawa

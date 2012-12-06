@@ -2,7 +2,7 @@ namespace lawa {
 
 template <typename T>
 Basis<T,Orthogonal,R,Multi>::Basis(int _d, int j)
-    : mra(_d, j), d(_d), j0(mra.j0), _j(j0), psi(*this), refinementbasis(d,j),
+    : mra(_d, j), d(_d), d_(_d), j0(mra.j0), _j(j0), psi(*this), refinementbasis(d,j),
      _numSplines(psi._numSplines)//, _addRefinementLevel(psi._addRefinementLevel),
      //_shiftFactor(psi._shiftFactor)
 {

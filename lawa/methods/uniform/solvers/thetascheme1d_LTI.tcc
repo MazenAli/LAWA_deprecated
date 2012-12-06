@@ -54,15 +54,22 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
     if (!time_constant_rhs) {
         rhsvector = assembler.assembleRHS(op_RHSVector, level);
     }
+    //std::cerr << "u_init    = " << u_init << std::endl;
+    //std::cerr << "rhsvector = " << rhsvector << std::endl;
     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
+    //std::cerr << "rhs       = " << rhs << std::endl;
     flens::DenseVector<flens::Array<T> > u(basis.mra.rangeI(level));
+    //std::cerr << "First u   = " << u << std::endl;
     if (use_pcg) {
         pcg(P,lhsmatrix, u, rhs, lintol);
     }
     else {
-        //pgmres(P,lhsmatrix, u, rhs, lintol);
-        pgmres(P,lhsmatrix, u, rhs, lintol, 20);
+        //int iters = gmres(lhsmatrix, u, rhs, lintol);
+        int iters = pgmresm(P,lhsmatrix, u, rhs, lintol,10);
+        //std::cerr << "Solve by gmres with iters = " << std::endl;
+        //pgmresm(P,lhsmatrix, u, rhs, lintol, 20);
     }
+    //std::cerr << "Next u    = " << u << std::endl;
     //std::cout << cg(lhsmatrix, u, rhs) << "cg iterations" << std::endl;
     //std::cout << pcg(P, lhsmatrix, u, rhs) << "pcg iterations" << std::endl;
     

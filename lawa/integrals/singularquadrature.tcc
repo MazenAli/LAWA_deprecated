@@ -41,7 +41,7 @@ SingularQuadrature<SingularIntegral>::SingularQuadrature(const SingularIntegral 
 : singularintegral(_singularintegral), _order_eta(8), _order(6), _n(6), _sigma(_precalculated_sigma),
   _mu(_precalculated_mu), _omega(0.01)
 {
-    _order_eta = (singularintegral.first.d+singularintegral.second.d)/2+1;
+    _order_eta = (singularintegral.first.d+singularintegral.second.d)/2+2;
     std::cerr << "_order_eta = " << _order_eta << std::endl;
     _legendre(_precalculated_order);
     _hp_composite_legendre(_precalculated_n, _precalculated_sigma, _precalculated_mu);
@@ -86,11 +86,11 @@ SingularQuadrature<SingularIntegral>::operator()(long double a1, long double b1,
 {
     //std::cerr << "[" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
     if (fabs(a1-a2)<1e-15 && fabs(b1-b2)<1e-15) {
-        std::cerr << "   _integrate_singular_diagonal [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
+        //std::cerr << "   _integrate_singular_diagonal [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
         return _integrate_singular_diagonal(a1, b1, a2, b2, eps);
     }
     else if (fabs(a1-b2)<1e-15) {   // Corner singularity in (a1,b2)
-        std::cerr << "   _integrate_singular_corner for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
+        //std::cerr << "   _integrate_singular_corner for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
         long double h1 = b1-a1, h2 = b2-a2;
         if (h1 < h2) {
             //std::cerr << "     First case" << std::endl;
@@ -103,12 +103,12 @@ SingularQuadrature<SingularIntegral>::operator()(long double a1, long double b1,
                    + _integrate_nonsingular(a1+h2, b1, a2, b2, (long double)1e-10);
         }
         else {  // Quadratic domain
-            std::cerr << "      quadratic domain" << std::endl;
+            //std::cerr << "      quadratic domain" << std::endl;
             return _integrate_singular_corner(a1, b1, a2, b2, eps);
         }
     }
     else if (fabs(a2-b1)<1e-15) {   // Corner singularity in (b1,a2)
-        std::cerr << "   _integrate_singular_corner for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
+        //std::cerr << "   _integrate_singular_corner for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
         long double h1 = b1-a1, h2 = b2-a2;
         if (h1 < h2) {
             return   _integrate_singular_corner(a1, b1, a2, a2+h1, (long double)1e-10)
@@ -124,7 +124,7 @@ SingularQuadrature<SingularIntegral>::operator()(long double a1, long double b1,
 
     }
     else {
-        std::cerr << "   _integrate_nonsingular for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
+        //std::cerr << "   _integrate_nonsingular for [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]" << std::endl;
         return _integrate_nonsingular(a1, b1, a2, b2, eps);
     }
 
@@ -169,7 +169,7 @@ SingularQuadrature<SingularIntegral>::_integrate_singular_corner(long double a1,
     long double _a1, _a2, _b1, _b2, _h1, _h2;
     long double factor = 1.L;
     if (fabs(a1-b2)<1e-15) {
-        std::cerr << "        corner (a1,b2)" << std::endl;
+        //std::cerr << "        corner (a1,b2)" << std::endl;
         _a1 = a1, _b1 = b1, _a2 = b2, _b2 = a2; _h1 = h, _h2 = -h;
     }
     else {
@@ -203,21 +203,28 @@ SingularQuadrature<SingularIntegral>::_integrate_nonsingular(long double a1, lon
                                                              long double eps)
 {
     long double ret = 0.L;
-
-    if (fabs(fabs(b1-a1)-fabs(b2-a2))<1e-15) {
-        long double _a1, _a2, _b1, _b2, _h1, _h2, c;
+    if ( (fabs(fabs(b1-a1)-fabs(b2-a2))<1e-15) ) {
+        //std::cerr << "      quadratic domain." << std::endl;
+        long double _a1, _a2, _b1, _b2, _h1, _h2, _h, c;
         long double h = (b1-a1);
         if (a1>b2) {
-            _a1 = a1, _b1 = b1, _a2 = b2, _b2 = a2; _h1 = h, _h2 = -h, c = (a1-b2)/h;
+            //std::cerr << "      Special formula 1 called." << std::endl;
+            _a1 = a1, _b1 = b1, _a2 = b2, _b2 = a2; _h1 = h, _h2 = -h, _h = h, c = (a1-b2)/h;
+        }
+        else if (a2>b1){
+            //std::cerr << "      Special formula 2 called." << std::endl;
+            _a1 = b1, _b1 = a1, _a2 = a2, _b2 = b2; _h1 = -h, _h2 = h, _h = -h, c = (a2-b1)/h;
         }
         else {
-            _a1 = b1, _b1 = a1, _a2 = a2, _b2 = b2; _h1 = -h, _h2 = h, c = (a2-b1)/h;
+            std::cerr << "SingularQuadrature<SingularIntegral>::_integrate_nonsingular: "
+                      << "unknown configuration." << std::endl;
+            exit(1);
         }
         for (int i=1; i<=_order; ++i) {
             long double xi = _legendreknots(_order,i);
-            long double kernel_val_xi_Times_xi = singularintegral.kernel(h*(xi+c)) * xi;
+            long double kernel_val_xi_Times_xi = singularintegral.kernel(_h*(xi+c)) * xi;
             if (xi<1e-14) kernel_val_xi_Times_xi = 0.L;
-            long double kernel_val_One_Plus_xi_Times_One_Minus_xi = singularintegral.kernel(h*(1+xi+c)) * (1-xi);
+            long double kernel_val_One_Plus_xi_Times_One_Minus_xi = singularintegral.kernel(_h*(1+xi+c)) * (1-xi);
             for (int j=1; j<=_order_eta; ++j) {
                 long double eta = _legendreknots(_order_eta,j);
                 long double productweight = _legendreweights(_order,i) * _legendreweights(_order_eta,j);
@@ -235,7 +242,7 @@ SingularQuadrature<SingularIntegral>::_integrate_nonsingular(long double a1, lon
     }
     else {
         long double h1 = (b1-a1), h2 = (b2-a2);
-
+        //std::cerr << "      non-quadratic domain." << std::endl;
         for (int i=1; i<=_order; ++i) {
             long double xi = _legendreknots(_order,i);
             for (int j=1; j<=_order; ++j) {
@@ -254,7 +261,7 @@ template <typename SingularIntegral>
 void
 SingularQuadrature<SingularIntegral>::_legendre(int order)
 {
-    std::cerr << "_legendre called for order = " << order << std::endl;
+    //std::cerr << "_legendre called for order = " << order << std::endl;
     long double eps = Const<long double>::EQUALITY_EPS;
     flens::GeMatrix<flens::FullStorage<long double,cxxblas::ColMajor> > initiallegendreweights;
     flens::GeMatrix<flens::FullStorage<long double,cxxblas::ColMajor> > initiallegendreknots;

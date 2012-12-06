@@ -1,6 +1,14 @@
 namespace lawa {
 
 template <typename T>
+Option1D<T,Put>::Option1D()
+    : optionparameters()
+
+{
+
+}
+
+template <typename T>
 Option1D<T,Put>::Option1D(const OptionParameters1D<T,Put> &_optionparameters)
     : optionparameters(_optionparameters)
 
@@ -15,14 +23,14 @@ template <typename T>
 T
 Option1D<T,Put>::payoff(T S) const
 {
-    return std::max( optionparameters.strike - S, 0.0);
+    return std::max( optionparameters.strike - S, (T)0.);
 }
 
 template <typename T>
 T
 Option1D<T,Put>::payoff_log(T x) const
 {
-    return optionparameters.strike*std::max(1.-std::exp(x), 0.);
+    return optionparameters.strike*std::max(1.-std::exp(x), (T)0.);
 }
 
 
@@ -52,7 +60,7 @@ Option1D<T,Put>::value(const ProcessParameters1D<T,CGMY> &processparameters, T S
     CharacteristicFunction1D<T,CGMY> charfunc(processparameters);
 
     FourierPricer1D<T, CGMY> fp(charfunc, S, optionparameters.maturity,
-                                std::max(optionparameters.strike-10.,0.),
+                                std::max(optionparameters.strike-10.,(T)0.),
                                 optionparameters.strike+10.);
     //fp.solve(10000,17);
     fp.solve(10000,20);
@@ -70,7 +78,7 @@ Option1D<T,Put>::value(const ProcessParameters1D<T,CGMYe> &processparameters, T 
     CharacteristicFunction1D<T,CGMYe> charfunc(processparameters);
 
     FourierPricer1D<T, CGMYe> fp(charfunc, S, optionparameters.maturity,
-                                 std::max(optionparameters.strike-10.,0.),
+                                 std::max(optionparameters.strike-10.,(T)0.),
                                  optionparameters.strike+10.);
     //fp.solve(40000,17);
     fp.solve(10000,20);

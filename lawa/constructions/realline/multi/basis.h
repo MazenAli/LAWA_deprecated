@@ -123,7 +123,7 @@ class Basis<_T,Orthogonal,R,Multi>
 
         MRA<T,Orthogonal,R,Multi> mra;
 
-        const int d, j0;
+        const int d, d_, j0;
 
         Wavelet<T,Orthogonal,R,Multi> psi;
 

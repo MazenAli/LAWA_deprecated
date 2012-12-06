@@ -33,6 +33,8 @@ namespace lawa {
 template <typename T>
 struct Option1D<T,Put>
 {
+    Option1D();
+
     Option1D(const OptionParameters1D<T,Put> &_optionparameters);
 
     T

@@ -13,7 +13,7 @@ namespace lawa {
 
 template <typename T>
 Basis<T,Orthogonal,Interval,Multi>::Basis(int _d, int j)
-    : mra(_d, j), d(_d), j0(mra.j0), _bc(2,0), _j(j0), psi(*this), refinementbasis(d)
+    : mra(_d, j), d(_d), d_(_d), j0(mra.j0), _bc(2,0), _j(j0), psi(*this), refinementbasis(d)
 {
     assert(d>=1);
     

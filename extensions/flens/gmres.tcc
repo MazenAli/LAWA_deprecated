@@ -115,7 +115,22 @@ gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
             }
           }
 
-          x += V(_,_(1,j)) * y;
+        //todo: For some unknown reasons, this causes trouble in waveletgalerkinoptionpricer when
+        //      long double and a sufficiently large number of time steps is used...
+
+        //x += V(_,_(1,j)) * y;
+
+        DeMatrix tmpV(N,j);
+        tmpV = V(_,_(1,j));
+
+        DeVector temp(N);
+        for (int i=1; i<=N; ++i) {
+            for (int k=1; k<=j; ++k) {
+                temp(i) += tmpV(i,k) * y(k);
+            }
+        }
+        x += temp;
+
     }
     return j;
 }
@@ -241,8 +256,20 @@ int pgmres (const Prec &P, const MA &A, VX &x, const VB &b,
             }
           }
 
-        temp = V(_,_(1,j)) * y;
-          x += P * temp;
+        //todo: For some unknown reasons, this causes trouble in waveletgalerkinoptionpricer when
+        //      long double and a sufficiently large number of time steps is used...
+        //temp = V(_,_(1,j)) * y;
+
+        DeMatrix tmpV(N,j);
+        tmpV = V(_,_(1,j));
+
+        for (int i=1; i<=N; ++i) {
+            temp(i) = 0.;
+            for (int k=1; k<=j; ++k) {
+                temp(i) += tmpV(i,k) * y(k);
+            }
+        }
+        x += P * temp;
     }
     return j;
 }

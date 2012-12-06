@@ -34,7 +34,7 @@ struct FinanceOperator1D<T, BlackScholes, Basis1D>
 {
     FinanceOperator1D(const Basis1D &_basis,
                       const ProcessParameters1D<T,BlackScholes> &_processparameters,
-                      const T _eta=0., T _R1=0., T _R2=1., int order=10,
+                      T _R1=0., T _R2=1., int order=10,
                       const int internal_compression_level=-1);
 
     T
@@ -45,16 +45,10 @@ struct FinanceOperator1D<T, BlackScholes, Basis1D>
 
     const Basis1D                               &basis;
     const ProcessParameters1D<T,BlackScholes>   &processparameters;
-    const T                                     eta;
-    ExponentialWeightFunction1D<T>              exponentialweightfunction;
-    Function<T>                                 weight;
-    Function<T>                                 dweight;
     T                                           R1, R2;
     T                                           OneDivR2pR1, OneDivR2pR1squared;
 
     Integral<Gauss, Basis1D, Basis1D>  integral;
-    IntegralF<Gauss, Basis1D, Basis1D> integral_weight;
-    IntegralF<Gauss, Basis1D, Basis1D> integral_dweight;
 };
 
 }   // namespace lawa

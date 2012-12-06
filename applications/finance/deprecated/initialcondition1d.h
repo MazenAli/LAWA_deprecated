@@ -28,22 +28,33 @@
 
 namespace lawa {
 
-template <typename Basis1D>
-struct InitialCondition1D
+template <OptionType1D OType, typename Basis1D>
+struct PayoffInitialCondition1D
 {
     typedef typename Basis1D::T T;
 
-    InitialCondition1D(const Function<T> &_payoffInitialCondition, const Basis1D &_basis,
-                       T _left, T _right);
+    PayoffInitialCondition1D(const Option1D<T,OType> &_option, const Basis1D &_basis,
+                             const Function<T> &weight, const T _eta=0,
+                             const T _left=0., const T _right=1.);
 
     T
     operator()(XType _e1, int _j1, long _k1, int _deriv=0) const;
 
-    const Function<T>              &payoffInitialCondition;
-    const Basis1D                  &basis;
-    T                              left, right;
-    IntegralF<Gauss,Basis1D>       integral;
+    T
+    integrand(T x) const;
 
+    const Option1D<T,OType> &option;
+    const Basis1D           &basis;
+    const Function<T>       &weight;
+    const T                 eta;
+    const T                 left, right;
+    mutable Quadrature<Gauss,PayoffInitialCondition1D<OType,Basis1D> > quadrature;
+    const T                 RightmLeft, SqrtRightmLeft;
+
+    mutable int j1, deriv1,
+                j2, deriv2;
+    mutable long k1, k2;
+    mutable XType e1, e2;
 };
 
 }   // namespace lawa

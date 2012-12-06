@@ -42,7 +42,7 @@ p3(T x) {   return x*x*x; }
 int main()
 {
     /// wavelet basis parameters:
-    int d = 1;          // d-wavelets
+    int d = 3;          // d-wavelets
     int j0 = 0;         // minimal level
     int J = 3;         // maximal level
     cout.precision(16);
@@ -63,7 +63,7 @@ int main()
     }
     /// Plot multi-scaling function and multi-wavelets
     ofstream plotfile_scaling("interval_multiscaling.txt");
-    for (T x=0.; x<=2.; x+=pow2i<T>(-12)) {
+    for (T x=0.; x<=1.; x+=pow2i<T>(-12)) {
         plotfile_scaling << x;
         for (int k=basis.mra.rangeI(j0).firstIndex(); k<=basis.mra.rangeI(j0).lastIndex(); ++k) {
             plotfile_scaling << " " << basis.generator(XBSpline)(x,j0,k,0);
@@ -116,7 +116,7 @@ int main()
         }
 
     }
-    cout << identity_A_dense << endl;
+    //cout << identity_A_dense << endl;
 
     /// Assembler: Check for vanishing moments
     for (int j=j0; j<=J-1; ++j) {
