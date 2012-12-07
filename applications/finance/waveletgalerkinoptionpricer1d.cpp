@@ -24,13 +24,10 @@ T maturity = 1.;
 T S0 = 100.;
 OptionParameters1D<T,Put> optionparameters(strike, maturity, false);
 
-T                       R1=4.;
-T                       R2=4.;
-
-bool excessToPayoff = true;
 
 //const ProcessType1D  processtype  = BlackScholes;
-//ProcessParameters1D<T,BlackScholes>   processparameters(0.04, 0.2);
+//const ProcessType1D  processtype  = CGMY;
+const ProcessType1D  processtype  = CGMYe;
 
 /* Reference values for Europ. option from Fang & Oosterlee (2008) and Almendral & Oosterlee (2007)
  * Option parameters strike = 100, maturity = 1, SO = 100
@@ -39,16 +36,6 @@ bool excessToPayoff = true;
  * Process parameters for CGMY: r = 0.1, C = 1, G = M = 5, Y =0.1    6.353404 (put)
  */
 
-//const ProcessType1D  processtype  = CGMY;
-//ProcessParameters1D<T,CGMY>             processparameters(0.1, 1., 5., 5., 1.5 );
-//ProcessParameters1D<T,CGMY>             processparameters(0.1, 1., 5., 5., 0.8 );
-//ProcessParameters1D<T,CGMY>             processparameters(0.1, 1., 5., 5., 0.1 );
-//ProcessParameters1D<T,CGMY>             processparameters(0.04, 1., 2.4, 4.5, 1.8 );
-
-const ProcessType1D  processtype  = CGMYe;
-ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 2.4, 4.5, 1.8, 0.1 );
-//ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 7.4, 8.5, 1.1, 0.1 );
-//ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 5., 5., 1.5, 0.1 );
 
 
 //typedef Basis<T,Primal,Interval,Dijkema>                      Basis1D;
@@ -75,40 +62,50 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
                               const DenseVectorT &u0, T R1, T R2, bool excessToPayoff,
                               T &L2error, T &Linftyerror);
 
-T
-g(T x) {
-    T h = pow2i<T>(-7)*(R1+R2);
-    if (x>=-R1+h) {
-        return optionparameters.strike*std::max(1.-std::exp(x), (T)0.);
-    }
-    else  {
-        T b = -R1+h;
-        T a = -R1;
-        T val = optionparameters.strike*std::max(1.-std::exp(b), (T)0.);
-        return val*(x-a)/(b-a);
-    }
-}
-
-
 void
-getPu0(const Basis1D &basis, DenseVectorT &Pu0,  T R1, T R2, int J);
-
-void
-getPu02(const Basis1D &basis, DenseVectorT &Pu0,  const Option1D<T,Put> &option, T R1, T R2, int J);
+getPu0(const Basis1D &basis, DenseVectorT &Pu0,  const Option1D<T,Put> &option, T R1, T R2, int J);
 
 int
 main(int argc, char *argv[])
 {
     cout.precision(12);
-    if (argc != 5) {
-        cerr << "usage: " << argv[0] << " j0 J theta timesteps" << endl;
+    if (argc != 13) {
+        cerr << "usage: " << argv[0] << " j0 J R1 R2 excessToPayoff theta timesteps r sigma G M Y" << endl;
         exit(1);
     }
     int d=2, d_=2;
-    int j0                   = atoi(argv[1]);
-    int j_max                = atoi(argv[2]);
-    T theta                  = T(atof(argv[3]));
-    int timesteps            = atoi(argv[4]);
+    int j0         = atoi(argv[1]);
+    int j_max      = atoi(argv[2]);
+
+    T   R1         = T(atof(argv[3]));
+    T   R2         = T(atof(argv[4]));
+    int etp        = atoi(argv[5]);
+
+    T theta        = T(atof(argv[6]));
+    int timesteps  = atoi(argv[7]);
+
+    T   r          = T(atof(argv[8]));
+    T   sigma      = T(atof(argv[9]));
+    T   G          = T(atof(argv[10]));
+    T   M          = T(atof(argv[11]));
+    T   Y          = T(atof(argv[12]));
+
+    bool excessToPayoff   = (etp == 1) ? true : false;
+
+    //ProcessParameters1D<T,BlackScholes>   processparameters(r, 1., G, M, Y);
+    //ProcessParameters1D<T,BlackScholes>   processparameters(0.04, 0.2);
+
+    //ProcessParameters1D<T,CGMY>           processparameters(r, 1., G, M, Y);
+    //ProcessParameters1D<T,CGMY>           processparameters(0.1, 1., 5., 5., 1.5 );
+    //ProcessParameters1D<T,CGMY>           processparameters(0.1, 1., 5., 5., 0.8 );
+    //ProcessParameters1D<T,CGMY>           processparameters(0.1, 1., 5., 5., 0.1 );
+    //ProcessParameters1D<T,CGMY>           processparameters(0.04, 1., 2.4, 4.5, 1.8 );
+
+    ProcessParameters1D<T,CGMYe>          processparameters(r, 1., G, M, Y, sigma);
+    //ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 2.4, 4.5, 1.8, 0.1 );
+    //ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 7.4, 8.5, 1.1, 0.1 );
+    //ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 5., 5., 1.5, 0.1 );
+
 
     if (theta < 0.5) {
         cout << "theta should be larger than 0.5!" << endl;
@@ -142,14 +139,11 @@ main(int argc, char *argv[])
 
         Timer time;
         time.start();
-        DenseVectorT u(basis.mra.rangeI(J)), u0(basis.mra.rangeI(J)), u02(basis.mra.rangeI(J));
+        DenseVectorT u(basis.mra.rangeI(J)), u0(basis.mra.rangeI(J));
 
         if (!excessToPayoff) {
             cout << "Not using excess to payoff!" << endl;
-            getPu0(basis, u0, R1, R2, J);
-            cout << "u0 = " << u0 << endl;
-            //getPu02(basis, u02, option, R1, R2, J);
-            //cout << "u02 = " << u02 << endl;
+            getPu0(basis, u0, option, R1, R2, J);
         }
 
         FinanceOp                         finance_op(basis, processparameters, R1, R2, order, J);
@@ -232,8 +226,8 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
         }
         Linftyerror = std::max(Linftyerror, fabs(exact-approx));
 
-        plotFile  << x << " " << exact  << " " << approx << " " << g(x) << " " << approx_u0
-                  << " " << truncatedPutOption.g_trunc(x) << endl;
+        plotFile  << x << " " << exact  << " " << approx << " " << option.payoff_log(x) << " "
+                  << truncatedPutOption.g_trunc(x) << " " << approx_u0 << endl;
 
     }
     plotFile.close();
@@ -244,34 +238,7 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
 }
 
 void
-getPu0(const Basis1D &basis, DenseVectorT &Pu0, T R1, T R2, int J)
-{
-    DenseVectorT singPts(2);
-    T h = pow2i<T>(-7)*(R1+R2);
-    singPts(1) = -R1+h;
-    singPts(2) = 0.;
-    Function<T> g_fct(g,singPts);
-
-    IntegralFBasis1D integralF(g_fct, basis, -R1, R2);
-    integralF.quadrature.setOrder(10);
-    int j0 = basis.j0;
-
-    int pos = basis.mra.rangeI(J).firstIndex();
-    for (int k=basis.mra.rangeI(j0).firstIndex(); k<=basis.mra.rangeI(j0).lastIndex(); ++k) {
-        Pu0(pos) = integralF(j0,k,XBSpline,0);
-        ++pos;
-    }
-    for (int j=j0; j<J; ++j) {
-        for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
-            Pu0(pos) = integralF(j,k,XWavelet,0);
-            ++pos;
-        }
-    }
-    //cout << "Pu0 = " << Pu0 << endl;
-}
-
-void
-getPu02(const Basis1D &basis, DenseVectorT &Pu0,  const Option1D<T,Put> &option, T R1, T R2, int J)
+getPu0(const Basis1D &basis, DenseVectorT &Pu0,  const Option1D<T,Put> &option, T R1, T R2, int J)
 {
     TruncatedPutOption1D<T,optiontype> truncatedPutOption;
     truncatedPutOption.setOption(option);
