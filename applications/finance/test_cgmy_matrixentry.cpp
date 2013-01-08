@@ -47,12 +47,12 @@ int main()
     //std::cerr << basis.psi(0.4,2,12,0) << endl;
     //return 0;
 
-    ProcessParameters1D<T,CGMY> processparameters(0., 1., 2.4, 4.8, 1.1);
+    ProcessParameters1D<T,CGMY> processparameters(0., 1., 7.4, 8.5, 1.55);
     Kernel<T,CGMY> kernel(processparameters);
     CGMYKernel cgmykernel(kernel);
 
     SingularIntegral<CGMYKernel,PrimalBasis,PrimalBasis> singularIntegral(cgmykernel,basis,basis);
-    int order = 5, n = 30;
+    int order = 10, n = 40;
     T sigma = 0.1, mu = 0.3, omega = 0.01;
     singularIntegral.singularquadrature.setParameters(order, n, sigma, mu, omega);
 

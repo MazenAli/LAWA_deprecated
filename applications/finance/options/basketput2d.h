@@ -33,6 +33,8 @@ namespace lawa {
 template <typename T>
 struct Option2D<T,BasketPut>
 {
+    Option2D(void);
+
     Option2D(const OptionParameters2D<T,BasketPut> &_optionparameters);
 
     T

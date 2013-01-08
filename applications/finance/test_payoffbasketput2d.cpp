@@ -47,6 +47,8 @@ int main (int argc, char *argv[]) {
     RefinementBasis  &refinementbasis = basis.refinementbasis;
     Basis2D basis2d(basis,basis);
 
+
+
     PayoffIntegral payoffintegral(optionparameters, processparameters, basis2d);
 
     cout << "Check for U " << endl;
@@ -61,6 +63,7 @@ int main (int argc, char *argv[]) {
            U(2,1)*QtU(1,1)+U(2,2)*QtU(2,1), U(2,1)*QtU(1,2)+U(2,2)*QtU(2,2);
     cout << "U Q U^T " << UQtU << endl;
 
+    /*
     for (T y1 = -0.5; y1<=0.1; y1+=0.1) {
         T y2 = payoffintegral.adapquad.find_intersectionpoint_y2_given_y1(y1);
         cout << endl;
@@ -70,10 +73,20 @@ int main (int argc, char *argv[]) {
         cout << endl;
     }
 
+    */
+
+
+    Option2D<T,BasketPut>         basketputoption2d(optionparameters);
+    TruncatedBasketPutOption2D<T> truncatedbasketputoption2d;
+    truncatedbasketputoption2d.setOption(basketputoption2d);
+    truncatedbasketputoption2d.setTransformation(u11, u21, u12, u22);
+    truncatedbasketputoption2d.setTruncation(-3., 3., -3., 3., 0, 0.5);
+
     ofstream plotfile("basketput.dat");
-    for (T x1=-3.; x1<=3.; x1+=0.025) {
-        for (T x2=-3.; x2<=3.; x2+=0.025) {
-            plotfile << x1 << " " << x2 << " " << payoffintegral.payoff(x1,x2) << endl;
+    for (T x1=-3.; x1<=3.; x1+=0.0625) {
+        for (T x2=-3.; x2<=3.; x2+=0.0625) {
+            plotfile << x1 << " " << x2 << " " << payoffintegral.payoff(x1,x2) << " "
+                     << truncatedbasketputoption2d.g_trunc(x1,x2) << endl;
         }
         plotfile << endl;
     }

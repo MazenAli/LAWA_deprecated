@@ -9,6 +9,10 @@ FourierPricer1D<T,PType>::FourierPricer1D(CharacteristicFunction1D<T,PType> &_ch
     assert(S0>0); assert(r>0); assert(maturity>0); assert(K1>0); assert(K2>0);
 }
 
+/* This algorithm implements the fast Fourier transform for the computation of European call option
+ * prices as described in [Cont & Tankov, 2004] (p.366). However, note that the return value is the
+ * price of an European put option (obtained via put-call-parity).
+ */
 template <typename T, ProcessType1D PType>
 void
 FourierPricer1D<T,PType>::solve(T A, int J)
@@ -68,7 +72,8 @@ FourierPricer1D<T,PType>::operator()(T K)
     return gsl_interp_eval(interpol,xa,ya,K,accel);
 }
 
-
+/* This algorithm implements the function zeta as defined in [Cont & Tankov, 2004](Eq. 11.17).
+ */
 template <typename T, ProcessType1D PType>
 gsl_complex
 FourierPricer1D<T,PType>::zeta(T v)

@@ -1,6 +1,14 @@
 namespace lawa {
 
 template <typename T>
+Option2D<T,BasketPut>::Option2D(void)
+    : optionparameters()
+
+{
+
+}
+
+template <typename T>
 Option2D<T,BasketPut>::Option2D(const OptionParameters2D<T,BasketPut> &_optionparameters)
     : optionparameters(_optionparameters)
 

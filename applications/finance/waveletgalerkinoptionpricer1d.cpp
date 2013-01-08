@@ -41,6 +41,7 @@ const ProcessType1D  processtype  = CGMYe;
 //typedef Basis<T,Primal,Interval,Dijkema>                      Basis1D;
 typedef Basis<T,Orthogonal,Interval,Multi>                      Basis1D;
 
+typedef Integral<Gauss,Basis1D,Basis1D>                         IntegralBasis1DBasis1D;
 typedef IntegralF<Gauss,Basis1D>                                IntegralFBasis1D;
 
 typedef IdentityOperator1D<T, Basis1D>                          ScalarProduct1D;
@@ -64,6 +65,10 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
 
 void
 getPu0(const Basis1D &basis, DenseVectorT &Pu0,  const Option1D<T,Put> &option, T R1, T R2, int J);
+
+template<typename T, OptionType1D OType, ProcessType1D PType>
+void
+plotOptionPriceSurface(Option1D<T,OType> &option, const ProcessParameters1D<T,PType> &processparameters, T R1, T R2);
 
 int
 main(int argc, char *argv[])
@@ -92,7 +97,6 @@ main(int argc, char *argv[])
 
     bool excessToPayoff   = (etp == 1) ? true : false;
 
-    //ProcessParameters1D<T,BlackScholes>   processparameters(r, 1., G, M, Y);
     //ProcessParameters1D<T,BlackScholes>   processparameters(0.04, 0.2);
 
     //ProcessParameters1D<T,CGMY>           processparameters(r, 1., G, M, Y);
@@ -106,6 +110,7 @@ main(int argc, char *argv[])
     //ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 7.4, 8.5, 1.1, 0.1 );
     //ProcessParameters1D<T,CGMYe>          processparameters(0.04, 1., 5., 5., 1.5, 0.1 );
 
+    cout << processparameters << endl;
 
     if (theta < 0.5) {
         cout << "theta should be larger than 0.5!" << endl;
@@ -120,6 +125,10 @@ main(int argc, char *argv[])
 
     int                             order=20;
     Option1D<T,optiontype>  option(optionparameters);
+
+
+    //plotOptionPriceSurface(option, processparameters, R1, R2);
+    //return 0;
 
 
     std::stringstream filename;
@@ -181,7 +190,7 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
                               T &L2error, T &Linftyerror)
 {
     std::stringstream filename;
-    filename << "tmp.txt";
+    filename << "tmp2.txt";
     std::ofstream plotFile(filename.str().c_str());
 
 
@@ -217,6 +226,7 @@ ComputeL2ErrorAndPlotSolution(Option1D<T,OType> &option,
         exact = std::exp(r*tmp_maturity)*option.value(processparameters, spot, 0);
 
         if (excessToPayoff) exact -= option.payoff(tmp_strike*exp(x));
+        //if (excessToPayoff) approx += option.payoff(tmp_strike*exp(x));
 
         if ((fabs(x+delta*R1)<1e-12) || (fabs(x-delta*R2) < 1e-12)) {
             L2error += 0.5*h*std::pow(approx-exact,(T)2.);
@@ -250,6 +260,66 @@ getPu0(const Basis1D &basis, DenseVectorT &Pu0,  const Option1D<T,Put> &option, 
     InitialCondition1D<Basis1D> initialCondition1D(g_fct,basis,-R1,R2);
 
     int j0 = basis.j0;
+    int N  = basis.mra.cardI(J);
+
+    /*
+    DenseVectorT f(basis.mra.rangeI(J));
+    int pos = basis.mra.rangeI(J).firstIndex();
+    for (int k=basis.mra.rangeI(j0).firstIndex(); k<=basis.mra.rangeI(j0).lastIndex(); ++k) {
+        f(pos) = initialCondition1D(XBSpline,j0,k,0);
+        ++pos;
+    }
+    for (int j=j0; j<J; ++j) {
+        for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
+            f(pos) = initialCondition1D(XWavelet,j,k,0);
+            ++pos;
+        }
+    }
+
+    IntegralBasis1DBasis1D integral(basis,basis);
+    SparseMatrixT A(N,N);
+
+    int row = 1;
+    for (int k_row=basis.mra.rangeI(j0).firstIndex(); k_row<=basis.mra.rangeI(j0).lastIndex(); ++k_row) {
+        int col = 1;
+        for (int k_col=basis.mra.rangeI(j0).firstIndex(); k_col<=basis.mra.rangeI(j0).lastIndex(); ++k_col) {
+            T tmp = integral(j0,k_row,XBSpline,0, j0,k_col,XBSpline,0);
+            if (fabs(tmp)>1e-14) A(row,col) = tmp;
+            ++col;
+        }
+        for (int j_col=j0; j_col<J; ++j_col) {
+            for (int k_col=basis.rangeJ(j_col).firstIndex(); k_col<=basis.rangeJ(j_col).lastIndex(); ++k_col) {
+                T tmp = integral(j0,k_row,XBSpline,0, j_col,k_col,XWavelet,0);
+                if (fabs(tmp)>1e-14) A(row,col) = tmp;
+                ++col;
+            }
+        }
+        ++row;
+    }
+    for (int j_row = j0; j_row<J; ++j_row) {
+        for (int k_row=basis.rangeJ(j_row).firstIndex(); k_row<=basis.rangeJ(j_row).lastIndex(); ++k_row) {
+            int col = 1;
+            for (int k_col=basis.mra.rangeI(j0).firstIndex(); k_col<=basis.mra.rangeI(j0).lastIndex(); ++k_col) {
+                T tmp = integral(j_row,k_row,XWavelet,0, j0,k_col,XBSpline,0);
+                if (fabs(tmp)>1e-14) A(row,col) = tmp;
+                ++col;
+            }
+            for (int j_col=j0; j_col<J; ++j_col) {
+                for (int k_col=basis.rangeJ(j_col).firstIndex(); k_col<=basis.rangeJ(j_col).lastIndex(); ++k_col) {
+                    T tmp = integral(j_row,k_row,XWavelet,0, j_col,k_col,XWavelet,0);
+                    if (fabs(tmp)>1e-14) A(row,col) = tmp;
+                    ++col;
+                }
+            }
+            ++row;
+        }
+    }
+    A.finalize();
+
+    int iter = cg(A, Pu0, f, 1e-12,100);
+    cerr << "DEBUG: required " << iter << " iterations" << endl;
+    */
+
     int pos = basis.mra.rangeI(J).firstIndex();
     for (int k=basis.mra.rangeI(j0).firstIndex(); k<=basis.mra.rangeI(j0).lastIndex(); ++k) {
         Pu0(pos) = initialCondition1D(XBSpline,j0,k,0);
@@ -261,9 +331,35 @@ getPu0(const Basis1D &basis, DenseVectorT &Pu0,  const Option1D<T,Put> &option, 
             ++pos;
         }
     }
+
 }
 
+template<typename T, OptionType1D OType, ProcessType1D PType>
+void
+plotOptionPriceSurface(Option1D<T,OType> &option, const ProcessParameters1D<T,PType> &processparameters, T R1, T R2)
+{
+    cout << "plotOptionPriceSurface called." << endl;
 
+    std::stringstream filename;
+    filename << "optionpricesurface_" << processparameters << ".txt";
+    std::ofstream plotFile(filename.str().c_str());
+
+    Kernel<T,CGMY> kernel(processparameters);
+
+    T tmp_maturity = option.optionparameters.maturity;
+    T tmp_strike   = option.optionparameters.strike;
+    T r        = processparameters.r;
+
+    T h = 0.2;
+    for (T tau=0.1; tau<=tmp_maturity; tau+=0.1) {
+        for (T x=-R1; x<=R2; x+=h) {
+            plotFile << tau << " " << x << " "
+                     << exp(r*tau)*option.value(processparameters,tmp_strike*exp(x-r*tau),tmp_maturity-tau) // kernel.ExpXmOnemX_k_pos+kernel.ExpXmOnemX_k_neg
+                     << " " << option.payoff(tmp_strike*exp(x)) << endl;
+        }
+        plotFile << endl;
+    }
+}
 
 
 

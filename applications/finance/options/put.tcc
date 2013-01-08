@@ -77,11 +77,12 @@ Option1D<T,Put>::value(const ProcessParameters1D<T,CGMYe> &processparameters, T 
     assert(processparameters.k_Y!=1);
     CharacteristicFunction1D<T,CGMYe> charfunc(processparameters);
 
-    FourierPricer1D<T, CGMYe> fp(charfunc, S, optionparameters.maturity,
+    FourierPricer1D<T, CGMYe> fp(charfunc, S, optionparameters.maturity-t,
                                  std::max(optionparameters.strike-10.,(T)0.),
                                  optionparameters.strike+10.);
     //fp.solve(40000,17);
-    fp.solve(10000,20);
+    //fp.solve(10000,20);
+    fp.solve(10000,16);
     return fp(optionparameters.strike);
 }
 

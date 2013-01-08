@@ -35,6 +35,8 @@ struct OptionParameters2D
 template <typename T>
 struct OptionParameters2D<T,BasketPut> {
 
+    OptionParameters2D(void);
+
     OptionParameters2D(T _strike, T _maturity, T weight1, T weight2, bool _earlyExercise);
 
     T strike;

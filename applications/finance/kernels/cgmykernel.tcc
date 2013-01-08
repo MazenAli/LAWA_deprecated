@@ -214,6 +214,8 @@ Kernel<T,CGMY>::nthTailIntegral(T x, int n, AntiDerivativeType type) const {
 template <typename T>
 T
 Kernel<T,CGMY>::FirstTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 1, ZeroAtInfinity);
+
     if (x>0)    return (C/Y)*( (std::pow(x,-Y)*exp(-M*x)) * (1+(M/(1-Y))*x)
                                - std::pow(M,Y)/(1-Y)*boost::math::tgamma(2-Y,M*x));
     else        return -(C/Y)*( (std::pow(-x,-Y)*exp(G*x)) * (1+(G/(1-Y))*(-x))
@@ -234,6 +236,7 @@ Kernel<T,CGMY>::FirstTailFirstExpMomIntegral(T x) const {
 template <typename T>
 T
 Kernel<T,CGMY>::SecondTailIntegral(T x) const{
+    //return this->nthTailIntegral(x, 2, ZeroAtInfinity);
     assert(fabs(x)>0);
     if (x>0) return (C/(Y*(1-Y)))*(  boost::math::tgamma(2-Y,M*x)*(
                          2.0*std::pow(M,Y-1)+std::pow(M,Y)*x )
@@ -257,6 +260,7 @@ Kernel<T,CGMY>::SecondTailFirstExpMomIntegral(T x) const{
 template <typename T>
 T
 Kernel<T,CGMY>::ThirdTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 3, ZeroAtInfinity);
     assert(fabs(x)>0);
     if (x>0) return C/(Y*(1-Y))*( - boost::math::tgamma(2-Y,M*x)*( 2*std::pow(M,Y-1)*x
                                                         +0.5*std::pow(M,Y)*x*x+std::pow(M,Y-2) )
@@ -324,6 +328,7 @@ Kernel<T,CGMY>::ThirdTailFirstExpMomIntegral(T x) const{
 template <typename T>
 T
 Kernel<T,CGMY>::ForthTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 4, ZeroAtInfinity);
     assert(fabs(x)>0);
 
     if (x>0) {
@@ -366,6 +371,7 @@ Kernel<T,CGMY>::ForthTailFirstExpMomIntegral(T x) const{
 template <typename T>
 T
 Kernel<T,CGMY>::FifthTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 5, ZeroAtInfinity);
     assert(fabs(x)>0);
 
     if (x>0) {
@@ -408,6 +414,7 @@ Kernel<T,CGMY>::FifthTailIntegral(T x) const {
 template <typename T>
 T
 Kernel<T,CGMY>::SixthTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 6, ZeroAtInfinity);
     assert(fabs(x)>0);
 
     if (x>0) {
