@@ -124,7 +124,7 @@ int main (int argc, char *argv[]) {
     int d =atoi(argv[2]);
     int d_=atoi(argv[3]);
     int s =atoi(argv[5]);
-    T   c=atof(argv[6]);
+    T   c =atof(argv[6]);
     int j0; bool w_XBSpline;
     bool realline = true;
 
@@ -238,9 +238,9 @@ int main (int argc, char *argv[]) {
                 }
 
                 T cB=0., CB=0.;
-                //DenseMatrixT A_dense;
-                //densify(cxxblas::NoTrans,A,A_dense);
-                //computeEV(A_dense, cB, CB);
+                DenseMatrixT A_dense;
+                densify(cxxblas::NoTrans,A,A_dense);
+                computeEV(A_dense, cB, CB);
 
                 T cB2, CB2;
                 computesmallestEV(A,cB2);
@@ -408,8 +408,8 @@ LambdaForEigenvalues(const MW_Basis1D &basis, int jmin, int jmax, bool w_XBSplin
     int wavelet_count = 0;
 
     for (int j=jmin; j<=jmax; ++j) {
-        k_left  = std::min(int(std::floor(-pow2i<T>(j)*r-basis.psi.max_support().l2)),-20);
-        k_right = std::max(int(std::ceil(pow2i<T>(j)*r-basis.psi.max_support().l1)),20);
+        k_left  = std::min(int(std::floor(-pow2i<T>(j)*r-basis.psi.max_support().l2)),-10);
+        k_right = std::max(int(std::ceil(pow2i<T>(j)*r-basis.psi.max_support().l1)),10);
         for (int k_help=k_left; k_help<=k_right; ++k_help) {
             for (int k=(k_help-1)*numWavelets; k<=k_help*numWavelets-1; ++k) {
                 //cout << "XWavelet: " << basis.psi.support(j,k) << " [" << -r << ", " << r << "]" << endl;
@@ -461,8 +461,8 @@ LambdaForEigenvalues(const SparseMW_Basis1D &basis, int jmin, int jmax, bool w_X
     }
 
     int scaling_count = 0;
-    k_left  = std::min(int(std::floor(-pow2i<T>(jmin)*r - basis.mra.phi.max_support().l2)) - 1,-100);
-    k_right = std::max(int(std::ceil( pow2i<T>(jmin)*r -  basis.mra.phi.max_support().l1)) + 1,100);
+    k_left  = std::min(int(std::floor(-pow2i<T>(jmin)*r - basis.mra.phi.max_support().l2)) - 1,-20);
+    k_right = std::max(int(std::ceil( pow2i<T>(jmin)*r -  basis.mra.phi.max_support().l1)) + 1,20);
 
     for (int k_help=k_left; k_help<=k_right; ++k_help) {
         for (int k=(k_help-1)*numScaling+1; k<=k_help*numScaling; ++k) {

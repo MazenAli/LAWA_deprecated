@@ -397,7 +397,9 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::AdaptiveHelmhol
             else if (basis.j0==-4) {    cA = 0.36;  CA = 2.15;    }
             else assert(0);
         }
-        else assert(0);
+        else {
+            //assert(0);
+        }
     }
     else if (Domain == Interval) {
         if (basis.d==2 && c==0.) {
@@ -414,7 +416,9 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::AdaptiveHelmhol
         }
         else assert(0);
     }
-    else assert(0);
+    else {
+        //assert(0);
+    }
 
     kappa = CA/cA;
 }
