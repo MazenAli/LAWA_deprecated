@@ -24,7 +24,6 @@ T maturity = 1.;
 T S0 = 100.;
 OptionParameters1D<T,Put> optionparameters(strike, maturity, false);
 
-
 //const ProcessType1D  processtype  = BlackScholes;
 //const ProcessType1D  processtype  = CGMY;
 const ProcessType1D  processtype  = CGMYe;

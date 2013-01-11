@@ -5,3 +5,4 @@
 #include <applications/finance/options/optiontypes1d.h>
 #include <applications/finance/options/optiontypesnd.h>
 #include <applications/finance/options/put.h>
+#include <applications/finance/options/sumofputs2d.h>

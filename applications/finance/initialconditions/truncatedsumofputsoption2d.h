@@ -17,8 +17,8 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef APPLICATIONS_FINANCE_INITIALCONDITIONS_TRUNCATEDBASKETPUTOPTION2D_H
-#define APPLICATIONS_FINANCE_INITIALCONDITIONS_TRUNCATEDBASKETPUTOPTION2D_H 1
+#ifndef APPLICATIONS_FINANCE_INITIALCONDITIONS_TRUNCATEDSUMOFPUTSOPTION2D_H
+#define APPLICATIONS_FINANCE_INITIALCONDITIONS_TRUNCATEDSUMOFPUTSOPTION2D_H 1
 
 #include <lawa/settings/enum.h>
 #include <lawa/flensforlawa.h>
@@ -27,7 +27,7 @@ namespace lawa {
 
 
 template<typename T>
-struct TruncatedBasketPutOption2D
+struct TruncatedSumOfPutsOption2D
 {
     static T   left_x1;
     static T   right_x1;
@@ -36,12 +36,15 @@ struct TruncatedBasketPutOption2D
     static DenseVector<Array<T> > singPts_x1;
     static DenseVector<Array<T> > singPts_x2;
 
-    static Option2D<T,BasketPut>  basketputoption;
+    static Option2D<T,SumOfPuts>  sumofputsoption;
 
     static T   u11, u21, u12, u22;
 
     static int type;
     static T   truncWidth;
+    static T   damping_c;
+
+
 
     static DenseVector<Array<T> > critical_line_x1;
     static bool                   critical_above_x1;
@@ -50,13 +53,14 @@ struct TruncatedBasketPutOption2D
 
 
     static void
-    setOption(const Option2D<T,BasketPut> &_basketputoption);
+    setOption(const Option2D<T,SumOfPuts> &_sumofputsoption);
 
     static void
     setTransformation(T _u11, T _u21, T _u12, T _u22);
 
     static void
-    setTruncation(T _left_x1, T _right_x1, T _left_x2, T _right_x2, int _type, T _truncWidth);
+    setTruncation(T _left_x1, T _right_x1, T _left_x2, T _right_x2, int _type, T _truncWidth,
+                  T _damping_c);
 
     static void
     setCriticalLine_x1(T _critical_line_x1, bool critical_above_x1);
@@ -73,6 +77,6 @@ struct TruncatedBasketPutOption2D
 
 }   // namespace lawa
 
-#include <applications/finance/initialconditions/truncatedbasketputoption2d.tcc>
+#include <applications/finance/initialconditions/truncatedsumofputsoption2d.tcc>
 
-#endif // APPLICATIONS_FINANCE_INITIALCONDITIONS_TRUNCATEDBASKETPUTOPTION2D_H
+#endif // APPLICATIONS_FINANCE_INITIALCONDITIONS_TRUNCATEDSUMOFPUTSOPTION2D_H

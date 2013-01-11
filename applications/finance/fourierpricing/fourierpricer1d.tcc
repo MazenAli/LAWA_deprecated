@@ -6,7 +6,7 @@ FourierPricer1D<T,PType>::FourierPricer1D(CharacteristicFunction1D<T,PType> &_ch
 : charfunc(_charfunc), S0(_S0), maturity(_maturity), r(_charfunc.processparameters.r),
   K1(_K1), K2(_K2)
 {
-    assert(S0>0); assert(r>0); assert(maturity>0); assert(K1>0); assert(K2>0);
+    assert(S0>0); assert(r>=0); assert(maturity>0); assert(K1>0); assert(K2>0);
 }
 
 /* This algorithm implements the fast Fourier transform for the computation of European call option

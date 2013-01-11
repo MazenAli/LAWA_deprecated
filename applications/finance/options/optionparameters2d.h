@@ -45,6 +45,19 @@ struct OptionParameters2D<T,BasketPut> {
     bool earlyExercise;
 };
 
+template <typename T>
+struct OptionParameters2D<T,SumOfPuts> {
+
+    OptionParameters2D(void);
+
+    OptionParameters2D(T _strike1, T strike2, T _maturity, T weight1, T weight2, bool _earlyExercise);
+
+    T strike1, strike2;
+    T maturity;
+    T weight1, weight2;
+    bool earlyExercise;
+};
+
 }   // namespace lawa
 
 #include <applications/finance/options/optionparameters2d.tcc>

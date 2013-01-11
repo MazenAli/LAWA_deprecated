@@ -52,6 +52,7 @@ void
 Quadrature2D<SparseGridGP,_Integral2D>::setOrder(int order)
 {
     _level = ceil(log2(order+1));
+    std::cerr << "Quadrature2D<SparseGridGP,_Integral2D>: setting level = " << _level << std::endl;
     _initSparseGrid();
 }
 

@@ -54,6 +54,8 @@ template <typename T>
 T
 Option1D<T,Put>::value(const ProcessParameters1D<T,CGMY> &processparameters, T S, T t)
 {
+    typedef typename std::map<T,T>::const_iterator const_it;
+
     assert(optionparameters.earlyExercise==false);
     assert(processparameters.k_Y!=0);
     assert(processparameters.k_Y!=1);
@@ -62,9 +64,22 @@ Option1D<T,Put>::value(const ProcessParameters1D<T,CGMY> &processparameters, T S
     FourierPricer1D<T, CGMY> fp(charfunc, S, optionparameters.maturity,
                                 std::max(optionparameters.strike-10.,(T)0.),
                                 optionparameters.strike+10.);
-    //fp.solve(10000,17);
-    fp.solve(10000,20);
-    //fp.solve(10000,23);
+
+    if (t==0) {
+        const_it it_option = values.find(S);
+        if (it_option!=values.end()) return (*it_option).second;
+        else {
+            fp.solve(10000,20);
+            T val = fp(optionparameters.strike);
+            values[S] = val;
+            return val;
+        }
+    }
+    else {
+        //fp.solve(10000,17);
+        fp.solve(10000,20);
+        //fp.solve(10000,23);
+    }
     return fp(optionparameters.strike);
 }
 
@@ -72,6 +87,8 @@ template <typename T>
 T
 Option1D<T,Put>::value(const ProcessParameters1D<T,CGMYe> &processparameters, T S, T t)
 {
+    typedef typename std::map<T,T>::const_iterator const_it;
+
     assert(optionparameters.earlyExercise==false);
     assert(processparameters.k_Y!=0);
     assert(processparameters.k_Y!=1);
@@ -80,9 +97,22 @@ Option1D<T,Put>::value(const ProcessParameters1D<T,CGMYe> &processparameters, T 
     FourierPricer1D<T, CGMYe> fp(charfunc, S, optionparameters.maturity-t,
                                  std::max(optionparameters.strike-10.,(T)0.),
                                  optionparameters.strike+10.);
-    //fp.solve(40000,17);
-    //fp.solve(10000,20);
-    fp.solve(10000,16);
+
+    if (t==0) {
+        const_it it_option = values.find(S);
+        if (it_option!=values.end()) return (*it_option).second;
+        else {
+            fp.solve(10000,20);
+            T val = fp(optionparameters.strike);
+            values[S] = val;
+            return val;
+        }
+    }
+    else {
+        //fp.solve(40000,17);
+        fp.solve(10000,20);
+        //fp.solve(10000,16);
+    }
     return fp(optionparameters.strike);
 }
 

@@ -30,15 +30,6 @@ Option2D<T,BasketPut>
 TruncatedBasketPutOption2D<T>::basketputoption;
 
 
-template <typename T>
-int
-TruncatedBasketPutOption2D<T>::type;
-
-template <typename T>
-T
-TruncatedBasketPutOption2D<T>::truncWidth;
-
-
 
 template <typename T>
 T
@@ -57,6 +48,30 @@ T
 TruncatedBasketPutOption2D<T>::u22;
 
 
+template <typename T>
+int
+TruncatedBasketPutOption2D<T>::type;
+
+template <typename T>
+T
+TruncatedBasketPutOption2D<T>::truncWidth;
+
+
+template <typename T>
+DenseVector<Array<T> >
+TruncatedBasketPutOption2D<T>::critical_line_x1;
+
+template <typename T>
+bool
+TruncatedBasketPutOption2D<T>::critical_above_x1;
+
+template <typename T>
+DenseVector<Array<T> >
+TruncatedBasketPutOption2D<T>::critical_line_x2;
+
+template <typename T>
+bool
+TruncatedBasketPutOption2D<T>::critical_above_x2;
 
 template <typename T>
 void
@@ -86,11 +101,60 @@ TruncatedBasketPutOption2D<T>::setTruncation(T _left_x1, T _right_x1, T _left_x2
     right_x2     = _right_x2;
     type        = _type;
     truncWidth  = _truncWidth;
+
+    singPts_x1.engine().resize(1);
+    singPts_x1(1) = left_x1 + truncWidth;
+
+    singPts_x2.engine().resize(1);
+    singPts_x2(1) = left_x2 + truncWidth;
 }
 
 template <typename T>
+void
+TruncatedBasketPutOption2D<T>::setCriticalLine_x1(T _critical_line_x1, bool _critical_above_line_x1)
+{
+    critical_line_x1.engine().resize(1);
+    critical_line_x1(1) = _critical_line_x1;
+    critical_above_x1   = _critical_above_line_x1;
+}
+
+template <typename T>
+void
+TruncatedBasketPutOption2D<T>::setCriticalLine_x2(T _critical_line_x2, bool _critical_above_line_x2)
+{
+    critical_line_x2.engine().resize(1);
+    critical_line_x2(1) = _critical_line_x2;
+    critical_above_x2   = _critical_above_line_x2;
+}
+
+template <typename T>
+bool
+TruncatedBasketPutOption2D<T>::isCritical(T a1, T b1, T a2, T b2)
+{
+    if (critical_line_x1.length()>0) {
+        if (critical_above_x1) {
+            if (!(a1>critical_line_x1(1))) return true;
+        }
+        else {
+            if (!(b1<critical_line_x1(1))) return true;
+        }
+    }
+    if (critical_line_x2.length()>0) {
+        if (critical_above_x2) {
+            if (!(a2>critical_line_x2(1))) return true;
+        }
+        else {
+            if (!(b2<critical_line_x2(1))) return true;
+        }
+    }
+
+    return false;
+}
+
+
+template <typename T>
 T
-TruncatedBasketPutOption2D<T>::g_trunc(T x1, T x2)
+TruncatedBasketPutOption2D<T>::payoff(T x1, T x2)
 {
     if (x1>=left_x1+truncWidth && x2>=left_x2+truncWidth) {
         return basketputoption.payoff_log(u11*x1 + u21*x2, u12*x1 + u22*x2);

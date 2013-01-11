@@ -18,48 +18,40 @@
  */
 
 
-#ifndef APPLICATIONS_FINANCE_OPTIONS_PUT_H
-#define APPLICATIONS_FINANCE_OPTIONS_PUT_H 1
+#ifndef APPLICATIONS_FINANCE_OPTIONS_SUMOFPUTS2D_H
+#define APPLICATIONS_FINANCE_OPTIONS_SUMOFPUTS2D_H 1
 
 #include <boost/math/distributions/normal.hpp>
 
 #include <applications/finance/options/option.h>
-#include <applications/finance/options/optionparameters1d.h>
+#include <applications/finance/options/optionparameters2d.h>
 #include <applications/finance/processes/processes.h>
 #include <applications/finance/fourierpricing/fourierpricing.h>
 
 namespace lawa {
 
 template <typename T>
-struct Option1D<T,Put>
+struct Option2D<T,SumOfPuts>
 {
-    Option1D();
+    Option2D(void);
 
-    Option1D(const OptionParameters1D<T,Put> &_optionparameters);
-
-    T
-    payoff(T S) const;
+    Option2D(const OptionParameters2D<T,SumOfPuts> &_optionparameters);
 
     T
-    payoff_log(T x) const;
+    payoff(T S1, T S2) const;
+
+    T
+    payoff_log(T x1, T x2) const;
 
 
     T
-    value(const ProcessParameters1D<T,BlackScholes> &processparameters, T S, T t);
+    value(const ProcessParameters2D<T,BlackScholes2D> &processparameters, T S, T t);
 
-    T
-    value(const ProcessParameters1D<T,CGMY> &processparameters, T S, T t);
-
-    T
-    value(const ProcessParameters1D<T,CGMYe> &processparameters, T S, T t);
-
-    OptionParameters1D<T,Put> optionparameters;
-    DenseVector<Array<T> >    singularPoints;
-    std::map<T,T> values;
+    OptionParameters2D<T,SumOfPuts> optionparameters;
 };
 
 } // namespace lawa
 
-#include "applications/finance/options/put.tcc"
+#include <applications/finance/options/sumofputs2d.tcc>
 
-#endif // APPLICATIONS_FINANCE_OPTIONS_PUT_H
+#endif // APPLICATIONS_FINANCE_OPTIONS_SUMOFPUTS2D_H

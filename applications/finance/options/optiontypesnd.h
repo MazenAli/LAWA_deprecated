@@ -25,7 +25,8 @@ namespace lawa {
 
 enum OptionTypenD {
     BasketPut,
-    BasketDigitalPut
+    BasketDigitalPut,
+    SumOfPuts
 };
 
 }   // namespace lawa
