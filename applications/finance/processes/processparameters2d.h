@@ -42,6 +42,9 @@ struct ProcessParameters2D<T,BlackScholes2D>
   T u11, u12, u21, u22;
 };
 
+template <typename T>
+std::ostream& operator<<(std::ostream &s, const ProcessParameters2D<T,BlackScholes2D> &processparameters);
+
 }   // namespace lawa
 
 #include <applications/finance/processes/processparameters2d.tcc>

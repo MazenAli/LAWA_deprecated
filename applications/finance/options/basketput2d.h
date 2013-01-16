@@ -28,6 +28,8 @@
 #include <applications/finance/processes/processes.h>
 #include <applications/finance/fourierpricing/fourierpricing.h>
 
+#include <applications/finance/mcpricing/nd_generator2d.hpp>
+
 namespace lawa {
 
 template <typename T>
@@ -43,11 +45,16 @@ struct Option2D<T,BasketPut>
     T
     payoff_log(T x1, T x2) const;
 
-
     T
-    value(const ProcessParameters2D<T,BlackScholes2D> &processparameters, T S, T t);
+    value(const ProcessParameters2D<T,BlackScholes2D> &processparameters, T S1, T S2, T t);
+
+    void
+    setNumberOfMCRuns(int _N);
 
     OptionParameters2D<T,BasketPut> optionparameters;
+    std::map<std::pair<T,T>,T> values;
+    int N;
+
 };
 
 } // namespace lawa

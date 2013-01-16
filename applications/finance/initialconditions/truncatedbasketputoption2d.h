@@ -42,6 +42,7 @@ struct TruncatedBasketPutOption2D
 
     static int type;
     static T   truncWidth;
+    static T   damping_c;
 
     static DenseVector<Array<T> > critical_line_x1;
     static bool                   critical_above_x1;
@@ -56,7 +57,7 @@ struct TruncatedBasketPutOption2D
     setTransformation(T _u11, T _u21, T _u12, T _u22);
 
     static void
-    setTruncation(T _left_x1, T _right_x1, T _left_x2, T _right_x2, int _type, T _truncWidth);
+    setTruncation(T _left_x1, T _right_x1, T _left_x2, T _right_x2, int _type, T _truncWidth, T _damping_c);
 
     static void
     setCriticalLine_x1(T _critical_line_x1, bool critical_above_x1);

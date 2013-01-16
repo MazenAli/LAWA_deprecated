@@ -152,3 +152,4 @@ applications/new_eval_scheme/test_local_operator_realline1d
 applications/new_eval_scheme/test_local_reconstruction_realline
 applications/unbounded_domains/s-adwav/s-adwav-realline-pde1d
 applications/new_eval_scheme/test_local_operator_realline2d
+applications/finance/bs2d_multitree_mw_awgm

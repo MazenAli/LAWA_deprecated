@@ -124,6 +124,7 @@ int main (int argc, char *argv[]) {
         plotfile << endl;
     }
     cout << "Maximum error: " << maxerror << endl;
+    plotfile.close();
 
     return 0;
 }

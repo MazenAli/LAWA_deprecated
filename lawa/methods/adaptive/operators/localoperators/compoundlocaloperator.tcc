@@ -242,7 +242,7 @@ apply(Coefficients<Lexicographical,T,Index> &v,
         if (w_p.size()==0) continue;
         T numerator = w_p.norm(2.) * support_size_all_buckets;
         T denominator = w_p.size() * (eps-delta) / CA;
-        int jp = (int)std::max((std::log(numerator/denominator) / std::log(2.) / gamma )/*-1*/, (T)0.);
+        int jp = (int)std::max(((std::log(numerator/denominator) / std::log(2.) ) / gamma )/*-1*/, (T)0.);
         //int jp = ceil(std::max((std::log(numerator/denominator) / std::log(2.) / gamma )/*-1*/, (T)0.));
 
         //if (w_p.size()>1000 && eps > 5e-10) {

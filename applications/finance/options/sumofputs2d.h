@@ -43,11 +43,13 @@ struct Option2D<T,SumOfPuts>
     T
     payoff_log(T x1, T x2) const;
 
-
     T
-    value(const ProcessParameters2D<T,BlackScholes2D> &processparameters, T S, T t);
+    value(const ProcessParameters2D<T,BlackScholes2D> &processparameters, T S1, T S2, T t) const;
 
     OptionParameters2D<T,SumOfPuts> optionparameters;
+
+    OptionParameters1D<T,Put>       optionparameters1, optionparameters2;
+    Option1D<T,Put>                 option1, option2;
 };
 
 } // namespace lawa

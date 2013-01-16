@@ -45,7 +45,7 @@ struct Option1D<T,Put>
 
 
     T
-    value(const ProcessParameters1D<T,BlackScholes> &processparameters, T S, T t);
+    value(const ProcessParameters1D<T,BlackScholes> &processparameters, T S, T t) const;
 
     T
     value(const ProcessParameters1D<T,CGMY> &processparameters, T S, T t);

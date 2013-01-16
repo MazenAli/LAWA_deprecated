@@ -36,7 +36,7 @@ Option1D<T,Put>::payoff_log(T x) const
 
 template <typename T>
 T
-Option1D<T,Put>::value(const ProcessParameters1D<T,BlackScholes> &processparameters, T S, T t)
+Option1D<T,Put>::value(const ProcessParameters1D<T,BlackScholes> &processparameters, T S, T t) const
 {
     assert(optionparameters.earlyExercise==false);
     static boost::math::normal norm;

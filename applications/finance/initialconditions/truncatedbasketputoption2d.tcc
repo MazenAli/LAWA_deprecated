@@ -56,6 +56,10 @@ template <typename T>
 T
 TruncatedBasketPutOption2D<T>::truncWidth;
 
+template <typename T>
+T
+TruncatedBasketPutOption2D<T>::damping_c;
+
 
 template <typename T>
 DenseVector<Array<T> >
@@ -78,6 +82,10 @@ void
 TruncatedBasketPutOption2D<T>::setOption(const Option2D<T,BasketPut> &_basketputoption)
 {
     basketputoption.optionparameters = _basketputoption.optionparameters;
+    u11 = 1.;
+    u21 = 0.;
+    u12 = 0.;
+    u22 = 1.;
 }
 
 template <typename T>
@@ -93,14 +101,15 @@ TruncatedBasketPutOption2D<T>::setTransformation(T _u11, T _u21, T _u12, T _u22)
 template <typename T>
 void
 TruncatedBasketPutOption2D<T>::setTruncation(T _left_x1, T _right_x1, T _left_x2, T _right_x2,
-                                             int _type, T _truncWidth)
+                                             int _type, T _truncWidth, T _damping_c)
 {
     left_x1      = _left_x1;
     right_x1     = _right_x1;
     left_x2      = _left_x2;
     right_x2     = _right_x2;
-    type        = _type;
-    truncWidth  = _truncWidth;
+    type         = _type;
+    truncWidth   = _truncWidth;
+    damping_c    = _damping_c;
 
     singPts_x1.engine().resize(1);
     singPts_x1(1) = left_x1 + truncWidth;
@@ -161,16 +170,16 @@ TruncatedBasketPutOption2D<T>::payoff(T x1, T x2)
     }
     else if (x1<left_x1+truncWidth && x2>=left_x2+truncWidth) {
         T dist1 = (left_x1+truncWidth) - x1;
-        return exp(-100*dist1*dist1)*basketputoption.payoff_log(u11*x1 + u21*x2, u12*x1 + u22*x2);
+        return exp(-damping_c*dist1*dist1)*basketputoption.payoff_log(u11*x1 + u21*x2, u12*x1 + u22*x2);
     }
     else if (x1>=left_x1+truncWidth && x2<left_x2+truncWidth) {
         T dist2 = (left_x2+truncWidth) - x2;
-        return exp(-100*dist2*dist2)*basketputoption.payoff_log(u11*x1 + u21*x2, u12*x1 + u22*x2);
+        return exp(-damping_c*dist2*dist2)*basketputoption.payoff_log(u11*x1 + u21*x2, u12*x1 + u22*x2);
     }
     else {
         T dist1 = (left_x1+truncWidth) - x1;
         T dist2 = (left_x2+truncWidth) - x2;
-        return exp(-100*dist1*dist1)*exp(-100*dist2*dist2)*basketputoption.payoff_log(u11*x1 + u21*x2, u12*x1 + u22*x2);
+        return exp(-damping_c*dist1*dist1)*exp(-damping_c*dist2*dist2)*basketputoption.payoff_log(u11*x1 + u21*x2, u12*x1 + u22*x2);
     }
 
     return basketputoption.payoff_log(u11*x1 + u21*x2, u12*x1 + u22*x2);
