@@ -112,7 +112,7 @@ overlap(const PeriodicSupport<T> &supp1, const PeriodicSupport<T> &supp2)
 template <typename T>
 T
 overlap(const PeriodicSupport<T> &supp1, const Support<T> &supp2)
-{
+{    
     // ''Normal'' supports:
     if(supp1.gaplength() == 0){
         return std::min(supp1.l2, supp2.l2) - std::max(supp1.l1, supp2.l1);

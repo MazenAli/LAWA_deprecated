@@ -440,32 +440,104 @@ getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
     return;
 }
 
+
 template <typename T>
-template <typename SecondBasis>
 void
 Basis<T,Primal,Interval,Dijkema>::
-getScalingNeighborsForScaling(int j_scaling1, long k_scaling1, const SecondBasis &secondbasis,
+getScalingNeighborsForScaling(int j_scaling1, long k_scaling1, const Basis<T,Primal,Interval,Dijkema> &secondbasis,
                               int &j_scaling2, long &k_scaling_first, long &k_scaling_last) const
 {
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
-              and SecondBasis::Cons==Dijkema);
     this->getBSplineNeighborsForBSpline(j_scaling1,k_scaling1,secondbasis,
                                         j_scaling2,k_scaling_first,k_scaling_last);
-
 }
 
 template <typename T>
-template <typename SecondBasis>
 void
 Basis<T,Primal,Interval,Dijkema>::
-getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1, const SecondBasis &secondbasis,
+getScalingNeighborsForScaling(int j_scaling1, long k_scaling1, const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                              int &j_scaling2, long &k_scaling_first, long &k_scaling_last) const
+{
+    /*this->getBSplineNeighborsForBSpline(j_scaling1,k_scaling1,secondbasis,
+                                        j_scaling2,k_scaling_first,k_scaling_last);
+    */
+    
+    j_scaling2 = j_scaling1;
+
+    // Use that k_interval = k_periodic + 1
+    long kminR = (k_scaling1-1) - d + 1;
+    long kmaxR = (k_scaling1-1) + d - 1;
+    
+    while(kminR < 1){
+        if(secondbasis.mra.phi.phiR.support(j_scaling2, kminR).l2 > 0){
+            break;
+        }
+        kminR++;
+    }
+    while(kmaxR > secondbasis.rangeJ(j_scaling2).lastIndex()){
+        if(secondbasis.mra.phi.phiR.support(j_scaling2, kmaxR).l1 < 1){
+            break;
+        }
+        kmaxR--;
+    }
+
+    k_scaling_first = kminR >= 1? kminR : (long)secondbasis.mra.rangeI(j_scaling2).lastIndex() + kminR;
+    k_scaling_last = kmaxR <= (long)secondbasis.mra.rangeI(j_scaling2).lastIndex()? 
+                                kmaxR : kmaxR - (long)secondbasis.mra.rangeI(j_scaling2).lastIndex();
+
+    if(k_scaling_first == k_scaling_last || k_scaling_first == k_scaling_last+1){
+    	k_scaling_first = (long)secondbasis.mra.rangeI(j_scaling2).firstIndex();
+    	k_scaling_last = (long)secondbasis.mra.rangeI(j_scaling2).lastIndex();
+    }
+}
+
+template <typename T>
+void
+Basis<T,Primal,Interval,Dijkema>::
+getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1, const Basis<T,Primal,Interval,Dijkema> &secondbasis,
                               int &j_wavelet, long &k_wavelet_first, long &k_wavelet_last) const
 {
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
+    this->getWaveletNeighborsForBSpline(j_scaling1,k_scaling1,secondbasis,
+                                        j_wavelet,k_wavelet_first,k_wavelet_last);
+}
+
+template <typename T>
+void
+Basis<T,Primal,Interval,Dijkema>::
+getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1, const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                              int &j_wavelet, long &k_wavelet_first, long &k_wavelet_last) const
+{
+    /*ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
               and SecondBasis::Cons==Dijkema);
     this->getWaveletNeighborsForBSpline(j_scaling1,k_scaling1,secondbasis,
                                         j_wavelet,k_wavelet_first,k_wavelet_last);
+    */
+    j_wavelet = j_scaling1;
 
+    // Use k_interval = k_periodic + 1
+    long kminR = (k_scaling1-1) - d + std::floor(0.5*((d&1)-d_)) + 1;
+    long kmaxR = (k_scaling1-1) + d - 1 + std::ceil(0.5*((d&1)+d_)) - 1;
+    
+    while(kminR < 1){
+        if(secondbasis.psi.psiR.support(j_wavelet, kminR).l2 > 0){
+            break;
+        }
+        kminR++;
+    }
+    while(kmaxR > rangeJ(j_wavelet).lastIndex()){
+        if(secondbasis.psi.psiR.support(j_wavelet, kmaxR).l1 < 1){
+            break;
+        }
+        kmaxR--;
+    }
+
+    k_wavelet_first = kminR >= 1? kminR : secondbasis.rangeJ(j_wavelet).lastIndex() + kminR;
+    k_wavelet_last = kmaxR <= secondbasis.rangeJ(j_wavelet).lastIndex()? 
+                        kmaxR : kmaxR - secondbasis.rangeJ(j_wavelet).lastIndex();
+
+    if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
+    	k_wavelet_first = secondbasis.rangeJ(j_wavelet).firstIndex();
+    	k_wavelet_last = secondbasis.rangeJ(j_wavelet).lastIndex();
+    }
 }
 
 template <typename T>
@@ -512,16 +584,12 @@ Basis<T,Primal,Interval,Dijkema>::getScalingNeighborsForWavelet
 }
 
 template <typename T>
-template <typename SecondBasis>
 void
 Basis<T,Primal,Interval,Dijkema>::getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                                                                const SecondBasis &secondbasis,
+                                                                const Basis<T,Primal,Interval,Dijkema> &secondbasis,
                                                                 int &j_wavelet2, long &k_wavelet_first,
                                                                 long &k_wavelet_last) const
 {
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
-              and SecondBasis::Cons==Dijkema);
-    //if (flens::IsSame<Basis<T,Primal,Interval,Dijkema>, SecondRefinementBasis>::value)
 
     j_wavelet2 = j_wavelet1;
     Support<T> supp = psi.support(j_wavelet1,k_wavelet1);
@@ -540,6 +608,42 @@ Basis<T,Primal,Interval,Dijkema>::getWaveletNeighborsForWavelet(int j_wavelet1, 
     k_wavelet_last  = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
 
     return;
+}
+
+template <typename T>
+void
+Basis<T,Primal,Interval,Dijkema>::getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                                                const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                                                                int &j_wavelet2, long &k_wavelet_first,
+                                                                long &k_wavelet_last) const
+{
+    j_wavelet2 = j_wavelet1;
+
+    // Use that k_interval = k_periodic + 1
+    long kminR = (k_wavelet1-1) - d - d_ + 1 + 1;
+    long kmaxR = (k_wavelet1-1) + d + d_ - 1 - 1;
+    
+    while(kminR < 1){
+        if(secondbasis.psi.psiR.support(j_wavelet2, kminR).l2 > 0){
+            break;
+        }
+        kminR++;
+    }
+    while(kmaxR > rangeJ(j_wavelet2).lastIndex()){
+        if(secondbasis.psi.psiR.support(j_wavelet2, kmaxR).l1 < 1){
+            break;
+        }
+        kmaxR--;
+    }
+
+    k_wavelet_first = kminR >= 1? kminR : secondbasis.rangeJ(j_wavelet2).lastIndex() + kminR;
+    k_wavelet_last = kmaxR <= secondbasis.rangeJ(j_wavelet2).lastIndex()? kmaxR : kmaxR - secondbasis.rangeJ(j_wavelet2).lastIndex();
+
+    if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
+    	k_wavelet_first = secondbasis.rangeJ(j_wavelet2).firstIndex();
+    	k_wavelet_last = secondbasis.rangeJ(j_wavelet2).lastIndex();
+    }
+
 }
 
 template <typename T>
@@ -575,16 +679,12 @@ Basis<T,Primal,Interval,Dijkema>::getLowerWaveletNeighborsForWavelet(int j_wavel
 }
 
 template <typename T>
-template <typename SecondBasis>
 void
 Basis<T,Primal,Interval,Dijkema>::getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                                                                     const SecondBasis &secondbasis,
+                                                                     const Basis<T,Primal,Interval,Dijkema> &secondbasis,
                                                                      int &j_wavelet2, long &k_wavelet_first,
                                                                      long &k_wavelet_last) const
 {
-    ct_assert(SecondBasis::Side==Primal and SecondBasis::Domain==Interval
-              and SecondBasis::Cons==Dijkema);
-    //if (flens::IsSame<Basis<T,Primal,Interval,Dijkema>, SecondRefinementBasis>::value)
 
     j_wavelet2 = j_wavelet1+1;
     Support<T> supp = psi.support(j_wavelet1,k_wavelet1);
@@ -603,6 +703,44 @@ Basis<T,Primal,Interval,Dijkema>::getHigherWaveletNeighborsForWavelet(int j_wave
     k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_tilde - 3*d);
     k_wavelet_last  = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
 
+    return;
+}
+
+template <typename T>
+void
+Basis<T,Primal,Interval,Dijkema>::getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
+                                                                     const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                                                                     int &j_wavelet2, long &k_wavelet_first,
+                                                                     long &k_wavelet_last) const
+{    
+    j_wavelet2 = j_wavelet1+1;
+    // Use that k_interval = k_periodic + 1
+
+    long kminR = 2 + 2*(k_wavelet1-1) - std::ceil(1.5*(d + d_)) + 1;
+    long kmaxR = 2*(k_wavelet1-1) - 1 + std::ceil(1.5*(d+d_)) - 1;
+
+    while(kminR < 1){
+        if(secondbasis.psi.psiR.support(j_wavelet2, kminR).l2 > 0){
+            break;
+        }
+        kminR++;
+    }
+    while(kmaxR > rangeJ(j_wavelet2).lastIndex()){
+        if(secondbasis.psi.psiR.support(j_wavelet2, kmaxR).l1 < 1){
+            break;
+        }
+        kmaxR--;
+    }
+    
+    k_wavelet_first = kminR >= 1? kminR : secondbasis.rangeJ(j_wavelet2).lastIndex() + kminR;
+    k_wavelet_last = kmaxR <= secondbasis.rangeJ(j_wavelet2).lastIndex()? 
+                    kmaxR : kmaxR - secondbasis.rangeJ(j_wavelet2).lastIndex();
+
+    if(k_wavelet_first == k_wavelet_last || k_wavelet_first == k_wavelet_last+1){
+    	k_wavelet_first = secondbasis.rangeJ(j_wavelet2).firstIndex();
+    	k_wavelet_last = secondbasis.rangeJ(j_wavelet2).lastIndex();
+    }
+    
     return;
 }
 
