@@ -11,9 +11,7 @@ ProcessParameters2D<T,BlackScholes2D>::ProcessParameters2D
 template <typename T>
 std::ostream& operator<<(std::ostream &s, const ProcessParameters2D<T,BlackScholes2D> &processparameters) {
     s << "_BS2D_r_" << processparameters.r      << "_sigma1_" << processparameters.sigma1
-      << "_sigma2_" << processparameters.sigma2 << "_rho_" << processparameters.rho
-      << "_u11_"    << processparameters.u11    << "_u12_" << processparameters.u12
-      << "_u21_"    << processparameters.u21    << "_u22_" << processparameters.u22;
+      << "_sigma2_" << processparameters.sigma2 << "_rho_" << processparameters.rho;
     return s;
 }
 

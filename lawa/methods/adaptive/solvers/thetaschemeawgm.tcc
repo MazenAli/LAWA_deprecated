@@ -61,7 +61,7 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
         discrete_timepoint += timestep;
 
         T current_theta = theta;
-        if (i<=2 && theta!=1.) {
+        if (i<=4 && theta!=1.) {
             current_theta = 1.;
         }
         timestep_solver.Op.setThetaTimeStepParameters(current_theta, timestep);

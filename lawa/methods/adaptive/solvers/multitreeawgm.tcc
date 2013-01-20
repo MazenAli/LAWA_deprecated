@@ -110,7 +110,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         int cg_iter=0;
         for (cg_iter=0; cg_iter<maxIterations; ++cg_iter) {
             if (std::sqrt(cg_rNormSquare)<=tol) {
-                //std::cerr << "         CG stopped with error " << sqrt(cg_rNormSquare) << std::endl;
+                std::cerr << "         CG stopped with error " << sqrt(cg_rNormSquare) << std::endl;
                 break;
             }
             //std::cerr << "    Iteration " << cg_iter+1 << std::endl;

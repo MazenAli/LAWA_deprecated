@@ -24,7 +24,7 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 
 
 T strike = 1.;
-T maturity = 1.;
+T maturity = 0.25;
 T weight1 = 0.5, weight2 = 0.5;
 
 const OptionTypenD optiontype = BasketPut;
@@ -109,8 +109,16 @@ evaluate(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
 
 T
 computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
-                   const Coefficients<Lexicographical,T,Index2D> &u,T delta,
-                   Option2D<T,optiontype> &option2d);
+                   const Coefficients<Lexicographical,T,Index2D> &u,T delta, int j,
+                   Option2D<T,optiontype> &option2d,
+                   ProcessParameters2D<T,BlackScholes2D> &processparameters);
+
+void
+computeReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                      T inner_left1, T inner_right1, T inner_left2, T inner_right2, T h1, T h2,
+                      const Coefficients<Lexicographical,T,Index2D> &u, int j,
+                      Option2D<T,optiontype> &option2d,
+                      ProcessParameters2D<T,BlackScholes2D> &processparameters);
 
 int main (int argc, char *argv[]) {
 
@@ -129,21 +137,20 @@ int main (int argc, char *argv[]) {
     const char* treeType = "sparsetree"; //"gradedtree";
     bool IsMW = true;
 
-    T left_x1 = -2., right_x1 = 2.;
-    T left_x2 = -2., right_x2 = 2.;
+    T left_x1 = -3., right_x1 = 3.;
+    T left_x2 = -3., right_x2 = 3.;
     T delta = 0.05;
 
     T theta = 0.5;
-    T timestep = 0.25;
     T timestep_eps = 1e-6;
-    int maxiterations =  1;  T init_cgtol = 1e-8;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 128;
-    timestep = 1./numOfTimesteps;
+    int maxiterations =  1;  T init_cgtol = 1e-10;   // use maxiterations = 1 for "pure" sparse grid computation
+    int numOfTimesteps = 1024;
+    T timestep = maturity/numOfTimesteps;
     int numOfMCRuns = 10000000;
 
+    int order = 20;
 
     Timer time;
-
 
     /// Basis initialization
     PrimalBasis       basis(d,j0);
@@ -172,7 +179,6 @@ int main (int argc, char *argv[]) {
     sing_pts_x = 0.1, 0.2, 0.3, 0.4, 0.5;
     sing_pts_y =  0.1, 0.2, 0.3, 0.4, 0.5;
     DenseMatrixT no_deltas, deltas_x, deltas_y;
-    int order = 20;
     Function<T>                    fct_f_t(f_t,sing_pts_t);
     Function<T>                    fct_f_x(f_x,sing_pts_x), fct_f_y(f_y,sing_pts_y);
     RHSWithPeaks1D<T,PrimalBasis>  rhs_f_x(basis, fct_f_x, no_deltas, order);
@@ -193,7 +199,7 @@ int main (int argc, char *argv[]) {
     //TruncatedSumOfPutsOption2D<T> truncatedoption2d;
     truncatedoption2d.setOption(option2d);
     //truncatedoption2d.setTransformation(u11, u21, u12, u22);
-    truncatedoption2d.setTruncation(left_x1, right_x1, left_x2, right_x2, 0, 0.5, 20.);
+    truncatedoption2d.setTruncation(left_x1, right_x1, left_x2, right_x2, 0, 0.1, 100.);
     truncatedoption2d.setCriticalLine_x1(critical_line_x1, critical_above_x1);
 
     PayoffIntegral payoffIntegral(basis2d, truncatedoption2d,
@@ -202,19 +208,18 @@ int main (int argc, char *argv[]) {
     Coefficients<Lexicographical,T,Index2D> u(SIZELARGEHASHINDEX1D);
 
 
-
     std::stringstream filename;
 
     if (optiontype == BasketPut) {
         filename << "basketputoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                  << "_lx2_" << left_x2 << "_rx2_" << right_x2
-                 << "_strike_" << strike << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
     else if (optiontype == SumOfPuts) {
         filename << "sumofputsoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                  << "_lx2_" << left_x2 << "_rx2_" << right_x2
-                 << "_strike_" << strike << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
     else {
@@ -234,6 +239,11 @@ int main (int argc, char *argv[]) {
         for (coeff2d_it it=u.begin(); it!=u.end(); ++it) {
             (*it).second = payoffIntegral((*it).first);
         }
+        //cout << "u0 = " << u << endl;
+
+        //if (j==9)  numOfTimesteps = 256;
+        //if (j==10) numOfTimesteps = 512;
+        timestep = maturity/numOfTimesteps;
 
         /// Initialization of multi tree based adaptive wavelet Galerkin method
         ThetaTimeStepMultiTreeAWGM2D thetatimestep_solver(basis2d, localThetaTimeStepOp2D,
@@ -246,7 +256,10 @@ int main (int argc, char *argv[]) {
         thetascheme.solve(u);
 
         T maxerror = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
-                                        u,delta,option2d);
+                                        u,delta,j,option2d, processparameters);
+
+        computeReferencePrice(basis2d, left_x1, right_x1, left_x2, right_x2,
+                              -0.1, 0.1, -0.1, 0.1, 0.02, 0.02, u, j, option2d, processparameters);
 
         convfile << timestep << " " << j << " " << u.size() << " "
                  << maxerror << " " << numOfMCRuns << " " << delta << endl;
@@ -278,10 +291,27 @@ evaluate(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
 
 T
 computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
-                   const Coefficients<Lexicographical,T,Index2D> &u,T delta,
-                   Option2D<T,optiontype> &option2d)
+                   const Coefficients<Lexicographical,T,Index2D> &u,T delta, int j,
+                   Option2D<T,optiontype> &option2d,
+                   ProcessParameters2D<T,BlackScholes2D> &processparameters)
 {
-    ofstream plotfile("bs2d.dat");
+    std::stringstream filename;
+    if (optiontype == BasketPut) {
+        filename << "bs2d_basketput_" << j
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else if (optiontype == SumOfPuts) {
+        filename << "bs2d_sumofputs_" << j
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else {
+        std::cerr << "Unknown option type" << std::endl; exit(1);
+    }
+    std::ofstream plotfile(filename.str().c_str());
+    plotfile.precision(16);
+
     T maxerror = 0.;
     T h1 = (delta*right_x1-delta*left_x1)/10.;
     T h2 = (delta*right_x2-delta*left_x2)/10.;
@@ -302,4 +332,41 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
     plotfile.close();
 
     return maxerror;
+}
+
+void
+computeReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                      T inner_left1, T inner_right1, T inner_left2, T inner_right2, T h1, T h2,
+                      const Coefficients<Lexicographical,T,Index2D> &u, int j,
+                      Option2D<T,optiontype> &option2d,
+                      ProcessParameters2D<T,BlackScholes2D> &processparameters)
+{
+    std::stringstream filename;
+    if (optiontype == BasketPut) {
+        filename << "bs2d_refprices_basketput_" << j
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else if (optiontype == SumOfPuts) {
+        filename << "bs2d_refprices_sumofputs_" << j
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else {
+        std::cerr << "Unknown option type" << std::endl; exit(1);
+    }
+    std::ofstream plotfile(filename.str().c_str());
+    plotfile.precision(16);
+
+    for (T x1=inner_left1; x1<=inner_right1; x1+=h1) {
+        for (T x2=inner_left2; x2<=inner_right2; x2+=h2) {
+            T S1 = strike*std::exp(x1+(0.5*sigma1*sigma1-r)*maturity);
+            T S2 = strike*std::exp(x2+(0.5*sigma2*sigma2-r)*maturity);
+            T exact = std::exp(r*maturity)*option2d.value(processparameters,S1,S2,0);
+            T approx = evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1, x2);
+            plotfile << x1 << " " << x2 << " " << exact << " " << approx << endl;
+        }
+        plotfile << endl;
+    }
+    plotfile.close();
 }
