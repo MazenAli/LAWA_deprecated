@@ -14,7 +14,7 @@ template <typename Index, typename Basis, typename LocalOperator, typename RHS, 
 void
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters
 (T _alpha, T _gamma, const char* _residualType, const char* _treeType, bool _IsMW,
- /*bool _compute_f_minus_Au_error,*/ bool _write_coefficients_to_file)
+ /*bool _compute_f_minus_Au_error,*/ bool _write_coefficients_to_file, size_t _hashMapSize)
 {
     alpha = _alpha;
     gamma = _gamma;
@@ -22,6 +22,7 @@ MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters
     if (strcmp(_treeType,"sparsetree")==0) sparsetree = true;
     else                                   sparsetree = false;
     IsMW = _IsMW;
+    hashMapSize = _hashMapSize;
 //    compute_f_minus_Au_error = _compute_f_minus_Au_error;
     write_coefficients_to_file = _write_coefficients_to_file;
     std::cerr << "Residual Type: " << residualType << std::endl;

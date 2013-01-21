@@ -38,7 +38,7 @@ struct PayoffIntegral2D
     PayoffIntegral2D(const Basis &_basis, const PayoffFunction &_payofffunction,
                      const T _left_x1=0., const T _right_x1=1.,
                      const T _left_x2=0., const T _right_x2=1.,
-                     bool _useSubdivision=true, T _maxRectangleSize=1e-1, int _order=20);
+                     bool _useSpecialRefinement=false, T _maxRectangleLength=0.25, int _order=20);
 
     T
     integrand(T x1, T x2) const;
@@ -65,8 +65,8 @@ struct PayoffIntegral2D
     const T                         RightmLeft_x1, SqrtRightmLeft_x1;
     const T                         RightmLeft_x2, SqrtRightmLeft_x2;
 
-    bool                            useSubdivision;
-    T                               maxRectangleSize;
+    bool                            useSpecialRefinement;
+    T                               maxRectangleLength;
     int                             order;
 
     mutable int j1, deriv1, j2, deriv2;

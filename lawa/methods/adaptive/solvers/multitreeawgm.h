@@ -40,7 +40,8 @@ struct MultiTreeAWGM {
 
     void
     setParameters(T _alpha, T _gamma, const char* _residualType, const char* _treeType, bool _IsMW,
-                  /*bool _compute_f_minus_Au_error=false,*/ bool _writeCoefficientsToFile=false);
+                  /*bool _compute_f_minus_Au_error=false,*/ bool _writeCoefficientsToFile=false,
+                  size_t _hashMapSize=SIZEHASHINDEX2D);
 
     void
     cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations=100, T _init_cgtol=1e-2,

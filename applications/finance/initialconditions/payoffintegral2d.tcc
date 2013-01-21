@@ -4,14 +4,14 @@ template <QuadratureType Quad, typename Basis, typename PayoffFunction>
 PayoffIntegral2D<Quad,Basis,PayoffFunction>::PayoffIntegral2D
 (const Basis &_basis, const PayoffFunction &_payofffunction,
  const T _left_x1, const T _right_x1, const T _left_x2, const T _right_x2,
- bool _useSubdivision, T _maxRectangleSize, int _order)
+ bool _useSpecialRefinement, T _maxRectangleLength, int _order)
     : basis(_basis), payofffunction(_payofffunction),
       highestOrderQuadrature(*this), highOrderQuadrature(*this), mediumOrderQuadrature(*this),
       lowOrderQuadrature(*this),
       left_x1(_left_x1), right_x1(_right_x1), left_x2(_left_x2), right_x2(_right_x2),
       RightmLeft_x1(right_x1-left_x1), SqrtRightmLeft_x1(std::sqrt(right_x1-left_x1)),
       RightmLeft_x2(right_x2-left_x2), SqrtRightmLeft_x2(std::sqrt(right_x2-left_x2)),
-      useSubdivision(_useSubdivision), maxRectangleSize(_maxRectangleSize), order(_order)
+      useSpecialRefinement(_useSpecialRefinement), maxRectangleLength(_maxRectangleLength), order(_order)
 {
     int minOrder = basis.first.d+2;
     highestOrderQuadrature.setOrder(order);
@@ -100,7 +100,12 @@ PayoffIntegral2D<Quad,Basis,PayoffFunction>::integrate(T a1, T b1, T a2, T b2) c
     //std::cerr << "Integrating ["  << a1 << "," << b1 << "],[" << a2 << "," << b2 << "]" << std::endl;
     // Integrating over [a1,b1] x [a2,b2]
 
-    if (!useSubdivision) {
+    if (!useSpecialRefinement) {
+        T h1 = (b1-a1);
+        T h2 = (b2-a2);
+        if (h1>maxRectangleLength) return integrate(a1, a1+h1/2., a2, b2) + integrate(a1+h1/2., b1, a2, b2);
+        if (h2>maxRectangleLength) return integrate(a1, b1, a2, a2+h2/2.) + integrate(a1, b1, a2+h2/2., b2);
+
         return highestOrderQuadrature(a1, b1, a2, b2);
     }
     else {
@@ -112,20 +117,29 @@ PayoffIntegral2D<Quad,Basis,PayoffFunction>::integrate(T a1, T b1, T a2, T b2) c
         if (!payofffunction.isCritical(a1,b1,a2,b2) && val_a1a2==0 && val_a1b2==0 && val_b1a2==0 && val_b1b2==0) {
             // Payoff-function is constantly zero
             //std::cerr << "   => ZERO." << std::endl;
-            T tmp = _getOrderAndValue(a1, b1, a2, b2);
-            if (fabs(tmp)>0) std::cerr << "Here is something going wrong..." << std::endl;
+            //T tmp = _getOrderAndValue(a1, b1, a2, b2);
+            //if (fabs(tmp)>0) std::cerr << "Here is something going wrong..." << std::endl;
 
             return 0.;
         }
+
         if (val_a1a2>0 && val_a1b2>0 && val_b1a2>0 && val_b1b2>0) {
-            // Payoff-function is smooth
-            //std::cerr << "   => SMOOTH integrate." << std::endl;
-            return _getOrderAndValue(a1, b1, a2, b2);
+            if ( fabs(b1-a1)<4*maxRectangleLength && fabs(b2-a2)<4*maxRectangleLength ) {
+                //std::cerr << "   => KINK integrate" << std::endl;
+                return _getOrderAndValue(a1, b1, a2, b2);
+            }
+            else {
+                T h1 = (b1-a1);
+                T h2 = (b2-a2);
+                //std::cerr << "   => SUBDIVIDE" << std::endl;
+                if (h1>h2) return    integrate(a1, a1+h1/2., a2, b2) + integrate(a1+h1/2., b1, a2, b2);
+                else       return    integrate(a1, b1, a2, a2+h2/2.) + integrate(a1, b1, a2+h2/2., b2);
+            }
         }
         else {
             // Integration over kink
             //return _getOrderAndValue(a1, b1, a2, b2);
-            if ( (b1-a1)*(b2-a2)<maxRectangleSize ) {
+            if ( fabs(b1-a1)<maxRectangleLength && fabs(b2-a2)<maxRectangleLength ) {
                 //std::cerr << "   => KINK integrate" << std::endl;
                 return _getOrderAndValue(a1, b1, a2, b2);
             }

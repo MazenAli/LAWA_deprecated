@@ -41,6 +41,7 @@ const ProcessType2D  processtype  = BlackScholes2D;
 T r = 0.;
 T sigma1 = 0.3;
 T sigma2 = 0.2;
+//T rho = 0.3;
 T rho = 0.;
 T u11 = 0.95171801008793943164, u12 = 0.30697366218334239729, u21 = -0.30697366218334239729, u22 = 0.95171801008793943164;
 T    critical_line_x1 = 0.4;
@@ -113,12 +114,29 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
                    Option2D<T,optiontype> &option2d,
                    ProcessParameters2D<T,BlackScholes2D> &processparameters);
 
+T
+computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                   const Coefficients<Lexicographical,T,Index2D> &u,T delta, int j,
+                   Option2D<T,optiontype> &option2d,
+                   ProcessParameters2D<T,BlackScholes2D> &processparameters,
+                   const std::map<std::pair<T,T>,T> &refprices);
+
 void
 computeReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
                       T inner_left1, T inner_right1, T inner_left2, T inner_right2, T h1, T h2,
                       const Coefficients<Lexicographical,T,Index2D> &u, int j,
                       Option2D<T,optiontype> &option2d,
                       ProcessParameters2D<T,BlackScholes2D> &processparameters);
+
+
+
+void
+readReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                   T inner_left1, T inner_right1, T inner_left2, T inner_right2, T h1, T h2,
+                   const Coefficients<Lexicographical,T,Index2D> &u, int j,
+                   Option2D<T,optiontype> &option2d,
+                   ProcessParameters2D<T,BlackScholes2D> &processparameters,
+                   std::map<std::pair<T,T>,T> &refprices);
 
 int main (int argc, char *argv[]) {
 
@@ -136,19 +154,23 @@ int main (int argc, char *argv[]) {
     const char* residualType = "standard";
     const char* treeType = "sparsetree"; //"gradedtree";
     bool IsMW = true;
+    size_t hashMapSize = 196613;
 
-    T left_x1 = -3., right_x1 = 3.;
-    T left_x2 = -3., right_x2 = 3.;
+    T left_x1 = -2.5, right_x1 = 2.5;
+    T left_x2 = -2.5, right_x2 = 2.5;
     T delta = 0.05;
 
     T theta = 0.5;
     T timestep_eps = 1e-6;
-    int maxiterations =  1;  T init_cgtol = 1e-10;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 1024;
+    int maxiterations =  1;  T init_cgtol = 1e-8;   // use maxiterations = 1 for "pure" sparse grid computation
+    int numOfTimesteps = 128;
     T timestep = maturity/numOfTimesteps;
-    int numOfMCRuns = 10000000;
+
+    int numOfMCRuns = 1000000;
 
     int order = 20;
+
+    bool useRefPrices = true;
 
     Timer time;
 
@@ -203,24 +225,46 @@ int main (int argc, char *argv[]) {
     truncatedoption2d.setCriticalLine_x1(critical_line_x1, critical_above_x1);
 
     PayoffIntegral payoffIntegral(basis2d, truncatedoption2d,
-                                  left_x1, right_x1, left_x2, right_x2, false, 1e-1, order);
+                                  left_x1, right_x1, left_x2, right_x2, true, 0.05, order);
 
-    Coefficients<Lexicographical,T,Index2D> u(SIZELARGEHASHINDEX1D);
+    Coefficients<Lexicographical,T,Index2D> u(hashMapSize), f(hashMapSize);
 
+    std::map<std::pair<T,T>,T> refprices;
+    if (useRefPrices) {
+        readReferencePrice(basis2d, left_x1, right_x1, left_x2, right_x2,
+                           -0.1, 0.1, -0.1, 0.1, 0.02, 0.02, u, 0, option2d, processparameters,
+                           refprices);
+    }
 
     std::stringstream filename;
 
     if (optiontype == BasketPut) {
-        filename << "basketputoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
-                 << "_lx2_" << left_x2 << "_rx2_" << right_x2
-                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
-                 << processparameters << ".txt";
+        if (useRefPrices) {
+            filename << "basketputoption2d_conv2_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+                     << "_lx2_" << left_x2 << "_rx2_" << right_x2
+                     << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                     << processparameters << ".txt";
+        }
+        else {
+            filename << "basketputoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+                     << "_lx2_" << left_x2 << "_rx2_" << right_x2
+                     << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                     << processparameters << ".txt";
+        }
     }
     else if (optiontype == SumOfPuts) {
-        filename << "sumofputsoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
-                 << "_lx2_" << left_x2 << "_rx2_" << right_x2
-                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
-                 << processparameters << ".txt";
+        if (useRefPrices) {
+            filename << "sumofputsoption2d_conv2_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+                     << "_lx2_" << left_x2 << "_rx2_" << right_x2
+                     << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                     << processparameters << ".txt";
+        }
+        else {
+            filename << "sumofputsoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+                     << "_lx2_" << left_x2 << "_rx2_" << right_x2
+                     << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                     << processparameters << ".txt";
+        }
     }
     else {
         cerr << "Option type does not exist." << endl;
@@ -229,15 +273,26 @@ int main (int argc, char *argv[]) {
     std::ofstream convfile(filename.str().c_str());
 
 
-
-
-    for (int j=0; j<=J; ++j) {
+    for (int j=8; j<=J; ++j) {
 
         getSparseGridVector(basis2d, u, j, (T)0.);
 
+        cerr << "Computation of initial condition started." << endl;
         time.start();
+        int count = 0;
         for (coeff2d_it it=u.begin(); it!=u.end(); ++it) {
-            (*it).second = payoffIntegral((*it).first);
+            coeff2d_it it_f = f.find((*it).first);
+            if (it_f != f.end()) {
+                (*it).second = (*it_f).second;
+            }
+            else {
+                T tmp = payoffIntegral((*it).first);
+                f[(*it).first] = tmp;
+                (*it).second = tmp;
+            }
+            ++count;
+            if (count%100==0) cout << "count: " << count << " / " << u.size() << endl;
+
         }
         //cout << "u0 = " << u << endl;
 
@@ -248,21 +303,34 @@ int main (int argc, char *argv[]) {
         /// Initialization of multi tree based adaptive wavelet Galerkin method
         ThetaTimeStepMultiTreeAWGM2D thetatimestep_solver(basis2d, localThetaTimeStepOp2D,
                                                               thetatimestep_F, Prec);
-        thetatimestep_solver.setParameters(alpha, gamma, residualType, treeType, IsMW, false);
+        thetatimestep_solver.setParameters(alpha, gamma, residualType, treeType, IsMW, false,
+                                           hashMapSize);
 
         ThetaSchemeMultiTreeAWGM2D thetascheme(thetatimestep_solver);
         thetascheme.setParameters(theta, timestep, numOfTimesteps, timestep_eps, maxiterations,
                                   init_cgtol);
         thetascheme.solve(u);
+        cerr << "Computation of u has finished." << endl;
+        T maxerror = 0., maxerror1 = 0., maxerror2 = 0.;
+        if (useRefPrices) {
+            maxerror1 = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
+                                          u,0.05,j,option2d, processparameters, refprices);
+            maxerror2 = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
+                                          u,0.04,j,option2d, processparameters);
+            convfile << timestep << " " << j << " " << u.size() << " "
+                     << maxerror1 << " " << maxerror2 << " " << numOfMCRuns << " " << delta << endl;
+        }
+        else {
+            maxerror = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
+                                          u,0.05,j,option2d, processparameters);
+            convfile << timestep << " " << j << " " << u.size() << " "
+                     << maxerror1 << " " << maxerror2 << " " << numOfMCRuns << " " << delta << endl;
+        }
+        cerr << "Computation of errors has finished." << endl;
+        //computeReferencePrice(basis2d, left_x1, right_x1, left_x2, right_x2,
+        //                      -0.1, 0.1, -0.1, 0.1, 0.02, 0.02, u, j, option2d, processparameters);
+        cerr << "Computation of reference prices has finished." << endl;
 
-        T maxerror = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
-                                        u,delta,j,option2d, processparameters);
-
-        computeReferencePrice(basis2d, left_x1, right_x1, left_x2, right_x2,
-                              -0.1, 0.1, -0.1, 0.1, 0.02, 0.02, u, j, option2d, processparameters);
-
-        convfile << timestep << " " << j << " " << u.size() << " "
-                 << maxerror << " " << numOfMCRuns << " " << delta << endl;
     }
 
     return 0;
@@ -322,9 +390,9 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
             T S1 = strike*std::exp(x1+(0.5*sigma1*sigma1-r)*maturity);
             T S2 = strike*std::exp(x2+(0.5*sigma2*sigma2-r)*maturity);
             T exact = std::exp(r*maturity)*option2d.value(processparameters,S1,S2,0);
-            //T exact = option2d.payoff(strike*exp(x1),strike*exp(x2));
+            T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
             T approx = evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1, x2);
-            plotfile << x1 << " " << x2 << " " << exact << " " << approx << endl;
+            plotfile << x1 << " " << x2 << " " << exact << " " << approx << " " << payoff << endl;
             maxerror = std::max(maxerror, fabs(approx-exact));
         }
         plotfile << endl;
@@ -333,6 +401,48 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
 
     return maxerror;
 }
+
+T
+computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                   const Coefficients<Lexicographical,T,Index2D> &u,T delta, int j,
+                   Option2D<T,optiontype> &option2d,
+                   ProcessParameters2D<T,BlackScholes2D> &processparameters,
+                   const std::map<std::pair<T,T>,T> &refprices)
+{
+    typedef std::map<std::pair<T,T>,T>::const_iterator const_map_it;
+
+    std::stringstream filename;
+    if (optiontype == BasketPut) {
+        filename << "bs2d_basketput2_" << j
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else if (optiontype == SumOfPuts) {
+        filename << "bs2d_sumofputs2_" << j
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else {
+        std::cerr << "Unknown option type" << std::endl; exit(1);
+    }
+    std::ofstream plotfile(filename.str().c_str());
+    plotfile.precision(16);
+
+    T maxerror = 0.;
+    for (const_map_it it=refprices.begin(); it!=refprices.end(); ++it) {
+        T x1    = (*it).first.first;
+        T x2    = (*it).first.second;
+        T exact = (*it).second;
+        T approx = evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1, x2);
+        T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
+        maxerror = std::max(maxerror, fabs(approx-exact));
+        plotfile << x1 << " " << x2 << " " << exact << " " << approx << " " << payoff << endl;
+    }
+    plotfile.close();
+
+    return maxerror;
+}
+
 
 void
 computeReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
@@ -369,4 +479,55 @@ computeReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, 
         plotfile << endl;
     }
     plotfile.close();
+}
+
+void
+readReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                   T inner_left1, T inner_right1, T inner_left2, T inner_right2, T h1, T h2,
+                   const Coefficients<Lexicographical,T,Index2D> &u, int j,
+                   Option2D<T,optiontype> &option2d,
+                   ProcessParameters2D<T,BlackScholes2D> &processparameters,
+                   std::map<std::pair<T,T>,T> &refprices)
+{
+    std::stringstream filename;
+    if (optiontype == BasketPut) {
+        filename << "bs2d_refprices_basketput_" << j
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else if (optiontype == SumOfPuts) {
+        filename << "bs2d_refprices_sumofputs_" << j
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else {
+        std::cerr << "Unknown option type" << std::endl; exit(1);
+    }
+    std::ifstream infile (filename.str().c_str());
+    if (infile.is_open()) {
+        cout << "File is open, ready to read..." << endl;
+    }
+    else {
+        cout << "File is not open. Exit..." << endl; exit(1);
+    }
+
+    std::string line;
+    while(std::getline( infile, line, '\n' )) {
+        std::string field1, field2, field3;
+        std::istringstream line_ss(line);
+        std::getline( line_ss, field1, ' ' );
+        std::getline( line_ss, field2, ' ' );
+        std::getline( line_ss, field3, ' ' );
+
+        T x1     = atof(field1.c_str());
+        T x2     = atof(field2.c_str());
+        T exact  = atof(field3.c_str());
+        cerr.precision(16);
+        if (exact!=0) {
+            refprices[std::pair<T,T>(x1,x2)] = exact;
+            cerr.precision(16);
+            cerr << x1 << " " << x2 << " " << exact << endl;
+        }
+
+    }
 }
