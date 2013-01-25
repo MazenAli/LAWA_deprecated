@@ -111,6 +111,11 @@ TruncatedBasketPutOption2D<T>::setTruncation(T _left_x1, T _right_x1, T _left_x2
     truncWidth   = _truncWidth;
     damping_c    = _damping_c;
 
+//    singPts_x1.engine().resize(10);
+//    singPts_x1(1) = left_x1 + truncWidth, -0.04, -0.03, -0.02, -0.01, 0., 0.01, 0.02, 0.03, 0.04;
+
+//    singPts_x2.engine().resize(10);
+//    singPts_x2(1) = left_x2 + truncWidth, -0.04, -0.03, -0.02, -0.01, 0., 0.01, 0.02, 0.03, 0.04;
     singPts_x1.engine().resize(1);
     singPts_x1(1) = left_x1 + truncWidth;
 

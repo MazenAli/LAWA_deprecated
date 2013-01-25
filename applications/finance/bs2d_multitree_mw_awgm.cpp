@@ -24,7 +24,7 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 
 
 T strike = 1.;
-T maturity = 0.25;
+T maturity = 1.;
 T weight1 = 0.5, weight2 = 0.5;
 
 const OptionTypenD optiontype = BasketPut;
@@ -156,19 +156,19 @@ int main (int argc, char *argv[]) {
     bool IsMW = true;
     size_t hashMapSize = 196613;
 
-    T left_x1 = -2.5, right_x1 = 2.5;
-    T left_x2 = -2.5, right_x2 = 2.5;
+    T left_x1 = -2., right_x1 = 2.;
+    T left_x2 = -2., right_x2 = 2.;
     T delta = 0.05;
 
     T theta = 0.5;
     T timestep_eps = 1e-6;
-    int maxiterations =  1;  T init_cgtol = 1e-8;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 128;
+    int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
+    int numOfTimesteps = 256;
     T timestep = maturity/numOfTimesteps;
 
-    int numOfMCRuns = 1000000;
+    int numOfMCRuns = 100000;
 
-    int order = 20;
+    int order = 5;
 
     bool useRefPrices = true;
 
@@ -212,7 +212,6 @@ int main (int argc, char *argv[]) {
     AdaptiveSeparableRhsIntegral2D F_rhs(rhs_f_x, rhs_f_x_data, rhs_f_y, rhs_f_y_data);
     ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs);
 
-
     /// Initialization of integrals for initial condition and rhs
     Option2D<T,optiontype>         option2d(optionparameters);
     option2d.setNumberOfMCRuns(numOfMCRuns);
@@ -255,13 +254,13 @@ int main (int argc, char *argv[]) {
     else if (optiontype == SumOfPuts) {
         if (useRefPrices) {
             filename << "sumofputsoption2d_conv2_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
-                     << "_lx2_" << left_x2 << "_rx2_" << right_x2
+                     << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
         }
         else {
             filename << "sumofputsoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
-                     << "_lx2_" << left_x2 << "_rx2_" << right_x2
+                     << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
         }
@@ -272,8 +271,9 @@ int main (int argc, char *argv[]) {
     }
     std::ofstream convfile(filename.str().c_str());
 
-
-    for (int j=8; j<=J; ++j) {
+    //for (numOfTimesteps=8; numOfTimesteps<=512; numOfTimesteps*=2) {
+    //    int j= J;
+    for (int j=0; j<=J; ++j) {
 
         getSparseGridVector(basis2d, u, j, (T)0.);
 
@@ -314,17 +314,17 @@ int main (int argc, char *argv[]) {
         T maxerror = 0., maxerror1 = 0., maxerror2 = 0.;
         if (useRefPrices) {
             maxerror1 = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
-                                          u,0.05,j,option2d, processparameters, refprices);
+                                          u,delta,j,option2d, processparameters, refprices);
             maxerror2 = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
-                                          u,0.04,j,option2d, processparameters);
+                                          u,delta,j,option2d, processparameters);
             convfile << timestep << " " << j << " " << u.size() << " "
                      << maxerror1 << " " << maxerror2 << " " << numOfMCRuns << " " << delta << endl;
         }
         else {
             maxerror = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
-                                          u,0.05,j,option2d, processparameters);
+                                          u,delta,j,option2d, processparameters);
             convfile << timestep << " " << j << " " << u.size() << " "
-                     << maxerror1 << " " << maxerror2 << " " << numOfMCRuns << " " << delta << endl;
+                     << maxerror << " " << numOfMCRuns << " " << delta << endl;
         }
         cerr << "Computation of errors has finished." << endl;
         //computeReferencePrice(basis2d, left_x1, right_x1, left_x2, right_x2,
@@ -491,12 +491,12 @@ readReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
 {
     std::stringstream filename;
     if (optiontype == BasketPut) {
-        filename << "bs2d_refprices_basketput_" << j
+        filename << "refprices/bs2d_refprices_basketput_" << j
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
     else if (optiontype == SumOfPuts) {
-        filename << "bs2d_refprices_sumofputs_" << j
+        filename << "refprices/bs2d_refprices_sumofputs_" << j
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }

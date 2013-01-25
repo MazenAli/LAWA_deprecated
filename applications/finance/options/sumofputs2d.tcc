@@ -26,8 +26,8 @@ template <typename T>
 T
 Option2D<T,SumOfPuts>::payoff(T S1, T S2) const
 {
-    return    optionparameters.weight1*std::max(optionparameters.strike1 - S1)
-            + optionparameters.weight2*std::max(optionparameters.strike2 - S2);
+    return    optionparameters.weight1*std::max(optionparameters.strike1 - S1,(T)0.)
+            + optionparameters.weight2*std::max(optionparameters.strike2 - S2,(T)0.);
 }
 
 template <typename T>

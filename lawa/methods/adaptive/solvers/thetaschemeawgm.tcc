@@ -56,25 +56,33 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
 
     int maxDoF = 0;
     T avDoF = 0.;
+    T current_theta = theta;
+    T current_timestep = timestep;
 
-    for (int i=1; i<=numOfTimesteps; ++i) {
-        discrete_timepoint += timestep;
+    for (int i=1; i<=numOfTimesteps+2; ++i) {
+//    for (int i=1; i<=numOfTimesteps; ++i) {
 
-        T current_theta = theta;
-        if (i<=4 && theta!=1.) {
+
+        current_theta    = theta;
+        current_timestep = timestep;
+        if (i<=4) {
             current_theta = 1.;
+            current_timestep = 0.5*timestep;
+            //current_timestep = timestep;
         }
-        timestep_solver.Op.setThetaTimeStepParameters(current_theta, timestep);
-        timestep_solver.Prec.setThetaTimeStepParameters(current_theta, timestep);
+        discrete_timepoint += current_timestep;
+
+        timestep_solver.Op.setThetaTimeStepParameters(current_theta, current_timestep);
+        timestep_solver.Prec.setThetaTimeStepParameters(current_theta, current_timestep);
 
         propagated_u_k.setToZero();
         if (current_theta!=1.) {
             timestep_solver.Op.evalA(u, propagated_u_k, "galerkin");
-            propagated_u_k *= (current_theta-1.)*timestep;
+            propagated_u_k *= (current_theta-1.)*current_timestep;
         }
         timestep_solver.Op.evalM(u, propagated_u_k, "galerkin");
         std::cerr << "i = " << i << ", timestep = " << timestep << ", theta = " << current_theta << std::endl;
-        timestep_solver.F.setThetaTimeStepParameters(current_theta,timestep,discrete_timepoint,&propagated_u_k);
+        timestep_solver.F.setThetaTimeStepParameters(current_theta,current_timestep,discrete_timepoint,&propagated_u_k);
         /*
         if (discrete_timepoint <= 0.1) {
             u.clear();
@@ -93,7 +101,8 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
     }
     avDoF /= numOfTimesteps;
     std::cerr << "Theta timestepping with theta = " << theta << " and timestep " << timestep
-              << " finished with maxDof = " << maxDoF << " and avDof = " << avDoF << std::endl;
+              << " finished at t = " << discrete_timepoint << " with maxDof = " << maxDoF
+              << " and avDof = " << avDoF << std::endl;
 }
 
 }   // namespace lawa

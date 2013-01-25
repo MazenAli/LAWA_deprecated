@@ -67,6 +67,8 @@ Option2D<T,BasketPut>::value(const ProcessParameters2D<T,BlackScholes2D> &proces
         }
         optionPrice_estim /= N;
         values[pairS] = optionPrice_estim;
+        std::cout.precision(16);
+        std::cout << "Option price: " << optionPrice_estim << std::endl;
         return optionPrice_estim;
     }
 }
