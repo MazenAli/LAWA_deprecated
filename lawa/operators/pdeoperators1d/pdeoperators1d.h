@@ -10,4 +10,5 @@
 #include <lawa/operators/pdeoperators1d/weightedconvectionoperator1d_pg.h>
 #include <lawa/operators/pdeoperators1d/weightedpdeoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedpdeoperator1d_pg.h>
+#include <lawa/operators/pdeoperators1d/transposedweightedpdeoperator1d_pg.h>
 
