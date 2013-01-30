@@ -2,7 +2,13 @@
 
 import sys
 
+sys.stdin.readline()
+sys.stdin.readline()
+
 for line in sys.stdin:
+    if len(line) == 1:
+        continue
+        
     line_list = line.split()
     index = line_list[0].split(",")
     type_x = 0 if index[0]=="[scaling" else 1

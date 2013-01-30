@@ -83,19 +83,38 @@ struct LocalOperator2D {
     /*
      * To partially specialize for periodic basis, we use SFINAE
      */
-    // Non-Periodic version
+
+    // ----------------- initializeIntermediateVectorIAv  ------------------- //
+
+    // ORIGINAL: Non-Periodic version
     template <typename T_>
-    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+    				and SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
     initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
                                     const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
                                     Coefficients<Lexicographical,T_,Index2D> &IAv) const;
 
-    // Periodic version
+
+    // Periodic trial basis version
     template <typename T_>
+//    typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+//    				and SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
     typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
     initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
                                     const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
                                     Coefficients<Lexicographical,T_,Index2D> &IAv) const;
+
+
+    // NonPeriodic-Periodic version
+    template <typename T_>
+    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+    				and SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
+    initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
+                                    const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
+                                    Coefficients<Lexicographical,T_,Index2D> &IAv) const;
+
+    // --------------------------------------------------------------------- //
+
 
     void
     initializeIntermediateVectorUIv(const Coefficients<Lexicographical,T,Index2D> &v,
@@ -110,19 +129,33 @@ struct LocalOperator2D {
     evalLI(const Coefficients<Lexicographical,T,Index2D> &z,
               Coefficients<Lexicographical,T,Index2D> &LIz) /*const*/;
 
-    // Non-Periodic version
+    // ----------------- evalUI  ------------------- //
+
+    // ORIGINAL: Non-Periodic version
     template <typename T_>
-    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+    				and SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
     evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
            const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
            Coefficients<Lexicographical,T_,Index2D> &UIz) /*const*/;
 
-    // Periodic version
+    // Periodic trial basis version
     template <typename T_>
     typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
     evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
            const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
            Coefficients<Lexicographical,T_,Index2D> &UIz) /*const*/;
+
+    // NonPeriodic-Periodic version
+    template <typename T_>
+    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+    				and SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
+    evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
+           const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
+           Coefficients<Lexicographical,T_,Index2D> &UIz) /*const*/;
+
+    // ---------------------------------------------- //
+
 
 
     LocalOperator1          &localoperator1;

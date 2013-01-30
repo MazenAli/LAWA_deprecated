@@ -27,13 +27,13 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,SecondBasis>             TrialBasis2D
 typedef TensorBasis2D<Adaptive,SecondBasis,SecondBasis>             TestBasis2D;
 
 ///  Underlying bilinear form
-/*typedef IdentityOperator1D_PG<T,PrimalBasis,SecondBasis>            BilinearForm_x;
-typedef IdentityOperator1D_PG<T,RefinementBasis,
-						SecondRefinementBasis>                      RefinementBilinearForm_x;
-typedef IdentityOperator1D_PG<T,SecondBasis,SecondBasis>            BilinearForm_y;
-typedef IdentityOperator1D_PG<T,SecondRefinementBasis,
-						SecondRefinementBasis>                      RefinementBilinearForm_y;
-*/
+typedef TransposedAdaptiveWeightedPDEOperator1D_PG<T,PrimalBasis,SecondBasis>            BilinearForm_x;
+typedef TransposedAdaptiveWeightedPDEOperator1D_PG<T,RefinementBasis,
+						SecondRefinementBasis>                      					 RefinementBilinearForm_x;
+typedef TransposedAdaptiveWeightedPDEOperator1D_PG<T,SecondBasis,SecondBasis>            BilinearForm_y;
+typedef TransposedAdaptiveWeightedPDEOperator1D_PG<T,SecondRefinementBasis,
+						SecondRefinementBasis>                      					 RefinementBilinearForm_y;
+
 /*typedef LaplaceOperator1D_PG<T,PrimalBasis,SecondBasis>            BilinearForm_x;
 typedef LaplaceOperator1D_PG<T,RefinementBasis,
 						SecondRefinementBasis>                      RefinementBilinearForm_x;
@@ -42,15 +42,8 @@ typedef IdentityOperator1D_PG<T,SecondRefinementBasis,
 						SecondRefinementBasis>                      RefinementBilinearForm_y;
 */
 
-typedef AdaptiveWeightedPDEOperator1D_PG<T,PrimalBasis,SecondBasis>         BilinearForm_x;
-typedef AdaptiveWeightedPDEOperator1D_PG<T,RefinementBasis,
-						SecondRefinementBasis>                      		RefinementBilinearForm_x;
-typedef AdaptiveWeightedPDEOperator1D_PG<T,SecondBasis,SecondBasis>         BilinearForm_y;
-typedef AdaptiveWeightedPDEOperator1D_PG<T,SecondRefinementBasis,
-						SecondRefinementBasis>                      		RefinementBilinearForm_y;
-
 ///  Local operator in 1d
-typedef LocalOperator1D<SecondBasis,PrimalBasis,
+typedef LocalOperator1D<PrimalBasis,SecondBasis,
                         RefinementBilinearForm_x,
                         BilinearForm_x>                   LocalOp1D_x;
 typedef LocalOperator1D<SecondBasis,SecondBasis,
@@ -67,9 +60,10 @@ typedef Coefficients<Lexicographical,T,Index2D>::const_iterator     const_coeff2
 typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XOne>             XOneAlignedCoefficients;
 typedef AlignedCoefficients<T,Index2D,Index1D,Index1D,XTwo>             XTwoAlignedCoefficients;
 
+// Get a sparse index set with deltaL additional levels in the first dimension (time)
 template <typename Basis2D>
 void
-getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, T gamma);
+getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, int deltaL, T gamma);
 
 void
 readIndexSetFromFile(IndexSet<Index2D> &Lambda, const char* indexset, int example, int d,
@@ -131,33 +125,44 @@ int main (int argc, char *argv[]) {
     /// Basis initialization, using Dirichlet boundary conditions
     PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
     RefinementBasis &refinementbasis = basis.refinementbasis;
-    SecondBasis secondbasis(d, d, j0);
     SecondBasis secondbasis_bc(d, d, j0);
+    SecondBasis secondbasis(d, d, j0);
     secondbasis_bc.enforceBoundaryCondition<DirichletBC>();
-    SecondRefinementBasis &secondrefinementbasis = secondbasis.refinementbasis;
     SecondRefinementBasis &secondrefinementbasis_bc = secondbasis_bc.refinementbasis;
+    SecondRefinementBasis &secondrefinementbasis = secondbasis.refinementbasis;
     TrialBasis2D trialbasis2d(basis,secondbasis_bc);
     TestBasis2D testbasis2d(secondbasis,secondbasis_bc);
 
-    /// Operator initialization
-    /*BilinearForm_x    Bil_x(basis, secondbasis);
-    BilinearForm_y    Bil_y(secondbasis, secondbasis);
-    RefinementBilinearForm_x  RefineBil_x(refinementbasis, secondrefinementbasis);
-    RefinementBilinearForm_y  RefineBil_y(secondrefinementbasis, secondrefinementbasis);
-    */
+    // Transposed Bilinear Forms
+//    BilinearForm_x 	TransConvectionBil_t(basis_per, basis_int, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
+//    BilinearForm_x 	TransIdentityBil_t(basis_per, basis_int, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+//    BilinearForm_y 	TransIdentityBil_x(basis_intbc, basis_intbc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+//    BilinearForm_y 	TransLaplaceBil_x(basis_intbc, basis_intbc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
+//
+//    RefinementBilinearForm_x 	TransRefConvectionBil_t(refbasis_per, refbasis_int, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
+//    RefinementBilinearForm_x 	TransRefIdentityBil_t(refbasis_per, refbasis_int, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+//    RefinementBilinearForm_y 	TransRefIdentityBil_x(refbasis_intbc, refbasis_intbc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+//    RefinementBilinearForm_y 	TransRefLaplaceBil_x(refbasis_intbc, refbasis_intbc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
 
+    /// Operator initialization
     DenseVectorT no_singPts;
     Function<T> zero_Fct(zero_fct,no_singPts);
     Function<T> one_Fct(one_fct,no_singPts);
-
     // Id x Lapl
-    BilinearForm_x    Bil_x(basis, secondbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-	BilinearForm_y    Bil_y(secondbasis_bc, secondbasis_bc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
-	RefinementBilinearForm_x  RefineBil_x(refinementbasis, secondrefinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-	RefinementBilinearForm_y  RefineBil_y(secondrefinementbasis_bc, secondrefinementbasis_bc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
+//    BilinearForm_x    Bil_x(basis, secondbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+//    BilinearForm_y    Bil_y(secondbasis_bc, secondbasis_bc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
+//    RefinementBilinearForm_x  RefineBil_x(refinementbasis, secondrefinementbasis,one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+//    RefinementBilinearForm_y  RefineBil_y(secondrefinementbasis_bc, secondrefinementbasis_bc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
 
-    LocalOp1D_x localOperator_x(secondbasis,basis,RefineBil_x, Bil_x);
+    // Conv x Id
+    BilinearForm_x    Bil_x(basis, secondbasis, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
+    BilinearForm_y    Bil_y(secondbasis_bc, secondbasis_bc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+    RefinementBilinearForm_x  RefineBil_x(refinementbasis, secondrefinementbasis, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
+    RefinementBilinearForm_y  RefineBil_y(secondrefinementbasis_bc, secondrefinementbasis_bc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+
+    LocalOp1D_x localOperator_x(basis,secondbasis,RefineBil_x, Bil_x);
     LocalOp1D_y localOperator_y(secondbasis_bc,secondbasis_bc,RefineBil_y, Bil_y);
+
     LocalOp2D   localop2d(localOperator_x,localOperator_y);
     localop2d.setJ(9);
 
@@ -180,18 +185,21 @@ int main (int argc, char *argv[]) {
         Coefficients<Lexicographical,T,Index2D> test, test2;
 
         if (useSparseGrid) {
+        	// Fill checkLambda with trial basis fcts (i.e. per/int)
+        	// and Lambda with test basis fcts (i.e. int/int)
             IndexSet<Index2D> checkLambda2, Lambda2;
-            getSparseGridIndexSet(testbasis2d,checkLambda,j,0.2);
-            getSparseGridIndexSet(testbasis2d,checkLambda2,j,0.2);
-            getSparseGridIndexSet(trialbasis2d,Lambda,j,0.2);
-            getSparseGridIndexSet(trialbasis2d,Lambda2,j,0.2);
+            getSparseGridIndexSet(trialbasis2d,checkLambda,j,0,0.2);
+            getSparseGridIndexSet(trialbasis2d,checkLambda2,j,0,0.2);
+            getSparseGridIndexSet(testbasis2d,Lambda,j,1,0.2);
+            getSparseGridIndexSet(testbasis2d,Lambda2,j,1,0.2);
 
             FillWithZeros(checkLambda,test);
             cout << "#checkLambda  = " << checkLambda.size() << ", " << test.size() << endl;
+            //cout << checkLambda << endl;
             Index1D index1_x(j0+j+4,4,XWavelet);
             Index1D index1_y(j0+j+4,1,XWavelet);
             Index2D new_index1(index1_x,index1_y);
-            completeMultiTree(testbasis2d,new_index1,test,0,true);
+            completeMultiTree(trialbasis2d,new_index1,test,0,true);
             //extendMultiTree( testbasis2d,new_index1,checkLambda);
             //extendMultiTree2(testbasis2d,new_index1,20,checkLambda2);
             //cout<< "#checkLambda1 = " << checkLambda.size() << endl;
@@ -201,11 +209,12 @@ int main (int argc, char *argv[]) {
 
 
             cout << "#Lambda  = " << Lambda.size() << endl;
+            //cout << Lambda << endl;
             FillWithZeros(Lambda,test2);
             Index1D index2_x(j0+j+4,32 ,XWavelet);
             Index1D index2_y(j0+j+4,2,XWavelet);
             Index2D new_index2(index2_x,index2_y);
-            completeMultiTree(trialbasis2d,new_index2,test2,0,true);
+            completeMultiTree(testbasis2d,new_index2,test2,0,true);
             //extendMultiTree( trialbasis2d,new_index2,Lambda);
             //extendMultiTree2(trialbasis2d,new_index2,20,Lambda2);
             //cout<< "#Lambda1 = " << Lambda.size() << endl;
@@ -249,8 +258,8 @@ int main (int argc, char *argv[]) {
                     Index1D row_y = (*row).index2;
                     if (     (row_x.xtype==XWavelet && col_x.xtype==XBSpline)
                           || (row_x.xtype==XWavelet && col_x.xtype==XWavelet && row_x.j > col_x.j)) {
-                        PeriodicSupport<T> col_supp_x = basis.generator(col_x.xtype).support(col_x.j,col_x.k);
-                        Support<T> row_supp_x = secondbasis.generator(row_x.xtype).support(row_x.j,row_x.k);
+                        Support<T> col_supp_x = secondbasis.generator(col_x.xtype).support(col_x.j,col_x.k);
+                        PeriodicSupport<T> row_supp_x = basis.generator(row_x.xtype).support(row_x.j,row_x.k);
                         if (overlap(col_supp_x,row_supp_x)>0) {
                             Index2D index(col_x,row_y);
                             IAv_ref[index] = 0.;
@@ -265,8 +274,8 @@ int main (int argc, char *argv[]) {
                     Index1D row_x = (*row);
                     if (     (row_x.xtype==XBSpline)
                           || (row_x.xtype==XWavelet && col_x.xtype==XWavelet && row_x.j <= col_x.j)) {
-                    	PeriodicSupport<T> col_supp_x = basis.generator(col_x.xtype).support(col_x.j,col_x.k);
-                    	Support<T> row_supp_x = secondbasis.generator(row_x.xtype).support(row_x.j,row_x.k);
+                    	Support<T> col_supp_x = secondbasis.generator(col_x.xtype).support(col_x.j,col_x.k);
+                    	PeriodicSupport<T> row_supp_x = basis.generator(row_x.xtype).support(row_x.j,row_x.k);
                         if (overlap(col_supp_x,row_supp_x)>0) {
                             Index2D index(row_x,col_y);
                             UIv_ref[index] = 0.;
@@ -345,7 +354,7 @@ int main (int argc, char *argv[]) {
 
 template <typename Basis2D>
 void
-getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, T gamma)
+getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, int deltaL, T gamma)
 {
     int j0_1 = basis.first.j0;
     int j0_2 = basis.second.j0;
@@ -365,7 +374,7 @@ getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, T 
         }
     }
     for (long k2=basis.second.mra.rangeI(j0_2).firstIndex(); k2<=basis.second.mra.rangeI(j0_2).lastIndex(); ++k2) {
-        for (int i1=1; i1<=j; ++i1) {
+        for (int i1=1; i1<=j+deltaL; ++i1) {
             int j1=j0_1+i1-1;
             for (long k1=basis.first.rangeJ(j1).firstIndex(); k1<=basis.first.rangeJ(j1).lastIndex(); ++k1) {
                 Index1D row(j1,k1,XWavelet);
@@ -374,10 +383,10 @@ getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, T 
             }
         }
     }
-    for (int i1=1; i1<=j; ++i1) {
+    for (int i1=1; i1<=j+deltaL; ++i1) {
         int j1=j0_1+i1-1;
         for (int i2=1; i1+i2<=j; ++i2) {
-            if (T(i1+i2)-gamma*max(i1,i2)>(1-gamma)*j) continue;
+            if (T(i1-deltaL+i2)-gamma*max(i1-deltaL,i2)>(1-gamma)*j) continue;
             int j2=j0_2+i2-1;
             for (long k1=basis.first.rangeJ(j1).firstIndex(); k1<=basis.first.rangeJ(j1).lastIndex(); ++k1) {
                 for (long k2=basis.second.rangeJ(j2).firstIndex(); k2<=basis.second.rangeJ(j2).lastIndex(); ++k2) {
