@@ -163,7 +163,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
     diff  = AAv_ref - IAUIv;
     diff -= LIIAv;
-    std::cerr << "   Diff = " << diff.norm(2.) << std::endl;
+    std::cerr << "   Diff = " << diff.norm(2.)  <<  std::endl;
     diff.setToZero();
     diff  = AAv_ref - IAUIv_ref;
     diff -= LIIAv_ref;
@@ -417,6 +417,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
                                                             it!=x1aligned_z.map.end(); ++it) {
         time.start();
         Index1D row_x = (*it).first;
+        //std::cout << "==================================================" << std::endl;
         //std::cout << "Index: " << row_x << std::endl;
         TreeCoefficients1D<T> PsiLambdaHat_x2(n2,trialBasis_x2.j0);
         PsiLambdaHat_x2 = (*it).second;
@@ -428,8 +429,8 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         PsiLambdaCheck_x2.setToZero();
         time.stop();
         time_setup_tree += time.elapsed();
-//        std::cout << "PsiLambdaHat_x2: " << PsiLambdaHat_x2 << std::endl;
-//        std::cout << "PsiLambdaCheck_x2: " << PsiLambdaCheck_x2 << std::endl;
+        //std::cout << "PsiLambdaHat_x2: " << PsiLambdaHat_x2 << std::endl;
+        //std::cout << "PsiLambdaCheck_x2: " << PsiLambdaCheck_x2 << std::endl;
 
 
         time.start();
@@ -540,7 +541,6 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     T time_mv1d = 0.;
     T time_add_aligned = 0.;
 
-
     for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
                                                             it!=x2aligned_z.map.end(); ++it) {
         time.start();
@@ -642,11 +642,15 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     T time_mv1d = 0.;
     T time_add_aligned = 0.;
 
+   // std::cout << "evalUI with z = " << z << ", Pe1_UIz = " << Pe1_UIz << " , UIz = " << UIz << std::endl;
+
+
 
     for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
                                                             it!=x2aligned_z.map.end(); ++it) {
         time.start();
         Index1D row_y = (*it).first;
+        //std::cout << "Row y = " << row_y << std::endl;
         TreeCoefficients1D<T> PsiLambdaHat_x1(n2,trialBasis_x1.j0);
         PsiLambdaHat_x1 = (*it).second;
         time.stop();
@@ -657,6 +661,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
         time.start();
         TreeCoefficients1D<T> PsiLambdaCheck_x1(n2,testBasis_x1.j0);
+        //PsiLambdaCheck_x1 = Pe1_UIz;
         // Checking scaling functions
         for (const_by_level_it level_it =PsiLambdaHat_x1[0].map.begin();
                                level_it!=PsiLambdaHat_x1[0].map.end(); ++level_it) {
@@ -732,6 +737,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         time_initial_outputset += time.elapsed();
 
         time.start();
+       // std::cerr << "Call LocalOperator2 with PsiLambdaHat_x1 = " << PsiLambdaHat_x1 << " and PsiLambdaCheck_x1 = " << PsiLambdaCheck_x1 << std::endl;
         localoperator1.eval(PsiLambdaHat_x1, PsiLambdaCheck_x1, "U");
         time.stop();
         time_mv1d += time.elapsed();
@@ -741,6 +747,8 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         PsiLambdaCheck_x1.template addTo<Index2D,Index1D,XTwo>(row_y,UIz);
         time.stop();
         time_add_aligned += time.elapsed();
+        //std::cout << "UIz = " << UIz << std::endl;
+
     }
     /*
     std::cerr << "      evalUI: x2align of v took       " << time_x2align_z << std::endl;
