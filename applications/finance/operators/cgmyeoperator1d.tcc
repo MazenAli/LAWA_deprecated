@@ -13,7 +13,7 @@ FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
       use_predef_convection(_use_predef_convection),
       use_predef_reaction(_use_predef_reaction),
       OneDivSqrtR2pR1(1./std::sqrt(R2+R1)), OneDivR2pR1(1./(R2+R1)), R1DivR1pR2(R1/(R1+R2)),
-      integral(basis,basis)
+      integral(basis,basis), singularIntegral(kernel,basis,basis,-R1,R2)
 {
     if (basis.d==3) {
         bool is_realline_basis=flens::IsSame<Basis1D, Basis<T,Primal,R,CDF> >::value;
@@ -23,6 +23,10 @@ FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
         convection = kernel.ExpXmOnemX_k;
         reaction   = 0.;
     }
+
+    int singular_order = 5, n = 10;
+    T sigma = 0.1, mu = 0.3, omega = 0.01;
+    singularIntegral.singularquadrature.setParameters(singular_order, n, sigma, mu, omega);
 
 }
 
@@ -55,58 +59,64 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
    pde_val += 0.5*sigma*sigma*( OneDivR2pR1*OneDivR2pR1 * integral(j1,k1,xtype1,1,j2,k2,xtype2,1)
                                            +OneDivR2pR1 * integral(j1,k1,xtype1,0,j2,k2,xtype2,1) );
    if (!use_predef_reaction) {
-       pde_val += reaction * integral(j1,k1,xtype1,0,j2,k2,xtype2,0);
+       pde_val += reaction * integral(j1,k1,xtype1,1,j2,k2,xtype2,1);
    }
 
 
    T int_val = 0.;
+   T int_val2 = 0.;
 
    GeMatrix<FullStorage<T,ColMajor> > varphi_row_deltas, varphi_col_deltas;
    varphi_row_deltas = computeDeltas<T,Basis1D>(basis,j1,k1,xtype1);
    varphi_col_deltas = computeDeltas<T,Basis1D>(basis,j2,k2,xtype2);
 
-   if (R1!=0 && R2!=1) {
-       varphi_row_deltas(_,1)  *=(R1+R2);  varphi_row_deltas(_,1)-=R1;
-       varphi_row_deltas(_,2)  *= OneDivR2pR1*OneDivSqrtR2pR1;
-       varphi_col_deltas(_,1)  *=(R1+R2);  varphi_col_deltas(_,1)-=R1;
-       varphi_col_deltas(_,2)  *= OneDivR2pR1*OneDivSqrtR2pR1;
-   }
+   varphi_row_deltas(_,1)  *=(R1+R2);  varphi_row_deltas(_,1)-=R1;
+   varphi_row_deltas(_,2)  *= OneDivR2pR1*OneDivSqrtR2pR1;
+   varphi_col_deltas(_,1)  *=(R1+R2);  varphi_col_deltas(_,1)-=R1;
+   varphi_col_deltas(_,2)  *= OneDivR2pR1*OneDivSqrtR2pR1;
 
    T part1=0., part2=0.;
    if (basis.d==2) {
-       for (int lambda=varphi_row_deltas.rows().firstIndex();
-                lambda<=varphi_row_deltas.rows().lastIndex(); ++lambda) {
 
-           T x = varphi_row_deltas(lambda,1);
-           if (fabs(varphi_row_deltas(lambda,2)) < 1e-14) continue;
+       if (j1>=11 && j2>=11) {
+           int_val = -singularIntegral(j1,k1,xtype1,1, j2,k2,xtype2,1);
+       }
+       else {
+           for (int lambda=varphi_row_deltas.rows().firstIndex();
+                    lambda<=varphi_row_deltas.rows().lastIndex(); ++lambda) {
 
-           part1 += OneDivSqrtR2pR1*varphi_row_deltas(lambda,2)
-                    *basis.generator(xtype2)((x+R1)* OneDivR2pR1,j2,k2,0)*kernel.c3;
+               T x = varphi_row_deltas(lambda,1);
+               if (fabs(varphi_row_deltas(lambda,2)) < 1e-14) continue;
 
-
-           for (int mu=varphi_col_deltas.rows().firstIndex();
-                    mu<=varphi_col_deltas.rows().lastIndex(); ++mu) {
-               if (fabs(varphi_col_deltas(mu,2)) < 1e-14) continue;
-
-               T y = varphi_col_deltas(mu,1);
-               T c = varphi_col_deltas(mu,2)*varphi_row_deltas(lambda,2);
+               part1 += OneDivSqrtR2pR1*varphi_row_deltas(lambda,2)
+                        *basis.generator(xtype2)((x+R1)* OneDivR2pR1,j2,k2,0)*kernel.c3;
 
 
-               if (fabs(x-y)>1e-10)  {
-                   T value_tailintegral;
-                   const_it it   = values_tailintegral.find(y-x);
-                   const_it last = values_tailintegral.end();
-                   if (it != last) value_tailintegral = (*it).second;
-                   else {
-                       value_tailintegral=kernel.ForthTailIntegral(y-x);
-                       values_tailintegral[y-x] = value_tailintegral;
+               for (int mu=varphi_col_deltas.rows().firstIndex();
+                        mu<=varphi_col_deltas.rows().lastIndex(); ++mu) {
+                   if (fabs(varphi_col_deltas(mu,2)) < 1e-16) continue;
+
+                   T y = varphi_col_deltas(mu,1);
+                   T c = varphi_col_deltas(mu,2)*varphi_row_deltas(lambda,2);
+
+                   if (fabs(x-y)>1e-16)  {
+                       T value_tailintegral;
+                       const_it it   = values_tailintegral.find(y-x);
+                       const_it last = values_tailintegral.end();
+                       if (it != last) value_tailintegral = (*it).second;
+                       else {
+                           value_tailintegral=kernel.ForthTailIntegral(y-x);
+                           values_tailintegral[y-x] = value_tailintegral;
+                       }
+                       if (y-x>0)  part2 += c * (value_tailintegral - kernel.constants[2]);
+                       else        part2 += c * (value_tailintegral - kernel.constants[3]);
                    }
-                   if (y-x>0)  part2 += c * (value_tailintegral - kernel.constants[2]);
-                   else        part2 += c * (value_tailintegral - kernel.constants[3]);
                }
            }
+           int_val = part1 + part2;
        }
-       int_val = part1 + part2;
+
+       //std::cout << "(" << j1 << "," << k1 << "), (" << j2 << "," << k2 << "): " << int_val << " " << int_val2 << std::endl;
    }
 
    else if (basis.d==3) {
@@ -143,6 +153,7 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
    else {
        assert(0);
    }
+   //std::cout << k1 << " " << k2 << " : " << int_val << std::endl;
    return pde_val - int_val;
 }
 

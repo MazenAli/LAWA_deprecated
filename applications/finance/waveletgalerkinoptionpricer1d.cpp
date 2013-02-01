@@ -35,8 +35,6 @@ const ProcessType1D  processtype  = CGMYe;
  * Process parameters for CGMY: r = 0.1, C = 1, G = M = 5, Y =0.1    6.353404 (put)
  */
 
-
-
 //typedef Basis<T,Primal,Interval,Dijkema>                      Basis1D;
 typedef Basis<T,Orthogonal,Interval,Multi>                      Basis1D;
 
@@ -68,6 +66,11 @@ getPu0(const Basis1D &basis, DenseVectorT &Pu0,  const Option1D<T,Put> &option, 
 template<typename T, OptionType1D OType, ProcessType1D PType>
 void
 plotOptionPriceSurface(Option1D<T,OType> &option, const ProcessParameters1D<T,PType> &processparameters, T R1, T R2);
+
+template<typename T, ProcessType1D PType, typename Basis>
+void
+spyStiffnessMatrix(const Basis &basis, T R1, T R2, const FinanceOp &finance_op, int J, T tol,
+                   ProcessParameters1D<T,PType> &processparameters, bool pattern);
 
 int
 main(int argc, char *argv[])
@@ -125,10 +128,8 @@ main(int argc, char *argv[])
     int                             order=20;
     Option1D<T,optiontype>  option(optionparameters);
 
-
     //plotOptionPriceSurface(option, processparameters, R1, R2);
     //return 0;
-
 
     std::stringstream filename;
     if (excessToPayoff) {
@@ -143,7 +144,7 @@ main(int argc, char *argv[])
     }
     std::ofstream convfile(filename.str().c_str());
 
-    for (int J=j0; J<=j_max; ++J) {
+    for (int J=0; J<=j_max; ++J) {
 
         Timer time;
         time.start();
@@ -157,9 +158,13 @@ main(int argc, char *argv[])
         FinanceOp                         finance_op(basis, processparameters, R1, R2, order, J);
         OptionRhs                         rhs(optionparameters, processparameters, basis,
                                               R1, R2, excessToPayoff);
-        //ScalarProduct1D                   scalarproduct(basis);
         ThetaStepScalarProduct1D          scheme(theta, basis, finance_op, rhs,
                                                  true, false, 0., 1e-12);
+
+        //spyStiffnessMatrix(basis, R1, R2, finance_op, J, (T)0., processparameters, false);
+        //continue;
+
+
         TimeStepperScalarProduct1D        timestepmethod(scheme, timestep, timesteps, J);
         u = timestepmethod.solve(u0, false);
 
@@ -175,8 +180,6 @@ main(int argc, char *argv[])
         convfile  << J << " " << basis.mra.cardI(J) << " " << comp_time << " "
                   << L2error << " " << Linftyerror << endl;
     }
-
-
     return 0;
 }
 
@@ -360,5 +363,75 @@ plotOptionPriceSurface(Option1D<T,OType> &option, const ProcessParameters1D<T,PT
     }
 }
 
+template<typename T, ProcessType1D PType, typename Basis>
+void
+spyStiffnessMatrix(const Basis &basis, T R1, T R2, const FinanceOp &finance_op, int J, T tol,
+                   ProcessParameters1D<T,PType> &processparameters, bool pattern)
+{
+    std::stringstream matrixfilename;
+    matrixfilename << "A_" << J << "_" << basis.d << "_" << basis.d_ << "_" << tol
+                   << "_R1_" << R1 << "_R2_" << R2 << processparameters << ".txt";
+    int N =basis.mra.cardI(J);
+    SparseMatrixT A(N,N);
+
+    int j0 = basis.j0;
+    int offsetJ = basis.rangeJ(j0).firstIndex()-1;
+    int offsetI = basis.mra.rangeI(j0).firstIndex()-1;
+
+    for(int k1 = basis.mra.rangeI(j0).firstIndex(); k1 <= basis.mra.rangeI(j0).lastIndex(); ++k1){
+        for(int k2 = basis.mra.rangeI(j0).firstIndex(); k2 <= basis.mra.rangeI(j0).lastIndex(); ++k2){
+            T val = finance_op(XBSpline, j0, k1, XBSpline, j0, k2);
+            if(fabs(val) > tol){
+                A(k1-offsetI, k2-offsetI) = pattern ? 1 : val;
+            }
+            else {
+                cout << k1 << ", " << k2 << ": " << val << endl;
+            }
+        }
+    }
+
+    // SF * W
+    for(int k1 = basis.mra.rangeI(j0).firstIndex(); k1 <= basis.mra.rangeI(j0).lastIndex(); ++k1){
+        for(int j = j0; j <= J-1; ++j){
+            for(int k2 = basis.rangeJ(j).firstIndex(); k2 <= basis.rangeJ(j).lastIndex(); ++k2){
+                T val = finance_op(XBSpline, j0, k1, XWavelet, j, k2);
+                if(fabs(val) > tol){
+                    A(k1-offsetI,  basis.mra.cardI(j) + k2 - offsetJ) = pattern ? 1 : val;
+                }
+            }
+        }
+    }
+
+      // W * SF
+    for(int k2 = basis.mra.rangeI(j0).firstIndex(); k2 <= basis.mra.rangeI(j0).lastIndex(); ++k2){
+        for(int j = j0; j <= J-1; ++j){
+            for(int k1 = basis.rangeJ(j).firstIndex(); k1 <= basis.rangeJ(j).lastIndex(); ++k1){
+                T val = finance_op(XWavelet, j, k1, XBSpline, j0, k2);
+                if(fabs(val) > tol){
+                    A(basis.mra.cardI(j) + k1 - offsetJ, k2 - offsetI) = pattern ? 1 : val;
+                }
+            }
+        }
+    }
+
+        // W * W
+    for(int j = j0; j <= J-1; ++j){
+        for(int k1 = basis.rangeJ(j).firstIndex(); k1 <= basis.rangeJ(j).lastIndex(); ++k1){
+            for(int j_ = j0; j_ <= J-1; ++j_){
+                for(int k2 = basis.rangeJ(j_).firstIndex(); k2 <= basis.rangeJ(j_).lastIndex(); ++k2){
+                    T val = finance_op(XWavelet, j, k1, XWavelet, j_, k2);
+                    if(fabs(val) > tol){
+                        A(basis.mra.cardI(j) + k1 - offsetJ, basis.mra.cardI(j_) + k2 - offsetJ) = pattern ? 1 : val;
+                    }
+                }
+            }
+        }
+    }
+
+    A.finalize();
+
+
+    spy(A,matrixfilename.str().c_str(),true,(T)0.);
+}
 
 

@@ -55,6 +55,10 @@ struct Kernel<T,CGMY>
 
     T nthTailIntegral(T x, int n, AntiDerivativeType type) const;
 
+
+    T
+    operator()(T x) const { return this->SecondTailIntegral(-x); }
+
     T
     FirstTailIntegral(T x) const;
 

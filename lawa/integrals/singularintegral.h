@@ -31,7 +31,8 @@ struct SingularIntegral
 {
     typedef typename First::T T;
 
-    SingularIntegral(const SingularKernel &singularkernel, const First &first, const Second &second);
+    SingularIntegral(const SingularKernel &singularkernel, const First &first, const Second &second,
+                     const T _left=0., const T _right=1.);
 
     T
     operator()(int _j1, long _k1, XType _e1, int _deriv1,
@@ -46,6 +47,10 @@ struct SingularIntegral
     const SingularKernel &singularkernel;
     const First &first;
     const Second &second;
+    const T left, right;
+    const T RightmLeft;
+    const T SqrtRightmLeft;
+    const T OneDivSqrtRightmLeft;
     mutable SingularQuadrature<SingularIntegral<SingularKernel,First,Second> > singularquadrature;
     mutable int j1, deriv1,
                 j2, deriv2;

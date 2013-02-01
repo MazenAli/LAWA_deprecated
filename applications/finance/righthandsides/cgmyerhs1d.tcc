@@ -44,10 +44,8 @@ OptionRHS1D<T, Put, CGMYe, Basis1D>::operator()(XType xtype, int j, int k) const
         GeMatrix<FullStorage<T,ColMajor> > varphi_row_deltas;
         varphi_row_deltas = computeDeltas<T,Basis1D>(basis,j,k,xtype);
 
-        if (R1!=0 && R2!=1) {
-            varphi_row_deltas(_,1)  *=(R1+R2);  varphi_row_deltas(_,1)-=R1;
-            varphi_row_deltas(_,2)  *= OneDivR2pR1*OneDivSqrtR2pR1;
-        }
+        varphi_row_deltas(_,1)  *=(R1+R2);  varphi_row_deltas(_,1)-=R1;
+        varphi_row_deltas(_,2)  *= OneDivR2pR1*OneDivSqrtR2pR1;
 
         for (int i=varphi_row_deltas.rows().firstIndex(); i<=varphi_row_deltas.rows().lastIndex(); ++i) {
             T x = varphi_row_deltas(i,1);

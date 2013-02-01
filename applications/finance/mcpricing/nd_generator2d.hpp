@@ -46,6 +46,7 @@ public:
             exit(1);
         }
         if (fabs(q21)<1e-12) {
+            std::cerr << "ND_Generator2D: Q is already a diagonal matrix!" << std::endl;
             L(0,0) = sqrt(q11);
             L(1,1) = sqrt(q22);
             L(0,1) = 0.;
@@ -53,8 +54,10 @@ public:
         }
         else {
             size_t n = cholesky_decompose(Q, L);
+            L(0,1) = 0.;
         }
-        //std::cerr << "Q = " << Q << ", L = " << L << std::endl;
+        std::cerr.precision(16);
+        std::cerr << "Q = " << Q << ", L = " << L << std::endl;
     }
 	
 	T

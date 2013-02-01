@@ -44,16 +44,17 @@ struct FinanceOperator1D<T, CGMYe, Basis1D>
     T
     operator()(const Index1D &row_index, const Index1D &col_index) const;
 
-    const Basis1D                       &basis;
-    const ProcessParameters1D<T,CGMYe>  &processparameters;
-    Kernel<T,CGMY>                      kernel;
-    T                                   R1, R2;
-    const int                           internal_compression_level;
-    T                                   convection, reaction;
-    const bool                          use_predef_convection, use_predef_reaction;
-    T                                   OneDivSqrtR2pR1, OneDivR2pR1, R1DivR1pR2;
+    const Basis1D                                    &basis;
+    const ProcessParameters1D<T,CGMYe>               &processparameters;
+    Kernel<T,CGMY>                                   kernel;
+    T                                                R1, R2;
+    const int                                        internal_compression_level;
+    T                                                convection, reaction;
+    const bool                                       use_predef_convection, use_predef_reaction;
+    T                                                OneDivSqrtR2pR1, OneDivR2pR1, R1DivR1pR2;
 
-    Integral<Gauss, Basis1D, Basis1D>   integral;
+    Integral<Gauss, Basis1D, Basis1D>                integral;
+    SingularIntegral<Kernel<T,CGMY>,Basis1D,Basis1D> singularIntegral;
 
     mutable std::map<T,T> values_tailintegral;
 
