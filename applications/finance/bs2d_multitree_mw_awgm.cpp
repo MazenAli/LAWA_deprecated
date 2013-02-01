@@ -27,25 +27,38 @@ T strike = 1.;
 T maturity = 1.;
 T weight1 = 0.5, weight2 = 0.5;
 
+/*
 const OptionTypenD optiontype = BasketPut;
 OptionParameters2D<T,BasketPut> optionparameters(strike, maturity, weight1, weight2, false);
 typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedBasketPutOption2D<T> > PayoffIntegral;
+*/
 
-//const OptionTypenD optiontype = SumOfPuts;
-//OptionParameters2D<T,SumOfPuts> optionparameters(strike, strike, maturity, weight1, weight2, false);
-//typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedSumOfPutsOption2D<T> > PayoffIntegral;
+const OptionTypenD optiontype = SumOfPuts;
+OptionParameters2D<T,SumOfPuts> optionparameters(strike, strike, maturity, weight1, weight2, false);
+typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedSumOfPutsOption2D<T> > PayoffIntegral;
 
 const ProcessType2D  processtype  = BlackScholes2D;
 //T r = 0.04; T sigma1 = 0.3, sigma2 = 0.2, rho = 0.;
 //T u11 = 1., u12 = 0., u21 = 0., u22 = 1.;
-T r = 0.;
+T r = 0.1;
 T sigma1 = 0.3;
 T sigma2 = 0.2;
-//T rho = 0.3;
+
+
 T rho = 0.;
-T u11 = 0.95171801008793943164, u12 = 0.30697366218334239729, u21 = -0.30697366218334239729, u22 = 0.95171801008793943164;
-T    critical_line_x1 = 0.4;
+T u11 = 1., u12 = 0., u21 = 0., u22 = 1.;
+T s1  = sigma1*sigma1, s2  = sigma2*sigma2;
+T    critical_line_x1 = 0.6;
 bool critical_above_x1 = true;
+
+
+/*
+T rho = 0.3;
+T u11 = 0.95171801008793943164, u12 = 0.30697366218334239729, u21 = -0.30697366218334239729, u22 = 0.95171801008793943164;
+T s1  = sqrt(13./2.*(199.+5.*sqrt(949)))/500., s2  = sqrt(13./2.*(199.-5.*sqrt(949)))/500.;
+T    critical_line_x1 = 0.6;
+bool critical_above_x1 = true;
+*/
 
 ProcessParameters2D<T,BlackScholes2D>   processparameters(r, sigma1, sigma2, rho, u11, u12, u21, u22);
 
@@ -103,7 +116,6 @@ T f_t(T t)       {  return 0.; }
 T f_x(T x)       {  return 0.; }
 T f_y(T y)       {  return 0.; }
 
-
 T
 evaluate(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
          const Coefficients<Lexicographical,T,Index2D> &v, T x1, T x2);
@@ -158,19 +170,19 @@ int main (int argc, char *argv[]) {
 
     T left_x1 = -2., right_x1 = 2.;
     T left_x2 = -2., right_x2 = 2.;
-    T delta = 0.05;
+    T delta = 1.;
 
     T theta = 0.5;
     T timestep_eps = 1e-6;
     int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 256;
+    int numOfTimesteps = 32;
     T timestep = maturity/numOfTimesteps;
 
     int numOfMCRuns = 100000;
 
-    int order = 5;
+    int order = 6;
 
-    bool useRefPrices = true;
+    bool useRefPrices = false;
 
     Timer time;
 
@@ -182,9 +194,24 @@ int main (int argc, char *argv[]) {
 
 
     /// Operator initialization
+    DenseMatrixT U(2,2), tU(2,2), Q(2,2), QtU(2,2), UQtU(2,2);
+    U  = u11, u12, u21, u22;
+    tU = u11, u21, u12, u22;
+    Q  = sigma1*sigma1, rho*sigma1*sigma2, rho*sigma1*sigma2, sigma2*sigma2;
+
+    QtU  = Q(1,1)*tU(1,1)+Q(1,2)*tU(2,1), Q(1,1)*tU(1,2)+Q(1,2)*tU(2,2),
+           Q(2,1)*tU(1,1)+Q(2,2)*tU(2,1), Q(2,1)*tU(1,2)+Q(2,2)*tU(2,2);
+    UQtU = U(1,1)*QtU(1,1)+U(1,2)*QtU(2,1), U(1,1)*QtU(1,2)+U(1,2)*QtU(2,2),
+           U(2,1)*QtU(1,1)+U(2,2)*QtU(2,1), U(2,1)*QtU(1,2)+U(2,2)*QtU(2,2);
+    cout << "U Q U^T " << UQtU << endl;
+    cout << "s1 = " << s1 << ", s2 = " << s2 << endl;
+
+    T a1 = 0.5*s1/((right_x1-left_x1)*(right_x1-left_x1));
+    T a2 = 0.5*s2/((right_x1-left_x1)*(right_x1-left_x1));
+
+
+
     LocalOp1D                    localOp1D(basis,basis,refinementbasis.LaplaceOp1D);
-    T a1 = 0.5*sigma1*sigma1/((right_x1-left_x1)*(right_x1-left_x1));
-    T a2 = 0.5*sigma2*sigma2/((right_x1-left_x1)*(right_x1-left_x1));
     UniDirectionalLocalOpXOne2D  uniDirectionalOpXOne2D(localOp1D, a1);
     UniDirectionalLocalOpXTwo2D  uniDirectionalOpXTwo2D(localOp1D, a2);
     CompoundLocalOperator2D      localOp2D(uniDirectionalOpXOne2D,uniDirectionalOpXTwo2D);
@@ -214,12 +241,12 @@ int main (int argc, char *argv[]) {
 
     /// Initialization of integrals for initial condition and rhs
     Option2D<T,optiontype>         option2d(optionparameters);
-    option2d.setNumberOfMCRuns(numOfMCRuns);
+    //option2d.setNumberOfMCRuns(numOfMCRuns);
 
-    TruncatedBasketPutOption2D<T> truncatedoption2d;
-    //TruncatedSumOfPutsOption2D<T> truncatedoption2d;
+    //TruncatedBasketPutOption2D<T> truncatedoption2d;
+    TruncatedSumOfPutsOption2D<T> truncatedoption2d;
     truncatedoption2d.setOption(option2d);
-    //truncatedoption2d.setTransformation(u11, u21, u12, u22);
+    truncatedoption2d.setTransformation(u11, u21, u12, u22);
     truncatedoption2d.setTruncation(left_x1, right_x1, left_x2, right_x2, 0, 0.1, 100.);
     truncatedoption2d.setCriticalLine_x1(critical_line_x1, critical_above_x1);
 
@@ -381,17 +408,26 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
     plotfile.precision(16);
 
     T maxerror = 0.;
-    T h1 = (delta*right_x1-delta*left_x1)/10.;
-    T h2 = (delta*right_x2-delta*left_x2)/10.;
+    T h1 = (delta*right_x1-delta*left_x1)/50.;
+    T h2 = (delta*right_x2-delta*left_x2)/50.;
     //for (T x1=left_x1; x1<=right_x1; x1+=0.03125) {
     for (T x1=delta*left_x1; x1<=delta*right_x1; x1+=h1) {
         //for (T x2=left_x2; x2<=right_x2; x2+=0.03125) {
         for (T x2=delta*left_x2; x2<=delta*right_x2; x2+=h2) {
-            T S1 = strike*std::exp(x1+(0.5*sigma1*sigma1-r)*maturity);
-            T S2 = strike*std::exp(x2+(0.5*sigma2*sigma2-r)*maturity);
+            /*
+            T S1 = strike*std::exp(u11*x1+u21*x2+(0.5*sigma1*sigma1-r)*maturity);
+            T S2 = strike*std::exp(u12*x1+u22*x2+(0.5*sigma2*sigma2-r)*maturity);
             T exact = std::exp(r*maturity)*option2d.value(processparameters,S1,S2,0);
             T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
             T approx = evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1, x2);
+            */
+            T S1    = strike*std::exp(x1);
+            T S2    = strike*std::exp(x2);
+            T exact = option2d.value(processparameters,S1,S2,0);
+            T x1hat = u11*x1+u12*x2-u11*(0.5*sigma1*sigma1-r)*maturity-u12*(0.5*sigma2*sigma2-r)*maturity;
+            T x2hat = u21*x1+u22*x2-u21*(0.5*sigma1*sigma1-r)*maturity-u22*(0.5*sigma2*sigma2-r)*maturity;
+            T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
+            T approx =std::exp(-r*maturity)*evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1hat, x2hat);
             plotfile << x1 << " " << x2 << " " << exact << " " << approx << " " << payoff << endl;
             maxerror = std::max(maxerror, fabs(approx-exact));
         }
@@ -433,7 +469,12 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
         T x1    = (*it).first.first;
         T x2    = (*it).first.second;
         T exact = (*it).second;
-        T approx = evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1, x2);
+
+        //T approx = evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1, x2);
+        T x1hat = u11*x1+u12*x2-u11*(0.5*sigma1*sigma1-r)*maturity-u12*(0.5*sigma2*sigma2-r)*maturity;
+        T x2hat = u21*x1+u22*x2-u21*(0.5*sigma1*sigma1-r)*maturity-u22*(0.5*sigma2*sigma2-r)*maturity;
+        T approx =std::exp(-r*maturity)*evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1hat, x2hat);
+
         T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
         maxerror = std::max(maxerror, fabs(approx-exact));
         plotfile << x1 << " " << x2 << " " << exact << " " << approx << " " << payoff << endl;
@@ -503,6 +544,7 @@ readReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
     else {
         std::cerr << "Unknown option type" << std::endl; exit(1);
     }
+    std::cerr << "Try to open file: " << filename.str().c_str() << std::endl;
     std::ifstream infile (filename.str().c_str());
     if (infile.is_open()) {
         cout << "File is open, ready to read..." << endl;
@@ -513,21 +555,22 @@ readReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
 
     std::string line;
     while(std::getline( infile, line, '\n' )) {
-        std::string field1, field2, field3;
+        std::string field1, field2, field3, field4;
         std::istringstream line_ss(line);
         std::getline( line_ss, field1, ' ' );
         std::getline( line_ss, field2, ' ' );
         std::getline( line_ss, field3, ' ' );
+        std::getline( line_ss, field4, ' ' );
 
         T x1     = atof(field1.c_str());
         T x2     = atof(field2.c_str());
         T exact  = atof(field3.c_str());
+        T approx = atof(field4.c_str());
         cerr.precision(16);
         if (exact!=0) {
-            refprices[std::pair<T,T>(x1,x2)] = exact;
+            refprices[std::pair<T,T>(x1,x2)] = approx;
             cerr.precision(16);
-            cerr << x1 << " " << x2 << " " << exact << endl;
+            cerr << "Using approx values: " << x1 << " " << x2 << " " << approx << endl;
         }
-
     }
 }
