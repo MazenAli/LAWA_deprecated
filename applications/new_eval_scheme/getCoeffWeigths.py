@@ -3,7 +3,6 @@
 import sys
 
 sys.stdin.readline()
-sys.stdin.readline()
 
 for line in sys.stdin:
     if len(line) == 1:
