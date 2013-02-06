@@ -42,6 +42,12 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
 
 template <typename T, typename Basis>
 void
+extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
+                Coefficients<Lexicographical,T,Index2D>  &C_v, IndexSet<Index2D>& Cdiff_v,
+                const char* residualType, bool IsMW=false, bool sparsetree=false);
+
+template <typename T, typename Basis>
+void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
                 Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType,
                 bool IsMW=false, bool sparsetree=false);

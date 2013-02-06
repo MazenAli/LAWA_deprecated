@@ -114,7 +114,7 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
     return;
 }
 
-/*
+
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
@@ -139,6 +139,8 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
 
     IndexConeContainer indexConeContainer_x(v.size());
     IndexConeContainer indexConeContainer_y(v.size());
+
+    IndexSet<Index2D>::iterator it_indexset2d;
 
     for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
         C_v[(*it).first] = (T)0.;
@@ -169,15 +171,15 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
             for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
                 Index2D newindex((*it_C_index1), (*it).first.index2);
                 if (C_v.find(newindex)==C_v.end()) {
-                    if (IsMW) completeMultiTree(basis,newindex,C_v,1,sparsetree);
-                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,Cdiff_v,1,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,Cdiff_v,0,sparsetree);
                 }
             }
             for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
                 Index2D newindex((*it).first.index1, (*it_C_index2));
                 if (C_v.find(newindex)==C_v.end()) {
-                    if (IsMW) completeMultiTree(basis,newindex,C_v,2,sparsetree);
-                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,Cdiff_v,2,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,Cdiff_v,0,sparsetree);
                 }
             }
         }
@@ -186,7 +188,7 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
                 for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
                     Index2D newindex((*it_C_index1), (*it_C_index2));
                     if (C_v.find(newindex)==C_v.end()) {
-                        completeMultiTree(basis,newindex,C_v,0,sparsetree);
+                        completeMultiTree(basis,newindex,C_v,Cdiff_v,0,sparsetree);
                     }
                 }
             }
@@ -195,12 +197,21 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
             std::cerr << "extendMultiTree: unknown residual type " << residualType << std::endl;
             exit(1);
         }
+
     }
 
+    // Because completeMultiTree only checks if an index is already in Cv, not in v,
+    // we have to remove a possible entry v_i from Cdiffv
+    for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
+    	it_indexset2d = Cdiff_v.find((*it).first);
+    	if(it_indexset2d != Cdiff_v.end()){
+    		Cdiff_v.erase(it_indexset2d);
+    	}
+    }
 
     return;
 }
-*/
+
 
 template <typename T, typename Basis>
 void

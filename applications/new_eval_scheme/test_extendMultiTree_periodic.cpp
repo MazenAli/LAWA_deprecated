@@ -21,6 +21,8 @@ typedef PeriodicBasis::RefinementBasis                              PeriodicRefi
 
 typedef TensorBasis2D<Adaptive,IntervalBasis,IntervalBasis>         IntervalBasis2D;
 typedef TensorBasis2D<Adaptive,PeriodicBasis,PeriodicBasis>         PeriodicBasis2D;
+typedef TensorBasis2D<Adaptive,IntervalBasis,PeriodicBasis>         IntervalPeriodicBasis2D;
+typedef TensorBasis2D<Adaptive,PeriodicBasis,IntervalBasis>         PeriodicIntervalBasis2D;
 
 template<typename Basis>
 void
@@ -47,41 +49,79 @@ int main (int argc, char *argv[]) {
 
     /// Basis initialization
     IntervalBasis intervalbasis(d, d, j0);
-    IntervalRefinementBasis &intervalrefinementbasis = intervalbasis.refinementbasis;
-    IntervalBasis2D intervalbasis2d(intervalbasis,intervalbasis);
+    intervalbasis.enforceBoundaryCondition<DirichletBC>();
     PeriodicBasis periodicbasis(d, d, j0);
-    PeriodicRefinementBasis &periodicrefinementbasis = periodicbasis.refinementbasis;
+
+
+    IntervalBasis2D intervalbasis2d(intervalbasis,intervalbasis);
     PeriodicBasis2D periodicbasis2d(periodicbasis,periodicbasis);
+    IntervalPeriodicBasis2D intervalperiodicbasis2d(intervalbasis,periodicbasis);
+    PeriodicIntervalBasis2D periodicintervalbasis2d(periodicbasis,intervalbasis);
 
 	
 	for(int j = 0; j <= J-j0; ++j){
-		IndexSet<Index2D> Lambda_Interval, Lambda_Periodic;
-		
-		cout << "===== INTERVAL: j = " << j << " ======= " << endl;
-		getSparseGridIndexSet(intervalbasis,Lambda_Interval,j,0.2);
-		
-		cout << "Sparse Grid 2D: " << Lambda_Interval.size() << endl << Lambda_Interval << endl;		
-		Index1D index1_x_i(j0+j+2,3,XWavelet);
-	    Index1D index1_y_i(j0+j+0,2,XWavelet);
-	    Index2D new_index1_i(index1_x_i,index1_y_i);
-		cout << "Adding Index " << new_index1_i << " with support " 
-			 << intervalbasis2d.first.generator(index1_x_i.xtype).support(index1_x_i.j, index1_x_i.k) 
-			 << " x " << intervalbasis2d.second.generator(index1_y_i.xtype).support(index1_y_i.j, index1_y_i.k)<< endl;
-		extendMultiTree(intervalbasis2d,new_index1_i,Lambda_Interval);
-		cout << "ExtendedLambda: " << Lambda_Interval.size() << endl << Lambda_Interval << endl;
-		
-		cout << "===== PERIODIC: j = " << j << " ======= " << endl;
-		getSparseGridIndexSet(periodicbasis,Lambda_Periodic,j,0.2);
-		
-		cout << "Sparse Grid 2D: " << Lambda_Periodic.size() << endl << Lambda_Periodic << endl;		
-		Index1D index1_x_p(j0+j+2,2,XWavelet);
-	    Index1D index1_y_p(j0+j+0,1,XWavelet);
-	    Index2D new_index1_p(index1_x_p,index1_y_p);
-		cout << "Adding Index " << new_index1_p << " with support " 
-			 << periodicbasis2d.first.generator(index1_x_p.xtype).support(index1_x_p.j, index1_x_p.k) 
-			 << " x " << periodicbasis2d.second.generator(index1_y_p.xtype).support(index1_y_p.j, index1_y_p.k) << endl;
-		extendMultiTree(periodicbasis2d,new_index1_p,Lambda_Periodic);
-		cout << "ExtendedLambda: " << Lambda_Periodic.size() << endl << Lambda_Periodic << endl;
+
+		// Indizes
+		Index1D index1_x_p(j0+j+1,1,XWavelet);
+	    Index1D index1_y_p(j0+j+1,4,XWavelet);
+	    Index1D index1_x_i(j0+j+1,2,XWavelet);
+	    Index1D index1_y_i(j0+j+1,3,XWavelet);
+
+	    Index1D index2_x_p(j0+j+3,17,XWavelet);
+	    Index1D index2_y_p(j0+j+3,3,XWavelet);
+	    Index1D index2_x_i(j0+j+3,9,XWavelet);
+	    Index1D index2_y_i(j0+j+3,11,XWavelet);
+
+	    // Construct initial sets by completing the indizes
+
+		Coefficients<Lexicographical,T,Index2D> v_i, v_p, v_ip, v_pi,
+												Cv_i, Cv_p, Cv_ip, Cv_pi;
+		IndexSet<Index2D>			Cdiffv_i, Cdiffv_p, Cdiffv_ip, Cdiffv_pi;
+
+		cout << "===== INTERVAL: j = " << j << " ======= " << endl << endl;
+		Index2D index1_ii(index1_x_i, index1_y_i);
+		completeMultiTree(intervalbasis2d,index1_ii,v_i,0,true);
+		cout << "Initial Set v: " << v_i.size() << v_i << endl;
+
+		extendMultiTree(intervalbasis2d,v_i,Cv_i, "standard",false,true);
+		cout << "Extended Set Cv: " << Cv_i.size() << Cv_i << endl;
+		Cv_i.clear();
+		extendMultiTree(intervalbasis2d,v_i,Cv_i, Cdiffv_i, "standard", false,true);
+		cout << "Extended Set Diff Cv: " << Cdiffv_i.size() << " (" << Cv_i.size() << ") " << Cdiffv_i << endl << endl;
+
+		cout << "===== PERIODIC: j = " << j << " ======= " << endl << endl;
+		Index2D index1_pp(index1_x_p, index1_y_p);
+ 		completeMultiTree(periodicbasis2d,index1_pp,v_p,0,true);
+		cout << "Initial Set v: " << v_p.size() << v_p << endl;
+
+		extendMultiTree(periodicbasis2d,v_p,Cv_p, "standard",false,true);
+		cout << "Extended Set Cv: " << Cv_p.size() << Cv_p << endl;
+		Cv_p.clear();
+		extendMultiTree(periodicbasis2d,v_p,Cv_p, Cdiffv_p, "standard", false,true);
+		cout << "Extended Set Diff Cv: " << Cdiffv_p.size() << " (" << Cv_p.size() << ") " << Cdiffv_p << endl << endl;
+
+		cout << "===== INTERVAL x PERIODIC: j = " << j << " ======= " << endl << endl;
+		Index2D index1_ip(index1_x_i, index1_y_p);
+ 		completeMultiTree(intervalperiodicbasis2d,index1_ip,v_ip,0,true);
+		cout << "Initial Set v: " << v_ip.size() << v_ip << endl;
+
+		extendMultiTree(intervalperiodicbasis2d,v_ip,Cv_ip, "standard",false,true);
+		cout << "Extended Set Cv: " << Cv_ip.size() << Cv_ip << endl;
+		Cv_ip.clear();
+		extendMultiTree(intervalperiodicbasis2d,v_ip,Cv_ip, Cdiffv_ip, "standard", false,true);
+		cout << "Extended Set Diff Cv: " << Cdiffv_ip.size() << " (" << Cv_ip.size() << ") " << Cdiffv_ip << endl << endl;
+
+		cout << "===== PERIODIC X INTERVAL: j = " << j << " ======= " << endl << endl;
+		Index2D index1_pi(index1_x_p, index1_y_i);
+ 		completeMultiTree(periodicintervalbasis2d,index1_pi,v_pi,0,true);
+		cout << "Initial Set v: " << v_pi.size() << v_pi << endl;
+
+		extendMultiTree(periodicintervalbasis2d,v_pi,Cv_pi, "standard",false,true);
+		cout << "Extended Set Cv: " << Cv_pi.size() << Cv_pi << endl;
+		Cv_pi.clear();
+		extendMultiTree(periodicintervalbasis2d,v_pi,Cv_pi, Cdiffv_pi, "standard", false,true);
+		cout << "Extended Set Diff Cv: " << Cdiffv_pi.size() << " (" << Cv_pi.size() << ") " << Cdiffv_pi << endl << endl;
+
 	}
 
 
