@@ -82,7 +82,6 @@ int main (int argc, char *argv[]) {
 
 		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
 
-
 		IndexSet<Index1D> additional_indizes_i;
 		Index1D index2_i(j0+j+3,16,XWavelet);
 		cout << "Adding Index " << index1_i << " with support "
@@ -136,6 +135,11 @@ int main (int argc, char *argv[]) {
         Index1D index1_x_i(j0+j+4,7,XWavelet);
         Index1D index1_y_i(j0+j+4,17,XWavelet);
 
+        Index1D index2_x_p(j0+j+5,30,XWavelet);
+        Index1D index2_y_p(j0+j+5,3,XWavelet);
+        Index1D index2_x_i(j0+j+5,9,XWavelet);
+        Index1D index2_y_i(j0+j+5,11,XWavelet);
+
 		cout << "===== INTERVAL x INTERVAL : j = " << j << " ======= " << endl;
 		getSparseGridIndexSet(intervalbasis2d,Lambda_Interval,j,0.2);
 		FillWithZeros(Lambda_Interval, Coeffs_Interval);
@@ -164,6 +168,17 @@ int main (int argc, char *argv[]) {
 	    	cout << (*it).first << (*it).second << endl;
 	    }*/
 
+		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
+
+		IndexSet<Index2D> additional_indizes_ii;
+	    Index2D new_index2_i(index2_x_i,index2_y_i);
+		cout << "Adding Index " << new_index2_i << " with support "
+			 << intervalbasis2d.first.generator(index2_x_i.xtype).support(index2_x_i.j, index2_x_i.k)
+			 << " x " << intervalbasis2d.second.generator(index2_y_i.xtype).support(index2_y_i.j, index2_y_i.k)<< endl;
+		completeMultiTree(intervalbasis2d,new_index2_i,Coeffs_Interval,additional_indizes_ii,0,true);
+		cout << "Extended Coeffs: " << Coeffs_Interval.size() << endl << Coeffs_Interval << endl;
+		cout << "Added Indizes: " << additional_indizes_ii.size() << additional_indizes_ii << endl << endl;
+
 		cout << "===== PERIODIC x PERIODIC : j = " << j << " ======= " << endl;
 		getSparseGridIndexSet(periodicbasis2d,Lambda_Periodic,j,0.2);
 		FillWithZeros(Lambda_Periodic, Coeffs_Periodic);
@@ -176,7 +191,16 @@ int main (int argc, char *argv[]) {
 		completeMultiTree(periodicbasis2d,new_index1_p,Coeffs_Periodic,0,true);
 		cout << "Extended Coeffs: " << Coeffs_Periodic.size() << endl << Coeffs_Periodic << endl;
 		
+		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
 
+		IndexSet<Index2D> additional_indizes_pp;
+	    Index2D new_index2_p(index2_x_p,index2_y_p);
+		cout << "Adding Index " << new_index2_p << " with support "
+			 << periodicbasis2d.first.generator(index2_x_p.xtype).support(index2_x_p.j, index2_x_p.k)
+			 << " x " << periodicbasis2d.second.generator(index2_y_p.xtype).support(index2_y_p.j, index2_y_p.k) << endl;
+		completeMultiTree(periodicbasis2d,new_index2_p,Coeffs_Periodic,additional_indizes_pp,0,true);
+		cout << "Extended Coeffs: " << Coeffs_Periodic.size() << endl << Coeffs_Periodic << endl;
+		cout << "Added Indizes: " << additional_indizes_pp.size() << additional_indizes_pp << endl << endl;
 
 
 		cout << "===== PERIODIC x  INTERVAL : j = " << j << " ======= " << endl;
@@ -187,11 +211,11 @@ int main (int argc, char *argv[]) {
 	    Index2D new_index1_pi(index1_x_p,index1_y_i);
 		cout << "Adding Index " << new_index1_pi << " with support "
 			 << periodicintervalbasis2d.first.generator(index1_x_p.xtype).support(index1_x_p.j, index1_x_p.k)
-			 << " x " << periodicintervalbasis2d.second.generator(index1_y_p.xtype).support(index1_y_p.j, index1_y_p.k) << endl;
+			 << " x " << periodicintervalbasis2d.second.generator(index1_y_i.xtype).support(index1_y_i.j, index1_y_i.k) << endl;
 		completeMultiTree(periodicintervalbasis2d,new_index1_pi,Coeffs_PeriodicInterval,0,true);
 		cout << "Extended Coeffs: " << Coeffs_PeriodicInterval.size() << endl << Coeffs_PeriodicInterval << endl;
 
-		cout << "X1 Alignment " << endl;
+		/*cout << "X1 Alignment " << endl;
 	    XOneAlignedCoefficients x1aligned(6151,193);
 	    x1aligned.align(Coeffs_PeriodicInterval,J+j0);
 	    for (XOneAlignedCoefficients::const_map_prindex_it it=x1aligned.map.begin();
@@ -205,9 +229,18 @@ int main (int argc, char *argv[]) {
 	    for (XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned.map.begin();
 	                                                            it!=x2aligned.map.end(); ++it) {
 	    	cout << (*it).first << (*it).second << endl;
-	    }
+	    }*/
 
+		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
 
+		IndexSet<Index2D> additional_indizes_pi;
+	    Index2D new_index2_pi(index2_x_p,index2_y_i);
+		cout << "Adding Index " << new_index2_pi << " with support "
+			 << periodicintervalbasis2d.first.generator(index2_x_p.xtype).support(index2_x_p.j, index2_x_p.k)
+			 << " x " << periodicintervalbasis2d.second.generator(index2_y_i.xtype).support(index2_y_i.j, index2_y_i.k) << endl;
+		completeMultiTree(periodicintervalbasis2d,new_index2_pi,Coeffs_PeriodicInterval,additional_indizes_pi,0,true);
+		cout << "Extended Coeffs: " << Coeffs_PeriodicInterval.size() << endl << Coeffs_PeriodicInterval << endl;
+		cout << "Added Indizes: " << additional_indizes_pi.size() << additional_indizes_pi << endl << endl;
 
 
 		cout << "===== INTERVAL x PERIODIC : j = " << j << " ======= " << endl;
@@ -217,10 +250,21 @@ int main (int argc, char *argv[]) {
 		cout << "Sparse Grid 2D: " << Lambda_IntervalPeriodic.size() << endl;// << Lambda_Periodic << endl;
 	    Index2D new_index1_ip(index1_x_i,index1_y_p);
 		cout << "Adding Index " << new_index1_ip << " with support "
-			 << intervalperiodicbasis2d.first.generator(index1_x_p.xtype).support(index1_x_p.j, index1_x_p.k)
+			 << intervalperiodicbasis2d.first.generator(index1_x_i.xtype).support(index1_x_i.j, index1_x_i.k)
 			 << " x " << intervalperiodicbasis2d.second.generator(index1_y_p.xtype).support(index1_y_p.j, index1_y_p.k) << endl;
 		completeMultiTree(intervalperiodicbasis2d,new_index1_ip,Coeffs_IntervalPeriodic,0,true);
 		cout << "Extended Coeffs: " << Coeffs_IntervalPeriodic.size() << endl << Coeffs_IntervalPeriodic << endl;
+
+		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
+
+		IndexSet<Index2D> additional_indizes_ip;
+	    Index2D new_index2_ip(index2_x_i,index2_y_p);
+		cout << "Adding Index " << new_index2_i << " with support "
+			 << intervalperiodicbasis2d.first.generator(index2_x_i.xtype).support(index2_x_i.j, index2_x_i.k)
+			 << " x " << intervalperiodicbasis2d.second.generator(index2_y_p.xtype).support(index2_y_p.j, index2_y_p.k) << endl;
+		completeMultiTree(intervalperiodicbasis2d,new_index2_ip,Coeffs_IntervalPeriodic,additional_indizes_ip,0,true);
+		cout << "Extended Coeffs: " << Coeffs_IntervalPeriodic.size() << endl << Coeffs_IntervalPeriodic << endl;
+		cout << "Added Indizes: " << additional_indizes_ip.size() << additional_indizes_ip << endl << endl;
 
 		cout << endl << endl;
 	}

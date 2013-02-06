@@ -134,6 +134,43 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
                   int coordDirec=0, bool sparsetree=false);
 
+// ---- Non-Periodic + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  IndexSet<Index2D>& diff_v,
+                  int coordDirec=0, bool sparsetree=false);
+
+// ---- Periodic + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  IndexSet<Index2D>& diff_v,
+                  int coordDirec=0, bool sparsetree=false);
+
+// ---- Periodic-NonPeriodic + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  IndexSet<Index2D>& diff_v,
+                  int coordDirec=0, bool sparsetree=false);
+
+// ---- NonPeriodic-Periodic + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  IndexSet<Index2D>& diff_v,
+                  int coordDirec=0, bool sparsetree=false);
+
+// ----------------- completeMultiTree 3D ------------------- //
 
 // For L2-orth. multiwavelets only!!
 /*

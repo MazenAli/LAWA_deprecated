@@ -114,6 +114,94 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D
     return;
 }
 
+/*
+template <typename T, typename Basis>
+void
+extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index2D>  &v,
+                Coefficients<Lexicographical,T,Index2D>  &C_v, IndexSet<Index2D>& Cdiff_v,
+                const char* residualType, bool IsMW=false, bool sparsetree=false)
+{
+    typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff2d_it;
+    typedef IndexSet<Index1D>::const_iterator                                const_set1d_it;
+    typedef IndexSet<Index2D>::iterator                                      set2d_it;
+
+
+#ifdef TRONE
+    typedef std::tr1::unordered_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
+#elif BOOST
+    typedef boost::unordered_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
+#else
+    typedef __gnu_cxx::hash_map<Index1D, IndexSet<Index1D>, index_hashfunction<Index1D>, index_eqfunction<Index1D> >
+            IndexConeContainer;
+#endif
+
+    IndexConeContainer indexConeContainer_x(v.size());
+    IndexConeContainer indexConeContainer_y(v.size());
+
+    for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
+        C_v[(*it).first] = (T)0.;
+        IndexSet<Index1D > C_index1, C_index2;
+
+        //C_index1 = C((*it).first.index1, (T)1., basis.first);
+        //C_index2 = C((*it).first.index2, (T)1., basis.second);
+
+        IndexConeContainer::const_iterator indexConeContainer_ptr;
+        indexConeContainer_ptr = indexConeContainer_x.find((*it).first.index1);
+        if (indexConeContainer_ptr!=indexConeContainer_x.end()) {
+            C_index1 = (*indexConeContainer_ptr).second;
+        }
+        else {
+            C_index1 = C((*it).first.index1, (T)1., basis.first);
+            indexConeContainer_x[(*it).first.index1] = C_index1;
+        }
+        indexConeContainer_ptr = indexConeContainer_y.find((*it).first.index2);
+        if (indexConeContainer_ptr!=indexConeContainer_y.end()) {
+            C_index2 = (*indexConeContainer_ptr).second;
+        }
+        else {
+            C_index2 = C((*it).first.index2, (T)1., basis.second);
+            indexConeContainer_y[(*it).first.index2] = C_index2;
+        }
+
+        if (strcmp(residualType,"standard")==0) {
+            for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+                Index2D newindex((*it_C_index1), (*it).first.index2);
+                if (C_v.find(newindex)==C_v.end()) {
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,1,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
+                }
+            }
+            for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+                Index2D newindex((*it).first.index1, (*it_C_index2));
+                if (C_v.find(newindex)==C_v.end()) {
+                    if (IsMW) completeMultiTree(basis,newindex,C_v,2,sparsetree);
+                    else      completeMultiTree(basis,newindex,C_v,0,sparsetree);
+                }
+            }
+        }
+        else if (strcmp(residualType,"large1")==0) {
+            for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {
+                for (const_set1d_it it_C_index2=C_index2.begin(); it_C_index2!=C_index2.end(); ++it_C_index2) {
+                    Index2D newindex((*it_C_index1), (*it_C_index2));
+                    if (C_v.find(newindex)==C_v.end()) {
+                        completeMultiTree(basis,newindex,C_v,0,sparsetree);
+                    }
+                }
+            }
+        }
+        else {
+            std::cerr << "extendMultiTree: unknown residual type " << residualType << std::endl;
+            exit(1);
+        }
+    }
+
+
+    return;
+}
+*/
+
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
@@ -2251,6 +2339,1209 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
     }
     return;
 }
+
+// Non-Periodic Version + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  IndexSet<Index2D>& diff_v, int coordDirec, bool sparsetree)
+{
+    int j0_x = basis.first.j0;
+    int j0_y = basis.second.j0;
+
+    if (v.find(index2d)!=v.end()){
+    	return;
+    }
+    else{
+    	diff_v.insert(index2d);
+    	v[index2d] = 0.;
+    }
+
+
+    Index1D index_x = index2d.index1;
+    Index1D index_y = index2d.index2;
+
+    int  j_x = index_x.j, j_y = index_y.j;
+    long k_x = index_x.k, k_y = index_y.k;
+
+    if (coordDirec==0 || coordDirec==1) {
+        Support<typename Basis::T> supp_x = basis.first.generator(index_x.xtype).support(j_x,k_x);
+        //check x-direction
+        int new_j_x = 0;
+        long new_k_x_first = 0, new_k_x_last = 0;
+        bool checkPredecessors=true;
+        XType new_type_x = XWavelet;
+        if (j_x==j0_x && index_x.xtype==XWavelet) {
+            basis.first.getScalingNeighborsForWavelet(j_x,k_x,basis.first,new_j_x,new_k_x_first,new_k_x_last);
+            new_type_x = XBSpline;
+            assert(new_j_x==j_x);
+        }
+        else if (j_x>j0_x && index_x.xtype==XWavelet) {
+            basis.first.getLowerWaveletNeighborsForWavelet(j_x,k_x,basis.first,new_j_x,new_k_x_first,new_k_x_last);
+            new_type_x = XWavelet;
+            assert(new_j_x==j_x-1);
+        }
+        else checkPredecessors = false;    // Index corresponds to a scaling function -> no predecessor
+
+        if (checkPredecessors) {
+            if (!sparsetree) {
+                for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+                    Support<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+                    if (overlap(supp_x,new_supp_x)>0) {
+                        Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+                        if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+                    }
+                }
+            }
+            else {
+                bool foundPredecessor = false;
+                bool foundCoveredSupp = false;
+                long covering_k = new_k_x_last;
+                for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+                    Support<typename Basis::T> covered_supp = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+                    if (covered_supp.l1<=supp_x.l1 && covered_supp.l2>=supp_x.l2) {
+                        Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+                        if (v.find(new_index2d)!=v.end()) {
+                            foundPredecessor = true;
+                            break;
+                        }
+                    	foundCoveredSupp = true;
+                    	covering_k = std::min(covering_k, new_k_x);
+                    }
+                }
+                if (!foundPredecessor) {
+                	if(foundCoveredSupp){
+                        completeMultiTree(basis,Index2D(Index1D(new_j_x,covering_k,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+                	}
+                	else{
+                        for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+                            Support<typename Basis::T> new_supp = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+                            if (new_supp.l1 > supp_x.l1) {
+                                completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x-1,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+                                completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+                                while(new_supp.l2 < supp_x.l2){
+                                	new_k_x++;
+                                	new_supp = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+                                	std::cout << "add " << Index2D(Index1D(new_j_x,new_k_x-1,new_type_x),index_y) << std::endl;
+                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+                                }
+                                break;
+                            }
+                        }
+                	}
+                }
+            }
+        }
+    }
+    if (coordDirec==0 || coordDirec==2) {
+        Support<typename Basis::T> supp_y = basis.second.generator(index_y.xtype).support(j_y,k_y);
+        //check y-direction
+        bool checkPredecessors=true;
+        int new_j_y = 0;
+        long new_k_y_first = 0, new_k_y_last = 0;
+        XType new_type_y = XWavelet;
+        if (j_y==j0_y && index_y.xtype==XWavelet) {
+            basis.second.getScalingNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
+            new_type_y = XBSpline;
+            assert(new_j_y==j_y);
+        }
+        else if (j_y>j0_y && index_y.xtype==XWavelet) {
+            basis.second.getLowerWaveletNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
+            new_type_y = XWavelet;
+            assert(new_j_y==j_y-1);
+        }
+        else {
+            checkPredecessors=false; // no "return" here!!! we also need to check the next "if"-clause;
+        }
+
+        if (checkPredecessors) {
+            if (!sparsetree) {
+                for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+                    Support<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+                    if (overlap(supp_y,new_supp_y)>0) {
+                        Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+                        if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+                    }
+                }
+            }
+            else {
+                bool foundPredecessor = false;
+                bool foundCoveredSupp = false;
+                long covering_k = new_k_y_last;
+                for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+                    Support<typename Basis::T> covered_supp = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+                    if (covered_supp.l1<=supp_y.l1 && covered_supp.l2>=supp_y.l2) {
+                        Index2D new_index2d(index_x, Index1D(new_j_y,new_k_y,new_type_y));
+                        if (v.find(new_index2d)!=v.end()) {
+                            foundPredecessor = true;
+                            break;
+                        }
+                    	foundCoveredSupp = true;
+                    	covering_k = std::min(covering_k, new_k_y);
+                    }
+                }
+                if (!foundPredecessor) {
+                	if(foundCoveredSupp){
+                        completeMultiTree(basis,Index2D(index_x, Index1D(new_j_y,covering_k,new_type_y)),v,diff_v,coordDirec,sparsetree);
+                	}
+                	else{
+                        for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+                            Support<typename Basis::T> new_supp = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+                            if (new_supp.l1 > supp_y.l1) {
+                                completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y-1,new_type_y)),v,diff_v,coordDirec,sparsetree);
+                                completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)),v,diff_v,coordDirec,sparsetree);
+                                while(new_supp.l2 < supp_y.l2){
+                                	new_k_y++;
+                                	new_supp = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+                                    completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)),v,diff_v,coordDirec,sparsetree);
+                                }
+                                break;
+                            }
+                        }
+                	}
+                }
+            }
+        }
+    }
+    if (coordDirec != 0 && coordDirec != 1 && coordDirec != 2) {
+        std::cerr << "completeMultiTree: non-admissible coordinate direction " << coordDirec
+                  << std::endl;
+    }
+    return;
+}
+
+// Periodic Version + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  IndexSet<Index2D>& diff_v, int coordDirec, bool sparsetree)
+{
+    int j0_x = basis.first.j0;
+    int j0_y = basis.second.j0;
+
+    if (v.find(index2d)!=v.end()){
+    	return;
+    }
+    else{
+    	diff_v.insert(index2d);
+    	v[index2d] = 0.;
+    }
+
+
+    Index1D index_x = index2d.index1;
+    Index1D index_y = index2d.index2;
+
+    int  j_x = index_x.j, j_y = index_y.j;
+    long k_x = index_x.k, k_y = index_y.k;
+
+	if (coordDirec==0 || coordDirec==1) {
+		PeriodicSupport<typename Basis::T> supp_x = basis.first.generator(index_x.xtype).support(j_x,k_x);
+		//check x-direction
+		int new_j_x = 0;
+		long new_k_x_first = 0, new_k_x_last = 0;
+		bool checkPredecessors=true;
+		XType new_type_x = XWavelet;
+		if (j_x==j0_x && index_x.xtype==XWavelet) {
+			basis.first.getScalingNeighborsForWavelet(j_x,k_x,basis.first,new_j_x,new_k_x_first,new_k_x_last);
+			new_type_x = XBSpline;
+			assert(new_j_x==j_x);
+		}
+		else if (j_x>j0_x && index_x.xtype==XWavelet) {
+			basis.first.getLowerWaveletNeighborsForWavelet(j_x,k_x,basis.first,new_j_x,new_k_x_first,new_k_x_last);
+			new_type_x = XWavelet;
+			assert(new_j_x==j_x-1);
+		}
+		else checkPredecessors = false;    // Index corresponds to a scaling function -> no predecessor
+
+		if (checkPredecessors) {
+			if (!sparsetree) {
+				if(new_k_x_first < new_k_x_last){
+					for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if (overlap(supp_x,new_supp_x)>0) {
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+				}
+				else{
+					long lastIndex = 0;
+					long firstIndex = 0;
+					if(new_type_x == XBSpline){
+						firstIndex = basis.first.mra.rangeI(new_j_x).firstIndex();
+						lastIndex = basis.first.mra.rangeI(new_j_x).lastIndex();
+					}
+					else{
+						firstIndex = basis.first.rangeJ(new_j_x).firstIndex();
+						lastIndex = basis.first.rangeJ(new_j_x).lastIndex();
+					}
+					for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if (overlap(supp_x,new_supp_x)>0) {
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+					for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if (overlap(supp_x,new_supp_x)>0) {
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+				}
+			}
+			else {
+				bool foundPredecessor = false;
+				bool foundCoveredSupp = false;
+				long covering_k = new_k_x_last;
+				if(new_k_x_first < new_k_x_last){
+					for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if(minimal_overlap(covered_supp_x, supp_x) >= supp_x.length()){
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)!=v.end()) {
+								foundPredecessor = true;
+								break;
+							}
+	                        foundCoveredSupp = true;
+	                        covering_k = std::min(covering_k, new_k_x);
+						}
+					}
+				}
+				else{
+					long lastIndex = 0;
+					long firstIndex = 0;
+					if(new_type_x == XBSpline){
+						firstIndex = basis.first.mra.rangeI(new_j_x).firstIndex();
+						lastIndex = basis.first.mra.rangeI(new_j_x).lastIndex();
+					}
+					else{
+						firstIndex = basis.first.rangeJ(new_j_x).firstIndex();
+						lastIndex = basis.first.rangeJ(new_j_x).lastIndex();
+					}
+					for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if(minimal_overlap(covered_supp_x, supp_x) >= supp_x.length()){
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)!=v.end()) {
+								foundPredecessor = true;
+								break;
+							}
+	                        foundCoveredSupp = true;
+	                        covering_k = std::min(covering_k, new_k_x);
+						}
+					}
+					if(!foundPredecessor){
+	                	if(!foundCoveredSupp){ covering_k = lastIndex;}
+						for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
+							PeriodicSupport<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+							if(minimal_overlap(covered_supp_x, supp_x) >= supp_x.length()){
+								Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+								if (v.find(new_index2d)!=v.end()) {
+									foundPredecessor = true;
+									break;
+								}
+		                        foundCoveredSupp = true;
+		                        covering_k = std::min(covering_k, new_k_x);
+							}
+						}
+					}
+				}
+				if (!foundPredecessor) {
+					if(foundCoveredSupp){
+                        completeMultiTree(basis,Index2D(Index1D(new_j_x,covering_k,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+					}
+					else{ // we have to find more than 1 bf covering the complete support
+						long lastIndex = 0;
+						long firstIndex = 0;
+						if(new_type_x == XBSpline){
+							firstIndex = basis.first.mra.rangeI(new_j_x).firstIndex();
+							lastIndex = basis.first.mra.rangeI(new_j_x).lastIndex();
+						}
+						else{
+							firstIndex = basis.first.rangeJ(new_j_x).firstIndex();
+							lastIndex = basis.first.rangeJ(new_j_x).lastIndex();
+						}
+						if(new_k_x_first < new_k_x_last){
+							for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+								// left boundary of periodic support: max(l1, li2)
+								// right boundary of periodic support: min(l2, max(li1,0))
+			                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+		                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+		                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+										new_k_x++;
+										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+									}
+									break;
+			                    }
+							}
+						}
+						else{
+							bool is_break = false;
+							for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
+								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+								// left boundary of periodic support: max(l1, li2)
+								// right boundary of periodic support: min(l2, max(li1,0))
+			                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+		                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+		                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+										new_k_x++;
+			                          	if(new_k_x > lastIndex){
+											is_break = false;
+											break;
+										}
+										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v,diff_v, coordDirec, sparsetree);
+									}
+									break;
+			                    }
+							}
+							if(is_break==false){
+								for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
+									PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+									// left boundary of periodic support: max(l1, li2)
+									// right boundary of periodic support: min(l2, max(li1,0))
+				                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+			                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+			                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+											new_k_x++;
+											new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+				                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+										}
+										break;
+				                    }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+    }
+    if (coordDirec==0 || coordDirec==2) {
+		PeriodicSupport<typename Basis::T> supp_y = basis.second.generator(index_y.xtype).support(j_y,k_y);
+		//check y-direction
+		bool checkPredecessors=true;
+		int new_j_y = 0;
+		long new_k_y_first = 0, new_k_y_last = 0;
+		XType new_type_y = XWavelet;
+		if (j_y==j0_y && index_y.xtype==XWavelet) {
+			basis.second.getScalingNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
+			new_type_y = XBSpline;
+			assert(new_j_y==j_y);
+		}
+		else if (j_y>j0_y && index_y.xtype==XWavelet) {
+			basis.second.getLowerWaveletNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
+			new_type_y = XWavelet;
+			assert(new_j_y==j_y-1);
+		}
+		else {
+			checkPredecessors=false; // no "return" here!!! we also need to check the next "if"-clause;
+		}
+
+		if (checkPredecessors) {
+			if (!sparsetree) {
+				for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+					PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+					if (overlap(supp_y,new_supp_y)>0) {
+						Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+						if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+					}
+				}
+
+				if(new_k_y_first < new_k_y_last){
+					for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if (overlap(supp_y,new_supp_y)>0) {
+							Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+				}
+				else{
+					long lastIndex = 0;
+					long firstIndex = 0;
+					if(new_type_y == XBSpline){
+						firstIndex = basis.second.mra.rangeI(new_j_y).firstIndex();
+						lastIndex = basis.second.mra.rangeI(new_j_y).lastIndex();
+					}
+					else{
+						firstIndex = basis.second.rangeJ(new_j_y).firstIndex();
+						lastIndex = basis.second.rangeJ(new_j_y).lastIndex();
+					}
+					for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if (overlap(supp_y,new_supp_y)>0) {
+							Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+					for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if (overlap(supp_y,new_supp_y)>0) {
+							Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+				}
+			}
+			else {
+				bool foundPredecessor = false;
+				bool foundCoveredSupp = false;
+				long covering_k = new_k_y_last;
+				if(new_k_y_first < new_k_y_last){
+					for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if(minimal_overlap(covered_supp_y, supp_y) >= supp_y.length()){
+							Index2D new_index2d(Index1D(new_j_y,new_k_y,new_type_y),index_y);
+							if (v.find(new_index2d)!=v.end()) {
+								foundPredecessor = true;
+								break;
+							}
+							foundCoveredSupp = true;
+							covering_k = std::min(covering_k, new_k_y);
+						}
+					}
+				}
+				else{
+					long lastIndex = 0;
+					long firstIndex = 0;
+					if(new_type_y == XBSpline){
+						firstIndex = basis.second.mra.rangeI(new_j_y).firstIndex();
+						lastIndex = basis.second.mra.rangeI(new_j_y).lastIndex();
+					}
+					else{
+						firstIndex = basis.second.rangeJ(new_j_y).firstIndex();
+						lastIndex = basis.second.rangeJ(new_j_y).lastIndex();
+					}
+					for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if(minimal_overlap(covered_supp_y, supp_y) >= supp_y.length()){
+							Index2D new_index2d(Index1D(new_j_y,new_k_y,new_type_y),index_y);
+							if (v.find(new_index2d)!=v.end()) {
+								foundPredecessor = true;
+								break;
+							}
+							foundCoveredSupp = true;
+							covering_k = std::min(covering_k, new_k_y);
+						}
+					}
+					if(!foundPredecessor){
+	                	if(!foundCoveredSupp){ covering_k = lastIndex;}
+						for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+							PeriodicSupport<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+							if(minimal_overlap(covered_supp_y, supp_y) >= supp_y.length()){
+								Index2D new_index2d(Index1D(new_j_y,new_k_y,new_type_y),index_y);
+								if (v.find(new_index2d)!=v.end()) {
+									foundPredecessor = true;
+									break;
+								}
+								foundCoveredSupp = true;
+								covering_k = std::min(covering_k, new_k_y);
+							}
+						}
+					}
+				}
+				if (!foundPredecessor) {
+					if(foundCoveredSupp){
+						completeMultiTree(basis,Index2D(index_x, Index1D(new_j_y,covering_k,new_type_y)),v,diff_v,coordDirec,sparsetree);
+					}
+					else{ // we have to find more than 1 bf covering the complete support
+						long lastIndex = 0;
+						long firstIndex = 0;
+						if(new_type_y == XBSpline){
+							firstIndex = basis.second.mra.rangeI(new_j_y).firstIndex();
+							lastIndex = basis.second.mra.rangeI(new_j_y).lastIndex();
+						}
+						else{
+							firstIndex = basis.second.rangeJ(new_j_y).firstIndex();
+							lastIndex = basis.second.rangeJ(new_j_y).lastIndex();
+						}
+						if(new_k_y_first < new_k_y_last){
+							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+								// left boundary of periodic support: max(l1, li2)
+								// right boundary of periodic support: min(l2, max(li1,0))
+								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v,diff_v, coordDirec, sparsetree);
+									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+										new_k_y++;
+										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									}
+									break;
+								}
+							}
+						}
+						else{
+							bool is_break = false;
+							for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+								// left boundary of periodic support: max(l1, li2)
+								// right boundary of periodic support: min(l2, max(li1,0))
+								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+										new_k_y++;
+										if(new_k_y > lastIndex){
+											is_break = false;
+											break;
+										}
+										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									}
+									break;
+								}
+							}
+							if(is_break==false){
+								for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+									PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+									// left boundary of periodic support: max(l1, li2)
+									// right boundary of periodic support: min(l2, max(li1,0))
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+											new_k_y++;
+											new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+    }
+    if (coordDirec != 0 && coordDirec != 1 && coordDirec != 2) {
+        std::cerr << "completeMultiTree: non-admissible coordinate direction " << coordDirec
+                  << std::endl;
+    }
+    return;
+}
+
+// Periodic-NonPeriodic Version + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  IndexSet<Index2D>& diff_v, int coordDirec, bool sparsetree)
+{
+    int j0_x = basis.first.j0;
+    int j0_y = basis.second.j0;
+
+    if (v.find(index2d)!=v.end()){
+    	return;
+    }
+    else{
+    	diff_v.insert(index2d);
+    	v[index2d] = 0.;
+    }
+
+
+    Index1D index_x = index2d.index1;
+    Index1D index_y = index2d.index2;
+
+    int  j_x = index_x.j, j_y = index_y.j;
+    long k_x = index_x.k, k_y = index_y.k;
+
+    if (coordDirec==0 || coordDirec==1) {
+		PeriodicSupport<typename Basis::T> supp_x = basis.first.generator(index_x.xtype).support(j_x,k_x);
+		//check x-direction
+		int new_j_x = 0;
+		long new_k_x_first = 0, new_k_x_last = 0;
+		bool checkPredecessors=true;
+		XType new_type_x = XWavelet;
+		if (j_x==j0_x && index_x.xtype==XWavelet) {
+			basis.first.getScalingNeighborsForWavelet(j_x,k_x,basis.first,new_j_x,new_k_x_first,new_k_x_last);
+			new_type_x = XBSpline;
+			assert(new_j_x==j_x);
+		}
+		else if (j_x>j0_x && index_x.xtype==XWavelet) {
+			basis.first.getLowerWaveletNeighborsForWavelet(j_x,k_x,basis.first,new_j_x,new_k_x_first,new_k_x_last);
+			new_type_x = XWavelet;
+			assert(new_j_x==j_x-1);
+		}
+		else checkPredecessors = false;    // Index corresponds to a scaling function -> no predecessor
+
+		if (checkPredecessors) {
+			if (!sparsetree) {
+				if(new_k_x_first < new_k_x_last){
+					for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if (overlap(supp_x,new_supp_x)>0) {
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+				}
+				else{
+					long lastIndex = 0;
+					long firstIndex = 0;
+					if(new_type_x == XBSpline){
+						firstIndex = basis.first.mra.rangeI(new_j_x).firstIndex();
+						lastIndex = basis.first.mra.rangeI(new_j_x).lastIndex();
+					}
+					else{
+						firstIndex = basis.first.rangeJ(new_j_x).firstIndex();
+						lastIndex = basis.first.rangeJ(new_j_x).lastIndex();
+					}
+					for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if (overlap(supp_x,new_supp_x)>0) {
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+					for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if (overlap(supp_x,new_supp_x)>0) {
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+				}
+			}
+			else {
+				bool foundPredecessor = false;
+				bool foundCoveredSupp = false;
+				long covering_k = new_k_x_last;
+				if(new_k_x_first < new_k_x_last){
+					for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if(minimal_overlap(covered_supp_x, supp_x) >= supp_x.length()){
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)!=v.end()) {
+								foundPredecessor = true;
+								break;
+							}
+							foundCoveredSupp = true;
+							covering_k = std::min(covering_k, new_k_x);
+						}
+					}
+				}
+				else{
+					long lastIndex = 0;
+					long firstIndex = 0;
+					if(new_type_x == XBSpline){
+						firstIndex = basis.first.mra.rangeI(new_j_x).firstIndex();
+						lastIndex = basis.first.mra.rangeI(new_j_x).lastIndex();
+					}
+					else{
+						firstIndex = basis.first.rangeJ(new_j_x).firstIndex();
+						lastIndex = basis.first.rangeJ(new_j_x).lastIndex();
+					}
+					for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
+						PeriodicSupport<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+						if(minimal_overlap(covered_supp_x, supp_x) >= supp_x.length()){
+							Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+							if (v.find(new_index2d)!=v.end()) {
+								foundPredecessor = true;
+								break;
+							}
+							foundCoveredSupp = true;
+							covering_k = std::min(covering_k, new_k_x);
+						}
+					}
+					if(!foundPredecessor){
+						if(!foundCoveredSupp){covering_k = lastIndex;}
+						for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
+							PeriodicSupport<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+							if(minimal_overlap(covered_supp_x, supp_x) >= supp_x.length()){
+								Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+								if (v.find(new_index2d)!=v.end()) {
+									foundPredecessor = true;
+									break;
+								}
+								foundCoveredSupp = true;
+								covering_k = std::min(covering_k, new_k_x);
+							}
+						}
+					}
+				}
+				if (!foundPredecessor) {
+					if(foundCoveredSupp){
+						completeMultiTree(basis,Index2D(Index1D(new_j_x,covering_k,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+					}
+					else{ // we have to find more than 1 bf covering the complete support
+						long lastIndex = 0;
+						long firstIndex = 0;
+						if(new_type_x == XBSpline){
+							firstIndex = basis.first.mra.rangeI(new_j_x).firstIndex();
+							lastIndex = basis.first.mra.rangeI(new_j_x).lastIndex();
+						}
+						else{
+							firstIndex = basis.first.rangeJ(new_j_x).firstIndex();
+							lastIndex = basis.first.rangeJ(new_j_x).lastIndex();
+						}
+						if(new_k_x_first < new_k_x_last){
+							for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+								// left boundary of periodic support: max(l1, li2)
+								// right boundary of periodic support: min(l2, max(li1,0))
+								if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+									long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v,diff_v, coordDirec, sparsetree);
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v,diff_v, coordDirec, sparsetree);
+									while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+										new_k_x++;
+										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v,diff_v, coordDirec, sparsetree);
+									}
+									break;
+								}
+							}
+						}
+						else{
+							bool is_break = false;
+							for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
+								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+								// left boundary of periodic support: max(l1, li2)
+								// right boundary of periodic support: min(l2, max(li1,0))
+								if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+									long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+									while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+										new_k_x++;
+										if(new_k_x > lastIndex){
+											is_break = false;
+											break;
+										}
+										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+									}
+									break;
+								}
+							}
+							if(is_break==false){
+								for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
+									PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+									// left boundary of periodic support: max(l1, li2)
+									// right boundary of periodic support: min(l2, max(li1,0))
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+										while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+											new_k_x++;
+											new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+    if (coordDirec==0 || coordDirec==2) {
+		Support<typename Basis::T> supp_y = basis.second.generator(index_y.xtype).support(j_y,k_y);
+		//check y-direction
+		bool checkPredecessors=true;
+		int new_j_y = 0;
+		long new_k_y_first = 0, new_k_y_last = 0;
+		XType new_type_y = XWavelet;
+		if (j_y==j0_y && index_y.xtype==XWavelet) {
+			basis.second.getScalingNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
+			new_type_y = XBSpline;
+			assert(new_j_y==j_y);
+		}
+		else if (j_y>j0_y && index_y.xtype==XWavelet) {
+			basis.second.getLowerWaveletNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
+			new_type_y = XWavelet;
+			assert(new_j_y==j_y-1);
+		}
+		else {
+			checkPredecessors=false; // no "return" here!!! we also need to check the next "if"-clause;
+		}
+
+		if (checkPredecessors) {
+			if (!sparsetree) {
+				for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+					Support<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+					if (overlap(supp_y,new_supp_y)>0) {
+						Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+						if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+					}
+				}
+			}
+			else {
+				bool foundPredecessor = false;
+				bool foundCoveredSupp = false;
+				long covering_k = new_k_y_last;
+				for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+					Support<typename Basis::T> covered_supp = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+					if (covered_supp.l1<=supp_y.l1 && covered_supp.l2>=supp_y.l2) {
+						Index2D new_index2d(index_x, Index1D(new_j_y,new_k_y,new_type_y));
+						if (v.find(new_index2d)!=v.end()) {
+							foundPredecessor = true;
+							break;
+						}
+						foundCoveredSupp = true;
+						covering_k = std::min(covering_k, new_k_y);
+					}
+				}
+				if (!foundPredecessor) {
+					if(foundCoveredSupp){
+						completeMultiTree(basis,Index2D(index_x, Index1D(new_j_y,covering_k,new_type_y)),v,diff_v,coordDirec,sparsetree);
+					}
+					else{
+						for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+							Support<typename Basis::T> new_supp = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+							if (new_supp.l1 > supp_y.l1) {
+								completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y-1,new_type_y)),v,diff_v,coordDirec,sparsetree);
+								completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)),v,diff_v,coordDirec,sparsetree);
+								while(new_supp.l2 < supp_y.l2){
+									new_k_y++;
+									new_supp = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)),v,diff_v,coordDirec,sparsetree);
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+    if (coordDirec != 0 && coordDirec != 1 && coordDirec != 2) {
+        std::cerr << "completeMultiTree: non-admissible coordinate direction " << coordDirec
+                  << std::endl;
+    }
+    return;
+}
+
+// NonPeriodic-Periodic Version + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index2D &index2d,
+                  Coefficients<Lexicographical,T,Index2D>  &v,
+                  IndexSet<Index2D>& diff_v, int coordDirec, bool sparsetree)
+{
+    int j0_x = basis.first.j0;
+    int j0_y = basis.second.j0;
+
+    if (v.find(index2d)!=v.end()){
+    	return;
+    }
+    else{
+    	diff_v.insert(index2d);
+    	v[index2d] = 0.;
+    }
+
+
+    Index1D index_x = index2d.index1;
+    Index1D index_y = index2d.index2;
+
+    int  j_x = index_x.j, j_y = index_y.j;
+    long k_x = index_x.k, k_y = index_y.k;
+
+    if (coordDirec==0 || coordDirec==1) {
+		Support<typename Basis::T> supp_x = basis.first.generator(index_x.xtype).support(j_x,k_x);
+		//check x-direction
+		int new_j_x = 0;
+		long new_k_x_first = 0, new_k_x_last = 0;
+		bool checkPredecessors=true;
+		XType new_type_x = XWavelet;
+		if (j_x==j0_x && index_x.xtype==XWavelet) {
+			basis.first.getScalingNeighborsForWavelet(j_x,k_x,basis.first,new_j_x,new_k_x_first,new_k_x_last);
+			new_type_x = XBSpline;
+			assert(new_j_x==j_x);
+		}
+		else if (j_x>j0_x && index_x.xtype==XWavelet) {
+			basis.first.getLowerWaveletNeighborsForWavelet(j_x,k_x,basis.first,new_j_x,new_k_x_first,new_k_x_last);
+			new_type_x = XWavelet;
+			assert(new_j_x==j_x-1);
+		}
+		else checkPredecessors = false;    // Index corresponds to a scaling function -> no predecessor
+
+		if (checkPredecessors) {
+			if (!sparsetree) {
+				for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+					Support<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+					if (overlap(supp_x,new_supp_x)>0) {
+						Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+						if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+					}
+				}
+			}
+			else {
+				bool foundPredecessor = false;
+				bool foundCoveredSupp = false;
+				long covering_k = new_k_x_last;
+				for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+					Support<typename Basis::T> covered_supp = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+					if (covered_supp.l1<=supp_x.l1 && covered_supp.l2>=supp_x.l2) {
+						Index2D new_index2d(Index1D(new_j_x,new_k_x,new_type_x),index_y);
+						if (v.find(new_index2d)!=v.end()) {
+							foundPredecessor = true;
+							break;
+						}
+						foundCoveredSupp = true;
+						covering_k = std::min(covering_k, new_k_x);
+					}
+				}
+				if (!foundPredecessor) {
+					if(foundCoveredSupp){
+						completeMultiTree(basis,Index2D(Index1D(new_j_x,covering_k,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+					}
+					else{
+						for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
+							Support<typename Basis::T> new_supp = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+							if (new_supp.l1 > supp_x.l1) {
+								completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x-1,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+								completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+								while(new_supp.l2 < supp_x.l2){
+									new_k_x++;
+									new_supp = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+									std::cout << "add " << Index2D(Index1D(new_j_x,new_k_x-1,new_type_x),index_y) << std::endl;
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+    if (coordDirec==0 || coordDirec==2) {
+		PeriodicSupport<typename Basis::T> supp_y = basis.second.generator(index_y.xtype).support(j_y,k_y);
+		//check y-direction
+		bool checkPredecessors=true;
+		int new_j_y = 0;
+		long new_k_y_first = 0, new_k_y_last = 0;
+		XType new_type_y = XWavelet;
+		if (j_y==j0_y && index_y.xtype==XWavelet) {
+			basis.second.getScalingNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
+			new_type_y = XBSpline;
+			assert(new_j_y==j_y);
+		}
+		else if (j_y>j0_y && index_y.xtype==XWavelet) {
+			basis.second.getLowerWaveletNeighborsForWavelet(j_y,k_y,basis.second,new_j_y,new_k_y_first,new_k_y_last);
+			new_type_y = XWavelet;
+			assert(new_j_y==j_y-1);
+		}
+		else {
+			checkPredecessors=false; // no "return" here!!! we also need to check the next "if"-clause;
+		}
+
+		if (checkPredecessors) {
+			if (!sparsetree) {
+				for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+					PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+					if (overlap(supp_y,new_supp_y)>0) {
+						Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+						if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+					}
+				}
+
+				if(new_k_y_first < new_k_y_last){
+					for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if (overlap(supp_y,new_supp_y)>0) {
+							Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+				}
+				else{
+					long lastIndex = 0;
+					long firstIndex = 0;
+					if(new_type_y == XBSpline){
+						firstIndex = basis.second.mra.rangeI(new_j_y).firstIndex();
+						lastIndex = basis.second.mra.rangeI(new_j_y).lastIndex();
+					}
+					else{
+						firstIndex = basis.second.rangeJ(new_j_y).firstIndex();
+						lastIndex = basis.second.rangeJ(new_j_y).lastIndex();
+					}
+					for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if (overlap(supp_y,new_supp_y)>0) {
+							Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+					for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if (overlap(supp_y,new_supp_y)>0) {
+							Index2D new_index2d(index_x,Index1D(new_j_y,new_k_y,new_type_y));
+							if (v.find(new_index2d)==v.end()) completeMultiTree(basis,new_index2d,v,diff_v,coordDirec);
+						}
+					}
+				}
+			}
+			else {
+				bool foundPredecessor = false;
+				bool foundCoveredSupp = false;
+				long covering_k = new_k_y_last;
+				if(new_k_y_first < new_k_y_last){
+					for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if(minimal_overlap(covered_supp_y, supp_y) >= supp_y.length()){
+							Index2D new_index2d(Index1D(new_j_y,new_k_y,new_type_y),index_y);
+							if (v.find(new_index2d)!=v.end()) {
+								foundPredecessor = true;
+								break;
+							}
+							foundCoveredSupp = true;
+							covering_k = std::min(covering_k, new_k_y);
+						}
+					}
+				}
+				else{
+					long lastIndex = 0;
+					long firstIndex = 0;
+					if(new_type_y == XBSpline){
+						firstIndex = basis.second.mra.rangeI(new_j_y).firstIndex();
+						lastIndex = basis.second.mra.rangeI(new_j_y).lastIndex();
+					}
+					else{
+						firstIndex = basis.second.rangeJ(new_j_y).firstIndex();
+						lastIndex = basis.second.rangeJ(new_j_y).lastIndex();
+					}
+					for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+						PeriodicSupport<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+						if(minimal_overlap(covered_supp_y, supp_y) >= supp_y.length()){
+							Index2D new_index2d(Index1D(new_j_y,new_k_y,new_type_y),index_y);
+							if (v.find(new_index2d)!=v.end()) {
+								foundPredecessor = true;
+								break;
+							}
+							foundCoveredSupp = true;
+							covering_k = std::min(covering_k, new_k_y);
+						}
+					}
+					if(!foundPredecessor){
+						if(!foundCoveredSupp){covering_k = lastIndex;}
+						for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+							PeriodicSupport<typename Basis::T> covered_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+							if(minimal_overlap(covered_supp_y, supp_y) >= supp_y.length()){
+								Index2D new_index2d(Index1D(new_j_y,new_k_y,new_type_y),index_y);
+								if (v.find(new_index2d)!=v.end()) {
+									foundPredecessor = true;
+									break;
+								}
+								foundCoveredSupp = true;
+								covering_k = std::min(covering_k, new_k_y);
+							}
+						}
+					}
+				}
+				if (!foundPredecessor) {
+					if(foundCoveredSupp){
+						completeMultiTree(basis,Index2D(index_x, Index1D(new_j_y,covering_k,new_type_y)),v,diff_v,coordDirec,sparsetree);
+					}
+					else{ // we have to find more than 1 bf covering the complete support
+						long lastIndex = 0;
+						long firstIndex = 0;
+						if(new_type_y == XBSpline){
+							firstIndex = basis.second.mra.rangeI(new_j_y).firstIndex();
+							lastIndex = basis.second.mra.rangeI(new_j_y).lastIndex();
+						}
+						else{
+							firstIndex = basis.second.rangeJ(new_j_y).firstIndex();
+							lastIndex = basis.second.rangeJ(new_j_y).lastIndex();
+						}
+						if(new_k_y_first < new_k_y_last){
+							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
+								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+								// left boundary of periodic support: max(l1, li2)
+								// right boundary of periodic support: min(l2, max(li1,0))
+								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+										new_k_y++;
+										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									}
+									break;
+								}
+							}
+						}
+						else{
+							bool is_break = false;
+							for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+								// left boundary of periodic support: max(l1, li2)
+								// right boundary of periodic support: min(l2, max(li1,0))
+								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+										new_k_y++;
+										if(new_k_y > lastIndex){
+											is_break = false;
+											break;
+										}
+										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									}
+									break;
+								}
+							}
+							if(is_break==false){
+								for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+									PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+									// left boundary of periodic support: max(l1, li2)
+									// right boundary of periodic support: min(l2, max(li1,0))
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+											new_k_y++;
+											new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
+											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+    if (coordDirec != 0 && coordDirec != 1 && coordDirec != 2) {
+        std::cerr << "completeMultiTree: non-admissible coordinate direction " << coordDirec
+                  << std::endl;
+    }
+    return;
+}
+
 
 
 /*
