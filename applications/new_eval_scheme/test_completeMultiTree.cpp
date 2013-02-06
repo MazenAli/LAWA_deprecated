@@ -65,7 +65,7 @@ int main (int argc, char *argv[]) {
 
     cout << "#####################################################################" << endl;
     cout << "########                   1D                             ###########" << endl;
-    cout << "#####################################################################" << endl;
+    cout << "#####################################################################" << endl << endl;
 
 	for(int j = 0; j <= J-j0; ++j){
 		IndexSet<Index1D> Lambda_Interval, Lambda_Periodic;
@@ -78,7 +78,18 @@ int main (int argc, char *argv[]) {
 		cout << "Adding Index " << index1_i << " with support "
 			 << intervalbasis.generator(index1_i.xtype).support(index1_i.j, index1_i.k) << endl;
 		completeMultiTree(intervalbasis,index1_i,Coeffs_Interval,true);
+		cout << "Extended Coeffs: " << Coeffs_Interval.size() << Coeffs_Interval << endl << endl;
+
+		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
+
+
+		IndexSet<Index1D> additional_indizes_i;
+		Index1D index2_i(j0+j+3,16,XWavelet);
+		cout << "Adding Index " << index1_i << " with support "
+			 << intervalbasis.generator(index2_i.xtype).support(index2_i.j, index2_i.k) << endl;
+		completeMultiTree(intervalbasis,index2_i,Coeffs_Interval,additional_indizes_i,true);
 		cout << "Extended Coeffs: " << Coeffs_Interval.size() << Coeffs_Interval << endl;
+		cout << "Added Indizes: " << additional_indizes_i.size() << additional_indizes_i << endl << endl;
 
 		cout << "===== PERIODIC: j = " << j << " ======= " << endl;
 
@@ -86,9 +97,21 @@ int main (int argc, char *argv[]) {
 		cout << "Adding Index " << index1_p << " with support "
 			 << periodicbasis.generator(index1_p.xtype).support(index1_p.j, index1_p.k) << endl;
 		completeMultiTree(periodicbasis,index1_p,Coeffs_Periodic,true);
+		cout << "Extended Coeffs: " << Coeffs_Periodic.size() << Coeffs_Periodic << endl << endl;
+
+		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
+
+		IndexSet<Index1D> additional_indizes_p;
+		Index1D index2_p(j0+j+3,15,XWavelet);
+		cout << "Adding Index " << index2_p << " with support "
+			 << periodicbasis.generator(index2_p.xtype).support(index2_p.j, index2_p.k) << endl;
+		completeMultiTree(periodicbasis,index2_p,Coeffs_Periodic,additional_indizes_p,true);
 		cout << "Extended Coeffs: " << Coeffs_Periodic.size() << Coeffs_Periodic << endl;
+		cout << "Added Indizes: " << additional_indizes_p.size() << additional_indizes_p << endl;
 
 		cout << endl << endl;
+
+
 	}
 
 

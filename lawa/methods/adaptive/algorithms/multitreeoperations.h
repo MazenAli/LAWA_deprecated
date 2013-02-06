@@ -71,9 +71,8 @@ extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical
  * To partially specialize for periodic basis, we use SFINAE
  */
 
-/*
- * 1D functions
- */
+// ----------------- completeMultiTree 1D ------------------- //
+
 // ORIGINAL: Non-Periodic version
 template <typename T, typename Basis>
 typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<Basis>::value, T>::value, void>::Type
@@ -85,6 +84,21 @@ template <typename T, typename Basis>
 typename RestrictTo<SFINAE_Wrapper<IsPeriodic<Basis>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index1D &index1d,
                   Coefficients<Lexicographical,T,Index1D>  &v, bool sparsetree=false);
+
+// ---- Non-Periodic + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<Basis>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index1D &index1d,
+                  Coefficients<Lexicographical,T,Index1D>  &v,
+                  IndexSet<Index2D>& diff_v, bool sparsetree=false);
+
+// ---- Periodic + returning added indizes
+template <typename T, typename Basis>
+typename RestrictTo<SFINAE_Wrapper<IsPeriodic<Basis>::value, T>::value, void>::Type
+completeMultiTree(const Basis &basis, const Index1D &index1d,
+                  Coefficients<Lexicographical,T,Index1D>  &v,
+                  IndexSet<Index2D>& diff_v, bool sparsetree=false);
+
 
 // ----------------- completeMultiTree 2D ------------------- //
 
@@ -119,8 +133,6 @@ typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
                   int coordDirec=0, bool sparsetree=false);
-
-// ------------------------------------------------------------ //
 
 
 // For L2-orth. multiwavelets only!!
