@@ -441,6 +441,7 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
         }
         else {
             bool foundPredecessor = false;
+            // First, we check whether there is a predecessor.
             for (long new_k=new_k_first; new_k<=new_k_last; ++new_k) {
                 Support<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
                 if (covered_supp.l1<=supp.l1 && covered_supp.l2>=supp.l2) {
@@ -451,6 +452,8 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
                     }
                 }
             }
+            // Second, in case there exists no predecessor in the tree, we add the first candidate
+            // to the tree.
             if (!foundPredecessor) {
                 for (long new_k=new_k_first; new_k<=new_k_last; ++new_k) {
                     Support<typename Basis::T> covered_supp = basis.generator(new_type).support(new_j,new_k);
@@ -469,13 +472,21 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index2D &index2d,
-                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec, bool sparsetree)
+                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec, bool sparsetree,
+                  bool isAlreadyMultiTree)
 {
     int j0_x = basis.first.j0;
     int j0_y = basis.second.j0;
 
-    if (v.find(index2d)!=v.end())  return;
-    else                           v[index2d] = 0.;
+    if (isAlreadyMultiTree) {
+        if (v.find(index2d)!=v.end())  return;
+        else                           v[index2d] = 0.;
+    }
+    else {
+        //std::cerr << "     Completion to multitree for index = " << index2d << std::endl;
+        if (v.find(index2d)==v.end())  v[index2d] = 0.;
+        //std::cerr << "     Node inserted for index = " << index2d << std::endl;
+    }
 
 
     Index1D index_x = index2d.index1;

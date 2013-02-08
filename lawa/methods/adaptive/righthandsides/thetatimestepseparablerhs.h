@@ -24,7 +24,7 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename SpatialRHS>
+template <typename T, typename Index, typename SpatialRHS, typename ThetaTimeStepLocalOperator>
 class ThetaTimeStepSeparableRHS {
 
     typedef typename Coefficients<Lexicographical,T,Index>::iterator           coeff_it;
@@ -32,11 +32,15 @@ class ThetaTimeStepSeparableRHS {
 
     public:
 
-    ThetaTimeStepSeparableRHS(Function<T> &_fct_t, SpatialRHS &_F_x);
+    ThetaTimeStepSeparableRHS(Function<T> &_fct_t, SpatialRHS &_F_x,
+                              ThetaTimeStepLocalOperator &_thetaTimeStepLocalOperator);
 
     void
     setThetaTimeStepParameters(T _theta,T _timestep, T _discrete_timepoint,
-                               Coefficients<Lexicographical,T,Index> *_propagated_u_k);
+                               const Coefficients<Lexicographical,T,Index> &_u_k);
+
+    void
+    initializePropagation(const Coefficients<Lexicographical,T,Index> &f);
 
     T
     operator()(T t, const Index &index);
@@ -46,7 +50,9 @@ class ThetaTimeStepSeparableRHS {
 
     Function<T>                             &fct_t;
     SpatialRHS                              &F_x;
-    Coefficients<Lexicographical,T,Index>   *propagated_u_k;
+    ThetaTimeStepLocalOperator              &thetaTimeStepLocalOperator;
+    Coefficients<Lexicographical,T,Index>   u_k;
+    Coefficients<Lexicographical,T,Index>   propagated_u_k;
     T                                       discrete_timepoint;
     T                                       theta, timestep;
 

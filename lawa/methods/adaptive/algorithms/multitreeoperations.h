@@ -77,7 +77,7 @@ template <typename T, typename Basis>
 void
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
-                  int coordDirec=0, bool sparsetree=false);
+                  int coordDirec=0, bool sparsetree=false, bool isAlreadyMultiTree=true);
 
 // For L2-orth. multiwavelets only!!
 /*

@@ -598,13 +598,16 @@ plotScatterCoeff2D_interval(const Coefficients<Lexicographical,T,Index> &coeff, 
 template <typename T, typename Basis>
 void
 plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Basis &basis,
-                 const char* filename, bool useSupportCenter)
+                 const char* filename, bool useSupportCenter,  T left_x1, T right_x1,
+                 T left_x2, T right_x2)
 {
     typedef typename Coefficients<Lexicographical,T,Index2D>::const_iterator const_coeff_it;
     std::cerr << "plotScatterCoeff: #supp u = " << coeff.size() << std::endl;
     std::stringstream datafilename;
     datafilename << filename << ".dat";
     std::ofstream datafile(datafilename.str().c_str());
+
+    T RightmLeft_x1 = right_x1-left_x1, RightmLeft_x2 = right_x2-left_x2;
 
     if (useSupportCenter) {
         for (const_coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
@@ -613,7 +616,11 @@ plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Bas
             XType xtype_x=(*it).first.index1.xtype, xtype_y=(*it).first.index2.xtype;
 
             Support<T> supp_x = basis.first.generator(xtype_x).support(j_x,k_x);
+            supp_x.l1 *= RightmLeft_x1; supp_x.l2 *= RightmLeft_x1;
+            supp_x.l1 += left_x1;       supp_x.l2 += left_x1;
             Support<T> supp_y = basis.second.generator(xtype_y).support(j_y,k_y);
+            supp_y.l1 *= RightmLeft_x2; supp_y.l2 *= RightmLeft_x2;
+            supp_y.l1 += left_x2;       supp_y.l2 += left_x2;
 
             T x=0., y=0.;
             x = (supp_x.l2 + supp_x.l1)/(T)2.;
@@ -621,7 +628,7 @@ plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Bas
 
             //center of the support
             if(fabs((*it).second) > 0){
-              datafile << x << " " << y << " " << (*it).second << " " << -1. << std::endl;
+              datafile << x << " " << y << " " << (*it).second << " " << 0. << std::endl;
             }
         }
     }
@@ -639,9 +646,11 @@ plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Bas
             if (xtype_y==XBSpline) {  y = T(k_y+offset_y) / (basis.second.mra.cardI(j_y)+1);      }
             else {                    y = T((k_y-1)*2+1) / (basis.second.mra.cardI(j_y+1)+1);  }
 
+            x *= RightmLeft_x1; x += left_x1;
+            y *= RightmLeft_x1; y += left_x1;
             //center of the support
             if(fabs((*it).second) > 0){
-              datafile << x << " " << y << " " << (*it).second << " " << -1. << std::endl;
+              datafile << x << " " << y << " " << (*it).second << " " << 0. << std::endl;
             }
         }
     }

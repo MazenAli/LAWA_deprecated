@@ -51,6 +51,12 @@ int main()
     //Implement Kernel
     Kernel<T,CGMY> kernel(processparameters);
 
+    cout.precision(16);
+
+    for (T x=-1.; x<=1.; x+=0.125) {
+        cout << x << " " << kernel.FifthTailIntegral(x) << " " << kernel.nthTailIntegral(x, 5, ZeroAtInfinity) << endl;
+    }
+
     //Implement CGMY-operator
     CGMYOp          a(basis, processparameters, 8., 8.);
     SparseMatrixT   A = assembler.assembleStiffnessMatrix(a, J);

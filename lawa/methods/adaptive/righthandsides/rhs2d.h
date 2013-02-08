@@ -48,6 +48,13 @@ struct RHS2D
     IndexSet<Index2D>
     getFullIndexSet();
 
+    void
+    initializePropagation(const Coefficients<Lexicographical,T,Index2D> &f)
+    {
+        std::cerr << "RHS2D::initializePropagation is a dummy routine and should not be called" << std::endl;
+        exit(1);
+    }
+
     const RHSINTEGRAL                       &rhsintegral;
     Preconditioner                          &P;
     Coefficients<Lexicographical,T,Index2D> rhs_data;

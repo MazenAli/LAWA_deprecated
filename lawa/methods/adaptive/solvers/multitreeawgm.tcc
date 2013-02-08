@@ -29,10 +29,10 @@ MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::setParameters
 }
 
 template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
-void
+typename LocalOperator::T
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
 cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, T _init_cgtol,
-         T EnergyNormSquared, const char *filename, const char *coefffilename)
+         T EnergyNormSquared, const char *filename, const char *coefffilename, int maxDof)
 {
     Coefficients<Lexicographical,T,Index> r(hashMapSize),       // residual vector for cg
                                           p(hashMapSize),       // auxiliary vector for cg
@@ -74,13 +74,14 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         int N_residual = 0;
 
 
-        std::cerr << std::endl << "   *****  Iteration " << iter << " *****" << std::endl << std::endl;
+        std::cerr << std::endl << "   *****  AWGM Iteration " << iter << " *****" << std::endl << std::endl;
         std::cerr << "      Current number of dof = " << u.size() << std::endl;
 
         /* ******************* Resetting of vectors *********************** */
 
         //std::cerr << "      Resetting vectors..." << std::endl;
 
+        F.initializePropagation(u);
         for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
             T tmp = Prec((*it).first) * F((*it).first);
             r[(*it).first] = 0.;
@@ -89,7 +90,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         }
 
         std::cerr.precision(16);
-        //std::cerr << "      || f ||_{ell_2} = " << p.norm((T)2.) << std::endl;
+        std::cerr << "            || f ||_{ell_2} = " << p.norm((T)2.) << std::endl;
         std::cerr.precision(6);
         //std::cerr << "      ...finished." << std::endl;
 
@@ -107,7 +108,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         p *= (T)(-1.);
         T cg_rNormSquare = r*r;
         T tol = std::min(_init_cgtol,gamma*(T)Residual);
-        int maxIterations=100;
+        int maxIterations=1000;
         int cg_iter=0;
         for (cg_iter=0; cg_iter<maxIterations; ++cg_iter) {
             if (std::sqrt(cg_rNormSquare)<=tol) {
@@ -131,12 +132,16 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
 
             T cg_rNormSquarePrev = cg_rNormSquare;
             cg_rNormSquare = r*r;
-            //std::cerr << "         Current error in cg: " << std::sqrt(cg_rNormSquare) << std::endl;
+            std::cerr << "            Current error in cg: " << std::sqrt(cg_rNormSquare) << std::endl;
+            std::cerr << "            ||u||_2 = " << u.norm(2.) <<  std::endl;
             T beta = cg_rNormSquare/cg_rNormSquarePrev;
             p *= beta;
             p -= r;
         }
         std::cerr << "      CG method finished after " << cg_iter << " iterations." << std::endl;
+        if (cg_iter>=maxIterations) {
+            std::cerr << "      CG method exceeded maximum number of iterations " << maxIterations << std::endl;
+        }
         time_mv_linsys *= 1./cg_iter;
         if (write_coefficients_to_file) {
             writeCoefficientsToFile(u, iter, coefffilename);
@@ -147,7 +152,9 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         time_total_galerkin += time_galerkin;
         /* ************************************************************************* */
 
-        if (NumOfIterations==1) return;
+        if (NumOfIterations==1)     return 0.;
+
+        if (u.size()>=maxDof)       return Residual;
 
         /* ***************** Errors and some info on the solution ******************** */
         T EnergyError = 0., f_minus_Au_error = 0.;
@@ -209,6 +216,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         //std::cerr << "         Computing matrix vector product..." << std::endl;
         time.start();
         //A.eval(u,res,Prec);
+        F.initializePropagation(res);
         Op.eval(u,res,Prec,"residual");
         //Op.eval(u,res,Prec,"residual_standard");
         //std::cerr << "         ... finished." << std::endl;
@@ -226,7 +234,7 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
         if (Residual <= _eps) {
             std::cerr << "      Target tolerance reached: Residual = " << Residual
                       << ", eps = " << _eps << std::endl;
-            return;
+            return Residual;
         }
 
         /* ************************************************************************* */
@@ -289,17 +297,21 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
                   << " " << time_galerkin << " " << time_total_galerkin
                   << " " << time_total_residual << std::endl;
 
+
+
     }
+    return Residual;
     file.close();
 }
 
 template <typename Index, typename Basis, typename LocalOperator, typename RHS, typename Preconditioner>
 void
 MultiTreeAWGM<Index,Basis,LocalOperator,RHS,Preconditioner>::
-approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, T _init_cgtol,
+approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, T (*weightFunction)(const Index &index),
+         int NumOfIterations, T _init_cgtol,
          T EnergyNormSquared, const char *filename, const char *coefffilename)
 {
-    if (!IsMW) {    // Local operator is assumed to a mass matrix
+    if (!IsMW) {    // Local operator is assumed to be a mass matrix
         this->cg_solve(u, _eps, NumOfIterations, _init_cgtol, EnergyNormSquared, filename, coefffilename);
     }
     else {          // Mass matrix is identity
@@ -321,7 +333,7 @@ approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
             int N_residual = 0;
 
 
-            std::cerr << std::endl << "   *****   Iteration " << iter << " *****" << std::endl << std::endl;
+            std::cerr << std::endl << "   *****  AWGM L2-Approx Iteration " << iter << " *****" << std::endl << std::endl;
             std::cerr << "      Current number of dof = " << u.size() << std::endl;
 
             /* ******************* Resetting of vectors *********************** */
@@ -340,7 +352,10 @@ approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
                     res.erase((*it).first);
                 }
                 else {
-                    (*it).second = F((*it).first);
+                    //std::cerr << (*it).first << " : " << F((*it).first)  << " "
+                    //          << weightFunction((*it).first) << " "
+                    //          << F((*it).first) * weightFunction((*it).first) << std::endl;
+                    (*it).second = F((*it).first) * weightFunction((*it).first);
                 }
             }
             T Residual = res.norm(2.);
@@ -390,7 +405,7 @@ approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
             for (coeff_it it=u.begin(); it!=u.end(); ++it) {
                 if (u_leafs.find((*it).first)!=u_leafs.end()) u_leafs.erase((*it).first);
                 else {
-                    (*it).second = res[(*it).first];
+                    (*it).second = F((*it).first);//res[(*it).first];
                     u_leafs[(*it).first] = 0.;
                 }
             }

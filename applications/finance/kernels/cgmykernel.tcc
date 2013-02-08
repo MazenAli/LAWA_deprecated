@@ -30,14 +30,14 @@ Kernel<T,CGMY>::Kernel(const ProcessParameters1D<T,CGMY> &_params)
     Gdiv1mY  = G/(1.-Y);
     OnedivSix= 1./6.;
 
-    constants[0] =  0.5    * C * powM_Ym2 * boost::math::tgamma(2-Y);
-    constants[1] = -0.5    * C * powG_Ym2 * boost::math::tgamma(2-Y);
-    constants[2] =  1./6.  * C * powM_Ym3 * boost::math::tgamma(3-Y);
-    constants[3] =  1./6.  * C * powG_Ym3 * boost::math::tgamma(3-Y);
-    constants[4] =  1./24. * C * powM_Ym4 * boost::math::tgamma(4-Y);
-    constants[5] = -1./24. * C * powG_Ym4 * boost::math::tgamma(4-Y);
-    constants[6] =  1./120.* C * powM_Ym5 * boost::math::tgamma(5-Y);
-    constants[7] =  1./120.* C * powG_Ym5 * boost::math::tgamma(5-Y);
+    constants[0] =  0.5L     * C * powM_Ym2 * boost::math::tgamma(2-Y);
+    constants[1] = -0.5L     * C * powG_Ym2 * boost::math::tgamma(2-Y);
+    constants[2] =  1.L/6.L  * C * powM_Ym3 * boost::math::tgamma(3-Y);
+    constants[3] =  1.L/6.L  * C * powG_Ym3 * boost::math::tgamma(3-Y);
+    constants[4] =  1.L/24.L * C * powM_Ym4 * boost::math::tgamma(4-Y);
+    constants[5] = -1.L/24.L * C * powG_Ym4 * boost::math::tgamma(4-Y);
+    constants[6] =  1.L/120.L* C * powM_Ym5 * boost::math::tgamma(5-Y);
+    constants[7] =  1.L/120.L* C * powG_Ym5 * boost::math::tgamma(5-Y);
     constants[8] =  nthTailIntegral(10e-16,7,ZeroAtInfinity);
     constants[9] =  nthTailIntegral(-10e-16,7,ZeroAtInfinity);
 
@@ -95,19 +95,19 @@ Kernel<T,CGMY>::Kernel(const ProcessParameters1D<T,CGMYe> &_params)
     powG_Y   = G*powG_Ym1;
 
     CdivY    = C/Y;
-    Cdiv1mY  = C/(1.-Y);
-    Mdiv1mY  = M/(1.-Y);
-    Gdiv1mY  = G/(1.-Y);
-    OnedivSix= 1./6.;
+    Cdiv1mY  = C/(1.L-Y);
+    Mdiv1mY  = M/(1.L-Y);
+    Gdiv1mY  = G/(1.L-Y);
+    OnedivSix= 1.L/6.L;
 
-    constants[0] =  0.5    * C * powM_Ym2 * boost::math::tgamma(2-Y);
-    constants[1] = -0.5    * C * powG_Ym2 * boost::math::tgamma(2-Y);
-    constants[2] =  1./6.  * C * powM_Ym3 * boost::math::tgamma(3-Y);
-    constants[3] =  1./6.  * C * powG_Ym3 * boost::math::tgamma(3-Y);
-    constants[4] =  1./24. * C * powM_Ym4 * boost::math::tgamma(4-Y);
-    constants[5] = -1./24. * C * powG_Ym4 * boost::math::tgamma(4-Y);
-    constants[6] =  1./120.* C * powM_Ym5 * boost::math::tgamma(5-Y);
-    constants[7] =  1./120.* C * powG_Ym5 * boost::math::tgamma(5-Y);
+    constants[0] =  0.5L     * C * powM_Ym2 * boost::math::tgamma(2-Y);
+    constants[1] = -0.5L     * C * powG_Ym2 * boost::math::tgamma(2-Y);
+    constants[2] =  1.L/6.L  * C * powM_Ym3 * boost::math::tgamma(3-Y);
+    constants[3] =  1.L/6.L  * C * powG_Ym3 * boost::math::tgamma(3-Y);
+    constants[4] =  1.L/24.L * C * powM_Ym4 * boost::math::tgamma(4-Y);
+    constants[5] = -1.L/24.L * C * powG_Ym4 * boost::math::tgamma(4-Y);
+    constants[6] =  1.L/120.L* C * powM_Ym5 * boost::math::tgamma(5-Y);
+    constants[7] =  1.L/120.L* C * powG_Ym5 * boost::math::tgamma(5-Y);
     constants[8] =  nthTailIntegral(10e-16,7,ZeroAtInfinity);
     constants[9] =  nthTailIntegral(-10e-16,7,ZeroAtInfinity);
 
@@ -239,13 +239,13 @@ Kernel<T,CGMY>::SecondTailIntegral(T x) const{
     //return this->nthTailIntegral(x, 2, ZeroAtInfinity);
     assert(fabs(x)>0);
     if (x>0) return (C/(Y*(1-Y)))*(  boost::math::tgamma(2-Y,M*x)*(
-                         2.0*std::pow(M,Y-1)+std::pow(M,Y)*x )
+                         2.0L*std::pow(M,Y-1)+std::pow(M,Y)*x )
                         -boost::math::tgamma(3-Y,M*x)*std::pow(M,Y-1)
                         -std::pow(x,1-Y)*exp(-M*x) );
     else  {
         x=fabs(x);
         return  (C/(Y*(1-Y)))*(  boost::math::tgamma(2-Y,G*x)*(
-                         2.0*std::pow(G,Y-1)+std::pow(G,Y)*x )
+                         2.0L*std::pow(G,Y-1)+std::pow(G,Y)*x )
                         -boost::math::tgamma(3-Y,G*x)*std::pow(G,Y-1)
                         -std::pow(x,1-Y)*exp(-G*x) );
     }
@@ -263,9 +263,9 @@ Kernel<T,CGMY>::ThirdTailIntegral(T x) const {
     //return this->nthTailIntegral(x, 3, ZeroAtInfinity);
     assert(fabs(x)>0);
     if (x>0) return C/(Y*(1-Y))*( - boost::math::tgamma(2-Y,M*x)*( 2*std::pow(M,Y-1)*x
-                                                        +0.5*std::pow(M,Y)*x*x+std::pow(M,Y-2) )
+                                                        +0.5L*std::pow(M,Y)*x*x+std::pow(M,Y-2) )
                       + boost::math::tgamma(3-Y,M*x)*( 2*std::pow(M,Y-2)+x*std::pow(M,Y-1) )
-                      + boost::math::tgamma(4-Y,M*x)*( -0.5*std::pow(M,Y-2) )   );
+                      + boost::math::tgamma(4-Y,M*x)*( -0.5L*std::pow(M,Y-2) )   );
     else {
         x = fabs(x);
          return -C/(Y*(1-Y))*( - boost::math::tgamma(2-Y,G*x)*( 2*std::pow(G,Y-1)*x

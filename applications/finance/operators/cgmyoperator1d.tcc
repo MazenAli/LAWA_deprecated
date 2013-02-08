@@ -118,7 +118,7 @@ FinanceOperator1D<T, CGMY, Basis1D>::operator()(XType xtype1, int j1, int k1,
            if (fabs(varphi_col_deltas(mu,2)) < 1e-14) continue;
 
            part1 += varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,0)*kernel.c4;
-           part1 -= varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,0)*kernel.c5;
+           part1 -= varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,1)*kernel.c5;
 
            for (int lambda=varphi_row_deltas.rows().firstIndex();
                     lambda<=varphi_row_deltas.rows().lastIndex(); ++lambda) {

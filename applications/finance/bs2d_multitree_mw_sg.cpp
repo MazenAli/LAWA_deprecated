@@ -22,21 +22,20 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 /* *** Typedefs for financial model *** */
 /* ************************************ */
 
+
 T strike = 1.;
 T maturity = 1.;
 T weight1 = 0.5, weight2 = 0.5;
 
-
+/*
 const OptionTypenD optiontype = BasketPut;
 OptionParameters2D<T,BasketPut> optionparameters(strike, maturity, weight1, weight2, false);
 typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedBasketPutOption2D<T> > PayoffIntegral;
-typedef RHS2D<T, PayoffIntegral, NoPreconditioner<T, Index2D>  >            PayoffIntegralRHS;
+*/
 
-/*
 const OptionTypenD optiontype = SumOfPuts;
 OptionParameters2D<T,SumOfPuts> optionparameters(strike, strike, maturity, weight1, weight2, false);
 typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedSumOfPutsOption2D<T> > PayoffIntegral;
-*/
 
 const ProcessType2D  processtype  = BlackScholes2D;
 //T r = 0.04; T sigma1 = 0.3, sigma2 = 0.2, rho = 0.;
@@ -71,50 +70,36 @@ typedef OptimizedH1Preconditioner2D<T,Basis2D>                      Precondition
 
 ///  Underlying bilinear form
 typedef RefinementBasis::LaplaceOperator1D                          RefinementLaplaceOp1D;
-typedef RefinementBasis::IdentityOperator1D                         RefinementIdentityOp1D;
 
 
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
                         RefinementLaplaceOp1D>                      LocalOp1D;
-typedef LocalOperator1D<PrimalBasis,PrimalBasis,
-                        RefinementIdentityOp1D>                     LocalIdentityOp1D;
 
 typedef UniDirectionalLocalOperator<Index2D,XOne,LocalOp1D,
                                             NotXOne,Index1D>        UniDirectionalLocalOpXOne2D;
 typedef UniDirectionalLocalOperator<Index2D,XTwo,LocalOp1D,
                                             NotXTwo,Index1D>        UniDirectionalLocalOpXTwo2D;
-typedef UniDirectionalLocalOperator<Index2D,XOne,LocalIdentityOp1D,
-                                            NotXOne,Index1D>        UniDirectionalLocalIdentityOpXOne2D;
-typedef UniDirectionalLocalOperator<Index2D,XTwo,LocalIdentityOp1D,
-                                            NotXTwo,Index1D>        UniDirectionalLocalIdentityOpXTwo2D;
 
 typedef CompoundLocalOperator<Index2D, UniDirectionalLocalOpXOne2D,
                               UniDirectionalLocalOpXTwo2D>          CompoundLocalOperator2D;
-typedef CompoundLocalOperator<Index2D,
-                              UniDirectionalLocalIdentityOpXOne2D,
-                              UniDirectionalLocalIdentityOpXTwo2D>  CompoundLocalIdentityOperator2D;
 
-typedef ThetaTimeStepLocalOperator<Index2D, CompoundLocalOperator2D,
-                                   CompoundLocalIdentityOperator2D> ThetaTimeStepLocalOperator2D;
+typedef ThetaTimeStepLocalOperator<Index2D, CompoundLocalOperator2D> ThetaTimeStepLocalOperator2D;
 
 //Righthandsides definitions (separable)
 typedef RHSWithPeaks1D<T,PrimalBasis>                               Rhs1D;
 typedef AdaptiveSeparableRhs<T,Index2D,Rhs1D,Rhs1D >                AdaptiveSeparableRhsIntegral2D;
 typedef ThetaTimeStepSeparableRHS<T,Index2D,
-                                  AdaptiveSeparableRhsIntegral2D,
-                                  ThetaTimeStepLocalOperator2D>     ThetaTimeStepRhs2d;
+                                  AdaptiveSeparableRhsIntegral2D>   ThetaTimeStepRhs2d;
 typedef CompoundRhs<T,Index2D,AdaptiveSeparableRhsIntegral2D,
                     AdaptiveSeparableRhsIntegral2D>                 CompoundRhsIntegral2D;
 
 typedef MultiTreeAWGM<Index2D,Basis2D,ThetaTimeStepLocalOperator2D,
                       ThetaTimeStepRhs2d,Preconditioner>            ThetaTimeStepMultiTreeAWGM2D;
 
-typedef LocalWeighting2D<T, Basis2D>                                LocalWeightingInitCond2D;
-
 typedef MultiTreeAWGM<Index2D,Basis2D,
                       ThetaTimeStepLocalOperator2D,
-                      PayoffIntegralRHS,
+                      CompoundRhsIntegral2D,
                       NoPreconditioner<T,Index2D> >                 ApproxL2AWGM2D;
 
 typedef ThetaSchemeAWGM<Index2D, ThetaTimeStepMultiTreeAWGM2D>      ThetaSchemeMultiTreeAWGM2D;
@@ -165,12 +150,6 @@ readReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
                    ProcessParameters2D<T,BlackScholes2D> &processparameters,
                    std::map<std::pair<T,T>,T> &refprices);
 
-template <typename TruncatedOptionPayoff>
-T
-computeLinftyErrorInitCond(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
-                           const Coefficients<Lexicographical,T,Index2D> &u,T delta,
-                           TruncatedOptionPayoff &truncatedpayoff2d);
-
 int main (int argc, char *argv[]) {
 
     cout.precision(20);
@@ -182,12 +161,11 @@ int main (int argc, char *argv[]) {
     int d   = atoi(argv[1]);
     int j0  = atoi(argv[2]);
     int J  = atoi(argv[3]);
-    T alpha = 0.4;
+    T alpha = 0.7;
     T gamma = 0.025;
     const char* residualType = "standard";
     const char* treeType = "sparsetree"; //"gradedtree";
     bool IsMW = true;
-    int weightType = 1;
     size_t hashMapSize = 196613;
 
     T left_x1 = -2., right_x1 = 2.;
@@ -195,16 +173,16 @@ int main (int argc, char *argv[]) {
     T delta = 0.05;
 
     T theta = 0.5;
-    T timestep_eps = 1e-2;
-    int maxiterations =  50;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 64;
+    T timestep_eps = 1e-6;
+    int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
+    int numOfTimesteps = 32;
     T timestep = maturity/numOfTimesteps;
 
     int numOfMCRuns = 100000;
 
-    int order = 3;
+    int order = 6;
 
-    bool useRefPrices = true;
+    bool useRefPrices = false;
 
     Timer time;
 
@@ -214,11 +192,13 @@ int main (int argc, char *argv[]) {
     RefinementBasis  &refinementbasis = basis.refinementbasis;
     Basis2D basis2d(basis,basis);
 
+
     /// Operator initialization
     DenseMatrixT U(2,2), tU(2,2), Q(2,2), QtU(2,2), UQtU(2,2);
     U  = u11, u12, u21, u22;
     tU = u11, u21, u12, u22;
     Q  = sigma1*sigma1, rho*sigma1*sigma2, rho*sigma1*sigma2, sigma2*sigma2;
+
     QtU  = Q(1,1)*tU(1,1)+Q(1,2)*tU(2,1), Q(1,1)*tU(1,2)+Q(1,2)*tU(2,2),
            Q(2,1)*tU(1,1)+Q(2,2)*tU(2,1), Q(2,1)*tU(1,2)+Q(2,2)*tU(2,2);
     UQtU = U(1,1)*QtU(1,1)+U(1,2)*QtU(2,1), U(1,1)*QtU(1,2)+U(1,2)*QtU(2,2),
@@ -230,21 +210,18 @@ int main (int argc, char *argv[]) {
     T a2 = 0.5*s2/((right_x1-left_x1)*(right_x1-left_x1));
 
 
+
     LocalOp1D                    localOp1D(basis,basis,refinementbasis.LaplaceOp1D);
     UniDirectionalLocalOpXOne2D  uniDirectionalOpXOne2D(localOp1D, a1);
     UniDirectionalLocalOpXTwo2D  uniDirectionalOpXTwo2D(localOp1D, a2);
     CompoundLocalOperator2D      localOp2D(uniDirectionalOpXOne2D,uniDirectionalOpXTwo2D);
+    ThetaTimeStepLocalOperator2D localThetaTimeStepOp2D(theta,timestep,localOp2D);
 
-    LocalIdentityOp1D                    localIdentityOp1D(basis,basis,refinementbasis.IdentityOp1D);
-    UniDirectionalLocalIdentityOpXOne2D  uniDirectionalIdentityOpXOne2D(localIdentityOp1D, 1.);
-    UniDirectionalLocalIdentityOpXTwo2D  uniDirectionalIdentityOpXTwo2D(localIdentityOp1D, 0.);
-    CompoundLocalIdentityOperator2D      localIdentityOp2D(uniDirectionalIdentityOpXOne2D,
-                                                           uniDirectionalIdentityOpXTwo2D);
-    ThetaTimeStepLocalOperator2D localThetaTimeStepOp2D(theta,timestep,localOp2D,localIdentityOp2D);
 
     /// Initialization of preconditioner
     NoPreconditioner<T, Index2D> NoPrec;
     Preconditioner  Prec(basis2d, a1, a2, 1.);
+
 
     /// Initialization of integrals for initial condition and rhs
     DenseVectorT sing_pts_t, sing_pts_x(5), sing_pts_y(5);
@@ -260,24 +237,23 @@ int main (int argc, char *argv[]) {
                                             rhs_f_y_data(SIZEHASHINDEX1D);
 
     AdaptiveSeparableRhsIntegral2D F_rhs(rhs_f_x, rhs_f_x_data, rhs_f_y, rhs_f_y_data);
-    ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs,localThetaTimeStepOp2D);
+    ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs);
 
     /// Initialization of integrals for initial condition and rhs
     Option2D<T,optiontype>         option2d(optionparameters);
-    option2d.setNumberOfMCRuns(numOfMCRuns);
+    //option2d.setNumberOfMCRuns(numOfMCRuns);
 
-    TruncatedBasketPutOption2D<T> truncatedoption2d;
-    //TruncatedSumOfPutsOption2D<T> truncatedoption2d;
+    //TruncatedBasketPutOption2D<T> truncatedoption2d;
+    TruncatedSumOfPutsOption2D<T> truncatedoption2d;
     truncatedoption2d.setOption(option2d);
     truncatedoption2d.setTransformation(u11, u21, u12, u22);
-    truncatedoption2d.setTruncation(left_x1, right_x1, left_x2, right_x2, 0, 0.2, 200.);
+    truncatedoption2d.setTruncation(left_x1, right_x1, left_x2, right_x2, 0, 0.1, 100.);
     truncatedoption2d.setCriticalLine_x1(critical_line_x1, critical_above_x1);
 
     PayoffIntegral payoffIntegral(basis2d, truncatedoption2d,
                                   left_x1, right_x1, left_x2, right_x2, true, 0.05, order);
-    PayoffIntegralRHS payoffIntegralRHS(payoffIntegral, NoPrec);
 
-    Coefficients<Lexicographical,T,Index2D> u(hashMapSize), u0(hashMapSize), f(hashMapSize);
+    Coefficients<Lexicographical,T,Index2D> u(hashMapSize), f(hashMapSize);
 
     std::map<std::pair<T,T>,T> refprices;
     if (useRefPrices) {
@@ -290,13 +266,13 @@ int main (int argc, char *argv[]) {
 
     if (optiontype == BasketPut) {
         if (useRefPrices) {
-            filename << "basketputoption2d_conv2_awgm_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+            filename << "basketputoption2d_conv2_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                      << "_lx2_" << left_x2 << "_rx2_" << right_x2
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
         }
         else {
-            filename << "basketputoption2d_conv_awgm_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+            filename << "basketputoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                      << "_lx2_" << left_x2 << "_rx2_" << right_x2
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
@@ -304,13 +280,13 @@ int main (int argc, char *argv[]) {
     }
     else if (optiontype == SumOfPuts) {
         if (useRefPrices) {
-            filename << "sumofputsoption2d_conv2_awgm_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+            filename << "sumofputsoption2d_conv2_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                      << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
         }
         else {
-            filename << "sumofputsoption2d_conv_awgm_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+            filename << "sumofputsoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                      << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
@@ -322,27 +298,34 @@ int main (int argc, char *argv[]) {
     }
     std::ofstream convfile(filename.str().c_str());
 
-    //for (int j=0; j<=J; ++j) {
-    //    T eps = 0.001; int maxL2Iterations = 1; u.clear();
-    //    getSparseGridVector(basis2d, u, j, (T)0.);
-    for (timestep_eps=0.1; timestep_eps>=1e-6; timestep_eps*=0.5) {
-        int maxL2Iterations = 100; u.clear();
-        getSparseGridVector(basis2d, u, 0, (T)0.);
+    //for (numOfTimesteps=8; numOfTimesteps<=512; numOfTimesteps*=2) {
+    //    int j= J;
+    for (int j=0; j<=J; ++j) {
 
-        LocalWeightingInitCond2D localWeightingInitCond2D;
-        localWeightingInitCond2D.setDomain(left_x1,right_x1,left_x2,right_x2);
-        localWeightingInitCond2D.setBasis(&basis2d);
-        localWeightingInitCond2D.setWeightType(weightType);
+        getSparseGridVector(basis2d, u, j, (T)0.);
 
-        ApproxL2AWGM2D approxL2_solver(basis2d, localThetaTimeStepOp2D, payoffIntegralRHS, NoPrec);
-        approxL2_solver.setParameters(alpha, gamma, residualType, treeType, IsMW, false);
-        approxL2_solver.approxL2(u, timestep_eps, localWeightingInitCond2D.weight, maxL2Iterations);
-        cout << "Approximation of initial condition finished." << endl;
+        cerr << "Computation of initial condition started." << endl;
+        time.start();
+        int count = 0;
+        for (coeff2d_it it=u.begin(); it!=u.end(); ++it) {
+            coeff2d_it it_f = f.find((*it).first);
+            if (it_f != f.end()) {
+                (*it).second = (*it_f).second;
+            }
+            else {
+                T tmp = payoffIntegral((*it).first);
+                f[(*it).first] = tmp;
+                (*it).second = tmp;
+            }
+            ++count;
+            if (count%100==0) cout << "count: " << count << " / " << u.size() << endl;
 
-        T maxerror_initcond = computeLinftyErrorInitCond(basis2d, left_x1, right_x1,
-                                                         left_x2, right_x2,
-                                                          u, 0.25, truncatedoption2d);
-        cout << "Maxerror initcond = " << maxerror_initcond << endl;
+        }
+        //cout << "u0 = " << u << endl;
+
+        //if (j==9)  numOfTimesteps = 256;
+        //if (j==10) numOfTimesteps = 512;
+        timestep = maturity/numOfTimesteps;
 
         /// Initialization of multi tree based adaptive wavelet Galerkin method
         ThetaTimeStepMultiTreeAWGM2D thetatimestep_solver(basis2d, localThetaTimeStepOp2D,
@@ -350,34 +333,33 @@ int main (int argc, char *argv[]) {
         thetatimestep_solver.setParameters(alpha, gamma, residualType, treeType, IsMW, false,
                                            hashMapSize);
 
-        int strategy = 2;
         ThetaSchemeMultiTreeAWGM2D thetascheme(thetatimestep_solver);
         thetascheme.setParameters(theta, timestep, numOfTimesteps, timestep_eps, maxiterations,
-                                  init_cgtol, strategy);
-
-        int avDof = 0, maxDof = 0., terminalDof;
-        thetascheme.solve(u, avDof, maxDof, terminalDof);
+                                  init_cgtol);
+        thetascheme.solve(u);
         cerr << "Computation of u has finished." << endl;
-
         T maxerror = 0., maxerror1 = 0., maxerror2 = 0.;
         if (useRefPrices) {
             maxerror1 = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
-                                          u,delta,-1,option2d, processparameters, refprices);
+                                          u,delta,j,option2d, processparameters, refprices);
             maxerror2 = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
-                                          u,delta,-1,option2d, processparameters);
-            convfile << timestep << " " << -1 << " " << avDof << " " << maxDof << " " << terminalDof << " "
-                     << maxerror1 << " " << maxerror2 << " " << maxerror_initcond << " "
-                     << timestep_eps << " " << numOfMCRuns << " " << delta << endl;
+                                          u,delta,j,option2d, processparameters);
+            convfile << timestep << " " << j << " " << u.size() << " "
+                     << maxerror1 << " " << maxerror2 << " " << numOfMCRuns << " " << delta << endl;
         }
         else {
             maxerror = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2,
-                                          u,delta,-1,option2d, processparameters);
-            convfile << timestep << " " << -1 << " " << avDof << " "
-                     << maxerror << " " << maxerror_initcond << " "
-                     << timestep_eps << " " << numOfMCRuns << " " << delta << endl;
+                                          u,delta,j,option2d, processparameters);
+            convfile << timestep << " " << j << " " << u.size() << " "
+                     << maxerror << " " << numOfMCRuns << " " << delta << endl;
         }
         cerr << "Computation of errors has finished." << endl;
+        //computeReferencePrice(basis2d, left_x1, right_x1, left_x2, right_x2,
+        //                      -0.1, 0.1, -0.1, 0.1, 0.02, 0.02, u, j, option2d, processparameters);
+        cerr << "Computation of reference prices has finished." << endl;
+
     }
+
     return 0;
 }
 
@@ -410,12 +392,12 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
 {
     std::stringstream filename;
     if (optiontype == BasketPut) {
-        filename << "bs2d_basketput_awgm_" << j
+        filename << "bs2d_basketput_" << j
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
     else if (optiontype == SumOfPuts) {
-        filename << "bs2d_sumofputs_awgm_" << j
+        filename << "bs2d_sumofputs_" << j
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
@@ -426,8 +408,8 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
     plotfile.precision(16);
 
     T maxerror = 0.;
-    T h1 = (delta*right_x1-delta*left_x1)/10.;
-    T h2 = (delta*right_x2-delta*left_x2)/10.;
+    T h1 = (delta*right_x1-delta*left_x1)/50.;
+    T h2 = (delta*right_x2-delta*left_x2)/50.;
     //for (T x1=left_x1; x1<=right_x1; x1+=0.03125) {
     for (T x1=delta*left_x1; x1<=delta*right_x1; x1+=h1) {
         //for (T x2=left_x2; x2<=right_x2; x2+=0.03125) {
@@ -467,12 +449,12 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
 
     std::stringstream filename;
     if (optiontype == BasketPut) {
-        filename << "bs2d_basketput2_awgm_" << j
+        filename << "bs2d_basketput2_" << j
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
     else if (optiontype == SumOfPuts) {
-        filename << "bs2d_sumofputs2_awgm_" << j
+        filename << "bs2d_sumofputs2_" << j
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
@@ -512,7 +494,7 @@ computeReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, 
 {
     std::stringstream filename;
     if (optiontype == BasketPut) {
-        filename << "bs2d_refprices_basketput_awgm_" << j
+        filename << "bs2d_refprices_basketput_" << j
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
@@ -591,40 +573,4 @@ readReferencePrice(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
             cerr << "Using approx values: " << x1 << " " << x2 << " " << approx << endl;
         }
     }
-}
-
-template <typename TruncatedOptionPayoff>
-T
-computeLinftyErrorInitCond(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
-                           const Coefficients<Lexicographical,T,Index2D> &u,T delta,
-                           TruncatedOptionPayoff &truncatedpayoff2d)
-{
-    std::stringstream coeffsfilename;
-    coeffsfilename << "coeffs_initcond_" << u.size();
-    plotScatterCoeff(u, basis2d, coeffsfilename.str().c_str(), true, left_x1, right_x1, left_x2, right_x2);
-
-    std::stringstream filename;
-    filename << "debug_initcond_" << u.size() << ".txt";
-    ofstream file(filename.str().c_str());
-    T maxerror = 0.;
-    //T h1 = (delta*right_x1-delta*left_x1)/200.;
-    //T h2 = (delta*right_x2-delta*left_x2)/200.;
-    T h1 = (right_x1-left_x1)/100.;
-    T h2 = (right_x2-left_x2)/100.;
-    //for (T x1=left_x1; x1<=right_x1; x1+=0.03125) {
-    for (T x1=left_x1; x1<=right_x1; x1+=h1) {
-        //for (T x2=left_x2; x2<=right_x2; x2+=0.03125) {
-        for (T x2=left_x2; x2<=right_x2; x2+=h2) {
-            T exact = truncatedpayoff2d.payoff(x1,x2);
-            T approx = evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1, x2);
-            file << x1 << " " << x2 << " " << exact << " " << approx << endl;
-
-            if (x1>=delta*left_x1 && x1<=delta*right_x1 && x2>=delta*left_x2 && x2<=delta*right_x2) {
-                maxerror = std::max(maxerror, fabs(exact-approx));
-            }
-
-        }
-        file << endl;
-    }
-    return maxerror;
 }

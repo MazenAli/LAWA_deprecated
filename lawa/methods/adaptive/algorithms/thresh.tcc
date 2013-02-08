@@ -107,6 +107,28 @@ THRESH(const Coefficients<Lexicographical,T,Index2D> &v, T eta, bool deleteBSpli
     return ret;
 }
 
+template <typename T>
+Coefficients<Lexicographical,T,Index2D>
+MULTITREE_THRESH(const Coefficients<Lexicographical,T,Index2D > &v, T eta)
+{
+    typedef typename Coefficients<AbsoluteValue,T,Index2D >::iterator it;
+    typedef typename Coefficients<Lexicographical,T,Index2D >::const_iterator const_coeff_it;
+    Coefficients<Lexicographical,T,Index2D > ret;
+    Coefficients<AbsoluteValue,T,Index2D > temp;
+    temp = v;
+
+    ret = THRESH(temp, eta, true);
+
+    for (const_coeff_it it=v.begin(); it!=v.end(); ++it) {
+        if ((*it).first.index1.xtype==XBSpline || (*it).first.index2.xtype==XBSpline) {
+            ret[(*it).first] = (*it).second;
+        }
+    }
+
+
+    return ret;
+}
+
 
 template <typename T>
 Coefficients<Lexicographical,T,Index3D>
