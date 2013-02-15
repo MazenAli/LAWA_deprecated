@@ -45,13 +45,11 @@ T r = 0.;
 T sigma1 = 0.3;
 T sigma2 = 0.2;
 
-
 T rho = 0.;
 T u11 = 1., u12 = 0., u21 = 0., u22 = 1.;
 T s1  = sigma1*sigma1, s2  = sigma2*sigma2;
 T    critical_line_x1 = 0.6;
 bool critical_above_x1 = true;
-
 
 /*
 T rho = 0.3;
@@ -171,6 +169,10 @@ computeLinftyErrorInitCond(const Basis2D &basis2d, T left_x1, T right_x1, T left
                            const Coefficients<Lexicographical,T,Index2D> &u,T delta,
                            TruncatedOptionPayoff &truncatedpayoff2d);
 
+void
+plotComputedSolution(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                     const Coefficients<Lexicographical,T,Index2D> &u);
+
 int main (int argc, char *argv[]) {
 
     cout.precision(20);
@@ -202,7 +204,7 @@ int main (int argc, char *argv[]) {
 
     int numOfMCRuns = 100000;
 
-    int order = 3;
+    int order = 6;
 
     bool useRefPrices = true;
 
@@ -228,7 +230,6 @@ int main (int argc, char *argv[]) {
 
     T a1 = 0.5*s1/((right_x1-left_x1)*(right_x1-left_x1));
     T a2 = 0.5*s2/((right_x1-left_x1)*(right_x1-left_x1));
-
 
     LocalOp1D                    localOp1D(basis,basis,refinementbasis.LaplaceOp1D);
     UniDirectionalLocalOpXOne2D  uniDirectionalOpXOne2D(localOp1D, a1);
@@ -322,12 +323,12 @@ int main (int argc, char *argv[]) {
     }
     std::ofstream convfile(filename.str().c_str());
 
-    //for (int j=0; j<=J; ++j) {
-    //    T eps = 0.001; int maxL2Iterations = 1; u.clear();
-    //    getSparseGridVector(basis2d, u, j, (T)0.);
-    for (timestep_eps=0.1; timestep_eps>=1e-6; timestep_eps*=0.5) {
-        int maxL2Iterations = 100; u.clear();
-        getSparseGridVector(basis2d, u, 0, (T)0.);
+    for (int j=0; j<=J; ++j) {
+        T timestep_eps = 1e-10; int maxL2Iterations = 12+j; u.clear();
+        getSparseGridVector(basis2d, u, j, (T)0.);
+    //for (timestep_eps=0.1; timestep_eps>=1e-6; timestep_eps*=0.5) {
+        //int maxL2Iterations = 100; u.clear();
+        //getSparseGridVector(basis2d, u, 0, (T)0.);
 
         LocalWeightingInitCond2D localWeightingInitCond2D;
         localWeightingInitCond2D.setDomain(left_x1,right_x1,left_x2,right_x2);
@@ -350,14 +351,17 @@ int main (int argc, char *argv[]) {
         thetatimestep_solver.setParameters(alpha, gamma, residualType, treeType, IsMW, false,
                                            hashMapSize);
 
+
         int strategy = 2;
         ThetaSchemeMultiTreeAWGM2D thetascheme(thetatimestep_solver);
         thetascheme.setParameters(theta, timestep, numOfTimesteps, timestep_eps, maxiterations,
                                   init_cgtol, strategy);
 
         int avDof = 0, maxDof = 0., terminalDof;
-        thetascheme.solve(u, avDof, maxDof, terminalDof);
+        thetascheme.solve(u, avDof, maxDof, terminalDof, j);
         cerr << "Computation of u has finished." << endl;
+
+        plotComputedSolution(basis2d, left_x1, right_x1, left_x2, right_x2, u);
 
         T maxerror = 0., maxerror1 = 0., maxerror2 = 0.;
         if (useRefPrices) {
@@ -626,5 +630,31 @@ computeLinftyErrorInitCond(const Basis2D &basis2d, T left_x1, T right_x1, T left
         }
         file << endl;
     }
+    file.close();
     return maxerror;
 }
+
+void
+plotComputedSolution(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                     const Coefficients<Lexicographical,T,Index2D> &u)
+{
+    std::stringstream coeffsfilename;
+    coeffsfilename << "coeffs_endpoint_" << u.size();
+    plotScatterCoeff(u, basis2d, coeffsfilename.str().c_str(), true, left_x1, right_x1, left_x2, right_x2);
+
+    std::stringstream filename;
+    filename << "solution_" << u.size() << ".txt";
+    ofstream file(filename.str().c_str());
+    T maxerror = 0.;
+    T h1 = (right_x1-left_x1)/100.;
+    T h2 = (right_x2-left_x2)/100.;
+    for (T x1=left_x1; x1<=right_x1; x1+=h1) {
+        for (T x2=left_x2; x2<=right_x2; x2+=h2) {
+            T approx = evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1, x2);
+            file << x1 << " " << x2 << " " << approx << endl;
+        }
+        file << endl;
+    }
+    file.close();
+}
+

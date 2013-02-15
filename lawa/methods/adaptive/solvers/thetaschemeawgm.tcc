@@ -49,57 +49,14 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::applyInvPreconditioner
 template <typename Index, typename ThetaTimeStepSolver>
 void
 ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T,Index> &u,
-                                                  int &avDof, int &maxDof, int &terminalDof)
+                                                  int &avDof, int &maxDof, int &terminalDof, int j)
 {
     size_t hms;
     hms = u.bucket_count();
 
     T discrete_timepoint = 0.;
-    Coefficients<Lexicographical,T,Index> propagated_u_k(hms), u0(hms), tmp(hms), tmp2(hms);
+    Coefficients<Lexicographical,T,Index> propagated_u_k(hms), u0(hms), tmp(hms), tmp2(hms), tmp3(hms);
     u0 = u;
-    T target_residual = 0.001*timestep_eps;
-    bool strategy1_applied = false, strategy2_applied = false;
-
-
-    if (strategy==2) {
-        tmp.clear();
-        tmp2.clear();
-        tmp  = u;
-        tmp2 = u;
-        //T threshold = exp(3*discrete_timepoint)*0.001*timestep_eps*u.norm(2.);
-        //T threshold = 0.000001*timestep_eps*u.norm(2.);
-        T threshold = 1e-6;
-        std::cerr << "   Size of u before threshold: " << u.size() << std::endl;
-        std::cerr << "   Threshold is: " << threshold << std::endl;
-        int maxLevelSum = 0;
-        bool erasedNode = false;
-        for (const_coeff_it it=tmp.begin(); it!=tmp.end(); ++it) {
-           maxLevelSum = std::max(maxLevelSum, (*it).first.index1.j+(*it).first.index2.j);
-           if ((fabs((*it).second)<threshold)) {
-               if ((*it).first.index1.xtype==XBSpline || (*it).first.index2.xtype==XBSpline)
-                       continue;
-               else {
-                   std::cerr << "   Erasing " << (*it).first << std::endl;
-                   u.erase((*it).first);
-                   erasedNode = true;
-               }
-           }
-        }
-        std::cerr << "   Max level sum = " << maxLevelSum << std::endl;
-        tmp.clear();
-        if (erasedNode) {
-            tmp = u;
-            for (coeff_it it=tmp.begin(); it!=tmp.end(); ++it) {
-                completeMultiTree(timestep_solver.basis, (*it).first, u, 0, true, false);
-            }
-            tmp.clear();
-        }
-        for (coeff_it it=u.begin(); it!=u.end(); ++it) {
-            (*it).second = tmp2[(*it).first];
-        }
-        std::cerr << "   Size of u after threshold: " << u.size() << std::endl;
-        strategy2_applied = true;
-    }
 
     int N = u.size();
 
@@ -130,64 +87,26 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
 
 
         std::cerr << "******* THETA scheme iteration i = " << i << " ****** " << std::endl;
-        std::cerr << "   timestep = " << timestep << ", theta = " << current_theta << std::endl;
+        std::cerr << "   timestep = " << timestep << ", theta = " << current_theta
+                  << ", time point = " << discrete_timepoint << std::endl;
 
         timestep_solver.Op.setThetaTimeStepParameters(current_theta, current_timestep);
         timestep_solver.Prec.setThetaTimeStepParameters(current_theta, current_timestep);
         timestep_solver.F.setThetaTimeStepParameters(current_theta,current_timestep,discrete_timepoint,u);
 
-
         this->applyInvPreconditioner(u);
         T res = 0.;
-        if (strategy==1 && discrete_timepoint>=0.1) {
-            if (!strategy1_applied) {
-                int sg_j = 0;
-                for (sg_j=0; sg_j<20; ++sg_j) {
-                    tmp.clear();
-                    getSparseGridVector(timestep_solver.basis, tmp, sg_j, (T)0.);
-                    if (tmp.size()>u.size()) break;
-                }
-                sg_j -= 1;
-                u.clear();
-                getSparseGridVector(timestep_solver.basis, u, sg_j, (T)0.);
-                strategy1_applied = true;
-            }
-            res = timestep_solver.cg_solve(u,target_residual,1,0.001*timestep_eps,0.,
-                                                         "conv.dat", "coeff.dat", N);
-        }
-        /*
-        else if (strategy==2 && discrete_timepoint>=0.1) {
-            res = timestep_solver.cg_solve(u,target_residual,1,0.0001*timestep_eps,0.,
+        if (strategy==3 && discrete_timepoint>=0.1) {
+            res = timestep_solver.cg_solve(u,1e-12,1,1e-10,0.,
                                              "conv.dat", "coeff.dat", N);
-            target_residual = res;
-            std::cerr << "   Residual = " << res << ", target residual was " << target_residual << std::endl;
-        }
-        */
-        else if (strategy==3 && discrete_timepoint>=0.1 && i%refinement_timesteps_mod==0) {
-            int sg_j = 0;
-            int maxN = 0;
-            for (sg_j=0; sg_j<20; ++sg_j) {
-                tmp.clear();
-                getSparseGridVector(timestep_solver.basis, tmp, sg_j, (T)0.);
-                if      (tmp.size()>u.size()) break;
-                else    maxN = tmp.size();
-            }
-            sg_j -= 1;
-            u.clear();
-            T target_res = 0.001*timestep_eps;
-            getSparseGridVector(timestep_solver.basis, u, 2, (T)0.);
-            res = timestep_solver.cg_solve(u,target_res,50,0.00001*target_res,0.,
-                                                         "conv.dat", "coeff.dat", maxN);
-            std::cerr << "   Adaptive solver: " << u.size() << " " << res << " " << target_res << " " << u.norm(2.) << std::endl;
-
         }
         else {
-            res = timestep_solver.cg_solve(u,target_residual,1,1e-8,0.,
+            res = timestep_solver.cg_solve(u,1e-12,1,1e-10,0.,
                                              "conv.dat", "coeff.dat", N);
         }
-        file << u.size() << " " << res << " " << u.norm(2.) << std::endl;
 
         this->applyPreconditioner(u);
+
 
         IndexSet<Index1D> Lambda_x, Lambda_y;
         split(supp(u),Lambda_x,Lambda_y);
@@ -196,46 +115,69 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
         getMinAndMaxLevel(Lambda_y,jmin_y,jmax_y);
         std::cout << "   Max level = (" << jmax_x << ", " << jmax_y << ")" << std::endl;
 
-        if (strategy==2 && discrete_timepoint>=0.1) {
-           tmp.clear();
-           tmp2.clear();
-           tmp   = u;
-           tmp2  = u;
-           //T threshold = exp(3*discrete_timepoint)*0.001*timestep_eps*u.norm(2.);
-           //T threshold = 0.000001*timestep_eps*u.norm(2.);
-           T threshold = 1e-6;
-           std::cerr << "   Size of u before threshold: " << u.size() << std::endl;
-           std::cerr << "   Threshold is: " << threshold << std::endl;
-           int maxLevelSum = 0;
-           bool erasedNode = false;
-           for (const_coeff_it it=tmp.begin(); it!=tmp.end(); ++it) {
-               maxLevelSum = std::max(maxLevelSum, (*it).first.index1.j+(*it).first.index2.j);
-               if ((fabs((*it).second)<threshold)) {
-                   if ((*it).first.index1.xtype==XBSpline || (*it).first.index2.xtype==XBSpline)
-                           continue;
-                   else  {
-                       //std::cerr << "   Erasing " << (*it).first << std::endl;
-                       u.erase((*it).first);
-                       erasedNode = true;
-                   }
-               }
-           }
-           std::cerr << "   Size of u after threshold and no completion: " << u.size() << std::endl;
-           std::cerr << "   Max level sum = " << maxLevelSum << std::endl;
-           tmp.clear();
-           if (erasedNode) {
-               tmp = u;
-               for (coeff_it it=tmp.begin(); it!=tmp.end(); ++it) {
-                   completeMultiTree(timestep_solver.basis, (*it).first, u, 0, true, false);
-               }
-               tmp.clear();
-           }
-           for (coeff_it it=u.begin(); it!=u.end(); ++it) {
-               (*it).second = tmp2[(*it).first];
-           }
-           std::cerr << "   Size of u after threshold: " << u.size() << std::endl;
-           strategy2_applied = true;
+
+        tmp.clear();
+        tmp2.clear();
+        tmp2  = u;
+        bool erasedNode = false;
+
+
+        if (strategy==1 && i>4) {
+            //T threshold = j <= 5 ? 0.0001*std::pow((T)2.,(T)(-2.*j)) : 0.00001*std::pow((T)2.,(T)(-2.*j));//T threshold = 1e-12; //ex1
+            T threshold = j <= 5 ? 0.0005*std::pow((T)2.,(T)(-2.*j)) : 0.00005*std::pow((T)2.,(T)(-2.*j));//T threshold = 1e-12; //ex2
+            std::cerr << "   APPLYING strategy 1" << std::endl;
+            int sizeBeforeThresh = u.size(), sizeAfterThresh = 0;
+            u = MULTITREE_THRESH(u,threshold*u.norm(2.));
+            erasedNode = true;
+            sizeAfterThresh = u.size();
+            (sizeBeforeThresh > sizeAfterThresh) ? erasedNode = true : erasedNode = false;
+            std::cerr << "      Threshold: " << threshold << " -> (" << sizeBeforeThresh << ", "
+                      << sizeAfterThresh << ")" << std::endl;
        }
+
+        if (strategy==2 && discrete_timepoint>=0.125) {
+           //T threshold = j <= 5 ? 0.0001*std::pow((T)2.,(T)(-2.*j)) : 0.00001*std::pow((T)2.,(T)(-2.*j));
+           //T threshold = j <= 5 ? 0.001*std::pow((T)2.,(T)(-2.*j)) : 0.0001*std::pow((T)2.,(T)(-2.*j));
+
+            T threshold =  0.00001*std::pow((T)2.,(T)(-2.*j))*u.norm(2.);
+//            T threshold =  0.000001*std::pow((T)2.,(T)(-2.*j))*u.norm(2.);
+            int sizeBeforeThresh = u.size(), sizeAfterThresh = 0;
+            std::cerr << "   APPLYING strategy 2" << std::endl;
+            int maxLevelSum = 0;
+            tmp = u;
+            for (const_coeff_it it=tmp.begin(); it!=tmp.end(); ++it) {
+               maxLevelSum = std::max(maxLevelSum, (*it).first.index1.j+(*it).first.index2.j);
+
+               if ((fabs((*it).second)<threshold)) {
+                   if ( (((*it).first.index1.xtype==XBSpline) || ((*it).first.index2.xtype==XBSpline))
+                        && (fabs((*it).second)>1e-10)   )
+                           continue;
+                   //else  {
+                       //std::cerr << "   Erasing " << (*it).first << std::endl;
+                   u.erase((*it).first);
+                   //}
+               }
+            }
+            sizeAfterThresh = u.size();
+            (sizeBeforeThresh > sizeAfterThresh) ? erasedNode = true : erasedNode = false;
+            std::cerr << "      Threshold: " << threshold << " -> (" << sizeBeforeThresh << ", "
+                     << sizeAfterThresh << ")" << std::endl;
+            std::cerr << "   Max level sum = " << maxLevelSum << std::endl;
+            tmp.clear();
+        }
+
+        if ((strategy==1 || strategy==2) && erasedNode) {
+            std::cerr << "   Completing multitree." << std::endl;
+            tmp = u;
+            for (coeff_it it=tmp.begin(); it!=tmp.end(); ++it) {
+                completeMultiTree(timestep_solver.basis, (*it).first, u, 0, true, false);
+            }
+            tmp.clear();
+
+            for (coeff_it it=u.begin(); it!=u.end(); ++it) {
+                (*it).second = tmp2[(*it).first];
+            }
+        }
 
         maxDof = std::max(maxDof, (int)u.size());
         _avDof += u.size();
@@ -316,4 +258,21 @@ for (const_coeff_it it=u.begin(); it!=u.end(); ++it) {
     std::cerr << (*it).first << " : " << (*it).second << " " << u0[(*it).first] << std::endl;
 }
 */
+
+/*
+int  j_x=(*it).first.index1.j,    j_y=(*it).first.index2.j;
+long k_x=(*it).first.index1.k,    k_y=(*it).first.index2.k;
+XType xtype_x=(*it).first.index1.xtype, xtype_y=(*it).first.index2.xtype;
+
+Support<T> supp_x = timestep_solver.basis.first.generator(xtype_x).support(j_x,k_x);
+T center_x  = 0.5*(supp_x.l1 + supp_x.l2);
+center_x *= 4.; center_x += -2.;
+
+Support<T> supp_y = timestep_solver.basis.second.generator(xtype_y).support(j_y,k_y);
+T center_y  = 0.5*(supp_y.l1 + supp_y.l2);
+center_y *= 4.; center_y += -2.;
+T factor = exp(5.*(center_x*center_x + center_y*center_y));
+
+ *
+ */
 

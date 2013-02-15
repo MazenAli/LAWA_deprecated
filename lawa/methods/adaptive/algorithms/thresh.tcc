@@ -125,7 +125,6 @@ MULTITREE_THRESH(const Coefficients<Lexicographical,T,Index2D > &v, T eta)
         }
     }
 
-
     return ret;
 }
 

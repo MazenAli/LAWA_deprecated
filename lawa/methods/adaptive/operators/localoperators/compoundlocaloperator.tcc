@@ -202,7 +202,7 @@ apply(Coefficients<Lexicographical,T,Index> &v,
     //todo: CA should be a read-in parameter
     T CA = 2.;
     Coefficients<Bucket,T,Index> v_bucket;
-    T tol = 0.5*eps/CA;
+    T tol = 0.5*eps/CA;     //works better than tol=0.5*eps and multiply delta by CA... why??
     v_bucket.bucketsort(v,tol);
     long double squared_v_norm = (long double)std::pow(v.norm(2.),(T)2.);
     long double squared_v_bucket_norm = 0.;

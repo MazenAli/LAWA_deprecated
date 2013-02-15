@@ -132,8 +132,8 @@ cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations, 
 
             T cg_rNormSquarePrev = cg_rNormSquare;
             cg_rNormSquare = r*r;
-            std::cerr << "            Current error in cg: " << std::sqrt(cg_rNormSquare) << std::endl;
-            std::cerr << "            ||u||_2 = " << u.norm(2.) <<  std::endl;
+            //std::cerr << "            Current error in cg: " << std::sqrt(cg_rNormSquare) << std::endl;
+            //std::cerr << "            ||u||_2 = " << u.norm(2.) <<  std::endl;
             T beta = cg_rNormSquare/cg_rNormSquarePrev;
             p *= beta;
             p -= r;

@@ -627,9 +627,9 @@ plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Bas
             y = (supp_y.l2 + supp_y.l1)/(T)2.;
 
             //center of the support
-            if(fabs((*it).second) > 0){
+            //if(fabs((*it).second) > 0){
               datafile << x << " " << y << " " << (*it).second << " " << 0. << std::endl;
-            }
+            //}
         }
     }
     else {
@@ -649,9 +649,9 @@ plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Bas
             x *= RightmLeft_x1; x += left_x1;
             y *= RightmLeft_x1; y += left_x1;
             //center of the support
-            if(fabs((*it).second) > 0){
+            //if(fabs((*it).second) > 0){
               datafile << x << " " << y << " " << (*it).second << " " << 0. << std::endl;
-            }
+            //}
         }
     }
     datafile.close();
