@@ -135,7 +135,7 @@ int main (int argc, char *argv[]) {
     int J  = atoi(argv[4]);
 
     T r_norm = 0.1;
-    T gamma = 0.2;
+    T gamma = 0.0; // 0.2;
     int ell=1;
     Timer time;
 
@@ -145,9 +145,9 @@ int main (int argc, char *argv[]) {
     Basis_Space 		 basis_intbc(d,d_,j0);
     basis_intbc.enforceBoundaryCondition<DirichletBC>();
 
-    TrialBasis_Time_RefinementBasis 	refbasis_per = basis_per.refinementbasis;
-    TestBasis_Time_RefinementBasis 		refbasis_int = basis_int.refinementbasis;
-    Basis_Space_RefinementBasis    		refbasis_intbc = basis_intbc.refinementbasis;
+//    TrialBasis_Time_RefinementBasis 	refbasis_per = basis_per.refinementbasis;
+//    TestBasis_Time_RefinementBasis 		refbasis_int = basis_int.refinementbasis;
+//    Basis_Space_RefinementBasis    		refbasis_intbc = basis_intbc.refinementbasis;
 
     Basis2D_Trial basis2d_trial(basis_per,basis_intbc);
     Basis2D_Test  basis2d_test(basis_int,basis_intbc);
@@ -168,10 +168,10 @@ int main (int argc, char *argv[]) {
     PDEBilinearForm1D_Space 	IdentityBil_x(basis_intbc, basis_intbc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
     PDEBilinearForm1D_Space 	LaplaceBil_x(basis_intbc, basis_intbc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
 
-    PDERefinementBilinearForm1D_Time 	RefConvectionBil_t(refbasis_per, refbasis_int, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
-    PDERefinementBilinearForm1D_Time 	RefIdentityBil_t(refbasis_per, refbasis_int, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-    PDERefinementBilinearForm1D_Space 	RefIdentityBil_x(refbasis_intbc, refbasis_intbc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-    PDERefinementBilinearForm1D_Space 	RefLaplaceBil_x(refbasis_intbc, refbasis_intbc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
+    PDERefinementBilinearForm1D_Time 	RefConvectionBil_t(basis_per.refinementbasis, basis_int.refinementbasis, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
+    PDERefinementBilinearForm1D_Time 	RefIdentityBil_t(basis_per.refinementbasis, basis_int.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+    PDERefinementBilinearForm1D_Space 	RefIdentityBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+    PDERefinementBilinearForm1D_Space 	RefLaplaceBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
 
     // Transposed Bilinear Forms
     TransPDEBilinearForm1D_Time 	TransConvectionBil_t(basis_per, basis_int, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
@@ -179,10 +179,10 @@ int main (int argc, char *argv[]) {
     TransPDEBilinearForm1D_Space 	TransIdentityBil_x(basis_intbc, basis_intbc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
     TransPDEBilinearForm1D_Space 	TransLaplaceBil_x(basis_intbc, basis_intbc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
 
-    TransPDERefinementBilinearForm1D_Time 	TransRefConvectionBil_t(refbasis_per, refbasis_int, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
-    TransPDERefinementBilinearForm1D_Time 	TransRefIdentityBil_t(refbasis_per, refbasis_int, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-    TransPDERefinementBilinearForm1D_Space 	TransRefIdentityBil_x(refbasis_intbc, refbasis_intbc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-    TransPDERefinementBilinearForm1D_Space 	TransRefLaplaceBil_x(refbasis_intbc, refbasis_intbc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
+    TransPDERefinementBilinearForm1D_Time 	TransRefConvectionBil_t(basis_per.refinementbasis, basis_int.refinementbasis, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
+    TransPDERefinementBilinearForm1D_Time 	TransRefIdentityBil_t(basis_per.refinementbasis, basis_int.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+    TransPDERefinementBilinearForm1D_Space 	TransRefIdentityBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+    TransPDERefinementBilinearForm1D_Space 	TransRefLaplaceBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
 
     /// Initialization of local operator
     LocalOp1D_t		localConvectionOp1D_t(basis_int, basis_per, RefConvectionBil_t, ConvectionBil_t);
@@ -247,8 +247,13 @@ int main (int argc, char *argv[]) {
 
     IndexSet<Index2D> LambdaTrial, LambdaTest;
     Coefficients<Lexicographical,T,Index2D> aux_Lambda;
-    getSparseGridIndexSet(basis2d_trial,LambdaTrial,3,0, gamma);
-    getSparseGridIndexSet(basis2d_test,LambdaTest,3,1,gamma);
+    //getSparseGridIndexSet(basis2d_trial,LambdaTrial,4,0, gamma);
+    //getSparseGridIndexSet(basis2d_test,LambdaTest,4,1,gamma);
+
+    readIndexSetFromFile(LambdaTrial, "Run2_u_coeffs.txt");
+    cout << LambdaTrial << endl;
+    return 0;
+
 
     cout << "LambdaTrial: " << LambdaTrial.size() << " bfs " << endl;
     cout << "LambdaTest: " << LambdaTest.size() << " bfs " << endl;
@@ -261,6 +266,7 @@ int main (int argc, char *argv[]) {
     f = F(LambdaTest);
     FillWithZeros(LambdaTest,r);
     FillWithZeros(LambdaTrial,p);
+    FillWithZeros(LambdaTrial,s);
     FillWithZeros(LambdaTest,Ap);
 
     int maxIterations = 100;
@@ -443,46 +449,37 @@ readIndexSetFromFile(IndexSet<Index2D> &Lambda, string filename)
         cerr << "   Indexset file " << filename.c_str()  << " is not open." << endl;
     }
 
-    std::string line;
-    std::string field1, field2, field3, field4, field5, field6;
-    while(std::getline( infile, line, '\n' )) {
-        std::istringstream line_ss(line);
-        std::getline( line_ss, field1, ',' );
-        std::getline( line_ss, field2, ',' );
-        std::getline( line_ss, field3, ',' );
-        std::getline( line_ss, field4, ',' );
-        std::getline( line_ss, field5, ',' );
-        std::getline( line_ss, field6, ',' );
-        int j1,j2;
-        long k1,k2;
+	int t1,t2;
+    int j1,j2;
+    long k1,k2;
+    T coeff;
 
-        j1 = atoi(field2.c_str());
-        k1 = atol(field3.c_str());
-        j2 = atoi(field5.c_str());
-        k2 = atol(field6.c_str());
+    while(!infile.eof()) {
 
-        if (strcmp(field1.c_str(),"wavelet")==0 && strcmp(field4.c_str(),"wavelet")==0) {
+    	infile >> t1 >> j1 >> k1 >> t2 >> j2 >> k2 >> coeff;
+
+        if (t1 == 1 && t2 == 1) {
             Index1D index_x(j1,k1,XWavelet);
             Index1D index_y(j2,k2,XWavelet);
             Lambda.insert(Index2D(index_x,index_y));
         }
-        else if (strcmp(field1.c_str(),"wavelet")==0 && strcmp(field4.c_str(),"scaling")==0) {
+        else if (t1 == 1 && t2 == 0) {
             Index1D index_x(j1,k1,XWavelet);
             Index1D index_y(j2,k2,XBSpline);
             Lambda.insert(Index2D(index_x,index_y));
         }
-        else if (strcmp(field1.c_str(),"scaling")==0 && strcmp(field4.c_str(),"wavelet")==0) {
+        else if (t1 == 0 && t2 == 1) {
             Index1D index_x(j1,k1,XBSpline);
             Index1D index_y(j2,k2,XWavelet);
             Lambda.insert(Index2D(index_x,index_y));
         }
-        else if (strcmp(field1.c_str(),"scaling")==0 && strcmp(field4.c_str(),"scaling")==0) {
+        else if (t1 == 0 && t2 == 0) {
             Index1D index_x(j1,k1,XBSpline);
             Index1D index_y(j2,k2,XBSpline);
             Lambda.insert(Index2D(index_x,index_y));
         }
         else {
-            std::cerr << "Got " << field1 << ", could not read file." << std::endl;
+            std::cerr << "Could not read file." << std::endl;
             exit(1); return;
         }
     }
