@@ -208,6 +208,38 @@ class Basis<_T,Primal,Interval,Dijkema>
    										   int &j_wavelet2, long &k_wavelet_first,
    										   long &k_wavelet_last) const;
 
+        MRA<T,Primal,Interval,Dijkema> mra;
+        MRA<T,Dual,Interval,Dijkema>  mra_;
+
+        const int d, d_, mu;   // mu = mu(d) = d&1.
+        const int min_j0;      // minimal allowed(!) level;
+        const int j0;          // minimal used(!) level.
+
+    private:
+        DenseVector<Array<int> > _bc;    // the boundary conditions
+                                           // bc(0) = 1 -> Dirichlet BC left.
+                                           // bc(1) = 1 -> Dirichlet BC right.
+
+        mutable int _j;                // the current level.
+
+        friend class Wavelet<T,Primal,Interval,Dijkema>;
+
+        DenseVector<Array<long double> > *_leftRefCoeffs,
+                                         *_innerRefCoeffs,
+                                         *_rightRefCoeffs;
+
+        long double *_leftL2Norms,  *_leftH1SemiNorms,
+                    *_innerL2Norms, *_innerH1SemiNorms,
+                    *_rightL2Norms, *_rightH1SemiNorms;
+        long *_leftOffsets,
+             *_innerOffsets,
+             *_rightOffsets;
+
+    public:
+        Wavelet<T,Primal,Interval,Dijkema> psi;
+        Basis<T,Primal,Interval,Dijkema> &refinementbasis;
+
+        RefinementMatrix<T,Interval,Dijkema> M1;
 
         class LaplaceOperator1D {
             public:
@@ -243,43 +275,6 @@ class Basis<_T,Primal,Interval,Dijkema>
 
         LaplaceOperator1D LaplaceOp1D;
         IdentityOperator1D IdentityOp1D;
-
-        MRA<T,Primal,Interval,Dijkema> mra;
-        MRA<T,Dual,Interval,Dijkema>  mra_;
-
-        RefinementMatrix<T,Interval,Dijkema> M1;
-
-        const int d, d_, mu;   // mu = mu(d) = d&1.
-        const int min_j0;      // minimal allowed(!) level;
-        const int j0;          // minimal used(!) level.
-
-    private:
-        DenseVector<Array<int> > _bc;    // the boundary conditions
-                                           // bc(0) = 1 -> Dirichlet BC left.
-                                           // bc(1) = 1 -> Dirichlet BC right.
-
-        mutable int _j;                // the current level.
-
-        friend class Wavelet<T,Primal,Interval,Dijkema>;
-
-        DenseVector<Array<long double> > *_leftRefCoeffs,
-                                         *_innerRefCoeffs,
-                                         *_rightRefCoeffs;
-
-        long double *_leftL2Norms,  *_leftH1SemiNorms,
-                    *_innerL2Norms, *_innerH1SemiNorms,
-                    *_rightL2Norms, *_rightH1SemiNorms;
-        long *_leftOffsets,
-             *_innerOffsets,
-             *_rightOffsets;
-
-
-
-
-    public:
-        Wavelet<T,Primal,Interval,Dijkema> psi;
-
-        Basis<T,Primal,Interval,Dijkema> &refinementbasis;
 };
 
 } // namespace lawa
