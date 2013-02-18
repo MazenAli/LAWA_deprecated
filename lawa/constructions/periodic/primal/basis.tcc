@@ -24,7 +24,7 @@ namespace lawa {
 template <typename T>
 Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
     : d(_d), d_(_d_), j0(j), mra(d,d_,j), mra_(d,d_,j), 
-      psi(*this), M1(psi), _j(j), refinementbasis(_d, _d_, j)
+      psi(*this), M1(psi), refinementbasis(_d, _d_, j), _j(j)
 {
 	if(d == 2 && d_ == 2){
 

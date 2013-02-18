@@ -23,7 +23,7 @@ namespace lawa {
 
 template <typename T>
 MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
-    : d(_d), d_(_d_), j0(j), M0(phi), _j(j), mu(d&1), phi(*this)
+    : d(_d), d_(_d_), j0(j), mu(d&1), _j(j), phi(*this), M0(phi)
 {
 
     // Refinement coefficients only in double prec. available due to missing support of higher

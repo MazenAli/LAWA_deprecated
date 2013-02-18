@@ -75,8 +75,6 @@ class MRA<_T,Primal,Periodic,CDF>
 
 
         const int d, d_, j0, mu; // mu = mu(d) = d&1
-        BSpline<T,Primal,Periodic,CDF> phi;
-        RefinementMatrix<T,Periodic,CDF> M0;
         
         // do I need this?
         // const int l1, l2;
@@ -96,6 +94,10 @@ class MRA<_T,Primal,Periodic,CDF>
              *_periodicOffsets,
              *_rightOffsets,
              *_split;
+
+    public:
+        BSpline<T,Primal,Periodic,CDF> phi;
+        RefinementMatrix<T,Periodic,CDF> M0;
 };
 
 } // namespace lawa
