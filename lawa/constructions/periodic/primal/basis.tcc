@@ -27,6 +27,7 @@ Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
       psi(*this), M1(psi), _j(j), refinementbasis(_d, _d_, j)
 {
 	if(d == 2 && d_ == 2){
+
         _periodicRefCoeffs = new DenseVector<Array<long double> >[1];
         _periodicRefCoeffs[0].engine().resize(5,0);
         _periodicRefCoeffs[0] = 1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
@@ -55,12 +56,14 @@ Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
 template <typename T>
 Basis<T,Primal,Periodic, CDF>::~Basis()
 {
-	delete[] _periodicRefCoeffs;
-	delete[] _rightRefCoeffs;
-	delete[] _innerOffsets;
-	delete[] _split;
-	delete[] _periodicL2Norms;
-	delete[] _periodicH1SemiNorms;
+	if(d == 2 && d_ == 2){
+		delete[] _periodicRefCoeffs;
+		delete[] _innerOffsets;
+		delete[] _rightRefCoeffs;
+		delete[] _split;
+		delete[] _periodicL2Norms;
+		delete[] _periodicH1SemiNorms;
+	}
 }
 
 template <typename T>

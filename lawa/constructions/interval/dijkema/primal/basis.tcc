@@ -84,15 +84,13 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
 template <typename T>
 Basis<T,Primal,Interval,Dijkema>::~Basis()
 {
-    if (((_bc(0)==1) && (_bc(1)==1)) || (d==2 && d_==2)) {
+    if ((d==2 && d_==2) || (_bc(0)==1 && _bc(1)==1 && d==3 && d_==3)) {
         delete[] _leftRefCoeffs,
         delete[] _innerRefCoeffs,
         delete[] _rightRefCoeffs;
         delete[] _leftOffsets,
         delete[] _innerOffsets,
         delete[] _rightOffsets;
-    }
-    if ((_bc(0)==1) && (_bc(1)==1)) {
         delete[] _leftL2Norms;
         delete[] _innerL2Norms;
         delete[] _rightL2Norms;
@@ -100,6 +98,7 @@ Basis<T,Primal,Interval,Dijkema>::~Basis()
         delete[] _innerH1SemiNorms;
         delete[] _rightH1SemiNorms;
     }
+
 }
 
 template <typename T>
@@ -138,6 +137,20 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
     // Refinement coefficients only in double prec. available due to missing support of higher
     // precision in blas routines.
     if (d==2 && d_==2) {
+
+        delete[] _leftRefCoeffs,
+        delete[] _innerRefCoeffs,
+        delete[] _rightRefCoeffs;
+        delete[] _leftOffsets,
+        delete[] _innerOffsets,
+        delete[] _rightOffsets;
+        delete[] _leftL2Norms;
+        delete[] _innerL2Norms;
+        delete[] _rightL2Norms;
+        delete[] _leftH1SemiNorms;
+        delete[] _innerH1SemiNorms;
+        delete[] _rightH1SemiNorms;
+
         // left part
         _leftRefCoeffs = new DenseVector<Array<long double> >[2];
         _leftRefCoeffs[0].engine().resize(3,0);
@@ -178,6 +191,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _rightH1SemiNorms[0] =  std::sqrt(16.5L); _rightH1SemiNorms[1] =  std::sqrt(16.5L);
     }
     else if (d==3 && d_==3) {
+
         // left part
         _leftRefCoeffs = new DenseVector<Array<long double> >[4];
         _leftRefCoeffs[0].engine().resize(7,0);

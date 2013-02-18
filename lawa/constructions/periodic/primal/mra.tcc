@@ -53,22 +53,23 @@ MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
 		_periodicH1SemiNorms[0] = std::sqrt(2.L);
 
 	}
-    else if (d==3){
 
-    }
 
 }
 
 template <typename T>
 MRA<T,Primal,Periodic,CDF>::~MRA()
 {
-	delete[] _periodicRefCoeffs;
-	delete[] _rightRefCoeffs;
-	delete[] _periodicOffsets;
-	delete[] _rightOffsets;
-	delete[] _split;
-	delete[] _periodicL2Norms;
-	delete[] _periodicH1SemiNorms;
+	if(d==2){
+		delete[] _periodicRefCoeffs;
+		delete[] _periodicOffsets;
+		delete[] _rightRefCoeffs;
+		delete[] _split;
+		delete[] _rightOffsets;
+		delete[] _periodicL2Norms;
+		delete[] _periodicH1SemiNorms;
+	}
+
 }
 
 template <typename T>

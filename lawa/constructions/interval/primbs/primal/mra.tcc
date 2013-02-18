@@ -119,13 +119,23 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
 template <typename T>
 MRA<T,Primal,Interval,Primbs>::~MRA()
 {
-    if (d==2) {
+    if (d==2 && _bc(0)==DirichletBC && _bc(1)==DirichletBC) {
         delete[] _innerRefCoeffs;
         delete[] _innerOffsets;
         delete[] _innerL2Norms;
         delete[] _innerH1SemiNorms;
     }
-    else if (d==3) {
+    else if (d==3){
+        delete[] _leftRefCoeffs;
+        delete[] _innerRefCoeffs;
+        delete[] _rightRefCoeffs;
+        delete[] _leftOffsets;
+        delete[] _innerOffsets;
+        delete[] _rightOffsets;
+        delete[] _innerL2Norms;
+        delete[] _innerH1SemiNorms;
+    }
+    else{
         delete[] _leftRefCoeffs;
         delete[] _innerRefCoeffs;
         delete[] _rightRefCoeffs;
@@ -140,6 +150,7 @@ MRA<T,Primal,Interval,Primbs>::~MRA()
         delete[] _rightH1SemiNorms;
 
     }
+
 }
 
 //--- cardinalities of whole, left, inner, right index sets. -------------------
@@ -237,6 +248,12 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
     // Refinement coefficients only in double prec. available due to missing support of higher
     // precision in blas routines.
     if (d==2) {
+
+        delete[] _innerRefCoeffs;
+        delete[] _innerOffsets;
+        delete[] _innerL2Norms;
+        delete[] _innerH1SemiNorms;
+
         // left part
         //_leftRefCoeffs = new DenseVector<Array<long double> >[0];
         //_leftOffsets = new long[0];
@@ -261,6 +278,16 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         //_rightH1SemiNorms  = new long double[0];
     }
     else if (d==3) {
+
+        delete[] _leftRefCoeffs;
+        delete[] _innerRefCoeffs;
+        delete[] _rightRefCoeffs;
+        delete[] _leftOffsets;
+        delete[] _innerOffsets;
+        delete[] _rightOffsets;
+        delete[] _innerL2Norms;
+        delete[] _innerH1SemiNorms;
+
         // left part
         _leftRefCoeffs = new DenseVector<Array<long double> >[1];
         _leftRefCoeffs[0].engine().resize(3,0);
