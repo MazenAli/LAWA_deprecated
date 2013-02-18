@@ -118,6 +118,8 @@ class MRA<_T,Primal,Interval,Primbs>
              *_innerOffsets,
              *_rightOffsets;
 
+        MRA(const MRA& secondmra);
+
     public:
         BSpline<T,Primal,Interval,Primbs> phi;
 

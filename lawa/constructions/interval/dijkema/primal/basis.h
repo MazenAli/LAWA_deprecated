@@ -235,6 +235,9 @@ class Basis<_T,Primal,Interval,Dijkema>
              *_innerOffsets,
              *_rightOffsets;
 
+        Basis(const Basis& secondbasis);
+
+
     public:
         Wavelet<T,Primal,Interval,Dijkema> psi;
         Basis<T,Primal,Interval,Dijkema> &refinementbasis;

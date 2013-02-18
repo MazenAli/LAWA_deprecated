@@ -72,6 +72,9 @@ struct Wavelet<_T,Primal,Interval,_Cons>
     getH1SemiNorm(int j, long k) const;
 
     const Basis<T,Primal,Interval,Cons> &basis;
+
+private:
+    Wavelet(const Wavelet& secondwavelet);
 };
 
 } // namespace lawa

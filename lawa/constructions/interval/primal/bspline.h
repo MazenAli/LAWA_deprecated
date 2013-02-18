@@ -67,6 +67,9 @@ struct BSpline<_T,Primal,Interval,_Cons>
     getH1SemiNorm(int j, long k) const;
 
     const MRA<T,Primal,Interval,Cons> &mra;
+
+private:
+    BSpline(const BSpline& secondbspline);
 };
 
 } // namespace lawa

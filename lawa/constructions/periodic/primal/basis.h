@@ -179,6 +179,9 @@ class Basis<_T,Primal,Periodic,CDF>
 
         long 	*_innerOffsets, *_split;
         long double *_periodicL2Norms,  *_periodicH1SemiNorms;
+
+        Basis(const Basis& secondbasis);
+
 };
 
 } // namespace lawa

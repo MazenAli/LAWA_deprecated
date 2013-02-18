@@ -95,6 +95,8 @@ class MRA<_T,Primal,Periodic,CDF>
              *_rightOffsets,
              *_split;
 
+        MRA(const MRA& secondmra);
+
     public:
         BSpline<T,Primal,Periodic,CDF> phi;
         RefinementMatrix<T,Periodic,CDF> M0;

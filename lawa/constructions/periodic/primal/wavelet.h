@@ -84,6 +84,9 @@ struct Wavelet<_T,Primal,Periodic,CDF>
     const Wavelet<T, Primal, R, CDF> psiR;
 
     const Basis<T,Primal,Periodic,CDF> &basis;
+
+private:
+    Wavelet(const Wavelet& secondwavelet);
 };
 
 } // namespace lawa

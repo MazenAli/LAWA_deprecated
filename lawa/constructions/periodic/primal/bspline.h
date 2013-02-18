@@ -79,6 +79,9 @@ struct BSpline<_T,Primal,Periodic,CDF>
     const BSpline<T, Primal, R, CDF> phiR;  // ''original'' Bspline on R
 
     const MRA<T,Primal,Periodic,CDF> &mra;
+
+private:
+    BSpline(const BSpline& secondbspline);
 };
 
 } // namespace lawa
