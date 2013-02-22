@@ -158,7 +158,7 @@ int main (int argc, char *argv[]) {
     T awgm_tol = 5e-03;
     T awgm_alpha = 0.7;
     bool do_u_thresh = false;
-    T awgm_u_alpha = 0.7;
+    T awgm_u_alpha = 0.9999;
 
     T cgls_initTol = 0.01;
     T cgls_reduction = 0.1;
@@ -502,7 +502,7 @@ int main (int argc, char *argv[]) {
         awgm_resNE.push_back(Residual_NE);
         sizeLambdaResNE.push_back(LambdaResNE.size());
 
-        if (Residual <= awgm_tol) {
+      if (Residual <= awgm_tol || iter == 100) {
             std::cerr << "      Target tolerance reached: Residual = " << Residual
                       << ", eps = " << awgm_tol << std::endl;
 
@@ -583,9 +583,8 @@ int main (int argc, char *argv[]) {
 
         // Compute stable test index set
         // Compute next test index set (first on dummy vector Ap)
-        Ap.clear();
-        FillWithZeros(LambdaTrial,Ap);
         std::cerr << "         Finding stable expansion indizes in test index set..." << std::endl;
+        Ap.clear();
         getStableExpansion(basis2d_trial, basis2d_test, LambdaTrial, Ap);
         LambdaTest = supp(Ap);
         std::cerr << "         Size of LambdaTest after expansion: " << LambdaTest.size() <<  std::endl;
