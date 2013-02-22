@@ -47,7 +47,7 @@ HASHTYPE = -DTRONE -DBOOST_HAS_TR1_TUPLE
 # --- debug mode -----------------------
 DEBUGLAWA += -DCHECK_INTERVAL_CONSTRUCTION
 DEBUGMODE = -g -DDEBUG -D_GLIBCXX_DEBUG_PEDANTIC=1 $(DEBUGLAWA) $(HASHTYPE) \
-            -O2 -Wfatal-errors -pedantic -Wextra \
+            -O0 -Wfatal-errors -pedantic -Wextra \
             -fPIC
 
 # --- release mode ----------------------
