@@ -23,3 +23,7 @@ test_local_operator2d_periodic
 test_local_operator2d_per-int
 test_local_operator1d_pg
 test_local_operator2d_pg
+multitree_awgm_cgls_res
+multitree_awgm_cgls_resNE
+multitree_awgm_cgls_resNE_Ucone
+multitree_awgm_cgls_res_Ucone_Uthresh
