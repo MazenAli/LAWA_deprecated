@@ -129,7 +129,7 @@ struct TreeCoefficients1D
     int
     getMaxTreeLevel();
 
-    int
+    void
     setMaxTreeLevel(int j);
 
     T

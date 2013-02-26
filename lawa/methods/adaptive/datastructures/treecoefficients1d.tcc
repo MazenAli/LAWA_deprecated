@@ -273,7 +273,7 @@ TreeCoefficients1D<T>::getMaxTreeLevel()
 }
 
 template <typename T>
-int
+void
 TreeCoefficients1D<T>::setMaxTreeLevel(int j)
 {
     maxTreeLevel = j;
