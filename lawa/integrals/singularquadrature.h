@@ -40,7 +40,7 @@ class SingularQuadrature
         void
         setParameters(int order, int n, double sigma, double mu, double omega);
 
-        const long double
+        long double
         operator()(long double a1, long double b1, long double a2, long double b2,
                    long double eps);
 
