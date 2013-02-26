@@ -24,11 +24,12 @@
 #include <lawa/constructions/basis.h>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 #include <lawa/methods/adaptive/operators/localoperators/localoperator1d.h>
+#include <lawa/methods/adaptive/operators/localoperators/abstractlocaloperator2d.h>
 
 namespace lawa {
 
 template <typename LocalOperator1, typename LocalOperator2>
-struct LocalOperator2D {
+struct LocalOperator2D : AbstractLocalOperator2D<typename LocalOperator1::T>{
 
     typedef typename LocalOperator1::T T;
 
