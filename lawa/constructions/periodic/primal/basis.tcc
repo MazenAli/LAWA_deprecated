@@ -165,7 +165,7 @@ Basis<T,Primal,Periodic,CDF>::rangeJR(int j) const
 template <typename T>
 void
 Basis<T,Primal,Periodic,CDF>::getScalingNeighborsForScaling(int j_scaling1, long k_scaling1,
-							  const Basis<T,Primal,Periodic,CDF> &secondbasis,
+							  const Basis<T,Primal,Periodic,CDF> &/*secondbasis*/,
 							  int &j_scaling2, long &k_scaling_first,
 							  long &k_scaling_last) const
 {
@@ -337,8 +337,8 @@ Basis<T,Primal,Periodic,CDF>::getBSplineNeighborsForWavelet(int j_wavelet, long 
         // If not, we have to shift the translation indizes
     	long firstIndex = (long)secondrefinementbasis.mra.rangeI(j_bspline).firstIndex();
     	long lastIndex = (long)secondrefinementbasis.mra.rangeI(j_bspline).lastIndex();
-        k_bspline_first = std::max(std::min(++k_bspline_first, lastIndex), firstIndex);
-        k_bspline_last  = std::max(std::min(++k_bspline_last, lastIndex), firstIndex);
+        k_bspline_first = std::max(std::min(k_bspline_first+1, lastIndex), firstIndex);
+        k_bspline_last  = std::max(std::min(k_bspline_last+1, lastIndex), firstIndex);
     }
 
     // Test if we can drop the left or right boundary spline
@@ -380,7 +380,7 @@ Basis<T,Primal,Periodic,CDF>::getScalingNeighborsForWavelet(int j_wavelet, long 
 template <typename T>
 void
 Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                              const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                              const Basis<T,Primal,Periodic,CDF> &/*secondbasis*/,
                               int &j_wavelet2, long &k_wavelet_first,
                               long &k_wavelet_last) const
 {
@@ -407,9 +407,6 @@ Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForWavelet(int j_wavelet1, long
                               long &k_wavelet_last) const
 {
     j_wavelet2 = j_wavelet1;
-
-    // Use that k_interval = k_periodic + 1
-    long k_tilde = (k_wavelet1 + 1)*2;
 
     PeriodicSupport<T> supp = psi.support(j_wavelet1,k_wavelet1);
     if(supp.gaplength()==0){
@@ -471,7 +468,7 @@ Basis<T,Primal,Periodic,CDF>::getLowerWaveletNeighborsForWavelet(int j_wavelet1,
 template <typename T>
 void
 Basis<T,Primal,Periodic,CDF>::getHigherWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                                   const Basis<T,Primal,Periodic,CDF> &secondbasis,
+                                   const Basis<T,Primal,Periodic,CDF> &/*secondbasis*/,
                                    int &j_wavelet2, long &k_wavelet_first,
                                    long &k_wavelet_last) const
 {
