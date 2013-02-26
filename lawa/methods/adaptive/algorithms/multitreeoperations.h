@@ -28,6 +28,9 @@
 
 namespace lawa {
 
+// ----------------- extendMultiTree 1D-3D ------------------- //
+
+
 template <typename T, typename Basis>
 void
 extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index1D>  &v,
@@ -52,13 +55,8 @@ extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D
                 Coefficients<Lexicographical,T,Index3D>  &C_v, const char* residualType,
                 bool IsMW=false, bool sparsetree=false);
 
-/*
-template <typename T, typename Basis>
-void
-extendMultiTree(const Basis &basis, const Coefficients<Lexicographical,T,Index3D>  &v,
-                Coefficients<Lexicographical,T,Index3D>  &C_v, int coordDirec,
-                bool sparsetree=false);
-*/
+// ----------------- extendMultiTreeAtBoundary 2D,3D ------------------- //
+
 
 template <typename T, typename Basis>
 void
@@ -253,7 +251,26 @@ typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::
 					and IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
 
-}
+// ----------------- getCounterpart / getStableExpansion ------------------- //
+
+// To a given indexset in basis_origin, find a corresponding indexset in basis_target.
+// This is realized by taking the cone consisting of neighbours of all bfs in indexset_origin
+// We have to make sure that this is a MT!!
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getCounterpart(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+		IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
+
+// To a given indexset in basis_origin, find a corresponding indexset in basis_target,
+// so that the system is "stable" (or at least A^T A is approximated well enough).
+// This is realized by taking the cone consisting of neighbours of all bfs in indexset_origin
+// plus the HigherWavelet-Neighbours.
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getStableExpansion(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+				   IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
+
+} // namespace lawa
 
 #include <lawa/methods/adaptive/algorithms/multitreeoperations.tcc>
 

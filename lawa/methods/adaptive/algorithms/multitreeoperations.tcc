@@ -4927,57 +4927,422 @@ extendMultiTree2(const Basis &basis, const Index2D &index2d, const int offset, I
 	}
 }
 
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getCounterpart(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+				   IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target)
+{
+    long k_first_x, k_last_x, k_first_y, k_last_y;
+    int j_x, j_y;
+    for(IndexSet<Index2D>::const_iterator it = indexset_origin.begin(); it != indexset_origin.end(); ++it){
+
+		// Get neighbours for index_x
+		if((*it).index1.xtype==XBSpline){
+			basis_origin.first.getScalingNeighborsForScaling((*it).index1.j, (*it).index1.k,basis_target.first,
+																j_x, k_first_x, k_last_x);
+			assert(j_x == (*it).index1.j);
+		}
+		else{
+			basis_origin.first.getWaveletNeighborsForWavelet((*it).index1.j, (*it).index1.k,basis_target.first,
+																j_x, k_first_x, k_last_x);
+			assert(j_x == (*it).index1.j);
+		}
+
+		// Get neighbours for index_y
+		if((*it).index2.xtype==XBSpline){
+			basis_origin.second.getScalingNeighborsForScaling((*it).index2.j, (*it).index2.k, basis_target.second,
+																j_y, k_first_y, k_last_y);
+			assert(j_y == (*it).index2.j);
+		}
+		else{
+			basis_origin.second.getWaveletNeighborsForWavelet((*it).index2.j, (*it).index2.k, basis_target.second,
+																j_y, k_first_y, k_last_y);
+			assert(j_y == (*it).index2.j);
+		}
+
+		// Insert all combinations into res
+			// Outer loop: all indizes in x-direction
+		if(k_first_x < k_last_x){
+			for(long k_new_x = k_first_x; k_new_x <= k_last_x; ++k_new_x){
+				Index1D ind_x(j_x,k_new_x,(*it).index1.xtype);
+
+				// Inner loop: all indizes in y-direction
+				if(k_first_y < k_last_y){
+					for(long k_new_y = k_first_y; k_new_y <= k_last_y; ++k_new_y){
+						Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+						completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+					}
+				}
+				else{
+					if((*it).index2.xtype==XBSpline){
+						for(long k_new_y = k_first_y; k_new_y <= basis_target.second.mra.rangeI(j_y).lastIndex(); ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+						for(long k_new_y = basis_target.second.mra.rangeI(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+					}
+					else{
+						for(long k_new_y = k_first_y; k_new_y <= basis_target.second.rangeJ(j_y).lastIndex(); ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+						for(long k_new_y = basis_target.second.rangeJ(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+					}
+				}
+			}
+		}
+		else{
+			if((*it).index1.xtype==XBSpline){
+				for(long k_new_x = k_first_x; k_new_x <= basis_target.first.mra.rangeI(j_x).lastIndex(); ++k_new_x){
+					Index1D ind_x(j_x,k_new_x,(*it).index1.xtype);
+
+					// Inner loop: all indizes in y-direction
+					if(k_first_y < k_last_y){
+						for(long k_new_y = k_first_y; k_new_y <= k_last_y; ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+					}
+					else{
+						if((*it).index2.xtype==XBSpline){
+							for(long k_new_y = k_first_y; k_new_y <= basis_target.second.mra.rangeI(j_y).lastIndex(); ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+							for(long k_new_y = basis_target.second.mra.rangeI(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+						}
+						else{
+							for(long k_new_y = k_first_y; k_new_y <= basis_target.second.rangeJ(j_y).lastIndex(); ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+							for(long k_new_y = basis_target.second.rangeJ(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+						}
+					}
+				}
+				for(long k_new_x = basis_target.first.mra.rangeI(j_x).firstIndex(); k_new_x <= k_last_x; ++k_new_x){
+					Index1D ind_x(j_x,k_new_x,(*it).index1.xtype);
+
+					// Inner loop: all indizes in y-direction
+					if(k_first_y < k_last_y){
+						for(long k_new_y = k_first_y; k_new_y <= k_last_y; ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+					}
+					else{
+						if((*it).index2.xtype==XBSpline){
+							for(long k_new_y = k_first_y; k_new_y <= basis_target.second.mra.rangeI(j_y).lastIndex(); ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+							for(long k_new_y = basis_target.second.mra.rangeI(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+						}
+						else{
+							for(long k_new_y = k_first_y; k_new_y <= basis_target.second.rangeJ(j_y).lastIndex(); ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+							for(long k_new_y = basis_target.second.rangeJ(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+						}
+					}
+				}
+			}
+			else{
+				for(long k_new_x = k_first_x; k_new_x <= basis_target.first.rangeJ(j_x).lastIndex(); ++k_new_x){
+					Index1D ind_x(j_x,k_new_x,(*it).index1.xtype);
+
+					// Inner loop: all indizes in y-direction
+					if(k_first_y < k_last_y){
+						for(long k_new_y = k_first_y; k_new_y <= k_last_y; ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+					}
+					else{
+						if((*it).index2.xtype==XBSpline){
+							for(long k_new_y = k_first_y; k_new_y <= basis_target.second.mra.rangeI(j_y).lastIndex(); ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+							for(long k_new_y = basis_target.second.mra.rangeI(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+						}
+						else{
+							for(long k_new_y = k_first_y; k_new_y <= basis_target.second.rangeJ(j_y).lastIndex(); ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+							for(long k_new_y = basis_target.second.rangeJ(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+						}
+					}
+				}
+				for(long k_new_x = basis_target.first.rangeJ(j_x).firstIndex(); k_new_x <= k_last_x; ++k_new_x){
+					Index1D ind_x(j_x,k_new_x,(*it).index1.xtype);
+
+					// Inner loop: all indizes in y-direction
+					if(k_first_y < k_last_y){
+						for(long k_new_y = k_first_y; k_new_y <= k_last_y; ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+					}
+					else{
+						if((*it).index2.xtype==XBSpline){
+							for(long k_new_y = k_first_y; k_new_y <= basis_target.second.mra.rangeI(j_y).lastIndex(); ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+							for(long k_new_y = basis_target.second.mra.rangeI(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+						}
+						else{
+							for(long k_new_y = k_first_y; k_new_y <= basis_target.second.rangeJ(j_y).lastIndex(); ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+							for(long k_new_y = basis_target.second.rangeJ(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+								Index1D ind_y(j_y, k_new_y, (*it).index2.xtype);
+								completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+							}
+						}
+					}
+				}
+			}
+		}
+    }
+}
+
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getStableExpansion(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+				   IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target)
+{
+
+	// First we take the counterpart cone
+	getCounterpart(basis_origin, basis_target, indexset_origin, coeffs_target);
+
+	// Then we insert all HigherWaveletNeighbours
+    long k_first_x, k_last_x, k_first_y, k_last_y;
+    int j_x, j_y;
+    for(IndexSet<Index2D>::const_iterator it = indexset_origin.begin(); it != indexset_origin.end(); ++it){
+
+		// Get neighbours for index_x
+		if((*it).index1.xtype==XBSpline){
+
+			// Get first wavelets on same level..
+			long k_s_first, k_s_last;
+			int j_s;
+			basis_origin.first.getWaveletNeighborsForScaling((*it).index1.j, (*it).index1.k,basis_origin.first,
+																j_s, k_s_first, k_s_last);
+			assert(j_s == (*it).index1.j);
+
+			// ..and then the corresponding higher wavelet neighbours
+			k_first_x = basis_target.first.rangeJ(j_s+1).lastIndex();
+			k_last_x = basis_target.first.rangeJ(j_s+1).firstIndex();
+			long k_w_first, k_w_last;
+			if(k_s_first < k_s_last){
+				for(long k = k_s_first; k <= k_s_last; ++k){
+					basis_origin.first.getHigherWaveletNeighborsForWavelet(j_s,k,basis_target.first,j_x,k_w_first, k_w_last);
+					if(k_w_first < k_first_x){
+						k_first_x = k_w_first;
+					}
+					if(k_w_last > k_last_x){
+						k_last_x = k_w_last;
+					}
+				}
+			}
+			else{
+				for(long k = k_s_first; k <= basis_origin.first.rangeJ(j_s).lastIndex(); ++k){
+					basis_origin.first.getHigherWaveletNeighborsForWavelet(j_s,k,basis_target.first,j_x,k_w_first, k_w_last);
+					if(k_w_first < k_first_x){
+						k_first_x = k_w_first;
+					}
+					if(k_w_last > k_last_x){
+						k_last_x = k_w_last;
+					}
+				}
+				for(long k = basis_origin.first.rangeJ(j_s).firstIndex(); k <= k_s_last; ++k){
+					basis_origin.first.getHigherWaveletNeighborsForWavelet(j_s,k,basis_target.first,j_x,k_w_first, k_w_last);
+					if(k_w_first < k_first_x){
+						k_first_x = k_w_first;
+					}
+					if(k_w_last > k_last_x){
+						k_last_x = k_w_last;
+					}
+				}
+				assert(j_x == (*it).index1.j+1);
+			}
+		}
+		else{
+			basis_origin.first.getHigherWaveletNeighborsForWavelet((*it).index1.j, (*it).index1.k,basis_target.first,
+																	j_x, k_first_x, k_last_x);
+			assert(j_x == (*it).index1.j+1);
+
+		}
+
+		// Get neighbours for index_y
+		if((*it).index2.xtype==XBSpline){
+
+			// Get first wavelets on same level..
+			long k_s_first, k_s_last;
+			int j_s;
+			basis_origin.second.getWaveletNeighborsForScaling((*it).index2.j, (*it).index2.k,basis_origin.second,
+																j_s, k_s_first, k_s_last);
+			assert(j_s == (*it).index2.j);
+
+			// ..and then the corresponding higher wavelet neighbours
+			k_first_y = basis_target.second.rangeJ(j_s+1).lastIndex();
+			k_last_y = basis_target.second.rangeJ(j_s+1).firstIndex();
+			long k_w_first, k_w_last;
+			if(k_s_first < k_s_last){
+				for(long k = k_s_first; k <= k_s_last; ++k){
+					basis_origin.second.getHigherWaveletNeighborsForWavelet(j_s,k,basis_target.second,j_y,k_w_first, k_w_last);
+					if(k_w_first < k_first_y){
+						k_first_y = k_w_first;
+					}
+					if(k_w_last > k_last_y){
+						k_last_y = k_w_last;
+					}
+				}
+			}
+			else{
+				for(long k = k_s_first; k <= basis_origin.second.rangeJ(j_s).lastIndex(); ++k){
+					basis_origin.second.getHigherWaveletNeighborsForWavelet(j_s,k,basis_target.second,j_y,k_w_first, k_w_last);
+					if(k_w_first < k_first_y){
+						k_first_y = k_w_first;
+					}
+					if(k_w_last > k_last_y){
+						k_last_y = k_w_last;
+					}
+				}
+				for(long k = basis_origin.second.rangeJ(j_s).firstIndex(); k <= k_s_last; ++k){
+					basis_origin.second.getHigherWaveletNeighborsForWavelet(j_s,k,basis_target.second,j_y,k_w_first, k_w_last);
+					if(k_w_first < k_first_y){
+						k_first_y = k_w_first;
+					}
+					if(k_w_last > k_last_y){
+						k_last_y = k_w_last;
+					}
+				}
+				assert(j_y == (*it).index2.j+1);
+			}
+		}
+		else{
+			basis_origin.second.getHigherWaveletNeighborsForWavelet((*it).index2.j, (*it).index2.k, basis_target.second,
+																	j_y, k_first_y, k_last_y);
+			assert(j_y == (*it).index2.j+1);
+		}
+
+		// Insert all combinations into res
+			// Outer loop: all indizes in x-direction
+		if(k_first_x < k_last_x){
+			for(long k_new_x = k_first_x; k_new_x <= k_last_x; ++k_new_x){
+				Index1D ind_x(j_x,k_new_x,XWavelet);
+
+				// Inner loop: all indizes in y-direction
+				if(k_first_y < k_last_y){
+					for(long k_new_y = k_first_y; k_new_y <= k_last_y; ++k_new_y){
+						Index1D ind_y(j_y, k_new_y, XWavelet);
+						completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+					}
+				}
+				else{
+					for(long k_new_y = k_first_y; k_new_y <= basis_target.second.rangeJ(j_y).lastIndex(); ++k_new_y){
+						Index1D ind_y(j_y, k_new_y, XWavelet);
+						completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+					}
+					for(long k_new_y = basis_target.second.rangeJ(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+						Index1D ind_y(j_y, k_new_y, XWavelet);
+						completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+					}
+				}
+			}
+		}
+		else{
+			for(long k_new_x = k_first_x; k_new_x <= basis_target.first.rangeJ(j_x).lastIndex(); ++k_new_x){
+				Index1D ind_x(j_x,k_new_x,XWavelet);
+
+				// Inner loop: all indizes in y-direction
+				if(k_first_y < k_last_y){
+					for(long k_new_y = k_first_y; k_new_y <= k_last_y; ++k_new_y){
+						Index1D ind_y(j_y, k_new_y, XWavelet);
+						completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+					}
+				}
+				else{
+					if((*it).index2.xtype==XBSpline){
+						for(long k_new_y = k_first_y; k_new_y <= basis_target.second.mra.rangeI(j_y).lastIndex(); ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, XWavelet);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+						for(long k_new_y = basis_target.second.mra.rangeI(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, XWavelet);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+					}
+					else{
+						for(long k_new_y = k_first_y; k_new_y <= basis_target.second.rangeJ(j_y).lastIndex(); ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, XWavelet);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+						for(long k_new_y = basis_target.second.rangeJ(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+							Index1D ind_y(j_y, k_new_y, XWavelet);
+							completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+						}
+					}
+				}
+			}
+			for(long k_new_x = basis_target.first.rangeJ(j_x).firstIndex(); k_new_x <= k_last_x; ++k_new_x){
+				Index1D ind_x(j_x,k_new_x,(*it).index1.xtype);
+
+				// Inner loop: all indizes in y-direction
+				if(k_first_y < k_last_y){
+					for(long k_new_y = k_first_y; k_new_y <= k_last_y; ++k_new_y){
+						Index1D ind_y(j_y, k_new_y, XWavelet);
+						completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+					}
+				}
+				else{
+					for(long k_new_y = k_first_y; k_new_y <= basis_target.second.rangeJ(j_y).lastIndex(); ++k_new_y){
+						Index1D ind_y(j_y, k_new_y, XWavelet);
+						completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+					}
+					for(long k_new_y = basis_target.second.rangeJ(j_y).firstIndex(); k_new_y <= k_last_y; ++k_new_y){
+						Index1D ind_y(j_y, k_new_y, XWavelet);
+						completeMultiTree(basis_target, Index2D(ind_x, ind_y), coeffs_target, 0, true);
+					}
+				}
+			}
+		}
+    }
+}
+
+
 }   // namespace lawa
 
-/*
- *
-bool
-comp_support(const Support<double> &supp1, const Support<double> &supp2) {
-return supp1.l1<=supp2.l1 ? true : false;
-}
- *
- *
-std::vector<Support<T> > intersectingSupports;
-bool foundPredecessor = false;
-for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
-    Index3D new_index3d(Index1D(new_j_x,new_k_x,new_type_x),index_y,index_z);
-    if (v.find(new_index3d)!=v.end()) {
-        Support<typename Basis::T> covered_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-        intersectingSupports.push_back(covered_supp_x);
-        if (covered_supp_x.l1<=supp_x.l1 && covered_supp_x.l2>=supp_x.l2) {
-            foundPredecessor = true;
-            break;
-        }
-    }
-}
-
-if (!foundPredecessor && intersectingSupports.size()>0) {
-    std::cerr << "Before sorting: " << std::endl;
-    for (typename std::vector<Support<T> >::const_iterator it=intersectingSupports.begin();
-          it!=intersectingSupports.end(); ++it) {
-        std::cerr << (*it) << " " << supp_x <<  std::endl;
-    }
-    std::cerr << "After sorting:  " << std::endl;
-    sort(intersectingSupports.begin(), intersectingSupports.end(), comp_support);
-    for (typename std::vector<Support<T> >::const_iterator it=intersectingSupports.begin();
-          it!=intersectingSupports.end(); ++it) {
-        std::cerr << (*it) << " " << supp_x << std::endl;
-    }
-    std::cerr << std::endl;
-    typename std::vector<Support<T> >::const_iterator it1=intersectingSupports.begin();
-    typename std::vector<Support<T> >::const_iterator it2=intersectingSupports.begin();
-    ++it2;
-    Support<T> jointSupport = (*it1);
-    while (it2!=intersectingSupports.end()) {
-        if (overlap((*it1),(*it2))) {
-            jointSupport.l1 = std::min((*it1).l1, jointSupport.l1);
-            jointSupport.l2 = std::max((*it2).l2, jointSupport.l2);
-        }
-        else {
-            break;
-        }
-        ++it1; ++it2;
-    }
-    if (jointSupport.l1<=supp_x.l1 && jointSupport.l2>=supp_x.l2) foundPredecessor=true;
-}
- */
