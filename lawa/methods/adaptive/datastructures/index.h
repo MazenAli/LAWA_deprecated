@@ -27,7 +27,7 @@
 
 namespace lawa {
 
-static boost::hash<long int> hash_long;
+//static boost::hash<long int> hash_long;
 
 //#define JMINOFFSET                 10
 #define JMINOFFSET                  0

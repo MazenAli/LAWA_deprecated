@@ -520,7 +520,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 template <typename LocalOperator1, typename LocalOperator2>
 void
 LocalOperator2D<LocalOperator1, LocalOperator2>
-::initializeIntermediateVectorUIv(const Coefficients<Lexicographical,T,Index2D> &v,
+::initializeIntermediateVectorUIv(const Coefficients<Lexicographical,T,Index2D> &/*v*/,
                                   const Coefficients<Lexicographical,T,Index2D> &IAUIv,
                                   Coefficients<Lexicographical,T,Index1D> &Pe1_UIv) const
 {
@@ -538,24 +538,24 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     size_t n1 = hashTableLargeLength;
     size_t n2 = hashTableSmallLength;
 
-    Timer time;
-    time.start();
+    //Timer time;
+    //time.start();
     XOneAlignedCoefficients x1aligned_z(n1,n2);
     XOneAlignedCoefficients x1aligned_IAz(n1,n2);
     x1aligned_z.align(z,J);
     x1aligned_IAz.align(IAz,J);
-    time.stop();
-    T time_x1align_v = time.elapsed();
+    //time.stop();
+    //T time_x1align_v = time.elapsed();
 
-    T time_setup_tree = 0.;
-    T time_mv1d = 0.;
-    T time_add_aligned = 0.;
+    //T time_setup_tree = 0.;
+    //T time_mv1d = 0.;
+    //T time_add_aligned = 0.;
 
     //std::cout << "evalIA with z = " << z << ", IAz = " << IAz << std::endl;
 
     for (typename XOneAlignedCoefficients::const_map_prindex_it it=x1aligned_z.map.begin();
                                                             it!=x1aligned_z.map.end(); ++it) {
-        time.start();
+        //time.start();
         Index1D row_x = (*it).first;
         //std::cout << "==================================================" << std::endl;
         //std::cout << "Index: " << row_x << std::endl;
@@ -565,26 +565,26 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
         if ( x1aligned_IAz.map.find((*it).first)==x1aligned_IAz.map.end() ) continue;
         PsiLambdaCheck_x2 = x1aligned_IAz.map[(*it).first];
-        int maxTreeLevel = PsiLambdaCheck_x2.getMaxTreeLevel();
+        //int maxTreeLevel = PsiLambdaCheck_x2.getMaxTreeLevel();
         PsiLambdaCheck_x2.setToZero();
-        time.stop();
-        time_setup_tree += time.elapsed();
+        //time.stop();
+        //time_setup_tree += time.elapsed();
         //std::cout << "PsiLambdaHat_x2: " << PsiLambdaHat_x2 << std::endl;
         //std::cout << "PsiLambdaCheck_x2: " << PsiLambdaCheck_x2 << std::endl;
 
 
-        time.start();
+        //time.start();
         localoperator2.eval(PsiLambdaHat_x2, PsiLambdaCheck_x2, "A");
-        time.stop();
-        time_mv1d += time.elapsed();
+        //time.stop();
+        //time_mv1d += time.elapsed();
 
 
-        time.start();
+        //time.start();
         PsiLambdaCheck_x2.template addTo<Index2D,Index1D,XOne>(row_x,IAz);
 
         //std::cout << "IAz = " << IAz << std::endl;
-        time.stop();
-        time_add_aligned += time.elapsed();
+        //time.stop();
+        //time_add_aligned += time.elapsed();
     }
 
     /*
@@ -605,45 +605,45 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     size_t n1 = hashTableLargeLength;
     size_t n2 = hashTableSmallLength;
 
-    Timer time;
-    time.start();
+    //Timer time;
+    //time.start();
     XTwoAlignedCoefficients x2aligned_z(n1,n2);
     XTwoAlignedCoefficients x2aligned_LIz(n1,n2);
     x2aligned_z.align(z,J);
     x2aligned_LIz.align(LIz,J);
-    time.stop();
-    T time_x2align_v = time.elapsed();
+    //time.stop();
+    //T time_x2align_v = time.elapsed();
 
-    T time_setup_tree = 0.;
-    T time_mv1d = 0.;
-    T time_add_aligned = 0.;
+    //T time_setup_tree = 0.;
+    //T time_mv1d = 0.;
+    //T time_add_aligned = 0.;
 
     for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
                                                             it!=x2aligned_z.map.end(); ++it) {
-        time.start();
+        //time.start();
         Index1D row_y = (*it).first;
         TreeCoefficients1D<T> PsiLambdaHat_x1(n2,trialBasis_x1.j0);
         PsiLambdaHat_x1 = (*it).second;
-        time.stop();
-        time_setup_tree += time.elapsed();
+        //time.stop();
+        //time_setup_tree += time.elapsed();
 
 
-        time.start();
+        //time.start();
         TreeCoefficients1D<T> PsiLambdaCheck_x1(n2,testBasis_x1.j0);
         PsiLambdaCheck_x1 = x2aligned_LIz.map[(*it).first];
-        int maxTreeLevel = PsiLambdaCheck_x1.getMaxTreeLevel();
+        //int maxTreeLevel = PsiLambdaCheck_x1.getMaxTreeLevel();
         PsiLambdaCheck_x1.setToZero();
-        time.stop();
+        //time.stop();
 
-        time.start();
+        //time.start();
         localoperator1.eval(PsiLambdaHat_x1, PsiLambdaCheck_x1, "L");
-        time.stop();
-        time_mv1d += time.elapsed();
+        //time.stop();
+        //time_mv1d += time.elapsed();
 
-        time.start();
+        //time.start();
         PsiLambdaCheck_x1.template addTo<Index2D,Index1D,XTwo>(row_y,LIz);
-        time.stop();
-        time_add_aligned += time.elapsed();
+        //time.stop();
+        //time_add_aligned += time.elapsed();
 
 
     }
@@ -670,31 +670,31 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     size_t n1 = hashTableLargeLength;
     size_t n2 = hashTableSmallLength;
 
-    Timer time;
-    time.start();
+    //Timer time;
+    //time.start();
     XTwoAlignedCoefficients x2aligned_z(n1,n2);
     x2aligned_z.align(z,J);
-    time.stop();
-    T time_x2align_z = time.elapsed();
+    //time.stop();
+    //T time_x2align_z = time.elapsed();
 
-    T time_initial_outputset = 0.;
-    T time_setup_tree = 0.;
-    T time_mv1d = 0.;
-    T time_add_aligned = 0.;
+    //T time_initial_outputset = 0.;
+    //T time_setup_tree = 0.;
+    //T time_mv1d = 0.;
+    //T time_add_aligned = 0.;
 
     for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
                                                             it!=x2aligned_z.map.end(); ++it) {
-        time.start();
+        //time.start();
         Index1D row_y = (*it).first;
         TreeCoefficients1D<T> PsiLambdaHat_x1(n2,trialBasis_x1.j0);
         PsiLambdaHat_x1 = (*it).second;
-        time.stop();
-        time_setup_tree += time.elapsed();
+        //time.stop();
+        //time_setup_tree += time.elapsed();
 
         int maxTreeLevel = PsiLambdaHat_x1.getMaxTreeLevel();
 
 
-        time.start();
+        //time.start();
         TreeCoefficients1D<T> PsiLambdaCheck_x1(n2,testBasis_x1.j0);
         // Checking scaling functions
         for (const_by_level_it level_it =PsiLambdaHat_x1[0].map.begin();
@@ -735,22 +735,22 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         }
 
         PsiLambdaCheck_x1.setMaxTreeLevel(maxTreeLevel);
-        time.stop();
-        time_initial_outputset += time.elapsed();
+        //time.stop();
+        //time_initial_outputset += time.elapsed();
 
-        std::cout << "PsiLambdaHat_x1 = " << PsiLambdaHat_x1 << std::endl;
-        std::cout << "PsiLambdaCheck_x1 = " << PsiLambdaCheck_x1 << std::endl;
+        //std::cout << "PsiLambdaHat_x1 = " << PsiLambdaHat_x1 << std::endl;
+        //std::cout << "PsiLambdaCheck_x1 = " << PsiLambdaCheck_x1 << std::endl;
 
-        time.start();
+        //time.start();
         localoperator1.eval(PsiLambdaHat_x1, PsiLambdaCheck_x1, "U");
-        time.stop();
-        time_mv1d += time.elapsed();
+        //time.stop();
+        //time_mv1d += time.elapsed();
 
 
-        time.start();
+        //time.start();
         PsiLambdaCheck_x1.template addTo<Index2D,Index1D,XTwo>(row_y,UIz);
-        time.stop();
-        time_add_aligned += time.elapsed();
+        //time.stop();
+        //time_add_aligned += time.elapsed();
     }
     /*
     std::cerr << "      evalUI: x2align of v took       " << time_x2align_z << std::endl;
@@ -777,17 +777,17 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     size_t n1 = hashTableLargeLength;
     size_t n2 = hashTableSmallLength;
 
-    Timer time;
-    time.start();
+    //Timer time;
+    //time.start();
     XTwoAlignedCoefficients x2aligned_z(n1,n2);
     x2aligned_z.align(z,J);
-    time.stop();
-    T time_x2align_z = time.elapsed();
+    //time.stop();
+    //T time_x2align_z = time.elapsed();
 
-    T time_initial_outputset = 0.;
-    T time_setup_tree = 0.;
-    T time_mv1d = 0.;
-    T time_add_aligned = 0.;
+    //T time_initial_outputset = 0.;
+    //T time_setup_tree = 0.;
+    //T time_mv1d = 0.;
+    //T time_add_aligned = 0.;
 
    // std::cout << "evalUI with z = " << z << ", Pe1_UIz = " << Pe1_UIz << " , UIz = " << UIz << std::endl;
 
@@ -795,18 +795,18 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
     for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
                                                             it!=x2aligned_z.map.end(); ++it) {
-        time.start();
+        //time.start();
         Index1D row_y = (*it).first;
         //std::cout << "Row y = " << row_y << std::endl;
         TreeCoefficients1D<T> PsiLambdaHat_x1(n2,trialBasis_x1.j0);
         PsiLambdaHat_x1 = (*it).second;
-        time.stop();
-        time_setup_tree += time.elapsed();
+        //time.stop();
+        //time_setup_tree += time.elapsed();
 
         int maxTreeLevel = PsiLambdaHat_x1.getMaxTreeLevel();
 
 
-        time.start();
+        //time.start();
         TreeCoefficients1D<T> PsiLambdaCheck_x1(n2,testBasis_x1.j0);
         //PsiLambdaCheck_x1 = Pe1_UIz;
         // Checking scaling functions
@@ -880,20 +880,20 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         }
 
         PsiLambdaCheck_x1.setMaxTreeLevel(maxTreeLevel);
-        time.stop();
-        time_initial_outputset += time.elapsed();
+        //time.stop();
+        //time_initial_outputset += time.elapsed();
 
-        time.start();
+        //time.start();
        // std::cerr << "Call LocalOperator2 with PsiLambdaHat_x1 = " << PsiLambdaHat_x1 << " and PsiLambdaCheck_x1 = " << PsiLambdaCheck_x1 << std::endl;
         localoperator1.eval(PsiLambdaHat_x1, PsiLambdaCheck_x1, "U");
-        time.stop();
-        time_mv1d += time.elapsed();
+        //time.stop();
+        //time_mv1d += time.elapsed();
 
 
-        time.start();
+        //time.start();
         PsiLambdaCheck_x1.template addTo<Index2D,Index1D,XTwo>(row_y,UIz);
-        time.stop();
-        time_add_aligned += time.elapsed();
+        //time.stop();
+        //time_add_aligned += time.elapsed();
         //std::cout << "UIz = " << UIz << std::endl;
 
     }
@@ -922,17 +922,17 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     size_t n1 = hashTableLargeLength;
     size_t n2 = hashTableSmallLength;
 
-    Timer time;
-    time.start();
+    //Timer time;
+    //time.start();
     XTwoAlignedCoefficients x2aligned_z(n1,n2);
     x2aligned_z.align(z,J);
-    time.stop();
-    T time_x2align_z = time.elapsed();
+    //time.stop();
+    //T time_x2align_z = time.elapsed();
 
-    T time_initial_outputset = 0.;
-    T time_setup_tree = 0.;
-    T time_mv1d = 0.;
-    T time_add_aligned = 0.;
+    //T time_initial_outputset = 0.;
+    //T time_setup_tree = 0.;
+    //T time_mv1d = 0.;
+    //T time_add_aligned = 0.;
 
    // std::cout << "evalUI with z = " << z << ", Pe1_UIz = " << Pe1_UIz << " , UIz = " << UIz << std::endl;
 
@@ -940,18 +940,18 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 
     for (typename XTwoAlignedCoefficients::const_map_prindex_it it=x2aligned_z.map.begin();
                                                             it!=x2aligned_z.map.end(); ++it) {
-        time.start();
+        //time.start();
         Index1D row_y = (*it).first;
         //std::cout << "Row y = " << row_y << std::endl;
         TreeCoefficients1D<T> PsiLambdaHat_x1(n2,trialBasis_x1.j0);
         PsiLambdaHat_x1 = (*it).second;
-        time.stop();
-        time_setup_tree += time.elapsed();
+        //time.stop();
+        //time_setup_tree += time.elapsed();
 
         int maxTreeLevel = PsiLambdaHat_x1.getMaxTreeLevel();
 
 
-        time.start();
+        //time.start();
         TreeCoefficients1D<T> PsiLambdaCheck_x1(n2,testBasis_x1.j0);
         //PsiLambdaCheck_x1 = Pe1_UIz;
         // Checking scaling functions
@@ -1025,20 +1025,20 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
         }
 
         PsiLambdaCheck_x1.setMaxTreeLevel(maxTreeLevel);
-        time.stop();
-        time_initial_outputset += time.elapsed();
+        //time.stop();
+        //time_initial_outputset += time.elapsed();
 
-        time.start();
+        //time.start();
        // std::cerr << "Call LocalOperator2 with PsiLambdaHat_x1 = " << PsiLambdaHat_x1 << " and PsiLambdaCheck_x1 = " << PsiLambdaCheck_x1 << std::endl;
         localoperator1.eval(PsiLambdaHat_x1, PsiLambdaCheck_x1, "U");
-        time.stop();
-        time_mv1d += time.elapsed();
+        //time.stop();
+        //time_mv1d += time.elapsed();
 
 
-        time.start();
+        //time.start();
         PsiLambdaCheck_x1.template addTo<Index2D,Index1D,XTwo>(row_y,UIz);
-        time.stop();
-        time_add_aligned += time.elapsed();
+        //time.stop();
+        //time_add_aligned += time.elapsed();
         //std::cout << "UIz = " << UIz << std::endl;
 
     }

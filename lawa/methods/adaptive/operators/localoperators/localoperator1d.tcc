@@ -93,7 +93,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_evalA(int l, CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,
         CoefficientsByLevel<T> &PhiPiCheck, TreeCoefficients1D<T> &PsiLambdaCheck)
 {
-    Timer time;
+    //Timer time;
 
 //    std::cout << "EvalA on Level l = " << l << " with d = " << d <<
 //    		  "c = " << c << " PhiPiCheck = " << PhiPiCheck << "PsiLambdaCheck = " << PsiLambdaCheck << std::endl;
@@ -624,7 +624,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
         long k_bspline1_first=0L, k_bspline1_last=0L;
 
         for (const_by_level_it mu=d.map.begin(); mu!=d.map.end(); ++mu) {
-            long double val = 0.;
+            //long double val = 0.;
             long k_bspline2 = (*mu).first;
             trialRefinementBasis.getBSplineNeighborsForBSpline(j_bspline2, k_bspline2,
                                 testRefinementBasis, j_bspline1, k_bspline1_first, k_bspline1_last);

@@ -233,7 +233,7 @@ Basis<T,Primal,Periodic,CDF>::getScalingNeighborsForScaling(int j_scaling1, long
 template <typename T>
 void
 Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForScaling(int j_scaling1, long k_scaling1,
-							  const Basis<T,Primal,Periodic,CDF> &secondbasis,
+							  const Basis<T,Primal,Periodic,CDF> &/*secondbasis*/,
 							  int &j_wavelet, long &k_wavelet_first,
 							  long &k_wavelet_last) const
 {
@@ -448,7 +448,7 @@ template <typename T>
 template <typename SecondBasis>
 void
 Basis<T,Primal,Periodic,CDF>::getLowerWaveletNeighborsForWavelet(int j_wavelet1, long k_wavelet1,
-                                       const SecondBasis &secondbasis,
+                                       const SecondBasis &/*secondbasis*/,
                                        int &j_wavelet2, long &k_wavelet_first,
                                        long &k_wavelet_last) const
 {
