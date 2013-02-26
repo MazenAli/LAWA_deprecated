@@ -412,7 +412,7 @@ Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForWavelet(int j_wavelet1, long
     if(supp.gaplength()==0){
         if (supp.l1==0.L) {
             k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
-            k_wavelet_last  = std::min(k_wavelet1 + 2*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
+            k_wavelet_last  = std::min(k_wavelet1+2*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
             return;
         }
         if (supp.l2<1.L) {
@@ -424,9 +424,8 @@ Basis<T,Primal,Periodic,CDF>::getWaveletNeighborsForWavelet(int j_wavelet1, long
         k_wavelet_last  = (long)secondbasis.rangeJ(j_wavelet2).lastIndex();
     }
     else{
-        k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_wavelet1 - 2*d);
-        long k_break = 1 + k_wavelet1 - rangeJR(j_wavelet1).firstIndex();
-        k_wavelet_last  = std::min(k_break + 2*d, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
+        k_wavelet_first = std::max((long)secondbasis.rangeJ(j_wavelet2).firstIndex(),k_wavelet1+1-2*d+1);
+        k_wavelet_last  = std::min((long)2*d-1, (long)secondbasis.rangeJ(j_wavelet2).lastIndex());
 
         if(k_wavelet_first <= k_wavelet_last+1){
         	k_wavelet_first = (long)secondbasis.rangeJ(j_wavelet2).firstIndex();
