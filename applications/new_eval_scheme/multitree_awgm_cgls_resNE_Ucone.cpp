@@ -149,7 +149,7 @@ int main (int argc, char *argv[]) {
     int j0  = atoi(argv[3]);
     int J  = atoi(argv[4]);
 
-    bool adaptive = false; // adaptively adapt the error tolerance of inner solver
+    bool adaptive = true; // adaptively adapt the error tolerance of inner solver
     T r_norm = 0.1;
     T gamma = 0.2; // 0.2;
     int ell=1;
@@ -157,11 +157,11 @@ int main (int argc, char *argv[]) {
 
     T awgm_tol = 5e-03;
     T awgm_alpha = 0.7;
-    bool reset_resNEset = true;
+    bool reset_resNEset = false;
     bool reset_resset = false;
 
-    T cgls_initTol = 0.01;
-    T cgls_reduction = 0.1;
+    T cgls_initTol = 0.001;
+    T cgls_reduction = 0.01;
     T cgls_absoluteTol = 1e-8;
 
     /// Basis initialization
@@ -520,8 +520,8 @@ int main (int argc, char *argv[]) {
                 ufile.close();
             }
 
-            std::cerr << "=====      Plotting ... " << endl;
-            plot2D<T,Basis2D_Trial,RightPrec2D>(basis2d_trial, u, rightPrec, sol, 0., 1., 0., 1., 0.01, "multitree_awgm_cgls_periodic_Ucone");
+            //std::cerr << "=====      Plotting ... " << endl;
+            //plot2D<T,Basis2D_Trial,RightPrec2D>(basis2d_trial, u, rightPrec, sol, 0., 1., 0., 1., 0.01, "multitree_awgm_cgls_periodic_Ucone");
 
             return 0;
         }
@@ -537,6 +537,8 @@ int main (int argc, char *argv[]) {
 				P_Lambda_Residual_square += std::pow(s[(*it)],(T)2.);
 				resNE.erase((*it));
 			}
+			cout << "!!!! TEST: Gamma_cgls = " << gamma_cgls << ", P_Lambda_REs_Square = " << P_Lambda_Residual_square << endl;
+
 		}
 		if (resNE.size()!=0) {
 			// add buckets to dummy vector (p)
@@ -551,7 +553,7 @@ int main (int argc, char *argv[]) {
 				P_Lambda_Residual_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
 				cerr << "     Bucket " << i << ": L2-norm " << r_bucket.bucket_ell2norms[i] << endl;
 				r_bucket.addBucketToCoefficients(p,i);
-				if (P_Lambda_Residual_square >= awgm_alpha*Residual*awgm_alpha*Residual) {
+				if (P_Lambda_Residual_square >= awgm_alpha*Residual_NE*awgm_alpha*Residual_NE) {
 					//r_bucket.addBucketToCoefficients(p,i+1);
 					break;
 				}

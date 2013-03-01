@@ -89,7 +89,6 @@ mv(LocalOp &localOp2D_1, LocalOp &localOp2D_2,
    const IndexSet<Index2D> &LambdaTrial, const IndexSet<Index2D> &LambdaTest, Coefficients<Lexicographical,T,Index2D> &v,
    Coefficients<Lexicographical,T,Index2D> &Av, T &time);
 
-/*
 template <typename Basis2D_Origin, typename Basis2D_Target>
 void
 getCounterpart(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
@@ -99,7 +98,7 @@ template <typename Basis2D_Origin, typename Basis2D_Target>
 void
 getStableExpansion(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
 				   IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
-*/
+
 T u1(T t)
 {
     return std::cos(2*M_PI*t);
@@ -158,6 +157,8 @@ int main (int argc, char *argv[]) {
 
     T awgm_tol = 5e-03;
     T awgm_alpha = 0.7;
+    bool reset_resNEset = true;
+    bool reset_resset = true;
 
     T cgls_initTol = 0.001;
     T cgls_reduction = 0.01;
@@ -281,10 +282,11 @@ int main (int argc, char *argv[]) {
     getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0, gamma);
     getSparseGridIndexSet(basis2d_test,LambdaTest,2,1,gamma);
 
+
     /*
     // IndexSets from old solutions
     readIndexSetFromFile(LambdaTrial, "Run2_u_coeffs.txt");
-    //LambdaTrial.insert(Index2D(Index1D(2,4,XWavelet), Index1D(2,4,XWavelet)));
+    LambdaTrial.insert(Index2D(Index1D(2,4,XWavelet), Index1D(2,4,XWavelet)));
     cout << LambdaTrial << endl;
     getStableExpansion(basis2d_trial, basis2d_test, LambdaTrial, aux_Lambda);
     LambdaTest = supp(aux_Lambda);
@@ -292,6 +294,18 @@ int main (int argc, char *argv[]) {
 
     cout << "LambdaTrial: " << LambdaTrial.size() << " bfs " << endl;
     cout << "LambdaTest: " << LambdaTest.size() << " bfs " << endl;
+
+    /*//----------
+    Index2D tracked_ind(Index1D(2,4,XWavelet),Index1D(2,4,XWavelet));
+
+    if(LambdaTrial.find(tracked_ind)!=LambdaTrial.end()){
+    	cout << "INDEX W(2,4)xW(2,4) in initial set" << endl;
+    }
+    else{
+    	cout << "INDEX W(2,4)xW(2,4) NOT in initial set" << endl;
+    }
+    //----------*/
+
 
 	FillWithZeros(LambdaTest,r);
 	FillWithZeros(LambdaTrial,s);
@@ -420,18 +434,30 @@ int main (int argc, char *argv[]) {
         time.start();
         res.setToZero();
         // Cone around u_leafs
-        extendMultiTree(basis2d_trial, u_leafs, resNE, Cdiff_u_leafs, "standard", false, true);
+        if(reset_resNEset){
+        	resNE.clear();
+        	cout << "ResNE reset to " << resNE.size() << endl;
+        }
+        extendMultiTree(basis2d_trial, u, resNE, Cdiff_u_leafs, "standard", false, true);
         time.stop();
         // Find extension in test space and add them to res
         std::cerr << "         ... finished after " << time.elapsed() << std::endl;
         std::cerr << "         Finding stable expansion indizes in test index set..." << std::endl;
         IndexSet<Index2D> LambdaResNE = supp(resNE);
+        /*//-------
+        if(LambdaResNE.find(tracked_ind)!=LambdaResNE.end()){
+        	cout << "INDEX W(2,4)xW(2,4) in extension cone LambdaResNE" << endl;
+        }
+        //-------*/
+        if(reset_resset){
+        	res.clear();
+        }
         getStableExpansion(basis2d_trial, basis2d_test, LambdaResNE, res);
 
         time.stop();
         std::cerr << "         ... finished after " << time.elapsed() << std::endl;
-        std::cerr << "          u_leafs = " << u_leafs.size() << std::endl;
-        std::cerr << "          Cdiff_u_leafs = " << Cdiff_u_leafs.size() << std::endl;
+        std::cerr << "          u = " << u.size() << std::endl;
+        std::cerr << "          Cdiff_u = " << Cdiff_u_leafs.size() << std::endl;
         std::cerr << "          res = " << res.size() << std::endl;
 
         time.start();
@@ -476,7 +502,7 @@ int main (int argc, char *argv[]) {
 
             std::cerr << "=====      Writing residual info ... " << endl;
 
-            ofstream resfile("awgm_cgls_res.txt");
+            ofstream resfile("awgm_cgls_res_Ucone.txt");
             if(resfile.is_open()){
             	resfile << "# It Res Res_NE SizeTrial SizeTest SizeTestResNE SizeTestRes" << endl;
             	for(size_t i=0; i < awgm_res.size(); ++i){
@@ -488,14 +514,14 @@ int main (int argc, char *argv[]) {
             }
 
             std::cerr << "=====      Writing solution ... " << endl;
-            ofstream ufile("awgm_cgls_u.txt");
+            ofstream ufile("awgm_cgls_u_Ucone.txt");
             if(ufile.is_open()){
             	ufile << u << endl;
                 ufile.close();
             }
 
             std::cerr << "=====      Plotting ... " << endl;
-            plot2D<T,Basis2D_Trial,RightPrec2D>(basis2d_trial, u, rightPrec, sol, 0., 1., 0., 1., 0.01, "multitree_awgm_cgls_periodic");
+            plot2D<T,Basis2D_Trial,RightPrec2D>(basis2d_trial, u, rightPrec, sol, 0., 1., 0., 1., 0.01, "multitree_awgm_cgls_periodic_Ucone");
 
             return 0;
         }
@@ -506,12 +532,14 @@ int main (int argc, char *argv[]) {
 
         /* ********************** Computing next index set  ************************ */
 		long double P_Lambda_Residual_square = 0.0L;
-		if (u.size() > 0) {
-			for (IndexSet<Index2D>::const_iterator it=LambdaTrial.begin(); it!=LambdaTrial.end(); ++it) {
-				P_Lambda_Residual_square += std::pow(s[(*it)],(T)2.);
-				resNE.erase((*it));
-			}
-		}
+//		if (u.size() > 0) {
+//			for (IndexSet<Index2D>::const_iterator it=LambdaTrial.begin(); it!=LambdaTrial.end(); ++it) {
+//				P_Lambda_Residual_square += std::pow(s[(*it)],(T)2.);
+//				resNE.erase((*it));
+//			}
+//			cout << "!!!! TEST: Gamma_cgls = " << gamma_cgls << ", P_Lambda_REs_Square = " << P_Lambda_Residual_square << endl;
+//
+//		}
 		if (resNE.size()!=0) {
 			// add buckets to dummy vector (p)
 			T threshbound = std::sqrt(1-awgm_alpha*awgm_alpha) * resNE.norm((T)2.)/std::sqrt(T(resNE.size()));
@@ -530,6 +558,27 @@ int main (int argc, char *argv[]) {
 					break;
 				}
 			}
+
+	        /*//-------
+	        if(p.find(tracked_ind)!=p.end()){
+	        	cout << "INDEX W(2,4)xW(2,4) in THRES(resNE)." << endl;
+	        }
+	        else{
+	        	Coefficients<Lexicographical,T,Index2D>::const_iterator it = resNE.find(tracked_ind);
+	        	if( it != resNE.end()){
+		        	cout << "INDEX W(2,4)xW(2,4): resNE value " << (*it).second << endl;
+	        	}
+				for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
+					Coefficients<Lexicographical,T,Index2D> current_bucket;
+					r_bucket.addBucketToCoefficients(current_bucket,i);
+		        	Coefficients<Lexicographical,T,Index2D>::const_iterator it = current_bucket.find(tracked_ind);
+		        	if(it != current_bucket.end()){
+			        	cout << "INDEX W(2,4)xW(2,4): in bucket nb " << i << endl;
+		        	}
+				}
+	        }
+	        //-------*/
+
 		}
 		// Above we set res = res-res|_{LambdaTest}. Now we change this back.
 		for (IndexSet<Index2D>::const_iterator it=LambdaTrial.begin(); it!=LambdaTrial.end(); ++it) {
@@ -551,8 +600,8 @@ int main (int argc, char *argv[]) {
         std::cerr << "      Size of LambdaTrial after extension: " << LambdaTrial.size() << std::endl;
 
 		// Compute u_leafs
-        u_leafs.clear();
-		FillWithZeros(LambdaTrialDiff, u_leafs);
+        //u_leafs.clear();
+		//FillWithZeros(LambdaTrialDiff, u_leafs);
 
         // Compute next test index set (first on dummy vector Ap)
         std::cerr << "         Finding stable expansion indizes in test index set..." << std::endl;
@@ -570,7 +619,6 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
-/*
 // To a given indexset in basis_origin, find a corresponding indexset in basis_target.
 // This is realized by taking the cone consisting of neighbours of all bfs in indexset_origin
 // We have to make sure that this is a MT!!
@@ -993,7 +1041,6 @@ getStableExpansion(const Basis2D_Origin& basis_origin, const Basis2D_Target& bas
 		}
     }
 }
-*/
 
 void
 writeIndexSetToFile(const IndexSet<Index2D> &Lambda, const char *name, int example, int d, T threshTol, int ell, int nr)
