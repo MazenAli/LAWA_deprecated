@@ -152,4 +152,7 @@ applications/new_eval_scheme/test_local_operator_realline1d
 applications/new_eval_scheme/test_local_reconstruction_realline
 refinement_*.txt
 interval_*.txt
+.cproject
+.project
+.settings
 
