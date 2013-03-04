@@ -3,6 +3,10 @@
 #include <lawa/operators/pdeoperators1d/identityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/laplaceoperator1d.h>
 #include <lawa/operators/pdeoperators1d/pdeoperator1d.h>
+#include <lawa/operators/pdeoperators1d/convectionoperator1d_pg.h>
+#include <lawa/operators/pdeoperators1d/identityoperator1d_pg.h>
+#include <lawa/operators/pdeoperators1d/laplaceoperator1d_pg.h>
+#include <lawa/operators/pdeoperators1d/pdeoperator1d_pg.h>
 #include <lawa/operators/pdeoperators1d/weightedhelmholtzoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedidentityoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedlaplaceoperator1d.h>
@@ -11,4 +15,7 @@
 #include <lawa/operators/pdeoperators1d/weightedpdeoperator1d.h>
 #include <lawa/operators/pdeoperators1d/weightedpdeoperator1d_pg.h>
 #include <lawa/operators/pdeoperators1d/transposedweightedpdeoperator1d_pg.h>
-
+#include <lawa/operators/pdeoperators1d/transposedconvectionoperator1d_pg.h>
+#include <lawa/operators/pdeoperators1d/transposedidentityoperator1d_pg.h>
+#include <lawa/operators/pdeoperators1d/transposedlaplaceoperator1d_pg.h>
+#include <lawa/operators/pdeoperators1d/transposedpdeoperator1d_pg.h>
