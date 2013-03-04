@@ -14,7 +14,9 @@ T
 LeftNormPreconditioner2D<T,Basis2D>::operator()(XType /*xtype1*/, int /*j1*/, long /*k1*/,
                                                 XType xtype2, int j2, long k2) const
 {
+
     T value = _integral(j2,k2,xtype2,0,j2,k2,xtype2,0);
+
 
     if (_s==2.) {
         // Calculate H1-Norm of Basis Function using Integrals
@@ -29,8 +31,9 @@ template <typename T, typename Basis2D>
 T
 LeftNormPreconditioner2D<T,Basis2D>::operator()(const Index2D &index) const
 {
-    return this->operator()(index.index1.xtype, index.index1.j, index.index1.k,
-                            index.index2.xtype, index.index2.j, index.index2.k);
+	    return this->operator()(index.index1.xtype, index.index1.j, index.index1.k,
+	                            index.index2.xtype, index.index2.j, index.index2.k);
+
 }
 
 }   // namespace lawa

@@ -28,16 +28,19 @@ namespace lawa {
 
 /* Left Preconditioner for Space-Time Problems
  *     Normalization in  Y = L_2(0,T) \otimes V (e.g. V = H^1):
- *          Prec = ( || bf_t ||_L2 * || bf_x ||_H1^2 )^(-1/2) 
+ *          Prec = ( || bf_t ||_L2^2 * || bf_x ||_H1^2 )^(-1/2)
  *     (see Schwab/Stevenson "Adaptive Wavelet Methods for Parabolic Problems", Math.Comp. 78 (267), pp. 1293-1318, 2009)
  *
- *  !! Implicit Assumption here: || bf_t ||_L2 \equiv 1 
+ * Computations:
+ *		|| bf_t ||_L2^2 : Integral
+ *		|| bf_x ||_H1^2 : Integral ( s!=2 -> Scaling of 1)
+ *
  */
 template <typename T, typename Basis2D>
 class LeftNormPreconditioner2D
 {
 
-    typedef typename Basis2D::SecondBasisType SecondBasis;
+    typedef typename Basis2D::SecondBasisType 					SecondBasis;
 
 public:
     LeftNormPreconditioner2D(const Basis2D &basis, T s=2.); //s=2: A: H^1 -> H^{-1}
