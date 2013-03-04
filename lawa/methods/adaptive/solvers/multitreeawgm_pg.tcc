@@ -8,11 +8,11 @@
 namespace lawa {
 
 AWGM_Parameters::AWGM_Parameters(double _tol, double _alpha, size_t _max_its,
-		size_t _max_basissize, bool _reset_resNE, bool _reset_res, bool _print_info,
+		size_t _max_basissize, bool _reset_res, bool _print_info,
 		bool _verbose, bool _plot_solution, bool _verbose_extra,
 		size_t _hashmapsize_trial, size_t _hashmapsize_test)
 : tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
-  reset_resNE(_reset_resNE), reset_res(_reset_res), print_info(_print_info),
+  reset_res(_reset_res), print_info(_print_info),
   verbose(_verbose), plot_solution(_plot_solution), verbose_extra(_verbose_extra),
   hashmapsize_trial(_hashmapsize_trial), hashmapsize_test(_hashmapsize_test)
 {}
@@ -21,17 +21,16 @@ void
 AWGM_Parameters::print()
 {
 	std::cout << "###### AWGM Parameters #################" << std::endl;
-	std::cout << std::left << std::setw(18) << "# tol:" << std::setw(16) <<  tol << std::endl;
-	std::cout << std::left << std::setw(18) << "# alpha:" << std::setw(16) <<  alpha << std::endl;
-	std::cout << std::left << std::setw(18) << "# max_its:" << std::setw(16) <<  max_its << std::endl;
-	std::cout << std::left << std::setw(18) << "# max_basissize:" << std::setw(16) <<  max_basissize << std::endl;
-	std::cout << std::left << std::setw(18) << "# reset_resNE:" << std::setw(16) <<  (reset_resNE?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(18) << "# reset_res:" << std::setw(16) <<  (reset_res?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(18) << "# print_info:" << std::setw(16) <<  (print_info?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(18) << "# verbose:" << std::setw(16) <<  (verbose?"true":"false") << (verbose_extra?" (extra)":"") << std::endl;
-	std::cout << std::left << std::setw(18) << "# plot_solution:" << std::setw(16) <<  (plot_solution?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(18) << "# hashmapsize trial:" << std::setw(16) <<  hashmapsize_trial << std::endl;
-	std::cout << std::left << std::setw(18) << "# hashmapsize test:" << std::setw(16) <<  hashmapsize_test << std::endl;
+	std::cout << std::left << std::setw(24) << "# tol:" << std::setw(20) <<  tol << std::endl;
+	std::cout << std::left << std::setw(24) << "# alpha:" << std::setw(20) <<  alpha << std::endl;
+	std::cout << std::left << std::setw(24) << "# max_its:" << std::setw(20) <<  max_its << std::endl;
+	std::cout << std::left << std::setw(24) << "# max_basissize:" << std::setw(20) <<  max_basissize << std::endl;
+	std::cout << std::left << std::setw(24) << "# reset_res:" << std::setw(20) <<  (reset_res?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# print_info:" << std::setw(20) <<  (print_info?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# verbose:" << std::setw(20) <<  (verbose?"true":"false") << (verbose_extra?" (extra)":"") << std::endl;
+	std::cout << std::left << std::setw(24) << "# plot_solution:" << std::setw(20) <<  (plot_solution?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# hashmapsize trial:" << std::setw(20) <<  hashmapsize_trial << std::endl;
+	std::cout << std::left << std::setw(24) << "# hashmapsize test:" << std::setw(20) <<  hashmapsize_test << std::endl;
 	std::cout << "#########################################" << std::endl << std::endl;
 }
 
@@ -60,11 +59,12 @@ AWGM_Information::print(const char* filename)
 {
     std::ofstream infofile(filename);
     if(infofile.is_open()){
-    	infofile << "# It Res Res_NE SizeTrial SizeTest SizeTestResNE SizeTestRes" << std::endl;
+    	infofile << "# It Res Res_NE SizeTrial SizeTest SizeTestResNE SizeTestRes CGLS_Its" << std::endl;
     	for(size_t i=0; i < awgm_res.size(); ++i){
     		infofile << i << " " << awgm_res[i] << " " << awgm_resNE[i] << " "
     		        << sizeLambdaTrial[i] << " " << sizeLambdaTest[i] << " "
-    		        << sizeLambdaResNE[i] << " " << sizeLambdaRes[i] << std::endl;
+    		        << sizeLambdaResNE[i] << " " << sizeLambdaRes[i] << " "
+    		        << cgls_its[i] << std::endl;
     	}
         infofile.close();
     }
@@ -147,11 +147,6 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 	FillWithZeros(LambdaTrial,u_leafs);
 	FillWithZeros(LambdaTest,res);
 
-    // Use coefficient vectors for preconditioners
-    // (no possibility to store precomputed values in the actual precs yet!)
-    //Coefficients<Lexicographical,T,Index2D> leftP(awgm_params.hashmapsize_test);
-    //Coefficients<Lexicographical,T,Index2D> rightP(awgm_params.hashmapsize_trial);
-
     // Default for initial cgls tolerance computation if adaptive
     T resNE_norm = 1.;
     T res_norm = 1.;
@@ -171,9 +166,6 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
         //---------------------------------------//
         //------- CGLS  -------------------------//
         //---------------------------------------//
-
-        // Calculate right hand side
-		//f = F(LambdaTest);
 
 		// Re-initialize vectors from last iteration
         r.clear();
@@ -208,26 +200,14 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 		T alpha, beta, gamma_cgls, gamma_cgls_Prev, res_cgls;
 		T dummy=0.;
 
-		// Compute Preconditioner values
-		for(auto& lambda : LambdaTest){
-			if(leftP.find(lambda)==leftP.end()){
-				leftP.insert(std::make_pair<decltype(lambda),T>(lambda, testPrec(lambda)));
-			}
-		}
-		for(auto& lambda : LambdaTrial){
-			if(rightP.find(lambda)==rightP.end()){
-				rightP.insert(std::make_pair<decltype(lambda),T>(lambda, trialPrec(lambda)));
-			}
-		}
-
 		// Initial step
-	    Op.eval(u,r,rightP,leftP);
+		Op.eval(u,r,trialPrec,testPrec);
 		//r -= f;
 	    for(auto& lambda : LambdaTest){
-	    	r[lambda] -= leftP[lambda]*F(lambda);
+	    	r[lambda] -= testPrec(lambda)*F(lambda);
 	    }
 		r *= -1;
-		OpTransp.eval(r,s,leftP,rightP);
+		OpTransp.eval(r,s,testPrec,trialPrec);
 		p = s;
 		gamma_cgls_Prev = s*s;
 
@@ -235,14 +215,14 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 		for(size_t cgls_its=0; cgls_its <= is_params.max_its; ++cgls_its){
 
 			Ap.setToZero();						// Ap = A*p
-			Op.eval(p,Ap,rightP,leftP);
+			Op.eval(p,Ap,trialPrec,testPrec);
 
 			alpha = gamma_cgls_Prev / (Ap*Ap);
 			u += alpha * p;
 			r -= alpha * Ap;
 
 			s.setToZero();
-			OpTransp.eval(r,s,leftP,rightP);	// s = A^T*r
+			OpTransp.eval(r,s,testPrec,trialPrec);	// s = A^T*r
 
 			gamma_cgls = s*s;
 			res_cgls = r.norm(2.);
@@ -256,6 +236,7 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 			if(std::sqrt(gamma_cgls) <= cgls_tol){
                 std::cerr << "       CGLS stopped with NE error " << sqrt(gamma_cgls) << ", error Au=f = " << res_cgls
                 	 << " after " << cgls_its << " iterations "<< std::endl;
+                awgm_info.cgls_its.push_back(cgls_its);
 				break;
 			}
 
@@ -265,6 +246,10 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 			gamma_cgls_Prev = gamma_cgls;
 		}
 
+		if(awgm_info.cgls_its.size() < awgm_info.sizeLambdaTrial.size()){
+            awgm_info.cgls_its.push_back(is_params.max_its);
+		}
+
         //---------------------------------------//
         //---- COMPUTE APPROXIMATE RESIDUAL -----//
         //---------------------------------------//
@@ -272,10 +257,8 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 		// Compute cone around solution u
 		IndexSet<Index2D>	Cdiff_u_leafs;	// new indizes in cone
         res.setToZero();
-        if(awgm_params.reset_resNE){
-        	resNE.clear();
-        }
-        extendMultiTree(trialbasis, u, resNE, Cdiff_u_leafs, "standard", false, true);
+
+        extendMultiTree(trialbasis, u_leafs, resNE, Cdiff_u_leafs, "standard", false, true);
 
         // Compute stable expansion in test basis
         IndexSet<Index2D> LambdaResNE = supp(resNE);
@@ -286,26 +269,13 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 
         // Compute rhs on expanded test index set
         IndexSet<Index2D> LambdaRes = supp(res);
-        //f = F(LambdaRes);
-
-        // Update Preconditioner values
-		for(auto& lambda : LambdaRes){
-			if(leftP.find(lambda)==leftP.end()){
-				leftP.insert(std::make_pair<decltype(lambda),T>(lambda, testPrec(lambda)));
-			}
-		}
-		for(auto& lambda : LambdaResNE){
-			if(rightP.find(lambda)==rightP.end()){
-				rightP.insert(std::make_pair<decltype(lambda),T>(lambda, trialPrec(lambda)));
-			}
-		}
 
 		// Compute residual Au - f on expanded test index set
         res.setToZero();
-        Op.eval(u,res,rightP,leftP); 	// res = A*u
+        Op.eval(u,res,trialPrec,testPrec); 	// res = A*u
         //res -= f;
 	    for(auto& lambda : LambdaRes){
-	    	res[lambda] -= leftP[lambda]*F(lambda);
+	    	res[lambda] -= testPrec(lambda)*F(lambda);
 	    }
         res_norm = res.norm(2.);
 
@@ -314,7 +284,7 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 
         // Compute residual of NE: A^TA*u - A^T*f
         resNE.setToZero();
-        OpTransp.eval(res,resNE,leftP,rightP); 	// resNE = A^T*res
+        OpTransp.eval(res,resNE,testPrec,trialPrec); 	// resNE = A^T*res
         resNE_norm = resNE.norm(2.);
 
         awgm_info.awgm_resNE.push_back(resNE_norm);
@@ -322,6 +292,7 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 
         if(awgm_params.verbose){
             std::cout << "   --- Approximate Residual ---" << std::endl;
+            std::cout << "       U_leafs:        " << std::setw(20) << u_leafs.size() << std::endl;
             std::cout << "       Residual Au-f:  " << std::setw(20) << res_norm
             									   << " (on " << std::setw(8) << std::right <<  LambdaRes.size() << std::left << " indizes)" << std::endl;
             std::cout << "       Residual NE  :  " << std::setw(20) << resNE_norm
@@ -339,6 +310,13 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
             	awgm_info.print();
             }
 
+            if(awgm_params.plot_solution && flens::IsSame<Index,Index2D>::value){
+            	if(awgm_params.verbose){
+                    std::cout << "=====>  Plotting solution to file " << std::endl;
+            	}
+                plot2D<T,TrialBasis,TrialPrec>(trialbasis, u, trialPrec, exact_sol, 0., 1., 0., 1., 0.01, "awgm_cgls_u_plot");
+            }
+
             return;
         }
 
@@ -347,17 +325,16 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
         //---------------------------------------//
 
         // Remove indizes from last iteration
+        T P_Lambda_ResNE_square = 0.;
 		for(auto& lambda : LambdaTrial){
+			P_Lambda_ResNE_square += std::pow(s[lambda], (T)2.);
 			resNE.erase(lambda);
 		}
 
 		// Compute buckets
-		T threshbound = std::sqrt(1.-awgm_params.alpha*awgm_params.alpha) * resNE_norm/std::sqrt(T(resNE.size()));
+		T threshbound = std::sqrt(1.-awgm_params.alpha*awgm_params.alpha) * resNE.norm((T)2.)/std::sqrt(T(resNE.size()));
 		Coefficients<Bucket,T,Index2D> r_bucket;
 		r_bucket.bucketsort(resNE, threshbound);
-
-		// Add buckets to dummy vector: p
-		T P_Lambda_ResNE_square = gamma_cgls;
 
         if(awgm_params.verbose){
             std::cout << "   --- Computing next index set ---" << std::endl;
@@ -366,6 +343,7 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
             std::cout << "       alpha*Residual_NE:   " << awgm_params.alpha*resNE_norm << std::endl;
         }
 
+		// Add buckets to dummy vector: p
 		for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
 			P_Lambda_ResNE_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
 			r_bucket.addBucketToCoefficients(p,i);
@@ -391,6 +369,11 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
 				completeMultiTree(trialbasis, coeff.first, u, LambdaTrialDiff, 0, true);
 			}
 		}
+
+        // Compute new u_leafs
+        u_leafs.clear();
+        FillWithZeros(LambdaTrialDiff,u_leafs);
+
         LambdaTrial = supp(u);
 
         // New LambdaTest: stable expansion of LambdaTrial (on dummy vector Ap)
@@ -404,8 +387,9 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
             std::cout << "                     total size     " <<  std::setw(8) <<  LambdaTrial.size() << std::endl;
             std::cout << "       LambdaTest:   total size     " <<  std::setw(8) <<  LambdaTest.size() << std::left << std::endl;
             if(awgm_params.verbose_extra){
-            	std::cout << LambdaTrialDiff << std::endl << std::endl;
+            	std::cout << LambdaTrialDiff;
             }
+            std::cout << std::endl;
         }
     }
 

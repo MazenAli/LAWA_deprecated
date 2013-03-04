@@ -49,7 +49,6 @@ struct AWGM_Parameters{
 					double _alpha = 0.7,
 					size_t _max_its = 100,
 					size_t _max_basissize = 400000,
-					bool _reset_resNE = false,
 					bool _reset_res = false,
 					bool _print_info = true,
 					bool _verbose = true,
@@ -90,7 +89,8 @@ struct IS_Parameters{
 struct AWGM_Information{
 	std::vector<double> awgm_res, awgm_resNE,
 						sizeLambdaTrial, sizeLambdaTest,
-						sizeLambdaResNE, sizeLambdaRes;
+						sizeLambdaResNE, sizeLambdaRes,
+						cgls_its;
 
 	void print(const char* filename = "awgm_cgls_conv_info.txt");
 };
