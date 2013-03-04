@@ -117,7 +117,7 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
        RightPrec &rightP, LeftPrec &leftP)
 {
     for (coeff_it it=v.begin(); it!=v.end(); ++it) {
-        (*it).second *= rightP[(*it).first];
+        (*it).second *= rightP((*it).first);
     }
 
     switch (numOfLocalOp)
@@ -137,10 +137,10 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
             exit(1);
     }
     for (coeff_it it=Av.begin(); it!=Av.end(); ++it) {
-        (*it).second *= leftP[(*it).first];
+        (*it).second *= leftP((*it).first);
     }
     for (coeff_it it=v.begin(); it!=v.end(); ++it) {
-        (*it).second *= 1./rightP[(*it).first];
+        (*it).second *= 1./rightP((*it).first);
     }
 }
 
