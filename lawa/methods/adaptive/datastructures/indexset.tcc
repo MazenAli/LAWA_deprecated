@@ -39,6 +39,12 @@ IndexSet<Index>::IndexSet(size_t n)
 : boost::unordered_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >::unordered_set(n)
 {
 }
+#elif CONEONE
+template <typename Index>
+IndexSet<Index>::IndexSet(size_t n)
+: std::unordered_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >::unordered_set(n)
+{
+}
 #else
 template <typename Index>
 IndexSet<Index>::IndexSet(size_t n)

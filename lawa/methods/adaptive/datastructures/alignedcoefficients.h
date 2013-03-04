@@ -24,6 +24,8 @@
     #include <tr1/unordered_map>
 #elif BOOST
     #include <boost/unordered_map.hpp>
+#elif CONEONE
+	#include <unordered_map>
 #else
     #include <ext/hash_map>
 #endif
@@ -45,6 +47,12 @@ struct AlignedCoefficients
                          IndexToCoefficientsMap;
     #elif BOOST
         typedef typename boost::unordered_map<PrincipalIndex,
+                                                 Coefficients<Lexicographical,T,AlignedIndex>,
+                                                 index_hashfunction<PrincipalIndex>,
+                                                 index_eqfunction<PrincipalIndex> >
+                         IndexToCoefficientsMap;
+	#elif CONEONE
+        typedef typename std::unordered_map<PrincipalIndex,
                                                  Coefficients<Lexicographical,T,AlignedIndex>,
                                                  index_hashfunction<PrincipalIndex>,
                                                  index_eqfunction<PrincipalIndex> >

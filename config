@@ -2,12 +2,19 @@ TARGET = $(shell uname)
 COMPILER = gcc
 BLASLAPACK = platform
 
+STANDARD = c11
+
 ifeq ($(TARGET),Darwin)
   CXXDYLIB  = -dynamiclib
   DYLIB_EXT = dylib
   ifeq ($(COMPILER),gcc)
     CC  = gcc
-    CXX = g++
+    ifeq ($(STANDARD),c11) 
+        CXX = g++-mp-4.7
+        CXXFLAGS += -std=c++11
+    else
+        CXX = g++    
+    endif
   endif
   ifeq ($(COMPILER),icc)
     CC  = icc
@@ -16,6 +23,9 @@ ifeq ($(TARGET),Darwin)
   ifeq ($(COMPILER),clang)
     CC  = clang
     CXX = clang++
+    ifeq ($(STANDARD),c11) 
+        CXXFLAGS += -std=c++11  
+    endif  
   endif
   ifeq ($(BLASLAPACK),platform)
     CPPFLAGS += -DWITH_VECLIB
@@ -43,6 +53,7 @@ endif
 #HASHTYPE = -DGNUCXX
 #HASHTYPE = -DBOOST
 HASHTYPE = -DTRONE -DBOOST_HAS_TR1_TUPLE
+#HASHTYPE = -DCONEONE
 
 # --- debug mode -----------------------
 DEBUGLAWA += -DCHECK_INTERVAL_CONSTRUCTION
@@ -51,14 +62,14 @@ DEBUGMODE = -g -DDEBUG -D_GLIBCXX_DEBUG_PEDANTIC=1 $(DEBUGLAWA) $(HASHTYPE) \
             -fPIC -Wall -Wno-attributes
 
 # --- release mode ----------------------
-RELEASEMODE = -O3 -DNDEBUG $(HASHTYPE) -fPIC
+RELEASEMODE = -O3 -DNDEBUG $(HASHTYPE) -fPIC -Wno-attributes
 
 # --- profiling mode --------------------
 PROFILEMODE = -p -g -DNDEBUG $(HASHTYPE)
 
 # --- select compilation-mode here by commenting / uncommenting
-CXXFLAGS += $(DEBUGMODE)
-#CXXFLAGS += $(RELEASEMODE)
+#CXXFLAGS += $(DEBUGMODE)
+CXXFLAGS += $(RELEASEMODE)
 #CXXFLAGS += $(PROFILEMODE)
 
 #CPPFLAGS += -D_GLIBCXX_PERMIT_BACKWARD_HASH

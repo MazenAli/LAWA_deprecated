@@ -24,6 +24,8 @@
     #include <tr1/unordered_map>
 #elif BOOST
     #include <boost/unordered_map.hpp>
+#elif CONEONE
+	#include <unordered_map>
 #else
     #include <ext/hash_set>
 #endif
@@ -46,6 +48,8 @@ struct CoefficientsByLevel
         //typedef typename std::map<long, T> TranslationIndexToValueMap;
     #elif BOOST
         typedef typename boost::unordered_map<long, T> TranslationIndexToValueMap;
+	#elif CONEONE
+        typedef typename std::unordered_map<long, T> TranslationIndexToValueMap;
     #else
         typedef typename __gnu_cxx::hash_map<long, T> TranslationIndexToValueMap;
     #endif

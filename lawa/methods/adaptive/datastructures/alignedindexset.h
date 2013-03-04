@@ -24,6 +24,8 @@
     #include <tr1/unordered_map>
 #elif BOOST
     #include <boost/unordered_map.hpp>
+#elif CONEONE
+    #include <unordered_set>
 #else
     #include <ext/hash_set>
 #endif
@@ -51,6 +53,11 @@ struct AlignedIndexSet
                                                  index_hashfunction<PrincipalIndex>,
                                                  index_eqfunction<PrincipalIndex> >
                          IndexToIndexSetMap;
+	#elif CONEONE
+		typedef typename std::unordered_map<PrincipalIndex,IndexSet<AlignedIndex>,
+												 index_hashfunction<PrincipalIndex>,
+												 index_eqfunction<PrincipalIndex> >
+						 IndexToIndexSetMap;
     #else
         typedef typename __gnu_cxx::hash_map<PrincipalIndex,IndexSet<AlignedIndex>,
                                              index_hashfunction<PrincipalIndex>,

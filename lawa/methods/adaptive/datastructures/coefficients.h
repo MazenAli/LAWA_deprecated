@@ -24,6 +24,8 @@
     #include <tr1/unordered_map>
 #elif BOOST
     #include <boost/unordered_map.hpp>
+#elif CONEONE
+	#include <unordered_map>
 #else
     #include <ext/hash_map>
 #endif
@@ -51,6 +53,10 @@ struct Coefficients<Lexicographical,T,Index> : public std::tr1::unordered_map<In
 struct Coefficients<Lexicographical,T,Index> : public boost::unordered_map<Index, T,
                                                                        index_hashfunction<Index>,
                                                                        index_eqfunction<Index> >
+#elif CONEONE
+struct Coefficients<Lexicographical,T,Index> : public std::unordered_map<Index, T,
+                                                                       index_hashfunction<Index>,
+                                                                       index_eqfunction<Index> >
 #else
 struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index, T,
                                                                        index_hashfunction<Index>,
@@ -76,6 +82,14 @@ struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index,
      }
     void
     Rehash(size_t n) { this->rehash(n); }
+	#elif CONEONE
+	Coefficients(size_t n)
+	 :std::unordered_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::unordered_map(n)
+	 {
+
+	 }
+	void
+	Rehash(size_t n) { this->rehash(n); }
     #else
     Coefficients(size_t n)
     :__gnu_cxx::hash_map<Index, T, index_hashfunction<Index>, index_eqfunction<Index> >::hash_map(n) {
@@ -141,6 +155,8 @@ template <typename T, typename Index>
 void
 P(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Index> &v);
 
+/* Return all indizes of coefficient vector
+ */
 template <typename T, typename Index>
 IndexSet<Index>
 supp(const Coefficients<Lexicographical,T,Index> &v);
