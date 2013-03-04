@@ -9,11 +9,12 @@ namespace lawa {
 
 AWGM_Parameters::AWGM_Parameters(double _tol, double _alpha, size_t _max_its,
 		size_t _max_basissize, bool _reset_resNE, bool _reset_res, bool _print_info,
-		bool _verbose, bool _plot_solution, bool _verbose_extra, size_t _hashmapsize)
+		bool _verbose, bool _plot_solution, bool _verbose_extra,
+		size_t _hashmapsize_trial, size_t _hashmapsize_test)
 : tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
   reset_resNE(_reset_resNE), reset_res(_reset_res), print_info(_print_info),
   verbose(_verbose), plot_solution(_plot_solution), verbose_extra(_verbose_extra),
-  hashmapsize(_hashmapsize)
+  hashmapsize_trial(_hashmapsize_trial), hashmapsize_test(_hashmapsize_test)
 {}
 
 void
@@ -29,7 +30,8 @@ AWGM_Parameters::print()
 	std::cout << std::left << std::setw(18) << "# print_info:" << std::setw(16) <<  (print_info?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(18) << "# verbose:" << std::setw(16) <<  (verbose?"true":"false") << (verbose_extra?" (extra)":"") << std::endl;
 	std::cout << std::left << std::setw(18) << "# plot_solution:" << std::setw(16) <<  (plot_solution?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(18) << "# hashmapsize:" << std::setw(16) <<  hashmapsize << std::endl;
+	std::cout << std::left << std::setw(18) << "# hashmapsize trial:" << std::setw(16) <<  hashmapsize_trial << std::endl;
+	std::cout << std::left << std::setw(18) << "# hashmapsize test:" << std::setw(16) <<  hashmapsize_test << std::endl;
 	std::cout << "#########################################" << std::endl << std::endl;
 }
 
@@ -134,23 +136,21 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTria
     //---------------------------------------//
 
     /// Initialization of hash map vectors
-    Coefficients<Lexicographical,T,Index2D> f(SIZEHASHINDEX2D),
-    										r(SIZEHASHINDEX2D),
-    										s(SIZEHASHINDEX2D),
-                                            p(SIZEHASHINDEX2D),
-                                            q(SIZEHASHINDEX2D),
-                                            Ap(SIZEHASHINDEX2D),
-                                            res(SIZEHASHINDEX2D),     // approximate residual for f-Au
-                                    		resNE(SIZEHASHINDEX2D),   // cone around u_leafs
-                                            u_leafs(SIZEHASHINDEX2D); // "leafs" of u
+    Coefficients<Lexicographical,T,Index2D> r(awgm_params.hashmapsize_test),
+    										s(awgm_params.hashmapsize_trial),
+                                            p(awgm_params.hashmapsize_trial),
+                                            Ap(awgm_params.hashmapsize_test),
+                                            res(awgm_params.hashmapsize_test),     // approximate residual for f-Au
+                                    		resNE(awgm_params.hashmapsize_test),   // cone around u_leafs
+                                            u_leafs(awgm_params.hashmapsize_trial); // "leafs" of u
 
 	FillWithZeros(LambdaTrial,u_leafs);
 	FillWithZeros(LambdaTest,res);
 
     // Use coefficient vectors for preconditioners
     // (no possibility to store precomputed values in the actual precs yet!)
-    Coefficients<Lexicographical,T,Index2D> leftP(SIZEHASHINDEX2D);
-    Coefficients<Lexicographical,T,Index2D> rightP(SIZEHASHINDEX2D);
+    //Coefficients<Lexicographical,T,Index2D> leftP(awgm_params.hashmapsize_test);
+    //Coefficients<Lexicographical,T,Index2D> rightP(awgm_params.hashmapsize_trial);
 
     // Default for initial cgls tolerance computation if adaptive
     T resNE_norm = 1.;

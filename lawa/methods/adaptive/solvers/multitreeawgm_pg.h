@@ -42,7 +42,8 @@ struct AWGM_Parameters{
 	bool 	verbose;
 	bool    plot_solution;
 	bool	verbose_extra;
-	size_t 	hashmapsize;
+	size_t 	hashmapsize_trial;
+	size_t 	hashmapsize_test;
 
 	AWGM_Parameters(double _tol = 5e-03,
 					double _alpha = 0.7,
@@ -54,7 +55,8 @@ struct AWGM_Parameters{
 					bool _verbose = true,
 					bool _plot_solution = false,
 					bool _verbose_extra = false,
-					size_t _hashmapsize = SIZEHASHINDEX2D);
+					size_t _hashmapsize_trial = 3037,
+					size_t _hashmapsize_test = 20857);
 
 	void print();
 };
