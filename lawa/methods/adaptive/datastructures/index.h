@@ -48,7 +48,6 @@ struct Index1D
     Index1D(void);
     Index1D(int j, long k, XType _xtype);
     Index1D(const Index1D &index);
-    ~Index1D();
     short levelSum() const;
 };
 
@@ -58,7 +57,6 @@ struct Index2D
 {
     Index2D(void);
     Index2D(const Index1D &index1, const Index1D &index2);
-    ~Index2D();
     short levelSum() const;
 
     Index1D index1, index2;

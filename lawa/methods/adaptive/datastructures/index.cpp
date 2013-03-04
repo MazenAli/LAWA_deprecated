@@ -37,10 +37,6 @@ Index1D::Index1D(const Index1D &index)
 {
 }
 
-Index1D::~Index1D(void)
-{
-}
-
 short
 Index1D::levelSum(void) const
 {
@@ -66,10 +62,6 @@ Index2D::Index2D(void)
 
 Index2D::Index2D(const Index1D &_index1, const Index1D &_index2)
 : index1(_index1), index2(_index2)
-{
-}
-
-Index2D::~Index2D(void)
 {
 }
 
