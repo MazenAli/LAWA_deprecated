@@ -54,8 +54,8 @@ struct AWGM_Parameters{
 					bool _verbose = true,
 					bool _plot_solution = false,
 					bool _verbose_extra = false,
-					size_t _hashmapsize_trial = 3037,
-					size_t _hashmapsize_test = 20857);
+					size_t _hashmapsize_trial = 10,
+					size_t _hashmapsize_test = 10);
 
 	void print();
 };

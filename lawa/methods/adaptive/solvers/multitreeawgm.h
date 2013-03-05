@@ -46,6 +46,7 @@ struct MultiTreeAWGM {
     cg_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations=100, T _init_cgtol=1e-2,
              T EnergyNorm=0., const char *filename="conv.dat", const char *coefffilename="coeff.dat");
 
+    // Approximate initial conditions in time-stepping methods for parabolic problems
     void
     approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations=100, T _init_cgtol=1e-2,
              T EnergyNorm=0., const char *filename="conv.dat", const char *coefffilename="coeff.dat");
