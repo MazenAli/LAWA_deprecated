@@ -9,12 +9,13 @@
 #define LAWA_METHODS_ADAPTIVE_SOLVERS_SOLVER_PARAMETERS_H_
 
 #include <vector>
+#include <cstdlib>
 
 namespace lawa {
 
 /**
  * Parameters for the Adaptive Wavelet-Galerkin Method
- *  (= the outer solver)
+ *  (= the outer solver), Petrov-Galerkin version
  */
 struct AWGM_PG_Parameters{
 
@@ -22,7 +23,6 @@ struct AWGM_PG_Parameters{
 	double 	alpha;
 	size_t 	max_its;
 	size_t 	max_basissize;
-	bool	reset_resNE;
 	bool 	reset_res;
 
 	bool	print_info;
@@ -43,6 +43,36 @@ struct AWGM_PG_Parameters{
 					bool _verbose_extra = false,
 					size_t _hashmapsize_trial = 10,
 					size_t _hashmapsize_test = 10);
+
+	void print();
+};
+
+/**
+ * Parameters for the Adaptive Wavelet-Galerkin Method
+ *  (= the outer solver), Galerkin version
+ */
+struct AWGM_Parameters{
+
+	double 	tol;
+	double 	alpha;
+	size_t 	max_its;
+	size_t 	max_basissize;
+
+	bool	print_info;
+	bool 	verbose;
+	bool    plot_solution;
+	bool	verbose_extra;
+	size_t 	hashmapsize;
+
+	AWGM_Parameters(double _tol = 5e-03,
+					double _alpha = 0.7,
+					size_t _max_its = 100,
+					size_t _max_basissize = 400000,
+					bool _print_info = true,
+					bool _verbose = true,
+					bool _plot_solution = false,
+					bool _verbose_extra = false,
+					size_t _hashmapsize = 10);
 
 	void print();
 };
@@ -78,6 +108,17 @@ struct AWGM_PG_Information{
 						sizeLambdaTrial, sizeLambdaTest,
 						sizeLambdaResNE, sizeLambdaRes,
 						cgls_its;
+
+	void print(const char* filename = "awgm_cgls_conv_info.txt");
+};
+
+/**
+ * Gathers information that is interesting during a cg-solve
+ * and which can later be printed out
+ */
+struct AWGM_Information{
+	std::vector<double> awgm_res, sizeLambda,
+						sizeLambdaRes, cg_its;
 
 	void print(const char* filename = "awgm_cgls_conv_info.txt");
 };

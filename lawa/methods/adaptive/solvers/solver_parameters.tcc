@@ -1,3 +1,7 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
 namespace lawa {
 
 AWGM_PG_Parameters::AWGM_PG_Parameters(double _tol, double _alpha, size_t _max_its,
@@ -47,6 +51,31 @@ IS_Parameters::print()
 	std::cout << "#########################################" << std::endl << std::endl;
 }
 
+AWGM_Parameters::AWGM_Parameters(double _tol, double _alpha, size_t _max_its,
+		size_t _max_basissize, bool _print_info,
+		bool _verbose, bool _plot_solution, bool _verbose_extra,
+		size_t _hashmapsize)
+: tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
+  print_info(_print_info), verbose(_verbose), plot_solution(_plot_solution),
+  verbose_extra(_verbose_extra), hashmapsize(_hashmapsize)
+{}
+
+void
+AWGM_Parameters::print()
+{
+	std::cout << "###### AWGM Parameters #################" << std::endl;
+	std::cout << std::left << std::setw(24) << "# tol:" << std::setw(20) <<  tol << std::endl;
+	std::cout << std::left << std::setw(24) << "# alpha:" << std::setw(20) <<  alpha << std::endl;
+	std::cout << std::left << std::setw(24) << "# max_its:" << std::setw(20) <<  max_its << std::endl;
+	std::cout << std::left << std::setw(24) << "# max_basissize:" << std::setw(20) <<  max_basissize << std::endl;
+	std::cout << std::left << std::setw(24) << "# print_info:" << std::setw(20) <<  (print_info?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# verbose:" << std::setw(20) <<  (verbose?"true":"false") << (verbose_extra?" (extra)":"") << std::endl;
+	std::cout << std::left << std::setw(24) << "# plot_solution:" << std::setw(20) <<  (plot_solution?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# hashmapsize:" << std::setw(20) <<  hashmapsize << std::endl;
+	std::cout << "#########################################" << std::endl << std::endl;
+}
+
+
 void
 AWGM_PG_Information::print(const char* filename)
 {
@@ -55,9 +84,26 @@ AWGM_PG_Information::print(const char* filename)
     	infofile << "# It Res Res_NE SizeTrial SizeTest SizeTestResNE SizeTestRes CGLS_Its" << std::endl;
     	for(size_t i=0; i < awgm_res.size(); ++i){
     		infofile << i << " " << awgm_res[i] << " " << awgm_resNE[i] << " "
-    		        << sizeLambdaTrial[i] << " " << sizeLambdaTest[i] << " "
-    		        << sizeLambdaResNE[i] << " " << sizeLambdaRes[i] << " "
-    		        << cgls_its[i] << std::endl;
+    				<< sizeLambdaTrial[i] << " " << sizeLambdaTest[i] << " "
+    				<< sizeLambdaResNE[i] << " " << sizeLambdaRes[i] << " "
+    				<< cgls_its[i] << std::endl;
+    	}
+        infofile.close();
+    }
+    else{
+    	std::cerr << "Error opening file " << filename << " for writing! " << std::endl;
+    }
+}
+
+void
+AWGM_Information::print(const char* filename)
+{
+    std::ofstream infofile(filename);
+    if(infofile.is_open()){
+    	infofile << "# It Res SizeLambda SizeTestRes CG_Its" << std::endl;
+    	for(size_t i=0; i < awgm_res.size(); ++i){
+    		infofile << i << " " << awgm_res[i] << " " << sizeLambda[i] << " "
+    		        << sizeLambdaRes[i] << " " << cg_its[i] << std::endl;
     	}
         infofile.close();
     }
