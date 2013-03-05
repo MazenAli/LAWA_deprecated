@@ -46,6 +46,9 @@ struct Option2D<T,SumOfPuts>
     T
     value(const ProcessParameters2D<T,BlackScholes2D> &processparameters, T S1, T S2, T t) const;
 
+    T
+    value(const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters, T S1, T S2, T t);
+
     OptionParameters2D<T,SumOfPuts> optionparameters;
 
     OptionParameters1D<T,Put>       optionparameters1, optionparameters2;

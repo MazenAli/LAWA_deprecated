@@ -60,10 +60,10 @@ ThetaTimeStepSeparableRHS<T,Index,SpatialRHS,ThetaTimeStepLocalOperator>::initia
             propagated_u_k[(*it).first] = 0.;
         }
         if (theta!=1.) {
-            thetaTimeStepLocalOperator.evalA(u_k, propagated_u_k, "galerkin");
+            thetaTimeStepLocalOperator.evalA(u_k, propagated_u_k, "residual");
             propagated_u_k *= (theta-1.)*timestep;
         }
-        thetaTimeStepLocalOperator.evalM(u_k, propagated_u_k, "galerkin");
+        thetaTimeStepLocalOperator.evalM(u_k, propagated_u_k, "residual");
     }
 }
 

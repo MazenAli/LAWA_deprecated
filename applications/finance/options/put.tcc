@@ -95,14 +95,17 @@ Option1D<T,Put>::value(const ProcessParameters1D<T,CGMYe> &processparameters, T 
     CharacteristicFunction1D<T,CGMYe> charfunc(processparameters);
 
     FourierPricer1D<T, CGMYe> fp(charfunc, S, optionparameters.maturity-t,
-                                 std::max(optionparameters.strike-10.,(T)0.),
+                                 std::max(optionparameters.strike-10.,(T)0.1),
                                  optionparameters.strike+10.);
 
     if (t==0) {
         const_it it_option = values.find(S);
         if (it_option!=values.end()) return (*it_option).second;
         else {
-            fp.solve(10000,20);
+            std::cerr << "   -> Option1D<T,Put>: No high precision is used for computation of reference"
+                      << " values!" << std::endl;
+            fp.solve(10000,16);
+            //fp.solve(10000,20);
             T val = fp(optionparameters.strike);
             values[S] = val;
             return val;
@@ -111,6 +114,7 @@ Option1D<T,Put>::value(const ProcessParameters1D<T,CGMYe> &processparameters, T 
     else {
         //fp.solve(40000,17);
         fp.solve(10000,20);
+        //fp.solve(10000,20);
         //fp.solve(10000,16);
     }
     return fp(optionparameters.strike);

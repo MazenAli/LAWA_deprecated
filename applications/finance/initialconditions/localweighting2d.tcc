@@ -95,7 +95,7 @@ LocalWeighting2D<T,Basis>::weight(const Index2D &index)
         T dist_center_y = fabs(fabs(center_y)-0.25);
         if (fabs(center_x)<=0.25 && fabs(center_y)<=0.25)
                 return 1.;
-        else    return std::exp(-(dist_center_x*dist_center_x + dist_center_y*dist_center_y));
+        else    return std::exp(-100.*(dist_center_x*dist_center_x + dist_center_y*dist_center_y));
         */
         //return 1.;
     }

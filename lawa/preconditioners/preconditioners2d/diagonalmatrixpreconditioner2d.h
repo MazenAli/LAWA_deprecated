@@ -31,7 +31,7 @@ class DiagonalMatrixPreconditioner2D
 {
 
     public:
-        DiagonalMatrixPreconditioner2D(const BilinearForm &a);
+        DiagonalMatrixPreconditioner2D(BilinearForm &a);
 
         T
         operator()(XType xtype1, int j1, long k1,
@@ -40,8 +40,16 @@ class DiagonalMatrixPreconditioner2D
         T
         operator()(const Index2D &index) const;
 
+        T
+        operator[](const Index2D &index);
+
+        void
+        setThetaTimeStepParameters(T _theta, T _timestep);
+
     private:
-        const BilinearForm &_a;
+        BilinearForm &_a;
+
+        T theta, timestep;
 
 };
 

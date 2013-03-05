@@ -27,16 +27,16 @@ T strike = 1.;
 T maturity = 1.;
 T weight1 = 0.5, weight2 = 0.5;
 
-/*
+
 const OptionTypenD optiontype = BasketPut;
 OptionParameters2D<T,BasketPut> optionparameters(strike, maturity, weight1, weight2, false);
 typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedBasketPutOption2D<T> > PayoffIntegral;
-*/
 
+/*
 const OptionTypenD optiontype = SumOfPuts;
 OptionParameters2D<T,SumOfPuts> optionparameters(strike, strike, maturity, weight1, weight2, false);
 typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedSumOfPutsOption2D<T> > PayoffIntegral;
-
+*/
 const ProcessType2D  processtype  = BlackScholes2D;
 //T r = 0.04; T sigma1 = 0.3, sigma2 = 0.2, rho = 0.;
 //T u11 = 1., u12 = 0., u21 = 0., u22 = 1.;
@@ -90,7 +90,8 @@ typedef ThetaTimeStepLocalOperator<Index2D, CompoundLocalOperator2D> ThetaTimeSt
 typedef RHSWithPeaks1D<T,PrimalBasis>                               Rhs1D;
 typedef AdaptiveSeparableRhs<T,Index2D,Rhs1D,Rhs1D >                AdaptiveSeparableRhsIntegral2D;
 typedef ThetaTimeStepSeparableRHS<T,Index2D,
-                                  AdaptiveSeparableRhsIntegral2D>   ThetaTimeStepRhs2d;
+                                  AdaptiveSeparableRhsIntegral2D,
+                                  ThetaTimeStepLocalOperator2D>     ThetaTimeStepRhs2d;
 typedef CompoundRhs<T,Index2D,AdaptiveSeparableRhsIntegral2D,
                     AdaptiveSeparableRhsIntegral2D>                 CompoundRhsIntegral2D;
 
@@ -180,9 +181,9 @@ int main (int argc, char *argv[]) {
 
     int numOfMCRuns = 100000;
 
-    int order = 6;
+    int order = 5;
 
-    bool useRefPrices = false;
+    bool useRefPrices = true;
 
     Timer time;
 
@@ -237,14 +238,14 @@ int main (int argc, char *argv[]) {
                                             rhs_f_y_data(SIZEHASHINDEX1D);
 
     AdaptiveSeparableRhsIntegral2D F_rhs(rhs_f_x, rhs_f_x_data, rhs_f_y, rhs_f_y_data);
-    ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs);
+    ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs,localThetaTimeStepOp2D);
 
     /// Initialization of integrals for initial condition and rhs
     Option2D<T,optiontype>         option2d(optionparameters);
-    //option2d.setNumberOfMCRuns(numOfMCRuns);
+    option2d.setNumberOfMCRuns(numOfMCRuns);
 
-    //TruncatedBasketPutOption2D<T> truncatedoption2d;
-    TruncatedSumOfPutsOption2D<T> truncatedoption2d;
+    TruncatedBasketPutOption2D<T> truncatedoption2d;
+    //TruncatedSumOfPutsOption2D<T> truncatedoption2d;
     truncatedoption2d.setOption(option2d);
     truncatedoption2d.setTransformation(u11, u21, u12, u22);
     truncatedoption2d.setTruncation(left_x1, right_x1, left_x2, right_x2, 0, 0.1, 100.);
@@ -266,13 +267,13 @@ int main (int argc, char *argv[]) {
 
     if (optiontype == BasketPut) {
         if (useRefPrices) {
-            filename << "basketputoption2d_conv2_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+            filename << "basketputoption2d_conv2_sg_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                      << "_lx2_" << left_x2 << "_rx2_" << right_x2
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
         }
         else {
-            filename << "basketputoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+            filename << "basketputoption2d_conv_sg_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                      << "_lx2_" << left_x2 << "_rx2_" << right_x2
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
@@ -280,13 +281,13 @@ int main (int argc, char *argv[]) {
     }
     else if (optiontype == SumOfPuts) {
         if (useRefPrices) {
-            filename << "sumofputsoption2d_conv2_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+            filename << "sumofputsoption2d_conv2_sg_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                      << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
         }
         else {
-            filename << "sumofputsoption2d_conv_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+            filename << "sumofputsoption2d_conv_sg_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                      << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
                      << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                      << processparameters << ".txt";
@@ -335,8 +336,9 @@ int main (int argc, char *argv[]) {
 
         ThetaSchemeMultiTreeAWGM2D thetascheme(thetatimestep_solver);
         thetascheme.setParameters(theta, timestep, numOfTimesteps, timestep_eps, maxiterations,
-                                  init_cgtol);
-        thetascheme.solve(u);
+                                  init_cgtol, 0);
+        int avDof = 0, maxDof = 0., terminalDof;
+        thetascheme.solve(u, avDof, maxDof, terminalDof, j);
         cerr << "Computation of u has finished." << endl;
         T maxerror = 0., maxerror1 = 0., maxerror2 = 0.;
         if (useRefPrices) {

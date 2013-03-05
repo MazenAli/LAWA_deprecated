@@ -13,7 +13,8 @@ FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
       use_predef_convection(_use_predef_convection),
       use_predef_reaction(_use_predef_reaction),
       OneDivSqrtR2pR1(1./std::sqrt(R2+R1)), OneDivR2pR1(1./(R2+R1)), R1DivR1pR2(R1/(R1+R2)),
-      integral(basis,basis), singularIntegral(kernel,basis,basis,-R1,R2)
+      integral(basis,basis), singularIntegral(kernel,basis,basis,-R1,R2),
+      data(196613)
 {
     if (basis.d==3) {
         bool is_realline_basis=flens::IsSame<Basis1D, Basis<T,Primal,R,CDF> >::value;
@@ -23,7 +24,6 @@ FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
         convection = kernel.ExpXmOnemX_k;
         reaction   = 0.;
     }
-
     int singular_order = 5, n = 10;
     T sigma = 0.1, mu = 0.3, omega = 0.01;
     singularIntegral.singularquadrature.setParameters(singular_order, n, sigma, mu, omega);
@@ -35,7 +35,7 @@ T
 FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
                                                  XType xtype2, int j2, int k2) const
 {
-   typedef typename std::map<T,T>::const_iterator const_it;
+   typedef typename std::map<T,T>::const_iterator   const_it;
 
    if (internal_compression_level>-1) {
        T compr_c=0.1;
@@ -153,8 +153,29 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
    else {
        assert(0);
    }
-   //std::cout << k1 << " " << k2 << " : " << int_val << std::endl;
+
    return pde_val - int_val;
+}
+
+template <typename T, typename Basis1D>
+T
+FinanceOperator1D<T, CGMYe, Basis1D>::operator()(const Index1D &row_index,
+                                                 const Index1D &col_index) const
+{
+    typedef typename EntryMap::const_iterator        const_map_it;
+    Entry<Index1D>   entry(row_index,col_index);
+    const_map_it it_entry = data.find(entry);
+    T val = 0.;
+    if (it_entry != data.end()) {
+        val = (*it_entry).second;
+    }
+    else {
+        val = this->operator()(row_index.xtype, row_index.j, row_index.k,
+                                 col_index.xtype, col_index.j, col_index.k);
+        if (fabs(val) > 0.) data.insert(val_type(entry,val));
+
+    }
+    return val;
 }
 
 }   // namespace lawa

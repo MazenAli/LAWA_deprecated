@@ -32,6 +32,19 @@ namespace lawa {
 template <typename T, typename Basis1D>
 struct FinanceOperator1D<T, CGMYe, Basis1D>
 {
+    #ifdef TRONE
+        typedef typename std::tr1::unordered_map<Entry<Index1D>, T, entry_hashfunction<Index1D>,
+                                                                 entry_eqfunction<Index1D> > EntryMap;
+    #elif BOOST
+        typedef typename boost::unordered_map<Entry<Index1D>, T, entry_hashfunction<Index1D>,
+                                                                     entry_eqfunction<Index1D> > EntryMap;
+    #else
+        typedef typename __gnu_cxx::hash_map<Entry<Index1D>, T, entry_hashfunction<Index1D>,
+                                                                 entry_eqfunction<Index1D> > EntryMap;
+    #endif
+    typedef typename EntryMap::value_type val_type;
+
+
     FinanceOperator1D(const Basis1D& _basis, const ProcessParameters1D<T,CGMYe> &_processparameters,
                       T _R1=0., T _R2=1., int order=10,
                       const int internal_compression_level=-1,
@@ -57,6 +70,8 @@ struct FinanceOperator1D<T, CGMYe, Basis1D>
     SingularIntegral<Kernel<T,CGMY>,Basis1D,Basis1D> singularIntegral;
 
     mutable std::map<T,T> values_tailintegral;
+
+    mutable EntryMap data;
 
 };
 

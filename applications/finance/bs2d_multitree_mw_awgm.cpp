@@ -204,7 +204,7 @@ int main (int argc, char *argv[]) {
 
     int numOfMCRuns = 100000;
 
-    int order = 6;
+    int order = 3;
 
     bool useRefPrices = true;
 
@@ -323,8 +323,12 @@ int main (int argc, char *argv[]) {
     }
     std::ofstream convfile(filename.str().c_str());
 
+
     for (int j=0; j<=J; ++j) {
-        T timestep_eps = 1e-10; int maxL2Iterations = 12+j; u.clear();
+        T timestep_eps = 1e-10;
+        int maxL2Iterations = 18; u.clear();
+        //int maxL2Iterations = 12+j; u.clear();
+        //int maxL2Iterations = 15; u.clear();
         getSparseGridVector(basis2d, u, j, (T)0.);
     //for (timestep_eps=0.1; timestep_eps>=1e-6; timestep_eps*=0.5) {
         //int maxL2Iterations = 100; u.clear();

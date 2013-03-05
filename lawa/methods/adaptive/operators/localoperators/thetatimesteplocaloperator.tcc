@@ -132,5 +132,4 @@ ThetaTimeStepLocalOperator<Index,StiffnessMatrixLocalOperator,MassMatrixLocalOpe
     }
 }
 
-
 }   // namespace lawa

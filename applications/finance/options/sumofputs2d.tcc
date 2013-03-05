@@ -50,4 +50,13 @@ Option2D<T,SumOfPuts>::value(const ProcessParameters2D<T,BlackScholes2D> &proces
             + optionparameters.weight2*option2.value(processparameters2,S2,t);
 }
 
+template <typename T>
+T
+Option2D<T,SumOfPuts>::value(const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters,
+                             T S1, T S2, T t)
+{
+    return    optionparameters.weight1*option1.value(processparameters.proc_param1,S1,t)
+            + optionparameters.weight2*option2.value(processparameters.proc_param2,S2,t);
+}
+
 }   //namespace lawa
