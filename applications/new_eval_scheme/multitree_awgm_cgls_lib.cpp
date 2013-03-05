@@ -6,6 +6,8 @@
 #include <lawa/methods/adaptive/operators/localoperators/flexiblecompoundlocaloperator.h>
 #include <lawa/methods/adaptive/solvers/multitreeawgm_pg.h>
 #include <lawa/methods/adaptive/algorithms/indexset_generation.h>
+#include <lawa/methods/adaptive/solvers/solver_parameters.h>
+
 
 using namespace std;
 using namespace lawa;
@@ -131,6 +133,8 @@ int main () {
     int d_  = 2;
     int j0  = 2;
 
+    //getchar();
+
     /// Basis initialization
     TrialBasis_Time      basis_per(d,d_,j0);
     TestBasis_Time       basis_int(d,d_,j0);
@@ -236,7 +240,7 @@ int main () {
 	//===============================================================//
 
 
-    /* AWGM Parameters Default Values
+    /* AWGM PG Parameters Default Values
     double tol = 5e-03;
 	double alpha = 0.7;
 	size_t max_its = 100;
@@ -265,7 +269,7 @@ int main () {
 
 
     // If you want other parameters
-    AWGM_Parameters awgm_parameters;
+    AWGM_PG_Parameters awgm_parameters;
     IS_Parameters cgls_parameters;
     // .... set them here:
     awgm_parameters.plot_solution = true;
