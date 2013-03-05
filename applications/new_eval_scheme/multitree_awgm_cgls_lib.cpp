@@ -61,8 +61,9 @@ typedef CompoundLocalOperator<Index2D,LocalOp2D,LocalOp2D>    				CompoundLocalO
 typedef CompoundLocalOperator<Index2D,TransLocalOp2D,TransLocalOp2D>    	TransCompoundLocalOperator2D;
 
 
-typedef LeftNormPreconditioner2D<T,Basis2D_Test>                    LeftPrec2D;
-typedef RightNormPreconditioner2D_c<T,Basis2D_Trial>                RightPrec2D;
+typedef AdaptiveLeftNormPreconditioner2D<T,Basis2D_Test>            LeftPrec2D;
+typedef AdaptiveRightNormPreconditioner2D_c<T,Basis2D_Trial>        RightPrec2D;
+
 typedef NoPreconditioner<T, Index2D>								NoPrec2D;
 
 //Righthandsides definitions (separable)
@@ -73,10 +74,10 @@ typedef SumOfTwoRHSIntegrals<T,Index2D,SeparableRhsIntegral2D,
 typedef RHS<T,Index2D,SumOfSeparableRhsIntegral2D,
             NoPrec2D>                                         		SumOfSeparableRhs;
 
-//typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,CompoundLocalOperator2D,
-//			TransCompoundLocalOperator2D,SumOfSeparableRhs,RightPrec2D,LeftPrec2D>				MT_AWGM;
-typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,FlexibleCompoundLocalOperator2D,
-		FlexibleCompoundLocalOperator2D,SumOfSeparableRhs,RightPrec2D,LeftPrec2D>				MT_AWGM;
+typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,CompoundLocalOperator2D,
+			TransCompoundLocalOperator2D,SumOfSeparableRhs,RightPrec2D,LeftPrec2D>				MT_AWGM;
+//typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,FlexibleCompoundLocalOperator2D,
+//		FlexibleCompoundLocalOperator2D,SumOfSeparableRhs,RightPrec2D,LeftPrec2D>				MT_AWGM;
 
 void
 readIndexSetFromFile(IndexSet<Index2D> &Lambda, string filename);
@@ -116,7 +117,7 @@ T one_fct(T /*x*/){
 }
 
 
-int main (int argc, char *argv[]) {
+int main () {
 
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
@@ -195,17 +196,17 @@ int main (int argc, char *argv[]) {
     transLocalIdentityLaplaceOp2D.setJ(9);
 
     // Use CompoundLocalOperator2D
-    //CompoundLocalOperator2D       localOperator2D(localConvectionIdentityOp2D,localIdentityLaplaceOp2D);
-    //TransCompoundLocalOperator2D  transLocalOperator2D(transLocalConvectionIdentityOp2D,transLocalIdentityLaplaceOp2D);
+    CompoundLocalOperator2D       localOperator2D(localConvectionIdentityOp2D,localIdentityLaplaceOp2D);
+    TransCompoundLocalOperator2D  transLocalOperator2D(transLocalConvectionIdentityOp2D,transLocalIdentityLaplaceOp2D);
 
     // Use FlexibleCompoundLocalOperator2D
-    vector<AbstractLocalOperator2D<T>* > localOperatorVec, transLocalOperatorVec;
-    localOperatorVec.push_back(&localConvectionIdentityOp2D);
-    localOperatorVec.push_back(&localIdentityLaplaceOp2D);
-    transLocalOperatorVec.push_back(&transLocalConvectionIdentityOp2D);
-    transLocalOperatorVec.push_back(&transLocalIdentityLaplaceOp2D);
-    FlexibleCompoundLocalOperator2D       localOperator2D(localOperatorVec);
-    FlexibleCompoundLocalOperator2D  	  transLocalOperator2D(transLocalOperatorVec);
+//    vector<AbstractLocalOperator2D<T>* > localOperatorVec, transLocalOperatorVec;
+//    localOperatorVec.push_back(&localConvectionIdentityOp2D);
+//    localOperatorVec.push_back(&localIdentityLaplaceOp2D);
+//    transLocalOperatorVec.push_back(&transLocalConvectionIdentityOp2D);
+//    transLocalOperatorVec.push_back(&transLocalIdentityLaplaceOp2D);
+//    FlexibleCompoundLocalOperator2D       localOperator2D(localOperatorVec);
+//    FlexibleCompoundLocalOperator2D  	  transLocalOperator2D(transLocalOperatorVec);
 
     /// Initialization of preconditioner
     LeftPrec2D leftPrec(basis2d_test);
@@ -240,13 +241,13 @@ int main (int argc, char *argv[]) {
 	double alpha = 0.7;
 	size_t max_its = 100;
 	size_t max_basissize = 400000;
-	bool reset_resNE = false;
 	bool reset_res = false;
 	bool print_info = true;
 	bool verbose = true;
 	bool plot_solution = false;
 	bool verbose_extra = false; //(print added wavelet indizes)
-	size_t hashmapsize = SIZEHASHINDEX2D;
+	size_t hashmapsize_trial = 10;
+	size_t hashmapsize_test = 10;
 	*/
 
     /* CGLS Parameters Default Values
@@ -268,7 +269,6 @@ int main (int argc, char *argv[]) {
     IS_Parameters cgls_parameters;
     // .... set them here:
     awgm_parameters.plot_solution = true;
-    awgm_parameters.verbose_extra = true;
 
     MT_AWGM multitree_awgm(basis2d_trial, basis2d_test, localOperator2D, transLocalOperator2D,
     						F, rightPrec, leftPrec, awgm_parameters, cgls_parameters);
@@ -280,14 +280,18 @@ int main (int argc, char *argv[]) {
     multitree_awgm.set_sol(sol);
 
     /// Initialization of solution vector and initial index sets
-    Coefficients<Lexicographical,T,Index2D> u(SIZEHASHINDEX2D);
+    Coefficients<Lexicographical,T,Index2D> u;
 
     T gamma = 0.2;
     IndexSet<Index2D> LambdaTrial, LambdaTest;
     getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
     getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
 
+    Timer time;
+    time.start();
     multitree_awgm.cgls_solve(u, LambdaTrial, LambdaTest);
+    time.stop();
+    cout << "Solution took " << time.elapsed() << " seconds" << endl;
 
     return 0;
 }
