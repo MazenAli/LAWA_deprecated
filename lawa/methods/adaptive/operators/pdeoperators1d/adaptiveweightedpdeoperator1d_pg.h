@@ -44,8 +44,10 @@ struct AdaptiveWeightedPDEOperator1D_PG
     typedef NoCompression<T,Index1D,TrialBasis>                             NoCompression1D;
     typedef NoPreconditioner<T,Index1D>                                     NoPreconditioner1D;
     typedef WeightedPDEOperator1D_PG<T,TrialBasis,TestBasis>                WeightedPDEOp1D;
-    typedef MapMatrix<T,Index1D,WeightedPDEOp1D,
-                      NoCompression1D,NoPreconditioner1D>                   DataWeightedPDEOp1D;
+//    typedef MapMatrix<T,Index1D,WeightedPDEOp1D,
+//                      NoCompression1D,NoPreconditioner1D>                   DataWeightedPDEOp1D;
+    typedef std::tr1::unordered_map<Entry<Index1D>, T,
+    		entry_hashfunction<Index1D>,entry_eqfunction<Index1D> >                   DataWeightedPDEOp1D;
 
 
     AdaptiveWeightedPDEOperator1D_PG(const TrialBasis& _trialbasis1d, const TestBasis& _testbasis1d, 
