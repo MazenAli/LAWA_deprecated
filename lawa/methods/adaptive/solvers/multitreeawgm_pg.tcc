@@ -102,7 +102,7 @@ template <typename Index, typename TrialBasis, typename TestBasis,
 		  typename TrialPrec, typename TestPrec>
 void
 MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
-cgls_solve(Coefficients<Lexicographical,T,Index> &u)
+solve(Coefficients<Lexicographical,T,Index> &u)
 {
     IndexSet<Index> LambdaTrial, LambdaTest;
 	if(u.size() > 0){
@@ -121,7 +121,7 @@ cgls_solve(Coefficients<Lexicographical,T,Index> &u)
 	getStableExpansion(trialbasis, testbasis, LambdaTrial, Lambda_aux);
 	LambdaTest = supp(Lambda_aux);
 
-	cgls_solve(u, LambdaTrial, LambdaTest);
+	solve(u, LambdaTrial, LambdaTest);
 }
 
 template <typename Index, typename TrialBasis, typename TestBasis,
@@ -129,7 +129,7 @@ template <typename Index, typename TrialBasis, typename TestBasis,
 		  typename TrialPrec, typename TestPrec>
 void
 MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
-cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, IndexSet<Index>& LambdaTest)
+solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, IndexSet<Index>& LambdaTest)
 {
     //---------------------------------------//
     //------- AWGM Initialization -----------//

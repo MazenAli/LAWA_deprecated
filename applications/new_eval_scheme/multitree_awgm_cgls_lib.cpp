@@ -289,7 +289,7 @@ int main () {
 
     Timer time;
     time.start();
-    multitree_awgm.cgls_solve(u, LambdaTrial, LambdaTest);
+    multitree_awgm.solve(u, LambdaTrial, LambdaTest);
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl;
 

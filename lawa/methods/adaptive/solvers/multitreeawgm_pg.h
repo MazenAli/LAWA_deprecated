@@ -122,11 +122,13 @@ public:
     				TrialPrec &_trialPrec, TestPrec& _testPrec,
     				AWGM_Parameters& _awgm_params, IS_Parameters& _is_params);
 
+    // CGLS solve
     void
-    cgls_solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& init_Lambda_trial, IndexSet<Index>& init_Lambda_test);
+    solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& init_Lambda_trial, IndexSet<Index>& init_Lambda_test);
 
+    // CGLS solve
     void
-    cgls_solve(Coefficients<Lexicographical,T,Index> &u);
+    solve(Coefficients<Lexicographical,T,Index> &u);
 
     void
     set_sol(sol_fct_2d _sol);
