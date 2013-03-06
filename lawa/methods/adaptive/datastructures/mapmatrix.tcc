@@ -24,7 +24,7 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::MapMatrix(const BilinearForm &_a,
                                                                       const Preconditioner &_p,
                                                                       Compression &_compression)
-:   data(6291469), a(_a), p(_p), compression(_compression), P_data()
+:   data(10), a(_a), p(_p), compression(_compression), P_data()
 {
 }
 
