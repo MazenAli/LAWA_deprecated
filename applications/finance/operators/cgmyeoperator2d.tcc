@@ -17,6 +17,17 @@ FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>::FinanceOperator2D
 }
 
 template <typename Basis2D>
+void
+FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>::setCompressionLevel(int _internal_compression_level1,
+                                                                       int _internal_compression_level2)
+{
+    internal_compression_level1 = _internal_compression_level1;
+    cgmyeop1d_1.setCompressionLevel(internal_compression_level1);
+    internal_compression_level2 = _internal_compression_level2;
+    cgmyeop1d_2.setCompressionLevel(internal_compression_level2);
+}
+
+template <typename Basis2D>
 typename Basis2D::T
 FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>::operator()(const Index2D &row,
                                                               const Index2D &col)
@@ -46,9 +57,8 @@ FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>::eval
     typedef typename std::map<Index2D,int,lt<Lexicographical,Index2D> >::const_iterator const_indicesToInt_it;
 
     bool current_v_Is_v = true;
-    /*
     if (strcmp(evalType,"galerkin")==0) {
-        std::cerr << "   FinanceOperator2D: Treating case Galerkin index sets." << std::endl;
+        //std::cerr << "   FinanceOperator2D: Treating case Galerkin index sets." << std::endl;
         if (current_v.size()==v.size()) {
             for (const_coeff2d_it it=current_v.begin(); it!=current_v.end(); ++it) {
                 if (v.find((*it).first)==v.end()) current_v_Is_v = false;
@@ -59,11 +69,11 @@ FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>::eval
         }
 
         if (current_v_Is_v) {
-            std::cerr << "   FinanceOperator2D: Treating case where sparse matrix is pre-computed." << std::endl;
+            //std::cerr << "   FinanceOperator2D: Treating case where sparse matrix is pre-computed." << std::endl;
             this->performMV(v, Av);
         }
         else {
-            std::cerr << "   FinanceOperator2D: Treating case where no sparse matrix is pre-computed." << std::endl;
+            //std::cerr << "   FinanceOperator2D: Treating case where no sparse matrix is pre-computed." << std::endl;
             int N = v.size();
             stiffnessMatrix.resize(N,N);
             indicesToInt.clear();
@@ -85,14 +95,16 @@ FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>::eval
                 ++row_count;
             }
             stiffnessMatrix.finalize();
-            DenseMatrixT DenseA(N,N);
-            densify(cxxblas::NoTrans,stiffnessMatrix,DenseA);
-            std::cerr << "  A = " << DenseA << std::endl;
+            std::stringstream matrixfilename;
+            matrixfilename << "_A_" << v.size() << "_" << processparameters;
+            spy(stiffnessMatrix,matrixfilename.str().c_str(),true,(T)0.);
+            //DenseMatrixT DenseA(N,N);
+            //densify(cxxblas::NoTrans,stiffnessMatrix,DenseA);
+            //std::cerr << "  A = " << DenseA << std::endl;
             this->performMV(v, Av);
         }
     }
-    */
-    //else {
+    else {
         for (coeff2d_it it_row=Av.begin(); it_row!=Av.end(); ++it_row) {
             T row_val = 0.;
             for (const_coeff2d_it it_col=v.begin(); it_col!=v.end(); ++it_col) {
@@ -101,7 +113,7 @@ FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>::eval
             }
             (*it_row).second += row_val;
         }
-    //}
+    }
 }
 
 template <typename Basis2D>

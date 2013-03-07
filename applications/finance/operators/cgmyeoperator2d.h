@@ -48,8 +48,18 @@ struct FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>
                       T _R1_1=0., T _R2_1=1., T _R1_2=0., T _R2_2=1., int order=10,
                       int _internal_compression_level1=-1, int _internal_compression_level2=-1);
 
+    void
+    setCompressionLevel(int _internal_compression_level1, int _internal_compression_level2);
+
     T
     operator()(const Index2D &row, const Index2D &col);
+
+    void
+    eval(Coefficients<Lexicographical,T,Index2D> &v, Coefficients<Lexicographical,T,Index2D> &Av,
+         const char* evalType);
+
+    void
+    performMV(Coefficients<Lexicographical,T,Index2D> &v, Coefficients<Lexicographical,T,Index2D> &Av);
 
     const Basis2D                                       &basis;
     const ProcessParameters2D<T,CGMYeUnivariateJump2D>  &processparameters;
@@ -67,12 +77,7 @@ struct FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>
     std::map<Index2D,int,lt<Lexicographical,Index2D> >  indicesToInt;
     SparseMatrixT                                       stiffnessMatrix;
 
-    void
-    eval(Coefficients<Lexicographical,T,Index2D> &v, Coefficients<Lexicographical,T,Index2D> &Av,
-         const char* evalType);
 
-    void
-    performMV(Coefficients<Lexicographical,T,Index2D> &v, Coefficients<Lexicographical,T,Index2D> &Av);
 
 };
 

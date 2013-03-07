@@ -48,6 +48,11 @@ struct MultiTreeAWGM {
              T EnergyNorm=0., const char *filename="conv.dat", const char *coefffilename="coeff.dat",
              int maxDof=10000000);
 
+    T
+    bicgstab_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterations=100, T _init_cgtol=1e-2,
+                   T EnergyNorm=0., const char *filename="conv.dat", const char *coefffilename="coeff.dat",
+                   int maxDof=10000000);
+
     void
     approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, T (*weightFunction)(const Index &index),
              int NumOfIterations=100, T _init_cgtol=1e-2,

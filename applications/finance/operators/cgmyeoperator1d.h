@@ -47,9 +47,12 @@ struct FinanceOperator1D<T, CGMYe, Basis1D>
 
     FinanceOperator1D(const Basis1D& _basis, const ProcessParameters1D<T,CGMYe> &_processparameters,
                       T _R1=0., T _R2=1., int order=10,
-                      const int internal_compression_level=-1,
+                      int internal_compression_level=-1,
                       T _convection=0., T _reaction=0.,
                       const bool _use_predef_convection=true, const bool _use_predef_reaction=true);
+
+    void
+    setCompressionLevel(int _internal_compression_level);
 
     T
     operator()(XType xtype1, int j1, int k1, XType xtype2, int j2, int k2) const;
@@ -61,7 +64,7 @@ struct FinanceOperator1D<T, CGMYe, Basis1D>
     const ProcessParameters1D<T,CGMYe>               &processparameters;
     Kernel<T,CGMY>                                   kernel;
     T                                                R1, R2;
-    const int                                        internal_compression_level;
+    int                                              internal_compression_level;
     T                                                convection, reaction;
     const bool                                       use_predef_convection, use_predef_reaction;
     T                                                OneDivSqrtR2pR1, OneDivR2pR1, R1DivR1pR2;

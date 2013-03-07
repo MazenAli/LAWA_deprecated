@@ -31,6 +31,13 @@ FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
 }
 
 template <typename T, typename Basis1D>
+void
+FinanceOperator1D<T, CGMYe, Basis1D>::setCompressionLevel(int _internal_compression_level)
+{
+    internal_compression_level = _internal_compression_level;
+}
+
+template <typename T, typename Basis1D>
 T
 FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
                                                  XType xtype2, int j2, int k2) const

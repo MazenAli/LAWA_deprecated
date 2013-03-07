@@ -97,12 +97,12 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
         this->applyInvPreconditioner(u);
         T res = 0.;
         if (strategy==3 && discrete_timepoint>=0.1) {
-            res = timestep_solver.cg_solve(u,1e-12,1,1e-10,0.,
-                                             "conv.dat", "coeff.dat", N);
+            res = timestep_solver.bicgstab_solve(u,1e-12,1,1e-10,0.,
+                                                 "conv.dat", "coeff.dat", N);
         }
         else {
-            res = timestep_solver.cg_solve(u,1e-12,1,1e-9,0.,
-                                             "conv.dat", "coeff.dat", N);
+            res = timestep_solver.bicgstab_solve(u,1e-12,1,1e-9,0.,
+                                                 "conv.dat", "coeff.dat", N);
         }
 
         this->applyPreconditioner(u);

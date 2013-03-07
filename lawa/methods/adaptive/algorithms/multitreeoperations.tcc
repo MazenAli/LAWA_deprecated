@@ -935,7 +935,7 @@ getSparseGridVector(const Basis &basis, Coefficients<Lexicographical,T,Index2D> 
     for (long k1=basis.first.mra.rangeI(j0_x).firstIndex(); k1<=basis.first.mra.rangeI(j0_x).lastIndex(); ++k1) {
         for (long k2=basis.second.mra.rangeI(j0_y).firstIndex(); k2<=basis.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
             Index1D row(j0_x,k1,XBSpline);
-            Index1D col(j0_x,k2,XBSpline);
+            Index1D col(j0_y,k2,XBSpline);
             v[Index2D(row,col)] = 0.;
         }
         for (int i2=1; i2<=j; ++i2) {

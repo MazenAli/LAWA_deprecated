@@ -22,7 +22,6 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 /* *** Typedefs for financial model *** */
 /* ************************************ */
 
-
 T strike = 1.;
 T maturity = 1.;
 T weight1 = 0.5, weight2 = 0.5;
@@ -410,8 +409,8 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
     plotfile.precision(16);
 
     T maxerror = 0.;
-    T h1 = (delta*right_x1-delta*left_x1)/50.;
-    T h2 = (delta*right_x2-delta*left_x2)/50.;
+    T h1 = (delta*right_x1-delta*left_x1)/10.;
+    T h2 = (delta*right_x2-delta*left_x2)/10.;
     //for (T x1=left_x1; x1<=right_x1; x1+=0.03125) {
     for (T x1=delta*left_x1; x1<=delta*right_x1; x1+=h1) {
         //for (T x2=left_x2; x2<=right_x2; x2+=0.03125) {

@@ -43,12 +43,11 @@ T r = 0.;
 T sigma1 = 0.3;
 T sigma2 = 0.2;
 T rho = 0.;
-T k_C1 = 1., k_G1 = 5., k_M1 = 5., k_Y1 = 0.8;
-T k_C2 = 1., k_G2 = 5., k_M2 = 5., k_Y2 = 0.8;
+//T k_C1 = 1., k_G1 = 7., k_M1 = 7., k_Y1 = 0.8;
+//T k_C2 = 1., k_G2 = 7., k_M2 = 7., k_Y2 = 0.8;
+T k_C1 = 1., k_G1 = 7.4, k_M1 = 8.5, k_Y1 = 0.8;
+T k_C2 = 1., k_G2 = 6.5, k_M2 = 9.5, k_Y2 = 1.1;
 
-
-T u11 = 1., u12 = 0., u21 = 0., u22 = 1.;
-T s1  = sigma1*sigma1, s2  = sigma2*sigma2;
 T    critical_line_x1 = 0.6;
 bool critical_above_x1 = true;
 
@@ -103,6 +102,10 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
                    Option2D<T,optiontype> &option2d,
                    ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters);
 
+void
+spyStiffnessMatrix(const Basis2D &basis2d, CGMYeOp2D & cgmyeop2d, int j,
+                   const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters);
+
 int main (int argc, char *argv[]) {
 
     cout.precision(20);
@@ -129,7 +132,7 @@ int main (int argc, char *argv[]) {
     T theta = 0.5;
     T timestep_eps = 1e-6;
     int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 16;
+    int numOfTimesteps = 64;
     T timestep = maturity/numOfTimesteps;
 
     int numOfMCRuns = 100000;
@@ -178,7 +181,6 @@ int main (int argc, char *argv[]) {
     //TruncatedBasketPutOption2D<T> truncatedoption2d;
     TruncatedSumOfPutsOption2D<T> truncatedoption2d;
     truncatedoption2d.setOption(option2d);
-    truncatedoption2d.setTransformation(u11, u21, u12, u22);
     truncatedoption2d.setTruncation(left_x1, right_x1, left_x2, right_x2, 0, 0.1, 100.);
     truncatedoption2d.setCriticalLine_x1(critical_line_x1, critical_above_x1);
 
@@ -187,11 +189,28 @@ int main (int argc, char *argv[]) {
 
     Coefficients<Lexicographical,T,Index2D> u(hashMapSize), f(hashMapSize);
 
+    std::stringstream filename;
+
+    if (optiontype == BasketPut) {
+        filename << "basketputoption2d_conv2_sg_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+                 << "_lx2_" << left_x2 << "_rx2_" << right_x2
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    else if (optiontype == SumOfPuts) {
+        filename << "sumofputsoption2d_conv2_sg_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+                 << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
+                 << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
+                 << processparameters << ".txt";
+    }
+    std::ofstream convfile(filename.str().c_str());
 
     for (int j=0; j<=J; ++j) {
 
         getSparseGridVector(basis2d, u, j, (T)0.);
-
+        //cgmyeOp2D.setCompressionLevel(j, j);
+        spyStiffnessMatrix(basis2d, cgmyeOp2D, j, processparameters);
+        continue;
         cerr << "Computation of initial condition started." << endl;
         time.start();
         int count = 0;
@@ -207,7 +226,6 @@ int main (int argc, char *argv[]) {
             }
             ++count;
             if (count%100==0) cout << "count: " << count << " / " << u.size() << endl;
-
         }
         timestep = maturity/numOfTimesteps;
 
@@ -224,13 +242,14 @@ int main (int argc, char *argv[]) {
         thetascheme.solve(u, avDof, maxDof, terminalDof, j);
         cerr << "Computation of u has finished." << endl;
         T maxerror = 0., maxerror1 = 0., maxerror2 = 0.;
-        computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2, u, 1., j, option2d,
-                           processparameters);
+        maxerror = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2, u, delta, j, option2d,
+                                      processparameters);
+        convfile << timestep << " " << j << " " << u.size() << " "
+                 << maxerror << " " << delta << endl;
         cerr << "Computation of errors has finished." << endl;
         //computeReferencePrice(basis2d, left_x1, right_x1, left_x2, right_x2,
         //                      -0.1, 0.1, -0.1, 0.1, 0.02, 0.02, u, j, option2d, processparameters);
         cerr << "Computation of reference prices has finished." << endl;
-
     }
 
     return 0;
@@ -290,8 +309,8 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
             T S1    = strike*std::exp(x1);
             T S2    = strike*std::exp(x2);
             T exact = option2d.value(processparameters,S1,S2,0);
-            T x1hat = u11*x1+u12*x2-u11*(0.5*sigma1*sigma1-r)*maturity-u12*(0.5*sigma2*sigma2-r)*maturity;
-            T x2hat = u21*x1+u22*x2-u21*(0.5*sigma1*sigma1-r)*maturity-u22*(0.5*sigma2*sigma2-r)*maturity;
+            T x1hat = x1+r*maturity;
+            T x2hat = x2+r*maturity;
             T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
             T approx =std::exp(-r*maturity)*evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1hat, x2hat);
             plotfile << x1 << " " << x2 << " " << exact << " " << approx << " " << payoff << endl;
@@ -304,4 +323,141 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
     return maxerror;
 }
 
+void
+spyStiffnessMatrix(const Basis2D &basis2d, CGMYeOp2D & cgmyeop2d, int j,
+                   const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters)
+{
+    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >  SparseMatrixT;
+    typedef std::list<Index2D>::const_iterator                        const_list_it;
+    std::list<Index2D> row_indices, col_indices, indices;
 
+    int j0_x = basis2d.first.j0;
+    int j0_y = basis2d.second.j0;
+
+    for (int levelsum=0; levelsum<=j; ++levelsum) {
+        for (int i1=0; i1<=levelsum; ++i1) {
+            for (int i2=0; i2<=levelsum; ++i2) {
+                if (i1+i2!=levelsum) continue;
+
+                if ((i1==0) && (i2==0)) {
+                    //cout << "(" << i1 << ", " << i2 << ") : " << basis2d.first.mra.cardI(j0_x) * basis2d.second.mra.cardI(j0_y) << endl;
+                    for (long k1=basis2d.first.mra.rangeI(j0_x).firstIndex(); k1<=basis2d.first.mra.rangeI(j0_x).lastIndex(); ++k1) {
+                       for (long k2=basis2d.second.mra.rangeI(j0_y).firstIndex(); k2<=basis2d.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
+                           Index1D row(j0_x,k1,XBSpline);
+                           Index1D col(j0_y,k2,XBSpline);
+                           indices.push_back(Index2D(row,col));
+                       }
+                    }
+                }
+                else if ((i1!=0) && (i2==0)) {
+                    int j1=j0_x+i1-1;
+                    //cout << "(" << i1 << ", " << i2 << ") : " << basis2d.first.cardJ(j1) * basis2d.second.mra.cardI(j0_y) << endl;
+                    for (long k1=basis2d.first.rangeJ(j1).firstIndex(); k1<=basis2d.first.rangeJ(j1).lastIndex(); ++k1) {
+                        for (long k2=basis2d.second.mra.rangeI(j0_y).firstIndex(); k2<=basis2d.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
+                            Index1D row(j1,k1,XWavelet);
+                            Index1D col(j0_y,k2,XBSpline);
+                            indices.push_back(Index2D(row,col));
+                        }
+                    }
+                }
+                else if ((i1==0) && (i2!=0)) {
+                    int j2=j0_y+i2-1;
+                    //cout << "(" << i1 << ", " << i2 << ") : " << basis2d.first.mra.cardI(j0_x) * basis2d.second.cardJ(j2) << endl;
+                    for (long k1=basis2d.first.mra.rangeI(j0_x).firstIndex(); k1<=basis2d.first.mra.rangeI(j0_x).lastIndex(); ++k1) {
+                        for (long k2=basis2d.second.rangeJ(j2).firstIndex(); k2<=basis2d.second.rangeJ(j2).lastIndex(); ++k2) {
+                            Index1D row(j0_x,k1,XBSpline);
+                            Index1D col(j2,k2,XWavelet);
+                            indices.push_back(Index2D(row,col));
+                        }
+                    }
+                }
+                else if ((i1!=0) && (i2!=0)) {
+                    int j1=j0_x+i1-1;
+                    int j2=j0_y+i2-1;
+                    //cout << "(" << i1 << ", " << i2 << ") : " << basis2d.first.cardJ(j1) * basis2d.second.cardJ(j2) << endl;
+                    for (long k1=basis2d.first.rangeJ(j1).firstIndex(); k1<=basis2d.first.rangeJ(j1).lastIndex(); ++k1) {
+                        for (long k2=basis2d.second.rangeJ(j2).firstIndex(); k2<=basis2d.second.rangeJ(j2).lastIndex(); ++k2) {
+                            Index1D row(j1,k1,XWavelet);
+                            Index1D col(j2,k2,XWavelet);
+                            indices.push_back(Index2D(row,col));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    int N = indices.size();
+    //std::cerr << "   N = " << N << std::endl;
+    SparseMatrixT A(N,N);
+
+    int row_pos = 1, col_pos = 1;
+    for (const_list_it row_it=indices.begin(); row_it!=indices.end(); ++row_it) {
+        for (const_list_it col_it=indices.begin(); col_it!=indices.end(); ++col_it) {
+            T val = cgmyeop2d((*row_it),(*col_it));
+            if (fabs(val)>0) A(row_pos,col_pos) = val;
+            ++col_pos;
+        }
+        ++row_pos;
+        col_pos = 1;
+    }
+    cout << "A finalize called..." << endl;
+    A.finalize();
+    cout << "... finished" << endl;
+    std::stringstream matrixfilename;
+    matrixfilename << "A_" << N << "_" << processparameters;
+    cout << "Spy called..." << endl;
+    spy(A,matrixfilename.str().c_str(),true,(T)0.);
+    cout << "... finished" << endl;
+}
+
+/*
+ *
+ *
+    for (long k1=basis2d.first.mra.rangeI(j0_x).firstIndex(); k1<=basis2d.first.mra.rangeI(j0_x).lastIndex(); ++k1) {
+        for (long k2=basis2d.second.mra.rangeI(j0_y).firstIndex(); k2<=basis2d.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
+            Index1D row(j0_x,k1,XBSpline);
+            Index1D col(j0_x,k2,XBSpline);
+            row_indices.push_back(Index2D(row,col));
+            col_indices.push_back(Index2D(row,col));
+        }
+        for (int i2=1; i2<=j; ++i2) {
+            int j2=j0_y+i2-1;
+            for (long k2=basis2d.second.rangeJ(j2).firstIndex(); k2<=basis2d.second.rangeJ(j2).lastIndex(); ++k2) {
+                Index1D row(j0_x,k1,XBSpline);
+                Index1D col(j2,k2,XWavelet);
+                row_indices.push_back(Index2D(row,col));
+                col_indices.push_back(Index2D(row,col));
+            }
+        }
+    }
+    for (int i1=1; i1<=j; ++i1) {
+        int j1=j0_x+i1-1;
+        for (long k1=basis2d.first.rangeJ(j1).firstIndex(); k1<=basis2d.first.rangeJ(j1).lastIndex(); ++k1) {
+            for (long k2=basis2d.second.mra.rangeI(j0_y).firstIndex(); k2<=basis2d.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
+                Index1D row(j1,k1,XWavelet);
+                Index1D col(j0_y,k2,XBSpline);
+                row_indices.push_back(Index2D(row,col));
+                col_indices.push_back(Index2D(row,col));
+            }
+        }
+//    }
+//    for (int i1=1; i1<=j; ++i1) {
+//        int j1=j0_x+i1-1;
+        for (int i2=1; i2<=j; ++i2) {
+            if (i1+i2>j) {
+                continue;
+            }
+            int j2=j0_y+i2-1;
+            for (long k1=basis2d.first.rangeJ(j1).firstIndex(); k1<=basis2d.first.rangeJ(j1).lastIndex(); ++k1) {
+                for (long k2=basis2d.second.rangeJ(j2).firstIndex(); k2<=basis2d.second.rangeJ(j2).lastIndex(); ++k2) {
+                    Index1D row(j1,k1,XWavelet);
+                    Index1D col(j2,k2,XWavelet);
+                    row_indices.push_back(Index2D(row,col));
+                    col_indices.push_back(Index2D(row,col));
+                }
+            }
+        }
+    }
+ */
