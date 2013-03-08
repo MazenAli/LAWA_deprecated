@@ -104,8 +104,8 @@ Option1D<T,Put>::value(const ProcessParameters1D<T,CGMYe> &processparameters, T 
         else {
             std::cerr << "   -> Option1D<T,Put>: No high precision is used for computation of reference"
                       << " values!" << std::endl;
-            fp.solve(10000,16);
-            //fp.solve(10000,20);
+            //fp.solve(10000,16);
+            fp.solve(10000,20);
             T val = fp(optionparameters.strike);
             values[S] = val;
             return val;

@@ -123,9 +123,9 @@ int main (int argc, char *argv[]) {
     const char* treeType = "sparsetree"; //"gradedtree";
     bool IsMW = true;
     size_t hashMapSize = 196613;
-    T R1_1 = 4., R2_1 = 4.;
+    T R1_1 = 6., R2_1 = 6.;
     T left_x1 = -R1_1, right_x1 = R2_1;
-    T R1_2 = 4., R2_2 = 4.;
+    T R1_2 = 6., R2_2 = 6.;
     T left_x2 = -R1_2, right_x2 = R2_2;
     T delta = 0.05;
 
@@ -206,11 +206,9 @@ int main (int argc, char *argv[]) {
     std::ofstream convfile(filename.str().c_str());
 
     for (int j=0; j<=J; ++j) {
-
         getSparseGridVector(basis2d, u, j, (T)0.);
         //cgmyeOp2D.setCompressionLevel(j, j);
-        spyStiffnessMatrix(basis2d, cgmyeOp2D, j, processparameters);
-        continue;
+        //spyStiffnessMatrix(basis2d, cgmyeOp2D, j, processparameters);
         cerr << "Computation of initial condition started." << endl;
         time.start();
         int count = 0;

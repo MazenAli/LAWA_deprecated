@@ -207,7 +207,7 @@ int main (int argc, char *argv[]) {
     cout << "s1 = " << s1 << ", s2 = " << s2 << endl;
 
     T a1 = 0.5*s1/((right_x1-left_x1)*(right_x1-left_x1));
-    T a2 = 0.5*s2/((right_x1-left_x1)*(right_x1-left_x1));
+    T a2 = 0.5*s2/((right_x2-left_x2)*(right_x2-left_x2));
 
 
 

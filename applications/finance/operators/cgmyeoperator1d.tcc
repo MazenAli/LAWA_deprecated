@@ -16,15 +16,15 @@ FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
       integral(basis,basis), singularIntegral(kernel,basis,basis,-R1,R2),
       data(196613)
 {
-    if (basis.d==3) {
-        bool is_realline_basis=flens::IsSame<Basis1D, Basis<T,Primal,R,CDF> >::value;
-        assert(is_realline_basis);
-    }
+    //if (basis.d==3) {
+    //    bool is_realline_basis=flens::IsSame<Basis1D, Basis<T,Primal,R,CDF> >::value;
+    //    assert(is_realline_basis);
+    //}
     if (use_predef_convection) {
         convection = kernel.ExpXmOnemX_k;
         reaction   = 0.;
     }
-    int singular_order = 5, n = 10;
+    int singular_order = 5, n = 30;
     T sigma = 0.1, mu = 0.3, omega = 0.01;
     singularIntegral.singularquadrature.setParameters(singular_order, n, sigma, mu, omega);
 
@@ -79,8 +79,10 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
 
    varphi_row_deltas(_,1)  *=(R1+R2);  varphi_row_deltas(_,1)-=R1;
    varphi_row_deltas(_,2)  *= OneDivR2pR1*OneDivSqrtR2pR1;
+   if (basis.d==3) varphi_row_deltas(_,2)  *= OneDivR2pR1;
    varphi_col_deltas(_,1)  *=(R1+R2);  varphi_col_deltas(_,1)-=R1;
    varphi_col_deltas(_,2)  *= OneDivR2pR1*OneDivSqrtR2pR1;
+   if (basis.d==3) varphi_col_deltas(_,2)  *= OneDivR2pR1;
 
    T part1=0., part2=0.;
    if (basis.d==2) {
@@ -128,34 +130,52 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
 
    else if (basis.d==3) {
 
-       int_val -= kernel.c3*integral(j1,k1,xtype1,1,j2,k2,xtype2,1);
+       if (    (xtype1==XWavelet && xtype2==XWavelet)
+            && (k1 > basis.rangeJL(j1).lastIndex()) && (k1 < basis.rangeJR(j1).firstIndex())
+            && (k2 > basis.rangeJL(j2).lastIndex()) && (k2 < basis.rangeJR(j2).firstIndex()) )
+       {
+           int_val -= OneDivR2pR1*OneDivR2pR1*kernel.c3*integral(j1,k1,xtype1,1,j2,k2,xtype2,1);
 
-       for (int mu=varphi_col_deltas.rows().firstIndex();
-                mu<=varphi_col_deltas.rows().lastIndex(); ++mu) {
+           for (int mu=varphi_col_deltas.rows().firstIndex();
+                    mu<=varphi_col_deltas.rows().lastIndex(); ++mu) {
 
-           T y = varphi_col_deltas(mu,1);
-           if (fabs(varphi_col_deltas(mu,2)) < 1e-14) continue;
+               T y = varphi_col_deltas(mu,1);
+               if (fabs(varphi_col_deltas(mu,2)) < 1e-14) continue;
 
-           part1 += varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,0)*kernel.c4;
-           part1 -= varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,0)*kernel.c5;
+//               part1 += varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,0)*kernel.c4;
+//               part1 -= varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,1)*kernel.c5;
 
-           for (int lambda=varphi_row_deltas.rows().firstIndex();
-                    lambda<=varphi_row_deltas.rows().lastIndex(); ++lambda) {
+               part1 += OneDivSqrtR2pR1*varphi_col_deltas(mu,2)
+                                       *basis.generator(xtype1)((y+R1)* OneDivR2pR1,j1,k1,0)*kernel.c4;
+               part1 -= OneDivSqrtR2pR1*OneDivR2pR1*varphi_col_deltas(mu,2)
+                                       *basis.generator(xtype1)((y+R1)* OneDivR2pR1,j1,k1,1)*kernel.c5;
 
-               if (fabs(varphi_row_deltas(lambda,2)) < 1e-14) continue;
-               T x = varphi_row_deltas(lambda,1);
-               T c = varphi_col_deltas(mu,2)*varphi_row_deltas(lambda,2);
-               if (x!=y)  {
-                   if (y-x>0)  {
-                       part2 -= c * (kernel.SixthTailIntegral(y-x) - kernel.constants[6]);
-                   }
-                   else    {
-                       part2 -= c * (kernel.SixthTailIntegral(y-x) - kernel.constants[7]);
+
+               for (int lambda=varphi_row_deltas.rows().firstIndex();
+                        lambda<=varphi_row_deltas.rows().lastIndex(); ++lambda) {
+
+                   if (fabs(varphi_row_deltas(lambda,2)) < 1e-14) continue;
+                   T x = varphi_row_deltas(lambda,1);
+                   T c = varphi_col_deltas(mu,2)*varphi_row_deltas(lambda,2);
+                   if (x!=y)  {
+                       if (y-x>0)  {
+                           part2 -= c * (kernel.SixthTailIntegral(y-x) - kernel.constants[6]);
+                       }
+                       else    {
+                           part2 -= c * (kernel.SixthTailIntegral(y-x) - kernel.constants[7]);
+                       }
                    }
                }
            }
+           int_val += part1 + part2;
+           int_val2 = -singularIntegral(j1,k1,xtype1,1, j2,k2,xtype2,1);
+           //std::cerr.precision(10);
+           //std::cerr << "(" << j1 << ", " << k1 << "), (" << j2 << ", " << k2 << ") : "
+           //          << int_val << " " << int_val2 << " " << int_val - int_val2 << std::endl;
        }
-       int_val += part1 + part2;
+       else {
+           int_val = -singularIntegral(j1,k1,xtype1,1, j2,k2,xtype2,1);
+       }
    }
    else {
        assert(0);

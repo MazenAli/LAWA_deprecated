@@ -32,12 +32,12 @@ int main()
 {
     cout.precision(16);
     /// wavelet basis parameters:
-    int d = 2;          // mandatory for this test case!!!
+    int d = 3;          // mandatory for this test case!!!
 
     //int j0 = 3;         // minimal level
     //int J = 6;
     //PrimalBasis basis(d,d, j0);
-    int j0 = 2;         // minimal level
+    int j0 = 0;         // minimal level
     int J = 4;
     PrimalBasis basis(d, j0);
     basis.enforceBoundaryCondition<DirichletBC>();
@@ -47,11 +47,12 @@ int main()
     //std::cerr << basis.psi(0.4,2,12,0) << endl;
     //return 0;
 
-    ProcessParameters1D<T,CGMY> processparameters(0., 1., 7.4, 8.5, 1.55);
+    ProcessParameters1D<T,CGMY> processparameters(0., 1., 7.4, 8.5, 0.8);
     Kernel<T,CGMY> kernel(processparameters);
     CGMYKernel cgmykernel(kernel);
 
-    SingularIntegral<CGMYKernel,PrimalBasis,PrimalBasis> singularIntegral(cgmykernel,basis,basis);
+    //SingularIntegral<CGMYKernel,PrimalBasis,PrimalBasis> singularIntegral(cgmykernel,basis,basis);
+    SingularIntegral<Kernel<T,CGMY>,PrimalBasis,PrimalBasis> singularIntegral(kernel,basis,basis);
     int order = 10, n = 40;
     T sigma = 0.1, mu = 0.3, omega = 0.01;
     singularIntegral.singularquadrature.setParameters(order, n, sigma, mu, omega);
