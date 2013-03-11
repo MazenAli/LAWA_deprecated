@@ -19,6 +19,12 @@ public:
 	AffineRhs(const ThetaStructure<T,PDim>& _thetas,
 			  std::vector<RHSType*>& _rhsvec);
 
+	T
+	operator()(const Index& index);
+
+	Coefficients<Lexicographical,T,Index>
+	operator()(const IndexSet<Index> &indexset);
+
 private:
 
 	const ThetaStructure<T,PDim>& thetas;

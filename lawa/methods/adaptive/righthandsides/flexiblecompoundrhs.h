@@ -41,9 +41,12 @@ public:
 	void
 	set_active_comp(int i);
 
-private:
+protected:
 
     std::vector<RHSType*>& 	rhsvec;
+
+private:
+
     std::vector<int> 		active_comp;
 
     FlexibleCompoundRhs(const FlexibleCompoundRhs& rhs);

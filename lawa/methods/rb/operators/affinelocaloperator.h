@@ -21,6 +21,20 @@ public:
 
 	AffineLocalOperator(const ThetaStructure<T,PDim>& _thetas, std::vector<LocalOperatorType*>& _localops);
 
+	void
+	eval(const Coefficients<Lexicographical,T,Index> &v,
+		 Coefficients<Lexicographical,T,Index> &Av);
+
+	template <typename Preconditioner>
+	void
+	eval(Coefficients<Lexicographical,T,Index> &v,
+		 Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P);
+
+	template <typename RightPrec, typename LeftPrec>
+	void
+	eval(Coefficients<Lexicographical,T,Index> &v,
+		 Coefficients<Lexicographical,T,Index> &Av, RightPrec& rightP, LeftPrec& leftP);
+
 private:
 
 	const ThetaStructure<T,PDim>& thetas;

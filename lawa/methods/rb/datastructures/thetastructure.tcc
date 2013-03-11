@@ -12,7 +12,7 @@ ThetaStructure<T,PDim>::ThetaStructure(const std::vector<ThetaFct>& _thetas)
 
 template<typename T,size_t PDim>
 unsigned int
-ThetaStructure<T,PDim>::size()
+ThetaStructure<T,PDim>::size() const
 {
 	return thetas.size();
 }
@@ -30,6 +30,20 @@ std::array<T, PDim>&
 ThetaStructure<T,PDim>::get_current_param()
 {
 	return current_param;
+}
+
+template<typename T,size_t PDim>
+T
+ThetaStructure<T,PDim>::eval(int i, std::array<T,PDim>& mu)
+{
+	return (thetas[i])(mu);
+}
+
+template<typename T,size_t PDim>
+T
+ThetaStructure<T,PDim>::eval(int i)
+{
+	return eval(i,*current_param);
 }
 
 } // namespace lawa

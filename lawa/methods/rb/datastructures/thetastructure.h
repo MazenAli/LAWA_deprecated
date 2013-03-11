@@ -32,13 +32,19 @@ public:
     ThetaStructure(const std::vector<ThetaFct>& _thetas);
 
     unsigned int
-    size();
+    size() const;
 
     void
     set_current_param(const std::array<T, PDim>& _param);
 
     std::array<T, PDim>&
     get_current_param();
+
+    T
+    eval(int i, std::array<T,PDim>& mu);
+
+    T
+    eval(int i);
 
 private:
 	std::vector<ThetaFct> 	thetas;
