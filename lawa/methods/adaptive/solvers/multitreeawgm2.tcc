@@ -121,6 +121,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 	    	r[lambda] -= Prec(lambda)*F(lambda);
 	    }
 		r *= -1;
+		p = r;
 		res_cg_prev = r*r;
 
 		// CG Iterations
@@ -129,9 +130,9 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 			Ap.setToZero();						// Ap = A*p
 			Op.eval(p,Ap,Prec);
 
-			alpha = res_cg_prev / (Ap*Ap);
+			alpha = res_cg_prev / (p*Ap);
 			u += alpha * p;
-			r += alpha * Ap;
+			r -= alpha * Ap;
 
 			res_cg = r*r;
 
@@ -149,7 +150,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 
 			beta  = res_cg/res_cg_prev;
 			p *= beta;
-			p -= r;
+			p += r;
 			res_cg_prev = res_cg;
 		}
 
