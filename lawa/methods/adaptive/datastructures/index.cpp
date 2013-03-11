@@ -23,19 +23,15 @@ namespace lawa {
 
 Index1D::Index1D(void)
 : j(0), k(0), xtype(XBSpline)
-{
-}
+{}
 
 Index1D::Index1D(int _j, long _k, XType _xtype)
 : j(_j), k(_k), xtype(_xtype)
-{
-
-}
+{}
 
 Index1D::Index1D(const Index1D &index)
 : j(index.j), k(index.k), xtype(index.xtype)
-{
-}
+{}
 
 short
 Index1D::levelSum(void) const

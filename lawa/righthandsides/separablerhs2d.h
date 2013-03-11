@@ -37,6 +37,7 @@ template<typename T, typename Basis2D>
 class SeparableRHS2D : public Rhs2D<T>
 {
     public:
+
         SeparableRHS2D(const Basis2D& _basis, const SeparableFunction2D<T>& _F,
                        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
                        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
