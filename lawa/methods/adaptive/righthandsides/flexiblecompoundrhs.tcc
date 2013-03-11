@@ -14,14 +14,31 @@ T
 FlexibleCompoundRhs<T, Index,RHSType>::operator()(const Index &index)
 {
     T val = 0.;
-//    for(auto& r : rhsvec){
-//    	val += (*r)(index);
-//    }
+
     for(auto& i : active_comp){
     	val += (*rhsvec[i])(index);
     }
 
     return val;
+}
+
+template <typename T, typename Index, typename RHSType>
+Coefficients<Lexicographical,T,Index>
+FlexibleCompoundRhs<T,Index,RHSType>::
+operator()(const IndexSet<Index> &indexset)
+{
+    Coefficients<Lexicographical,T,Index> r;
+
+    T val;
+    for(auto& index : indexset){
+    	val = 0.;
+        for(auto& i : active_comp){
+        	val += (*rhsvec[i])(index);
+        }
+        r.insert(std::make_pair(index,val));
+    }
+
+    return r;
 }
 
 template <typename T, typename Index, typename RHSType>

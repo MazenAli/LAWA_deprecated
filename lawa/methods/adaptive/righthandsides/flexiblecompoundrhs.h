@@ -35,6 +35,9 @@ public:
 	T
     operator()(const Index &index);
 
+	Coefficients<Lexicographical,T,Index>
+	operator()(const IndexSet<Index> &indexset);
+
 	void
 	set_active_comp(int i);
 
