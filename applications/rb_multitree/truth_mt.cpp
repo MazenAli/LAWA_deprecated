@@ -2,12 +2,14 @@
 #include <iomanip>
 #include <utility>
 #include <array>
+#include <vector>
 #include <lawa/lawa.h>
 
 #include <lawa/methods/rb/datastructures/thetastructure.h>
 #include <lawa/methods/rb/operators/affinelocaloperator.h>
 #include <lawa/methods/rb/righthandsides/affinerhs.h>
-
+#include <lawa/methods/adaptive/solvers/multitreeawgm2.h>
+#include <lawa/methods/rb/righthandsides/flexiblebilformrhs.h>
 
 using namespace std;
 using namespace lawa;
@@ -29,6 +31,9 @@ typedef Basis<T, Primal, Interval, Dijkema>							Basis_Space;
 typedef TrialBasis_Time::RefinementBasis                            TrialRefBasis_Time;
 typedef TestBasis_Time::RefinementBasis                           	TestRefBasis_Time;
 typedef Basis_Space::RefinementBasis                                RefBasis_Space;
+
+// !!! ATTENTION: Use typedefs in space for definition of space-time inner product !!!
+//    => Assumption that test basis in time = space basis
 
 typedef TensorBasis2D<Adaptive,TrialBasis_Time,Basis_Space>         Basis2D_Trial;
 typedef TensorBasis2D<Adaptive,TestBasis_Time,Basis_Space>          Basis2D_Test;
@@ -78,10 +83,14 @@ typedef LocalOperator2D<LOp_Id1D_Time, LOp_Lapl1D_Space>                        
 typedef LocalOperator2D<LOpT_Conv1D_Time, LOpT_Id1D_Space>                      LOpT_Conv_Id_2D;
 typedef LocalOperator2D<LOpT_Id1D_Time, LOpT_Lapl1D_Space>                      LOpT_Id_Lapl_2D;
 
+typedef LocalOperator2D<LOp_Id1D_Space,LOp_Id1D_Space>							LOp_Test_Id_Id_2D;
+typedef LocalOperator2D<LOp_Id1D_Space,LOp_Lapl1D_Space>						LOp_Test_Id_Lapl_2D;
+
 //==== CompoundOperators ====//
 typedef FlexibleCompoundLocalOperator<Index2D,AbstractLocalOperator2D<T> > 		Flex_COp_2D;
 typedef CompoundLocalOperator<Index2D,LOp_Conv_Id_2D,LOp_Id_Lapl_2D>    		COp_Heat;
 typedef CompoundLocalOperator<Index2D,LOpT_Conv_Id_2D,LOpT_Id_Lapl_2D>    	    COpT_Heat;
+typedef CompoundLocalOperator<Index2D,LOp_Test_Id_Id_2D, LOp_Test_Id_Lapl_2D>	COp_TestInnProd;
 
 //==== Preconditioners ====//
 typedef AdaptiveLeftNormPreconditioner2D<T,Basis2D_Test>            LeftPrec2D;
@@ -98,8 +107,14 @@ typedef RHS<T,Index2D,SeparableRhsIntegral2D,
 const size_t PDim = 1;
 typedef AffineLocalOperator<Index2D,AbstractLocalOperator2D<T>,1>			Affine_Op_2D;
 typedef AffineRhs<T,Index2D,SeparableRhs,1>									Affine_Rhs_2D;
+typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs>							RieszF_Rhs_2D;
+typedef FlexibleBilformRhs<Index2D,AbstractLocalOperator2D<T> >				RieszA_Rhs_2D;
 typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,Affine_Op_2D,
-		Affine_Op_2D,Affine_Rhs_2D,RightPrec2D,LeftPrec2D>				MT_AWGM;
+		Affine_Op_2D,Affine_Rhs_2D,RightPrec2D,LeftPrec2D>					MT_AWGM_Truth;
+typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
+		RieszF_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_F;
+typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
+		RieszA_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_A;
 
 T f_t(T t)
 {
@@ -116,7 +131,7 @@ T dummy(T, T)
     return 0;
 }
 
-T no_theta(const std::array<T,PDim>& mu)
+T no_theta(const std::array<T,PDim>& /*mu*/)
 {
 	return 1.;
 }
@@ -155,11 +170,13 @@ int main () {
     Identity1D_Time 		    IdentityBil_t(basis_per, basis_int);
     Identity1D_Space 	        IdentityBil_x(basis_intbc, basis_intbc);
     Laplace1D_Space 	        LaplaceBil_x(basis_intbc, basis_intbc);
+    Identity1D_Space 	        IdentityBil_Test_t(basis_int, basis_int);
     
     RefConvection1D_Time 		RefConvectionBil_t(basis_per.refinementbasis, basis_int.refinementbasis);
     RefIdentity1D_Time 		    RefIdentityBil_t(basis_per.refinementbasis, basis_int.refinementbasis);
     RefIdentity1D_Space 	    RefIdentityBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis);
     RefLaplace1D_Space 	        RefLaplaceBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis);
+    RefIdentity1D_Space 	    RefIdentityBil_Test_t(basis_int.refinementbasis, basis_int.refinementbasis);
 
     // Transposed Bilinear Forms
     TranspConvection1D_Time 	TranspConvectionBil_t(basis_per, basis_int);
@@ -173,26 +190,31 @@ int main () {
     RefTranspLaplace1D_Space 	RefTranspLaplaceBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis);
 
     /// Initialization of local operator
-    LOp_Conv1D_Time		lOp_Conv1D_t(basis_int, basis_per, RefConvectionBil_t, ConvectionBil_t);
-    LOp_Id1D_Time		lOp_Id1D_t  (basis_int, basis_per, RefIdentityBil_t, IdentityBil_t);
-    LOp_Id1D_Space		lOp_Id1D_x  (basis_intbc, basis_intbc, RefIdentityBil_x, IdentityBil_x);
-    LOp_Lapl1D_Space	lOp_Lapl1D_x(basis_intbc, basis_intbc, RefLaplaceBil_x, LaplaceBil_x);
+    LOp_Conv1D_Time		lOp_Conv1D_t	(basis_int, basis_per, RefConvectionBil_t, ConvectionBil_t);
+    LOp_Id1D_Time		lOp_Id1D_t  	(basis_int, basis_per, RefIdentityBil_t, IdentityBil_t);
+    LOp_Id1D_Space		lOp_Id1D_x  	(basis_intbc, basis_intbc, RefIdentityBil_x, IdentityBil_x);
+    LOp_Lapl1D_Space	lOp_Lapl1D_x	(basis_intbc, basis_intbc, RefLaplaceBil_x, LaplaceBil_x);
+    LOp_Id1D_Space		lOp_Id1D_Test_t (basis_int, basis_int, RefIdentityBil_Test_t, IdentityBil_Test_t);
     
     LOpT_Conv1D_Time	lOpT_Conv1D_t(basis_per, basis_int, RefTranspConvectionBil_t, TranspConvectionBil_t);
     LOpT_Id1D_Time		lOpT_Id1D_t  (basis_per, basis_int, RefTranspIdentityBil_t, TranspIdentityBil_t);
     LOpT_Id1D_Space		lOpT_Id1D_x  (basis_intbc, basis_intbc, RefTranspIdentityBil_x, TranspIdentityBil_x);
     LOpT_Lapl1D_Space	lOpT_Lapl1D_x(basis_intbc, basis_intbc, RefTranspLaplaceBil_x, TranspLaplaceBil_x);
 
-    LOp_Conv_Id_2D		localConvectionIdentityOp2D(lOp_Conv1D_t, lOp_Id1D_x);
-    LOp_Id_Lapl_2D		localIdentityLaplaceOp2D(lOp_Id1D_t, lOp_Lapl1D_x);
-    
-    LOpT_Conv_Id_2D		transpLocalConvectionIdentityOp2D(lOpT_Conv1D_t, lOpT_Id1D_x);
-    LOpT_Id_Lapl_2D		transpLocalIdentityLaplaceOp2D(lOpT_Id1D_t, lOpT_Lapl1D_x);
+    LOp_Conv_Id_2D		localConvectionIdentityOp2D		(lOp_Conv1D_t, 		lOp_Id1D_x);
+    LOp_Id_Lapl_2D		localIdentityLaplaceOp2D		(lOp_Id1D_t, 		lOp_Lapl1D_x);
+    LOp_Test_Id_Id_2D	localIdentityIdentityOp2D_Test	(lOp_Id1D_Test_t, 	lOp_Id1D_x);
+    LOp_Test_Id_Lapl_2D	localIdentityLaplaceOp2D_Test	(lOp_Id1D_Test_t, 	lOp_Lapl1D_x);
+
+    LOpT_Conv_Id_2D		transpLocalConvectionIdentityOp2D	(lOpT_Conv1D_t, lOpT_Id1D_x);
+    LOpT_Id_Lapl_2D		transpLocalIdentityLaplaceOp2D		(lOpT_Id1D_t, lOpT_Lapl1D_x);
 
     localConvectionIdentityOp2D.setJ(9);
     localIdentityLaplaceOp2D.setJ(9);
     transpLocalConvectionIdentityOp2D.setJ(9);
     transpLocalIdentityLaplaceOp2D.setJ(9);
+    localIdentityIdentityOp2D_Test.setJ(9);
+    localIdentityLaplaceOp2D_Test.setJ(9);
 
     /// Initialization of preconditioner
     LeftPrec2D leftPrec(basis2d_test);
@@ -232,6 +254,8 @@ int main () {
     Affine_Op_2D affine_lhs(lhs_thetas, lhs_ops);
     Affine_Op_2D affine_lhs_T(lhs_thetas, lhs_opsT);
 
+    COp_TestInnProd innprod_Y(localIdentityIdentityOp2D_Test, localIdentityLaplaceOp2D_Test);
+
     // Right Hand Side
     vector<ThetaStructure<T,PDim>::ThetaFct> rhs_thetas;
     rhs_thetas.push_back(no_theta);
@@ -239,11 +263,15 @@ int main () {
     rhs_fcts.push_back(&F);
 
     Affine_Rhs_2D affine_rhs(rhs_thetas, rhs_fcts);
+    RieszF_Rhs_2D rieszF_rhs(rhs_fcts);
+    RieszA_Rhs_2D rieszA_rhs(lhs_ops);
 
 	//===============================================================//
 	//===============  AWGM =========================================//
 	//===============================================================//
 
+
+    //----------- Truth Solver ---------------- //
 
     /* AWGM PG Parameters Default Values
     double tol = 5e-03;
@@ -268,19 +296,16 @@ int main () {
 	bool verbose = true;
 	*/
 
-    // If you want other parameters
-    AWGM_PG_Parameters awgm_parameters;
+    AWGM_PG_Parameters awgm_truth_parameters;
     IS_Parameters cgls_parameters;
-    // .... set them here:
-    awgm_parameters.plot_solution = true;
+    awgm_truth_parameters.plot_solution = true;
 
-    MT_AWGM multitree_awgm(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
-    						affine_rhs, rightPrec, leftPrec, awgm_parameters, cgls_parameters);
+    MT_AWGM_Truth multitree_awgm(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
+    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, cgls_parameters);
 
 
     multitree_awgm.awgm_params.print();
     multitree_awgm.is_params.print();
-
     multitree_awgm.set_sol(dummy);
 
     /// Initialization of solution vector and initial index sets
@@ -291,9 +316,61 @@ int main () {
     getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
     getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
 
+    // ! Cannot work yet (implementations of affine structures are still missing !
     Timer time;
+//    time.start();
+//    multitree_awgm.solve(u, LambdaTrial, LambdaTest);
+//    time.stop();
+//    cout << "Solution took " << time.elapsed() << " seconds" << endl;
+
+    //----------- RieszF Solver ---------------- //
+
+    /* AWGM Parameters Default Values
+    double tol = 5e-03;
+	double alpha = 0.7;
+	size_t max_its = 100;
+	size_t max_basissize = 400000;
+	bool print_info = true;
+	bool verbose = true;
+	bool plot_solution = false;
+	bool verbose_extra = false; //(print added wavelet indizes)
+	size_t hashmapsize = 10;
+	*/
+
+    AWGM_Parameters awgm_riesz_parameters;
+    awgm_riesz_parameters.plot_solution = true;
+
+    MT_AWGM_Riesz_F multitree_awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_parameters, cgls_parameters);
+
+    multitree_awgm_rieszF.awgm_params.print();
+    multitree_awgm_rieszF.is_params.print();
+    multitree_awgm_rieszF.set_sol(dummy);
+
+    Coefficients<Lexicographical,T,Index2D> r_f;
+
+    LambdaTest.clear();
+    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
+
     time.start();
-    multitree_awgm.solve(u, LambdaTrial, LambdaTest);
+    multitree_awgm_rieszF.solve(r_f, LambdaTest);
+    time.stop();
+    cout << "Solution took " << time.elapsed() << " seconds" << endl;
+
+    //----------- RieszA Solver ---------------- //
+
+    MT_AWGM_Riesz_A multitree_awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_parameters, cgls_parameters);
+
+    multitree_awgm_rieszA.awgm_params.print();
+    multitree_awgm_rieszA.is_params.print();
+    multitree_awgm_rieszA.set_sol(dummy);
+
+    Coefficients<Lexicographical,T,Index2D> r_a;
+
+    LambdaTest.clear();
+    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
+
+    time.start();
+    multitree_awgm_rieszA.solve(r_a, LambdaTest);
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl;
 
