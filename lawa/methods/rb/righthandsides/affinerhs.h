@@ -23,6 +23,7 @@ private:
 
 	const ThetaStructure<T,PDim>& thetas;
 
+	AffineRhs(const AffineRhs& rhs);
 };
 
 } // namespace lawa

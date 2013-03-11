@@ -57,12 +57,13 @@ public:
 
 
 private:
-
     typedef typename Coefficients<Lexicographical,T,Index>::iterator    coeff_it;
     typedef typename Coefficients<Lexicographical,T,Index>::iterator    const_coeff_it;
     typedef typename IndexSet<Index1D>::const_iterator                  const_set1d_it;
 
 	std::vector<LocalOperatorType*>& localops;
+
+	FlexibleCompoundLocalOperator(const FlexibleCompoundLocalOperator& rhs);
 
 };
 
