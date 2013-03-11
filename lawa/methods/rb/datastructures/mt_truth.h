@@ -17,24 +17,17 @@ namespace lawa {
  * 		Truth Model for a reduced basis construction
  * 		based on adaptive multitree awgm solvers.
  */
-template <typename TrialBasis, typename TestBasis, typename TrialPrec, typename TestPrec,
-		  typename LHS, typename RHS, typename InnProd, typename RHS_F, typename RHS_A>
+template <typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A>
 class MT_Truth{
 
-	typedef typename MultiTreeAWGM_PG<Index2D,TrialBasis,TestBasis,LHS,LHS,RHS,TrialPrec,TestPrec> TruthSolver;
+	/*typedef typename MultiTreeAWGM_PG<Index2D,TrialBasis,TestBasis,LHS,LHS,RHS,TrialPrec,TestPrec> TruthSolver;
 	typedef typename MultiTreeAWGM2<Index2D,TestBasis,InnProd,RHS_F,TestPrec> 					   RieszSolver_F;
 	typedef typename MultiTreeAWGM2<Index2D,TestBasis,InnProd,RHS_A,TestPrec> 					   RieszSolver_A;
-
+	*/
 public:
-	MT_Truth();
+	MT_Truth(TruthSolver _solver, RieszSolver_F _riesz_solver_f, RieszSolver_A _riesz_solver_a);
 
 private:
-
-	LHS 		lhs, lhsT;
-	RHS			rhs;
-	InnProd 	innprodY;
-	RHS_F		rhs_f;
-	RHS_A		rhs_a;
 
 	TruthSolver 	solver;
 	RieszSolver_F	riesz_solver_f;
