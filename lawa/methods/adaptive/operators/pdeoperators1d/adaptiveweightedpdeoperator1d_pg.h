@@ -29,6 +29,16 @@
 #include <lawa/preconditioners/preconditioners.h>
 #include <lawa/methods/adaptive/datastructures/mapmatrix.h>
 
+#ifdef TRONE
+    #include <tr1/unordered_map>
+#elif BOOST
+    #include <boost/unordered_map.hpp>
+#elif CONEONE
+	#include <unordered_map>
+#else
+    #include <ext/hash_map>
+#endif
+
 namespace lawa {
 
 /* Adaptive PDE VaryingCoefficients OPERATOR: Petrov Galerkin version
@@ -46,8 +56,19 @@ struct AdaptiveWeightedPDEOperator1D_PG
     typedef WeightedPDEOperator1D_PG<T,TrialBasis,TestBasis>                WeightedPDEOp1D;
 //    typedef MapMatrix<T,Index1D,WeightedPDEOp1D,
 //                      NoCompression1D,NoPreconditioner1D>                   DataWeightedPDEOp1D;
-    typedef std::tr1::unordered_map<Entry<Index1D>, T,
-    		entry_hashfunction<Index1D>,entry_eqfunction<Index1D> >                   DataWeightedPDEOp1D;
+#ifdef TRONE
+    typedef typename std::tr1::unordered_map<Entry<Index1D>, T, entry_hashfunction<Index1D>,
+                                                             entry_eqfunction<Index1D> > DataWeightedPDEOp1D;
+#elif BOOST
+    typedef typename boost::unordered_map<Entry<Index1D>, T, entry_hashfunction<Index1D>,
+                                                                 entry_eqfunction<Index1D> > DataWeightedPDEOp1D;
+#elif CONEONE
+    typedef typename std::unordered_map<Entry<Index1D>, T, entry_hashfunction<Index1D>,
+                                                                 entry_eqfunction<Index1D> > DataWeightedPDEOp1D;
+#else
+    typedef typename __gnu_cxx::hash_map<Entry<Index1D>, T, entry_hashfunction<Index1D>,
+                                                             entry_eqfunction<Index1D> > DataWeightedPDEOp1D;
+#endif
 
 
     AdaptiveWeightedPDEOperator1D_PG(const TrialBasis& _trialbasis1d, const TestBasis& _testbasis1d, 
