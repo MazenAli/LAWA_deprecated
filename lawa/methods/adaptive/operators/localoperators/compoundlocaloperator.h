@@ -55,6 +55,10 @@ class CompoundLocalOperator {
         eval(Coefficients<Lexicographical,T,Index> &v,
              Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P);
 
+        void
+        eval(Coefficients<Lexicographical,T,Index> &v,
+             Coefficients<Lexicographical,T,Index> &Av, Coefficients<Lexicographical,T,Index> &P);
+
         template <typename RightPrec, typename LeftPrec>
         void
         eval(Coefficients<Lexicographical,T,Index> &v,

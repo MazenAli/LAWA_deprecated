@@ -81,7 +81,7 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
        Preconditioner &P)
 {
     for (coeff_it it=v.begin(); it!=v.end(); ++it) {
-        (*it).second *= P[(*it).first];
+        (*it).second *= P((*it).first);
     }
 
     switch (numOfLocalOp)
@@ -101,11 +101,46 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
             exit(1);
     }
     for (coeff_it it=Av.begin(); it!=Av.end(); ++it) {
-        (*it).second *= P[(*it).first];
+        (*it).second *= P((*it).first);
     }
     for (coeff_it it=v.begin(); it!=v.end(); ++it) {
-        (*it).second *= 1./P[(*it).first];
+        (*it).second *= 1./P((*it).first);
     }
+}
+
+template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
+          typename ThirdLocalOperator,typename FourthLocalOperator>
+void
+CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>
+::eval(Coefficients<Lexicographical,T,Index> &v,Coefficients<Lexicographical,T,Index> &Av,
+		Coefficients<Lexicographical,T,Index> &P)
+{
+	for (coeff_it it=v.begin(); it!=v.end(); ++it) {
+		(*it).second *= P[(*it).first];
+	}
+
+	switch (numOfLocalOp)
+	{
+		case 2:
+			firstLocalOp.eval( v, Av);
+			secondLocalOp.eval(v, Av);
+			break;
+		case 3:
+			firstLocalOp.eval( v, Av);
+			secondLocalOp.eval(v, Av);
+			thirdLocalOp.eval(v, Av);
+			break;
+		default:
+			std::cerr << "CompoundLocalOperator not yet implemented for " << numOfLocalOp
+					  << " operators. Exit." << std::endl;
+			exit(1);
+	}
+	for (coeff_it it=Av.begin(); it!=Av.end(); ++it) {
+		(*it).second *= P[(*it).first];
+	}
+	for (coeff_it it=v.begin(); it!=v.end(); ++it) {
+		(*it).second *= 1./P[(*it).first];
+	}
 }
 
 template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
