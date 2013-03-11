@@ -9,12 +9,17 @@
 #define LAWA_METHODS_RB_DATASTRUCTURES_THETASTRUCTURE_H_
 
 #include <vector>
+#include <array>
 
 namespace lawa {
 
 /* ThetaStructure:
  * 		Manage a vector of theta functions.
  * 		Helpful in order to store them in only one place.
+ *
+ * 		Addionally a pointer to the current parameter, so that
+ * 		affine operators/rhs that only have an operator()(Index)
+ * 		can still evaluate the functions
  */
 template<typename T,size_t PDim>
 class ThetaStructure{
@@ -29,8 +34,17 @@ public:
     unsigned int
     size();
 
+    void
+    set_current_param(const std::array<T, PDim>& _param);
+
+    std::array<T, PDim>&
+    get_current_param();
+
 private:
-	std::vector<ThetaFct> thetas;
+	std::vector<ThetaFct> 	thetas;
+	std::array<T,PDim>*    	current_param;
+
+	ThetaStructure(const ThetaStructure& thetastructure);
 };
 
 } // namespace lawa
