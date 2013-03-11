@@ -42,6 +42,8 @@ private:
 
     std::vector<RHSType*>& 	rhsvec;
     std::vector<int> 		active_comp;
+
+    FlexibleCompoundRhs(const FlexibleCompoundRhs& rhs);
 };
 
 }   // namespace lawa
