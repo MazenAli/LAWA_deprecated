@@ -4,3 +4,4 @@
 #include <lawa/methods/adaptive/operators/localoperators/thetatimesteplocaloperator.h>
 #include <lawa/methods/adaptive/operators/localoperators/unidirectionallocaloperator.h>
 #include <lawa/methods/adaptive/operators/localoperators/abstractlocaloperator2d.h>
+#include <lawa/methods/adaptive/operators/localoperators/flexiblecompoundlocaloperator.h>
