@@ -541,7 +541,7 @@ int main (int argc, char *argv[]) {
 				P_Lambda_Residual_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
 				cerr << "     Bucket " << i << ": L2-norm " << r_bucket.bucket_ell2norms[i] << endl;
 				r_bucket.addBucketToCoefficients(p,i);
-				if (P_Lambda_Residual_square >= awgm_alpha*Residual*awgm_alpha*Residual) {
+				if (P_Lambda_Residual_square >= awgm_alpha*Residual_NE*awgm_alpha*Residual_NE) {
 					//r_bucket.addBucketToCoefficients(p,i+1);
 					break;
 				}
