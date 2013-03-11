@@ -32,8 +32,9 @@ namespace lawa {
  *          Prec = ( || bf_t ||_L2^2 * || bf_x ||_H1^2 )^(-1/2)
  *     (see Schwab/Stevenson "Adaptive Wavelet Methods for Parabolic Problems", Math.Comp. 78 (267), pp. 1293-1318, 2009)
  *
- *	Computations:
- *		|| bf_t ||_L2^2 : Integral
+ * Computations:
+ *		|| bf_t ||_L2^2 : 1
+ *		|| bf_x ||_L2^2 : Integral
  *		|| bf_x ||_H1^2 : Integral ( s!=2 -> Scaling of 1)
  *
  *  Adaptive: Computes values are stored in a hashmap
