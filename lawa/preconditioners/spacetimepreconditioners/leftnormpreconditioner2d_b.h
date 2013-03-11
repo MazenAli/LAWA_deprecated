@@ -17,56 +17,53 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef LAWA_METHODS_ADAPTIVE_PRECONDITIONERS_SPACETIMEPRECONDTIONERS_ADAPTIVELEFTNORMPRECONDITIONER2D_H
-#define LAWA_METHODS_ADAPTIVE_PRECONDITIONERS_SPACETIMEPRECONDTIONERS_ADAPTIVELEFTNORMPRECONDITIONER2D_H 1
+#ifndef LAWA_PRECONDITIONERS_SPACETIMEPRECONDTIONERS_LEFTNORMPRECONDITIONER2D_B_H
+#define LAWA_PRECONDITIONERS_SPACETIMEPRECONDTIONERS_LEFTNORMPRECONDITIONER2D_B_H 1
 
 #include <lawa/methods/adaptive/datastructures/index.h>
-#include <lawa/methods/adaptive/datastructures/coefficients.h>
 #include <lawa/integrals/integrals.h>
+#include <lawa/operators/operator2d.h>
 #include <lawa/settings/enum.h>
 
 namespace lawa {
 
 /* Left Preconditioner for Space-Time Problems
  *     Normalization in  Y = L_2(0,T) \otimes V (e.g. V = H^1):
- *          Prec = ( || bf_t ||_L2^2 * || bf_x ||_H1^2 )^(-1/2)
+ *          Prec = ( || bf_t ||_L2 * || bf_x ||_H1^2 )^(-1/2) 
  *     (see Schwab/Stevenson "Adaptive Wavelet Methods for Parabolic Problems", Math.Comp. 78 (267), pp. 1293-1318, 2009)
  *
- * Computations:
- *		|| bf_t ||_L2^2 : 1
+ * * Computations:
+ *		|| bf_t ||_L2^2 : Integral
  *		|| bf_x ||_L2^2 : Integral
  *		|| bf_x ||_H1^2 : Integral ( s!=2 -> Scaling of 1)
- *
- *  Adaptive: Computes values are stored in a hashmap
  */
 template <typename T, typename Basis2D>
-class AdaptiveLeftNormPreconditioner2D
+class LeftNormPreconditioner2D_b
 {
 
-    typedef typename Basis2D::SecondBasisType 			SecondBasis;
-    typedef Coefficients<Lexicographical,T,Index1D>		Coeffs_1D;
+  	typedef typename Basis2D::FirstBasisType FirstBasis;
+    typedef typename Basis2D::SecondBasisType SecondBasis;
 
 public:
-    AdaptiveLeftNormPreconditioner2D(const Basis2D &basis, T s=2.); //s=2: A: H^1 -> H^{-1}
+    LeftNormPreconditioner2D_b(const Basis2D &basis, T s=2.); //s=2: A: H^1 -> H^{-1}
 
     T
     operator()(XType xtype1, int j1, long k1,
-               XType xtype2, int j2, long k2);
+               XType xtype2, int j2, long k2) const;
 
     T
-    operator()(const Index2D &index);
+    operator()(const Index2D &index) const;
 
 private:
     const Basis2D &_basis;
     T              _s;        //scaling for certain classes of integral operators
-    Integral<Gauss,SecondBasis,SecondBasis> _integral;
-
-    Coeffs_1D values_L2, values_H1semi;
+    Integral<Gauss,FirstBasis,FirstBasis> _integral_t;
+    Integral<Gauss,SecondBasis,SecondBasis> _integral_x;
 };
 
 }   // namespace lawa
 
-#include <lawa/methods/adaptive/preconditioners/spacetimepreconditioners/adaptiveleftnormpreconditioner2d.tcc>
+#include <lawa/preconditioners/spacetimepreconditioners/leftnormpreconditioner2d_b.tcc>
 
-#endif // LAWA_METHODS_ADAPTIVE_PRECONDITIONERS_SPACETIMEPRECONDTIONERS_ADAPTIVELEFTNORMPRECONDITIONER2D_H
+#endif // LAWA_PRECONDITIONERS_SPACETIMEPRECONDTIONERS_LEFTNORMPRECONDITIONER2D_B_H
 

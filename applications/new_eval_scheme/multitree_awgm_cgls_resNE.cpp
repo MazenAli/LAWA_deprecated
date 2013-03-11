@@ -56,6 +56,7 @@ typedef CompoundLocalOperator<Index2D,LocalOp2D,LocalOp2D>    		CompoundLocalOpe
 
 typedef LeftNormPreconditioner2D<T,Basis2D_Test>                    LeftPrec2D;
 typedef RightNormPreconditioner2D_c<T,Basis2D_Trial>                RightPrec2D;
+
 typedef NoPreconditioner<T, Index2D>								NoPrec2D;
 
 //Righthandsides definitions (separable)
@@ -150,7 +151,7 @@ int main (int argc, char *argv[]) {
     int j0  = atoi(argv[3]);
     int J  = atoi(argv[4]);
 
-    bool adaptive = true; // adaptively adapt the error tolerance of inner solver
+    bool adaptive = false; // adaptively adapt the error tolerance of inner solver
     T r_norm = 0.1;
     T gamma = 0.2; // 0.2;
     int ell=1;
@@ -235,6 +236,7 @@ int main (int argc, char *argv[]) {
     LeftPrec2D leftPrec(basis2d_test);
     RightPrec2D rightPrec(basis2d_trial);
 
+
     NoPrec2D noPrec;
 
     /// Initialization of rhs
@@ -271,7 +273,8 @@ int main (int argc, char *argv[]) {
                                             p(SIZEHASHINDEX2D),
                                             q(SIZEHASHINDEX2D),
                                             Ap(SIZEHASHINDEX2D),
-                                            res(SIZEHASHINDEX2D),     // approximate residual for f-Au
+                                            res(SIZEHASHINDEX2D), // approximate residual for f-Au
+                                            resNE(SIZEHASHINDEX2D), // approximate residual for NormalEquation
                                             u_leafs(SIZEHASHINDEX2D);     // "leafs" of u
     Coefficients<Lexicographical,T,Index2D> leftP(SIZEHASHINDEX2D);
     Coefficients<Lexicographical,T,Index2D> rightP(SIZEHASHINDEX2D);
@@ -355,6 +358,7 @@ int main (int argc, char *argv[]) {
 		cerr << "   Computing preconditioner." << endl;
 		for (const_set2d_it it=LambdaTest.begin(); it!=LambdaTest.end(); ++it) {
 			if (leftP.find((*it))==leftP.end()) leftP[(*it)] = leftPrec(*it);
+
 		}
 		for (const_set2d_it it=LambdaTrial.begin(); it!=LambdaTrial.end(); ++it) {
 			if (rightP.find((*it))==rightP.end()) rightP[(*it)] = rightPrec(*it);
@@ -412,7 +416,6 @@ int main (int argc, char *argv[]) {
         //---- COMPUTE APPROXIMATE RESIDUAL -----//
         //---------------------------------------//
 
-		Coefficients<Lexicographical,T,Index2D> resNE(SIZEHASHINDEX2D);  // cone around u_leafs
 		IndexSet<Index2D>						Cdiff_u_leafs;				 // new indizes in cone
         std::cerr << "      Computing residual..." << std::endl;
         std::cerr << "         Computing multi-tree cone around u_leafs..." << std::endl;
