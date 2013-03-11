@@ -59,9 +59,12 @@ typedef LocalOperator1D<Basis_Space,Basis_Space,
 typedef LocalOperator2D<LocalOp1D_t, LocalOp1D_x>                 	LocalOp2D;
 typedef LocalOperator2D<TransLocalOp1D_t, TransLocalOp1D_x>         TransLocalOp2D;
 
-typedef FlexibleCompoundLocalOperator<Index2D,AbstractLocalOperator2D<T> > 		FlexibleCompoundLocalOperator2D;
+typedef LocalOperator2D<LocalOp1D_x,LocalOp1D_x>					LocalOp2D_Test;
+
+typedef FlexibleCompoundLocalOperator<Index2D,AbstractLocalOperator2D<T> > 	FlexibleCompoundLocalOperator2D;
 typedef CompoundLocalOperator<Index2D,LocalOp2D,LocalOp2D>    				CompoundLocalOperator2D;
 typedef CompoundLocalOperator<Index2D,TransLocalOp2D,TransLocalOp2D>    	TransCompoundLocalOperator2D;
+typedef CompoundLocalOperator<Index2D,LocalOp2D_Test,LocalOp2D_Test>		CompoundLocalOperator2D_Test;
 
 
 typedef AdaptiveLeftNormPreconditioner2D<T,Basis2D_Test>            LeftPrec2D;
@@ -82,7 +85,7 @@ typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,CompoundLocalOperat
 //typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,FlexibleCompoundLocalOperator2D,
 //		FlexibleCompoundLocalOperator2D,SumOfSeparableRhs,RightPrec2D,LeftPrec2D>				MT_AWGM;
 
-typedef MultiTreeAWGM2<Index2D,Basis2D_Test,CompoundLocalOperator2D,
+typedef MultiTreeAWGM2<Index2D,Basis2D_Test,CompoundLocalOperator2D_Test,
 						SumOfSeparableRhs,LeftPrec2D>											MT_AWGM_Galerkin;
 
 void
@@ -109,9 +112,9 @@ T f_rhs_x(T /*y*/)
     return 8.;
 }
 
-T sol(T x, T y)
+T dummy(T ,T)
 {
-    return u1(x) * u2(y);
+    return 0;
 }
 
 T zero_fct(T /*x*/){
@@ -140,12 +143,10 @@ int main () {
     //getchar();
 
     /// Basis initialization
-    TrialBasis_Time      basis_per(d,d_,j0);
     TestBasis_Time       basis_int(d,d_,j0);
     Basis_Space 		 basis_intbc(d,d_,j0);
     basis_intbc.enforceBoundaryCondition<DirichletBC>();
 
-    Basis2D_Trial basis2d_trial(basis_per,basis_intbc);
     Basis2D_Test  basis2d_test(basis_int,basis_intbc);
 
     /// Initialization of operator
@@ -159,53 +160,29 @@ int main () {
     Function<T> one_Fct(one_fct,no_singPts);
 
     // Bilinear Forms
-    PDEBilinearForm1D_Time 		ConvectionBil_t(basis_per, basis_int, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
-    PDEBilinearForm1D_Time 		IdentityBil_t(basis_per, basis_int, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
     PDEBilinearForm1D_Space 	IdentityBil_x(basis_intbc, basis_intbc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
     PDEBilinearForm1D_Space 	LaplaceBil_x(basis_intbc, basis_intbc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
+    PDEBilinearForm1D_Space 	IdentityBil_Test_t(basis_int, basis_int, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
 
-    PDERefinementBilinearForm1D_Time 	RefConvectionBil_t(basis_per.refinementbasis, basis_int.refinementbasis, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
-    PDERefinementBilinearForm1D_Time 	RefIdentityBil_t(basis_per.refinementbasis, basis_int.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
+
     PDERefinementBilinearForm1D_Space 	RefIdentityBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
     PDERefinementBilinearForm1D_Space 	RefLaplaceBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
+    PDERefinementBilinearForm1D_Space 	RefIdentityBil_Test_t(basis_int.refinementbasis, basis_int.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
 
-    // Transposed Bilinear Forms
-    TransPDEBilinearForm1D_Time 	TransConvectionBil_t(basis_per, basis_int, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
-    TransPDEBilinearForm1D_Time 	TransIdentityBil_t(basis_per, basis_int, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-    TransPDEBilinearForm1D_Space 	TransIdentityBil_x(basis_intbc, basis_intbc, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-    TransPDEBilinearForm1D_Space 	TransLaplaceBil_x(basis_intbc, basis_intbc, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
-
-    TransPDERefinementBilinearForm1D_Time 	TransRefConvectionBil_t(basis_per.refinementbasis, basis_int.refinementbasis, zero_Fct, one_Fct, zero_Fct, 10, true, false, true);
-    TransPDERefinementBilinearForm1D_Time 	TransRefIdentityBil_t(basis_per.refinementbasis, basis_int.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-    TransPDERefinementBilinearForm1D_Space 	TransRefIdentityBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis, one_Fct, zero_Fct, zero_Fct, 10, false, true, true);
-    TransPDERefinementBilinearForm1D_Space 	TransRefLaplaceBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis, zero_Fct, zero_Fct, one_Fct, 10, true, true, false);
 
     /// Initialization of local operator
-    LocalOp1D_t		localConvectionOp1D_t(basis_int, basis_per, RefConvectionBil_t, ConvectionBil_t);
-    LocalOp1D_t		localIdentityOp1D_t(basis_int, basis_per, RefIdentityBil_t, IdentityBil_t);
     LocalOp1D_x		localIdentityOp1D_x(basis_intbc, basis_intbc, RefIdentityBil_x, IdentityBil_x);
     LocalOp1D_x		localLaplaceOp1D_x(basis_intbc, basis_intbc, RefLaplaceBil_x, LaplaceBil_x);
+    LocalOp1D_x		localIdentityOp1D_Test_t(basis_int, basis_int, RefIdentityBil_Test_t, IdentityBil_Test_t);
 
-    TransLocalOp1D_t		transLocalConvectionOp1D_t(basis_per, basis_int, TransRefConvectionBil_t, TransConvectionBil_t);
-    TransLocalOp1D_t		transLocalIdentityOp1D_t(basis_per, basis_int, TransRefIdentityBil_t, TransIdentityBil_t);
-    TransLocalOp1D_x		transLocalIdentityOp1D_x(basis_intbc, basis_intbc, TransRefIdentityBil_x, TransIdentityBil_x);
-    TransLocalOp1D_x		transLocalLaplaceOp1D_x(basis_intbc, basis_intbc, TransRefLaplaceBil_x, TransLaplaceBil_x);
+    LocalOp2D_Test 		localIdentityIdentityOp2D_Test(localIdentityOp1D_Test_t, localIdentityOp1D_x);
+    LocalOp2D_Test 		localIdentityLaplaceOp2D_Test(localIdentityOp1D_Test_t, localLaplaceOp1D_x);
 
-    LocalOp2D		localConvectionIdentityOp2D(localConvectionOp1D_t, localIdentityOp1D_x);
-    LocalOp2D		localIdentityLaplaceOp2D(localIdentityOp1D_t, localLaplaceOp1D_x);
-
-    TransLocalOp2D		transLocalConvectionIdentityOp2D(transLocalConvectionOp1D_t, transLocalIdentityOp1D_x);
-    TransLocalOp2D		transLocalIdentityLaplaceOp2D(transLocalIdentityOp1D_t, transLocalLaplaceOp1D_x);
-
-    localConvectionIdentityOp2D.setJ(9);
-    localIdentityLaplaceOp2D.setJ(9);
-
-    transLocalConvectionIdentityOp2D.setJ(9);
-    transLocalIdentityLaplaceOp2D.setJ(9);
+    localIdentityIdentityOp2D_Test.setJ(9);
+    localIdentityLaplaceOp2D_Test.setJ(9);
 
     // Use CompoundLocalOperator2D
-    CompoundLocalOperator2D       localOperator2D(localConvectionIdentityOp2D,localIdentityLaplaceOp2D);
-    TransCompoundLocalOperator2D  transLocalOperator2D(transLocalConvectionIdentityOp2D,transLocalIdentityLaplaceOp2D);
+    CompoundLocalOperator2D_Test       localOperator2D(localIdentityIdentityOp2D_Test,localIdentityLaplaceOp2D_Test);
 
     // Use FlexibleCompoundLocalOperator2D
 //    vector<AbstractLocalOperator2D<T>* > localOperatorVec, transLocalOperatorVec;
@@ -218,7 +195,6 @@ int main () {
 
     /// Initialization of preconditioner
     LeftPrec2D leftPrec(basis2d_test);
-    RightPrec2D rightPrec(basis2d_trial);
 
     NoPrec2D noPrec;
 
@@ -240,68 +216,6 @@ int main () {
 
 
 	//===============================================================//
-	//===============  AWGM =========================================//
-	//===============================================================//
-
-
-    /* AWGM PG Parameters Default Values
-    double tol = 5e-03;
-	double alpha = 0.7;
-	size_t max_its = 100;
-	size_t max_basissize = 400000;
-	bool reset_res = false;
-	bool print_info = true;
-	bool verbose = true;
-	bool plot_solution = false;
-	bool verbose_extra = false; //(print added wavelet indizes)
-	size_t hashmapsize_trial = 10;
-	size_t hashmapsize_test = 10;
-	*/
-
-    /* CGLS Parameters Default Values
-	bool adaptive_tol = true;
-	size_t max_its = 100;
-	double init_tol = 0.001;
-	double res_reduction = 0.01;
-	double absolute_tol = 1e-8;
-	bool verbose = true;
-	*/
-
-    // MultitreeAWGM with default values
-    //MT_AWGM multitree_awgm(basis2d_trial, basis2d_test, localOperator2D, transLocalOperator2D,
-    //    						F, rightPrec, leftPrec);
-
-
-    // If you want other parameters
-    AWGM_PG_Parameters awgm_parameters;
-    IS_Parameters cgls_parameters;
-    // .... set them here:
-    awgm_parameters.plot_solution = true;
-
-    MT_AWGM multitree_awgm(basis2d_trial, basis2d_test, localOperator2D, transLocalOperator2D,
-    						F, rightPrec, leftPrec, awgm_parameters, cgls_parameters);
-
-
-    multitree_awgm.awgm_params.print();
-    multitree_awgm.is_params.print();
-
-    multitree_awgm.set_sol(sol);
-
-    /// Initialization of solution vector and initial index sets
-    Coefficients<Lexicographical,T,Index2D> u;
-
-    T gamma = 0.2;
-    IndexSet<Index2D> LambdaTrial, LambdaTest;
-    getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
-
-    Timer time;
-    time.start();
-    multitree_awgm.solve(u, LambdaTrial, LambdaTest);
-    time.stop();
-    cout << "Solution took " << time.elapsed() << " seconds" << endl;
-
-	//===============================================================//
 	//===============  AWGM2 =========================================//
 	//===============================================================//
 
@@ -317,9 +231,39 @@ int main () {
 	size_t hashmapsize = 10;
 	*/
 
-    AWGM_Parameters awgm_cg_parameters;
-    MT_AWGM_Galerkin multitree_awgm_cg(basis2d_test, localOperator2D, F, leftPrec, awgm_cg_parameters, cgls_parameters);
+    /* CG Parameters Default Values
+	bool adaptive_tol = true;
+	size_t max_its = 100;
+	double init_tol = 0.001;
+	double res_reduction = 0.01;
+	double absolute_tol = 1e-8;
+	bool verbose = true;
+	*/
 
+    AWGM_Parameters awgm_parameters;
+    IS_Parameters	cg_parameters;
+    awgm_parameters.plot_solution = true;
+
+    MT_AWGM_Galerkin multitree_awgm_cg(basis2d_test, localOperator2D, F, leftPrec, awgm_parameters, cg_parameters);
+
+
+    multitree_awgm_cg.awgm_params.print();
+    multitree_awgm_cg.is_params.print();
+
+    multitree_awgm_cg.set_sol(dummy);
+
+    /// Initialization of solution vector and initial index sets
+    Coefficients<Lexicographical,T,Index2D> u;
+
+    T gamma = 0.2;
+    IndexSet<Index2D> LambdaTest;
+    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
+
+    Timer time;
+    time.start();
+    multitree_awgm_cg.solve(u, LambdaTest);
+    time.stop();
+    cout << "Solution took " << time.elapsed() << " seconds" << endl;
 
     return 0;
 }
