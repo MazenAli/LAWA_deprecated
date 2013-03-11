@@ -1,4 +1,6 @@
-./waveletgalerkinoptionpricer1d 0 8 1 1 1 0.5 500 0 0.1 7.4 8.5 1.1
-./waveletgalerkinoptionpricer1d 0 10 1.5 1.5 1 0.5 500 0 0.1 7.4 8.5 1.1
-./waveletgalerkinoptionpricer1d 0 10 2 2 1 0.5 500 0 0.1 7.4 8.5 1.1
-./waveletgalerkinoptionpricer1d 0 10 2.5 2.5 1 0.5 1000 0 0.1 7.4 8.5 1.1
+./cgmye2d_multitree_mw_sg 2 0 5 2 2 2 2
+./cgmye2d_multitree_mw_sg 2 0 9 3 3 3 3
+./cgmye2d_multitree_mw_sg 2 0 9 7 7 7 7
+./cgmye2d_multitree_mw_sg 2 0 9 8 8 8 8
+./cgmye2d_multitree_mw_sg 3 0 5 5 5 5 5
+./cgmye2d_multitree_mw_sg 3 0 5 4 4 4 4

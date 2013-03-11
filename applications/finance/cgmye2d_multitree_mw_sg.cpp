@@ -43,10 +43,10 @@ T r = 0.;
 T sigma1 = 0.3;
 T sigma2 = 0.2;
 T rho = 0.;
-//T k_C1 = 1., k_G1 = 7., k_M1 = 7., k_Y1 = 0.8;
-//T k_C2 = 1., k_G2 = 7., k_M2 = 7., k_Y2 = 0.8;
 T k_C1 = 1., k_G1 = 7.4, k_M1 = 8.5, k_Y1 = 0.8;
 T k_C2 = 1., k_G2 = 6.5, k_M2 = 9.5, k_Y2 = 1.1;
+//T k_C1 = 1., k_G1 = 7.4, k_M1 = 16.5, k_Y1 = 1.25;
+//T k_C2 = 1., k_G2 = 11.2, k_M2 = 9.5, k_Y2 = 1.55;
 
 T    critical_line_x1 = 0.6;
 bool critical_above_x1 = true;
@@ -108,31 +108,33 @@ spyStiffnessMatrix(const Basis2D &basis2d, CGMYeOp2D & cgmyeop2d, int j,
 
 int main (int argc, char *argv[]) {
 
-    cout.precision(20);
-    if (argc!=4) {
-        cout << "Usage: " << argv[0] << " d j0 J" << endl;
+    cout.precision(16);
+    if (argc!=8) {
+        cout << "Usage: " << argv[0] << " d j0 J R1_1 R2_1 R1_2 R2_2" << endl;
         return 0;
     }
 
     int d   = atoi(argv[1]);
     int j0  = atoi(argv[2]);
-    int J  = atoi(argv[3]);
+    int J   = atoi(argv[3]);
     T alpha = 0.7;
     T gamma = 0.025;
     const char* residualType = "standard";
     const char* treeType = "sparsetree"; //"gradedtree";
     bool IsMW = true;
     size_t hashMapSize = 196613;
-    T R1_1 = 6., R2_1 = 6.;
+    T R1_1 = atof(argv[4]);
+    T R2_1 = atof(argv[5]);
     T left_x1 = -R1_1, right_x1 = R2_1;
-    T R1_2 = 6., R2_2 = 6.;
+    T R1_2 = atof(argv[6]);
+    T R2_2 = atof(argv[7]);
     T left_x2 = -R1_2, right_x2 = R2_2;
     T delta = 0.05;
 
     T theta = 0.5;
     T timestep_eps = 1e-6;
     int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 64;
+    int numOfTimesteps = 128;
     T timestep = maturity/numOfTimesteps;
 
     int numOfMCRuns = 100000;
@@ -207,7 +209,7 @@ int main (int argc, char *argv[]) {
 
     for (int j=0; j<=J; ++j) {
         getSparseGridVector(basis2d, u, j, (T)0.);
-        //cgmyeOp2D.setCompressionLevel(j, j);
+        cgmyeOp2D.setCompressionLevel(j, j);
         //spyStiffnessMatrix(basis2d, cgmyeOp2D, j, processparameters);
         cerr << "Computation of initial condition started." << endl;
         time.start();
