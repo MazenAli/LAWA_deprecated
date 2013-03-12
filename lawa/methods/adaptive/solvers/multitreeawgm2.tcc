@@ -27,23 +27,66 @@ template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
 void
 MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+set_initial_indexset(const IndexSet<Index> _LambdaTrial)
+{
+	default_init_Lambda = _LambdaTrial;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+void
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+remove_preconditioner(Coefficients<Lexicographical,T,Index> &u)
+{
+	for(auto& el : u){
+		el.second *= Prec(el.first);
+	}
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+RHS&
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+get_rhs()
+{
+	return F;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+Coefficients<Lexicographical,typename LocalOperator::T,Index>
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+solve()
+{
+    IndexSet<Index> Lambda = default_init_Lambda;
+
+	Coefficients<Lexicographical,T,Index> u;
+	FillWithZeros(Lambda,u);
+
+	solve(u,Lambda);
+
+	return u;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+void
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
 solve(Coefficients<Lexicographical,T,Index> &u)
 {
     IndexSet<Index> Lambda;
 	if(u.size() > 0){
+		// Take support of u as initial index set
 		Lambda = supp(u);
 	}
+	// Else we just use the default test set
 	else{
-		if(flens::IsSame<Index,Index2D>::value){
-			getSparseGridIndexSet(basis,Lambda,2,0);
-		}
-		else{
-			std::cerr << "Need some initial set in trial space! " << std::endl;
-			exit(1);
-		}
+		Lambda = default_init_Lambda;
+		FillWithZeros(Lambda,u);
 	}
 
 	solve(u, Lambda);
+
 }
 
 template <typename Index, typename Basis, typename LocalOperator,

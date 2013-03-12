@@ -37,6 +37,7 @@ template <typename Index, typename Basis, typename LocalOperator,
 class MultiTreeAWGM2 {
 
     typedef typename LocalOperator::T T;
+
     typedef T (*sol_fct_2d)(T,T);
 
 public:
@@ -54,8 +55,21 @@ public:
     void
     solve(Coefficients<Lexicographical,T,Index> &u);
 
+    // CG solve
+    Coefficients<Lexicographical,T,Index>
+    solve();
+
     void
     set_sol(sol_fct_2d _sol);
+
+    void
+    set_initial_indexset(const IndexSet<Index> _LambdaTrial);
+
+    void
+    remove_preconditioner(Coefficients<Lexicographical,T,Index> &u);
+
+    RHS&
+    get_rhs();
 
     AWGM_Parameters						awgm_params;
     IS_Parameters						is_params;
@@ -70,6 +84,8 @@ private:
     AWGM_Information				   awgm_info;
 
     sol_fct_2d						   exact_sol;
+
+    IndexSet<Index>					   default_init_Lambda;
 
     MultiTreeAWGM2(const MultiTreeAWGM2&);
 };

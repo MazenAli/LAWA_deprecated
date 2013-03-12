@@ -34,26 +34,110 @@ MultiTreeAWGM_PG(const TrialBasis &_trialbasis, const TestBasis& _testbasis,
 template <typename Index, typename TrialBasis, typename TestBasis,
 		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
 		  typename TrialPrec, typename TestPrec>
+RHS&
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+get_rhs()
+{
+	return F;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
+LocalOperator&
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+get_lhs()
+{
+	return Op;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
+void
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+set_initial_indexsets(const IndexSet<Index> _LambdaTrial, const IndexSet<Index> _LambdaTest)
+{
+	default_init_Lambda_trial = _LambdaTrial;
+	default_init_Lambda_test  = _LambdaTest;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
+void
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+remove_preconditioner(Coefficients<Lexicographical,T,Index> &u)
+{
+	for(auto& el : u){
+		el.second *= trialPrec(el.first);
+	}
+}
+
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
+Coefficients<Lexicographical,typename LocalOperator::T,Index>
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+solve()
+{
+    IndexSet<Index> LambdaTrial = default_init_Lambda_trial;
+    IndexSet<Index> LambdaTest = default_init_Lambda_test;
+
+	Coefficients<Lexicographical,T,Index> u;
+	FillWithZeros(LambdaTrial,u);
+
+	solve(u,LambdaTrial,LambdaTest);
+
+	return u;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
 void
 MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
 solve(Coefficients<Lexicographical,T,Index> &u)
 {
     IndexSet<Index> LambdaTrial, LambdaTest;
 	if(u.size() > 0){
+
+		// Take support of u as initial index set
 		LambdaTrial = supp(u);
-	}
-	else{
-		if(flens::IsSame<Index,Index2D>::value){
-			getSparseGridIndexSet(trialbasis,LambdaTrial,2,0);
+
+		// Check if this is the default trial index set
+		bool is_default_set = true;
+		if(LambdaTrial.size() != default_init_Lambda_trial){
+			is_default_set = false;
 		}
 		else{
-			std::cerr << "Need some initial set in trial space! " << std::endl;
-			exit(1);
+			for(auto& lambda : default_init_Lambda_trial){
+				if(LambdaTrial.find(lambda) == LambdaTrial.end()){
+					is_default_set = false;
+					break;
+				}
+			}
+		}
+
+		// If it is not the default set, we have to get some stable
+		// test index set -> stable expansion
+		if(!is_default_set){
+			std::cerr << "Computing stable expansion as test set. " << std::endl;
+			Coefficients<Lexicographical,T,Index2D> Lambda_aux;
+			getStableExpansion(trialbasis, testbasis, LambdaTrial, Lambda_aux);
+			LambdaTest = supp(Lambda_aux);
+		}
+		// Else we just use the default test set
+		else{
+			LambdaTest = default_init_Lambda_test;
 		}
 	}
-    Coefficients<Lexicographical,T,Index2D> Lambda_aux;
-	getStableExpansion(trialbasis, testbasis, LambdaTrial, Lambda_aux);
-	LambdaTest = supp(Lambda_aux);
+	else{
+		LambdaTrial = default_init_Lambda_trial;
+		LambdaTest = default_init_Lambda_test;
+		FillWithZeros(LambdaTrial,u);
+	}
 
 	solve(u, LambdaTrial, LambdaTest);
 }
