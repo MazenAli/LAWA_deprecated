@@ -28,12 +28,23 @@ void
 AffineLocalOperator<Index,LocalOperatorType,PDim>::eval(Coefficients<Lexicographical,T,Index> &v,
 														Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P)
 {
+	for(auto& el : v){
+		el.second *= P(el.first);
+	}
+
 	Coefficients<Lexicographical,typename LocalOperatorType::T,Index> tmp(Av);
 
     for(size_t i = 0; i < thetas.size(); ++i){
     	tmp.setToZero();
-    	this->localops[i]->eval(v, tmp, P);
+    	this->localops[i]->eval(v, tmp);
 		Av += thetas.eval(i) * tmp;
+	}
+
+	for(auto& el : Av){
+		el.second *= P(el.first);
+	}
+	for(auto& el : v){
+		el.second /= P(el.first);
 	}
 }
 
@@ -43,12 +54,23 @@ void
 AffineLocalOperator<Index,LocalOperatorType,PDim>::eval(Coefficients<Lexicographical,T,Index> &v,
 	 Coefficients<Lexicographical,T,Index> &Av, RightPrec& rightP, LeftPrec& leftP)
  {
+	for(auto& el : v){
+		el.second *= rightP(el.first);
+	}
+
 	Coefficients<Lexicographical,typename LocalOperatorType::T,Index> tmp(Av);
 
-	 for(size_t i = 0; i < thetas.size(); ++i){
+	for(size_t i = 0; i < thetas.size(); ++i){
 		tmp.setToZero();
-		this->localops[i]->eval(v, tmp, rightP, leftP);
+		this->localops[i]->eval(v, tmp);
 		Av += thetas.eval(i) * tmp;
+	}
+
+	for(auto& el : Av){
+		el.second *= leftP(el.first);
+	}
+	for(auto& el : v){
+		el.second /= rightP(el.first);
 	}
  }
 
