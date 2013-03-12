@@ -10,6 +10,7 @@
 #include <lawa/methods/rb/righthandsides/affinerhs.h>
 #include <lawa/methods/adaptive/solvers/multitreeawgm2.h>
 #include <lawa/methods/rb/righthandsides/flexiblebilformrhs.h>
+#include <lawa/methods/rb/datastructures/mt_truth.h>
 
 using namespace std;
 using namespace lawa;
@@ -22,6 +23,7 @@ using namespace lawa;
 typedef double T;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
+typedef Coefficients<Lexicographical,T,Index2D>						CoeffVector;
 
 //==== Basis 1D & 2D ====//
 typedef Basis<T, Primal, Periodic, CDF>	                            TrialBasis_Time;
@@ -105,16 +107,24 @@ typedef RHS<T,Index2D,SeparableRhsIntegral2D,
 
 //==== RB Stuff ====//
 const size_t PDim = 1;
+
+typedef CoeffVector 														DataType;
+typedef std::array<T,PDim> 													ParamType;
+
 typedef AffineLocalOperator<Index2D,AbstractLocalOperator2D<T>,1>			Affine_Op_2D;
 typedef AffineRhs<T,Index2D,SeparableRhs,1>									Affine_Rhs_2D;
 typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs>							RieszF_Rhs_2D;
 typedef FlexibleBilformRhs<Index2D,AbstractLocalOperator2D<T> >				RieszA_Rhs_2D;
+
 typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,Affine_Op_2D,
 		Affine_Op_2D,Affine_Rhs_2D,RightPrec2D,LeftPrec2D>					MT_AWGM_Truth;
 typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
 		RieszF_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_F;
 typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
 		RieszA_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_A;
+
+typedef MT_Truth<DataType,ParamType,MT_AWGM_Truth,
+				 MT_AWGM_Riesz_F,MT_AWGM_Riesz_A>							MTTruthSolver;
 
 T f_t(T t)
 {
@@ -271,16 +281,13 @@ int main () {
     RieszA_Rhs_2D rieszA_rhs(lhs_ops);
 
     std::array<T,PDim> mu = {{1.}};
-    lhs_theta.set_current_param(mu);
-    rhs_theta.set_current_param(mu);
+    lhs_theta.set_param(mu);
+    rhs_theta.set_param(mu);
 
 
 	//===============================================================//
 	//===============  AWGM =========================================//
 	//===============================================================//
-
-
-    //----------- Truth Solver ---------------- //
 
     /* AWGM PG Parameters Default Values
     double tol = 5e-03;
@@ -298,7 +305,7 @@ int main () {
 	std::string plot_filename = "awgm_cgls_u_plot";
 	*/
 
-    /* CGLS Parameters Default Values
+    /* IS Parameters Default Values
 	bool adaptive_tol = true;
 	size_t max_its = 100;
 	double init_tol = 0.001;
@@ -306,42 +313,6 @@ int main () {
 	double absolute_tol = 1e-8;
 	bool verbose = true;
 	*/
-
-    cout << "||=====================================================================||" << endl;
-    cout << "||================  TRUTH SOLUTION ====================================||" << std::endl;
-    cout << "||=====================================================================||" << endl << endl;
-
-    AWGM_PG_Parameters awgm_truth_parameters;
-    IS_Parameters cgls_parameters;
-    awgm_truth_parameters.plot_solution = true;
-
-    MT_AWGM_Truth multitree_awgm(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
-    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, cgls_parameters);
-
-    multitree_awgm.awgm_params.print();
-    multitree_awgm.is_params.print();
-    multitree_awgm.set_sol(dummy);
-
-    /// Initialization of solution vector and initial index sets
-    Coefficients<Lexicographical,T,Index2D> u;
-
-    T gamma = 0.2;
-    IndexSet<Index2D> LambdaTrial, LambdaTest;
-    getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
-
-    LambdaTrial.clear();
-    LambdaTest.clear();
-    getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
-
-    Timer time;
-    time.start();
-    multitree_awgm.solve(u, LambdaTrial, LambdaTest);
-    time.stop();
-    cout << "Solution took " << time.elapsed() << " seconds" << endl;
-
-    //----------- RieszF Solver ---------------- //
 
     /* AWGM Parameters Default Values
     double tol = 5e-03;
@@ -356,30 +327,63 @@ int main () {
 	std::string info_filename = "awgm_cg_conv_info.txt";
 	std::string plot_filename = "awgm_cg_u_plot";
 	*/
+
+    AWGM_PG_Parameters awgm_truth_parameters;
+    IS_Parameters is_parameters;
+    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
+
+
+    //----------- Solver ---------------- //
+
+    T gamma = 0.2;
+    IndexSet<Index2D> LambdaTrial, LambdaTest;
+    getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
+    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
+
+    MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
+    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
+    awgm_u.set_sol(dummy);
+    awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
+
+
+    MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, is_parameters);
+    awgm_rieszF.set_sol(dummy);
+    awgm_rieszF.set_initial_indexset(LambdaTest);
+
+
+    MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
+    awgm_rieszA.set_sol(dummy);
+    awgm_rieszA.set_initial_indexset(LambdaTest);
+
+    MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA);
+
+
+    cout << "||=====================================================================||" << endl;
+    cout << "||================  TRUTH SOLUTION ====================================||" << std::endl;
+    cout << "||=====================================================================||" << endl << endl;
+
+    awgm_u.awgm_params.print();
+    awgm_u.is_params.print();
+
+    Timer time;
+    time.start();
+    CoeffVector u = rb_truth.get_truth_solution(mu);
+    time.stop();
+    cout << "Solution took " << time.elapsed() << " seconds" << endl << endl;
+
+
     cout << "||=====================================================================||" << endl;
     cout << "||================  RIESZ SOLUTION F ==================================||" << std::endl;
     cout << "||=====================================================================||" << endl << endl;
 
-    AWGM_Parameters awgm_riesz_f_parameters;
-    awgm_riesz_f_parameters.plot_solution = true;
-    awgm_riesz_f_parameters.info_filename = "awgm_R_f_conv_info.txt";
-    awgm_riesz_f_parameters.plot_filename = "awgm_R_f_plot";
+    awgm_rieszF.awgm_params.print();
+    awgm_rieszF.is_params.print();
 
-    MT_AWGM_Riesz_F multitree_awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, cgls_parameters);
-
-    multitree_awgm_rieszF.awgm_params.print();
-    multitree_awgm_rieszF.is_params.print();
-    multitree_awgm_rieszF.set_sol(dummy);
-
-    Coefficients<Lexicographical,T,Index2D> r_f;
-
-    LambdaTest.clear();
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
 
     time.start();
-    multitree_awgm_rieszF.solve(r_f, LambdaTest);
+    CoeffVector r_f = rb_truth.get_riesz_representor_f(0);
     time.stop();
-    cout << "Solution took " << time.elapsed() << " seconds" << endl;
+    cout << "Solution took " << time.elapsed() << " seconds" << endl << endl;
 
     //----------- RieszA Solver ---------------- //
 
@@ -387,43 +391,18 @@ int main () {
     cout << "||================  RIESZ SOLUTION A ==================================||" << std::endl;
     cout << "||=====================================================================||" << endl << endl;
 
-    AWGM_Parameters awgm_riesz_a_parameters;
-    awgm_riesz_a_parameters.tol = 1e-05;
-    awgm_riesz_a_parameters.plot_solution = true;
+    awgm_rieszA.awgm_params.print();
+    awgm_rieszA.is_params.print();
 
-    MT_AWGM_Riesz_A multitree_awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, cgls_parameters);
-
-    multitree_awgm_rieszA.set_sol(dummy);
-
-    Coefficients<Lexicographical,T,Index2D> r_a;
-
-    LambdaTest.clear();
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
-
-    rieszA_rhs.set_active_u(&u);
-
-    rieszA_rhs.set_active_comp(0);
-    multitree_awgm_rieszA.awgm_params.info_filename = "awgm_R_a_0_conv_info.txt";
-    multitree_awgm_rieszA.awgm_params.plot_filename = "awgm_R_a_0_plot";
-    multitree_awgm_rieszA.awgm_params.print();
-    multitree_awgm_rieszA.is_params.print();
     time.start();
-    multitree_awgm_rieszA.solve(r_a, LambdaTest);
+    CoeffVector r_a_0 = rb_truth.get_riesz_representor_a(0, u);
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl;
 
     cout << "||=====================================================================||" << endl << endl;
 
-    LambdaTest.clear();
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
-
-    rieszA_rhs.set_active_comp(1);
-    multitree_awgm_rieszA.awgm_params.info_filename = "awgm_R_a_1_conv_info.txt";
-    multitree_awgm_rieszA.awgm_params.plot_filename = "awgm_R_a_1_plot";
-    multitree_awgm_rieszA.awgm_params.print();
-    multitree_awgm_rieszA.is_params.print();
     time.start();
-    multitree_awgm_rieszA.solve(r_a, LambdaTest);
+    CoeffVector r_a_1 = rb_truth.get_riesz_representor_a(1, u);
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl;
 
