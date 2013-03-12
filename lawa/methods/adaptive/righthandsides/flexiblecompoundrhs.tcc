@@ -52,7 +52,7 @@ FlexibleCompoundRhs<T, Index,RHSType>::set_active_comp(int i)
 		}
 	}
 	else{
-		assert(i < rhsvec.size());
+		assert((size_t)i < rhsvec.size());
 		active_comp.resize(1);
 		active_comp[0] = i;
 	}

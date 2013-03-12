@@ -50,7 +50,7 @@ FlexibleBilformRhs<Index,LocalOperatorType>::set_active_comp(int i)
 		}
 	}
 	else{
-		assert(i < bilformvec.size());
+		assert((size_t)i < bilformvec.size());
 		active_comp.resize(1);
 		active_comp[0] = i;
 	}

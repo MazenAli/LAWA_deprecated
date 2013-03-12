@@ -35,16 +35,16 @@ public:
     size() const;
 
     void
-    set_current_param(const std::array<T, PDim>& _param);
+    set_current_param(std::array<T, PDim>& _param);
 
     std::array<T, PDim>&
     get_current_param();
 
     T
-    eval(int i, std::array<T,PDim>& mu);
+    eval(size_t i, std::array<T,PDim>& mu) const;
 
     T
-    eval(int i);
+    eval(size_t i) const;
 
 private:
 	std::vector<ThetaFct> 	thetas;
