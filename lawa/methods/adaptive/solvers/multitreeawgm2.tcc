@@ -104,7 +104,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
         if(awgm_params.verbose){
             std::cout << "******** Iteration " << awgm_its << std::endl;
             std::cout << std::right;
-            std::cout << "   Current size of LambdaT " << std::setw(8) <<  Lambda.size() << std::endl;
+            std::cout << "   Current size of Lambda " << std::setw(8) <<  Lambda.size() << std::endl;
             std::cout.precision();
             std::cout << std::left;
             std::cout << "   --- Starting CG with tolerance " << cg_tol << " ---" << std::endl;
@@ -117,9 +117,13 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 		// Initial step
 		Op.eval(u,r,Prec);
 		//r -= f;
-	    for(auto& lambda : Lambda){
-	    	r[lambda] -= Prec(lambda)*F(lambda);
-	    }
+		{
+			Coefficients<Lexicographical,T,Index> f = F(Lambda);
+		    for(auto& lambda : Lambda){
+		    	r[lambda] -= Prec(lambda)*f[lambda];
+		    }
+		}
+
 		r *= -1;
 		p = r;
 		res_cg_prev = r*r;
@@ -174,9 +178,16 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
         res.setToZero();
         Op.eval(u,res,Prec); 	// res = A*u
         //res -= f;
-	    for(auto& lambda : LambdaRes){
-	    	res[lambda] -= Prec(lambda)*F(lambda);
-	    }
+//	    for(auto& lambda : LambdaRes){
+//	    	res[lambda] -= Prec(lambda)*F(lambda);
+//	    }
+		{
+			Coefficients<Lexicographical,T,Index> f = F(LambdaRes);
+		    for(auto& lambda : LambdaRes){
+		    	res[lambda] -= Prec(lambda)*f[lambda];
+		    }
+		}
+
         res_norm = res.norm(2.);
 
         awgm_info.awgm_res.push_back(res_norm);
