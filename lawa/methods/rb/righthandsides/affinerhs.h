@@ -16,7 +16,7 @@ template <typename T, typename Index, typename RHSType, size_t PDim>
 class AffineRhs : public FlexibleCompoundRhs<T, Index,RHSType>{
 
 public:
-	AffineRhs(const ThetaStructure<T,PDim>& _thetas,
+	AffineRhs(ThetaStructure<T,PDim>& _thetas,
 			  std::vector<RHSType*>& _rhsvec);
 
 	T
@@ -25,9 +25,12 @@ public:
 	Coefficients<Lexicographical,T,Index>
 	operator()(const IndexSet<Index> &indexset);
 
+	void
+	set_param(std::array<T,PDim>& mu);
+
 private:
 
-	const ThetaStructure<T,PDim>& thetas;
+	ThetaStructure<T,PDim>& thetas;
 
 	AffineRhs(const AffineRhs& rhs);
 };

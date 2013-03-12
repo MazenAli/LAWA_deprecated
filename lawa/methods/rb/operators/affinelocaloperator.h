@@ -19,7 +19,7 @@ class AffineLocalOperator : public FlexibleCompoundLocalOperator<Index,LocalOper
 public:
 	typedef typename LocalOperatorType::T T;
 
-	AffineLocalOperator(const ThetaStructure<T,PDim>& _thetas, std::vector<LocalOperatorType*>& _localops);
+	AffineLocalOperator(ThetaStructure<T,PDim>& _thetas, std::vector<LocalOperatorType*>& _localops);
 
 	void
 	eval(const Coefficients<Lexicographical,T,Index> &v,
@@ -35,9 +35,12 @@ public:
 	eval(Coefficients<Lexicographical,T,Index> &v,
 		 Coefficients<Lexicographical,T,Index> &Av, RightPrec& rightP, LeftPrec& leftP);
 
+	void
+	set_param(std::array<T,PDim>& mu);
+
 private:
 
-	const ThetaStructure<T,PDim>& thetas;
+	ThetaStructure<T,PDim>& thetas;
 
 };
 

@@ -35,20 +35,20 @@ public:
     size() const;
 
     void
-    set_current_param(std::array<T, PDim>& _param);
+    set_param(const std::array<T, PDim>& _param);
 
     std::array<T, PDim>&
-    get_current_param();
+    get_param();
 
     T
-    eval(size_t i, std::array<T,PDim>& mu) const;
+    eval(size_t i, const std::array<T,PDim>& mu) const;
 
     T
     eval(size_t i) const;
 
 private:
 	std::vector<ThetaFct> 	thetas;
-	std::array<T,PDim>*    	current_param;
+	std::array<T,PDim>    	current_param;
 
 	ThetaStructure(const ThetaStructure& thetastructure);
 };

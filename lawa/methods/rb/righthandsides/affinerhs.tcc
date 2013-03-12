@@ -2,10 +2,18 @@ namespace lawa {
 
 template <typename T, typename Index, typename RHSType, size_t PDim>
 AffineRhs<T, Index,RHSType,PDim>::
-AffineRhs(const ThetaStructure<T,PDim>& _thetas, std::vector<RHSType*>& _rhsvec)
+AffineRhs(ThetaStructure<T,PDim>& _thetas, std::vector<RHSType*>& _rhsvec)
  : FlexibleCompoundRhs<T,Index,RHSType>(_rhsvec), thetas(_thetas)
 {
 	assert(thetas.size() == this->rhsvec.size());
+}
+
+template <typename T, typename Index, typename RHSType, size_t PDim>
+void
+AffineRhs<T, Index,RHSType,PDim>::
+set_param(std::array<T,PDim>& mu)
+{
+	thetas.set_param(mu);
 }
 
 

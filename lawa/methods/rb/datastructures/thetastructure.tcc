@@ -6,7 +6,7 @@ ThetaStructure<T,PDim>::ThetaStructure()
 
 template<typename T,size_t PDim>
 ThetaStructure<T,PDim>::ThetaStructure(const std::vector<ThetaFct>& _thetas)
- : thetas(_thetas), current_param(nullptr)
+ : thetas(_thetas)
 {}
 
 
@@ -19,22 +19,22 @@ ThetaStructure<T,PDim>::size() const
 
 template<typename T,size_t PDim>
 void
-ThetaStructure<T,PDim>::set_current_param(std::array<T, PDim>& _param)
+ThetaStructure<T,PDim>::set_param(const std::array<T, PDim>& _param)
 {
-	current_param = &_param;
+	current_param = _param;
 }
 
 
 template<typename T,size_t PDim>
 std::array<T, PDim>&
-ThetaStructure<T,PDim>::get_current_param()
+ThetaStructure<T,PDim>::get_param()
 {
-	return *current_param;
+	return current_param;
 }
 
 template<typename T,size_t PDim>
 T
-ThetaStructure<T,PDim>::eval(size_t i, std::array<T,PDim>& mu) const
+ThetaStructure<T,PDim>::eval(size_t i, const std::array<T,PDim>& mu) const
 {
 	return (thetas[i])(mu);
 }
@@ -43,7 +43,7 @@ template<typename T,size_t PDim>
 T
 ThetaStructure<T,PDim>::eval(size_t i) const
 {
-	return eval(i,*current_param);
+	return eval(i,current_param);
 }
 
 } // namespace lawa
