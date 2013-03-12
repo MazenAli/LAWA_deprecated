@@ -208,14 +208,14 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
                       << ", awgm_tol = " << awgm_params.tol << std::endl;
 
             if(awgm_params.print_info){
-            	awgm_info.print();
+            	awgm_info.print(awgm_params.info_filename.c_str());
             }
 
             if(awgm_params.plot_solution && flens::IsSame<Index,Index2D>::value){
             	if(awgm_params.verbose){
                     std::cout << "=====>  Plotting solution to file " << std::endl;
             	}
-                plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, "awgm_cg_u_plot");
+                plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
             }
 
             return;
@@ -296,13 +296,13 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
     	if(awgm_params.verbose){
             std::cout << "=====>  Writing information to file " << std::endl;
     	}
-    	awgm_info.print();
+    	awgm_info.print(awgm_params.info_filename.c_str());
     }
     if(awgm_params.plot_solution && flens::IsSame<Index,Index2D>::value){
     	if(awgm_params.verbose){
             std::cout << "=====>  Plotting solution to file " << std::endl;
     	}
-        plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, "awgm_cg_u_plot");
+        plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
     }
 }
 

@@ -7,11 +7,13 @@ namespace lawa {
 AWGM_PG_Parameters::AWGM_PG_Parameters(double _tol, double _alpha, size_t _max_its,
 		size_t _max_basissize, bool _reset_res, bool _print_info,
 		bool _verbose, bool _plot_solution, bool _verbose_extra,
-		size_t _hashmapsize_trial, size_t _hashmapsize_test)
+		size_t _hashmapsize_trial, size_t _hashmapsize_test,
+		std::string _info_filename,	std::string _plot_filename)
 : tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
   reset_res(_reset_res), print_info(_print_info),
   verbose(_verbose), plot_solution(_plot_solution), verbose_extra(_verbose_extra),
-  hashmapsize_trial(_hashmapsize_trial), hashmapsize_test(_hashmapsize_test)
+  hashmapsize_trial(_hashmapsize_trial), hashmapsize_test(_hashmapsize_test),
+  info_filename(_info_filename), plot_filename(_plot_filename)
 {}
 
 void
@@ -28,6 +30,8 @@ AWGM_PG_Parameters::print()
 	std::cout << std::left << std::setw(24) << "# plot_solution:" << std::setw(20) <<  (plot_solution?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(24) << "# hashmapsize trial:" << std::setw(20) <<  hashmapsize_trial << std::endl;
 	std::cout << std::left << std::setw(24) << "# hashmapsize test:" << std::setw(20) <<  hashmapsize_test << std::endl;
+	std::cout << std::left << std::setw(24) << "# info_filename:" << std::setw(20) <<  info_filename << std::endl;
+	std::cout << std::left << std::setw(24) << "# plot_filename:" << std::setw(20) <<  plot_filename << std::endl;
 	std::cout << "#########################################" << std::endl << std::endl;
 }
 
@@ -54,10 +58,11 @@ IS_Parameters::print()
 AWGM_Parameters::AWGM_Parameters(double _tol, double _alpha, size_t _max_its,
 		size_t _max_basissize, bool _print_info,
 		bool _verbose, bool _plot_solution, bool _verbose_extra,
-		size_t _hashmapsize)
+		size_t _hashmapsize, std::string _info_filename, std::string _plot_filename)
 : tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
   print_info(_print_info), verbose(_verbose), plot_solution(_plot_solution),
-  verbose_extra(_verbose_extra), hashmapsize(_hashmapsize)
+  verbose_extra(_verbose_extra), hashmapsize(_hashmapsize),
+  info_filename(_info_filename), plot_filename(_plot_filename)
 {}
 
 void
@@ -72,6 +77,8 @@ AWGM_Parameters::print()
 	std::cout << std::left << std::setw(24) << "# verbose:" << std::setw(20) <<  (verbose?"true":"false") << (verbose_extra?" (extra)":"") << std::endl;
 	std::cout << std::left << std::setw(24) << "# plot_solution:" << std::setw(20) <<  (plot_solution?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(24) << "# hashmapsize:" << std::setw(20) <<  hashmapsize << std::endl;
+	std::cout << std::left << std::setw(24) << "# info_filename:" << std::setw(20) <<  info_filename << std::endl;
+	std::cout << std::left << std::setw(24) << "# plot_filename:" << std::setw(20) <<  plot_filename << std::endl;
 	std::cout << "#########################################" << std::endl << std::endl;
 }
 

@@ -9,6 +9,7 @@
 #define LAWA_METHODS_ADAPTIVE_SOLVERS_SOLVER_PARAMETERS_H_
 
 #include <vector>
+#include <string>
 #include <cstdlib>
 
 namespace lawa {
@@ -19,18 +20,20 @@ namespace lawa {
  */
 struct AWGM_PG_Parameters{
 
-	double 	tol;
-	double 	alpha;
-	size_t 	max_its;
-	size_t 	max_basissize;
-	bool 	reset_res;
+	double 		tol;
+	double 		alpha;
+	size_t 		max_its;
+	size_t 		max_basissize;
+	bool 		reset_res;
 
-	bool	print_info;
-	bool 	verbose;
-	bool    plot_solution;
-	bool	verbose_extra;
-	size_t 	hashmapsize_trial;
-	size_t 	hashmapsize_test;
+	bool		print_info;
+	bool 		verbose;
+	bool    	plot_solution;
+	bool		verbose_extra;
+	size_t 		hashmapsize_trial;
+	size_t 		hashmapsize_test;
+	std::string info_filename;
+	std::string plot_filename;
 
 	AWGM_PG_Parameters(double _tol = 5e-03,
 					double _alpha = 0.7,
@@ -42,7 +45,9 @@ struct AWGM_PG_Parameters{
 					bool _plot_solution = false,
 					bool _verbose_extra = false,
 					size_t _hashmapsize_trial = 10,
-					size_t _hashmapsize_test = 10);
+					size_t _hashmapsize_test = 10,
+					std::string _info_filename = "awgm_cgls_conv_info.txt",
+					std::string _plot_filename = "awgm_cgls_u_plot");
 
 	void print();
 };
@@ -63,6 +68,8 @@ struct AWGM_Parameters{
 	bool    plot_solution;
 	bool	verbose_extra;
 	size_t 	hashmapsize;
+	std::string info_filename;
+	std::string plot_filename;
 
 	AWGM_Parameters(double _tol = 5e-03,
 					double _alpha = 0.7,
@@ -72,7 +79,9 @@ struct AWGM_Parameters{
 					bool _verbose = true,
 					bool _plot_solution = false,
 					bool _verbose_extra = false,
-					size_t _hashmapsize = 10);
+					size_t _hashmapsize = 10,
+					std::string _info_filename = "awgm_cg_conv_info.txt",
+					std::string _plot_filename = "awgm_cg_u_plot");
 
 	void print();
 };
@@ -120,7 +129,7 @@ struct AWGM_Information{
 	std::vector<double> awgm_res, sizeLambda,
 						sizeLambdaRes, cg_its;
 
-	void print(const char* filename = "awgm_cgls_conv_info.txt");
+	void print(const char* filename = "awgm_cg_conv_info.txt");
 };
 
 } // namespace lawa
