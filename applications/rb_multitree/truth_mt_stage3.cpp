@@ -50,6 +50,7 @@ typedef AdaptiveIdentityOperator1D_PG<T,TrialBasis_Time,TestBasis_Time>         
 typedef AdaptiveIdentityOperator1D_PG<T,Basis_Space,Basis_Space>                            Identity1D_Space;
 typedef AdaptiveLaplaceOperator1D_PG<T,Basis_Space,Basis_Space>                             Laplace1D_Space;
 typedef AdaptiveIdentityOperator1D_PG<T,TrialBasis_Time,TrialBasis_Time>                    Identity1D_Time_Trial;
+typedef AdaptiveConvectionOperator1D_PG<T,TrialBasis_Time,TrialBasis_Time>                  Convection1D_Time_Trial;
 
 typedef TransposedAdaptiveConvectionOperator1D_PG<T,TrialBasis_Time,TestBasis_Time>         TranspConvection1D_Time;
 typedef TransposedAdaptiveIdentityOperator1D_PG<T,TrialBasis_Time,TestBasis_Time>           TranspIdentity1D_Time;
@@ -61,6 +62,7 @@ typedef AdaptiveIdentityOperator1D_PG<T,TrialRefBasis_Time,TestRefBasis_Time>   
 typedef AdaptiveIdentityOperator1D_PG<T,RefBasis_Space,RefBasis_Space>                      RefIdentity1D_Space;
 typedef AdaptiveLaplaceOperator1D_PG<T,RefBasis_Space,RefBasis_Space>                       RefLaplace1D_Space;
 typedef AdaptiveIdentityOperator1D_PG<T,TrialRefBasis_Time,TrialRefBasis_Time>              RefIdentity1D_Time_Trial;
+typedef AdaptiveConvectionOperator1D_PG<T,TrialRefBasis_Time,TrialRefBasis_Time>            RefConvection1D_Time_Trial;
 
 typedef TransposedAdaptiveConvectionOperator1D_PG<T,TrialRefBasis_Time,TestRefBasis_Time>   RefTranspConvection1D_Time;
 typedef TransposedAdaptiveIdentityOperator1D_PG<T,TrialRefBasis_Time,TestRefBasis_Time>     RefTranspIdentity1D_Time;
@@ -78,6 +80,8 @@ typedef LocalOperator1D<Basis_Space,Basis_Space,
 						RefLaplace1D_Space,Laplace1D_Space>	                    LOp_Lapl1D_Space;
 typedef LocalOperator1D<TrialBasis_Time,TrialBasis_Time,
                         RefIdentity1D_Time_Trial,Identity1D_Time_Trial>         LOp_Id1D_Time_Trial;
+typedef LocalOperator1D<TrialBasis_Time,TrialBasis_Time,
+                        RefConvection1D_Time_Trial,Convection1D_Time_Trial>     LOp_Conv1D_Time_Trial;
 
 typedef LocalOperator1D<TrialBasis_Time,TestBasis_Time, 
                         RefTranspConvection1D_Time,TranspConvection1D_Time>     LOpT_Conv1D_Time;
@@ -97,6 +101,7 @@ typedef LocalOperator2D<LOp_Id1D_Space,LOp_Id1D_Space>							LOp_Test_Id_Id_2D;
 typedef LocalOperator2D<LOp_Id1D_Space,LOp_Lapl1D_Space>						LOp_Test_Id_Lapl_2D;
 typedef LocalOperator2D<LOp_Id1D_Time_Trial,LOp_Id1D_Space>						LOp_Trial_Id_Id_2D;
 typedef LocalOperator2D<LOp_Id1D_Time_Trial,LOp_Lapl1D_Space>					LOp_Trial_Id_Lapl_2D;
+typedef LocalOperator2D<LOp_Conv1D_Time_Trial,LOp_Id1D_Space>					LOp_Trial_Conv_Id_2D;
 
 //==== CompoundOperators ====//
 typedef FlexibleCompoundLocalOperator<Index2D,AbstractLocalOperator2D<T> > 		Flex_COp_2D;
@@ -114,6 +119,9 @@ typedef NoPreconditioner<T, Index2D>								NoPrec2D;
 typedef SeparableRHS2D<T,Basis2D_Test>                              SeparableRhsIntegral2D;
 typedef RHS<T,Index2D,SeparableRhsIntegral2D,
             NoPrec2D>                                         		SeparableRhs;
+typedef SeparableRHS2D<T,Basis2D_Trial>                             SeparableRhsIntegral2D_Trial;
+typedef RHS<T,Index2D,SeparableRhsIntegral2D_Trial,
+            NoPrec2D>                                         		SeparableRhs_Trial;
 
 
 //==== RB Stuff ====//
@@ -126,6 +134,7 @@ typedef AffineLocalOperator<Index2D,AbstractLocalOperator2D<T>,ParamType>	Affine
 typedef AffineRhs<T,Index2D,SeparableRhs,ParamType>							Affine_Rhs_2D;
 typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs>							RieszF_Rhs_2D;
 typedef FlexibleBilformRhs<Index2D,AbstractLocalOperator2D<T> >				RieszA_Rhs_2D;
+typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs_Trial>					Flex_Rhs_2D;
 
 typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,Affine_Op_2D,
 		Affine_Op_2D,Affine_Rhs_2D,RightPrec2D,LeftPrec2D>					MT_AWGM_Truth;
@@ -135,7 +144,8 @@ typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
 		RieszA_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_A;
 
 typedef MT_Truth<DataType,ParamType,MT_AWGM_Truth,
-				 MT_AWGM_Riesz_F,MT_AWGM_Riesz_A,TrialInnProdY>				MTTruthSolver;
+				 MT_AWGM_Riesz_F,MT_AWGM_Riesz_A,TrialInnProdY,
+				 Flex_COp_2D, Flex_Rhs_2D>									MTTruthSolver;
 
 typedef RB_System<T,ParamType>												RB_Model;
 typedef RB_Base<RB_Model,MTTruthSolver,DataType,ParamType>					RB_BaseModel;
@@ -196,6 +206,7 @@ int main () {
     Laplace1D_Space 	        LaplaceBil_x(basis_intbc, basis_intbc);
     Identity1D_Space 	        IdentityBil_Test_t(basis_int, basis_int);
     Identity1D_Time_Trial		IdentityBil_Trial_t(basis_per, basis_per);
+    Convection1D_Time_Trial		ConvectionBil_Trial_t(basis_per, basis_per);
 
     
     RefConvection1D_Time 		RefConvectionBil_t(basis_per.refinementbasis, basis_int.refinementbasis);
@@ -204,6 +215,7 @@ int main () {
     RefLaplace1D_Space 	        RefLaplaceBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis);
     RefIdentity1D_Space 	    RefIdentityBil_Test_t(basis_int.refinementbasis, basis_int.refinementbasis);
     RefIdentity1D_Time_Trial	RefIdentityBil_Trial_t(basis_per.refinementbasis, basis_per.refinementbasis);
+    RefConvection1D_Time_Trial	RefConvectionBil_Trial_t(basis_per.refinementbasis, basis_per.refinementbasis);
 
     // Transposed Bilinear Forms
     TranspConvection1D_Time 	TranspConvectionBil_t(basis_per, basis_int);
@@ -217,24 +229,26 @@ int main () {
     RefTranspLaplace1D_Space 	RefTranspLaplaceBil_x(basis_intbc.refinementbasis, basis_intbc.refinementbasis);
 
     /// Initialization of local operator
-    LOp_Conv1D_Time		lOp_Conv1D_t	(basis_int, basis_per, RefConvectionBil_t, ConvectionBil_t);
-    LOp_Id1D_Time		lOp_Id1D_t  	(basis_int, basis_per, RefIdentityBil_t, IdentityBil_t);
-    LOp_Id1D_Space		lOp_Id1D_x  	(basis_intbc, basis_intbc, RefIdentityBil_x, IdentityBil_x);
-    LOp_Lapl1D_Space	lOp_Lapl1D_x	(basis_intbc, basis_intbc, RefLaplaceBil_x, LaplaceBil_x);
-    LOp_Id1D_Space		lOp_Id1D_Test_t (basis_int, basis_int, RefIdentityBil_Test_t, IdentityBil_Test_t);
-    LOp_Id1D_Time_Trial	lOp_Id1D_Trial_t(basis_per, basis_per, RefIdentityBil_Trial_t, IdentityBil_Trial_t);
+    LOp_Conv1D_Time			lOp_Conv1D_t	(basis_int, basis_per, RefConvectionBil_t, ConvectionBil_t);
+    LOp_Id1D_Time			lOp_Id1D_t  	(basis_int, basis_per, RefIdentityBil_t, IdentityBil_t);
+    LOp_Id1D_Space			lOp_Id1D_x  	(basis_intbc, basis_intbc, RefIdentityBil_x, IdentityBil_x);
+    LOp_Lapl1D_Space		lOp_Lapl1D_x	(basis_intbc, basis_intbc, RefLaplaceBil_x, LaplaceBil_x);
+    LOp_Id1D_Space			lOp_Id1D_Test_t (basis_int, basis_int, RefIdentityBil_Test_t, IdentityBil_Test_t);
+    LOp_Id1D_Time_Trial		lOp_Id1D_Trial_t(basis_per, basis_per, RefIdentityBil_Trial_t, IdentityBil_Trial_t);
+    LOp_Conv1D_Time_Trial 	lOp_Conv1D_Trial_t(basis_per, basis_per, RefConvectionBil_Trial_t, ConvectionBil_Trial_t);
     
-    LOpT_Conv1D_Time	lOpT_Conv1D_t(basis_per, basis_int, RefTranspConvectionBil_t, TranspConvectionBil_t);
-    LOpT_Id1D_Time		lOpT_Id1D_t  (basis_per, basis_int, RefTranspIdentityBil_t, TranspIdentityBil_t);
-    LOpT_Id1D_Space		lOpT_Id1D_x  (basis_intbc, basis_intbc, RefTranspIdentityBil_x, TranspIdentityBil_x);
-    LOpT_Lapl1D_Space	lOpT_Lapl1D_x(basis_intbc, basis_intbc, RefTranspLaplaceBil_x, TranspLaplaceBil_x);
+    LOpT_Conv1D_Time		lOpT_Conv1D_t(basis_per, basis_int, RefTranspConvectionBil_t, TranspConvectionBil_t);
+    LOpT_Id1D_Time			lOpT_Id1D_t  (basis_per, basis_int, RefTranspIdentityBil_t, TranspIdentityBil_t);
+    LOpT_Id1D_Space			lOpT_Id1D_x  (basis_intbc, basis_intbc, RefTranspIdentityBil_x, TranspIdentityBil_x);
+    LOpT_Lapl1D_Space		lOpT_Lapl1D_x(basis_intbc, basis_intbc, RefTranspLaplaceBil_x, TranspLaplaceBil_x);
 
-    LOp_Conv_Id_2D		localConvectionIdentityOp2D		(lOp_Conv1D_t, 		lOp_Id1D_x);
-    LOp_Id_Lapl_2D		localIdentityLaplaceOp2D		(lOp_Id1D_t, 		lOp_Lapl1D_x);
-    LOp_Test_Id_Id_2D	localIdentityIdentityOp2D_Test	(lOp_Id1D_Test_t, 	lOp_Id1D_x);
-    LOp_Test_Id_Lapl_2D	localIdentityLaplaceOp2D_Test	(lOp_Id1D_Test_t, 	lOp_Lapl1D_x);
-    LOp_Trial_Id_Id_2D	localIdentityIdentityOp2D_Trial	(lOp_Id1D_Trial_t, 	lOp_Id1D_x);
-    LOp_Trial_Id_Lapl_2D localIdentityLaplaceOp2D_Trial	(lOp_Id1D_Trial_t, 	lOp_Lapl1D_x);
+    LOp_Conv_Id_2D			localConvectionIdentityOp2D		(lOp_Conv1D_t, 		lOp_Id1D_x);
+    LOp_Id_Lapl_2D			localIdentityLaplaceOp2D		(lOp_Id1D_t, 		lOp_Lapl1D_x);
+    LOp_Test_Id_Id_2D		localIdentityIdentityOp2D_Test	(lOp_Id1D_Test_t, 	lOp_Id1D_x);
+    LOp_Test_Id_Lapl_2D		localIdentityLaplaceOp2D_Test	(lOp_Id1D_Test_t, 	lOp_Lapl1D_x);
+    LOp_Trial_Id_Id_2D		localIdentityIdentityOp2D_Trial	(lOp_Id1D_Trial_t, 	lOp_Id1D_x);
+    LOp_Trial_Id_Lapl_2D 	localIdentityLaplaceOp2D_Trial	(lOp_Id1D_Trial_t, 	lOp_Lapl1D_x);
+    LOp_Trial_Conv_Id_2D 	localConvectionIdentityOp2D_Trial(lOp_Conv1D_Trial_t,lOp_Id1D_x);
 
     LOpT_Conv_Id_2D		transpLocalConvectionIdentityOp2D	(lOpT_Conv1D_t, lOpT_Id1D_x);
     LOpT_Id_Lapl_2D		transpLocalIdentityLaplaceOp2D		(lOpT_Id1D_t, lOpT_Lapl1D_x);
@@ -247,7 +261,7 @@ int main () {
     localIdentityLaplaceOp2D_Test.setJ(9);
     localIdentityIdentityOp2D_Trial.setJ(9);
     localIdentityLaplaceOp2D_Trial.setJ(9);
-
+    localConvectionIdentityOp2D_Trial.setJ(9);
 
     /// Initialization of preconditioner
     LeftPrec2D leftPrec(basis2d_test);
@@ -267,6 +281,9 @@ int main () {
     FullColMatrixT nodeltas;
     SeparableRhsIntegral2D			rhs(basis2d_test, F1, nodeltas, nodeltas, 20);
     SeparableRhs           			F(rhs,noPrec);
+
+    SeparableRhsIntegral2D_Trial	rhs_u(basis2d_trial, F1, nodeltas, nodeltas, 20);
+    SeparableRhs_Trial           	F_u(rhs_u,noPrec);
 
 
 	//===============================================================//
@@ -292,6 +309,11 @@ int main () {
     COp_TestInnProd innprod_Y	 (localIdentityIdentityOp2D_Test, localIdentityLaplaceOp2D_Test);
     TrialInnProdY 	innprod_Y_u_u(localIdentityIdentityOp2D_Trial, localIdentityLaplaceOp2D_Trial);
 
+    vector<AbstractLocalOperator2D<T>* > A_u_u_ops;
+    A_u_u_ops.push_back(&localConvectionIdentityOp2D_Trial);
+    A_u_u_ops.push_back(&localIdentityLaplaceOp2D_Trial);
+    Flex_COp_2D A_u_u(A_u_u_ops);
+
     // Right Hand Side
     vector<ThetaStructure<ParamType>::ThetaFct> rhs_theta_fcts;
     rhs_theta_fcts.push_back(no_theta);
@@ -302,6 +324,10 @@ int main () {
     Affine_Rhs_2D affine_rhs(rhs_theta, rhs_fcts);
     RieszF_Rhs_2D rieszF_rhs(rhs_fcts);
     RieszA_Rhs_2D rieszA_rhs(lhs_ops);
+
+    vector<SeparableRhs_Trial*> rhs_fcts_u;
+    rhs_fcts_u.push_back(&F_u);
+    Flex_Rhs_2D flex_rhs_u(rhs_fcts_u);
 
 
 	//===============================================================//
@@ -375,7 +401,7 @@ int main () {
     awgm_rieszA.set_initial_indexset(LambdaTest);
     awgm_rieszA.awgm_params.tol = 1e-04;
 
-    MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u);
+    MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
 
     //----------- RB System ---------------- //
 
