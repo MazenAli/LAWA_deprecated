@@ -38,6 +38,15 @@ private:
 	void
 	add_to_basis(const DataType& u);
 
+	void
+	add_to_RB_structures(const DataType& bf);
+
+	void
+	calculate_Riesz_RHS_information();
+
+	void
+	update_Riesz_LHS_information(const DataType& bf);
+
 	std::vector<ParamType>
 	generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb);
 

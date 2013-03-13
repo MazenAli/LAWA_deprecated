@@ -29,46 +29,7 @@ train_Greedy()
 
 	// In order to be able to calculate empty error bounds,
 	// we have to calculate the Riesz Representors for F
-
-	if(greedy_params.verbose){
-	    std::cout << "||---------------------------------------------------------------------||" << std::endl;
-	    std::cout << "||-------------- Calculate Riesz Representors for F -------------------||" << std::endl;
-	    std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
-	}
-
-	// Calculate the Riesz Representors for F
-	size_t Qf = rb_system.Q_f();
-    for (unsigned int i = 0; i < Qf; ++i) {
-
-    	if(greedy_params.verbose){
-    	    std::cout << "||------- Component Nb " << std::setw(3) << i << "  -------------------------------------------||" << std::endl << std::endl;
-    	}
-
-        DataType c = rb_truth.get_riesz_representor_f(i);
-        F_representors.push_back(c);
-    }
-
-	// Update the Riesz Representor Norms
-    rb_system.F_F_representor_norms.engine().resize((int)rb_system.Q_f(), (int)rb_system.Q_f());
-    DataType vec1, vec2;
-    for(size_t qf1 = 1; qf1 <= Qf; ++qf1) {
-        for (size_t qf2 = qf1; qf2 <= Qf; ++qf2) {
-            vec1 = F_representors[qf1-1];
-            vec2 = F_representors[qf2-1];
-
-            rb_system.F_F_representor_norms(qf1,qf2) = rb_truth.innprod_Y_v_v(vec1, vec2);
-
-            if(qf1 != qf2) {
-            	rb_system.F_F_representor_norms(qf2,qf1) = rb_system.F_F_representor_norms(qf1,qf2);
-            }
-        }
-    }
-
-    if(greedy_params.verbose){
-	    std::cout << std::endl << "||------- Representor Norms F x F  ------------------------------------||" << std::endl;
-	    std::cout << rb_system.F_F_representor_norms << std::endl;
-    }
-
+	calculate_Riesz_RHS_information();
 
 	ParamType current_param;
 	T max_error = 0;
@@ -222,10 +183,255 @@ add_to_basis(const DataType& u)
 	rb_basisfunctions.push_back(new_bf);
 
 	if(greedy_params.verbose){
-	    std::cout << "||------- GRAM-SCHMIDT Norm: " << std::setw(10) << std::sqrt(new_bf_norm_sq) << "------------||" << std::endl;
+	    std::cout << "||------- GRAM-SCHMIDT Norm: " << std::setw(10) << std::sqrt(new_bf_norm_sq) << " --------------------------||" << std::endl;
+
+	    std::cout << std::endl << "||------- UPDATE RB Structures ----------------------------------------||" << std::endl;
 	}
 
-	exit(0);
+	add_to_RB_structures(new_bf);
+
+	update_Riesz_LHS_information(new_bf);
+
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+add_to_RB_structures(const DataType& bf)
+{
+	std::size_t n_bf = rb_basisfunctions.size();
+	std::size_t Qa = rb_system.Q_a();
+	std::size_t Qf = rb_system.Q_f();
+
+	// ===== Update RB_A ====== //
+
+	// We need some matrix to start with...
+	bool first_bf = false;
+    if (rb_system.RB_A_matrices.size() < Qa) {
+        for (std::size_t q_a = 0; q_a < Qa; ++q_a) {
+        	typename RB_Model::FullColMatrixT A(1,1);
+            rb_system.RB_A_matrices.push_back(A);
+        }
+        first_bf = true;
+    }
+
+    for (std::size_t q_a = 0; q_a < Qa; ++q_a) {
+    	// "Pad" RB_A_matrices with zeros to new size
+    	std::size_t n;
+		if (first_bf == true) {
+			rb_system.RB_A_matrices[q_a].engine().resize(1, 1);
+			n = 1;
+		}
+		else {
+			typename RB_Model::FullColMatrixT tmp(rb_system.RB_A_matrices[q_a]);
+			rb_system.RB_A_matrices[q_a].engine().resize(tmp.numRows()+1, tmp.numCols()+1);
+			rb_system.RB_A_matrices[q_a](tmp.rows(), tmp.cols()) = tmp;
+
+			n = rb_system.RB_A_matrices[q_a].numRows();
+			for(unsigned int i = 1; i <= n; ++i) {
+				rb_system.RB_A_matrices[q_a](i, n) = 0.;
+				rb_system.RB_A_matrices[q_a](n, i) = 0.;
+			}
+
+		}
+
+		// Compute new entries (one column, one row)
+        for (unsigned int i = 1; i <= n; ++i) {
+        	rb_system.RB_A_matrices[q_a](n,i) = rb_truth.lhs_u_u(q_a, bf, rb_basisfunctions[i-1]);
+        }
+        for (unsigned int i = 1; i < n; ++i) {
+        	rb_system.RB_A_matrices[q_a](i,n) = rb_truth.lhs_u_u(q_a, rb_basisfunctions[i-1], bf);
+        }
+
+        if(greedy_params.verbose){
+    		std::cout << std::endl << "||------- RB_A (" << q_a << ")  -----------------------------------------||" << std::endl;
+    		std::cout << rb_system.RB_A_matrices[q_a] << std::endl;
+        }
+    }
+
+	// ===== Update RB_F ====== //
+
+	// We need some matrix to start with...
+    if (rb_system.RB_F_vectors.size() < Qf) {
+    	rb_system.RB_F_vectors.resize(Qf);
+    	first_bf = true;
+    }
+    for (std::size_t q_f = 0; q_f < Qf; ++q_f) {
+    	// Add one zero entry to RB_F_vectors
+    	std::size_t n;
+    	if (first_bf == true) {
+    		rb_system.RB_F_vectors[q_f].engine().resize(1);
+    		n = 1;
+    	}
+    	else {
+    		typename RB_Model::DenseVectorT tmp(rb_system.RB_F_vectors[q_f]);
+    		rb_system.RB_F_vectors[q_f].engine().resize(tmp.length()+1);
+    		n = rb_system.RB_F_vectors[q_f].length();
+    		rb_system.RB_F_vectors[q_f](tmp.range()) = tmp;
+    		rb_system.RB_F_vectors[q_f](n) = 0.;
+
+    	}
+
+    	rb_system.RB_F_vectors[q_f](n) = rb_truth.rhs_u(q_f, bf);
+
+    	if(greedy_params.verbose){
+    		std::cout << std::endl << "||------- RB_F (" << q_f << ")  -----------------------------------------||" << std::endl;
+    		std::cout << rb_system.RB_F_vectors[q_f] << std::endl;
+    	}
+    }
+
+	// ===== Update RB_InnerProduct ====== //
+
+    std::size_t n;
+    if (rb_system.RB_inner_product.numRows()==0) {
+        rb_system.RB_inner_product.engine().resize(1, 1);
+        n=1;
+    }
+    else {
+    	typename RB_Model::FullColMatrixT tmp(rb_system.RB_inner_product);
+    	rb_system.RB_inner_product.engine().resize(tmp.numRows()+1, tmp.numCols()+1);
+    	rb_system. RB_inner_product(tmp.rows(), tmp.cols()) = tmp;
+    	n = rb_system. RB_inner_product.numRows();
+        for(unsigned int i = 1; i <= n; ++i) {
+        	rb_system.RB_inner_product(i, n) = 0.;
+        	rb_system.RB_inner_product(n, i) = 0.;
+        }
+    }
+
+    for (unsigned int i = 1; i <= n; ++i) {
+    	rb_system.RB_inner_product(n, i) = rb_truth.innprod_Y_u_u(bf, rb_basisfunctions[i-1]);
+		rb_system.RB_inner_product(i, n) = rb_system.RB_inner_product(n,i);
+    }
+
+	if(greedy_params.verbose){
+		std::cout << std::endl << "||------- RB_InnerProduct  -----------------------------------------||" << std::endl;
+		std::cout << rb_system.RB_inner_product << std::endl;
+	}
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+calculate_Riesz_RHS_information()
+{
+	if(greedy_params.verbose){
+		std::cout << "||---------------------------------------------------------------------||" << std::endl;
+		std::cout << "||-------------- Calculate Riesz Representors for F -------------------||" << std::endl;
+		std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+	}
+
+	// Calculate the Riesz Representors for F
+	size_t Qf = rb_system.Q_f();
+	for (unsigned int i = 0; i < Qf; ++i) {
+
+		if(greedy_params.verbose){
+			std::cout << "||------- Component Nb " << std::setw(3) << i << "  -------------------------------------------||" << std::endl << std::endl;
+		}
+
+		DataType c = rb_truth.get_riesz_representor_f(i);
+		F_representors.push_back(c);
+	}
+
+	// Update the Riesz Representor Norms
+	rb_system.F_F_representor_norms.engine().resize((int)rb_system.Q_f(), (int)rb_system.Q_f());
+	DataType vec1, vec2;
+	for(size_t qf1 = 1; qf1 <= Qf; ++qf1) {
+		for (size_t qf2 = qf1; qf2 <= Qf; ++qf2) {
+			vec1 = F_representors[qf1-1];
+			vec2 = F_representors[qf2-1];
+
+			rb_system.F_F_representor_norms(qf1,qf2) = rb_truth.innprod_Y_v_v(vec1, vec2);
+
+			if(qf1 != qf2) {
+				rb_system.F_F_representor_norms(qf2,qf1) = rb_system.F_F_representor_norms(qf1,qf2);
+			}
+		}
+	}
+
+	if(greedy_params.verbose){
+		std::cout << std::endl << "||------- Representor Norms F x F  ------------------------------------||" << std::endl;
+		std::cout << rb_system.F_F_representor_norms << std::endl;
+	}
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+update_Riesz_LHS_information(const DataType& bf)
+{
+	if(greedy_params.verbose){
+		std::cout << "||---------------------------------------------------------------------||" << std::endl;
+		std::cout << "||-------------- Calculate Riesz Representors for A -------------------||" << std::endl;
+		std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+	}
+
+	// Calculate the Riesz Representors for A
+	size_t Qa = rb_system.Q_a();
+	std::vector<DataType> new_A_reprs(Qa);
+	for (unsigned int i = 0; i < Qa; ++i) {
+
+		if(greedy_params.verbose){
+			std::cout << "||------- Component Nb " << std::setw(3) << i << "  -------------------------------------------||" << std::endl << std::endl;
+		}
+
+		DataType c = rb_truth.get_riesz_representor_a(i, bf);
+		new_A_reprs[i] = c;
+	}
+	A_representors.push_back(new_A_reprs);
+
+	// Update the Riesz Representor Norms A x A
+	int N = rb_basisfunctions.size();
+	DataType vec1, vec2;
+    for(int n1 = 0; n1 < N; ++n1) {
+    	typename RB_Model::FullColMatrixT A_n1_N(Qa, Qa);
+        for(std::size_t qa1 = 1; qa1 <= Qa; ++qa1) {
+        	for(std::size_t qa2 = qa1; qa2 <= Qa; ++qa2) {
+        		vec1 = A_representors[n1][qa1-1];
+        		vec2 = A_representors[N-1][qa2-1];
+        		A_n1_N(qa1, qa2) = rb_truth.innprod_Y_v_v(vec1, vec2);
+
+        		if(qa1 != qa2){
+        			if(n1 == N-1){
+        				A_n1_N(qa2, qa1) = A_n1_N(qa1, qa2);
+        			}
+        			else{
+        				vec1 = A_representors[n1][qa2-1];
+        				vec2 = A_representors[N-1][qa1-1];
+        				A_n1_N(qa2, qa1) = rb_truth.innprod_Y_v_v(vec1, vec2);
+        			}
+        		}
+        	}
+        }
+        if(n1 == N-1){
+        	std::vector<typename RB_Model::FullColMatrixT> newvec;
+        	newvec.push_back(A_n1_N);
+        	rb_system.A_A_representor_norms.push_back(newvec);
+        }
+        else{
+        	rb_system.A_A_representor_norms[n1].push_back(A_n1_N);
+        }
+
+    	if(greedy_params.verbose){
+    		std::cout << std::endl << "||------- Representor Norms A["<< n1 <<"] x A["<< N-1 << "]  -----------------------------||" << std::endl;
+    		std::cout << rb_system.A_A_representor_norms[n1][N-1-n1] << std::endl;
+    	}
+    }
+
+	// Update the Riesz Representor Norms A x F
+    size_t Qf = rb_system.Q_f();
+    typename RB_Model::FullColMatrixT A_F(Qa, Qf);
+    for(std::size_t qa = 1; qa <= Qa; ++qa) {
+        for(std::size_t qf = 1; qf <= Qf; ++qf) {
+            vec1 = A_representors[N-1][qa-1];
+            vec2 = F_representors[qf-1];
+            A_F(qa, qf) = rb_truth.innprod_Y_v_v(vec1, vec2);
+        }
+    }
+    rb_system.A_F_representor_norms.push_back(A_F);
+	if(greedy_params.verbose){
+		std::cout << std::endl << "||------- Representor Norms A["<< N-1 <<"] x F  --------------------------------||" << std::endl;
+		std::cout << rb_system.A_F_representor_norms[N-1] << std::endl;
+	}
 }
 
 } // namespace lawa
