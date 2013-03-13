@@ -1,47 +1,47 @@
 namespace lawa {
 
-template<typename T,size_t PDim>
-ThetaStructure<T,PDim>::ThetaStructure()
- : current_param(nullptr){}
+template<typename ParamType>
+ThetaStructure<ParamType>::ThetaStructure()
+{}
 
-template<typename T,size_t PDim>
-ThetaStructure<T,PDim>::ThetaStructure(const std::vector<ThetaFct>& _thetas)
+template<typename ParamType>
+ThetaStructure<ParamType>::ThetaStructure(const std::vector<ThetaFct>& _thetas)
  : thetas(_thetas)
 {}
 
 
-template<typename T,size_t PDim>
-unsigned int
-ThetaStructure<T,PDim>::size() const
+template<typename ParamType>
+size_t
+ThetaStructure<ParamType>::size() const
 {
 	return thetas.size();
 }
 
-template<typename T,size_t PDim>
+template<typename ParamType>
 void
-ThetaStructure<T,PDim>::set_param(const std::array<T, PDim>& _param)
+ThetaStructure<ParamType>::set_param(const ParamType& _param)
 {
 	current_param = _param;
 }
 
 
-template<typename T,size_t PDim>
-std::array<T, PDim>&
-ThetaStructure<T,PDim>::get_param()
+template<typename ParamType>
+ParamType&
+ThetaStructure<ParamType>::get_param()
 {
 	return current_param;
 }
 
-template<typename T,size_t PDim>
-T
-ThetaStructure<T,PDim>::eval(size_t i, const std::array<T,PDim>& mu) const
+template<typename ParamType>
+typename ParamType::value_type
+ThetaStructure<ParamType>::eval(size_t i, const ParamType& mu) const
 {
 	return (thetas[i])(mu);
 }
 
-template<typename T,size_t PDim>
-T
-ThetaStructure<T,PDim>::eval(size_t i) const
+template<typename ParamType>
+typename ParamType::value_type
+ThetaStructure<ParamType>::eval(size_t i) const
 {
 	return eval(i,current_param);
 }

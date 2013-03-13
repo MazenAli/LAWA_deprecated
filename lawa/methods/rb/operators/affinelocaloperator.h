@@ -13,13 +13,13 @@
 
 namespace lawa {
 
-template <typename Index, typename LocalOperatorType, size_t PDim>
+template <typename Index, typename LocalOperatorType, typename ParamType>
 class AffineLocalOperator : public FlexibleCompoundLocalOperator<Index,LocalOperatorType>{
 
 public:
 	typedef typename LocalOperatorType::T T;
 
-	AffineLocalOperator(ThetaStructure<T,PDim>& _thetas, std::vector<LocalOperatorType*>& _localops);
+	AffineLocalOperator(ThetaStructure<ParamType>& _thetas, std::vector<LocalOperatorType*>& _localops);
 
 	void
 	eval(const Coefficients<Lexicographical,T,Index> &v,
@@ -36,11 +36,11 @@ public:
 		 Coefficients<Lexicographical,T,Index> &Av, RightPrec& rightP, LeftPrec& leftP);
 
 	void
-	set_param(std::array<T,PDim>& mu);
+	set_param(ParamType& mu);
 
 private:
 
-	ThetaStructure<T,PDim>& thetas;
+	ThetaStructure<ParamType>& thetas;
 
 };
 

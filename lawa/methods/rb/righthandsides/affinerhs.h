@@ -12,11 +12,11 @@
 
 namespace lawa {
 
-template <typename T, typename Index, typename RHSType, size_t PDim>
+template <typename T, typename Index, typename RHSType, typename ParamType>
 class AffineRhs : public FlexibleCompoundRhs<T, Index,RHSType>{
 
 public:
-	AffineRhs(ThetaStructure<T,PDim>& _thetas,
+	AffineRhs(ThetaStructure<ParamType>& _thetas,
 			  std::vector<RHSType*>& _rhsvec);
 
 	T
@@ -26,11 +26,11 @@ public:
 	operator()(const IndexSet<Index> &indexset);
 
 	void
-	set_param(std::array<T,PDim>& mu);
+	set_param(ParamType& mu);
 
 private:
 
-	ThetaStructure<T,PDim>& thetas;
+	ThetaStructure<ParamType>& thetas;
 
 	AffineRhs(const AffineRhs& rhs);
 };

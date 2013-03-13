@@ -1,23 +1,23 @@
 namespace lawa {
 
-template <typename Index, typename LocalOperatorType, size_t PDim>
-AffineLocalOperator<Index,LocalOperatorType,PDim>::
-AffineLocalOperator(ThetaStructure<T,PDim>& _thetas, std::vector<LocalOperatorType*>& _localops)
+template <typename Index, typename LocalOperatorType, typename ParamType>
+AffineLocalOperator<Index,LocalOperatorType,ParamType>::
+AffineLocalOperator(ThetaStructure<ParamType>& _thetas, std::vector<LocalOperatorType*>& _localops)
  : FlexibleCompoundLocalOperator<Index,LocalOperatorType>(_localops), thetas(_thetas)
 {
 	assert(thetas.size() == this->localops.size());
 }
 
-template <typename Index, typename LocalOperatorType, size_t PDim>
+template <typename Index, typename LocalOperatorType, typename ParamType>
 void
-AffineLocalOperator<Index,LocalOperatorType,PDim>::set_param(std::array<T,PDim>& mu)
+AffineLocalOperator<Index,LocalOperatorType,ParamType>::set_param(ParamType& mu)
 {
 	thetas.set_param(mu);
 }
 
-template <typename Index, typename LocalOperatorType, size_t PDim>
+template <typename Index, typename LocalOperatorType, typename ParamType>
 void
-AffineLocalOperator<Index,LocalOperatorType,PDim>::eval(const Coefficients<Lexicographical,T,Index> &v,
+AffineLocalOperator<Index,LocalOperatorType,ParamType>::eval(const Coefficients<Lexicographical,T,Index> &v,
 		 	 	 	 	 	 	 	 	 	 	 	 	 	  Coefficients<Lexicographical,T,Index> &Av)
 {
 	Coefficients<Lexicographical,typename LocalOperatorType::T,Index> tmp(Av);
@@ -29,10 +29,10 @@ AffineLocalOperator<Index,LocalOperatorType,PDim>::eval(const Coefficients<Lexic
 	}
 }
 
-template <typename Index, typename LocalOperatorType, size_t PDim>
+template <typename Index, typename LocalOperatorType, typename ParamType>
 template <typename Preconditioner>
 void
-AffineLocalOperator<Index,LocalOperatorType,PDim>::eval(Coefficients<Lexicographical,T,Index> &v,
+AffineLocalOperator<Index,LocalOperatorType,ParamType>::eval(Coefficients<Lexicographical,T,Index> &v,
 														Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P)
 {
 	for(auto& el : v){
@@ -55,10 +55,10 @@ AffineLocalOperator<Index,LocalOperatorType,PDim>::eval(Coefficients<Lexicograph
 	}
 }
 
-template <typename Index, typename LocalOperatorType, size_t PDim>
+template <typename Index, typename LocalOperatorType, typename ParamType>
 template <typename RightPrec, typename LeftPrec>
 void
-AffineLocalOperator<Index,LocalOperatorType,PDim>::eval(Coefficients<Lexicographical,T,Index> &v,
+AffineLocalOperator<Index,LocalOperatorType,ParamType>::eval(Coefficients<Lexicographical,T,Index> &v,
 	 Coefficients<Lexicographical,T,Index> &Av, RightPrec& rightP, LeftPrec& leftP)
  {
 	for(auto& el : v){

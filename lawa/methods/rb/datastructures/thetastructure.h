@@ -21,34 +21,35 @@ namespace lawa {
  * 		affine operators/rhs that only have an operator()(Index)
  * 		can still evaluate the functions
  */
-template<typename T,size_t PDim>
+template<typename ParamType>
 class ThetaStructure{
 
 public:
-    typedef T (*ThetaFct)(const std::array<T,PDim>& params); // Argumente -> eher auch RBThetaData-Objekt?
+	typedef typename ParamType::value_type T;
+    typedef T (*ThetaFct)(const ParamType& param); // Argumente -> eher auch RBThetaData-Objekt?
 
     ThetaStructure();
 
     ThetaStructure(const std::vector<ThetaFct>& _thetas);
 
-    unsigned int
+    size_t
     size() const;
 
     void
-    set_param(const std::array<T, PDim>& _param);
+    set_param(const ParamType& _param);
 
-    std::array<T, PDim>&
+    ParamType&
     get_param();
 
     T
-    eval(size_t i, const std::array<T,PDim>& mu) const;
+    eval(size_t i, const ParamType& mu) const;
 
     T
     eval(size_t i) const;
 
 private:
 	std::vector<ThetaFct> 	thetas;
-	std::array<T,PDim>    	current_param;
+	ParamType    			current_param;
 
 	ThetaStructure(const ThetaStructure& thetastructure);
 };

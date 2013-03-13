@@ -1,25 +1,25 @@
 namespace lawa {
 
-template <typename T, typename Index, typename RHSType, size_t PDim>
-AffineRhs<T, Index,RHSType,PDim>::
-AffineRhs(ThetaStructure<T,PDim>& _thetas, std::vector<RHSType*>& _rhsvec)
+template <typename T, typename Index, typename RHSType, typename ParamType>
+AffineRhs<T,Index,RHSType,ParamType>::
+AffineRhs(ThetaStructure<ParamType>& _thetas, std::vector<RHSType*>& _rhsvec)
  : FlexibleCompoundRhs<T,Index,RHSType>(_rhsvec), thetas(_thetas)
 {
 	assert(thetas.size() == this->rhsvec.size());
 }
 
-template <typename T, typename Index, typename RHSType, size_t PDim>
+template <typename T, typename Index, typename RHSType, typename ParamType>
 void
-AffineRhs<T, Index,RHSType,PDim>::
-set_param(std::array<T,PDim>& mu)
+AffineRhs<T,Index,RHSType,ParamType>::
+set_param(ParamType& mu)
 {
 	thetas.set_param(mu);
 }
 
 
-template <typename T, typename Index, typename RHSType, size_t PDim>
+template <typename T, typename Index, typename RHSType, typename ParamType>
 T
-AffineRhs<T, Index,RHSType,PDim>::
+AffineRhs<T,Index,RHSType,ParamType>::
 operator()(const Index &index)
 {
     T val = 0.;
@@ -31,9 +31,9 @@ operator()(const Index &index)
     return val;
 }
 
-template <typename T, typename Index, typename RHSType, size_t PDim>
+template <typename T, typename Index, typename RHSType, typename ParamType>
 Coefficients<Lexicographical,T,Index>
-AffineRhs<T, Index,RHSType,PDim>::
+AffineRhs<T,Index,RHSType,ParamType>::
 operator()(const IndexSet<Index> &indexset)
 {
     Coefficients<Lexicographical,T,Index> r;
