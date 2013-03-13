@@ -438,6 +438,11 @@ int main () {
 
     rb_base.train_Greedy();
 
+    rb_base.write_basisfunctions();
+    rb_base.write_rieszrepresentors();
+
+    rb_system.write_rb_data();
+
 
     return 0;
 }
