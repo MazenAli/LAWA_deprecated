@@ -54,6 +54,11 @@ public:
 		 Coefficients<Lexicographical,T,Index>& rightP,
 		 Coefficients<Lexicographical,T,Index>& leftP);
 
+	void
+	eval(size_t i,
+		 const Coefficients<Lexicographical,T,Index> &v,
+		 Coefficients<Lexicographical,T,Index> &Av);
+
 protected:
 
 	std::vector<LocalOperatorType*>& localops;

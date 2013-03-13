@@ -24,7 +24,9 @@ operator()(const Index &index)
 {
     T val = 0.;
 
-    for(size_t i = 0; i < thetas.size(); ++i){
+    for(auto& i : this->active_comp){
+
+    //for(size_t i = 0; i < thetas.size(); ++i){
     	val += thetas.eval(i) * (*(this->rhsvec)[i])(index);
     }
 
@@ -41,7 +43,8 @@ operator()(const IndexSet<Index> &indexset)
     T val;
     for(auto& index : indexset){
     	val = 0.;
-        for(size_t i = 0; i < thetas.size(); ++i){
+        for(auto& i : this->active_comp){
+        //for(size_t i = 0; i < thetas.size(); ++i){
         	val += thetas.eval(i) * (*(this->rhsvec)[i])(index);
         }
         r.insert(std::make_pair(index,val));

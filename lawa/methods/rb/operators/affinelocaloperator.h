@@ -25,6 +25,10 @@ public:
 	eval(const Coefficients<Lexicographical,T,Index> &v,
 		 Coefficients<Lexicographical,T,Index> &Av);
 
+	void
+	eval(size_t i, const Coefficients<Lexicographical,T,Index> &v,
+		 Coefficients<Lexicographical,T,Index> &Av, bool eval_mu = false);
+
 	template <typename Preconditioner>
 	void
 	eval(Coefficients<Lexicographical,T,Index> &v,

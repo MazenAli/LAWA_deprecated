@@ -17,6 +17,16 @@ eval(const Coefficients<Lexicographical,T,Index> &v,
 }
 
 template <typename Index, typename LocalOperatorType>
+void
+FlexibleCompoundLocalOperator<Index, LocalOperatorType>::
+eval(size_t i, const Coefficients<Lexicographical,T,Index> &v,
+	 Coefficients<Lexicographical,T,Index> &Av)
+{
+	assert(i < localops.size());
+	localops[i]->eval(v,Av);
+}
+
+template <typename Index, typename LocalOperatorType>
 template <typename Preconditioner>
 void
 FlexibleCompoundLocalOperator<Index, LocalOperatorType>::

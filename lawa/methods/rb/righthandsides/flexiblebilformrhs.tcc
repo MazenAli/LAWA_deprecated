@@ -59,7 +59,7 @@ FlexibleBilformRhs<Index,LocalOperatorType>::set_active_comp(int i)
 template <typename Index, typename LocalOperatorType>
 void
 FlexibleBilformRhs<Index,LocalOperatorType>::
-set_active_u(Coefficients<Lexicographical,T,Index>* _u)
+set_active_u(Coefficients<Lexicographical,T,Index> const* _u)
 {
 	active_u = _u;
 }

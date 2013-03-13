@@ -33,14 +33,14 @@ public:
 	set_active_comp(int i);
 
 	void
-	set_active_u(Coefficients<Lexicographical,T,Index>* _u);
+	set_active_u(Coefficients<Lexicographical,T,Index> const* _u);
 
 private:
 
-    std::vector<LocalOperatorType*>& 		bilformvec;
-    std::vector<int> 						active_comp;
+    std::vector<LocalOperatorType*>& 				bilformvec;
+    std::vector<int> 								active_comp;
 
-    Coefficients<Lexicographical,T,Index>* 	active_u;
+    Coefficients<Lexicographical,T,Index> const* 	active_u;
 
 	FlexibleBilformRhs(const FlexibleBilformRhs& rhs);
 };

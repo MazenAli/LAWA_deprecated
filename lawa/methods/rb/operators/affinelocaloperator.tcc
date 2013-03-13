@@ -30,6 +30,24 @@ AffineLocalOperator<Index,LocalOperatorType,ParamType>::eval(const Coefficients<
 }
 
 template <typename Index, typename LocalOperatorType, typename ParamType>
+void
+AffineLocalOperator<Index,LocalOperatorType,ParamType>::eval(size_t i, const Coefficients<Lexicographical,T,Index> &v,
+															Coefficients<Lexicographical,T,Index> &Av, bool eval_mu)
+{
+	assert(i < this->localops.size());
+
+	if(eval_mu){
+		Coefficients<Lexicographical,typename LocalOperatorType::T,Index> tmp(Av);
+		this->localops[i]->eval(v, tmp);
+		Av += thetas.eval(i) * tmp;
+	}
+	else{
+		this->localops[i]->eval(v, Av);
+	}
+
+}
+
+template <typename Index, typename LocalOperatorType, typename ParamType>
 template <typename Preconditioner>
 void
 AffineLocalOperator<Index,LocalOperatorType,ParamType>::eval(Coefficients<Lexicographical,T,Index> &v,
