@@ -66,6 +66,12 @@ public:
     T
     rhs_u(size_t i, const DataType& u);
 
+    const typename TruthSolver::TrialBasisType&
+    get_trialbasis();
+
+    const typename TruthSolver::TestBasisType&
+    get_testbasis();
+
 private:
 
 	TruthSolver& 	solver;

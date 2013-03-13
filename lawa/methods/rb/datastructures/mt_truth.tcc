@@ -147,4 +147,23 @@ rhs_u(size_t i, const DataType& u)
 	return val;
 }
 
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
+const typename TruthSolver::TrialBasisType&
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
+get_trialbasis()
+{
+	return solver.get_trialbasis();
+}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
+const typename TruthSolver::TestBasisType&
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
+get_testbasis()
+{
+	return solver.get_testbasis();
+
+}
+
 }

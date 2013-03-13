@@ -31,6 +31,15 @@ public:
 	void
 	train_Greedy();
 
+	void
+	write_basisfunctions(const std::string& directory_name = "offline_data/bf", int bf_nr = -1);
+
+	void
+	read_basisfunctions(const std::string& directory_name = "offline_data/bf");
+
+	void
+	write_rieszrepresentors(const std::string& directory_name = "offline_data/representors", int repr_nr = -1);
+
 	RB_Greedy_Parameters<ParamType> 	greedy_params;
 
 private:

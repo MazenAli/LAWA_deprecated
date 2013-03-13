@@ -162,4 +162,85 @@ alpha_LB(ParamType& mu)
     return alpha_lb;
 }
 
+template<typename T, typename ParamType>
+void
+RB_System<T,ParamType>::
+write_rb_data(const std::string& directory_name){
+
+	const unsigned int precision = 40;
+
+	// Make a directory to store all the data files
+	if( mkdir(directory_name.c_str(), 0777) == -1)
+	{
+		std::cerr << "In RBModel::write_RB_data, directory "
+                 << directory_name << " already exists, overwriting contents." << std::endl;
+	}
+
+	std::size_t n_bf = RB_inner_product.numRows();
+	std::stringstream n_bf_filename;
+	n_bf_filename << directory_name << "/n_bf.dat";
+	std::ofstream n_bf_file(n_bf_filename.str().c_str());
+	n_bf_file << n_bf << std::endl;
+	n_bf_file.close();
+
+	// Write RB_A_matrices
+	for(std::size_t i = 0; i < Q_a(); ++i){
+		std::stringstream filename;
+		filename << directory_name << "/RB_A_" << i+1 << ".dat";
+		std::ofstream file(filename.str().c_str());
+		file.precision(precision);
+		file << std::scientific << RB_A_matrices[i] << std::endl;
+		file.close();
+	}
+
+	// Write RB_F_vectors
+	for(std::size_t i = 0; i < Q_f(); ++i){
+		std::stringstream filename;
+		filename << directory_name << "/RB_F_" << i+1 << ".dat";
+		std::ofstream file(filename.str().c_str());
+		file.precision(precision);
+		file << std::scientific << RB_F_vectors[i] << std::endl;
+		file.close();
+	}
+
+	// Write RB_inner_product
+	std::stringstream filename;
+	filename << directory_name << "/RB_inner_product.dat";
+	std::ofstream file(filename.str().c_str());
+	file.precision(precision);
+	file << std::scientific << RB_inner_product << std::endl;
+	file.close();
+
+	// Write F_F_representor_norms
+	std::stringstream repr_F_filename;
+	repr_F_filename << directory_name << "/F_F_representor_norms.dat";
+	std::ofstream repr_F_file(repr_F_filename.str().c_str());
+	repr_F_file.precision(precision);
+	repr_F_file << std::scientific << F_F_representor_norms << std::endl;
+	repr_F_file.close();
+
+	// Write A_F_representor_norms
+	std::stringstream repr_A_F_filename;
+	repr_A_F_filename << directory_name << "/A_F_representor_norms.dat";
+	std::ofstream repr_A_F_file(repr_A_F_filename.str().c_str());
+	repr_A_F_file.precision(precision);
+	for(std::size_t i = 0; i < n_bf; ++i){
+		repr_A_F_file << std::scientific << A_F_representor_norms[i] << std::endl;
+	}
+	repr_A_F_file.close();
+
+ 	// Write A_A_representor_norms
+	std::stringstream repr_A_A_filename;
+	repr_A_A_filename << directory_name << "/A_A_representor_norms.dat";
+	std::ofstream repr_A_A_file(repr_A_A_filename.str().c_str());
+	repr_A_A_file.precision(precision);
+	for(std::size_t i = 0; i < n_bf; ++i){
+		for(std::size_t j = i; j < n_bf; ++j){
+			repr_A_A_file << std::scientific << A_A_representor_norms[i][j-i] << std::endl;
+		}
+	}
+	repr_A_A_file.close();
+
+}
+
 } // namespace lawa

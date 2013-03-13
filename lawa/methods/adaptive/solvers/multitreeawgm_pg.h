@@ -45,6 +45,8 @@ public:
 
     typedef LocalOperator 				LHSType;
     typedef RHS							RHSType;
+    typedef TrialBasis					TrialBasisType;
+    typedef TestBasis					TestBasisType;
 
     MultiTreeAWGM_PG(const TrialBasis &_trialbasis, const TestBasis& _testbasis,
     				LocalOperator &_Op, LocalOperatorTransp& _OpTransp, RHS &_F,
@@ -72,6 +74,12 @@ public:
 
     LocalOperator&
     get_lhs();
+
+    const TrialBasis&
+    get_trialbasis();
+
+    const TestBasis&
+    get_testbasis();
 
     void
     set_sol(sol_fct_2d _sol);

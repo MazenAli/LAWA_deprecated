@@ -198,7 +198,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 			}
 
 			if(std::sqrt(res_cg) <= cg_tol){
-                std::cerr << "       CGLS stopped with error " << sqrt(res_cg) << " after "
+                std::cerr << "       CG stopped with error " << sqrt(res_cg) << " after "
                 		  << cg_its << " iterations "<< std::endl;
                 awgm_info.cg_its.push_back(cg_its);
 				break;

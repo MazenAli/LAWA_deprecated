@@ -49,6 +49,9 @@ public:
 	std::size_t
 	Q_a();
 
+	void
+	write_rb_data(const std::string& directory_name = "offline_data");
+
 	RB_Parameters<ParamType> 					rb_params;
 
     ThetaStructure<ParamType>& 					thetas_a;
