@@ -99,7 +99,8 @@ struct Coefficients<Lexicographical,T,Index> : public __gnu_cxx::hash_map<Index,
     Rehash(size_t n) { this->resize(n); }
     #endif
 
-
+    typedef T 		ValueType;
+    typedef Index 	IndexType;
 
 
     Coefficients<Lexicographical,T,Index>&
