@@ -36,7 +36,9 @@ template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
 class MultiTreeAWGM2 {
 
-    typedef typename LocalOperator::T T;
+    typedef typename LocalOperator::T 	T;
+    typedef LocalOperator 			  	LHSType;
+    typedef RHS						 	RHSType;
 
     typedef T (*sol_fct_2d)(T,T);
 
@@ -70,6 +72,9 @@ public:
 
     RHS&
     get_rhs();
+
+    LocalOperator&
+    get_lhs();
 
     AWGM_Parameters						awgm_params;
     IS_Parameters						is_params;

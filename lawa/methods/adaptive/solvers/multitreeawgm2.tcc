@@ -54,6 +54,15 @@ get_rhs()
 
 template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
+LocalOperator&
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+get_lhs()
+{
+	return Op;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
 Coefficients<Lexicographical,typename LocalOperator::T,Index>
 MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
 solve()
@@ -248,15 +257,18 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
         if(res_norm <= awgm_params.tol){
             std::cerr << "AWGM target tolerance reached after " << awgm_its << " iterations: "
             		  << "Residual = " << res_norm << " "
-                      << ", awgm_tol = " << awgm_params.tol << std::endl;
+                      << ", awgm_tol = " << awgm_params.tol << std::endl << std::endl;
 
             if(awgm_params.print_info){
+            	if(awgm_params.verbose){
+                    std::cout << "=====>  Writing information to file " << std::endl << std::endl;
+            	}
             	awgm_info.print(awgm_params.info_filename.c_str());
             }
 
             if(awgm_params.plot_solution && flens::IsSame<Index,Index2D>::value){
             	if(awgm_params.verbose){
-                    std::cout << "=====>  Plotting solution to file " << std::endl;
+                    std::cout << "=====>  Plotting solution to file " << std::endl << std::endl;
             	}
                 plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
             }
@@ -333,17 +345,17 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 
     std::cerr << "AWGM reached maximal iteration number " << awgm_params.max_its << ": "
     		  << "Residual = " << res_norm << " "
-              << ", awgm_tol = " << awgm_params.tol << std::endl;
+              << ", awgm_tol = " << awgm_params.tol << std::endl << std::endl;
 
     if(awgm_params.print_info){
     	if(awgm_params.verbose){
-            std::cout << "=====>  Writing information to file " << std::endl;
+            std::cout << "=====>  Writing information to file " << std::endl << std::endl;
     	}
     	awgm_info.print(awgm_params.info_filename.c_str());
     }
     if(awgm_params.plot_solution && flens::IsSame<Index,Index2D>::value){
     	if(awgm_params.verbose){
-            std::cout << "=====>  Plotting solution to file " << std::endl;
+            std::cout << "=====>  Plotting solution to file " << std::endl << std::endl;
     	}
         plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
     }
