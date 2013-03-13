@@ -12,6 +12,7 @@
 #include <array>
 #include <vector>
 #include <lawa/methods/rb/datastructures/thetastructure.h>
+#include <lawa/methods/rb/datastructures/rb_parameters.h>
 
 
 namespace lawa {
@@ -20,44 +21,46 @@ namespace lawa {
  * 		This class contains all N-dependent data and functions needed
  * 		for the computation of a RB approximation.
  */
-template <typename T, size_t PDim>
+template <typename T, typename ParamType>
 class RB_System {
 
 public:
     typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
     typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
-	RB_System(ThetaStructure<T,PDim>& _thetas_a,
-			  ThetaStructure<T,PDim>& _thetas_f);
+	RB_System(ThetaStructure<ParamType>& _thetas_a,
+			  ThetaStructure<ParamType>& _thetas_f);
 
-    void
-    set_current_param(const std::array<T, PDim>& _param);
+	DenseVectorT
+	get_rb_solution(size_t N, ParamType& mu);
 
-    std::array<T, PDim>&
-    get_current_param();
+	T
+	get_errorbound(const DenseVectorT& u_N, ParamType& mu);
 
+	T
+	residual_dual_norm(const DenseVectorT& u_N, ParamType& mu);
 
-protected:
+	virtual T
+	alpha_LB(ParamType& mu);
 
-	std::array<T, PDim> current_param;
+	std::size_t
+	Q_f();
 
-	std::array<T, PDim> min_param;
-	std::array<T, PDim> max_param;
+	std::size_t
+	Q_a();
 
-    // Reference Parameter defining the inner product norm
-    // Needed for min-Theta approach
-    std::array<T, PDim>  ref_param;
+	RB_Parameters<ParamType> 					rb_params;
 
-    ThetaStructure<T,PDim>& thetas_a;
-    ThetaStructure<T,PDim>& thetas_f;
+    ThetaStructure<ParamType>& 					thetas_a;
+    ThetaStructure<ParamType>& 					thetas_f;
 
-    std::vector<FullColMatrixT>     RB_A_matrices;
-    std::vector<DenseVectorT>       RB_F_vectors;
-    FullColMatrixT  				RB_inner_product;
+    std::vector<FullColMatrixT>     			RB_A_matrices;
+    std::vector<DenseVectorT>       			RB_F_vectors;
+    FullColMatrixT  							RB_inner_product;
 
-    FullColMatrixT                               F_F_representor_norms; // Speicherbedarf kann verringert werden..
-    std::vector<FullColMatrixT>                  A_F_representor_norms;
-    std::vector<std::vector<FullColMatrixT> >    A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
+    FullColMatrixT                              F_F_representor_norms; // Speicherbedarf kann verringert werden..
+    std::vector<FullColMatrixT>                 A_F_representor_norms;
+    std::vector<std::vector<FullColMatrixT> >   A_A_representor_norms; //.. Ausnutzen der Symmetrie (Matrix als Vektor)
 
 };
 

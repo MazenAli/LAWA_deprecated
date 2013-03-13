@@ -17,17 +17,23 @@ namespace lawa {
  * 		Truth Model for a reduced basis construction
  * 		based on adaptive multitree awgm solvers.
  */
-template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A>
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u = typename RieszSolver_F::LHSType>
 class MT_Truth{
 
 	/*typedef typename MultiTreeAWGM_PG<Index2D,TrialBasis,TestBasis,LHS,LHS,RHS,TrialPrec,TestPrec> TruthSolver;
 	typedef typename MultiTreeAWGM2<Index2D,TestBasis,InnProd,RHS_F,TestPrec> 					   RieszSolver_F;
 	typedef typename MultiTreeAWGM2<Index2D,TestBasis,InnProd,RHS_A,TestPrec> 					   RieszSolver_A;
 	*/
+	typedef typename DataType::ValueType T;
 public:
+
 	MT_Truth(TruthSolver& _solver, RieszSolver_F& _riesz_solver_f, RieszSolver_A& _riesz_solver_a);
 
-    DataType
+	MT_Truth(TruthSolver& _solver, RieszSolver_F& _riesz_solver_f, RieszSolver_A& _riesz_solver_a,
+			 InnProd_Y_u_u& _innprod_Y_u_u_op);
+
+	DataType
     get_truth_solution(ParamType& mu);
 
     DataType
@@ -36,11 +42,26 @@ public:
     DataType
     get_riesz_representor_a(size_t i, DataType& u);
 
+    /* Inner Product in Test Space Y for functions
+     * u1,u2 in Trial Space
+     */
+    T
+    innprod_Y_u_u(const DataType& u1, const DataType& u2);
+
+    /* Inner Product in Test Space Y for functions
+     * v1,v2 in Test Space
+     *  (uses the LHS operator of RieszSolver_F)
+     */
+    T
+    innprod_Y_v_v(const DataType& v1, const DataType& v2);
+
 private:
 
 	TruthSolver& 	solver;
 	RieszSolver_F&	riesz_solver_f;
 	RieszSolver_A&	riesz_solver_a;
+
+	InnProd_Y_u_u&  innprod_Y_u_u_op;
 
 };
 

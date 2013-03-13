@@ -11,6 +11,7 @@
 #include <vector>
 #include <lawa/methods/rb/datastructures/rb_system.h>
 #include <lawa/methods/rb/datastructures/thetastructure.h>
+#include <lawa/methods/rb/datastructures/rb_parameters.h>
 
 namespace lawa {
 
@@ -18,17 +19,40 @@ namespace lawa {
  * 		General offline computations for the construction of
  * 		a reduced basis model.
  */
-template <typename RB_Model, typename TruthModel, typename DataType>
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 class RB_Base{
+
+	typedef typename DataType::ValueType 						T;
+	typedef typename RB_Greedy_Parameters<ParamType>::intArray 	intArrayType;
 
 public:
 	RB_Base(RB_Model& _rb_system, TruthModel& _rb_truth);
 
+	void
+	train_Greedy();
+
+	RB_Greedy_Parameters<ParamType> 	greedy_params;
+
 private:
+
+	void
+	add_to_basis(const DataType& u);
+
+	std::vector<ParamType>
+	generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb);
+
+	void
+	print_paramset(std::vector<ParamType>);
+
 	RB_Model& 		rb_system;
 	TruthModel& 	rb_truth;
 
-	std::vector<DataType> 	rb_basisfunctions;
+	std::vector<DataType> 				rb_basisfunctions;
+
+	std::vector<DataType>				F_representors;  // Dim: 1 x Q_f
+	std::vector<std::vector<DataType> > A_representors;  // Dim: n x Q_a
+
+	RB_Greedy_Information<ParamType>	greedy_info;
 
 };
 

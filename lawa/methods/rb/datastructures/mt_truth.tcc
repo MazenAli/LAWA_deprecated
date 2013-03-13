@@ -1,13 +1,24 @@
 namespace lawa {
 
-template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A>
-MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A>::
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u>
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u>::
 MT_Truth(TruthSolver& _solver, RieszSolver_F& _riesz_solver_f, RieszSolver_A& _riesz_solver_a)
- : solver(_solver), riesz_solver_f(_riesz_solver_f), riesz_solver_a(_riesz_solver_a){}
+ : solver(_solver), riesz_solver_f(_riesz_solver_f), riesz_solver_a(_riesz_solver_a),
+   innprod_Y_u_u_op(_riesz_solver_f.get_lhs())
+{}
 
-template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A>
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u>
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u>::
+MT_Truth(TruthSolver& _solver, RieszSolver_F& _riesz_solver_f, RieszSolver_A& _riesz_solver_a, InnProd_Y_u_u& _innprod_Y_u_u_op)
+ : solver(_solver), riesz_solver_f(_riesz_solver_f), riesz_solver_a(_riesz_solver_a), innprod_Y_u_u_op(_innprod_Y_u_u_op)
+{}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u>
 DataType
-MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A>::
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u>::
 get_truth_solution(ParamType& mu)
 {
 	solver.get_lhs().set_param(mu);
@@ -20,9 +31,10 @@ get_truth_solution(ParamType& mu)
 }
 
 
-template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A>
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u>
 DataType
-MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A>::
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u>::
 get_riesz_representor_f(size_t i)
 {
 	riesz_solver_f.get_rhs().set_active_comp(i);
@@ -33,9 +45,10 @@ get_riesz_representor_f(size_t i)
 	return r_f;
 }
 
-template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A>
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u>
 DataType
-MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A>::
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u>::
 get_riesz_representor_a(size_t i, DataType& u)
 {
 	riesz_solver_a.get_rhs().set_active_u(&u);
@@ -45,6 +58,44 @@ get_riesz_representor_a(size_t i, DataType& u)
 	riesz_solver_a.remove_preconditioner(r_a);
 
 	return r_a;
+}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u>
+typename DataType::ValueType
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u>::
+innprod_Y_u_u(const DataType& u1, const DataType& u2)
+{
+	DataType tmp = u1;
+	tmp.setToZero();
+
+	innprod_Y_u_u_op.eval(u2,tmp);
+
+	T val = 0;
+	for(auto& lambda : u1){
+		val += lambda.second * tmp[lambda.first];
+	}
+
+	return val;
+}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u>
+typename DataType::ValueType
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u>::
+innprod_Y_v_v(const DataType& v1, const DataType& v2)
+{
+	DataType tmp = v1;
+	tmp.setToZero();
+
+	riesz_solver_f.get_lhs().eval(v2,tmp);
+
+	T val = 0;
+	for(auto& lambda : v1){
+		val += lambda.second * tmp[lambda.first];
+	}
+
+	return val;
 }
 
 }
