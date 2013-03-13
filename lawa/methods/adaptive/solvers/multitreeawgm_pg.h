@@ -38,11 +38,13 @@ template <typename Index, typename TrialBasis, typename TestBasis,
 		  typename TrialPrec, typename TestPrec>
 class MultiTreeAWGM_PG {
 
-    typedef typename LocalOperator::T T;
-
+    typedef typename LocalOperator::T 	T;
     typedef T (*sol_fct_2d)(T,T);
 
 public:
+
+    typedef LocalOperator 				LHSType;
+    typedef RHS							RHSType;
 
     MultiTreeAWGM_PG(const TrialBasis &_trialbasis, const TestBasis& _testbasis,
     				LocalOperator &_Op, LocalOperatorTransp& _OpTransp, RHS &_F,
