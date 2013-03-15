@@ -103,6 +103,18 @@ AWGM_PG_Information::print(const char* filename)
 }
 
 void
+AWGM_PG_Information::reset()
+{
+	awgm_res.clear();
+	awgm_resNE.clear();
+	sizeLambdaTrial.clear();
+	sizeLambdaTest.clear();
+	sizeLambdaResNE.clear();
+	sizeLambdaRes.clear();
+	cgls_its.clear();
+}
+
+void
 AWGM_Information::print(const char* filename)
 {
     std::ofstream infofile(filename);
@@ -117,6 +129,15 @@ AWGM_Information::print(const char* filename)
     else{
     	std::cerr << "Error opening file " << filename << " for writing! " << std::endl;
     }
+}
+
+void
+AWGM_Information::reset()
+{
+	awgm_res.clear();
+	sizeLambda.clear();
+	sizeLambdaRes.clear();
+	cg_its.clear();
 }
 
 

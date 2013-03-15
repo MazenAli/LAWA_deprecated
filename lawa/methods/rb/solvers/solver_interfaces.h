@@ -10,8 +10,15 @@
 
 namespace lawa {
 
-template<typename DataType, typename LHS, typename RHS>
+template<typename DataType, typename LHS, typename RHS,
+typename TrialBasis, typename TestBasis, typename Params>
 struct GeneralSolverInterface {
+
+    typedef LHS 						LHSType;
+    typedef RHS							RHSType;
+    typedef TrialBasis					TrialBasisType;
+    typedef TestBasis					TestBasisType;
+    typedef Params						ParamType;
 
 	/* Returns a solution vector u
 	 * 	(as usual still with preconditioner)
@@ -34,6 +41,13 @@ struct GeneralSolverInterface {
 	RHS&
 	get_rhs() = 0;
 
+    const TrialBasis&
+    get_trialbasis();
+
+    const TestBasis&
+    get_testbasis();
+
+    Params	params;
 };
 
 } // namespace lawa

@@ -72,6 +72,9 @@ public:
     const typename TruthSolver::TestBasisType&
     get_testbasis();
 
+    TruthSolver&
+    access_solver();
+
 private:
 
 	TruthSolver& 	solver;

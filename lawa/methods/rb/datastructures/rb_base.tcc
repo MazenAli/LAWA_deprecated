@@ -108,6 +108,11 @@ train_Greedy()
 		    std::cout << "||=====================================================================||" << std::endl << std::endl;
 		}
 
+		if(rb_truth.access_solver().access_params().print_info){
+			std::stringstream filename;
+			filename << greedy_params.print_file << "_bf" << N+1 << ".txt";
+			rb_truth.access_solver().access_params().info_filename = filename.str();
+		}
 		DataType u = rb_truth.get_truth_solution(current_param);
 		add_to_basis(u);
 		N++;

@@ -47,6 +47,7 @@ public:
     typedef RHS							RHSType;
     typedef TrialBasis					TrialBasisType;
     typedef TestBasis					TestBasisType;
+    typedef AWGM_PG_Parameters			ParamType;
 
     MultiTreeAWGM_PG(const TrialBasis &_trialbasis, const TestBasis& _testbasis,
     				LocalOperator &_Op, LocalOperatorTransp& _OpTransp, RHS &_F,
@@ -89,6 +90,12 @@ public:
 
     void
     remove_preconditioner(Coefficients<Lexicographical,T,Index> &u);
+
+    ParamType&
+    access_params();
+
+    void
+    reset_info();
 
     AWGM_PG_Parameters						awgm_params;
     IS_Parameters							is_params;

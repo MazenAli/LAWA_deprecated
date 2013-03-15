@@ -463,4 +463,24 @@ set_sol(sol_fct_2d _sol)
 	exact_sol = _sol;
 }
 
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
+AWGM_PG_Parameters&
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+access_params()
+{
+	return awgm_params;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
+void
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+reset_info()
+{
+	return awgm_info.reset();
+}
+
 } // namespace lawa

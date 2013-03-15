@@ -370,4 +370,23 @@ set_sol(sol_fct_2d _sol)
 	exact_sol = _sol;
 }
 
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+AWGM_Parameters&
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+access_params()
+{
+	return awgm_params;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+void
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+reset_info()
+{
+	return awgm_info.reset();
+}
+
+
 } // namespace lawa

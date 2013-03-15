@@ -26,6 +26,7 @@ get_truth_solution(ParamType& mu)
 	solver.get_lhs().set_param(mu);
 	solver.get_rhs().set_param(mu);
 
+	solver.reset_info();
     DataType u = solver.solve();
     solver.remove_preconditioner(u);
 
@@ -164,6 +165,15 @@ get_testbasis()
 {
 	return solver.get_testbasis();
 
+}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
+TruthSolver&
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
+access_solver()
+{
+	return solver;
 }
 
 }
