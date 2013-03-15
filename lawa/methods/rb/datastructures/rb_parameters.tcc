@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <array>
 
 namespace lawa {
 
@@ -17,11 +18,16 @@ ParamInfo<std::array<T,N> >::print(std::array<T,N> mu)
 template<typename ParamType>
 RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(double _tol, size_t _Nmax,
 		ParamType _min_param, ParamType _max_param,
-		intArray _training_params_per_dim, bool _print_info, bool _verbose,
-		bool _print_paramset)
+		intArray _training_params_per_dim, bool _print_info,
+		std::string _print_file, bool _verbose,
+		bool _write_during_training, std::string _trainingdata_folder,
+		bool _print_paramset, bool _erase_snapshot_params)
  : tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
-   verbose(_verbose), print_paramset(_print_paramset)
+   print_file(_print_file), verbose(_verbose),
+   write_during_training(_write_during_training), trainingdata_folder(_trainingdata_folder),
+   print_paramset(_print_paramset),
+   erase_snapshot_params(_erase_snapshot_params)
 {}
 
 template<typename ParamType>
@@ -47,8 +53,11 @@ RB_Greedy_Parameters<ParamType>::print()
 		}
 		std::cout << std::left << " ]" << std::endl;
 	std::cout << std::left << std::setw(24) << "# print_info:" << std::setw(20) <<  (print_info?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# print in folder:" << std::setw(20) <<  trainingdata_folder << std::endl;
 	std::cout << std::left << std::setw(24) << "# verbose:" << std::setw(20) <<  (verbose?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# write during training:" << std::setw(20) <<  (write_during_training?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(24) << "# print_paramset:" << std::setw(20) <<  (print_paramset?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# erase snapshot params:" << std::setw(20) <<  (erase_snapshot_params?"true":"false") << std::endl;
 	std::cout << "###############################################" << std::endl << std::endl;
 
 }
@@ -60,12 +69,24 @@ RB_Greedy_Information<ParamType>::RB_Greedy_Information::print(const char* filen
 	size_t pdim = ParamInfo<ParamType>::dim;
     std::ofstream infofile(filename);
     if(infofile.is_open()){
-    	infofile << "# N Error Mu" << std::endl;
+    	infofile << "# N Error Mu Size(u) Size(ReprF_qf) ... Size(Repr_A_bf_qa)" << std::endl;
     	for(size_t i=0; i < greedy_errors.size(); ++i){
+    		// Write Error
     		infofile << i << " " << greedy_errors[i] << " ";
+    		// Write Parameter
     		for(size_t d = 0; d < pdim; ++d){
     			infofile << snapshot_params[i][d] << " ";
     		}
+    		// Write Size of Solution
+    		infofile << u_size[i] << " ";
+    		// Write Size of Riesz Reprs of F
+    		for(auto& el : repr_f_size){
+    			infofile << el << " ";
+    		}
+    		// Write Size of Riesz Reprs of A
+			for(auto& el : repr_a_size[i]){
+				infofile << el << " ";
+			}
     		infofile << std::endl;
     	}
         infofile.close();

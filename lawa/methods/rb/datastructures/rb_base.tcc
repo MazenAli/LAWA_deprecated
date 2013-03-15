@@ -1,9 +1,19 @@
+#include <algorithm>
+
 namespace lawa {
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::RB_Base(RB_Model& _rb_system, TruthModel& _rb_truth)
  : rb_system(_rb_system), rb_truth(_rb_truth)
 {}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+std::size_t
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+n_bf()
+{
+	return rb_basisfunctions.size();
+}
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
@@ -31,9 +41,13 @@ train_Greedy()
 	// we have to calculate the Riesz Representors for F
 	calculate_Riesz_RHS_information();
 
+	for(auto& el : F_representors){
+		greedy_info.repr_f_size.push_back(el.size());
+	}
+
 	ParamType current_param;
-	T max_error = 0;
 	size_t N = 0;
+	T max_error = 0;
 	do {
 
 		if(greedy_params.verbose){
@@ -43,11 +57,14 @@ train_Greedy()
 		}
 
 		T error_est;
+		max_error = 0;
 		for(auto& mu : Xi_train){
             typename RB_Model::DenseVectorT u_N = rb_system.get_rb_solution(N, mu);
+
             error_est = rb_system.get_errorbound(u_N,mu);
 
             if(greedy_params.verbose){
+            	std::cout << "    u_N = " << u_N;
             	std::cout << "    Mu = ";
             	ParamInfo<ParamType>::print(mu);
             	std::cout << " : Error = " << std::scientific << std::setw(15) << error_est << std::endl;
@@ -61,6 +78,25 @@ train_Greedy()
 
 		greedy_info.greedy_errors.push_back(max_error);
 		greedy_info.snapshot_params.push_back(current_param);
+
+		// Remove parameter from indexset
+		if(greedy_params.erase_snapshot_params){
+			for(auto& mu : Xi_train){
+				bool is_current_param = true;
+				for(std::size_t i = 0; i < mu.size(); ++i){
+					if(mu[i]!=current_param[i]){
+						is_current_param = false;
+						break;
+					}
+				}
+				if(is_current_param){
+					auto mu_it = std::find(Xi_train.begin(), Xi_train.end(), mu);
+					Xi_train.erase(mu_it);
+					break;
+				}
+			}
+		}
+
 
 		if(greedy_params.verbose){
 			std::cout << std::endl << "Greedy Error = " << std::scientific << max_error << std::endl << std::endl;
@@ -76,7 +112,67 @@ train_Greedy()
 		add_to_basis(u);
 		N++;
 
+		greedy_info.u_size.push_back(u.size());
+		std::vector<std::size_t> a_sizes;
+		for(auto& el : A_representors[n_bf()-1]){
+			a_sizes.push_back(el.size());
+		}
+		greedy_info.repr_a_size.push_back(a_sizes);
+
+		if(greedy_params.write_during_training){
+
+			if(greedy_params.verbose){
+				std::cout << "=====>  Writing RB Greedy Training information to file " << std::endl << std::endl;
+			}
+			if(mkdir(greedy_params.trainingdata_folder.c_str(), 0777) == -1)
+			{
+				if(greedy_params.verbose){
+					  std::cerr << "         [In RB_Base::train_Greedy: Directory "
+							    << greedy_params.trainingdata_folder << " already exists, overwriting contents.]" << std::endl;
+				}
+			}
+
+			// Write Basis Functions
+			std::string bf_folder = greedy_params.trainingdata_folder + "/bf";
+            bf_folder = bf_folder + "/bf";
+			write_basisfunctions(bf_folder, N);
+
+			// Write Riesz Representors
+			std::string repr_folder = greedy_params.trainingdata_folder + "/representors";
+			write_rieszrepresentors(repr_folder);
+			if(N == 1){
+				write_rieszrepresentors(repr_folder);
+			}
+
+			// Write RB Data
+			rb_system.write_rb_data(greedy_params.trainingdata_folder);
+
+			// Write Training Information
+			greedy_info.print(greedy_params.print_file.c_str());
+		}
+
 	} while( (N < greedy_params.Nmax) && (max_error > greedy_params.tol) );
+
+	if(greedy_params.print_info){
+		greedy_info.print();
+	}
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+DataType
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N)
+{
+	assert(N <= n_bf());
+	assert(u.length() > 0);
+	assert(u.length() >= (int)N);
+
+	DataType u_full;
+	for (unsigned int i = 1; i <= N; ++i) {
+		u_full +=  u(i) * rb_basisfunctions[i-1];
+	}
+
+	return u_full;
 }
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
@@ -437,35 +533,41 @@ update_Riesz_LHS_information(const DataType& bf)
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-write_basisfunctions(const std::string& directory_name, int bf_nr){
+write_basisfunctions(const std::string& directory_name, int nb){
+
+	if(rb_system.rb_params.verbose){
+		std::cout << "=====>  Writing RB BasisFunctions to file " << std::endl << std::endl;
+	}
 
 	// Make a directory to store all the data files
 	if(mkdir(directory_name.c_str(), 0777) == -1)
 	{
-		std::cerr << strerror(errno) << std::endl;
-		std::cerr << "In RBModel::write_basis_functions, directory "
-	              << directory_name << " already exists, overwriting contents." << std::endl;
+		if(rb_system.rb_params.verbose){
+			  std::cerr << "         [In RB_Base::write_basisfunctions: Directory "
+					    << directory_name << " already exists, overwriting contents.]" << std::endl;
+		}
 	}
 
-	std::stringstream n_bf_filename;
-	n_bf_filename << directory_name << "/n_bf.dat";
-	std::ofstream n_bf_file(n_bf_filename.str().c_str());
+	std::string n_bf_filename = directory_name + "/n_bf.txt";
+	std::ofstream n_bf_file(n_bf_filename.c_str());
 	n_bf_file <<  rb_basisfunctions.size() << std::endl;
 	n_bf_file.close();
 
-	if(bf_nr < 1){
+	if(nb < 0){
 		for(std::size_t i = 0; i < rb_basisfunctions.size(); ++i){
-	    std::stringstream filename;
-	    filename << directory_name << "/bf_" << i+1 << ".dat";
-	    saveCoeffVector2D(rb_basisfunctions[i], rb_truth.get_trialbasis(), filename.str().c_str());
-	  }
+		    std::stringstream filename;
+		    filename << directory_name << "/bf_" << i+1 << ".txt";
+		    saveCoeffVector2D(rb_basisfunctions[i], rb_truth.get_trialbasis(), filename.str().c_str());
+		}
 	}
 	else{
-		std::cout << "Write Basis fct nr " << bf_nr << std::endl;
+		assert((size_t)nb < rb_basisfunctions.size());
 	    std::stringstream filename;
-	    filename << directory_name << "/bf_" << bf_nr << ".dat";
-	    saveCoeffVector2D(rb_basisfunctions[bf_nr-1], rb_truth.get_trialbasis(), filename.str().c_str());
+	    filename << directory_name << "/bf_" << nb+1 << ".txt";
+	    saveCoeffVector2D(rb_basisfunctions[nb], rb_truth.get_trialbasis(), filename.str().c_str());
 	}
+
+
 }
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
@@ -474,73 +576,73 @@ RB_Base<RB_Model,TruthModel, DataType, ParamType>::
 read_basisfunctions(const std::string& directory_name){
 
 	unsigned int n_bf;
-	std::stringstream n_bf_filename;
-	n_bf_filename << directory_name << "/n_bf.dat";
+	std::string n_bf_filename = directory_name + "/n_bf.txt";
 
-	std::ifstream n_bf_file(n_bf_filename.str().c_str());
+	std::ifstream n_bf_file(n_bf_filename.c_str());
 	if(n_bf_file.is_open()){
 		n_bf_file >> n_bf;
 		n_bf_file.close();
 	}
 	else{
-		std::cerr << "Unable to read number of basis functions! " << std::endl;
+		std::cerr << "Unable to read number of basis functions: " << strerror(errno) << std::endl;
 		exit(1);
 	}
 
 	rb_basisfunctions.clear();
 	for(unsigned int i = 1; i <= n_bf; ++i){
 		std::stringstream filename;
-		filename << directory_name << "/bf_" << i << ".dat";
+		filename << directory_name << "/bf_" << i << ".txt";
+
 		DataType bf_coeffs;
 		readCoeffVector2D(bf_coeffs, filename.str().c_str(),false);
 		rb_basisfunctions.push_back(bf_coeffs);
-		std::cout << " Read " << filename.str() << std::endl;
+
+		if(rb_system.rb_params.verbose){
+			std::cout << " Read " << filename.str() << std::endl;
+		}
 	}
 }
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-write_rieszrepresentors(const std::string& directory_name, int repr_nr)
+write_rieszrepresentors(const std::string& directory_name, int nb)
 {
 	// Make a directory to store all the data files
-	if((mkdir(directory_name.c_str(), 0777) == -1)&& (repr_nr < 1))
+	if(mkdir(directory_name.c_str(), 0777) == -1)
 	{
-		std::cerr << "In RBModel::write_RB_data, directory "
-                 << directory_name << " already exists, overwriting contents." << std::endl;
+		if(rb_system.rb_params.verbose){
+			  std::cerr << "         [In RB_Base::write_rieszrepresentors: Directory "
+					    << directory_name << " already exists, overwriting contents.]" << std::endl;
+		}
 	}
 
-	if(repr_nr < 1){
+	if(nb <= 0){
 		for(std::size_t i = 0; i < rb_system.Q_f(); ++i){
 			std::stringstream filename;
-			filename << directory_name << "/F_representor_" << i+1 << ".dat";
+			filename << directory_name << "/F_representor_" << i+1 << ".txt";
 			saveCoeffVector2D(F_representors[i], rb_truth.get_testbasis(), filename.str().c_str());
 		}
-
-		for(std::size_t n = 0; n < rb_basisfunctions.size(); ++n){
-			for(std::size_t i = 0; i < rb_system.Q_a(); ++i){
-				std::stringstream filename;
-				filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".dat";
-				saveCoeffVector2D(A_representors[n][i], rb_truth.get_testbasis(), filename.str().c_str());
+		if(nb < 0){
+			for(std::size_t n = 0; n < rb_basisfunctions.size(); ++n){
+				for(std::size_t i = 0; i < rb_system.Q_a(); ++i){
+					std::stringstream filename;
+					filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".txt";
+					saveCoeffVector2D(A_representors[n][i], rb_truth.get_testbasis(), filename.str().c_str());
+				}
 			}
 		}
 	}
 	else{
-		if(repr_nr == 0){
-			for(unsigned int i = 0; i < rb_system.Q_f(); ++i){
-				std::stringstream filename;
-				filename << directory_name << "/F_representor_" << i+1 << ".dat";
-				saveCoeffVector2D(F_representors[i], rb_truth.get_testbasis(), filename.str().c_str());
-			}
-		}
-		else{
-			for(unsigned int i = 0; i < rb_system.Q_a(); ++i){
-				std::stringstream filename;
-				filename << directory_name << "/A_representor_" << i+1 << "_" << repr_nr << ".dat";
-				saveCoeffVector2D(A_representors[repr_nr-1][i], rb_truth.get_testbasis(), filename.str().c_str());
-			}
+		assert((size_t)nb < rb_basisfunctions.size());
+
+		for(std::size_t i = 0; i < rb_system.Q_a(); ++i){
+			std::stringstream filename;
+			filename << directory_name << "/A_representor_" << i+1 << "_" << nb+1 << ".txt";
+			saveCoeffVector2D(A_representors[nb][i], rb_truth.get_testbasis(), filename.str().c_str());
 		}
 	}
+
 }
 
 } // namespace lawa

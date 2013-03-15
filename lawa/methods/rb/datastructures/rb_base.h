@@ -28,17 +28,23 @@ class RB_Base{
 public:
 	RB_Base(RB_Model& _rb_system, TruthModel& _rb_truth);
 
+	std::size_t
+	n_bf();
+
 	void
 	train_Greedy();
 
+    DataType
+    reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N);
+
 	void
-	write_basisfunctions(const std::string& directory_name = "offline_data/bf", int bf_nr = -1);
+	write_basisfunctions(const std::string& directory_name = "offline_data/bf", int nb = -1);
 
 	void
 	read_basisfunctions(const std::string& directory_name = "offline_data/bf");
 
 	void
-	write_rieszrepresentors(const std::string& directory_name = "offline_data/representors", int repr_nr = -1);
+	write_rieszrepresentors(const std::string& directory_name = "offline_data/representors", int nb = -1);
 
 	RB_Greedy_Parameters<ParamType> 	greedy_params;
 

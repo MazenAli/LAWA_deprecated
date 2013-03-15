@@ -34,7 +34,7 @@ public:
 	DenseVectorT
 	get_rb_solution(size_t N, ParamType& mu);
 
-	T
+	virtual T
 	get_errorbound(const DenseVectorT& u_N, ParamType& mu);
 
 	T
@@ -51,6 +51,9 @@ public:
 
 	void
 	write_rb_data(const std::string& directory_name = "offline_data");
+
+	void
+	read_rb_data(const std::string& directory_name = "offline_data");
 
 	RB_Parameters<ParamType> 					rb_params;
 

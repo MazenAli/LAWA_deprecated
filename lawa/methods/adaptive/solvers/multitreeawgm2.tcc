@@ -261,14 +261,14 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 
             if(awgm_params.print_info){
             	if(awgm_params.verbose){
-                    std::cout << "=====>  Writing information to file " << std::endl << std::endl;
+                    std::cout << "=====>  Writing AWGM CG information to file " << std::endl << std::endl;
             	}
             	awgm_info.print(awgm_params.info_filename.c_str());
             }
 
             if(awgm_params.plot_solution && flens::IsSame<Index,Index2D>::value){
             	if(awgm_params.verbose){
-                    std::cout << "=====>  Plotting solution to file " << std::endl << std::endl;
+                    std::cout << "=====>  Plotting AWGM CG solution to file " << std::endl << std::endl;
             	}
                 plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
             }
@@ -349,13 +349,13 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 
     if(awgm_params.print_info){
     	if(awgm_params.verbose){
-            std::cout << "=====>  Writing information to file " << std::endl << std::endl;
+            std::cout << "=====>  Writing AWGM CG information to file " << std::endl << std::endl;
     	}
     	awgm_info.print(awgm_params.info_filename.c_str());
     }
     if(awgm_params.plot_solution && flens::IsSame<Index,Index2D>::value){
     	if(awgm_params.verbose){
-            std::cout << "=====>  Plotting solution to file " << std::endl << std::endl;
+            std::cout << "=====>  Plotting AWGM CG solution to file " << std::endl << std::endl;
     	}
         plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
     }
