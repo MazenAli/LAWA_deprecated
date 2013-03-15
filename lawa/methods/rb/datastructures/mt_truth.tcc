@@ -38,7 +38,7 @@ template <typename DataType, typename ParamType, typename TruthSolver, typename 
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
 DataType
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
-get_riesz_representor_f(size_t i)
+get_riesz_representor_f(std::size_t i)
 {
 	riesz_solver_f.get_rhs().set_active_comp(i);
 
@@ -52,7 +52,7 @@ template <typename DataType, typename ParamType, typename TruthSolver, typename 
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
 DataType
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
-get_riesz_representor_a(size_t i, const DataType& u)
+get_riesz_representor_a(std::size_t i, const DataType& u)
 {
 	riesz_solver_a.get_rhs().set_active_u(&u);
 	riesz_solver_a.get_rhs().set_active_comp(i);
@@ -105,7 +105,7 @@ template <typename DataType, typename ParamType, typename TruthSolver, typename 
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
 typename DataType::ValueType
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
-lhs_u_u(size_t i, const DataType& v, const DataType& u)
+lhs_u_u(std::size_t i, const DataType& v, const DataType& u)
 {
 	DataType tmp = v;
 	tmp.setToZero();
@@ -124,7 +124,7 @@ template <typename DataType, typename ParamType, typename TruthSolver, typename 
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
 typename DataType::ValueType
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
-rhs_u(size_t i, const DataType& u)
+rhs_u(std::size_t i, const DataType& u)
 {
 	F_u_ops.set_active_comp(i);
 

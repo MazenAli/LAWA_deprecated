@@ -39,10 +39,10 @@ public:
     get_truth_solution(ParamType& mu);
 
     DataType
-    get_riesz_representor_f(size_t i);
+    get_riesz_representor_f(std::size_t i);
 
     DataType
-    get_riesz_representor_a(size_t i, const DataType& u);
+    get_riesz_representor_a(std::size_t i, const DataType& u);
 
     /* Inner Product in Test Space Y for functions
      * u1,u2 in Trial Space
@@ -61,10 +61,10 @@ public:
      * 		but here both in Trialspace)
      */
     T
-    lhs_u_u(size_t i, const DataType& v, const DataType& u);
+    lhs_u_u(std::size_t i, const DataType& v, const DataType& u);
 
     T
-    rhs_u(size_t i, const DataType& u);
+    rhs_u(std::size_t i, const DataType& u);
 
     const typename TruthSolver::TrialBasisType&
     get_trialbasis();

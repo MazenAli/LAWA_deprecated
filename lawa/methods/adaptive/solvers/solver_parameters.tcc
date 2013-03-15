@@ -89,7 +89,7 @@ AWGM_PG_Information::print(const char* filename)
     std::ofstream infofile(filename);
     if(infofile.is_open()){
     	infofile << "# It Res Res_NE SizeTrial SizeTest SizeTestResNE SizeTestRes CGLS_Its" << std::endl;
-    	for(size_t i=0; i < awgm_res.size(); ++i){
+    	for(std::size_t i=0; i < awgm_res.size(); ++i){
     		infofile << i << " " << awgm_res[i] << " " << awgm_resNE[i] << " "
     				<< sizeLambdaTrial[i] << " " << sizeLambdaTest[i] << " "
     				<< sizeLambdaResNE[i] << " " << sizeLambdaRes[i] << " "
@@ -120,7 +120,7 @@ AWGM_Information::print(const char* filename)
     std::ofstream infofile(filename);
     if(infofile.is_open()){
     	infofile << "# It Res SizeLambda SizeTestRes CG_Its" << std::endl;
-    	for(size_t i=0; i < awgm_res.size(); ++i){
+    	for(std::size_t i=0; i < awgm_res.size(); ++i){
     		infofile << i << " " << awgm_res[i] << " " << sizeLambda[i] << " "
     		        << sizeLambdaRes[i] << " " << cg_its[i] << std::endl;
     	}

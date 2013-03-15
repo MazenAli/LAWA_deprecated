@@ -1,3 +1,8 @@
+#include <cfloat>
+#include <cassert>
+#include <iomanip>
+#include <sys/stat.h>
+
 namespace lawa {
 
 template<typename T, typename ParamType>
@@ -23,7 +28,7 @@ RB_System<T,ParamType>::Q_a()
 template<typename T, typename ParamType>
 flens::DenseVector<flens::Array<T> >
 RB_System<T,ParamType>::
-get_rb_solution(size_t N, ParamType& mu)
+get_rb_solution(std::size_t N, ParamType& mu)
 {
 	if(N==0){
 		return DenseVectorT(0);
@@ -35,7 +40,7 @@ get_rb_solution(size_t N, ParamType& mu)
 
 	FullColMatrixT A(N, N);
 
-	for (size_t i = 0; i < thetas_a.size(); ++i) {
+	for (std::size_t i = 0; i < thetas_a.size(); ++i) {
 		//A += thetas_a.eval(i,mu) * RB_A_matrices[i](_(1,N), _(1,N));
 		flens::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,N), _(1,N)), A);
 	}
@@ -94,20 +99,20 @@ residual_dual_norm(const DenseVectorT& u_N, ParamType& mu)
 
     int N = u_N.length();
 
-    size_t Qf = thetas_f.size();
-    size_t Qa = thetas_a.size();
+    std::size_t Qf = thetas_f.size();
+    std::size_t Qa = thetas_a.size();
 
 	assert(F_F_representor_norms.numRows() >= (int)Qf);
-	assert(A_F_representor_norms.size() >= (size_t)N);
-	assert(A_A_representor_norms.size() >= (size_t)N);
+	assert(A_F_representor_norms.size() >= (std::size_t)N);
+	assert(A_A_representor_norms.size() >= (std::size_t)N);
 
 
     DenseVectorT ThetaF(Qf);
     DenseVectorT ThetaA(Qa);
-    for (size_t i = 1; i <= Qf; ++i) {
+    for (std::size_t i = 1; i <= Qf; ++i) {
         ThetaF(i) = thetas_f.eval(i-1,mu);
     }
-    for (size_t i = 1; i <= Qa; ++i) {
+    for (std::size_t i = 1; i <= Qa; ++i) {
         ThetaA(i) = thetas_a.eval(i-1,mu);
     }
 
@@ -155,7 +160,7 @@ RB_System<T,ParamType>::
 alpha_LB(ParamType& mu)
 {
     T alpha_lb = DBL_MAX;
-    for(size_t qa = 0; qa < thetas_a.size(); ++qa){
+    for(std::size_t qa = 0; qa < thetas_a.size(); ++qa){
         T reftheta = thetas_a.eval(qa, rb_params.ref_param);
         T mutheta = thetas_a.eval(qa, mu);
         if ((mutheta / reftheta) < alpha_lb) {
@@ -172,7 +177,7 @@ void
 RB_System<T,ParamType>::
 write_rb_data(const std::string& directory_name){
 
-	const unsigned int precision = 40;
+	const unsigned int highprecision = 40;
 
 	// Make a directory to store all the data files
 	if(mkdir(directory_name.c_str(), 0777) == -1)
@@ -194,7 +199,7 @@ write_rb_data(const std::string& directory_name){
 		std::stringstream filename;
 		filename << directory_name << "/RB_A_" << i+1 << ".txt";
 		std::ofstream file(filename.str().c_str());
-		file.precision(precision);
+		file.precision(highprecision);
 		file << std::scientific << RB_A_matrices[i] << std::endl;
 		file.close();
 	}
@@ -204,7 +209,7 @@ write_rb_data(const std::string& directory_name){
 		std::stringstream filename;
 		filename << directory_name << "/RB_F_" << i+1 << ".txt";
 		std::ofstream file(filename.str().c_str());
-		file.precision(precision);
+		file.precision(highprecision);
 		file << std::scientific << RB_F_vectors[i] << std::endl;
 		file.close();
 	}
@@ -213,7 +218,7 @@ write_rb_data(const std::string& directory_name){
 	std::stringstream filename;
 	filename << directory_name << "/RB_inner_product.txt";
 	std::ofstream file(filename.str().c_str());
-	file.precision(precision);
+	file.precision(highprecision);
 	file << std::scientific << RB_inner_product << std::endl;
 	file.close();
 
@@ -221,7 +226,7 @@ write_rb_data(const std::string& directory_name){
 	std::stringstream repr_F_filename;
 	repr_F_filename << directory_name << "/F_F_representor_norms.txt";
 	std::ofstream repr_F_file(repr_F_filename.str().c_str());
-	repr_F_file.precision(precision);
+	repr_F_file.precision(highprecision);
 	repr_F_file << std::scientific << F_F_representor_norms << std::endl;
 	repr_F_file.close();
 
@@ -229,7 +234,7 @@ write_rb_data(const std::string& directory_name){
 	std::stringstream repr_A_F_filename;
 	repr_A_F_filename << directory_name << "/A_F_representor_norms.txt";
 	std::ofstream repr_A_F_file(repr_A_F_filename.str().c_str());
-	repr_A_F_file.precision(precision);
+	repr_A_F_file.precision(highprecision);
 	for(std::size_t i = 0; i < n_bf; ++i){
 		repr_A_F_file << std::scientific << A_F_representor_norms[i] << std::endl;
 	}
@@ -239,7 +244,7 @@ write_rb_data(const std::string& directory_name){
 	std::stringstream repr_A_A_filename;
 	repr_A_A_filename << directory_name << "/A_A_representor_norms.txt";
 	std::ofstream repr_A_A_file(repr_A_A_filename.str().c_str());
-	repr_A_A_file.precision(precision);
+	repr_A_A_file.precision(highprecision);
 	for(std::size_t i = 0; i < n_bf; ++i){
 		for(std::size_t j = i; j < n_bf; ++j){
 			repr_A_A_file << std::scientific << A_A_representor_norms[i][j-i] << std::endl;

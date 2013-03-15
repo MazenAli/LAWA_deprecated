@@ -32,7 +32,7 @@ public:
 			  ThetaStructure<ParamType>& _thetas_f);
 
 	DenseVectorT
-	get_rb_solution(size_t N, ParamType& mu);
+	get_rb_solution(std::size_t N, ParamType& mu);
 
 	virtual T
 	get_errorbound(const DenseVectorT& u_N, ParamType& mu);

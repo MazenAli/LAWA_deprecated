@@ -124,7 +124,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
     //---------------------------------------//
     //------- AWGM Iterations ---------------//
     //---------------------------------------//
-    for(size_t awgm_its = 0; awgm_its <= awgm_params.max_its; ++awgm_its){
+    for(std::size_t awgm_its = 0; awgm_its <= awgm_params.max_its; ++awgm_its){
 
     	if (Lambda.size()>awgm_params.max_basissize){
     		break;
@@ -181,7 +181,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 		res_cg_prev = r*r;
 
 		// CG Iterations
-		for(size_t cg_its=0; cg_its <= is_params.max_its; ++cg_its){
+		for(std::size_t cg_its=0; cg_its <= is_params.max_its; ++cg_its){
 
 			Ap.setToZero();						// Ap = A*p
 			Op.eval(p,Ap,Prec);

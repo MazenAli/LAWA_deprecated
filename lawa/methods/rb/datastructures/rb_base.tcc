@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <iomanip>
+#include <sys/stat.h>
 
 namespace lawa {
 
@@ -46,7 +48,7 @@ train_Greedy()
 	}
 
 	ParamType current_param;
-	size_t N = 0;
+	std::size_t N = 0;
 	T max_error = 0;
 	do {
 
@@ -140,7 +142,7 @@ train_Greedy()
 			// Write Basis Functions
 			std::string bf_folder = greedy_params.trainingdata_folder + "/bf";
             bf_folder = bf_folder + "/bf";
-			write_basisfunctions(bf_folder, N);
+			write_basisfunctions(bf_folder, (int)N);
 
 			// Write Riesz Representors
 			std::string repr_folder = greedy_params.trainingdata_folder + "/representors";
@@ -185,11 +187,11 @@ std::vector<ParamType>
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
 generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb)
 {
-	size_t pdim = ParamInfo<ParamType>::dim;
+	std::size_t pdim = ParamInfo<ParamType>::dim;
 
 	// Calculate step lengths in each parameter dimension
     std::vector<T> h(pdim);
-    for(size_t d = 0; d < pdim; ++d) {
+    for(std::size_t d = 0; d < pdim; ++d) {
         h[d] = (max_param[d] - min_param[d]) / ((T)param_nb[d]-1.);
     }
 
@@ -223,7 +225,7 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
 
     // Generate Parameter Grid
     if(pdim == 1) {
-        for (size_t i = 0; i < greedy_params.nb_training_params[0]; ++i){
+        for (std::size_t i = 0; i < greedy_params.nb_training_params[0]; ++i){
             ParamType new_mu;
             new_mu[0]  = std::min(greedy_params.min_param[0] + i*h[0], greedy_params.max_param[0]);
             Xi_train.push_back(new_mu);
@@ -231,8 +233,8 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
     }
     else{
         if (pdim == 2) {
-            for (size_t i = 0; i < greedy_params.nb_training_params[0]; ++i){
-                for (size_t j = 0; j < greedy_params.nb_training_params[1]; ++j){
+            for (std::size_t i = 0; i < greedy_params.nb_training_params[0]; ++i){
+                for (std::size_t j = 0; j < greedy_params.nb_training_params[1]; ++j){
                 	ParamType new_mu;
                     new_mu[0]  = std::min(greedy_params.min_param[0] + i*h[0], greedy_params.max_param[0]);
                     new_mu[1]  = std::min(greedy_params.min_param[1] + j*h[0], greedy_params.max_param[1]);
@@ -421,7 +423,7 @@ calculate_Riesz_RHS_information()
 	}
 
 	// Calculate the Riesz Representors for F
-	size_t Qf = rb_system.Q_f();
+	std::size_t Qf = rb_system.Q_f();
 	for (unsigned int i = 0; i < Qf; ++i) {
 
 		if(greedy_params.verbose){
@@ -435,8 +437,8 @@ calculate_Riesz_RHS_information()
 	// Update the Riesz Representor Norms
 	rb_system.F_F_representor_norms.engine().resize((int)rb_system.Q_f(), (int)rb_system.Q_f());
 	DataType vec1, vec2;
-	for(size_t qf1 = 1; qf1 <= Qf; ++qf1) {
-		for (size_t qf2 = qf1; qf2 <= Qf; ++qf2) {
+	for(std::size_t qf1 = 1; qf1 <= Qf; ++qf1) {
+		for (std::size_t qf2 = qf1; qf2 <= Qf; ++qf2) {
 			vec1 = F_representors[qf1-1];
 			vec2 = F_representors[qf2-1];
 
@@ -466,7 +468,7 @@ update_Riesz_LHS_information(const DataType& bf)
 	}
 
 	// Calculate the Riesz Representors for A
-	size_t Qa = rb_system.Q_a();
+	std::size_t Qa = rb_system.Q_a();
 	std::vector<DataType> new_A_reprs(Qa);
 	for (unsigned int i = 0; i < Qa; ++i) {
 
@@ -518,7 +520,7 @@ update_Riesz_LHS_information(const DataType& bf)
     }
 
 	// Update the Riesz Representor Norms A x F
-    size_t Qf = rb_system.Q_f();
+    std::size_t Qf = rb_system.Q_f();
     typename RB_Model::FullColMatrixT A_F(Qa, Qf);
     for(std::size_t qa = 1; qa <= Qa; ++qa) {
         for(std::size_t qf = 1; qf <= Qf; ++qf) {
@@ -566,7 +568,7 @@ write_basisfunctions(const std::string& directory_name, int nb){
 		}
 	}
 	else{
-		assert((size_t)nb < rb_basisfunctions.size());
+		assert((std::size_t)nb < rb_basisfunctions.size());
 	    std::stringstream filename;
 	    filename << directory_name << "/bf_" << nb+1 << ".txt";
 	    saveCoeffVector2D(rb_basisfunctions[nb], rb_truth.get_trialbasis(), filename.str().c_str());
@@ -639,7 +641,7 @@ write_rieszrepresentors(const std::string& directory_name, int nb)
 		}
 	}
 	else{
-		assert((size_t)nb < rb_basisfunctions.size());
+		assert((std::size_t)nb < rb_basisfunctions.size());
 
 		for(std::size_t i = 0; i < rb_system.Q_a(); ++i){
 			std::stringstream filename;

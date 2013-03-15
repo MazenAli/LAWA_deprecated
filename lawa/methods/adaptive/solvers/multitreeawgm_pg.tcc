@@ -192,7 +192,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
     //---------------------------------------//
     //------- AWGM Iterations ---------------//
     //---------------------------------------//
-    for(size_t awgm_its = 0; awgm_its <= awgm_params.max_its; ++awgm_its){
+    for(std::size_t awgm_its = 0; awgm_its <= awgm_params.max_its; ++awgm_its){
 
     	if (LambdaTrial.size()>awgm_params.max_basissize){
     		break;
@@ -250,7 +250,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 		gamma_cgls_Prev = s*s;
 
 		// CGLS Iterations
-		for(size_t cgls_its=0; cgls_its <= is_params.max_its; ++cgls_its){
+		for(std::size_t cgls_its=0; cgls_its <= is_params.max_its; ++cgls_its){
 
 			Ap.setToZero();						// Ap = A*p
 			Op.eval(p,Ap,trialPrec,testPrec);
