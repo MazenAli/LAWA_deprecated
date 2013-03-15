@@ -4,3 +4,4 @@
 #include <lawa/methods/adaptive/righthandsides/rhs1d.h>
 #include <lawa/methods/adaptive/righthandsides/rhs2d.h>
 #include <lawa/methods/adaptive/righthandsides/thetatimestepseparablerhs.h>
+#include <lawa/methods/adaptive/righthandsides/flexiblecompoundrhs.h>

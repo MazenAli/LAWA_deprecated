@@ -8,4 +8,5 @@
 #include <lawa/methods/adaptive/solvers/thetaschemeawgm.h>
 #include <lawa/methods/adaptive/solvers/multitreeawgm_pg.h>
 #include <lawa/methods/adaptive/solvers/solver_parameters.h>
+#include <lawa/methods/adaptive/solvers/multitreeawgm2.h>
 
