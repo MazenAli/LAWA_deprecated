@@ -42,11 +42,13 @@ namespace lawa {
 struct Index1D
 {
     short j;
-    long k;
+    //long k;
+    int k;
     XType xtype;
 
     Index1D(void);
-    Index1D(int j, long k, XType _xtype);
+    //Index1D(int j, long k, XType _xtype);
+    Index1D(int j, int k, XType _xtype);
     Index1D(const Index1D &index);
     short levelSum() const;
 };
@@ -310,12 +312,12 @@ template <>
 struct index_hashfunction<Index1D>
 {
     inline
-    size_t operator()(const Index1D& index) const
+    std::size_t operator()(const Index1D& index) const
     {
         // Note: hash_values is taken mod "length of hashtable" automatically!!
         /*
         long pow2ij = (1L << (index.j+JMINOFFSET+index.xtype));
-        size_t hash_value = (pow2ij + index.k);
+        std::size_t hash_value = (pow2ij + index.k);
 
         return hash_value;
         */
@@ -342,32 +344,32 @@ struct index_hashfunction<Index2D>
             power2i[i] = 1L << i;
         }
     }
-    size_t power2i[JMAX+JMINOFFSET+2];
+    std::size_t power2i[JMAX+JMINOFFSET+2];
 
 
     inline
-    size_t operator()(const Index2D& index) const
+    std::size_t operator()(const Index2D& index) const
     {
-        //size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
-        //size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
-        size_t l1 = power2i[index.index1.j+index.index1.xtype+JMINOFFSET] + index.index1.k;
-        size_t l2 = power2i[index.index2.j+index.index2.xtype+JMINOFFSET] + index.index2.k;
-        size_t s1 = l1;
-        size_t s2 = l1+l2;
-        size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
+        //std::size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
+        //std::size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
+        std::size_t l1 = power2i[index.index1.j+index.index1.xtype+JMINOFFSET] + index.index1.k;
+        std::size_t l2 = power2i[index.index2.j+index.index2.xtype+JMINOFFSET] + index.index2.k;
+        std::size_t s1 = l1;
+        std::size_t s2 = l1+l2;
+        std::size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
         return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
     }
 
     /*
     inline
-    size_t operator()(const Index2D& index) const
+    std::size_t operator()(const Index2D& index) const
     {
         int val1 = index.index1.xtype;
         int val2 = index.index2.xtype;
         val1 = (((val1 << 16) | (unsigned short) index.index1.j));
         val2 = (((val2 << 16) | (unsigned short) index.index2.j));
 
-        std::size_t hash_value = 0;
+        std::std::size_t hash_value = 0;
         boost::hash_combine(hash_value, val1);
         boost::hash_combine(hash_value, val2);
         boost::hash_combine(hash_value, index.index1.k);
@@ -389,21 +391,21 @@ struct index_hashfunction<Index3D>
             power2i[i] = 1L << i;
         }
     }
-    size_t power2i[JMAX+JMINOFFSET+2];
+    std::size_t power2i[JMAX+JMINOFFSET+2];
 
 
     inline
-    size_t operator()(const Index3D& index) const
+    std::size_t operator()(const Index3D& index) const
     {
-        //size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
-        //size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
-        size_t l1 = power2i[index.index1.j+index.index1.xtype] + index.index1.k;
-        size_t l2 = power2i[index.index2.j+index.index2.xtype] + index.index2.k;
-        size_t l3 = power2i[index.index3.j+index.index3.xtype] + index.index3.k;
-        size_t s1 = l1;
-        size_t s2 = l1+l2;
-        size_t s3 = l1+l2+l3;
-        size_t P=SIZELARGEHASHINDEX2D, TwoP=2*SIZELARGEHASHINDEX2D, SixP=6*SIZELARGEHASHINDEX2D;
+        //std::size_t l1 = (1L << (index.index1.j+index.index1.xtype+JMINOFFSET) ) + index.index1.k;
+        //std::size_t l2 = (1L << (index.index2.j+index.index2.xtype+JMINOFFSET) ) + index.index2.k;
+        std::size_t l1 = power2i[index.index1.j+index.index1.xtype] + index.index1.k;
+        std::size_t l2 = power2i[index.index2.j+index.index2.xtype] + index.index2.k;
+        std::size_t l3 = power2i[index.index3.j+index.index3.xtype] + index.index3.k;
+        std::size_t s1 = l1;
+        std::size_t s2 = l1+l2;
+        std::size_t s3 = l1+l2+l3;
+        std::size_t P=SIZELARGEHASHINDEX2D, TwoP=2*SIZELARGEHASHINDEX2D, SixP=6*SIZELARGEHASHINDEX2D;
         return (   ( ( ((s3+2)%SixP)*((s3+1)%SixP)*(s3%SixP) )%SixP )/6
                  + ( ( ((s2+1)%TwoP)*(s2%TwoP) ) % TwoP )/2 + s1%P ) % P;
     }
@@ -423,28 +425,28 @@ struct entry_hashfunction<Index1D>
             power2i[i] = 1L << i;
         }
     }
-    size_t power2i[JMAX+JMINOFFSET+2];
+    std::size_t power2i[JMAX+JMINOFFSET+2];
 
     inline
-    size_t operator()(const Entry<Index1D>& entry) const
+    std::size_t operator()(const Entry<Index1D>& entry) const
     {
-        size_t l1 = power2i[entry.col_index.j+entry.col_index.xtype+JMINOFFSET] + entry.col_index.k;
-        size_t l2 = power2i[entry.row_index.j+entry.row_index.xtype+JMINOFFSET] + entry.row_index.k;
-        size_t s1 = l1;
-        size_t s2 = l1+l2;
-        size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
+        std::size_t l1 = power2i[entry.col_index.j+entry.col_index.xtype+JMINOFFSET] + entry.col_index.k;
+        std::size_t l2 = power2i[entry.row_index.j+entry.row_index.xtype+JMINOFFSET] + entry.row_index.k;
+        std::size_t s1 = l1;
+        std::size_t s2 = l1+l2;
+        std::size_t P=SIZELARGEHASHINDEX2D, twoP=2*SIZELARGEHASHINDEX2D;
         return (((((s2+1)%(twoP)) * (s2 % twoP)) % twoP)/2 + s1 % P) % P;
     }
     /*
     inline
-    size_t operator()(const Entry<Index1D>& entry) const
+    std::size_t operator()(const Entry<Index1D>& entry) const
     {
         int val1 = entry.col_index.xtype;
         int val2 = entry.row_index.xtype;
         val1 = (((val1 << 16) | (unsigned short) entry.col_index.j));
         val2 = (((val2 << 16) | (unsigned short) entry.row_index.j));
 
-        std::size_t hash_value = 0;
+        std::std::size_t hash_value = 0;
         boost::hash_combine(hash_value, val1);
         boost::hash_combine(hash_value, val2);
         boost::hash_combine(hash_value, entry.col_index.k);
