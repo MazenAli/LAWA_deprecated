@@ -24,6 +24,7 @@ FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
         convection = kernel.ExpXmOnemX_k;
         reaction   = 0.;
     }
+//    int singular_order = 4, n = 10;
     int singular_order = 5, n = 30;
     T sigma = 0.1, mu = 0.3, omega = 0.01;
     singularIntegral.singularquadrature.setParameters(singular_order, n, sigma, mu, omega);
@@ -49,14 +50,18 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
        T compr_alpha=T(2*basis.d)/T(2*basis.d_+processparameters.k_Y);
        if (xtype1==XWavelet && xtype2==XWavelet) {
            int J=internal_compression_level;
+           if (Basis1D::Domain==R) {
+               std::cerr << "Basis is realline basis..." << std::endl;
+           }
            T delta = 0.1*std::max(pow2i<T>(-std::min(j1,j2)),
                                       pow2i<T>(-(J-1)+compr_alpha*(2*(J-1)-j1-j2)));
            if ( ( distance(basis.generator(xtype1).support(j1,k1),
                            basis.generator(xtype2).support(j2,k2)) > delta/(R1+R2))
-                && (k1 > basis.rangeJL(j1).lastIndex())
-                && (k1 < basis.rangeJR(j1).firstIndex())
-                && (k2 > basis.rangeJL(j2).lastIndex())
-                && (k2 < basis.rangeJR(j2).firstIndex()) ) return 0.;
+                && (    (Basis1D::Domain==R) ||
+                     (    (k1 > basis.rangeJL(j1).lastIndex())
+                       && (k1 < basis.rangeJR(j1).firstIndex())
+                       && (k2 > basis.rangeJL(j2).lastIndex())
+                       && (k2 < basis.rangeJR(j2).firstIndex()) ) ) ) return 0.;
        }
    }
 

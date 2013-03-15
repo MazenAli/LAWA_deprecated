@@ -14,7 +14,7 @@ typedef long double T;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
-typedef Basis<T,Orthogonal,Interval,Multi>                          PrimalBasis;
+typedef Basis<T,Orthogonal,R,Multi>                                 PrimalBasis;
 typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 
 /* ************************************ */
@@ -30,11 +30,13 @@ T weight1 = 0.5, weight2 = 0.5;
 const OptionTypenD optiontype = BasketPut;
 OptionParameters2D<T,BasketPut> optionparameters(strike, maturity, weight1, weight2, false);
 typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedBasketPutOption2D<T> > PayoffIntegral;
+typedef RHS2D<T, PayoffIntegral, NoPreconditioner<T, Index2D>  >            PayoffIntegralRHS;
 */
 
 const OptionTypenD optiontype = SumOfPuts;
 OptionParameters2D<T,SumOfPuts> optionparameters(strike, strike, maturity, weight1, weight2, false);
 typedef PayoffIntegral2D<FullGridGL,Basis2D,TruncatedSumOfPutsOption2D<T> > PayoffIntegral;
+typedef RHS2D<T, PayoffIntegral, NoPreconditioner<T, Index2D>  >            PayoffIntegralRHS;
 
 const ProcessType2D  processtype  = CGMYeUnivariateJump2D;
 //T r = 0.04; T sigma1 = 0.3, sigma2 = 0.2, rho = 0.;
@@ -77,9 +79,11 @@ typedef CompoundRhs<T,Index2D,AdaptiveSeparableRhsIntegral2D,
 typedef MultiTreeAWGM<Index2D,Basis2D,ThetaTimeStepLocalOperator2D,
                       ThetaTimeStepRhs2d,Preconditioner>            ThetaTimeStepMultiTreeAWGM2D;
 
+typedef LocalWeighting2D<T, Basis2D>                                LocalWeightingInitCond2D;
+
 typedef MultiTreeAWGM<Index2D,Basis2D,
                       ThetaTimeStepLocalOperator2D,
-                      CompoundRhsIntegral2D,
+                      PayoffIntegralRHS,
                       NoPreconditioner<T,Index2D> >                 ApproxL2AWGM2D;
 
 typedef ThetaSchemeAWGM<Index2D, ThetaTimeStepMultiTreeAWGM2D>      ThetaSchemeMultiTreeAWGM2D;
@@ -97,31 +101,46 @@ T f_x(T x)       {  return 0.; }
 T f_y(T y)       {  return 0.; }
 
 T
+evaluate(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+         const Coefficients<Lexicographical,T,Index2D> &v, T x1, T x2);
+
+template <typename TruncatedOption>
+void
+PlotInitialCondition(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                     const Coefficients<Lexicographical,T,Index2D> &u,
+                     TruncatedOption &truncatedOption, T &maxError, T &innerMaxError);
+
+T
 computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
-                   const Coefficients<Lexicographical,T,Index2D> &u,T delta, int j,
+                   const Coefficients<Lexicographical,T,Index2D> &u,T delta, int N,
                    Option2D<T,optiontype> &option2d,
                    ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters);
 
 void
-spyStiffnessMatrix(const Basis2D &basis2d, CGMYeOp2D & cgmyeop2d, int j,
-                   const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters);
+getSparseGridIndexSet(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                      Coefficients<Lexicographical,T,Index2D> &u, int j);
+
+void
+getLeftAndRightTranslationIndices(const PrimalBasis &basis, T left_x, T right_x,
+                                  int j, XType type, long &left_k, long &right_k);
 
 int main (int argc, char *argv[]) {
 
     cout.precision(16);
     if (argc!=8) {
-        cout << "Usage: " << argv[0] << " d j0 J R1_1 R2_1 R1_2 R2_2" << endl;
+        cout << "Usage: " << argv[0] << " d j0 maxL2Iterations R1_1 R2_1 R1_2 R2_2" << endl;
         return 0;
     }
 
     int d   = atoi(argv[1]);
     int j0  = atoi(argv[2]);
     int J   = atoi(argv[3]);
-    T alpha = 0.7;
+    T alpha = 0.2;
     T gamma = 0.025;
     const char* residualType = "standard";
     const char* treeType = "sparsetree"; //"gradedtree";
     bool IsMW = true;
+    int weightType = 1;
     size_t hashMapSize = 196613;
     T R1_1 = atof(argv[4]);
     T R2_1 = atof(argv[5]);
@@ -136,6 +155,7 @@ int main (int argc, char *argv[]) {
     int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
     int numOfTimesteps = 32;
     T timestep = maturity/numOfTimesteps;
+    int maxL2Iterations = 1;
 
     int numOfMCRuns = 100000;
 
@@ -147,12 +167,11 @@ int main (int argc, char *argv[]) {
 
     /// Basis initialization
     PrimalBasis     basis(d,j0);
-    basis.enforceBoundaryCondition<DirichletBC>();
     Basis2D         basis2d(basis,basis);
 
     cout << "Process parameters: " << processparameters << endl;
     CGMYeOp2D                    cgmyeOp2D(basis2d, processparameters,
-                                           R1_1, R2_1, R1_2, R2_2, 10);
+                                           0., 1., 0., 1., 10);
     ThetaTimeStepLocalOperator2D localThetaTimeStepOp2D(theta,timestep,cgmyeOp2D);
 
     /// Initialization of preconditioner
@@ -187,20 +206,21 @@ int main (int argc, char *argv[]) {
     truncatedoption2d.setCriticalLine_x1(critical_line_x1, critical_above_x1);
 
     PayoffIntegral payoffIntegral(basis2d, truncatedoption2d,
-                                  left_x1, right_x1, left_x2, right_x2, true, 0.05, order);
+                                  0., 1., 0., 1., true, 0.2, order);
+    PayoffIntegralRHS payoffIntegralRHS(payoffIntegral, NoPrec);
 
     Coefficients<Lexicographical,T,Index2D> u(hashMapSize), f(hashMapSize);
 
     std::stringstream filename;
 
     if (optiontype == BasketPut) {
-        filename << "basketputoption2d_conv2_sg_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+        filename << "basketputoption2d_conv2_awgm_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                  << "_lx2_" << left_x2 << "_rx2_" << right_x2
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
     else if (optiontype == SumOfPuts) {
-        filename << "sumofputsoption2d_conv2_sg_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
+        filename << "sumofputsoption2d_conv2_awgm_" << d << "_" << "_lx1_" << left_x1 << "_rx1_" << right_x1
                  << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
@@ -208,90 +228,130 @@ int main (int argc, char *argv[]) {
     std::ofstream convfile(filename.str().c_str());
 
     for (int j=0; j<=J; ++j) {
-        getSparseGridVector(basis2d, u, j, (T)0.);
-        cgmyeOp2D.setCompressionLevel(j, j);
-        //spyStiffnessMatrix(basis2d, cgmyeOp2D, j, processparameters);
-        cerr << "Computation of initial condition started." << endl;
-        time.start();
-        int count = 0;
-        for (coeff2d_it it=u.begin(); it!=u.end(); ++it) {
-            coeff2d_it it_f = f.find((*it).first);
-            if (it_f != f.end()) {
-                (*it).second = (*it_f).second;
-            }
-            else {
-                T tmp = payoffIntegral((*it).first);
-                f[(*it).first] = tmp;
-                (*it).second = tmp;
-            }
-            ++count;
-            if (count%100==0) cout << "count: " << count << " / " << u.size() << endl;
-        }
-        timestep = maturity/numOfTimesteps;
+        u.clear();
+        std::cerr << "Computation of initial index set." << std::endl;
+        getSparseGridIndexSet(basis2d, left_x1, right_x1, left_x2, right_x2, u, j);
+        std::cerr << "Computation of adopted sparse grid index set finished. Size: " << u.size() << std::endl;
 
-        /// Initialization of multi tree based adaptive wavelet Galerkin method
+        LocalWeightingInitCond2D localWeightingInitCond2D;
+        localWeightingInitCond2D.setDomain(left_x1,right_x1,left_x2,right_x2);
+        localWeightingInitCond2D.setBasis(&basis2d);
+        localWeightingInitCond2D.setWeightType(0);
+
+        ApproxL2AWGM2D approxL2_solver(basis2d, localThetaTimeStepOp2D, payoffIntegralRHS, NoPrec);
+        approxL2_solver.setParameters(alpha, gamma, residualType, treeType, IsMW, false);
+        approxL2_solver.approxL2(u, timestep_eps, localWeightingInitCond2D.weight, maxL2Iterations);
+        cout << "Approximation of initial condition finished." << endl;
+
+        T maxError = 0., innerMaxError = 0.;
+        PlotInitialCondition(basis2d, left_x1, right_x1, left_x2, right_x2, u, truncatedoption2d, maxError, innerMaxError);
+        cout << "Size of u: " << u.size() << " : " << maxError << " " << innerMaxError << endl;
+        convfile << u.size() << " " << maxError << " " << innerMaxError << std::endl;
+
         ThetaTimeStepMultiTreeAWGM2D thetatimestep_solver(basis2d, localThetaTimeStepOp2D,
-                                                              thetatimestep_F, Prec);
+                                                          thetatimestep_F, Prec);
         thetatimestep_solver.setParameters(alpha, gamma, residualType, treeType, IsMW, false,
                                            hashMapSize);
 
+        int strategy = 0;
         ThetaSchemeMultiTreeAWGM2D thetascheme(thetatimestep_solver);
         thetascheme.setParameters(theta, timestep, numOfTimesteps, timestep_eps, maxiterations,
-                                  init_cgtol, 0);
+                                  init_cgtol, strategy);
+
+        int threshold_j = 0;
         int avDof = 0, maxDof = 0., terminalDof;
-        thetascheme.solve(u, avDof, maxDof, terminalDof, j);
+        thetascheme.solve(u, avDof, maxDof, terminalDof, 4);
         cerr << "Computation of u has finished." << endl;
-        T maxerror = 0., maxerror1 = 0., maxerror2 = 0.;
-        maxerror = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2, u, delta, j, option2d,
-                                      processparameters);
-        convfile << timestep << " " << j << " " << u.size() << " "
-                 << maxerror << " " << delta << endl;
-        cerr << "Computation of errors has finished." << endl;
-        //computeReferencePrice(basis2d, left_x1, right_x1, left_x2, right_x2,
-        //                      -0.1, 0.1, -0.1, 0.1, 0.02, 0.02, u, j, option2d, processparameters);
-        cerr << "Computation of reference prices has finished." << endl;
+
+        T maxErrorPrice = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2, u,
+                                             delta, avDof, option2d, processparameters);
+
+        cerr << "---> Max. error: " << maxErrorPrice << endl;
     }
 
     return 0;
 }
 
 T
-evaluate(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
-         const Coefficients<Lexicographical,T,Index2D> &v, T x1, T x2)
+evaluate(const Basis2D &basis2d, const Coefficients<Lexicographical,T,Index2D> &v, T x1, T x2)
 {
-    T RightmLeft_x1 = right_x1-left_x1, SqrtRightmLeft_x1 = std::sqrt(right_x1-left_x1);
-    T RightmLeft_x2 = right_x2-left_x2, SqrtRightmLeft_x2 = std::sqrt(right_x2-left_x2);
-
     T ret = 0.;
     for (const_coeff2d_it it=v.begin(); it!=v.end(); ++it) {
         int   j1 = (*it).first.index1.j,     j2 = (*it).first.index2.j;
         int   k1 = (*it).first.index1.k,     k2 = (*it).first.index2.k;
         XType e1 = (*it).first.index1.xtype, e2 = (*it).first.index2.xtype;
 
-        T val_x1 = (1./SqrtRightmLeft_x1) * basis2d.first.generator(e1).operator()((x1-left_x1)/(RightmLeft_x1),j1,k1,0);
-        T val_x2 = (1./SqrtRightmLeft_x2) * basis2d.second.generator(e2).operator()((x2-left_x2)/(RightmLeft_x2),j2,k2,0);
+        T val_x1 = basis2d.first.generator(e1).operator()(x1,j1,k1,0);
+        T val_x2 = basis2d.second.generator(e2).operator()(x2,j2,k2,0);
 
         ret += (*it).second * val_x1 * val_x2;
     }
     return ret;
 }
 
+template <typename TruncatedOption>
+void
+PlotInitialCondition(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                     const Coefficients<Lexicographical,T,Index2D> &u,
+                     TruncatedOption &truncatedOption, T &maxError, T &innerMaxError)
+{
+    std::stringstream coeffsfilename;
+    coeffsfilename << "cgmye2d_coeffs_initcond_" << u.size();
+    plotScatterCoeff2D(u, basis2d.first, basis2d.second, coeffsfilename.str().c_str());
+
+
+    std::stringstream filename;
+    if (optiontype == BasketPut) {
+        filename << "cgmye2d_basketput_awgm_initcond_" << "_strike_" << strike
+                 << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2 << ".txt";
+    }
+    else if (optiontype == SumOfPuts) {
+        filename << "cgmye2d_sumofputs_awgm_initcond_" << "_strike_" << strike
+                 << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2 << ".txt";
+    }
+    else {
+        std::cerr << "Unknown option type" << std::endl; exit(1);
+    }
+    std::ofstream plotfile(filename.str().c_str());
+    plotfile.precision(16);
+
+    maxError = 0.;
+    innerMaxError = 0.;
+    T h1 = (right_x1-left_x1)/128.;
+    T h2 = (right_x2-left_x2)/128.;
+    //for (T x1=left_x1; x1<=right_x1; x1+=0.03125) {
+    for (T x1=left_x1; x1<=right_x1; x1+=h1) {
+        //for (T x2=left_x2; x2<=right_x2; x2+=0.03125) {
+        for (T x2=left_x2; x2<=right_x2; x2+=h2) {
+            T payoff = truncatedOption.payoff(x1,x2);
+            T approx = evaluate(basis2d, u, x1, x2);
+            plotfile << x1 << " " << x2 << " " << approx << " " << payoff << endl;
+            maxError = std::max(maxError, fabs(approx-payoff));
+            if (fabs(x1)<1. && fabs(x2)<1.) innerMaxError = std::max(innerMaxError, fabs(approx-payoff));
+        }
+        plotfile << endl;
+    }
+    plotfile.close();
+}
+
 T
 computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
-                   const Coefficients<Lexicographical,T,Index2D> &u,T delta, int j,
+                   const Coefficients<Lexicographical,T,Index2D> &u,T delta, int N,
                    Option2D<T,optiontype> &option2d,
                    ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters)
 {
+    std::stringstream coeffsfilename;
+    coeffsfilename << "cgmye2d_coeffs_endpoint_" << u.size();
+    plotScatterCoeff2D(u, basis2d.first, basis2d.second, coeffsfilename.str().c_str());
+
     std::stringstream filename;
     if (optiontype == BasketPut) {
-        filename << "cgmye2d_basketput_sg_" << j << "_lx1_" << left_x1 << "_rx1_" << right_x1
-                 << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
+        filename << "cgmye2d_basketput_awgm_" << N
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
     else if (optiontype == SumOfPuts) {
-        filename << "cgmye2d_sumofputs_sg_" << j << "_lx1_" << left_x1 << "_rx1_" << right_x1
-                 << "_lx2_" << left_x2 << "_rx2_" << right_x2 << "_delta_" << delta
+        filename << "cgmye2d_sumofputs_awgm_" << N
                  << "_strike_" << strike << "_maturity_" << maturity << "_weight1_" << weight1 << "_weight2_" << weight2
                  << processparameters << ".txt";
     }
@@ -300,15 +360,12 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
     }
     std::ofstream plotfile(filename.str().c_str());
     plotfile.precision(16);
-
+    std::cerr << "Error is measured over [" << delta*left_x1 << ", " << delta*right_x1 << "], ["
+              << delta*left_x2 << ", " << delta*right_x2 << "]" << std::endl;
     T maxerror = 0.;
     T h1 = (delta*right_x1-delta*left_x1)/32.;
     T h2 = (delta*right_x2-delta*left_x2)/32.;
-    std::cerr << "Error is measured over [" << delta*left_x1 << ", " << delta*right_x1 << "], ["
-              << delta*left_x2 << ", " << delta*right_x2 << "]" << std::endl;
-    //for (T x1=left_x1; x1<=right_x1; x1+=0.03125) {
     for (T x1=delta*left_x1; x1<=delta*right_x1; x1+=h1) {
-        //for (T x2=left_x2; x2<=right_x2; x2+=0.03125) {
         for (T x2=delta*left_x2; x2<=delta*right_x2; x2+=h2) {
             T S1    = strike*std::exp(x1);
             T S2    = strike*std::exp(x2);
@@ -316,74 +373,96 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
             T x1hat = x1+r*maturity;
             T x2hat = x2+r*maturity;
             T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
-            T approx =std::exp(-r*maturity)*evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1hat, x2hat);
-            plotfile << x1 << " " << x2 << " " << exact << " " << approx << " " << payoff << endl;
+            T approx =std::exp(-r*maturity)*evaluate(basis2d, u, x1hat, x2hat);
             maxerror = std::max(maxerror, fabs(approx-exact));
+        }
+    }
+    /*
+    h1 = 20./64.;
+    h2 = 20./64.;
+    for (T x1=-10.; x1<=10.; x1+=h1) {
+        for (T x2=-10.; x2<=10.; x2+=h2) {
+            T S1    = strike*std::exp(x1);
+            T S2    = strike*std::exp(x2);
+            T exact = option2d.value(processparameters,S1,S2,0);
+            T x1hat = x1+r*maturity;
+            T x2hat = x2+r*maturity;
+            T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
+            T approx =std::exp(-r*maturity)*evaluate(basis2d, u, x1hat, x2hat);
+            plotfile << x1 << " " << x2 << " " << exact << " " << approx << " " << payoff << endl;
         }
         plotfile << endl;
     }
     plotfile.close();
-
+    */
     return maxerror;
 }
 
 void
-spyStiffnessMatrix(const Basis2D &basis2d, CGMYeOp2D & cgmyeop2d, int j,
-                   const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters)
+getSparseGridIndexSet(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T right_x2,
+                      Coefficients<Lexicographical,T,Index2D> &u, int j)
 {
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >  SparseMatrixT;
-    typedef std::list<Index2D>::const_iterator                        const_list_it;
-    std::list<Index2D> row_indices, col_indices, indices;
 
     int j0_x = basis2d.first.j0;
     int j0_y = basis2d.second.j0;
 
+    std::cerr << "getSparseGridIndexSet called" << std::endl;
     for (int levelsum=0; levelsum<=j; ++levelsum) {
         for (int i1=0; i1<=levelsum; ++i1) {
             for (int i2=0; i2<=levelsum; ++i2) {
                 if (i1+i2!=levelsum) continue;
 
                 if ((i1==0) && (i2==0)) {
-                    //cout << "(" << i1 << ", " << i2 << ") : " << basis2d.first.mra.cardI(j0_x) * basis2d.second.mra.cardI(j0_y) << endl;
-                    for (long k1=basis2d.first.mra.rangeI(j0_x).firstIndex(); k1<=basis2d.first.mra.rangeI(j0_x).lastIndex(); ++k1) {
-                       for (long k2=basis2d.second.mra.rangeI(j0_y).firstIndex(); k2<=basis2d.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
+                    std::cerr << "Scaling function part..." << std::endl;
+                    long left_k_x1 = 0, right_k_x1 = 0, left_k_x2 = 0, right_k_x2 = 0;
+                    getLeftAndRightTranslationIndices(basis2d.first, left_x1, right_x1, j0_x, XBSpline, left_k_x1, right_k_x1);
+                    getLeftAndRightTranslationIndices(basis2d.second,left_x2, right_x2, j0_y, XBSpline, left_k_x2, right_k_x2);
+                    std::cerr << "[" << left_x1 << ", " << right_x1 << "], [" << left_x2 << ", " << right_x2 << "]" << std::endl;
+                    for (long k1=left_k_x1; k1<=right_k_x1; ++k1) {
+                       for (long k2=left_k_x2; k2<=right_k_x2; ++k2) {
                            Index1D row(j0_x,k1,XBSpline);
                            Index1D col(j0_y,k2,XBSpline);
-                           indices.push_back(Index2D(row,col));
+                           u[Index2D(row,col)] = 0.;
                        }
                     }
                 }
                 else if ((i1!=0) && (i2==0)) {
                     int j1=j0_x+i1-1;
-                    //cout << "(" << i1 << ", " << i2 << ") : " << basis2d.first.cardJ(j1) * basis2d.second.mra.cardI(j0_y) << endl;
-                    for (long k1=basis2d.first.rangeJ(j1).firstIndex(); k1<=basis2d.first.rangeJ(j1).lastIndex(); ++k1) {
-                        for (long k2=basis2d.second.mra.rangeI(j0_y).firstIndex(); k2<=basis2d.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
+                    long left_k_x1 = 0, right_k_x1 = 0, left_k_x2 = 0, right_k_x2 = 0;
+                    getLeftAndRightTranslationIndices(basis2d.first, left_x1, right_x1, j1, XWavelet, left_k_x1, right_k_x1);
+                    getLeftAndRightTranslationIndices(basis2d.second,left_x2, right_x2, j0_y, XBSpline, left_k_x2, right_k_x2);
+                    for (long k1=left_k_x1; k1<=right_k_x1; ++k1) {
+                        for (long k2=left_k_x2; k2<=right_k_x2; ++k2) {
                             Index1D row(j1,k1,XWavelet);
                             Index1D col(j0_y,k2,XBSpline);
-                            indices.push_back(Index2D(row,col));
+                            u[Index2D(row,col)] = 0.;
                         }
                     }
                 }
                 else if ((i1==0) && (i2!=0)) {
                     int j2=j0_y+i2-1;
-                    //cout << "(" << i1 << ", " << i2 << ") : " << basis2d.first.mra.cardI(j0_x) * basis2d.second.cardJ(j2) << endl;
-                    for (long k1=basis2d.first.mra.rangeI(j0_x).firstIndex(); k1<=basis2d.first.mra.rangeI(j0_x).lastIndex(); ++k1) {
-                        for (long k2=basis2d.second.rangeJ(j2).firstIndex(); k2<=basis2d.second.rangeJ(j2).lastIndex(); ++k2) {
+                    long left_k_x1 = 0, right_k_x1 = 0, left_k_x2 = 0, right_k_x2 = 0;
+                    getLeftAndRightTranslationIndices(basis2d.first, left_x1, right_x1, j0_x, XBSpline, left_k_x1, right_k_x1);
+                    getLeftAndRightTranslationIndices(basis2d.second,left_x2, right_x2, j2, XWavelet, left_k_x2, right_k_x2);
+                    for (long k1=left_k_x1; k1<=right_k_x1; ++k1) {
+                        for (long k2=left_k_x2; k2<=right_k_x2; ++k2) {
                             Index1D row(j0_x,k1,XBSpline);
                             Index1D col(j2,k2,XWavelet);
-                            indices.push_back(Index2D(row,col));
+                            u[Index2D(row,col)] = 0.;
                         }
                     }
                 }
                 else if ((i1!=0) && (i2!=0)) {
                     int j1=j0_x+i1-1;
                     int j2=j0_y+i2-1;
-                    //cout << "(" << i1 << ", " << i2 << ") : " << basis2d.first.cardJ(j1) * basis2d.second.cardJ(j2) << endl;
-                    for (long k1=basis2d.first.rangeJ(j1).firstIndex(); k1<=basis2d.first.rangeJ(j1).lastIndex(); ++k1) {
-                        for (long k2=basis2d.second.rangeJ(j2).firstIndex(); k2<=basis2d.second.rangeJ(j2).lastIndex(); ++k2) {
+                    long left_k_x1 = 0, right_k_x1 = 0, left_k_x2 = 0, right_k_x2 = 0;
+                    getLeftAndRightTranslationIndices(basis2d.first, left_x1, right_x1, j1, XWavelet, left_k_x1, right_k_x1);
+                    getLeftAndRightTranslationIndices(basis2d.second,left_x2, right_x2, j2, XWavelet, left_k_x2, right_k_x2);
+                    for (long k1=left_k_x1; k1<=right_k_x1; ++k1) {
+                        for (long k2=left_k_x2; k2<=right_k_x2; ++k2) {
                             Index1D row(j1,k1,XWavelet);
                             Index1D col(j2,k2,XWavelet);
-                            indices.push_back(Index2D(row,col));
+                            u[Index2D(row,col)] = 0.;
                         }
                     }
                 }
@@ -391,77 +470,35 @@ spyStiffnessMatrix(const Basis2D &basis2d, CGMYeOp2D & cgmyeop2d, int j,
         }
     }
 
-
-    int N = indices.size();
-    //std::cerr << "   N = " << N << std::endl;
-    SparseMatrixT A(N,N);
-
-    int row_pos = 1, col_pos = 1;
-    for (const_list_it row_it=indices.begin(); row_it!=indices.end(); ++row_it) {
-        for (const_list_it col_it=indices.begin(); col_it!=indices.end(); ++col_it) {
-            T val = cgmyeop2d((*row_it),(*col_it));
-            if (fabs(val)>0) A(row_pos,col_pos) = val;
-            ++col_pos;
-        }
-        ++row_pos;
-        col_pos = 1;
-    }
-    cout << "A finalize called..." << endl;
-    A.finalize();
-    cout << "... finished" << endl;
-    std::stringstream matrixfilename;
-    matrixfilename << "A_" << N << "_" << processparameters;
-    cout << "Spy called..." << endl;
-    spy(A,matrixfilename.str().c_str(),true,(T)0.);
-    cout << "... finished" << endl;
 }
 
-/*
- *
- *
-    for (long k1=basis2d.first.mra.rangeI(j0_x).firstIndex(); k1<=basis2d.first.mra.rangeI(j0_x).lastIndex(); ++k1) {
-        for (long k2=basis2d.second.mra.rangeI(j0_y).firstIndex(); k2<=basis2d.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
-            Index1D row(j0_x,k1,XBSpline);
-            Index1D col(j0_x,k2,XBSpline);
-            row_indices.push_back(Index2D(row,col));
-            col_indices.push_back(Index2D(row,col));
+void
+getLeftAndRightTranslationIndices(const PrimalBasis &basis, T left_x, T right_x,
+                                  int j, XType type, long &left_k, long &right_k)
+{
+    Support<T> supp(left_x,right_x);
+    if (type == XBSpline) {
+        left_k = 0;
+        while (overlap(basis.mra.phi.support(j,left_k),supp)>=0) {
+            left_k--;
         }
-        for (int i2=1; i2<=j; ++i2) {
-            int j2=j0_y+i2-1;
-            for (long k2=basis2d.second.rangeJ(j2).firstIndex(); k2<=basis2d.second.rangeJ(j2).lastIndex(); ++k2) {
-                Index1D row(j0_x,k1,XBSpline);
-                Index1D col(j2,k2,XWavelet);
-                row_indices.push_back(Index2D(row,col));
-                col_indices.push_back(Index2D(row,col));
-            }
+        left_k -= 6;
+        right_k = 0;
+        while (overlap(basis.mra.phi.support(j,right_k),supp)>=0) {
+            right_k++;
         }
+        right_k += 6;
     }
-    for (int i1=1; i1<=j; ++i1) {
-        int j1=j0_x+i1-1;
-        for (long k1=basis2d.first.rangeJ(j1).firstIndex(); k1<=basis2d.first.rangeJ(j1).lastIndex(); ++k1) {
-            for (long k2=basis2d.second.mra.rangeI(j0_y).firstIndex(); k2<=basis2d.second.mra.rangeI(j0_y).lastIndex(); ++k2) {
-                Index1D row(j1,k1,XWavelet);
-                Index1D col(j0_y,k2,XBSpline);
-                row_indices.push_back(Index2D(row,col));
-                col_indices.push_back(Index2D(row,col));
-            }
+    else {
+        left_k = 0;
+        while (overlap(basis.psi.support(j,left_k),supp)>=0) {
+            left_k--;
         }
-//    }
-//    for (int i1=1; i1<=j; ++i1) {
-//        int j1=j0_x+i1-1;
-        for (int i2=1; i2<=j; ++i2) {
-            if (i1+i2>j) {
-                continue;
-            }
-            int j2=j0_y+i2-1;
-            for (long k1=basis2d.first.rangeJ(j1).firstIndex(); k1<=basis2d.first.rangeJ(j1).lastIndex(); ++k1) {
-                for (long k2=basis2d.second.rangeJ(j2).firstIndex(); k2<=basis2d.second.rangeJ(j2).lastIndex(); ++k2) {
-                    Index1D row(j1,k1,XWavelet);
-                    Index1D col(j2,k2,XWavelet);
-                    row_indices.push_back(Index2D(row,col));
-                    col_indices.push_back(Index2D(row,col));
-                }
-            }
+        left_k -= 6;
+        right_k = 0;
+        while (overlap(basis.psi.support(j,right_k),supp)>=0) {
+            right_k++;
         }
+        right_k += 6;
     }
- */
+}

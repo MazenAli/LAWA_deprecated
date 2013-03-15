@@ -457,7 +457,7 @@ bicgstab_solve(Coefficients<Lexicographical,T,Index> &u, T _eps, int NumOfIterat
         time_total_galerkin += time_galerkin;
         /* ************************************************************************* */
 
-        if (NumOfIterations==1)     return 0.;
+        if (NumOfIterations==iter)     return 0.;
 
         if (u.size()>=maxDof)       return Residual;
 
@@ -597,6 +597,8 @@ approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, T (*weightFunction)(c
 
         if (NumOfIterations==1) return;
 
+        std::ofstream convfile("conv_u0.txt");
+
         for (int iter=1; iter<=NumOfIterations; ++iter) {
             int N = u.size();
             int N_residual = 0;
@@ -615,7 +617,7 @@ approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, T (*weightFunction)(c
 
             // Store current multi-tree structure of u
             u_leafs = u;
-
+            //std::cerr << res << std::endl;
             for (coeff_it it=res.begin(); it!=res.end(); ++it) {
                 if (u.find((*it).first)!=u.end()) {
                     res.erase((*it).first);
@@ -634,6 +636,7 @@ approxL2(Coefficients<Lexicographical,T,Index> &u, T _eps, T (*weightFunction)(c
                           << ", eps = " << _eps << std::endl;
                 return;
             }
+            convfile << u.size() << " " << Residual << std::endl;
 
             /* ************************************************************************* */
 

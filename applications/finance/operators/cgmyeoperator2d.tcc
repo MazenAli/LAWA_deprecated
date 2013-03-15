@@ -95,9 +95,9 @@ FinanceOperator2D<CGMYeUnivariateJump2D, Basis2D>::eval
                 ++row_count;
             }
             stiffnessMatrix.finalize();
-            std::stringstream matrixfilename;
-            matrixfilename << "_A_" << v.size() << "_" << processparameters;
-            spy(stiffnessMatrix,matrixfilename.str().c_str(),true,(T)0.);
+            //std::stringstream matrixfilename;
+            //matrixfilename << "_A_" << v.size() << "_" << processparameters;
+            //spy(stiffnessMatrix,matrixfilename.str().c_str(),true,(T)0.);
             //DenseMatrixT DenseA(N,N);
             //densify(cxxblas::NoTrans,stiffnessMatrix,DenseA);
             //std::cerr << "  A = " << DenseA << std::endl;

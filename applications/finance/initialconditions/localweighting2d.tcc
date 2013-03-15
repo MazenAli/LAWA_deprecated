@@ -70,37 +70,33 @@ LocalWeighting2D<T,Basis>::weight(const Index2D &index)
     long k_x=index.index1.k,    k_y=index.index2.k;
     XType xtype_x=index.index1.xtype, xtype_y=index.index2.xtype;
 
+
     Support<T> supp_x = (*basis).first.generator(xtype_x).support(j_x,k_x);
     T center_x  = 0.5*(supp_x.l1 + supp_x.l2);
-    center_x *= RightmLeft_x1; center_x += left_x1;
-
     Support<T> supp_y = (*basis).second.generator(xtype_y).support(j_y,k_y);
     T center_y  = 0.5*(supp_y.l1 + supp_y.l2);
-    center_y *= RightmLeft_x1; center_y += left_x1;
+    if ((Basis::FirstBasisType::Domain!=R) && (Basis::SecondBasisType::Domain!=R)) {
+        center_x *= RightmLeft_x1; center_x += left_x1;
+        center_y *= RightmLeft_x1; center_y += left_x1;
+    }
+    std::cerr << index << " " << supp_x << " " << supp_y << ":  (" << center_x << ", " << center_y << ")" << std::endl;
 
     if (weight_type == 1) {
-        //if (index.index1.j>10 || index.index2.j>10) return 0.;
-        /*
-        T S1 = std::exp(center_x);
-        T S2 = std::exp(center_y);
-        T Smax = std::exp(2.);
-        T Smin = std::exp(-2.);
-        T factor1 = S1 >= Smin ? S1 - Smin : Smax-S1;
-        T factor2 = S2 >= Smin ? S2 - Smin : Smax-S2;
-        return std::exp(-0.5*((S1-1.)*(S1-1.)/(0.25*factor1*0.25*factor1) + (S2-1.)*(S2-1.)/(0.25*factor2*0.25*factor2)));
-        */
         return std::exp(-3.*(center_x*center_x + center_y*center_y));
-        /*
-        T dist_center_x = fabs(fabs(center_x)-0.25);
-        T dist_center_y = fabs(fabs(center_y)-0.25);
-        if (fabs(center_x)<=0.25 && fabs(center_y)<=0.25)
-                return 1.;
-        else    return std::exp(-100.*(dist_center_x*dist_center_x + dist_center_y*dist_center_y));
-        */
-        //return 1.;
     }
-    else {
-        return 1.;
+    else if (weight_type == 2) {    // only for realline!!
+        T x1InnerMax = max(fabs(left_x1),fabs(right_x1))-1.;
+        T x2InnerMax = max(fabs(left_x2),fabs(right_x2))-1.;
+        T dist_center_x = fabs(fabs(center_x)-x1InnerMax);
+        T dist_center_y = fabs(fabs(center_y)-x2InnerMax);
+        if (fabs(center_x)<=x1InnerMax && fabs(center_y)<=x2InnerMax) {
+            return 1.;
+        }
+        else {
+            std::cerr << index << " -> " << center_x << " " << dist_center_x << " :: "
+                      << center_y << " " << dist_center_y << std::endl;
+            return std::exp(-3.*(dist_center_x*dist_center_x + dist_center_y*dist_center_y));
+        }
     }
 }
 

@@ -199,12 +199,12 @@ int main (int argc, char *argv[]) {
     T theta = 0.5;
     T timestep_eps = 1e-2;
     int maxiterations =  50;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 64;
+    int numOfTimesteps = 128;
     T timestep = maturity/numOfTimesteps;
 
     int numOfMCRuns = 100000;
 
-    int order = 3;
+    int order = 4;
 
     bool useRefPrices = true;
 
@@ -323,7 +323,6 @@ int main (int argc, char *argv[]) {
     }
     std::ofstream convfile(filename.str().c_str());
 
-
     for (int j=0; j<=J; ++j) {
         T timestep_eps = 1e-10;
         int maxL2Iterations = 18; u.clear();
@@ -387,6 +386,7 @@ int main (int argc, char *argv[]) {
         cerr << "Computation of errors has finished." << endl;
     }
     return 0;
+
 }
 
 T

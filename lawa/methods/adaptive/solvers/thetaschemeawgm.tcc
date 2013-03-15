@@ -96,13 +96,12 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
 
         this->applyInvPreconditioner(u);
         T res = 0.;
-        if (strategy==3 && discrete_timepoint>=0.1) {
-            res = timestep_solver.bicgstab_solve(u,1e-12,1,1e-10,0.,
-                                                 "conv.dat", "coeff.dat", N);
+        if (strategy==1 && (discrete_timepoint<0.125 || i % 2 == 0)) {
+            std::cerr << "Applying stratgey 1" << std::endl;
+            res = timestep_solver.bicgstab_solve(u,1e-12,3,1e-10,0.,"conv.dat", "coeff.dat", 100000);
         }
         else {
-            res = timestep_solver.bicgstab_solve(u,1e-12,1,1e-9,0.,
-                                                 "conv.dat", "coeff.dat", N);
+            res = timestep_solver.bicgstab_solve(u,1e-12,1,1e-9,0.,"conv.dat", "coeff.dat", 100000);
         }
 
         this->applyPreconditioner(u);
@@ -122,13 +121,13 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
         bool erasedNode = false;
 
 
-        if (strategy==2 && discrete_timepoint>=0.125) {
+        if ((strategy==1 || strategy==2) && discrete_timepoint>=0.125) {
             //The following threshold tolerance yields better results for (BS2)
             //T threshold = j <= 5 ? 0.0001*std::pow((T)2.,(T)(-2.*j)) : 0.00001*std::pow((T)2.,(T)(-2.*j));
-            T threshold =  0.00001*std::pow((T)2.,(T)(-2.*j))*u.norm(2.);
+            T threshold = 0.00001*std::pow((T)2.,(T)(-2.*j))*u.norm(2.);
             //T threshold =  0.00005*std::pow((T)2.,(T)(-2.*j))*u.norm(2.);
             int sizeBeforeThresh = u.size(), sizeAfterThresh = 0;
-            std::cerr << "   APPLYING strategy 2" << std::endl;
+            std::cerr << "   APPLYING threshold strategy" << std::endl;
             int maxLevelSum = 0;
             tmp = u;
             for (const_coeff_it it=tmp.begin(); it!=tmp.end(); ++it) {

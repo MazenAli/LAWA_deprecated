@@ -1,6 +1,2 @@
-./cgmye2d_multitree_mw_sg 2 0 5 2 2 2 2
-./cgmye2d_multitree_mw_sg 2 0 9 3 3 3 3
-./cgmye2d_multitree_mw_sg 2 0 9 7 7 7 7
-./cgmye2d_multitree_mw_sg 2 0 9 8 8 8 8
-./cgmye2d_multitree_mw_sg 3 0 5 5 5 5 5
-./cgmye2d_multitree_mw_sg 3 0 5 4 4 4 4
+./cgmye2d_multitree_mw_sg 3 0 5 7 7 7 7
+./cgmye2d_multitree_mw_sg 3 0 5 8 8 8 8
