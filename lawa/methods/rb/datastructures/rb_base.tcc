@@ -141,7 +141,6 @@ train_Greedy()
 
 			// Write Basis Functions
 			std::string bf_folder = greedy_params.trainingdata_folder + "/bf";
-            bf_folder = bf_folder + "/bf";
 			write_basisfunctions(bf_folder, (int)N);
 
 			// Write Riesz Representors
@@ -197,13 +196,12 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
 
     std::vector<ParamType> Xi_train;
 
-    /*
-    std::vector<size_t>	   index(pdim,0);
+    std::vector<std::size_t>	   index(pdim,0);
 
     while(true){
         ParamType new_mu;
-        for(size_t i = 0; i < pdim; ++i){
-        	new_mu[i] = std::min(min_param[index[i]] + i*h[index[i]], max_param[index[i]]);
+        for(std::size_t i = 0; i < pdim; ++i){
+        	new_mu[i] = std::min(min_param[i] + index[i]*h[i], max_param[i]);
         }
         Xi_train.push_back(new_mu);
 
@@ -220,9 +218,9 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
         	}
         }
     }
-    */
 
 
+    /*
     // Generate Parameter Grid
     if(pdim == 1) {
         for (std::size_t i = 0; i < greedy_params.nb_training_params[0]; ++i){
@@ -237,7 +235,7 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
                 for (std::size_t j = 0; j < greedy_params.nb_training_params[1]; ++j){
                 	ParamType new_mu;
                     new_mu[0]  = std::min(greedy_params.min_param[0] + i*h[0], greedy_params.max_param[0]);
-                    new_mu[1]  = std::min(greedy_params.min_param[1] + j*h[0], greedy_params.max_param[1]);
+                    new_mu[1]  = std::min(greedy_params.min_param[1] + j*h[1], greedy_params.max_param[1]);
                     Xi_train.push_back(new_mu);
                 }
             }
@@ -246,6 +244,7 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
             std::cerr << "Generate Trainingsset for dim = " << pdim << " : Not implemented yet " << std::endl;
         }
     }
+    */
 
     return Xi_train;
 }
@@ -568,10 +567,10 @@ write_basisfunctions(const std::string& directory_name, int nb){
 		}
 	}
 	else{
-		assert((std::size_t)nb < rb_basisfunctions.size());
+		assert((std::size_t)nb-1 < rb_basisfunctions.size());
 	    std::stringstream filename;
-	    filename << directory_name << "/bf_" << nb+1 << ".txt";
-	    saveCoeffVector2D(rb_basisfunctions[nb], rb_truth.get_trialbasis(), filename.str().c_str());
+	    filename << directory_name << "/bf_" << nb << ".txt";
+	    saveCoeffVector2D(rb_basisfunctions[nb-1], rb_truth.get_trialbasis(), filename.str().c_str());
 	}
 
 
