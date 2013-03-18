@@ -163,6 +163,10 @@ IndexSet<Index>
 supp(const Coefficients<Lexicographical,T,Index> &v);
 
 template <typename T, typename Index>
+IndexSet<Index>
+get_indexset(const Coefficients<Lexicographical,T,Index> &v);
+
+template <typename T, typename Index>
 void
 FillWithZeros(const IndexSet<Index> &Lambda, Coefficients<Lexicographical,T,Index> &_coeff);
 
