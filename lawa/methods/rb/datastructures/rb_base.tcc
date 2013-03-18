@@ -165,6 +165,166 @@ train_Greedy()
 }
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+train_strong_Greedy()
+{
+	if(greedy_params.verbose){
+	    std::cout << "||=====================================================================||" << std::endl;
+	    std::cout << "||=====================================================================||" << std::endl;
+	    std::cout << "||=========      OFFLINE TRAINING                      ================||" << std::endl;
+	    std::cout << "||=====================================================================||" << std::endl;
+	    std::cout << "||=====================================================================||" << std::endl << std::endl;
+
+	}
+
+	std::vector<ParamType> Xi_train = generate_uniform_paramset(greedy_params.min_param,
+																greedy_params.max_param,
+																greedy_params.nb_training_params);
+	if(greedy_params.print_paramset){
+		std::cout << "Training Parameters: " << std::endl;
+		print_paramset(Xi_train);
+	}
+
+	// Calculate all truth solutions
+	std::map<ParamType, DataType> truth_sols;
+    for (auto& mu : Xi_train) {
+		DataType u = rb_truth.get_truth_solution(mu);
+    	truth_sols.insert(std::make_pair(mu, u));
+    }
+
+	// In order to be able to calculate empty error bounds,
+	// we have to calculate the Riesz Representors for F
+	calculate_Riesz_RHS_information();
+
+	for(auto& el : F_representors){
+		greedy_info.repr_f_size.push_back(el.size());
+	}
+
+	ParamType current_param;
+	std::size_t N = 0;
+	T max_error = 0;
+	do {
+
+		if(greedy_params.verbose){
+		    std::cout << "||---------------------------------------------------------------------||" << std::endl;
+		    std::cout << "||-------------- Greedy Search for new parameter  ---------------------||" << std::endl;
+		    std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+		}
+
+		T error_est;
+		max_error = 0;
+		for(auto& mu : Xi_train){
+            typename RB_Model::DenseVectorT u_N = rb_system.get_rb_solution(N, mu);
+
+            //error_est = rb_system.get_errorbound(u_N,mu);
+            DataType diff;
+            if(N > 0){
+            	diff = reconstruct_u_N(u_N,N);
+            }
+            diff -= (*truth_sols.find(mu)).second;
+            error_est = std::sqrt(rb_truth.innprod_Y_u_u(diff,diff));
+
+            if(greedy_params.verbose){
+            	std::cout << "    u_N = " << u_N;
+            	std::cout << "    Mu = ";
+            	ParamInfo<ParamType>::print(mu);
+            	std::cout << " : Error = " << std::scientific << std::setw(15) << error_est << std::endl;
+            }
+
+            if(error_est > max_error){
+            	max_error = error_est;
+            	current_param = mu;
+            }
+		}
+
+		greedy_info.greedy_errors.push_back(max_error);
+		greedy_info.snapshot_params.push_back(current_param);
+
+		// Remove parameter from indexset
+		if(greedy_params.erase_snapshot_params){
+			for(auto& mu : Xi_train){
+				bool is_current_param = true;
+				for(std::size_t i = 0; i < mu.size(); ++i){
+					if(mu[i]!=current_param[i]){
+						is_current_param = false;
+						break;
+					}
+				}
+				if(is_current_param){
+					auto mu_it = std::find(Xi_train.begin(), Xi_train.end(), mu);
+					Xi_train.erase(mu_it);
+					break;
+				}
+			}
+		}
+
+
+		if(greedy_params.verbose){
+			std::cout << std::endl << "Greedy Error = " << std::scientific << max_error << std::endl << std::endl;
+		}
+
+		if(greedy_params.verbose){
+		    std::cout << "||=====================================================================||" << std::endl;
+		    std::cout << "||       SNAPSHOT  at ";  ParamInfo<ParamType>::print(current_param); std::cout << std::endl;
+		    std::cout << "||=====================================================================||" << std::endl << std::endl;
+		}
+
+		if(rb_truth.access_solver().access_params().print_info){
+			std::stringstream filename;
+			filename << greedy_params.print_file << "_bf" << N+1 << ".txt";
+			rb_truth.access_solver().access_params().info_filename = filename.str();
+		}
+		DataType u = rb_truth.get_truth_solution(current_param);
+		add_to_basis(u);
+		N++;
+
+		greedy_info.u_size.push_back(u.size());
+		std::vector<std::size_t> a_sizes;
+		for(auto& el : A_representors[n_bf()-1]){
+			a_sizes.push_back(el.size());
+		}
+		greedy_info.repr_a_size.push_back(a_sizes);
+
+		if(greedy_params.write_during_training){
+
+			if(greedy_params.verbose){
+				std::cout << "=====>  Writing RB Greedy Training information to file " << std::endl << std::endl;
+			}
+			if(mkdir(greedy_params.trainingdata_folder.c_str(), 0777) == -1)
+			{
+				if(greedy_params.verbose){
+					  std::cerr << "         [In RB_Base::train_Greedy: Directory "
+							    << greedy_params.trainingdata_folder << " already exists, overwriting contents.]" << std::endl;
+				}
+			}
+
+			// Write Basis Functions
+			std::string bf_folder = greedy_params.trainingdata_folder + "/bf";
+			write_basisfunctions(bf_folder, (int)N);
+
+			// Write Riesz Representors
+			std::string repr_folder = greedy_params.trainingdata_folder + "/representors";
+			write_rieszrepresentors(repr_folder);
+			if(N == 1){
+				write_rieszrepresentors(repr_folder);
+			}
+
+			// Write RB Data
+			rb_system.write_rb_data(greedy_params.trainingdata_folder);
+
+			// Write Training Information
+			greedy_info.print(greedy_params.print_file.c_str());
+		}
+
+	} while( (N < greedy_params.Nmax) && (max_error > greedy_params.tol) );
+
+	if(greedy_params.print_info){
+		greedy_info.print();
+	}
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 DataType
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
 reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N)
