@@ -4,10 +4,10 @@
 
 namespace lawa {
 
-AWGM_PG_Parameters::AWGM_PG_Parameters(double _tol, double _alpha, size_t _max_its,
-		size_t _max_basissize, bool _reset_res, bool _print_info,
+AWGM_PG_Parameters::AWGM_PG_Parameters(double _tol, double _alpha, std::size_t _max_its,
+		std::size_t _max_basissize, bool _reset_res, bool _print_info,
 		bool _verbose, bool _plot_solution, bool _verbose_extra,
-		size_t _hashmapsize_trial, size_t _hashmapsize_test,
+		std::size_t _hashmapsize_trial, std::size_t _hashmapsize_test,
 		std::string _info_filename,	std::string _plot_filename)
 : tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
   reset_res(_reset_res), print_info(_print_info),
@@ -36,7 +36,7 @@ AWGM_PG_Parameters::print()
 }
 
 
-IS_Parameters::IS_Parameters(bool _adaptive_tol, size_t _max_its, double _init_tol,
+IS_Parameters::IS_Parameters(bool _adaptive_tol, std::size_t _max_its, double _init_tol,
 			  double _res_reduction, double _absolute_tol, bool _verbose)
 : adaptive_tol(_adaptive_tol), max_its(_max_its), init_tol(_init_tol),
   res_reduction(_res_reduction), absolute_tol(_absolute_tol), verbose(_verbose)
@@ -55,10 +55,10 @@ IS_Parameters::print()
 	std::cout << "#########################################" << std::endl << std::endl;
 }
 
-AWGM_Parameters::AWGM_Parameters(double _tol, double _alpha, size_t _max_its,
-		size_t _max_basissize, bool _print_info,
+AWGM_Parameters::AWGM_Parameters(double _tol, double _alpha, std::size_t _max_its,
+		std::size_t _max_basissize, bool _print_info,
 		bool _verbose, bool _plot_solution, bool _verbose_extra,
-		size_t _hashmapsize, std::string _info_filename, std::string _plot_filename)
+		std::size_t _hashmapsize, std::string _info_filename, std::string _plot_filename)
 : tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
   print_info(_print_info), verbose(_verbose), plot_solution(_plot_solution),
   verbose_extra(_verbose_extra), hashmapsize(_hashmapsize),
@@ -82,6 +82,26 @@ AWGM_Parameters::print()
 	std::cout << "#########################################" << std::endl << std::endl;
 }
 
+ISWGM_Parameters::ISWGM_Parameters(bool _print_info,
+									bool _verbose,
+									bool _plot_solution,
+									std::string _info_filename,
+									std::string _plot_filename)
+ : print_info(_print_info), verbose(_verbose), plot_solution(_plot_solution),
+   info_filename(_info_filename), plot_filename(_plot_filename)
+{}
+
+void
+ISWGM_Parameters::print()
+{
+	std::cout << "###### ISWGM Parameters #################" << std::endl;
+	std::cout << std::left << std::setw(24) << "# print_info:" << std::setw(20) <<  (print_info?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# verbose:" << std::setw(20) <<  (verbose?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# plot_solution:" << std::setw(20) <<  (plot_solution?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# info_filename:" << std::setw(20) <<  info_filename << std::endl;
+	std::cout << std::left << std::setw(24) << "# plot_filename:" << std::setw(20) <<  plot_filename << std::endl;
+	std::cout << "#########################################" << std::endl << std::endl;
+}
 
 void
 AWGM_PG_Information::print(const char* filename)
@@ -138,6 +158,51 @@ AWGM_Information::reset()
 	sizeLambda.clear();
 	sizeLambdaRes.clear();
 	cg_its.clear();
+}
+
+void
+ISWGM_Information::print(const char* filename)
+{
+    std::ofstream infofile(filename);
+    if(infofile.is_open()){
+    	infofile << "# It Res" << std::endl;
+    	for(std::size_t i=0; i < is_res.size(); ++i){
+    		infofile << i << " " << is_res[i] << std::endl;
+    	}
+        infofile.close();
+    }
+    else{
+    	std::cerr << "Error opening file " << filename << " for writing! " << std::endl;
+    }
+}
+
+void
+ISWGM_Information::reset()
+{
+	is_res.clear();
+}
+
+void
+ISWGM_PG_Information::print(const char* filename)
+{
+    std::ofstream infofile(filename);
+    if(infofile.is_open()){
+    	infofile << "# It Res ResNE" << std::endl;
+    	for(std::size_t i=0; i < is_res.size(); ++i){
+    		infofile << i << " " << is_res[i] << " " << is_resNE[i] << std::endl;
+    	}
+        infofile.close();
+    }
+    else{
+    	std::cerr << "Error opening file " << filename << " for writing! " << std::endl;
+    }
+}
+
+void
+ISWGM_PG_Information::reset()
+{
+	is_res.clear();
+	is_resNE.clear();
 }
 
 

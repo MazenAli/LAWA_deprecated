@@ -90,13 +90,13 @@ struct AWGM_Parameters{
  * Parameters for the inner solver (cg/cgls)
  */
 struct IS_Parameters{
-	bool adaptive_tol;
-	std::size_t max_its;
-	double init_tol;
-	double res_reduction;
-	double absolute_tol;
+	bool 			adaptive_tol;
+	std::size_t 	max_its;
+	double 			init_tol;
+	double 			res_reduction;
+	double 			absolute_tol;
 
-	bool verbose;
+	bool 			verbose;
 
 	IS_Parameters(bool _adaptive_tol = true,
 				  std::size_t _max_its = 100,
@@ -109,8 +109,29 @@ struct IS_Parameters{
 };
 
 /**
- * Gathers information that is interesting during a cgls-solve
- * and which can later be printed out
+ * Parameters for a indexset-based Wavelet-Galerkin Method
+ *  (= the outer solver)
+ */
+struct ISWGM_Parameters{
+
+	bool	print_info;
+	bool 	verbose;
+	bool    plot_solution;
+	std::string info_filename;
+	std::string plot_filename;
+
+	ISWGM_Parameters(bool _print_info = true,
+					bool _verbose = true,
+					bool _plot_solution = false,
+					std::string _info_filename = "iswgm_conv_info.txt",
+					std::string _plot_filename = "iswgm_u_plot");
+
+	void print();
+};
+
+/**
+ * Gathers information that is interesting during a awgm-solve
+ * and which can later be printed out (Petrov-Galerkin version)
  */
 struct AWGM_PG_Information{
 	std::vector<double> 		awgm_res, awgm_resNE;
@@ -124,8 +145,8 @@ struct AWGM_PG_Information{
 };
 
 /**
- * Gathers information that is interesting during a cg-solve
- * and which can later be printed out
+ * Gathers information that is interesting during a awgm-solve
+ * and which can later be printed out (alerkin version)
  */
 struct AWGM_Information{
 	std::vector<double> 		awgm_res;
@@ -133,6 +154,30 @@ struct AWGM_Information{
 								cg_its;
 
 	void print(const char* filename = "awgm_cg_conv_info.txt");
+
+	void reset();
+};
+
+/**
+ * Gathers information that is interesting during a iswgm-solve
+ * and which can later be printed out (Galerkin version)
+ */
+struct ISWGM_Information{
+	std::vector<double> 		is_res;
+
+	void print(const char* filename = "iswgm_is_conv_info.txt");
+
+	void reset();
+};
+
+/**
+ * Gathers information that is interesting during a iswgm-solve
+ * and which can later be printed out (Petrov-Galerkin version)
+ */
+struct ISWGM_PG_Information{
+	std::vector<double> 		is_res, is_resNE;
+
+	void print(const char* filename = "iswgm_pg_is_conv_info.txt");
 
 	void reset();
 };
