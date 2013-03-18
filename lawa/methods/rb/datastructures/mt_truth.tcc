@@ -60,6 +60,9 @@ get_riesz_representor_a(std::size_t i, const DataType& u)
 	DataType r_a = riesz_solver_a.solve();
 	riesz_solver_a.remove_preconditioner(r_a);
 
+	// We should have calculated (r,v) = - a^q(u,v)
+	// but we did (r,v) = a^q(u,v)
+	r_a *= (-1);
 	return r_a;
 }
 
