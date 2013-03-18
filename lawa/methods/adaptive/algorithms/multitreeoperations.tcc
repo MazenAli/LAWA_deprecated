@@ -5150,6 +5150,15 @@ getCounterpart(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_t
 template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
 void
 getStableExpansion(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+			Coefficients<Lexicographical,T,Index2D>& coeffs_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target)
+{
+	IndexSet<Index2D> indexset = get_indexset(coeffs_origin);
+	getStableExpansion(basis_origin, basis_target, indexset, coeffs_target);
+}
+
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getStableExpansion(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
 				   IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target)
 {
 

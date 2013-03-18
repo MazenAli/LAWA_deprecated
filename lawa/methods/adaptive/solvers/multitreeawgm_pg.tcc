@@ -124,7 +124,7 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 	if(u.size() > 0){
 
 		// Take support of u as initial index set
-		LambdaTrial = supp(u);
+		LambdaTrial = get_indexset(u);
 
 		// Check if this is the default trial index set
 		bool is_default_set = true;
@@ -146,7 +146,7 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 			std::cerr << "Computing stable expansion as test set. " << std::endl;
 			Coefficients<Lexicographical,T,Index2D> Lambda_aux;
 			getStableExpansion(trialbasis, testbasis, LambdaTrial, Lambda_aux);
-			LambdaTest = supp(Lambda_aux);
+			LambdaTest = get_indexset(Lambda_aux);
 		}
 		// Else we just use the default test set
 		else{
@@ -184,6 +184,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 
 	FillWithZeros(LambdaTrial,u_leafs);
 	FillWithZeros(LambdaTest,res);
+	FillWithZeros(LambdaTest,Ap); // our dummy vector for the test index set extension
 
     // Default for initial cgls tolerance computation if adaptive
     T resNE_norm = 1.;
@@ -194,26 +195,27 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
     //---------------------------------------//
     for(std::size_t awgm_its = 0; awgm_its <= awgm_params.max_its; ++awgm_its){
 
-    	if (LambdaTrial.size()>awgm_params.max_basissize){
+    	if (u.size()>awgm_params.max_basissize){
     		break;
     	}
 
-        awgm_info.sizeLambdaTrial.push_back(LambdaTrial.size());
-        awgm_info.sizeLambdaTest.push_back(LambdaTest.size());
+        awgm_info.sizeLambdaTrial.push_back(u.size());
+        awgm_info.sizeLambdaTest.push_back(Ap.size());
 
         //---------------------------------------//
         //------- CGLS  -------------------------//
         //---------------------------------------//
 
 		// Re-initialize vectors from last iteration
-        r.clear();
-        s.clear();
-        p.clear();
-        Ap.clear();
-		FillWithZeros(LambdaTest,r);
-		FillWithZeros(LambdaTrial,p);
-		FillWithZeros(LambdaTrial,s);
-		FillWithZeros(LambdaTest,Ap);
+        // We assume that the indexsets never shrink
+        for(auto& entry : u){
+        	p[entry.first] = 0.;
+        	s[entry.first] = 0.;
+        }
+        for(auto& entry: Ap){
+        	r[entry.first] = 0.;
+        	entry.second = 0.;
+        }
 
 		// CGLS Parameters
 		T cgls_tol;
@@ -227,8 +229,8 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
         if(awgm_params.verbose){
             std::cout << "******** Iteration " << awgm_its << std::endl;
             std::cout << std::right;
-            std::cout << "   Current size of LambdaTrial " << std::setw(8) <<  LambdaTrial.size() << std::endl;
-            std::cout << "   Current size of LambdaTest  " << std::setw(8) << LambdaTest.size() << std::endl << std::endl;
+            std::cout << "   Current size of LambdaTrial " << std::setw(8) <<  u.size() << std::endl;
+            std::cout << "   Current size of LambdaTest  " << std::setw(8) << Ap.size() << std::endl << std::endl;
             std::cout.precision();
             std::cout << std::left;
             std::cout << "   --- Starting CGLS with tolerance " << cgls_tol << " ---" << std::endl;
@@ -241,8 +243,8 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 		// Initial step
 		Op.eval(u,r,trialPrec,testPrec);
 		//r -= f;
-	    for(auto& lambda : LambdaTest){
-	    	r[lambda] -= testPrec(lambda)*F(lambda);
+	    for(auto& entry : r){
+	    	entry.second -= testPrec(entry.first)*F(entry.first);
 	    }
 		r *= -1;
 		OpTransp.eval(r,s,testPrec,trialPrec);
@@ -299,26 +301,24 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
         extendMultiTree(trialbasis, u_leafs, resNE, Cdiff_u_leafs, "standard", false, true);
 
         // Compute stable expansion in test basis
-        IndexSet<Index2D> LambdaResNE = supp(resNE);
         if(awgm_params.reset_res){
         	res.clear();
         }
-        getStableExpansion(trialbasis, testbasis, LambdaResNE, res);
+        getStableExpansion(trialbasis, testbasis, resNE, res);
 
         // Compute rhs on expanded test index set
-        IndexSet<Index2D> LambdaRes = supp(res);
 
 		// Compute residual Au - f on expanded test index set
         res.setToZero();
         Op.eval(u,res,trialPrec,testPrec); 	// res = A*u
         //res -= f;
-	    for(auto& lambda : LambdaRes){
-	    	res[lambda] -= testPrec(lambda)*F(lambda);
-	    }
+		for(auto& entry : res){
+			entry.second -= testPrec(entry.first)*F(entry.first);
+		}
         res_norm = res.norm(2.);
 
         awgm_info.awgm_res.push_back(res_norm);
-        awgm_info.sizeLambdaRes.push_back(LambdaRes.size());
+        awgm_info.sizeLambdaRes.push_back(res.size());
 
         // Compute residual of NE: A^TA*u - A^T*f
         resNE.setToZero();
@@ -326,15 +326,15 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
         resNE_norm = resNE.norm(2.);
 
         awgm_info.awgm_resNE.push_back(resNE_norm);
-        awgm_info.sizeLambdaResNE.push_back(LambdaResNE.size());
+        awgm_info.sizeLambdaResNE.push_back(resNE.size());
 
         if(awgm_params.verbose){
             std::cout << "   --- Approximate Residual ---" << std::endl;
             std::cout << "       U_leafs:        " << std::setw(20) << u_leafs.size() << std::endl;
             std::cout << "       Residual Au-f:  " << std::setw(20) << res_norm
-            									   << " (on " << std::setw(8) << std::right <<  LambdaRes.size() << std::left << " indizes)" << std::endl;
+            									   << " (on " << std::setw(8) << std::right <<  res.size() << std::left << " indizes)" << std::endl;
             std::cout << "       Residual NE  :  " << std::setw(20) << resNE_norm
-            									   << " (on " << std::setw(8) << std::right << LambdaResNE.size()<< std::left << " indizes)" << std::endl;
+            									   << " (on " << std::setw(8) << std::right << resNE.size()<< std::left << " indizes)" << std::endl;
         }
 
         // Test for convergence
@@ -367,9 +367,9 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 
         // Remove indizes from last iteration
         T P_Lambda_ResNE_square = 0.;
-		for(auto& lambda : LambdaTrial){
-			P_Lambda_ResNE_square += std::pow(s[lambda], (T)2.);
-			resNE.erase(lambda);
+		for(auto& entry : s){
+			P_Lambda_ResNE_square += std::pow(entry.second, (T)2.);
+			resNE.erase(entry.first);
 		}
 
 		// Compute buckets
@@ -399,8 +399,8 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 		}
 
 		// Replace indizes from last iteration
-		for(auto& lambda : LambdaTrial){
-			resNE.insert(std::make_pair<decltype(lambda),T>(lambda,0.));
+		for(auto& entry : u){
+			resNE[entry.first] = 0.;
 		}
 
 		// New LambdaTrial: Add new indizes to u, complete to multitree
@@ -415,18 +415,15 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
         u_leafs.clear();
         FillWithZeros(LambdaTrialDiff,u_leafs);
 
-        LambdaTrial = supp(u);
-
         // New LambdaTest: stable expansion of LambdaTrial (on dummy vector Ap)
         Ap.clear();
-        getStableExpansion(trialbasis, testbasis, LambdaTrial, Ap);
-        LambdaTest = supp(Ap);
+        getStableExpansion(trialbasis, testbasis, u, Ap);
 
         if(awgm_params.verbose){
             std::cout << "       LambdaTrial:  raw extension  " <<  std::setw(8) << std::right <<  p.size() << std::endl;
             std::cout << "                     multitree ext. " <<  std::setw(8) <<  LambdaTrialDiff.size() << std::endl;
-            std::cout << "                     total size     " <<  std::setw(8) <<  LambdaTrial.size() << std::endl;
-            std::cout << "       LambdaTest:   total size     " <<  std::setw(8) <<  LambdaTest.size() << std::left << std::endl;
+            std::cout << "                     total size     " <<  std::setw(8) <<  u.size() << std::endl;
+            std::cout << "       LambdaTest:   total size     " <<  std::setw(8) <<  Ap.size() << std::left << std::endl;
             if(awgm_params.verbose_extra){
             	std::cout << LambdaTrialDiff;
             }
