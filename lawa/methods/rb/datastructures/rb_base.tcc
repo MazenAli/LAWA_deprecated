@@ -275,7 +275,21 @@ train_strong_Greedy()
 			filename << greedy_params.print_file << "_bf" << N+1 << ".txt";
 			rb_truth.access_solver().access_params().info_filename = filename.str();
 		}
-		DataType u = rb_truth.get_truth_solution(current_param);
+
+		//DataType u = rb_truth.get_truth_solution(current_param);
+		DataType u;
+		for(auto& entry : truth_sols){
+			bool is_current_mu = true;
+			for(std::size_t i = 0; i < current_param.size(); ++i){
+				if(entry.first[i]!=current_param[i]){
+					is_current_mu = false;
+					break;
+				}
+			}
+			if(is_current_mu){
+				u = entry.second;
+			}
+		}
 		add_to_basis(u);
 		N++;
 
@@ -351,7 +365,12 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
 	// Calculate step lengths in each parameter dimension
     std::vector<T> h(pdim);
     for(std::size_t d = 0; d < pdim; ++d) {
-        h[d] = (max_param[d] - min_param[d]) / ((T)param_nb[d]-1.);
+    	if(param_nb[d] > 1){
+            h[d] = (max_param[d] - min_param[d]) / ((T)param_nb[d]-1.);
+    	}
+    	else{
+    		h[d] = 0;
+    	}
     }
 
     std::vector<ParamType> Xi_train;
@@ -440,8 +459,11 @@ add_to_basis(const DataType& u)
 		new_bf = new_bf - bf * rb_truth.innprod_Y_u_u(bf, u);
 	}
 
+
 	T new_bf_norm_sq = rb_truth.innprod_Y_u_u(new_bf, new_bf);
 	new_bf.scale(1./std::sqrt(new_bf_norm_sq));
+
+
 	rb_basisfunctions.push_back(new_bf);
 
 	if(greedy_params.verbose){
@@ -449,6 +471,7 @@ add_to_basis(const DataType& u)
 
 	    std::cout << std::endl << "||------- UPDATE RB Structures ----------------------------------------||" << std::endl;
 	}
+
 
 	add_to_RB_structures(new_bf);
 
