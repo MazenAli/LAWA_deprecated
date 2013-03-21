@@ -43,9 +43,14 @@ T r = 0.;
 T sigma1 = 0.3;
 T sigma2 = 0.2;
 T rho = 0.;
-T k_C1 = 1., k_G1 = 7.4, k_M1 = 8.5, k_Y1 = 0.8;
-T k_C2 = 1., k_G2 = 6.5, k_M2 = 9.5, k_Y2 = 1.1;
+//T k_C1 = 1., k_G1 = 7.4, k_M1 = 8.5, k_Y1 = 0.8;
+//T k_C2 = 1., k_G2 = 6.5, k_M2 = 9.5, k_Y2 = 1.1;
 //T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 1.25;
+//T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
+
+T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 0.2;
+T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
+//T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 1.55;
 //T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
 
 T    critical_line_x1 = 0.6;
@@ -134,7 +139,7 @@ int main (int argc, char *argv[]) {
     T theta = 0.5;
     T timestep_eps = 1e-6;
     int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 32;
+    int numOfTimesteps = 128;
     T timestep = maturity/numOfTimesteps;
 
     int numOfMCRuns = 100000;
@@ -302,19 +307,35 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
     plotfile.precision(16);
 
     T maxerror = 0.;
-    T h1 = (delta*right_x1-delta*left_x1)/32.;
-    T h2 = (delta*right_x2-delta*left_x2)/32.;
-    std::cerr << "Error is measured over [" << delta*left_x1 << ", " << delta*right_x1 << "], ["
-              << delta*left_x2 << ", " << delta*right_x2 << "]" << std::endl;
+    /*
+    T _left_x1  = left_x1, _left_x2  = left_x2;
+    T _right_x1 = left_x1, _right_x2 = left_x2;
+    */
+
+    T _left_x1  = std::min(left_x1,left_x2);
+    T _left_x2  = _left_x1;
+    T _right_x1 = std::max(right_x1,right_x2);
+    T _right_x2 = _right_x1;
+
+    T h1 = (delta*_right_x1-delta*_left_x1)/32.;
+    T h2 = (delta*_right_x2-delta*_left_x2)/32.;
+
+
+    std::cerr << "ATTENTION: adapted error measuremnt!!" << std::endl;
+
+    std::cerr << "Error is measured over [" << delta*_left_x1 << ", " << delta*_right_x1 << "], ["
+              << delta*_left_x2 << ", " << delta*_right_x2 << "]" << std::endl;
     //for (T x1=left_x1; x1<=right_x1; x1+=0.03125) {
-    for (T x1=delta*left_x1; x1<=delta*right_x1; x1+=h1) {
+    for (T x1=delta*_left_x1; x1<=delta*_right_x1; x1+=h1) {
         //for (T x2=left_x2; x2<=right_x2; x2+=0.03125) {
-        for (T x2=delta*left_x2; x2<=delta*right_x2; x2+=h2) {
+        for (T x2=delta*_left_x2; x2<=delta*_right_x2; x2+=h2) {
             T S1    = strike*std::exp(x1);
             T S2    = strike*std::exp(x2);
             T exact = option2d.value(processparameters,S1,S2,0);
             T x1hat = x1+r*maturity;
             T x2hat = x2+r*maturity;
+            //T x1hat = x1+(r-0.0223999458-0.5*sigma1*sigma1)*maturity;
+            //T x2hat = x2+(r-0.7777609583-0.5*sigma2*sigma2)*maturity;
             T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
             T approx =std::exp(-r*maturity)*evaluate(basis2d, left_x1, right_x1, left_x2, right_x2, u, x1hat, x2hat);
             plotfile << x1 << " " << x2 << " " << exact << " " << approx << " " << payoff << endl;

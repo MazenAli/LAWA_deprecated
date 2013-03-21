@@ -74,6 +74,14 @@ Option2D<T,BasketPut>::value(const ProcessParameters2D<T,BlackScholes2D> &proces
 }
 
 template <typename T>
+T
+Option2D<T,BasketPut>::value(const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters,
+                             T S1, T S2, T t)
+{
+    return 0.;
+}
+
+template <typename T>
 void
 Option2D<T,BasketPut>::setNumberOfMCRuns(int _N) {
     N = _N;

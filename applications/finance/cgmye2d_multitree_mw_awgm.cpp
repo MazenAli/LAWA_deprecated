@@ -25,7 +25,6 @@ typedef TensorBasis2D<Adaptive,PrimalBasis,PrimalBasis>             Basis2D;
 T strike = 1.;
 T maturity = 1.;
 T weight1 = 0.5, weight2 = 0.5;
-
 /*
 const OptionTypenD optiontype = BasketPut;
 OptionParameters2D<T,BasketPut> optionparameters(strike, maturity, weight1, weight2, false);
@@ -50,13 +49,18 @@ T k_C2 = 1., k_G2 = 6.5, k_M2 = 9.5, k_Y2 = 1.1;
 //T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 1.25;
 //T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
 
+//T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 0.2;
+//T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
+//T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 1.55;
+//T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
+
 T    critical_line_x1 = 0.6;
 bool critical_above_x1 = true;
-
 
 ProcessParameters2D<T,CGMYeUnivariateJump2D>   processparameters(r, sigma1, sigma2, rho,
                                                                  k_C1,  k_G1, k_M1, k_Y1,
                                                                  k_C2,  k_G2, k_M2, k_Y2);
+
 
 /* ********************************************* */
 /* *** Typedefs for numerical discretization *** */
@@ -128,7 +132,7 @@ int main (int argc, char *argv[]) {
 
     cout.precision(16);
     if (argc!=8) {
-        cout << "Usage: " << argv[0] << " d j0 maxL2Iterations R1_1 R2_1 R1_2 R2_2" << endl;
+        cout << "Usage: " << argv[0] << " d j0 J R1_1 R2_1 R1_2 R2_2" << endl;
         return 0;
     }
 
@@ -153,7 +157,7 @@ int main (int argc, char *argv[]) {
     T theta = 0.5;
     T timestep_eps = 1e-6;
     int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 32;
+    int numOfTimesteps = 128;
     T timestep = maturity/numOfTimesteps;
     int maxL2Iterations = 1;
 
@@ -238,6 +242,8 @@ int main (int argc, char *argv[]) {
         localWeightingInitCond2D.setBasis(&basis2d);
         localWeightingInitCond2D.setWeightType(0);
 
+        cgmyeOp2D.setCompressionLevel(j, j);
+
         ApproxL2AWGM2D approxL2_solver(basis2d, localThetaTimeStepOp2D, payoffIntegralRHS, NoPrec);
         approxL2_solver.setParameters(alpha, gamma, residualType, treeType, IsMW, false);
         approxL2_solver.approxL2(u, timestep_eps, localWeightingInitCond2D.weight, maxL2Iterations);
@@ -246,7 +252,6 @@ int main (int argc, char *argv[]) {
         T maxError = 0., innerMaxError = 0.;
         PlotInitialCondition(basis2d, left_x1, right_x1, left_x2, right_x2, u, truncatedoption2d, maxError, innerMaxError);
         cout << "Size of u: " << u.size() << " : " << maxError << " " << innerMaxError << endl;
-        convfile << u.size() << " " << maxError << " " << innerMaxError << std::endl;
 
         ThetaTimeStepMultiTreeAWGM2D thetatimestep_solver(basis2d, localThetaTimeStepOp2D,
                                                           thetatimestep_F, Prec);
@@ -266,6 +271,7 @@ int main (int argc, char *argv[]) {
         T maxErrorPrice = computeLinftyError(basis2d, left_x1, right_x1, left_x2, right_x2, u,
                                              delta, avDof, option2d, processparameters);
 
+        convfile << u.size() << " " << maxErrorPrice  << std::endl;
         cerr << "---> Max. error: " << maxErrorPrice << endl;
     }
 
@@ -325,9 +331,20 @@ PlotInitialCondition(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T
         for (T x2=left_x2; x2<=right_x2; x2+=h2) {
             T payoff = truncatedOption.payoff(x1,x2);
             T approx = evaluate(basis2d, u, x1, x2);
-            plotfile << x1 << " " << x2 << " " << approx << " " << payoff << endl;
+
             maxError = std::max(maxError, fabs(approx-payoff));
             if (fabs(x1)<1. && fabs(x2)<1.) innerMaxError = std::max(innerMaxError, fabs(approx-payoff));
+        }
+        plotfile << endl;
+    }
+
+    h1 = 20./128.;
+    h2 = 20./128.;    //for (T x1=left_x1; x1<=right_x1; x1+=0.03125) {
+    for (T x1=-10.; x1<=10.; x1+=h1) {
+        for (T x2=-10.; x2<=10.; x2+=h2) {
+            T payoff = truncatedOption.payoff(x1,x2);
+            T approx = evaluate(basis2d, u, x1, x2);
+            plotfile << x1 << " " << x2 << " " << approx << " " << payoff << endl;
         }
         plotfile << endl;
     }
@@ -370,6 +387,8 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
             T S1    = strike*std::exp(x1);
             T S2    = strike*std::exp(x2);
             T exact = option2d.value(processparameters,S1,S2,0);
+            //T x1hat = x1+(r-0.5*sigma1*sigma1-0.05698818862)*maturity;
+            //T x2hat = x2+(r-0.5*sigma2*sigma2-0.74346053633)*maturity;
             T x1hat = x1+r*maturity;
             T x2hat = x2+r*maturity;
             T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
@@ -377,14 +396,16 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
             maxerror = std::max(maxerror, fabs(approx-exact));
         }
     }
-    /*
-    h1 = 20./64.;
-    h2 = 20./64.;
+/*
+    h1 = 20./128.;
+    h2 = 20./128.;
     for (T x1=-10.; x1<=10.; x1+=h1) {
         for (T x2=-10.; x2<=10.; x2+=h2) {
             T S1    = strike*std::exp(x1);
             T S2    = strike*std::exp(x2);
             T exact = option2d.value(processparameters,S1,S2,0);
+            //T x1hat = x1+(r-0.5*sigma1*sigma1-0.05698818862)*maturity;
+            //T x2hat = x2+(r-0.5*sigma2*sigma2-0.74346053633)*maturity;
             T x1hat = x1+r*maturity;
             T x2hat = x2+r*maturity;
             T payoff = option2d.payoff(strike*exp(x1),strike*exp(x2));
@@ -394,7 +415,7 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
         plotfile << endl;
     }
     plotfile.close();
-    */
+*/
     return maxerror;
 }
 
@@ -479,26 +500,30 @@ getLeftAndRightTranslationIndices(const PrimalBasis &basis, T left_x, T right_x,
     Support<T> supp(left_x,right_x);
     if (type == XBSpline) {
         left_k = 0;
-        while (overlap(basis.mra.phi.support(j,left_k),supp)>=0) {
+        while (overlap(basis.mra.phi.support(j,left_k),supp)>0) {
             left_k--;
         }
-        left_k -= 6;
+        //left_k += 1;
+        left_k -= 5;
         right_k = 0;
-        while (overlap(basis.mra.phi.support(j,right_k),supp)>=0) {
+        while (overlap(basis.mra.phi.support(j,right_k),supp)>0) {
             right_k++;
         }
-        right_k += 6;
+        //right_k -= 1;
+        right_k += 5;
     }
     else {
         left_k = 0;
-        while (overlap(basis.psi.support(j,left_k),supp)>=0) {
+        while (overlap(basis.psi.support(j,left_k),supp)>0) {
             left_k--;
         }
-        left_k -= 6;
+        //left_k += 1;
+        left_k -= 5;
         right_k = 0;
-        while (overlap(basis.psi.support(j,right_k),supp)>=0) {
+        while (overlap(basis.psi.support(j,right_k),supp)>0) {
             right_k++;
         }
-        right_k += 6;
+        //right_k -= 1;
+        right_k += 5;
     }
 }

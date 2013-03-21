@@ -42,7 +42,7 @@ p3(T x) {   return x*x*x; }
 int main()
 {
     /// wavelet basis parameters:
-    int d = 3;          // d-wavelets
+    int d = 4;          // d-wavelets
     int j0 = 0;         // minimal level
     int J = 3;         // maximal level
     cout.precision(16);
@@ -95,7 +95,6 @@ int main()
     IntegralF<Gauss,MWBasis> mw_p2(p2_Fct, basis);
     IntegralF<Gauss,MWBasis> mw_p3(p3_Fct, basis);
 
-
     /// Assembler: Check for orthogonality
     Assembler1D<T, MWBasis> assembler(basis);
     SparseMatrixT   identity_A = assembler.assembleStiffnessMatrix(identity_op, J);
@@ -116,7 +115,7 @@ int main()
         }
 
     }
-    //cout << identity_A_dense << endl;
+    cout << identity_A_dense << endl;
 
     /// Assembler: Check for vanishing moments
     for (int j=j0; j<=J-1; ++j) {

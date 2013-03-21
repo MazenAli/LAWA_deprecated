@@ -21,7 +21,9 @@ FinanceOperator1D<T, CGMYe, Basis1D>::FinanceOperator1D
     //    assert(is_realline_basis);
     //}
     if (use_predef_convection) {
-        convection = kernel.ExpXmOnemX_k;
+        convection = kernel.ExpXmOnemX_k+0.5*processparameters.sigma*processparameters.sigma;
+        //convection = 0.;
+        std::cout << "Convection term: " << std::setprecision (15) << " " <<  convection << std::endl;
         reaction   = 0.;
     }
 //    int singular_order = 4, n = 10;
@@ -50,9 +52,6 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
        T compr_alpha=T(2*basis.d)/T(2*basis.d_+processparameters.k_Y);
        if (xtype1==XWavelet && xtype2==XWavelet) {
            int J=internal_compression_level;
-           if (Basis1D::Domain==R) {
-               std::cerr << "Basis is realline basis..." << std::endl;
-           }
            T delta = 0.1*std::max(pow2i<T>(-std::min(j1,j2)),
                                       pow2i<T>(-(J-1)+compr_alpha*(2*(J-1)-j1-j2)));
            if ( ( distance(basis.generator(xtype1).support(j1,k1),
@@ -68,8 +67,7 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
    T pde_val = 0.;
    T sigma = processparameters.sigma;
    pde_val += convection * OneDivR2pR1 * integral(j1,k1,xtype1,0,j2,k2,xtype2,1);
-   pde_val += 0.5*sigma*sigma*( OneDivR2pR1*OneDivR2pR1 * integral(j1,k1,xtype1,1,j2,k2,xtype2,1)
-                                           +OneDivR2pR1 * integral(j1,k1,xtype1,0,j2,k2,xtype2,1) );
+   pde_val += 0.5*sigma*sigma*( OneDivR2pR1*OneDivR2pR1 * integral(j1,k1,xtype1,1,j2,k2,xtype2,1) );
    if (!use_predef_reaction) {
        pde_val += reaction * integral(j1,k1,xtype1,1,j2,k2,xtype2,1);
    }

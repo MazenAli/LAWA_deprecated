@@ -48,6 +48,9 @@ struct Option2D<T,BasketPut>
     T
     value(const ProcessParameters2D<T,BlackScholes2D> &processparameters, T S1, T S2, T t);
 
+    T
+    value(const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters, T S1, T S2, T t);
+
     void
     setNumberOfMCRuns(int _N);
 
