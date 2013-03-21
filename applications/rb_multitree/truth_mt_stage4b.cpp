@@ -7,8 +7,6 @@
 #include <cmath>
 
 #include <lawa/lawa.h>
-#include <lawa/methods/rb/solvers/multitreesolver.h>
-#include <lawa/methods/rb/solvers/multitreesolver_pg.h>
 
 /*
 #include <lawa/methods/rb/datastructures/thetastructure.h>
@@ -42,14 +40,20 @@ public:
     _T
 	alpha_LB(_ParamType& mu)
     {
-    	auto el = alpha.find(mu);
-    	if(el != alpha.end()){
-    		return el->second;
+    	for(auto& el: alpha){
+    	    bool is_mu = true;
+			for(std::size_t i = 0; i < mu.size(); ++i){
+				if((mu[i]-(el.first)[i]) > 1e-4){
+					is_mu = false;
+					break;
+				}
+			}
+			if(is_mu){
+				return el.second;
+			}
     	}
-    	else{
-    		std::cerr << "Couldn't find alpha" << std::endl;
-    		return 1.;
-    	}
+		std::cerr << "Couldn't find alpha" << std::endl;
+		return 1.;
     }
 
     void
@@ -200,11 +204,11 @@ typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs>							RieszF_Rhs_2D;
 typedef FlexibleBilformRhs<Index2D,AbstractLocalOperator2D<T> >				RieszA_Rhs_2D;
 typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs_Trial>					Flex_Rhs_2D;
 
-typedef MultiTreeSolver_PG<Index2D,Basis2D_Trial, Basis2D_Test,Affine_Op_2D,
+typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,Affine_Op_2D,
 		Affine_Op_2D,Affine_Rhs_2D,RightPrec2D,LeftPrec2D>					MT_AWGM_Truth;
-typedef MultiTreeSolver<Index2D,Basis2D_Test, COp_TestInnProd,
+typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
 		RieszF_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_F;
-typedef MultiTreeSolver<Index2D,Basis2D_Test, COp_TestInnProd,
+typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
 		RieszA_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_A;
 
 typedef MT_Truth<DataType,ParamType,MT_AWGM_Truth,
@@ -449,10 +453,18 @@ int main () {
 	//===============  AWGM =========================================//
 	//===============================================================//
 
-    /* ISWGM Parameters Default Values
+    /* AWGM PG Parameters Default Values
+    double tol = 5e-03;
+	double alpha = 0.7;
+	size_t max_its = 100;
+	size_t max_basissize = 400000;
+	bool reset_res = false;
 	bool print_info = true;
 	bool verbose = true;
 	bool plot_solution = false;
+	bool verbose_extra = false; //(print added wavelet indizes)
+	size_t hashmapsize_trial = 10;
+	size_t hashmapsize_test = 10;
 	std::string info_filename = "awgm_cgls_conv_info.txt";
 	std::string plot_filename = "awgm_cgls_u_plot";
 	*/
@@ -466,40 +478,53 @@ int main () {
 	bool verbose = true;
 	*/
 
-    ISWGM_Parameters iswgm_parameters;
-    IS_Parameters is_parameters;
+    /* AWGM Parameters Default Values
+    double tol = 5e-03;
+	double alpha = 0.7;
+	size_t max_its = 100;
+	size_t max_basissize = 400000;
+	bool print_info = true;
+	bool verbose = true;
+	bool plot_solution = false;
+	bool verbose_extra = false; //(print added wavelet indizes)
+	size_t hashmapsize = 10;
+	std::string info_filename = "awgm_cg_conv_info.txt";
+	std::string plot_filename = "awgm_cg_u_plot";
+	*/
 
+    AWGM_PG_Parameters awgm_truth_parameters;
+    IS_Parameters is_parameters;
+    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
+    awgm_truth_parameters.tol = 1e-4;
+    awgm_truth_parameters.max_its = 1000;
+    
     is_parameters.adaptive_tol = false;
-    is_parameters.max_its 		= 1000;
-    is_parameters.absolute_tol = 1e-15;
+    is_parameters.absolute_tol = 1e-10;
 
     //----------- Solver ---------------- //
 
     T gamma = 0.2;
     IndexSet<Index2D> LambdaTrial, LambdaTest;
-    getSparseGridIndexSet(basis2d_trial,LambdaTrial,4,0,gamma);
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,4,1,gamma);
-    //getFullIndexSet(basis2d_trial, LambdaTrial,4,4,0);
-    ///getFullIndexSet(basis2d_test, LambdaTest,4,4,1);
+    getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
+    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
 
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
-    							 affine_rhs, rightPrec, leftPrec,
-    							 iswgm_parameters, is_parameters);
+    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
-    awgm_u.set_indexsets(LambdaTrial,LambdaTest);
-    awgm_u.iswgm_params.plot_solution = false;
+    awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
-    MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec,
-    							iswgm_parameters, is_parameters);
+    MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, is_parameters);
     awgm_rieszF.set_sol(dummy);
-    awgm_rieszF.set_indexset(LambdaTest);
+    awgm_rieszF.set_initial_indexset(LambdaTest);
+    awgm_rieszF.awgm_params.info_filename = "awgm_cg_rieszF_conv_info.txt";
 
 
-    MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec,
-    							iswgm_parameters, is_parameters);
+    MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
-    awgm_rieszA.set_indexset(LambdaTest);
+    awgm_rieszA.set_initial_indexset(LambdaTest);
+    awgm_rieszA.awgm_params.tol = 1e-03;
+    awgm_rieszA.awgm_params.info_filename = "awgm_cg_rieszA_conv_info.txt";
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
 
@@ -530,6 +555,7 @@ int main () {
 			bool erase_snapshot_params = false
      */
 
+
     /* RB Parameters Default Values
       		SolverCall call = call_cg,
 			ParamType ref_param = ParamType(),
@@ -542,30 +568,33 @@ int main () {
     rb_base.greedy_params.min_param = mu_min;
     rb_base.greedy_params.max_param = mu_max;
     rb_base.greedy_params.Nmax = 	15;
-    rb_base.greedy_params.nb_training_params = {{1,1}};
+    rb_base.greedy_params.nb_training_params = {{20, 20}};
     rb_base.greedy_params.print_paramset = true;
+    rb_base.greedy_params.erase_snapshot_params = false;
+    rb_base.greedy_params.print_file = "awgm_stage4b_greedy_info.txt";
+    rb_base.greedy_params.trainingdata_folder = "training_data_stage4b";
 
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();
 
     cout << "Parameters Truth Solver: " << std::endl << std::endl;
-    awgm_u.iswgm_params.print();
+    awgm_u.awgm_params.print();
     awgm_u.is_params.print();
 
     cout << "Parameters Riesz Solver F : " << std::endl << std::endl;
-    awgm_rieszF.iswgm_params.print();
+    awgm_rieszF.awgm_params.print();
     awgm_rieszF.is_params.print();
 
     cout << "Parameters Riesz Solver A : " << std::endl << std::endl;
-    awgm_rieszA.iswgm_params.print();
+    awgm_rieszA.awgm_params.print();
     awgm_rieszA.is_params.print();
 
     rb_base.train_strong_Greedy();
 
-    rb_system.write_rb_data();
-    rb_base.write_basisfunctions();
-    rb_base.write_rieszrepresentors();
+    rb_system.write_rb_data("offline_data_stage4b");
+    rb_base.write_basisfunctions("offline_data_stage4b");
+    rb_base.write_rieszrepresentors("offline_data_stage4b");
 
 
 

@@ -389,6 +389,7 @@ int main () {
     							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
+    awgm_u.awgm_params.tol = 1e-02;
 
 
     MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, is_parameters);
@@ -399,7 +400,7 @@ int main () {
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
-    awgm_rieszA.awgm_params.tol = 1e-04;
+    awgm_rieszA.awgm_params.tol = 1e-02;
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
 
@@ -414,6 +415,25 @@ int main () {
 
     RB_BaseModel rb_base(rb_system, rb_truth);
 
+    /* RB Greedy Parameters Default Values
+      		double tol = 1e-2,
+			size_t Nmax = 20,
+			ParamType min_param = ParamType(),
+			ParamType max_param = ParamType(),
+			intArray  training_params_per_dim = intArray(),
+			bool print_info = true,
+			bool verbose = true,
+			bool write_during_training = true,
+			bool print_paramset = false,
+			bool erase_snapshot_params = false
+     */
+
+    /* RB Parameters Default Values
+      		SolverCall call = call_cg,
+			ParamType ref_param = ParamType(),
+			bool verbose = true
+     */
+
     ParamType mu_min = {{0.01}};
     ParamType mu_max = {{100}};
 
@@ -421,6 +441,7 @@ int main () {
     rb_base.greedy_params.max_param = mu_max;
     rb_base.greedy_params.nb_training_params = {{10}};
     rb_base.greedy_params.print_paramset = true;
+    rb_base.greedy_params.erase_snapshot_params = false;
 
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();

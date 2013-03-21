@@ -3,8 +3,12 @@
 #include <utility>
 #include <array>
 #include <vector>
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <lawa/lawa.h>
 
+/*
 #include <lawa/methods/rb/datastructures/thetastructure.h>
 #include <lawa/methods/rb/operators/affinelocaloperator.h>
 #include <lawa/methods/rb/righthandsides/affinerhs.h>
@@ -14,7 +18,7 @@
 #include <lawa/methods/rb/datastructures/rb_system.h>
 #include <lawa/methods/rb/datastructures/rb_base.h>
 #include <lawa/methods/rb/datastructures/rb_parameters.h>
-
+*/
 
 using namespace std;
 using namespace lawa;
@@ -36,14 +40,20 @@ public:
     _T
 	alpha_LB(_ParamType& mu)
     {
-    	auto el = alpha.find(mu);
-    	if(el != alpha.end()){
-    		return el->second;
+    	for(auto& el: alpha){
+    	    bool is_mu = true;
+			for(std::size_t i = 0; i < mu.size(); ++i){
+				if( (mu[i]-(el.first)[i]) > 1e-4 ){
+					is_mu = false;
+					break;
+				}
+			}
+			if(is_mu){
+				return el.second;
+			}
     	}
-    	else{
-    		std::cerr << "Couldn't find alpha" << std::endl;
-    		return 1.;
-    	}
+		std::cerr << "Couldn't find alpha" << std::endl;
+		return 1.;
     }
 
     void
@@ -186,7 +196,7 @@ typedef RHS<T,Index2D,SeparableRhsIntegral2D_Trial,
 const size_t PDim = 2;
 
 typedef CoeffVector 								 						DataType;
-typedef std::array<T,PDim>	 													ParamType;
+typedef array<T,PDim>	 													ParamType;
 
 typedef AffineLocalOperator<Index2D,AbstractLocalOperator2D<T>,ParamType>	Affine_Op_2D;
 typedef AffineRhs<T,Index2D,SeparableRhs,ParamType>							Affine_Rhs_2D;
@@ -210,7 +220,7 @@ typedef RB_Base<RB_Model,MTTruthSolver,DataType,ParamType>					RB_BaseModel;
 
 T f_t(T t)
 {
-    return std::cos(2*M_PI*t);
+    return cos(2.L*M_PI*t);
 }
 
 /*T f_x(T x)
@@ -485,7 +495,11 @@ int main () {
     AWGM_PG_Parameters awgm_truth_parameters;
     IS_Parameters is_parameters;
     AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
-
+    awgm_truth_parameters.tol = 1e-4;
+    awgm_truth_parameters.max_its = 1000;
+    
+    is_parameters.adaptive_tol = false;
+    is_parameters.absolute_tol = 1e-10;
 
     //----------- Solver ---------------- //
 
@@ -533,11 +547,14 @@ int main () {
 			ParamType max_param = ParamType(),
 			intArray  training_params_per_dim = intArray(),
 			bool print_info = true,
+    		std::string print_file = "greedy_info.txt",
 			bool verbose = true,
 			bool write_during_training = true,
+    		std::string trainingdata_folder = "training_data",
 			bool print_paramset = false,
 			bool erase_snapshot_params = false
      */
+
 
     /* RB Parameters Default Values
       		SolverCall call = call_cg,
@@ -553,7 +570,9 @@ int main () {
     rb_base.greedy_params.Nmax = 	15;
     rb_base.greedy_params.nb_training_params = {{20, 20}};
     rb_base.greedy_params.print_paramset = true;
-    rb_base.greedy_params.erase_snapshot_params = true;
+    rb_base.greedy_params.erase_snapshot_params = false;
+    rb_base.greedy_params.print_file = "awgm_stage4_greedy_info.txt";
+    rb_base.greedy_params.trainingdata_folder = "training_data_stage4";
 
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
@@ -571,10 +590,9 @@ int main () {
 
     rb_base.train_Greedy();
 
-    rb_base.write_basisfunctions();
-    rb_base.write_rieszrepresentors();
-
-    rb_system.write_rb_data();
+    rb_system.write_rb_data("offline_data_stage4");
+    rb_base.write_basisfunctions("offline_data_stage4");
+    rb_base.write_rieszrepresentors("offline_data_stage4");
 
 
     return 0;

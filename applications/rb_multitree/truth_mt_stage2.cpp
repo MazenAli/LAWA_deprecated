@@ -354,6 +354,7 @@ int main () {
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
+    awgm_rieszA.awgm_params.tol = 1e-04;
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA);
 
@@ -370,6 +371,7 @@ int main () {
     CoeffVector u = rb_truth.get_truth_solution(mu);
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl << endl;
+    plot2D<T,Basis2D_Trial,NoPrec2D>(basis2d_trial, u, noPrec, dummy, 0., 1., 0., 1., 0.01, "awgm_u_plot");
 
 
     cout << "||=====================================================================||" << endl;
@@ -384,6 +386,7 @@ int main () {
     CoeffVector r_f = rb_truth.get_riesz_representor_f(0);
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl << endl;
+    plot2D<T,Basis2D_Test,NoPrec2D>(basis2d_test, r_f, noPrec, dummy, 0., 1., 0., 1., 0.01, "awgm_r_f_plot");
 
     //----------- RieszA Solver ---------------- //
 
@@ -398,6 +401,7 @@ int main () {
     CoeffVector r_a_0 = rb_truth.get_riesz_representor_a(0, u);
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl;
+    plot2D<T,Basis2D_Test,NoPrec2D>(basis2d_test, r_a_0, noPrec, dummy, 0., 1., 0., 1., 0.01, "awgm_r_a_0_plot");
 
     cout << "||=====================================================================||" << endl << endl;
 
@@ -405,6 +409,7 @@ int main () {
     CoeffVector r_a_1 = rb_truth.get_riesz_representor_a(1, u);
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl;
+    plot2D<T,Basis2D_Test,NoPrec2D>(basis2d_test, r_a_1, noPrec, dummy, 0., 1., 0., 1., 0.01, "awgm_r_a_1_plot");
 
     return 0;
 }
