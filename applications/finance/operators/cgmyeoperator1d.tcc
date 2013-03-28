@@ -133,9 +133,10 @@ FinanceOperator1D<T, CGMYe, Basis1D>::operator()(XType xtype1, int j1, int k1,
 
    else if (basis.d==3) {
 
-       if (    (xtype1==XWavelet && xtype2==XWavelet)
-            && (k1 > basis.rangeJL(j1).lastIndex()) && (k1 < basis.rangeJR(j1).firstIndex())
-            && (k2 > basis.rangeJL(j2).lastIndex()) && (k2 < basis.rangeJR(j2).firstIndex()) )
+       if (    (Basis1D::Domain==R)
+            || (    (xtype1==XWavelet && xtype2==XWavelet)
+                 && (k1 > basis.rangeJL(j1).lastIndex()) && (k1 < basis.rangeJR(j1).firstIndex())
+                 && (k2 > basis.rangeJL(j2).lastIndex()) && (k2 < basis.rangeJR(j2).firstIndex()) ) )
        {
            int_val -= OneDivR2pR1*OneDivR2pR1*kernel.c3*integral(j1,k1,xtype1,1,j2,k2,xtype2,1);
 

@@ -44,10 +44,10 @@ T r = 0.;
 T sigma1 = 0.3;
 T sigma2 = 0.2;
 T rho = 0.;
-T k_C1 = 1., k_G1 = 7.4, k_M1 = 8.5, k_Y1 = 0.8;
-T k_C2 = 1., k_G2 = 6.5, k_M2 = 9.5, k_Y2 = 1.1;
-//T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 1.25;
-//T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
+//T k_C1 = 1., k_G1 = 7.4, k_M1 = 8.5, k_Y1 = 0.8;
+//T k_C2 = 1., k_G2 = 6.5, k_M2 = 9.5, k_Y2 = 1.1;
+T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 1.25;
+T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
 
 //T k_C1 = 1., k_G1 = 8.7, k_M1 = 16.5, k_Y1 = 0.2;
 //T k_C2 = 1., k_G2 = 11.2, k_M2 = 7.9, k_Y2 = 1.55;
@@ -157,7 +157,7 @@ int main (int argc, char *argv[]) {
     T theta = 0.5;
     T timestep_eps = 1e-6;
     int maxiterations =  1;  T init_cgtol = 1e-9;   // use maxiterations = 1 for "pure" sparse grid computation
-    int numOfTimesteps = 128;
+    int numOfTimesteps = 16;
     T timestep = maturity/numOfTimesteps;
     int maxL2Iterations = 1;
 
@@ -335,7 +335,6 @@ PlotInitialCondition(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T
             maxError = std::max(maxError, fabs(approx-payoff));
             if (fabs(x1)<1. && fabs(x2)<1.) innerMaxError = std::max(innerMaxError, fabs(approx-payoff));
         }
-        plotfile << endl;
     }
 
     h1 = 20./128.;
@@ -396,7 +395,7 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
             maxerror = std::max(maxerror, fabs(approx-exact));
         }
     }
-/*
+    /*
     h1 = 20./128.;
     h2 = 20./128.;
     for (T x1=-10.; x1<=10.; x1+=h1) {
@@ -415,7 +414,7 @@ computeLinftyError(const Basis2D &basis2d, T left_x1, T right_x1, T left_x2, T r
         plotfile << endl;
     }
     plotfile.close();
-*/
+    */
     return maxerror;
 }
 
@@ -503,13 +502,11 @@ getLeftAndRightTranslationIndices(const PrimalBasis &basis, T left_x, T right_x,
         while (overlap(basis.mra.phi.support(j,left_k),supp)>0) {
             left_k--;
         }
-        //left_k += 1;
         left_k -= 5;
         right_k = 0;
         while (overlap(basis.mra.phi.support(j,right_k),supp)>0) {
             right_k++;
         }
-        //right_k -= 1;
         right_k += 5;
     }
     else {
@@ -517,13 +514,11 @@ getLeftAndRightTranslationIndices(const PrimalBasis &basis, T left_x, T right_x,
         while (overlap(basis.psi.support(j,left_k),supp)>0) {
             left_k--;
         }
-        //left_k += 1;
         left_k -= 5;
         right_k = 0;
         while (overlap(basis.psi.support(j,right_k),supp)>0) {
             right_k++;
         }
-        //right_k -= 1;
         right_k += 5;
     }
 }

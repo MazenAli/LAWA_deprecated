@@ -13,8 +13,8 @@ typedef flens::DenseVector<flens::Array<long double> >              DenseVectorL
 
 ///  Typedefs for problem components:
 ///     Multiwavelet basis over an interval
-//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-typedef Basis<T, Primal, Interval, Dijkema>                       PrimalBasis;
+typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+//typedef Basis<T, Primal, Interval, Dijkema>                       PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 typedef Integral<Gauss,PrimalBasis,PrimalBasis>                     MultiWaveletIntegral;
@@ -71,11 +71,11 @@ int main(int argc, char*argv[])
     int d  = atoi(argv[1]);
     int j0 = atoi(argv[2]);
     int J  = atoi(argv[3]);
-    int deriv = 0;
+    int deriv = 1;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    //PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
-    PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
+    PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
+    //PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
     //if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis& refinementbasis = basis.refinementbasis;
 
@@ -86,11 +86,11 @@ int main(int argc, char*argv[])
     /// Test refinement of multiscaling functions. In case biorthogonal wavelet bases, this is just
     /// the same as the test above as here, the scaling function are already B-splines.
 
-    //test_refinementOfScaling(basis, refinementbasis, deriv);
+    test_refinementOfScaling(basis, refinementbasis, deriv);
 
     /// Test refinement of multiwavelets: We check the refinement of wavelets in terms of B-splines.
 
-    test_refinementOfWavelet(basis, refinementbasis, deriv);
+    //test_refinementOfWavelet(basis, refinementbasis, deriv);
 
     /// Check for B-spline neighbors: Given a B-spline, we need to determine the B-splines whose
     /// supports intersect the one of the B-spline. Here, both sides are assumed to be on the same
