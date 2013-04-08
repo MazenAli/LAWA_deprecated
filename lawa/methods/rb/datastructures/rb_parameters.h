@@ -46,6 +46,7 @@ struct RB_Greedy_Parameters{
 	std::string trainingdata_folder;
 	bool 		print_paramset;
 	bool 		erase_snapshot_params;
+	bool		orthonormalize_bfs;
 
 	RB_Greedy_Parameters(double _tol = 1e-2,
 						size_t _Nmax = 20,
@@ -58,7 +59,8 @@ struct RB_Greedy_Parameters{
 						bool _write_during_training = true,
 						std::string _trainingdata_folder = "training_data",
 						bool _print_paramset = false,
-						bool _erase_snapshot_params = false);
+						bool _erase_snapshot_params = false,
+						bool _orthonormalize_bfs = true);
 
 	void print();
 };
