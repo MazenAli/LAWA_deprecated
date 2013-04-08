@@ -7,3 +7,4 @@ plot_Dijkema_bfs
 get_bf_norms
 plot_solutions
 *.dat
+convertCoeffFilesToCorrectSupportCenter
