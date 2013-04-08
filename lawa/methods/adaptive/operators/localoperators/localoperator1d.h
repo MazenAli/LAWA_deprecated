@@ -62,6 +62,9 @@ class LocalOperator1D {
         eval(const TreeCoefficients1D<T> &PsiLambdaHat, TreeCoefficients1D<T> &PsiLambdaCheck,
              const char* mode);
 
+        T
+        operator()(const Index1D &row_index, const Index1D &col_index);
+
     private:
         void
         _evalA(int l, CoefficientsByLevel<T> &d, const TreeCoefficients1D<T> &c,

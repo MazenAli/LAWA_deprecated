@@ -256,6 +256,32 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
 
 template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
           typename ThirdLocalOperator,typename FourthLocalOperator>
+typename FirstLocalOperator::T
+CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>::
+eval(Index& ind_row, Index& ind_col)
+{
+	T val = 0.;
+    switch (numOfLocalOp)
+    {
+        case 2:
+            val += firstLocalOp(ind_row, ind_col);
+            val += secondLocalOp(ind_row, ind_col);
+            break;
+        case 3:
+        	val += firstLocalOp(ind_row, ind_col);
+        	val += secondLocalOp(ind_row, ind_col);
+        	val += thirdLocalOp(ind_row, ind_col);
+            break;
+        default:
+            std::cerr << "CompoundLocalOperator not yet implemented for " << numOfLocalOp
+                      << " operators. Exit." << std::endl;
+            exit(1);
+    }
+	return val;
+}
+
+template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
+          typename ThirdLocalOperator,typename FourthLocalOperator>
 template <typename Preconditioner>
 void
 CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>::

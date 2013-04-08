@@ -157,7 +157,8 @@ struct LocalOperator2D : AbstractLocalOperator2D<typename LocalOperator1::T>{
 
     // ---------------------------------------------- //
 
-
+    T
+    operator()(const Index2D &row_index, const Index2D &col_index);
 
     LocalOperator1          &localoperator1;
     LocalOperator2          &localoperator2;

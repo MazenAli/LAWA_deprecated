@@ -30,6 +30,15 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm,
           typename BilinearForm>
+typename TrialBasis::T
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>::
+operator()(const Index1D &row_index, const Index1D &col_index)
+{
+	return Bil(row_index,col_index);
+}
+
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm,
+          typename BilinearForm>
 void
 LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::eval(const TreeCoefficients1D<T> &PsiLambdaHat, TreeCoefficients1D<T> &PsiLambdaCheck,

@@ -1052,6 +1052,13 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
     return;
 }
 
+template <typename LocalOperator1, typename LocalOperator2>
+typename LocalOperator1::T
+LocalOperator2D<LocalOperator1, LocalOperator2>::
+operator()(const Index2D &row_index, const Index2D &col_index)
+{
+	return localoperator1(row_index, col_index) * localoperator2(row_index,col_index);
+}
 
 }   // namespace lawa
 

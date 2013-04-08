@@ -55,9 +55,12 @@ public:
 		 Coefficients<Lexicographical,T,Index>& leftP);
 
 	void
-	eval(size_t i,
+	eval(std::size_t i,
 		 const Coefficients<Lexicographical,T,Index> &v,
 		 Coefficients<Lexicographical,T,Index> &Av);
+
+	T
+	eval(std::size_t i, Index& ind_row, Index& ind_col);
 
 protected:
 

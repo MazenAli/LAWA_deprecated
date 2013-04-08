@@ -79,6 +79,9 @@ class CompoundLocalOperator {
         apply(Coefficients<Lexicographical,T,Index> &v,
               Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P, T eps);
 
+        T
+        eval(Index& ind_row, Index& ind_col);
+
         int                         numOfLocalOp;
         FirstLocalOperator          &firstLocalOp;
         SecondLocalOperator         &secondLocalOp;

@@ -97,5 +97,14 @@ eval(Coefficients<Lexicographical,T,Index> &v,
 	}
 }
 
+template <typename Index, typename LocalOperatorType>
+typename LocalOperatorType::T
+FlexibleCompoundLocalOperator<Index, LocalOperatorType>::
+eval(std::size_t i, Index& ind_row, Index& ind_col)
+{
+	assert(i < localops.size());
+	return localops[i]->operator()(ind_row, ind_col);
+}
+
 } // namespace lawa
 
