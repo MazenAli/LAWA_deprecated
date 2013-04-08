@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <utility>
 #include <cmath>
+#include <cstdlib>
 #include <lawa/lawa.h>
 #include <lawa/methods/adaptive/operators/localoperators/abstractlocaloperator2d.h>
 #include <lawa/methods/adaptive/operators/pdeoperators1d/pdeoperators1d.h>
@@ -124,7 +125,12 @@ T dummy(T, T)
 }
 
 
-int main () {
+int main (int argc, char* argv[]) {
+
+	if(argc != 2){
+		cerr << "USAGE: " << argv[0] << " Jmax (= max. level of sparse grid)" << endl;
+		exit(1);
+	}
 
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
@@ -133,6 +139,7 @@ int main () {
     int d   = 2;
     int d_  = 2;
     int j0  = 2;
+    size_t Jmax = atoi(argv[1]);
 
     //getchar();
 
@@ -268,16 +275,18 @@ int main () {
     AWGM_PG_Parameters awgm_parameters;
     IS_Parameters cgls_parameters;
     // .... set them here:
+    awgm_parameters.max_its = 0;
     awgm_parameters.tol = 1e-04;
     awgm_parameters.plot_solution = false;
-    awgm_parameters.verbose_extra = true;
-    awgm_parameters.info_filename = "awgm_ExSaw_conv_info.txt";
-    awgm_parameters.plot_filename = "awgm_ExSaw_u_plot";
+    awgm_parameters.verbose_extra = false;
+    awgm_parameters.info_filename = "awgm_ExSaw_SG_conv_info.txt";
+    awgm_parameters.plot_filename = "awgm_ExSaw_SG_u_plot";
     awgm_parameters.write_intermediary_solutions = true;
-    awgm_parameters.intermediary_solutions_filename = "awgm_ExSaw_u_Iteration";
-    
+    awgm_parameters.max_basissize = 1000000;
+
     cgls_parameters.adaptive_tol = false;
-    cgls_parameters.absolute_tol = 1e-12;
+    cgls_parameters.absolute_tol = 1e-08;
+    cgls_parameters.max_its = 500;
 
     MT_AWGM multitree_awgm(basis2d_trial, basis2d_test, localOperator2D, transpLocalOperator2D,
     						F, rightPrec, leftPrec, awgm_parameters, cgls_parameters);
@@ -288,21 +297,28 @@ int main () {
 
     multitree_awgm.set_sol(dummy);
 
-    /// Initialization of solution vector and initial index sets
-    Coefficients<Lexicographical,T,Index2D> u;
+    for(size_t J = 2; J < Jmax; ++J){
 
-    T gamma = 0.2;
-    IndexSet<Index2D> LambdaTrial, LambdaTest;
-    getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
+        stringstream filename;
+        filename << "awgm_ExSaw_SG_u_J_" << J;
+        multitree_awgm.awgm_params.intermediary_solutions_filename = filename.str();
 
-    Timer time;
-    time.start();
-    multitree_awgm.solve(u, LambdaTrial, LambdaTest);
-    time.stop();
-    cout << "Solution took " << time.elapsed() << " seconds" << endl;
+        /// Initialization of solution vector and initial index sets
+        Coefficients<Lexicographical,T,Index2D> u;
 
-    saveCoeffVector2D(u, basis2d_trial, "awgm_ExSaw_u.txt");
+        T gamma = 0.2;
+        IndexSet<Index2D> LambdaTrial, LambdaTest;
+        getSparseGridIndexSet(basis2d_trial,LambdaTrial,J,0,gamma);
+        getSparseGridIndexSet(basis2d_test ,LambdaTest ,J,1,gamma);
+
+        Timer time;
+        time.start();
+        multitree_awgm.solve(u, LambdaTrial, LambdaTest);
+        time.stop();
+        cout << "Solution took " << time.elapsed() << " seconds" << endl;
+    }
+
+
     return 0;
 }
 
