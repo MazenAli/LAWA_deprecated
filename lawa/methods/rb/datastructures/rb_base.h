@@ -51,6 +51,9 @@ public:
 
 	RB_Greedy_Parameters<ParamType> 	greedy_params;
 
+	DataType&
+	get_bf(std::size_t i);
+
 private:
 
 	void
