@@ -509,22 +509,21 @@ int main () {
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
     							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
-    awgm_u.awgm_params.tol = 1e-03;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
     MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, is_parameters);
     awgm_rieszF.set_sol(dummy);
     awgm_rieszF.set_initial_indexset(LambdaTest);
-    awgm_rieszF.awgm_params.tol = 5e-04;
-    awgm_rieszF.awgm_params.info_filename = "awgm_stage4_rieszF_conv_info.txt";
+    awgm_rieszF.awgm_params.tol = 1e-03;
+    awgm_rieszF.awgm_params.info_filename = "awgm_cg_rieszF_conv_info.txt";
 
 
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
-    awgm_rieszA.awgm_params.tol = 5e-04;
-    awgm_rieszA.awgm_params.info_filename = "awgm_stage4_rieszA_conv_info.txt";
+    awgm_rieszA.awgm_params.tol = 1e-03;
+    awgm_rieszA.awgm_params.info_filename = "awgm_cg_rieszA_conv_info.txt";
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
 
@@ -568,34 +567,40 @@ int main () {
 
     rb_base.greedy_params.min_param = mu_min;
     rb_base.greedy_params.max_param = mu_max;
-    rb_base.greedy_params.Nmax = 	15;
-    rb_base.greedy_params.nb_training_params = {{20, 20}};
-    rb_base.greedy_params.print_paramset = true;
-    rb_base.greedy_params.erase_snapshot_params = false;
-    rb_base.greedy_params.orthonormalize_bfs = false;
-    rb_base.greedy_params.print_file = "awgm_stage4_greedy_info.txt";
-    rb_base.greedy_params.trainingdata_folder = "training_data_stage4";
 
-    cout << "Parameters Training: " << std::endl << std::endl;
-    rb_base.greedy_params.print();
-    rb_system.rb_params.print();
 
-    cout << "Parameters Truth Solver: " << std::endl << std::endl;
-    awgm_u.awgm_params.print();
-    awgm_u.is_params.print();
+    rb_system.read_rb_data("Runs/Stage4/Run3/training_data_stage4");
+    rb_base.read_basisfunctions("Runs/Stage4/Run3/training_data_stage4/bf");
 
-    cout << "Parameters Riesz Solver F : " << std::endl << std::endl;
-    awgm_rieszF.awgm_params.print();
+    DataType u = 0.331658970787 * rb_base.get_bf(0);
+    DataType new_bf = u;
+	for(size_t i = 0; i <= 3; ++i){
+		auto& bf = rb_base.get_bf(i);
+		new_bf = new_bf - bf * rb_truth.innprod_Y_u_u(bf, u);
+	}
 
-    cout << "Parameters Riesz Solver A : " << std::endl << std::endl;
-    awgm_rieszA.awgm_params.print();
+	DataType diff = new_bf;
+	diff.scale( 1./ sqrt(rb_truth.innprod_Y_u_u(new_bf, new_bf)));
+	diff -= rb_base.get_bf(4);
+	cout << rb_truth.innprod_Y_u_u(diff, diff) << endl;
 
-    rb_base.train_Greedy();
+	new_bf = new_bf - rb_base.get_bf(4) * rb_truth.innprod_Y_u_u(rb_base.get_bf(4), u);;
+	cout << rb_truth.innprod_Y_u_u(new_bf, new_bf) << " " << sqrt(rb_truth.innprod_Y_u_u(new_bf, new_bf)) <<  endl;
 
-    rb_system.write_rb_data("offline_data_stage4");
-    rb_base.write_basisfunctions("offline_data_stage4");
-    rb_base.write_rieszrepresentors("offline_data_stage4");
+	// Und nochmal...
+	DataType new_bf2 = u;
+	for(size_t i = 0; i <= 4; ++i){
+		auto& bf = rb_base.get_bf(i);
+		new_bf2 = new_bf2 - bf * rb_truth.innprod_Y_u_u(bf, u);
+	}
+	DataType diff2 = new_bf2;
+	diff2.scale( 1./ sqrt(rb_truth.innprod_Y_u_u(new_bf2, new_bf2)));
+	diff2 -= rb_base.get_bf(5);
+	cout << rb_truth.innprod_Y_u_u(diff2, diff2) << endl;
 
+	cout << rb_truth.innprod_Y_u_u(rb_base.get_bf(5), u) << endl;
+	new_bf2 = new_bf2 - rb_base.get_bf(5) * rb_truth.innprod_Y_u_u(rb_base.get_bf(5), u);
+	cout << rb_truth.innprod_Y_u_u(new_bf2, new_bf2) << " " << sqrt(rb_truth.innprod_Y_u_u(new_bf2, new_bf2)) <<  endl;
 
     return 0;
 }

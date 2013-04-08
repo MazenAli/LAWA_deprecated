@@ -40,7 +40,7 @@ public:
     _T
 	alpha_LB(_ParamType& mu)
     {
-    	for(auto& el: alpha){
+    	for(auto& el: alphas){
     	    bool is_mu = true;
 			for(std::size_t i = 0; i < mu.size(); ++i){
 				if((mu[i]-(el.first)[i]) > 1e-4){
@@ -58,18 +58,17 @@ public:
 
     void
     read_alpha(const char* filename){
-        std::map<_ParamType, _T> stabconstvec;
         ifstream alphaFile(filename);
         while(alphaFile.good()){
              _ParamType mu;
              _T alpha;
              alphaFile >> mu[0] >> mu[1] >> alpha;
-             stabconstvec.insert(std::make_pair(mu, alpha));
+             alphas.insert(std::make_pair(mu, alpha));
         }
     }
 
 private:
-    StabConstVec	alpha;
+    StabConstVec	alphas;
 };
 
 
@@ -495,11 +494,10 @@ int main () {
     AWGM_PG_Parameters awgm_truth_parameters;
     IS_Parameters is_parameters;
     AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
-    awgm_truth_parameters.tol = 1e-4;
     awgm_truth_parameters.max_its = 1000;
     
     is_parameters.adaptive_tol = false;
-    is_parameters.absolute_tol = 1e-10;
+    is_parameters.absolute_tol = 1e-08;
 
     //----------- Solver ---------------- //
 
@@ -517,14 +515,15 @@ int main () {
     MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, is_parameters);
     awgm_rieszF.set_sol(dummy);
     awgm_rieszF.set_initial_indexset(LambdaTest);
-    awgm_rieszF.awgm_params.info_filename = "awgm_cg_rieszF_conv_info.txt";
+    awgm_rieszF.awgm_params.tol = 1e-03;
+    awgm_rieszF.awgm_params.info_filename = "awgm_stage4b_rieszF_conv_info.txt";
 
 
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
     awgm_rieszA.awgm_params.tol = 1e-03;
-    awgm_rieszA.awgm_params.info_filename = "awgm_cg_rieszA_conv_info.txt";
+    awgm_rieszA.awgm_params.info_filename = "awgm_stage4b_rieszA_conv_info.txt";
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
 
@@ -536,6 +535,7 @@ int main () {
     rb_system.rb_params.call = call_gmres;
 
     rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
+
     //----------- RB Base ---------------- //
 
     RB_BaseModel rb_base(rb_system, rb_truth);
@@ -552,7 +552,8 @@ int main () {
 			bool write_during_training = true,
     		std::string trainingdata_folder = "training_data",
 			bool print_paramset = false,
-			bool erase_snapshot_params = false
+			bool erase_snapshot_params = false,
+			bool orthonormalize_bfs = true
      */
 
 
@@ -565,12 +566,14 @@ int main () {
     ParamType mu_min = {{0., -9.}};
     ParamType mu_max = {{30, 15}};
 
+    rb_base.greedy_params.tol = 1e-12;
     rb_base.greedy_params.min_param = mu_min;
     rb_base.greedy_params.max_param = mu_max;
-    rb_base.greedy_params.Nmax = 	15;
+    rb_base.greedy_params.Nmax = 	20;
     rb_base.greedy_params.nb_training_params = {{20, 20}};
     rb_base.greedy_params.print_paramset = true;
     rb_base.greedy_params.erase_snapshot_params = false;
+    rb_base.greedy_params.orthonormalize_bfs = false;
     rb_base.greedy_params.print_file = "awgm_stage4b_greedy_info.txt";
     rb_base.greedy_params.trainingdata_folder = "training_data_stage4b";
 
