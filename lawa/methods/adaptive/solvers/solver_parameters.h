@@ -20,36 +20,41 @@ namespace lawa {
  */
 struct AWGM_PG_Parameters{
 
-	double 		tol;
-	double 		alpha;
-	std::size_t 		max_its;
-	std::size_t 		max_basissize;
-	bool 		reset_res;
+    double        	tol;
+    double        	alpha;
+    std::size_t    	max_its;
+    std::size_t    	max_basissize;
+    bool           	reset_res;
 
-	bool		print_info;
-	bool 		verbose;
-	bool    	plot_solution;
-	bool		verbose_extra;
-	std::size_t 		hashmapsize_trial;
-	std::size_t 		hashmapsize_test;
-	std::string info_filename;
-	std::string plot_filename;
+    bool        	print_info;
+    bool         	verbose;
+    bool        	plot_solution;
+    bool        	verbose_extra;
+    std::size_t     hashmapsize_trial;
+    std::size_t     hashmapsize_test;
+    std::string 	info_filename;
+    std::string 	plot_filename;
+    bool			write_intermediary_solutions;
+    std::string		intermediary_solutions_filename;
 
-	AWGM_PG_Parameters(double _tol = 5e-03,
-					double _alpha = 0.7,
-					std::size_t _max_its = 100,
-					std::size_t _max_basissize = 400000,
-					bool _reset_res = false,
-					bool _print_info = true,
-					bool _verbose = true,
-					bool _plot_solution = false,
-					bool _verbose_extra = false,
-					std::size_t _hashmapsize_trial = 10,
-					std::size_t _hashmapsize_test = 10,
-					std::string _info_filename = "awgm_cgls_conv_info.txt",
-					std::string _plot_filename = "awgm_cgls_u_plot");
+    AWGM_PG_Parameters(double _tol = 5e-03,
+                    double _alpha = 0.7,
+                    std::size_t _max_its = 100,
+                    std::size_t _max_basissize = 400000,
+                    bool _reset_res = false,
+                    bool _print_info = true,
+                    bool _verbose = true,
+                    bool _plot_solution = false,
+                    bool _verbose_extra = false,
+                    std::size_t _hashmapsize_trial = 10,
+                    std::size_t _hashmapsize_test = 10,
+                    std::string _info_filename = "awgm_cgls_conv_info.txt",
+                    std::string _plot_filename = "awgm_cgls_u_plot",
+                    bool _write_intermediary_solutions = false,
+                    std::string _intermediary_solutions_filename = "awgm_cgls_u"
+                    );
 
-	void print();
+    void print();
 };
 
 /**
@@ -58,54 +63,54 @@ struct AWGM_PG_Parameters{
  */
 struct AWGM_Parameters{
 
-	double 	tol;
-	double 	alpha;
-	std::size_t 	max_its;
-	std::size_t 	max_basissize;
+    double     tol;
+    double     alpha;
+    std::size_t     max_its;
+    std::size_t     max_basissize;
 
-	bool	print_info;
-	bool 	verbose;
-	bool    plot_solution;
-	bool	verbose_extra;
-	std::size_t 	hashmapsize;
-	std::string info_filename;
-	std::string plot_filename;
+    bool    print_info;
+    bool     verbose;
+    bool    plot_solution;
+    bool    verbose_extra;
+    std::size_t     hashmapsize;
+    std::string info_filename;
+    std::string plot_filename;
 
-	AWGM_Parameters(double _tol = 5e-03,
-					double _alpha = 0.7,
-					std::size_t _max_its = 100,
-					std::size_t _max_basissize = 400000,
-					bool _print_info = true,
-					bool _verbose = true,
-					bool _plot_solution = false,
-					bool _verbose_extra = false,
-					std::size_t _hashmapsize = 10,
-					std::string _info_filename = "awgm_cg_conv_info.txt",
-					std::string _plot_filename = "awgm_cg_u_plot");
+    AWGM_Parameters(double _tol = 5e-03,
+                    double _alpha = 0.7,
+                    std::size_t _max_its = 100,
+                    std::size_t _max_basissize = 400000,
+                    bool _print_info = true,
+                    bool _verbose = true,
+                    bool _plot_solution = false,
+                    bool _verbose_extra = false,
+                    std::size_t _hashmapsize = 10,
+                    std::string _info_filename = "awgm_cg_conv_info.txt",
+                    std::string _plot_filename = "awgm_cg_u_plot");
 
-	void print();
+    void print();
 };
 
 /**
  * Parameters for the inner solver (cg/cgls)
  */
 struct IS_Parameters{
-	bool 			adaptive_tol;
-	std::size_t 	max_its;
-	double 			init_tol;
-	double 			res_reduction;
-	double 			absolute_tol;
+    bool            adaptive_tol;
+    std::size_t     max_its;
+    double          init_tol;
+    double          res_reduction;
+    double          absolute_tol;
 
-	bool 			verbose;
+    bool            verbose;
 
-	IS_Parameters(bool _adaptive_tol = true,
-				  std::size_t _max_its = 100,
-				  double _init_tol = 0.001,
-				  double _res_reduction = 0.01,
-				  double _absolute_tol = 1e-8,
-				  bool _verbose = true);
+    IS_Parameters(bool _adaptive_tol = true,
+                  std::size_t _max_its = 100,
+                  double _init_tol = 0.001,
+                  double _res_reduction = 0.01,
+                  double _absolute_tol = 1e-8,
+                  bool _verbose = true);
 
-	void print();
+    void print();
 };
 
 /**
@@ -114,19 +119,19 @@ struct IS_Parameters{
  */
 struct ISWGM_Parameters{
 
-	bool	print_info;
-	bool 	verbose;
-	bool    plot_solution;
-	std::string info_filename;
-	std::string plot_filename;
+    bool    		print_info;
+    bool    		verbose;
+    bool    		plot_solution;
+    std::string 	info_filename;
+    std::string 	plot_filename;
 
-	ISWGM_Parameters(bool _print_info = true,
-					bool _verbose = true,
-					bool _plot_solution = false,
-					std::string _info_filename = "iswgm_conv_info.txt",
-					std::string _plot_filename = "iswgm_u_plot");
+    ISWGM_Parameters(bool _print_info = true,
+                    bool _verbose = true,
+                    bool _plot_solution = false,
+                    std::string _info_filename = "iswgm_conv_info.txt",
+                    std::string _plot_filename = "iswgm_u_plot");
 
-	void print();
+    void print();
 };
 
 /**
@@ -134,14 +139,14 @@ struct ISWGM_Parameters{
  * and which can later be printed out (Petrov-Galerkin version)
  */
 struct AWGM_PG_Information{
-	std::vector<double> 		awgm_res, awgm_resNE;
-	std::vector<std::size_t>	sizeLambdaTrial, sizeLambdaTest,
-								sizeLambdaResNE, sizeLambdaRes,
-								cgls_its;
+    std::vector<double>         awgm_res, awgm_resNE;
+    std::vector<std::size_t>    sizeLambdaTrial, sizeLambdaTest,
+                                sizeLambdaResNE, sizeLambdaRes,
+                                cgls_its;
 
-	void print(const char* filename = "awgm_cgls_conv_info.txt");
+    void print(const char* filename = "awgm_cgls_conv_info.txt");
 
-	void reset();
+    void reset();
 };
 
 /**
@@ -149,13 +154,13 @@ struct AWGM_PG_Information{
  * and which can later be printed out (alerkin version)
  */
 struct AWGM_Information{
-	std::vector<double> 		awgm_res;
-	std::vector<std::size_t>	sizeLambda, sizeLambdaRes,
-								cg_its;
+    std::vector<double>         awgm_res;
+    std::vector<std::size_t>    sizeLambda, sizeLambdaRes,
+                                cg_its;
 
-	void print(const char* filename = "awgm_cg_conv_info.txt");
+    void print(const char* filename = "awgm_cg_conv_info.txt");
 
-	void reset();
+    void reset();
 };
 
 /**
@@ -163,11 +168,11 @@ struct AWGM_Information{
  * and which can later be printed out (Galerkin version)
  */
 struct ISWGM_Information{
-	std::vector<double> 		is_res;
+    std::vector<double>         is_res;
 
-	void print(const char* filename = "iswgm_is_conv_info.txt");
+    void print(const char* filename = "iswgm_is_conv_info.txt");
 
-	void reset();
+    void reset();
 };
 
 /**
@@ -175,11 +180,11 @@ struct ISWGM_Information{
  * and which can later be printed out (Petrov-Galerkin version)
  */
 struct ISWGM_PG_Information{
-	std::vector<double> 		is_res, is_resNE;
+    std::vector<double>         is_res, is_resNE;
 
-	void print(const char* filename = "iswgm_pg_is_conv_info.txt");
+    void print(const char* filename = "iswgm_pg_is_conv_info.txt");
 
-	void reset();
+    void reset();
 };
 
 } // namespace lawa

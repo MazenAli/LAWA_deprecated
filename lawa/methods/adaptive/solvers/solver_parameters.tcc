@@ -8,12 +8,15 @@ AWGM_PG_Parameters::AWGM_PG_Parameters(double _tol, double _alpha, std::size_t _
 		std::size_t _max_basissize, bool _reset_res, bool _print_info,
 		bool _verbose, bool _plot_solution, bool _verbose_extra,
 		std::size_t _hashmapsize_trial, std::size_t _hashmapsize_test,
-		std::string _info_filename,	std::string _plot_filename)
+		std::string _info_filename,	std::string _plot_filename,
+		bool _write_intermediary_solutions, std::string _intermediary_solutions_filename)
 : tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
   reset_res(_reset_res), print_info(_print_info),
   verbose(_verbose), plot_solution(_plot_solution), verbose_extra(_verbose_extra),
   hashmapsize_trial(_hashmapsize_trial), hashmapsize_test(_hashmapsize_test),
-  info_filename(_info_filename), plot_filename(_plot_filename)
+  info_filename(_info_filename), plot_filename(_plot_filename),
+  write_intermediary_solutions(_write_intermediary_solutions),
+  intermediary_solutions_filename(_intermediary_solutions_filename)
 {}
 
 void
@@ -32,6 +35,8 @@ AWGM_PG_Parameters::print()
 	std::cout << std::left << std::setw(24) << "# hashmapsize test:" << std::setw(20) <<  hashmapsize_test << std::endl;
 	std::cout << std::left << std::setw(24) << "# info_filename:" << std::setw(20) <<  info_filename << std::endl;
 	std::cout << std::left << std::setw(24) << "# plot_filename:" << std::setw(20) <<  plot_filename << std::endl;
+	std::cout << std::left << std::setw(24) << "# write intermed sols:" << std::setw(20) <<  (write_intermediary_solutions?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# intermed sols file:" << std::setw(20) <<  intermediary_solutions_filename << std::endl;
 	std::cout << "#########################################" << std::endl << std::endl;
 }
 

@@ -3,6 +3,7 @@
 #include <ios>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 
 namespace lawa {
@@ -182,6 +183,9 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
                                     		resNE(awgm_params.hashmapsize_test),   // cone around u_leafs
                                             u_leafs(awgm_params.hashmapsize_trial); // "leafs" of u
 
+    if(u.size() != LambdaTrial.size()){
+    	FillWithZeros(LambdaTrial, u);
+    }
 	FillWithZeros(LambdaTrial,u_leafs);
 	FillWithZeros(LambdaTest,res);
 	FillWithZeros(LambdaTest,Ap); // our dummy vector for the test index set extension
@@ -289,6 +293,13 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 		if(awgm_info.cgls_its.size() < awgm_info.sizeLambdaTrial.size()){
             awgm_info.cgls_its.push_back(is_params.max_its);
 		}
+
+    	if(awgm_params.write_intermediary_solutions){
+    		std::stringstream filename;
+    		filename << awgm_params.intermediary_solutions_filename << "_" << awgm_its << ".txt";
+    	    saveCoeffVector2D(u, trialbasis, filename.str().c_str());
+    	}
+
 
         //---------------------------------------//
         //---- COMPUTE APPROXIMATE RESIDUAL -----//
