@@ -60,7 +60,10 @@ public:
 		 Coefficients<Lexicographical,T,Index> &Av);
 
 	T
-	eval(std::size_t i, Index& ind_row, Index& ind_col);
+	eval(std::size_t i, const Index& ind_row, const Index& ind_col);
+
+	std::size_t
+	size();
 
 protected:
 

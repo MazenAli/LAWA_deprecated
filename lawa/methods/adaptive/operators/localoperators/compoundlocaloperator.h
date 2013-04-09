@@ -80,7 +80,7 @@ class CompoundLocalOperator {
               Coefficients<Lexicographical,T,Index> &Av, Preconditioner &P, T eps);
 
         T
-        eval(Index& ind_row, Index& ind_col);
+        eval(const Index& ind_row, const Index& ind_col);
 
         int                         numOfLocalOp;
         FirstLocalOperator          &firstLocalOp;

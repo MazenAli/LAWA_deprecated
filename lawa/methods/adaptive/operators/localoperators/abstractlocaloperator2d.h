@@ -19,6 +19,9 @@ struct AbstractLocalOperator2D {
     eval(const Coefficients<Lexicographical,T,Index2D> &input,
     		   Coefficients<Lexicographical,T,Index2D> &output) = 0;
 
+    virtual T
+    operator()(const Index2D &row_index, const Index2D &col_index) = 0;
+
 };
 
 

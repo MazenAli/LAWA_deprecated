@@ -258,7 +258,7 @@ template <typename Index, typename FirstLocalOperator, typename SecondLocalOpera
           typename ThirdLocalOperator,typename FourthLocalOperator>
 typename FirstLocalOperator::T
 CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>::
-eval(Index& ind_row, Index& ind_col)
+eval(const Index& ind_row, const Index& ind_col)
 {
 	T val = 0.;
     switch (numOfLocalOp)
