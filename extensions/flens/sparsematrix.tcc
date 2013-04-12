@@ -195,6 +195,12 @@ SparseGeMatrix<E>::initializer() const
 
 // -- constructors -------------------------------------------------------------
 template <typename E>
+SparseSyMatrix<E>::SparseSyMatrix()
+    : _initializer(0)
+{
+}
+
+template <typename E>
 SparseSyMatrix<E>::SparseSyMatrix(int dim, int k)
     : _engine(dim, dim, k)
 {
@@ -289,6 +295,15 @@ SparseSyMatrix<E>::end()
     assert(!_initializer);
 
     return _engine.end();
+}
+
+template <typename E>
+void
+SparseSyMatrix<E>::resize(int m, int k)
+{
+    delete _initializer;
+    _engine = E(m, m, k);
+    _initializer = _engine.initializer();
 }
 
 // -- implementation -----------------------------------------------------------

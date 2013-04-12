@@ -140,6 +140,8 @@ class SparseSyMatrix
         typedef typename Engine::iterator        iterator;
 
         // -- constructors -----------------------------------------------------
+        SparseSyMatrix();
+
         SparseSyMatrix(int dim, int k=1);
 
         // -- operators --------------------------------------------------------
@@ -173,6 +175,9 @@ class SparseSyMatrix
 
         iterator
         end();
+
+        void
+        resize(int m, int k=1);
 
         // -- implementation ---------------------------------------------------
         const Engine &

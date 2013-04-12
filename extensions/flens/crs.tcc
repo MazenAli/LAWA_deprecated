@@ -197,7 +197,7 @@ CRS_Initializer<T, Storage>::~CRS_Initializer()
     // check for empty rows and insert 0 on diagonal if needed
     std::vector<int> fillIn;
     int row = 0;
-    for (size_t k=0; k<_coordinates.size(); ++k) {
+    for (std::size_t k=0; k<_coordinates.size(); ++k) {
         int rowDiff = _coordinates[k].row - row;
         for (int r=1; r<rowDiff; ++r) {
             fillIn.push_back(row+r);
