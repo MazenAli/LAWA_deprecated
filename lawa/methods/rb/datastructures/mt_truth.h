@@ -27,8 +27,12 @@ class MT_Truth{
 	typedef typename MultiTreeAWGM2<Index2D,TestBasis,InnProd,RHS_F,TestPrec> 					   RieszSolver_F;
 	typedef typename MultiTreeAWGM2<Index2D,TestBasis,InnProd,RHS_A,TestPrec> 					   RieszSolver_A;
 	*/
-	typedef typename DataType::ValueType T;
+
 public:
+
+	typedef typename DataType::ValueType T;
+	typedef typename DataType::IndexType IndexType;
+    typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
 
 	MT_Truth(TruthSolver& _solver, RieszSolver_F& _riesz_solver_f, RieszSolver_A& _riesz_solver_a);
 
@@ -50,6 +54,9 @@ public:
     T
     innprod_Y_u_u(const DataType& u1, const DataType& u2);
 
+    T
+    innprod_Y_u_u(const IndexType& ind_row, const IndexType& ind_col);
+
     /* Inner Product in Test Space Y for functions
      * v1,v2 in Test Space
      *  (uses the LHS operator of RieszSolver_F)
@@ -64,6 +71,9 @@ public:
     lhs_u_u(std::size_t i, const DataType& v, const DataType& u);
 
     T
+    lhs_u_u(std::size_t i, const IndexType& ind_row, const IndexType& ind_col);
+
+    T
     rhs_u(std::size_t i, const DataType& u);
 
     const typename TruthSolver::TrialBasisType&
@@ -75,6 +85,7 @@ public:
     TruthSolver&
     access_solver();
 
+
 private:
 
 	TruthSolver& 	solver;
@@ -84,7 +95,6 @@ private:
 	InnProd_Y_u_u&  innprod_Y_u_u_op;
 	LHS_u_u&		A_u_u_ops;
 	RHS_u&			F_u_ops;
-
 };
 
 } // namespace lawa
