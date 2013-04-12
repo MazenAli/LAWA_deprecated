@@ -5,6 +5,7 @@ truth_mt_stage3
 truth_mt_stage4
 truth_mt_stage4b
 truth_mt_stage5
+truth_get_alphas
 *.txt
 *.dat
 plot_coeffs_test
