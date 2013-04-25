@@ -299,7 +299,8 @@ int main () {
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
 	//===============================================================//
-	
+
+
     int d   = 2;
     int d_  = 2;
     int j0  = 2;
@@ -538,7 +539,7 @@ int main () {
     getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
 
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
-    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
+   							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
     awgm_u.awgm_params.tol = 1e-03;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
@@ -567,12 +568,21 @@ int main () {
     IndexSet<Index2D> LambdaTrial_Alpha_sparse, LambdaTrial_Alpha_full ;
 
     //getSparseGridIndexSet(basis2d_trial,LambdaTrial_Alpha_sparse,3,0,gamma);
-    getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full, 3,3,0);
 
+//    ParamType mu = {{20.5263, 11.2105}};
+    ParamType mu = {{0, -9}};
+    for(int J = 2; J <= 5; J++){
+    	LambdaTrial_Alpha_full.clear();
+        getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full,J,J,0);
+        cout << "++ Assembling Matrices for Alpha Computation, J = " << J
+        	 << ", dim = " << LambdaTrial_Alpha_full.size() << " ... " << endl << endl;
+        lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_full);
 
-    cout << "++ Assembling Matrices for Alpha Computation ... " << endl << endl;
-    lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_full);
+        T a = lb_base.calculate_alpha(mu);
+        cout << "Coercivity Constant = " << a << endl;
+    }
 
+    return 0;
 
     RB_Model rb_system(lhs_theta, rhs_theta, lb_base);
 

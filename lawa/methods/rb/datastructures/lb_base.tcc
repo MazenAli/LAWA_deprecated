@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 namespace lawa {
 
@@ -27,14 +28,14 @@ assemble_matrices_for_alpha_computation(IndexSetType& indexset)
 
         	// Get entry in A_u_u_matrices
         	for(std::size_t i = 0; i < thetas.size(); ++i){
-        		T tmp = truth.lhs_u_u(i,ind_row, ind_col);
-        		if(tmp > 1e-12){
+        		T tmp = truth.lhs_u_u(i,ind_row, ind_col);                
+        		if(fabs(tmp) > 0){
         			A_u_u_matrices[i](row_count, col_count) = tmp;
         		}
         	}
         	// Get entry for I_u_u_matrix
         	T tmp = truth.innprod_Y_u_u(ind_row, ind_col);
-        	if(tmp > 1e-12){
+        	if(fabs(tmp) > 0){
         		I_Y_u_u_matrix(row_count,col_count) = tmp;
         	}
 
@@ -62,33 +63,38 @@ calculate_alpha(ParamType& mu)
 	std::size_t N = I_Y_u_u_matrix.numRows();
 
 	SparseMatrixT A(N,N);
+	SparseMatrixT Atest(N,N);
 
 	std::cout << "    Calculating alpha: " << std::endl;
 	std::cout << "      Assembling Sparse Matrix .... " << std::endl;
 
 	for(std::size_t i = 0; i < thetas.size(); ++i){
+		std::cout << "         i = " << i << " .... " << std::endl;
 		for(auto it = A_u_u_matrices[i].begin(); it != A_u_u_matrices[i].end(); ++it){
-			// Find Transposed entry
-			auto it_transp = A_u_u_matrices[i].begin();
-			for(; it_transp != A_u_u_matrices[i].end(); ++it_transp){
-				if( (*it_transp).first.first == (*it).first.second && (*it_transp).first.second == (*it).first.first){
+			// Find transposed entry A_{c,r} to it = A_{r,c}
+			// Test all elements in row c
+			T val = 0;
+			bool is_break = false;
+			for(int k = it._crs.rows((*it).first.second); k < it._crs.rows((*it).first.second+1); ++k){
+				if(it._crs.columns(k) == (*it).first.first){
+					val = it._crs.values(k);
+					is_break = true;
 					break;
 				}
 			}
 
-			if(it_transp != A_u_u_matrices[i].end()){
-				A((*it).first.first, (*it).first.second) += thetas.eval(i, mu) * ((*it).second + (*it_transp).second);
-
+			T entry = thetas.eval(i, mu) * ((*it).second + val);
+			if(is_break == true){
+				entry *= 0.5;
 			}
-			else{
-				A((*it).first.first, (*it).first.second) += thetas.eval(i, mu) * (*it).second;
-			}
-
+			A((*it).first.first, (*it).first.second) += entry;
+			A((*it).first.second, (*it).first.first) += entry;
 		}
 	}
-	A.finalize();
-	A /= 2.;
 
+	A.finalize();
+	A *= 0.5;
+//
 	FullColMatrixT A_dense, I_dense;
 	std::cout << "      Densify A .... " << std::endl;
 	densify(cxxblas::NoTrans, A, A_dense);
@@ -98,17 +104,27 @@ calculate_alpha(ParamType& mu)
 	std::cout << "      Solving EVP .... " << std::endl;
     DenseVectorT    wr(N), wi(N), beta(N);
     FullColMatrixT  vl, vr;
-    gv(false, false, A_dense, I_dense, wr, wi, beta, vl, vr);
+    int info = gv(false, false, A_dense, I_dense, wr, wi, beta, vl, vr);
+    std::cout << "GV Info: " << info << std::endl;
     T eps = 10e-8;
     std::vector<T> evals;
     for(std::size_t n = 1; n <= N; n++){
-        if(wi(n) < eps){
+    	//std::cout << "WR = " << wr(n) << ", WI = " << wi(n) << ", beta = " << beta(n) << std::endl;
+        if(wi(n) < eps && beta(n)>eps){
             evals.push_back(wr(n)/beta(n));
         }
     }
     std::sort(evals.begin(), evals.end());
 
 	return evals[0];
+}
+
+template <typename ParamType, typename Truth>
+typename Truth::T
+LB_Base<ParamType,Truth>::
+calculate_alpha_spatial(ParamType& mu){
+
+	return 0;
 }
 
 
