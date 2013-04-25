@@ -129,13 +129,18 @@ Wavelet<T,Orthogonal,Interval,Multi>::tic(int j) const
 template <typename T>
 DenseVector<Array<long double> > *
 Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
-                                                    int &refinement_j, long &refinement_k_first) const
+                                                    int &refinement_j, long &refinement_k_first,
+                                                    long &split, long &refinement_k_restart) const
 {
+	// No split necessary, so set default values
+	refinement_k_restart = 1;
+
     k -= 1;
     refinement_j = j + basis._addRefinementLevel;
     // left boundary
     if (k<basis._numLeftParts) {
         refinement_k_first = basis._leftOffsets[k];
+    	split = basis._leftRefCoeffs[k].length() + 1;
         return &(basis._leftRefCoeffs[k]);
     }
     // inner part
@@ -144,6 +149,7 @@ Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
         long shift = (long)lawa::iceil<T>((k+1.-basis._numLeftParts)/(double)basis._numInnerParts);
         //refinement_k_first = pow2i<long>(basis._addRefinementLevel)*shift+basis._innerOffsets[type];
         refinement_k_first = basis._shiftFactor*shift+basis._innerOffsets[type];
+    	split = basis._innerRefCoeffs[type].length() + 1;
         return &(basis._innerRefCoeffs[type]);
     }
     // right part
@@ -151,6 +157,7 @@ Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
     long shift = (long)pow2i<long>(j)-1;
     //refinement_k_first = pow2i<long>(basis._addRefinementLevel)*shift+basis._rightOffsets[type];
     refinement_k_first = basis._shiftFactor*shift+basis._rightOffsets[type];
+	split = basis._rightRefCoeffs[type].length() + 1;
     return &(basis._rightRefCoeffs[type]);
 }
 

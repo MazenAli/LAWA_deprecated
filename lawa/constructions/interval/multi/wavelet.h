@@ -55,7 +55,8 @@ class Wavelet<_T,Orthogonal,Interval,Multi>
         tic(int j) const;
         
         DenseVector<Array<long double> > *
-        getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
+        getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
+        		long &split, long &refinement_k_restart) const;
 
         int
         getRefinementLevel(int j) const;

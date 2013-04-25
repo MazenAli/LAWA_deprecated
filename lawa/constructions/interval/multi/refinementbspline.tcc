@@ -122,12 +122,17 @@ BSpline<T,Orthogonal,Interval,MultiRefinement>::tic(int j) const
 template <typename T>
 DenseVector<Array<long double> > *
 BSpline<T,Orthogonal,Interval,MultiRefinement>::
-getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
+getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
+		long &split, long &refinement_k_restart) const
 {
+	// No split necessary, so set default values
+	refinement_k_restart = 1;
+
     refinement_j = j + 1;
     // left boundary
     if (k<mra._numLeftParts) {
         refinement_k_first = mra._leftOffsets[k];
+        split = mra._leftRefCoeffs[k].length()+1;
         return &(mra._leftRefCoeffs[k]);
     }
     // inner part
@@ -135,12 +140,14 @@ getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
         long shift = (k-mra._numLeftParts)/mra._numInnerParts;
         refinement_k_first = mra._shiftFactor*shift+mra._innerOffsets[type];
+        split = mra._innerRefCoeffs[type].length()+1;
         return &(mra._innerRefCoeffs[type]);
     }
     // right part
     int type  = (int)(k+1 - (mra.cardI(j) - mra._numRightParts + 1));
     long shift = pow2i<long>(j)-2;
     refinement_k_first = mra._shiftFactor*shift+mra._rightOffsets[type];
+    split = mra._rightRefCoeffs[type].length()+1;
     return &(mra._rightRefCoeffs[type]);
 }
 
