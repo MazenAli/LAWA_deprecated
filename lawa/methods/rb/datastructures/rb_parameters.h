@@ -47,9 +47,12 @@ struct RB_Greedy_Parameters{
 	bool 		print_paramset;
 	bool 		erase_snapshot_params;
 	bool		orthonormalize_bfs;
+	bool		tighten_tol;
+	bool		tighten_tol_rieszA;
+	double		tighten_tol_reduction;
 
 	RB_Greedy_Parameters(double _tol = 1e-2,
-						size_t _Nmax = 20,
+						std::size_t _Nmax = 20,
 						ParamType _min_param = ParamType(),
 						ParamType _max_param = ParamType(),
 						intArray  _training_params_per_dim = intArray(),
@@ -60,7 +63,10 @@ struct RB_Greedy_Parameters{
 						std::string _trainingdata_folder = "training_data",
 						bool _print_paramset = false,
 						bool _erase_snapshot_params = false,
-						bool _orthonormalize_bfs = true);
+						bool _orthonormalize_bfs = true,
+						bool _tighten_tol	= false,
+						bool _tighten_tol_rieszA = false,
+						double _tighten_tol_reduction = 0.1);
 
 	void print();
 };

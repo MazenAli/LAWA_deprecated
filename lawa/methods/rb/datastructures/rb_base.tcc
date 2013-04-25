@@ -87,11 +87,44 @@ train_Greedy()
             }
 		}
 
+		if(greedy_params.tighten_tol){
+			// find current parameter
+			for(auto& mu : greedy_info.snapshot_params){
+				bool is_current_param = true;
+				for(std::size_t i = 0; i < mu.size(); ++i){
+					if(mu[i]!=current_param[i]){
+						is_current_param = false;
+						break;
+					}
+				}
+				if(is_current_param){
+					rb_truth.access_solver().access_params().tol *= greedy_params.tighten_tol_reduction;
+					if(greedy_params.verbose){
+						std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
+						std::cout << "====>     Reduced snapshot tolerance to " << std::scientific << rb_truth.access_solver().access_params().tol << std::endl;
+						std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
+
+					}
+
+					if(greedy_params.tighten_tol_rieszA){
+						rb_truth.access_RieszSolver_A().access_params().tol *= greedy_params.tighten_tol_reduction;
+						if(greedy_params.verbose){
+							std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
+							std::cout << "====>     Reduced Riesz Repr A tolerance to " << std::scientific << rb_truth.access_RieszSolver_A().access_params().tol << std::endl;
+							std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
+						}
+					}
+					break;
+				}
+			}
+		}
+
 		greedy_info.greedy_errors.push_back(max_error);
 		greedy_info.snapshot_params.push_back(current_param);
 
 		// Remove parameter from indexset
 		if(greedy_params.erase_snapshot_params){
+			// find current parameter
 			for(auto& mu : Xi_train){
 				bool is_current_param = true;
 				for(std::size_t i = 0; i < mu.size(); ++i){
@@ -107,6 +140,7 @@ train_Greedy()
 				}
 			}
 		}
+
 
 
 		if(greedy_params.verbose){

@@ -22,21 +22,25 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(double _tol, size_t _Nmax,
 		std::string _print_file, bool _verbose,
 		bool _write_during_training, std::string _trainingdata_folder,
 		bool _print_paramset, bool _erase_snapshot_params,
-		bool _orthonormalize_bfs)
+		bool _orthonormalize_bfs, bool _tighten_tol, bool _tighten_tol_rieszA,
+		double _tighten_tol_reduction)
  : tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
    print_file(_print_file), verbose(_verbose),
    write_during_training(_write_during_training), trainingdata_folder(_trainingdata_folder),
    print_paramset(_print_paramset),
    erase_snapshot_params(_erase_snapshot_params),
-   orthonormalize_bfs(_orthonormalize_bfs)
+   orthonormalize_bfs(_orthonormalize_bfs),
+   tighten_tol(_tighten_tol),
+   tighten_tol_rieszA(_tighten_tol_rieszA),
+   tighten_tol_reduction(_tighten_tol_reduction)
 {}
 
 template<typename ParamType>
 void
 RB_Greedy_Parameters<ParamType>::print()
 {
-	std::cout << "###### RB Training Parameters #################" << std::endl;
+	std::cout << "###### RB Training Parameters ######################" << std::endl;
 	std::cout << std::left << std::setw(24) << "# tol:" << std::setw(20) <<  tol << std::endl;
 	std::cout << std::left << std::setw(24) << "# Nmax:" << std::setw(20) <<  Nmax << std::endl;
 	std::cout << std::left << std::setw(24) << "# Min_Param:" << std::setw(2) << "[ ";
@@ -54,14 +58,17 @@ RB_Greedy_Parameters<ParamType>::print()
 			std::cout << std::right << std::setw(4) << el << " ";
 		}
 		std::cout << std::left << " ]" << std::endl;
-	std::cout << std::left << std::setw(24) << "# print_info:" << std::setw(20) <<  (print_info?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(24) << "# print in folder:" << std::setw(20) <<  trainingdata_folder << std::endl;
-	std::cout << std::left << std::setw(24) << "# verbose:" << std::setw(20) <<  (verbose?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(24) << "# write during training:" << std::setw(20) <<  (write_during_training?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(24) << "# print_paramset:" << std::setw(20) <<  (print_paramset?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(24) << "# erase snapshot params:" << std::setw(20) <<  (erase_snapshot_params?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(24) << "# orthonormalize bfs:" << std::setw(20) <<  (orthonormalize_bfs?"true":"false") << std::endl;
-	std::cout << "###############################################" << std::endl << std::endl;
+	std::cout << std::left << std::setw(32) << "# print_info:" << std::setw(20) <<  (print_info?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# print in folder:" << std::setw(20) <<  trainingdata_folder << std::endl;
+	std::cout << std::left << std::setw(32) << "# verbose:" << std::setw(20) <<  (verbose?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# write during training:" << std::setw(20) <<  (write_during_training?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# print_paramset:" << std::setw(20) <<  (print_paramset?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# erase snapshot params:" << std::setw(20) <<  (erase_snapshot_params?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# orthonormalize bfs:" << std::setw(20) <<  (orthonormalize_bfs?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# tighten tolerance:" << std::setw(20) <<  (tighten_tol?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# tighten tolerance Riesz A:" << std::setw(20) <<  (tighten_tol_rieszA?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# tighten tolerance red.:" << std::setw(20) <<  tighten_tol_reduction << std::endl;
+	std::cout << "####################################################" << std::endl << std::endl;
 
 }
 

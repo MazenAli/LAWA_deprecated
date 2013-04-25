@@ -85,6 +85,12 @@ public:
     TruthSolver&
     access_solver();
 
+    RieszSolver_F&
+    access_RieszSolver_F();
+
+    RieszSolver_A&
+    access_RieszSolver_A();
+
 
 private:
 
