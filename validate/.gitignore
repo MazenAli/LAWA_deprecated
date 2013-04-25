@@ -8,3 +8,4 @@ get_bf_norms
 plot_solutions
 *.dat
 convertCoeffFilesToCorrectSupportCenter
+test_sparseTransp
