@@ -32,7 +32,7 @@ public:
 	n_bf();
 
 	void
-	train_Greedy();
+	train_Greedy(std::size_t N = 0);
 
 	void
 	train_strong_Greedy();
@@ -44,15 +44,21 @@ public:
 	write_basisfunctions(const std::string& directory_name = "offline_data/bf", int nb = -1);
 
 	void
-	read_basisfunctions(const std::string& directory_name = "offline_data/bf");
+	read_basisfunctions(const std::string& directory_name = "offline_data/bf", int nb = -1);
 
 	void
 	write_rieszrepresentors(const std::string& directory_name = "offline_data/representors", int nb = -1);
+
+	void
+	read_rieszrepresentors(const std::string& directory_name = "offline_data/representors", int nb = -1);
 
 	RB_Greedy_Parameters<ParamType> 	greedy_params;
 
 	DataType&
 	get_bf(std::size_t i);
+
+	void
+	read_greedy_info(const char* filename, int nb = -1);
 
 private:
 

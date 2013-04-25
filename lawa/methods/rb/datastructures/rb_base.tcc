@@ -29,14 +29,17 @@ get_bf(std::size_t i)
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-train_Greedy()
+train_Greedy(std::size_t N)
 {
 	if(greedy_params.verbose){
+		std::cout.precision(12);
 	    std::cout << "||=====================================================================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl;
 	    std::cout << "||=========      OFFLINE TRAINING                      ================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl << std::endl;
+
+	    std::cout << "Starting with N = " << N << std::endl << std::endl;
 
 	}
 
@@ -48,16 +51,16 @@ train_Greedy()
 		print_paramset(Xi_train);
 	}
 
-	// In order to be able to calculate empty error bounds,
-	// we have to calculate the Riesz Representors for F
-	calculate_Riesz_RHS_information();
-
-	for(auto& el : F_representors){
-		greedy_info.repr_f_size.push_back(el.size());
+	if(N == 0){
+		// In order to be able to calculate empty error bounds,
+		// we have to calculate the Riesz Representors for F
+		calculate_Riesz_RHS_information();
+		for(auto& el : F_representors){
+			greedy_info.repr_f_size.push_back(el.size());
+		}
 	}
 
 	ParamType current_param;
-	std::size_t N = 0;
 	T max_error = 0;
 	do {
 
@@ -849,20 +852,26 @@ write_basisfunctions(const std::string& directory_name, int nb){
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-read_basisfunctions(const std::string& directory_name){
+read_basisfunctions(const std::string& directory_name, int nb){
 
 	unsigned int n_bf;
-	std::string n_bf_filename = directory_name + "/n_bf.txt";
+	if(nb < 0){
+		std::string n_bf_filename = directory_name + "/n_bf.txt";
 
-	std::ifstream n_bf_file(n_bf_filename.c_str());
-	if(n_bf_file.is_open()){
-		n_bf_file >> n_bf;
-		n_bf_file.close();
+		std::ifstream n_bf_file(n_bf_filename.c_str());
+		if(n_bf_file.is_open()){
+			n_bf_file >> n_bf;
+			n_bf_file.close();
+		}
+		else{
+			std::cerr << "Unable to read number of basis functions: " << strerror(errno) << std::endl;
+			exit(1);
+		}
 	}
 	else{
-		std::cerr << "Unable to read number of basis functions: " << strerror(errno) << std::endl;
-		exit(1);
+		n_bf = nb;
 	}
+
 
 	rb_basisfunctions.clear();
 	for(unsigned int i = 1; i <= n_bf; ++i){
@@ -919,6 +928,54 @@ write_rieszrepresentors(const std::string& directory_name, int nb)
 		}
 	}
 
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+read_rieszrepresentors(const std::string& directory_name, int nb)
+{
+
+	F_representors.clear();
+	for(std::size_t i = 0; i < rb_system.Q_f(); ++i){
+		std::stringstream filename;
+		filename << directory_name << "/F_representor_" << i+1 << ".txt";
+
+		DataType rieszf_coeffs;
+		readCoeffVector2D(rieszf_coeffs, filename.str().c_str(),false);
+		F_representors.push_back(rieszf_coeffs);
+
+		if(rb_system.rb_params.verbose){
+			std::cout << " Read " << filename.str() << std::endl;
+		}
+	}
+
+	A_representors.clear();
+	std::size_t n_bf = (nb < 0) ? rb_basisfunctions.size() : nb;
+
+	for(std::size_t n = 0; n < n_bf; ++n){
+		std::vector<DataType> A_reprs_n;
+		for(std::size_t i = 0; i < rb_system.Q_a(); ++i){
+			std::stringstream filename;
+			filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".txt";
+
+			DataType riesza_coeffs;
+			readCoeffVector2D(riesza_coeffs, filename.str().c_str(),false);
+			A_reprs_n.push_back(riesza_coeffs);
+
+			if(rb_system.rb_params.verbose){
+				std::cout << " Read " << filename.str() << std::endl;
+			}
+		}
+		A_representors.push_back(A_reprs_n);
+	}
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+read_greedy_info(const char* filename, int nb){
+	greedy_info.read(filename, rb_system.Q_f(), rb_system.Q_a(), nb);
 }
 
 } // namespace lawa

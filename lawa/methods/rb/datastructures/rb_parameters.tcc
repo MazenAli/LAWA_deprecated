@@ -107,6 +107,74 @@ RB_Greedy_Information<ParamType>::RB_Greedy_Information::print(const char* filen
 }
 
 template<typename ParamType>
+void
+RB_Greedy_Information<ParamType>::RB_Greedy_Information::read(const char* filename, std::size_t Qf, std::size_t Qa, int nb)
+{
+	std::size_t pdim = ParamInfo<ParamType>::dim;
+    std::ifstream infofile(filename);
+    if(infofile.is_open()){
+    	std::string header;
+    	std::getline(infofile, header);
+
+    	int i;
+    	typename ParamInfo<ParamType>::ValueType err, size;
+
+    	int countmax = (nb < 0) ? 10000 : nb;
+    	int count = 0;
+    	while(!infofile.eof() && count < countmax){
+    		// Read Error
+    		infofile >> i;
+        	std::cout << "i = " << i << std::endl;
+        	infofile >> err;
+        	std::cout << "err = " << err << std::endl;
+        	greedy_errors.push_back(err);
+
+    		// Read Parameter
+        	ParamType mu;
+    		for(std::size_t d = 0; d < pdim; ++d){
+    			infofile >> mu[d];
+            	std::cout << "mu_" << d <<" = " << mu[d] << std::endl;
+    		}
+    		snapshot_params.push_back(mu);
+
+    		// Read Size of Solution
+    		infofile >> size;
+    		std::cout << "size u = " << size << std::endl;
+    		u_size.push_back(size);
+
+			// Read Size of Riesz Reprs of F
+			for(std::size_t d = 0; d < Qf; ++d){
+				infofile >> size;
+				std::cout << "size f_" << d << " = " << size << std::endl;
+				if(count == 0){
+					repr_f_size.push_back(size);
+				}
+			}
+
+    		// Read Size of Riesz Reprs of A
+    		std::vector<std::size_t> sizes;
+    		for(std::size_t d = 0; d < Qa; ++d){
+    			infofile >> size;
+        		std::cout << "size a_" << d << " = " << size << std::endl;
+        		sizes.push_back(size);
+    		}
+    		repr_a_size.push_back(sizes);
+
+			count++;
+    	}
+
+        infofile.close();
+
+        // Test
+        print("test.txt");
+
+    }
+    else{
+    	std::cerr << "Error opening file " << filename << " for reading! " << std::endl;
+    }
+}
+
+template<typename ParamType>
 RB_Parameters<ParamType>::RB_Parameters(SolverCall _call, ParamType _ref_param, bool _verbose)
  : call(_call), ref_param(_ref_param), verbose(_verbose)
 {}

@@ -20,6 +20,7 @@ struct ParamInfo {};
 template<typename T,std::size_t N>
 struct ParamInfo<std::array<T,N> >
 {
+	typedef T ValueType;
 	static const std::size_t dim = N;
 
 	static void
@@ -80,6 +81,8 @@ struct RB_Greedy_Information{
 	std::vector<std::vector<std::size_t> > repr_a_size;			// Dim n_bf x Q_a
 
 	void print(const char* filename = "greedy_info.txt");
+
+	void read(const char* filename, std::size_t Qf, std::size_t Qa, int nb = -1);
 };
 
 /* Parameters for a RB solution

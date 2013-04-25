@@ -413,7 +413,7 @@ write_rb_data(const std::string& directory_name){
 template<typename T, typename ParamType>
 void
 RB_System<T,ParamType>::
-read_rb_data(const std::string& directory_name)
+read_rb_data(const std::string& directory_name, int nb)
 {
 	// Read Nr of BasisFunctions
 	unsigned int n_bf;
@@ -433,6 +433,10 @@ read_rb_data(const std::string& directory_name)
 	    exit(1);
 	}
 
+	// If N < 0 or > n_bf, set it to n_bf
+	nb = (nb < 0) ? n_bf : nb;
+	nb = (nb > (int)n_bf) ? n_bf : nb;
+
 	// Read RB_A_matrices
 	RB_A_matrices.clear();
 	for(std::size_t i = 0; i < Q_a(); ++i){
@@ -447,7 +451,7 @@ read_rb_data(const std::string& directory_name)
 	    		}
 	    	}
 	    	file.close();
-	    	RB_A_matrices.push_back(RB_A);
+	    	RB_A_matrices.push_back(RB_A(_(1,nb), _(1,nb)));
 		    if(rb_params.verbose){
 		    	std::cout << " Read " << filename.str() << std::endl;
 		    }
@@ -470,7 +474,7 @@ read_rb_data(const std::string& directory_name)
 	    		file >> RB_F(n);
 	    	}
 	    	file.close();
-	    	RB_F_vectors.push_back(RB_F);
+	    	RB_F_vectors.push_back(RB_F(_(1,nb)));
 		    if(rb_params.verbose){
 		    	std::cout << " Read " << filename.str() << std::endl;
 		    }
@@ -491,6 +495,11 @@ read_rb_data(const std::string& directory_name)
 			 for(unsigned int n2 = 1; n2 <= n_bf; n2++){
 				 inner_product_file >> RB_inner_product(n1, n2);
 			 }
+		 }
+		 if(nb < (int)n_bf){
+			 FullColMatrixT tmp(RB_inner_product);
+			 RB_inner_product.engine().resize(nb, nb);
+			 RB_inner_product = tmp(_(1,nb), _(1,nb));
 		 }
 		 inner_product_file.close();
 		 if(rb_params.verbose){
@@ -548,7 +557,7 @@ read_rb_data(const std::string& directory_name)
 	 A_F_filename << directory_name << "/A_F_representor_norms.txt";
 	 std::ifstream A_F_file(A_F_filename.str().c_str());
 	 if(A_F_file.is_open()){
-		 for(unsigned int n = 1; n <= n_bf; ++n){
+		 for(int n = 1; n <= nb; ++n){
 			 FullColMatrixT A_F_matrix(Q_a(), Q_f());
 			 for(unsigned int i = 1; i <= Q_a(); ++i){
 				 for(unsigned int j = 1; j <= Q_f(); ++j){
@@ -573,16 +582,18 @@ read_rb_data(const std::string& directory_name)
 	 A_A_filename << directory_name << "/A_A_representor_norms.txt";
 	 std::ifstream A_A_file(A_A_filename.str().c_str());
 	 if(A_A_file.is_open()){
-		 for(unsigned int n1 = 1; n1 <= n_bf; ++n1){
+		 for(int n1 = 1; n1 <= nb; ++n1){
 			 std::vector<FullColMatrixT> A_A_n_vec;
-			 for(unsigned int n2 = n1; n2 <= n_bf; ++n2){
+			 for(unsigned int n2 = n1; n2 <= n_bf; ++n2){	// We have to read every information...
 				 FullColMatrixT A_A_matrix(Q_a(), Q_a());
 				 for(unsigned int i = 1; i <= Q_a(); ++i){
 					 for(unsigned int j = 1; j <= Q_a(); ++j){
 						 A_A_file >> A_A_matrix(i,j);
 					 }
 				 }
-				 A_A_n_vec.push_back(A_A_matrix);
+				 if((int)n2 <= nb){				// .. but safe only for n <= nb
+					 A_A_n_vec.push_back(A_A_matrix);
+				 }
 			 }
 			 A_A_representor_norms.push_back(A_A_n_vec);
 		 }

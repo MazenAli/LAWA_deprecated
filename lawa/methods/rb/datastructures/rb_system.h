@@ -59,7 +59,7 @@ public:
 	write_rb_data(const std::string& directory_name = "offline_data");
 
 	void
-	read_rb_data(const std::string& directory_name = "offline_data");
+	read_rb_data(const std::string& directory_name = "offline_data", int nb = -1);
 
 	RB_Parameters<ParamType> 					rb_params;
 
