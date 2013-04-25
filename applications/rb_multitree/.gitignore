@@ -4,10 +4,16 @@ truth_mt_stage2
 truth_mt_stage3
 truth_mt_stage4
 truth_mt_stage4b
+truth_mt_stage4_mw
 truth_mt_stage5
+truth_mt_stage6
+truth_mt_stage6_ctnd
+truth_mt_stage6_checkBFChoice
 truth_get_alphas
 *.txt
 *.dat
 plot_coeffs_test
 plot_coeffs_trial
 check_GramSchmidt
+truth_check_bilforms
+Plots/*
