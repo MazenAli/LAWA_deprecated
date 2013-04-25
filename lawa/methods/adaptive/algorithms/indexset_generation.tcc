@@ -95,4 +95,18 @@ getFullIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int J1, int J2,
     return;
 }
 
+template <typename Basis2D>
+void
+getScalingFctIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int J1, int J2)
+{
+    for (long k1=basis.first.mra.rangeI(J1).firstIndex(); k1<=basis.first.mra.rangeI(J1).lastIndex(); ++k1) {
+    	// Scaling x Scaling
+        for (long k2=basis.second.mra.rangeI(J2).firstIndex(); k2<=basis.second.mra.rangeI(J2).lastIndex(); ++k2) {
+            Index1D row(J1,k1,XBSpline);
+            Index1D col(J2,k2,XBSpline);
+            Lambda.insert(Index2D(row,col));
+        }
+    }
+}
+
 } // namespace lawa

@@ -20,6 +20,10 @@ template <typename Basis2D>
 void
 getFullIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int J1, int J2, int deltaL);
 
+template <typename Basis2D>
+void
+getScalingFctIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int J1, int J2);
+
 } // namespace lawa
 
 #include <lawa/methods/adaptive/algorithms/indexset_generation.tcc>
