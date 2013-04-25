@@ -34,11 +34,17 @@ public:
 	DenseVectorT
 	get_rb_solution(std::size_t N, ParamType& mu);
 
+	DenseVectorT
+	get_rb_solution(std::vector<std::size_t> indices, ParamType& mu);
+
 	virtual T
 	get_errorbound(const DenseVectorT& u_N, ParamType& mu);
 
 	T
 	residual_dual_norm(const DenseVectorT& u_N, ParamType& mu);
+
+	T
+	residual_dual_norm(std::vector<std::size_t> indices, const DenseVectorT& u_N, ParamType& mu);
 
 	virtual T
 	alpha_LB(ParamType& mu);

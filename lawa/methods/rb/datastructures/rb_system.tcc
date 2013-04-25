@@ -81,6 +81,81 @@ get_rb_solution(std::size_t N, ParamType& mu)
 }
 
 template<typename T, typename ParamType>
+flens::DenseVector<flens::Array<T> >
+RB_System<T,ParamType>::
+get_rb_solution(std::vector<std::size_t> indices, ParamType& mu)
+{
+	std::size_t N = indices.size();
+	if(N==0){
+		return DenseVectorT(0);
+	}
+
+	// First assemble all up to largest index...
+	std::size_t Nmax = *(std::max_element(indices.begin(), indices.end()))+1;
+
+	assert(RB_F_vectors.size() > 0);
+	assert(RB_F_vectors[0].length() >= (int)Nmax);
+	assert(RB_A_matrices[0].numRows() >= (int)Nmax);
+
+	FullColMatrixT Afull(Nmax, Nmax);
+
+	for (std::size_t i = 0; i < thetas_a.size(); ++i) {
+		//A += thetas_a.eval(i,mu) * RB_A_matrices[i](_(1,N), _(1,N));
+		flens::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,Nmax), _(1,Nmax)), Afull);
+	}
+
+	DenseVectorT Ffull(Nmax);
+	for (std::size_t i = 0; i < thetas_f.size(); ++i) {
+		//F += thetas_f.eval(i,mu) * RB_F_vectors[i](_(1,N));
+		flens::axpy(thetas_f.eval(i,mu), RB_F_vectors[i](_(1,Nmax)), Ffull);
+	}
+
+	// Then throw away unnecessary info
+	FullColMatrixT  A(N,N);
+	DenseVectorT	F(N);
+
+	std::size_t count_i=1;
+	for(auto& i : indices){
+		F(count_i) = Ffull(i+1);
+		std::size_t count_j=1;
+		for(auto& j : indices){
+			A(count_i, count_j) = Afull(i+1,j+1);
+			count_j++;
+		}
+		count_i++;
+	}
+
+	// Then use the rest
+	DenseVectorT u(N);
+
+	int its;
+	switch (rb_params.call) {
+		case call_cg:
+			its = cg(A, u, F);
+			if(rb_params.verbose){
+				std::cout << "RB solution: " << its << " cg iterations" << std::endl;
+			}
+			break;
+		case call_gmres:
+//			std::cout << "A = " << A << std::endl;
+//			std::cout << "F = " << F << std::endl;
+			its = gmres(A, u, F);
+			if(rb_params.verbose){
+				std::cout << "RB solution: " << its << " gmres iterations" << std::endl;
+			}
+			break;
+		default:
+			if(rb_params.verbose){
+				std::cerr << "RB solution: unrecognized solver call " << std::endl;
+			}
+			exit(1);
+			break;
+	}
+
+	return u;
+}
+
+template<typename T, typename ParamType>
 T
 RB_System<T,ParamType>::
 get_errorbound(const DenseVectorT& u_N, ParamType& mu)
@@ -150,6 +225,87 @@ residual_dual_norm(const DenseVectorT& u_N, ParamType& mu)
     }
 
 	std::cout << " res_dual_norm = " << std::sqrt(res_dual_norm) << std::endl;
+
+    return std::sqrt(res_dual_norm);
+}
+
+template<typename T, typename ParamType>
+T
+RB_System<T,ParamType>::
+residual_dual_norm(std::vector<std::size_t> indices, const DenseVectorT& u_N, ParamType& mu)
+{
+
+    T res_dual_norm = 0;
+
+	std::size_t N = indices.size();
+	std::size_t Nmax = *(std::max_element(indices.begin(), indices.end()))+1;
+
+    std::size_t Qf = thetas_f.size();
+    std::size_t Qa = thetas_a.size();
+
+	assert(F_F_representor_norms.numRows() >= (int)Qf);
+	assert(A_F_representor_norms.size() >= (std::size_t)Nmax);
+	assert(A_A_representor_norms.size() >= (std::size_t)Nmax);
+
+
+    DenseVectorT ThetaF(Qf);
+    DenseVectorT ThetaA(Qa);
+    for (std::size_t i = 1; i <= Qf; ++i) {
+        ThetaF(i) = thetas_f.eval(i-1,mu);
+    }
+    for (std::size_t i = 1; i <= Qa; ++i) {
+        ThetaA(i) = thetas_a.eval(i-1,mu);
+    }
+
+    DenseVectorT FF_T = F_F_representor_norms * ThetaF;
+
+    res_dual_norm = ThetaF * FF_T;
+
+	if(N==0){
+		return std::sqrt(res_dual_norm);
+	}
+
+    DenseVectorT T_AF_T(N);
+    FullColMatrixT T_AA_T(N,N);
+    std::vector<std::size_t> indices_1based;
+    for(auto& i : indices){
+    	indices_1based.push_back(i+1);
+    }
+
+    std::size_t count_n1=1;
+    for (auto& n1 : indices_1based) {
+        DenseVectorT AF_T = A_F_representor_norms[n1-1] * ThetaF;
+        T_AF_T(count_n1) = ThetaA * AF_T;
+        //for(int n2 = n1; n2 <= N; ++n2) {
+        std::size_t count_n2 = 1;
+        for(auto& n2 : indices_1based){
+        	if(n2 < n1){
+        		count_n2++;
+        		continue;
+        	}
+
+            DenseVectorT AA_T = A_A_representor_norms[n1-1][n2-n1] * ThetaA;
+            DenseVectorT T_AA = transpose(A_A_representor_norms[n1-1][n2-n1]) * ThetaA;
+            T_AA_T(count_n1, count_n2) = ThetaA * AA_T;
+            T_AA_T(count_n2, count_n1) = ThetaA * T_AA;
+            count_n2++;
+        }
+        count_n1++;
+    }
+
+    //std::cout << " Residual Dual Norm: size(u) = " << u_RB.length() << ", size(T_AF_T) = " << T_AF_T.length() << std::endl;
+    //res_dual_norm += 2 * u_RB * T_AF_T;
+
+    DenseVectorT T_AA_T_u = T_AA_T * u_N;
+    res_dual_norm += u_N * T_AA_T_u;
+    res_dual_norm += 2. * u_N * T_AF_T;
+
+    if(res_dual_norm < 0){
+      std::cout << "Warning: Residual dual norm negative: " << std::setprecision(20) << res_dual_norm << std::endl;
+      res_dual_norm = std::fabs(res_dual_norm);
+    }
+
+	//std::cout << " res_dual_norm = " << std::sqrt(res_dual_norm) << std::endl;
 
     return std::sqrt(res_dual_norm);
 }
