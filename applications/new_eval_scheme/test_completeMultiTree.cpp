@@ -14,7 +14,8 @@ using namespace lawa;
 typedef double T;
 
 ///  Wavelet basis over an interval
-typedef Basis<T, Primal, Interval, Dijkema>                       	IntervalBasis;
+//typedef Basis<T, Primal, Interval, Dijkema>                       	IntervalBasis;
+typedef Basis<T, Orthogonal, Interval, Multi>                       	IntervalBasis;
 typedef Basis<T, Primal, Periodic, CDF>		                        PeriodicBasis;
 typedef IntervalBasis::RefinementBasis                              IntervalRefinementBasis;
 typedef PeriodicBasis::RefinementBasis                              PeriodicRefinementBasis;
@@ -51,7 +52,8 @@ int main (int argc, char *argv[]) {
     bool useSparseGrid=true;
 
     /// Basis initialization
-    IntervalBasis intervalbasis(d, d, j0);
+    //IntervalBasis intervalbasis(d, d, j0);
+    IntervalBasis intervalbasis(d,0);
     intervalbasis.enforceBoundaryCondition<DirichletBC>();
     IntervalRefinementBasis &intervalrefinementbasis = intervalbasis.refinementbasis;
     IntervalBasis2D intervalbasis2d(intervalbasis,intervalbasis);

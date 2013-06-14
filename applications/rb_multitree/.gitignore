@@ -17,3 +17,4 @@ plot_coeffs_trial
 check_GramSchmidt
 truth_check_bilforms
 Plots/*
+plot_coeffs_trial_mw

@@ -15,7 +15,7 @@ int main () {
     /// Basis initialization
     TrialBasis_Time      basis_per(d,d_,j0);
     TestBasis_Time       basis_int(d,d_,j0);
-    Basis_Space 		 basis_intbc(d,j0);
+    Basis_Space 		 basis_intbc(d,0);
     basis_intbc.enforceBoundaryCondition<DirichletBC>();
 
     Basis2D_Trial basis2d_trial(basis_per,basis_intbc);
@@ -336,6 +336,10 @@ int main () {
 
     cout << "Parameters Riesz Solver A : " << std::endl << std::endl;
     awgm_rieszA.awgm_params.print();
+    
+    ParamType mu = {{0,-9}};
+    DataType u = rb_truth.get_truth_solution(mu);
+    return 0;
 
     rb_base.train_Greedy();
 

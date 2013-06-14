@@ -13,8 +13,8 @@ typedef flens::DenseVector<flens::Array<long double> >              DenseVectorL
 
 ///  Typedefs for problem components:
 ///     Multiwavelet basis over an interval
-//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-typedef Basis<T, Primal, Interval, Dijkema>                       PrimalBasis;
+typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+//typedef Basis<T, Primal, Interval, Dijkema>                       PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 typedef Integral<Gauss,PrimalBasis,PrimalBasis>                     MultiWaveletIntegral;
@@ -74,8 +74,8 @@ int main(int argc, char*argv[])
     int deriv = 0;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    //PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
-    PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
+    PrimalBasis basis(d, j0);     // For L2_orthonormal and special MW bases
+    //PrimalBasis basis(d, d, j0);     // For biorthogonal wavelet bases
     if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis& refinementbasis = basis.refinementbasis;
 
@@ -90,13 +90,13 @@ int main(int argc, char*argv[])
 
     /// Test refinement of multiwavelets: We check the refinement of wavelets in terms of B-splines.
 
-    //test_refinementOfWavelet(basis, refinementbasis, deriv);
+    test_refinementOfWavelet(basis, refinementbasis, deriv);
 
     /// Check for B-spline neighbors: Given a B-spline, we need to determine the B-splines whose
     /// supports intersect the one of the B-spline. Here, both sides are assumed to be on the same
     /// level.
 
-    //test_getBSplineNeighborsForBSpline(basis, refinementbasis);
+    test_getBSplineNeighborsForBSpline(basis, refinementbasis);
 
 
     /// Check for wavelet neighbors: Given a B-spline, we need to determine the wavelets whose
@@ -104,11 +104,11 @@ int main(int argc, char*argv[])
     /// the level of $\varphi_{j,k}$. For multilevel algorithms we require that j_wavelet is such
     /// that $\psi_{j_wavelet,k}$ can be reconstructed by B-splines on level $j+1$.
 
-    //test_getWaveletNeighborsForBSpline(basis, refinementbasis);
+    test_getWaveletNeighborsForBSpline(basis, refinementbasis);
 
     test_getScalingNeighborsForScaling(basis);
 
-    //test_getWaveletNeighborsForScaling(basis);
+    test_getWaveletNeighborsForScaling(basis);
 
     /// Check for B-spline Neighbors: Given a wavelet, we need to determine the B-splines whose
     /// supports intersect the one of the wavelet. Concerning the levels: suppose that j indicates
@@ -119,15 +119,15 @@ int main(int argc, char*argv[])
 
     /// The other routines are analog... with different function types instead of B-splines however.
 
-    //test_getBSplineNeighborsForWavelet(basis, refinementbasis);
+    test_getBSplineNeighborsForWavelet(basis, refinementbasis);
 
-   // test_getScalingNeighborsForWavelet(basis);
+    test_getScalingNeighborsForWavelet(basis);
 
-    //test_getWaveletNeighborsForWavelet(basis);
+    test_getWaveletNeighborsForWavelet(basis);
 
-    //test_getLowerWaveletNeighborsForWavelet(basis);
+    test_getLowerWaveletNeighborsForWavelet(basis);
 
-    //test_getHigherWaveletNeighborsForWavelet(basis);
+    test_getHigherWaveletNeighborsForWavelet(basis);
 
 
     return 0;

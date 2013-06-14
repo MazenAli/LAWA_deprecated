@@ -1,11 +1,24 @@
 #include "cdr_problem.h"
 
+typedef AdaptiveSpaceTimePDEOperator1D<T, Basis2D_Trial,
+NoPrec2D, NoPrec2D, NoInitialCondition>                                 SpaceTimeOp2D;
+typedef AdaptiveSpaceTimeTimeDerivOperator1D<T, Basis2D_Trial,
+NoPrec2D, NoPrec2D, NoInitialCondition>                                 SpaceTimeTimeDerivOp2D;
+typedef AdaptiveSpaceTimeLaplaceOperator1D<T, Basis2D_Trial,
+NoPrec2D, NoPrec2D, NoInitialCondition>                                 SpaceTimeLaplaceOp2D;
+typedef AdaptiveSpaceTimeWeightedConvectionOperator1D<T, Basis2D_Trial,
+NoPrec2D, NoPrec2D, NoInitialCondition>                                 SpaceTimeWeightedConvectionOp2D;
+typedef AdaptiveSpaceTimeReactionOperator1D<T, Basis2D_Trial,
+NoPrec2D, NoPrec2D, NoInitialCondition>                                 SpaceTimeReactionOp2D;
+
+
 int main () {
 
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
 	//===============================================================//
-	
+
+
     int d   = 2;
     int d_  = 2;
     int j0  = 2;
@@ -116,21 +129,21 @@ int main () {
 
     NoPrec2D noPrec;
 
-    /// Initialization of rhs
 
-    /// Right Hand Side:
-    ///     No Singular Supports in both dimensions
-    DenseVectorT sing_support;
-    ///      Forcing Functions
-    SeparableFunction2D<T> F1(f_t, sing_support, f_x, sing_support);
-    ///     Peaks: points and corresponding coefficients
-    ///             (heights of jumps in derivatives)
-    FullColMatrixT nodeltas;
-    SeparableRhsIntegral2D			rhs(basis2d_test, F1, nodeltas, nodeltas, 20);
-    SeparableRhs           			F(rhs,noPrec);
+    //======= SETUP SPACETIME-OPERATORS ===============//
 
-    SeparableRhsIntegral2D_Trial	rhs_u(basis2d_trial, F1, nodeltas, nodeltas, 20);
-    SeparableRhs_Trial           	F_u(rhs_u,noPrec);
+
+    /* Affine Decomposition Left Hand Side */
+    DenseVectorT nosingpts(2);
+    nosingpts = 0., 1.;
+    Function<T>  w_conv(weight_convection, nosingpts);
+    
+    SpaceTimeOp2D                   spacetimenorm(basis2d_trial,noPrec, noPrec, 1., 0., 1., 0.);
+    SpaceTimeTimeDerivOp2D          A1(basis2d_trial, noPrec, noPrec);          // time derivative
+    SpaceTimeLaplaceOp2D            A2(basis2d_trial, noPrec, noPrec);          // space laplacian
+    SpaceTimeWeightedConvectionOp2D A3(basis2d_trial, noPrec, noPrec, w_conv);  // space convection (weighted)
+    SpaceTimeReactionOp2D           A4(basis2d_trial, noPrec, noPrec);          // space reaction
+
 
 
 	//===============================================================//
@@ -169,192 +182,55 @@ int main () {
     A_u_u_ops.push_back(&localIdentityIdentityOp2D_Trial);
     Flex_COp_2D A_u_u(A_u_u_ops);
 
-    // Right Hand Side
-    vector<ThetaStructure<ParamType>::ThetaFct> rhs_theta_fcts;
-    rhs_theta_fcts.push_back(no_theta);
-    ThetaStructure<ParamType> rhs_theta(rhs_theta_fcts);
-    vector<SeparableRhs*> rhs_fcts;
-    rhs_fcts.push_back(&F);
-
-    Affine_Rhs_2D affine_rhs(rhs_theta, rhs_fcts);
-    RieszF_Rhs_2D rieszF_rhs(rhs_fcts);
-    RieszA_Rhs_2D rieszA_rhs(lhs_ops);
-
-    vector<SeparableRhs_Trial*> rhs_fcts_u;
-    rhs_fcts_u.push_back(&F_u);
-    Flex_Rhs_2D flex_rhs_u(rhs_fcts_u);
-
 
 	//===============================================================//
-	//===============  AWGM =========================================//
+	//=============== COMPARISON =====================================//
 	//===============================================================//
 
-    /* AWGM PG Parameters Default Values
-    double tol = 5e-03;
-	double alpha = 0.7;
-	size_t max_its = 100;
-	size_t max_basissize = 400000;
-	bool reset_res = false;
-	bool print_info = true;
-	bool verbose = true;
-	bool plot_solution = false;
-	bool verbose_extra = false; //(print added wavelet indizes)
-	size_t hashmapsize_trial = 10;
-	size_t hashmapsize_test = 10;
-	std::string info_filename = "awgm_cgls_conv_info.txt";
-	std::string plot_filename = "awgm_cgls_u_plot";
-	*/
 
-    /* IS Parameters Default Values
-	bool adaptive_tol = true;
-	size_t max_its = 100;
-	double init_tol = 0.001;
-	double res_reduction = 0.01;
-	double absolute_tol = 1e-8;
-	bool verbose = true;
-	*/
+    IndexSet<Index2D> LambdaTrial;
+    //getFullIndexSet(basis2d_trial, LambdaTrial, 2,2,0);
+    getScalingFctIndexSet(basis2d_trial, LambdaTrial, 5,5);
 
-    /* AWGM Parameters Default Values
-    double tol = 5e-03;
-	double alpha = 0.7;
-	size_t max_its = 100;
-	size_t max_basissize = 400000;
-	bool print_info = true;
-	bool verbose = true;
-	bool plot_solution = false;
-	bool verbose_extra = false; //(print added wavelet indizes)
-	size_t hashmapsize = 10;
-	std::string info_filename = "awgm_cg_conv_info.txt";
-	std::string plot_filename = "awgm_cg_u_plot";
-	*/
-
-    AWGM_PG_Parameters awgm_truth_parameters;
-    IS_Parameters is_parameters;
-    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
-    awgm_truth_parameters.max_its = 1000;
+/*
+    for(auto& index1 : LambdaTrial){
+    	for(auto& index2 : LambdaTrial){
+    		cout << "A1:" << (((A_u_u.eval(0,index1, index2) - A1(index1, index2))>1e-14)?"ERROR":"CHECK") << " -- " <<  index1 << " " << index2 << endl;
+    		cout << "A2:" << (((A_u_u.eval(1,index1, index2) - A2(index1, index2))>1e-14)?"ERROR":"CHECK") << " -- " <<  index1 << " " << index2 << endl;
+    		cout << "A3:" << (((A_u_u.eval(2,index1, index2) - A3(index1, index2))>1e-14)?"ERROR":"CHECK") << " -- " <<  index1 << " " << index2 << " "<< A_u_u.eval(2,index1, index2) - A3(index1, index2) << endl;
+    		cout << "A4:" << (((A_u_u.eval(3,index1, index2) - A4(index1, index2))>1e-14)?"ERROR":"CHECK") << " -- " <<  index1 << " " << index2 << endl;
+    		cout << "I:" << (((innprod_Y_u_u.eval(index1, index2) - spacetimenorm(index1, index2))>1e-14)?"ERROR":"CHECK") << " -- " <<  index1 << " " << index2 << endl;
+    	}
+    }
+    */
     
-    is_parameters.adaptive_tol = false;
-    is_parameters.absolute_tol = 1e-08;
-
-    //----------- Solver ---------------- //
-
-    T gamma = 0.2;
-    IndexSet<Index2D> LambdaTrial, LambdaTest;
-    getSparseGridIndexSet(basis2d_trial,LambdaTrial,2,0,gamma);
-    getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
-
-    MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
-   							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
-    awgm_u.set_sol(dummy);
-    awgm_u.awgm_params.tol = 5e-03;
-    awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
-
-
-    MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, is_parameters);
-    awgm_rieszF.set_sol(dummy);
-    awgm_rieszF.set_initial_indexset(LambdaTest);
-    awgm_rieszF.awgm_params.tol = 5e-04;
-    awgm_rieszF.awgm_params.info_filename = "awgm_stage6_rieszF_conv_info.txt";
-
-
-    MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
-    awgm_rieszA.set_sol(dummy);
-    awgm_rieszA.set_initial_indexset(LambdaTest);
-    awgm_rieszA.awgm_params.tol = 5e-04;
-    awgm_rieszA.awgm_params.info_filename = "awgm_stage6_rieszA_conv_info.txt";
-
-    MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
-
-
-    //----------- RB System ---------------- //
-
-
-    LB_Base<ParamType, MTTruthSolver> lb_base(rb_truth, lhs_theta);
-    IndexSet<Index2D> LambdaTrial_Alpha_sparse, LambdaTrial_Alpha_full ;
-
-    //getSparseGridIndexSet(basis2d_trial,LambdaTrial_Alpha_sparse,3,0,gamma);
-    getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full, 3,3,0);
-
-
-    cout << "++ Assembling Matrices for Alpha Computation ... " << endl << endl;
-    lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_full);
-
-    RB_Model rb_system(lhs_theta, rhs_theta, lb_base);
-    rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
-
-    rb_system.rb_params.ref_param = {{1., 1.}};
-    rb_system.rb_params.call = call_gmres;
-
-    //----------- RB Base ---------------- //
-
-    RB_BaseModel rb_base(rb_system, rb_truth);
-
-    /* RB Greedy Parameters Default Values
-      		double tol = 1e-2,
-			size_t Nmax = 20,
-			ParamType min_param = ParamType(),
-			ParamType max_param = ParamType(),
-			intArray  training_params_per_dim = intArray(),
-			bool print_info = true,
-    		std::string print_file = "greedy_info.txt",
-			bool verbose = true,
-			bool write_during_training = true,
-    		std::string trainingdata_folder = "training_data",
-			bool print_paramset = false,
-			bool erase_snapshot_params = false,
-			bool orthonormalize_bfs = true,
-			bool tighten_tol	= false,
-			double tighten_tol_reduction = 0.1
-     */
-
-
-    /* RB Parameters Default Values
-      		SolverCall call = call_cg,
-			ParamType ref_param = ParamType(),
-			bool verbose = true
-     */
-
-    ParamType mu_min = {{0., -9.}};
-    ParamType mu_max = {{30, 15}};
-
-    rb_base.greedy_params.min_param = mu_min;
-    rb_base.greedy_params.max_param = mu_max;
-    rb_base.greedy_params.Nmax = 	15;
-    rb_base.greedy_params.nb_training_params = {{20, 20}};
-    rb_base.greedy_params.print_paramset = true;
-    rb_base.greedy_params.erase_snapshot_params = false;
-    rb_base.greedy_params.orthonormalize_bfs = false;
-    rb_base.greedy_params.print_file = "awgm_stage6_greedy_info.txt";
-    rb_base.greedy_params.trainingdata_folder = "training_data_stage6";
-    rb_base.greedy_params.tighten_tol = true;
-    rb_base.greedy_params.tighten_tol_rieszA = true;
-    rb_base.greedy_params.tighten_tol_rieszF = true;
-    cout << "Parameters Training: " << std::endl << std::endl;
-    rb_base.greedy_params.print();
-    rb_system.rb_params.print();
-
-    cout << "Parameters Truth Solver: " << std::endl << std::endl;
-    awgm_u.awgm_params.print();
-
-    awgm_u.is_params.print();
-
-    cout << "Parameters Riesz Solver F : " << std::endl << std::endl;
-    awgm_rieszF.awgm_params.print();
-
-    cout << "Parameters Riesz Solver A : " << std::endl << std::endl;
-    awgm_rieszA.awgm_params.print();
-
-    rb_system.read_rb_data("Runs/Stage6/Run2/training_data_stage6", 4);
-    rb_base.read_basisfunctions("Runs/Stage6/Run2/training_data_stage6/bf", 4);
-    rb_base.read_rieszrepresentors("Runs/Stage6/Run2/training_data_stage6/representors", 4);
-    rb_base.read_greedy_info("Runs/Stage6/Run2/awgm_stage6_greedy_info.txt", 4);
-
-    rb_base.train_Greedy(4);
-
-    rb_system.write_rb_data("offline_data_stage6");
-    rb_base.write_basisfunctions("offline_data_stage6");
-    rb_base.write_rieszrepresentors("offline_data_stage6");
-
+    Index1D i1(5,2,XBSpline);
+    Index1D i1_b(5,3,XBSpline);
+    Index2D i2(i1,i1);
+    Index2D i2_b(i1_b, i1);
+    
+    cout.precision(8);
+    
+    cout << "Index : " << i2 << " x " << i2 << endl;
+    cout << "A1: " << A_u_u.eval(0,i2, i2) << " " << A1(i2, i2) << endl;
+    cout << "A2: " << A_u_u.eval(1,i2, i2) << " " << A2(i2, i2) << endl;
+    cout << "A3: " << A_u_u.eval(2,i2, i2) << " " << A3(i2, i2) << endl;
+    cout << "A4: " << A_u_u.eval(3,i2, i2) << " " << A4(i2, i2) << endl;
+    cout << "I : " << innprod_Y_u_u.eval(i2, i2) << " " << spacetimenorm(i2, i2) << endl;
+    
+    cout << "Index : " << i2 << " x " << i2_b << endl;
+    cout << "A1: " << A_u_u.eval(0,i2, i2_b) << " " << A1(i2, i2_b) << endl;
+    cout << "A2: " << A_u_u.eval(1,i2, i2_b) << " " << A2(i2, i2_b) << endl;
+    cout << "A3: " << A_u_u.eval(2,i2, i2_b) << " " << A3(i2, i2_b) << endl;
+    cout << "A4: " << A_u_u.eval(3,i2, i2_b) << " " << A4(i2, i2_b) << endl;
+    cout << "I : " << innprod_Y_u_u.eval(i2, i2_b) << " " << spacetimenorm(i2, i2_b) << endl;
+    
+    cout << "Index : " << i2_b << " x " << i2 << endl;
+    cout << "A1: " << A_u_u.eval(0,i2_b, i2) << " " << A1(i2_b, i2) << endl;
+    cout << "A2: " << A_u_u.eval(1,i2_b, i2) << " " << A2(i2_b, i2) << endl;
+    cout << "A3: " << A_u_u.eval(2,i2_b, i2) << " " << A3(i2_b, i2) << endl;
+    cout << "A4: " << A_u_u.eval(3,i2_b, i2) << " " << A4(i2_b, i2) << endl;
+    cout << "I : " << innprod_Y_u_u.eval(i2_b, i2) << " " << spacetimenorm(i2_b, i2) << endl;
 
     return 0;
 }
