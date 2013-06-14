@@ -23,7 +23,7 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(double _tol, size_t _Nmax,
 		bool _write_during_training, std::string _trainingdata_folder,
 		bool _print_paramset, bool _erase_snapshot_params,
 		bool _orthonormalize_bfs, bool _tighten_tol, bool _tighten_tol_rieszA,
-		double _tighten_tol_reduction)
+		bool _tighten_tol_rieszF, double _tighten_tol_reduction)
  : tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
    print_file(_print_file), verbose(_verbose),
@@ -33,6 +33,7 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(double _tol, size_t _Nmax,
    orthonormalize_bfs(_orthonormalize_bfs),
    tighten_tol(_tighten_tol),
    tighten_tol_rieszA(_tighten_tol_rieszA),
+   tighten_tol_rieszF(_tighten_tol_rieszF),
    tighten_tol_reduction(_tighten_tol_reduction)
 {}
 
@@ -67,6 +68,7 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "# orthonormalize bfs:" << std::setw(20) <<  (orthonormalize_bfs?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# tighten tolerance:" << std::setw(20) <<  (tighten_tol?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# tighten tolerance Riesz A:" << std::setw(20) <<  (tighten_tol_rieszA?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# tighten tolerance Riesz F:" << std::setw(20) <<  (tighten_tol_rieszF ?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# tighten tolerance red.:" << std::setw(20) <<  tighten_tol_reduction << std::endl;
 	std::cout << "####################################################" << std::endl << std::endl;
 
@@ -76,21 +78,21 @@ template<typename ParamType>
 void
 RB_Greedy_Information<ParamType>::RB_Greedy_Information::print(const char* filename)
 {
-	size_t pdim = ParamInfo<ParamType>::dim;
+	std::size_t pdim = ParamInfo<ParamType>::dim;
     std::ofstream infofile(filename);
     if(infofile.is_open()){
     	infofile << "# N Error Mu Size(u) Size(ReprF_qf) ... Size(Repr_A_bf_qa)" << std::endl;
-    	for(size_t i=0; i < greedy_errors.size(); ++i){
+    	for(std::size_t i=0; i < greedy_errors.size(); ++i){
     		// Write Error
     		infofile << i << " " << greedy_errors[i] << " ";
     		// Write Parameter
-    		for(size_t d = 0; d < pdim; ++d){
+    		for(std::size_t d = 0; d < pdim; ++d){
     			infofile << snapshot_params[i][d] << " ";
     		}
     		// Write Size of Solution
     		infofile << u_size[i] << " ";
     		// Write Size of Riesz Reprs of F
-    		for(auto& el : repr_f_size){
+    		for(auto& el : repr_f_size[i]){
     			infofile << el << " ";
     		}
     		// Write Size of Riesz Reprs of A
@@ -143,13 +145,13 @@ RB_Greedy_Information<ParamType>::RB_Greedy_Information::read(const char* filena
     		u_size.push_back(size);
 
 			// Read Size of Riesz Reprs of F
-			for(std::size_t d = 0; d < Qf; ++d){
+    		std::vector<std::size_t> sizes_f;
+    		for(std::size_t d = 0; d < Qf; ++d){
 				infofile >> size;
 				std::cout << "size f_" << d << " = " << size << std::endl;
-				if(count == 0){
-					repr_f_size.push_back(size);
-				}
+				sizes_f.push_back(size);
 			}
+    		repr_f_size.push_back(sizes_f);
 
     		// Read Size of Riesz Reprs of A
     		std::vector<std::size_t> sizes;

@@ -74,6 +74,9 @@ private:
 	void
 	update_Riesz_LHS_information(const DataType& bf);
 
+	void
+	recalculate_A_F_norms();
+
 	std::vector<ParamType>
 	generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb);
 

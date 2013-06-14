@@ -55,9 +55,6 @@ train_Greedy(std::size_t N)
 		// In order to be able to calculate empty error bounds,
 		// we have to calculate the Riesz Representors for F
 		calculate_Riesz_RHS_information();
-		for(auto& el : F_representors){
-			greedy_info.repr_f_size.push_back(el.size());
-		}
 	}
 
 	ParamType current_param;
@@ -117,6 +114,39 @@ train_Greedy(std::size_t N)
 							std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
 						}
 					}
+					if(greedy_params.tighten_tol_rieszF){
+						rb_truth.access_RieszSolver_F().access_params().tol *= greedy_params.tighten_tol_reduction;
+						if(greedy_params.verbose){
+							std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
+							std::cout << "====>     Reduced Riesz Repr F tolerance to " << std::scientific << rb_truth.access_RieszSolver_F().access_params().tol << std::endl;
+							std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
+						}
+						// Save old Riesz Representor
+						if(greedy_params.write_during_training){
+							if(mkdir(greedy_params.trainingdata_folder.c_str(), 0777) == -1)
+							{
+								if(greedy_params.verbose){
+									  std::cerr << "         [In RB_Base::train_Greedy: Directory "
+											    << greedy_params.trainingdata_folder << " already exists, overwriting contents.]" << std::endl;
+								}
+							}
+							std::string repr_folder = greedy_params.trainingdata_folder + "/representors";
+							if(mkdir(repr_folder.c_str(), 0777) == -1)
+							{
+								if(greedy_params.verbose){
+									  std::cerr << "         [In RB_Base::train_Greedy: Directory "
+											    << repr_folder << " already exists, overwriting contents.]" << std::endl;
+								}
+							}
+							std::stringstream old_repr_folder;
+							old_repr_folder << greedy_params.trainingdata_folder << "/representors/F_repr_before_it_" << N+1;
+							write_rieszrepresentors(old_repr_folder.str(), 0);
+						}
+						// Recalculate F Representors
+						F_representors.clear();
+						calculate_Riesz_RHS_information();
+						recalculate_A_F_norms();
+					}
 					break;
 				}
 			}
@@ -166,6 +196,11 @@ train_Greedy(std::size_t N)
 		N++;
 
 		greedy_info.u_size.push_back(u.size());
+		std::vector<std::size_t> f_sizes;
+		for(auto& el : F_representors){
+			f_sizes.push_back(el.size());
+		}
+		greedy_info.repr_f_size.push_back(f_sizes);
 		std::vector<std::size_t> a_sizes;
 		for(auto& el : A_representors[n_bf()-1]){
 			a_sizes.push_back(el.size());
@@ -192,9 +227,6 @@ train_Greedy(std::size_t N)
 			// Write Riesz Representors
 			std::string repr_folder = greedy_params.trainingdata_folder + "/representors";
 			write_rieszrepresentors(repr_folder);
-			if(N == 1){
-				write_rieszrepresentors(repr_folder);
-			}
 
 			// Write RB Data
 			rb_system.write_rb_data(greedy_params.trainingdata_folder);
@@ -806,6 +838,34 @@ update_Riesz_LHS_information(const DataType& bf)
 		std::cout << std::endl << "||------- Representor Norms A["<< N-1 <<"] x F  --------------------------------||" << std::endl;
 		std::cout << rb_system.A_F_representor_norms[N-1] << std::endl;
 	}
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+recalculate_A_F_norms(){
+
+	rb_system.A_F_representor_norms.clear();
+
+	for(std::size_t N = 1; N <= n_bf(); ++N){
+		// Update the Riesz Representor Norms A x F
+	    std::size_t Qa = rb_system.Q_a();
+	    std::size_t Qf = rb_system.Q_f();
+	    typename RB_Model::FullColMatrixT A_F(Qa, Qf);
+	    for(std::size_t qa = 1; qa <= Qa; ++qa) {
+	        for(std::size_t qf = 1; qf <= Qf; ++qf) {
+	            DataType vec1 = A_representors[N-1][qa-1];
+	            DataType vec2 = F_representors[qf-1];
+	            A_F(qa, qf) = rb_truth.innprod_Y_v_v(vec1, vec2);
+	        }
+	    }
+	    rb_system.A_F_representor_norms.push_back(A_F);
+		if(greedy_params.verbose){
+			std::cout << std::endl << "||------- Representor Norms A["<< N-1 <<"] x F  --------------------------------||" << std::endl;
+			std::cout << rb_system.A_F_representor_norms[N-1] << std::endl;
+		}
+	}
+
 }
 
 

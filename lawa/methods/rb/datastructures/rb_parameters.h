@@ -50,6 +50,7 @@ struct RB_Greedy_Parameters{
 	bool		orthonormalize_bfs;
 	bool		tighten_tol;
 	bool		tighten_tol_rieszA;
+	bool		tighten_tol_rieszF;
 	double		tighten_tol_reduction;
 
 	RB_Greedy_Parameters(double _tol = 1e-2,
@@ -67,6 +68,7 @@ struct RB_Greedy_Parameters{
 						bool _orthonormalize_bfs = true,
 						bool _tighten_tol	= false,
 						bool _tighten_tol_rieszA = false,
+						bool _tighten_tol_rieszF = false,
 						double _tighten_tol_reduction = 0.1);
 
 	void print();
@@ -74,11 +76,11 @@ struct RB_Greedy_Parameters{
 
 template<typename ParamType>
 struct RB_Greedy_Information{
-	std::vector<double> 	 			   greedy_errors;
-	std::vector<ParamType>	 			   snapshot_params;
-	std::vector<std::size_t>		 	   u_size;				// Dim 1 x n_bf
-	std::vector<std::size_t>   			   repr_f_size;		    // Dim 1 x Q_f
-	std::vector<std::vector<std::size_t> > repr_a_size;			// Dim n_bf x Q_a
+	std::vector<double> 	 			   		greedy_errors;
+	std::vector<ParamType>	 			   		snapshot_params;
+	std::vector<std::size_t>		 	   		u_size;					// Dim 1 x n_bf
+	std::vector<std::vector<std::size_t> >  	repr_f_size;		    // Dim 1 x Q_f in each iteration (if refined)
+	std::vector<std::vector<std::size_t> > 		repr_a_size;			// Dim n_bf x Q_a
 
 	void print(const char* filename = "greedy_info.txt");
 
