@@ -119,13 +119,6 @@ calculate_alpha(ParamType& mu)
 	return evals[0];
 }
 
-template <typename ParamType, typename Truth>
-typename Truth::T
-LB_Base<ParamType,Truth>::
-calculate_alpha_spatial(ParamType& mu){
-
-	return 0;
-}
 
 
 } // namespace lawa
