@@ -10,7 +10,7 @@ namespace lawa {
 
 template <typename T>
 MRA<T,Orthogonal,Interval,Multi>::MRA(int _d, int j)
-    : d(_d), j0((j==-1) ? 0 : j), _bc(2,0), _j(j0), phi(*this)
+    : d(_d), j0((j==-1) ? 0 : j), phi(*this), _bc(2,0), _j(j0)
 {
     assert(d>=1);
     assert(j0>=0);

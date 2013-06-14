@@ -170,7 +170,7 @@ Wavelet<T,Orthogonal,Interval,Multi>::getRefinementLevel(int j) const
 
 template <typename T>
 T
-Wavelet<T,Orthogonal,Interval,Multi>::getL2Norm(int j, long k) const
+Wavelet<T,Orthogonal,Interval,Multi>::getL2Norm(int /*j*/, long /*k*/) const
 {
     return 1.;
 }

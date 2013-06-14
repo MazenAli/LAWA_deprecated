@@ -400,7 +400,7 @@ index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,R,Multi> &basis,
 // Security zone orthonormal multi-wavelet interval
 template <typename T>
 void
-index_cone(const Index1D &lambda, T c, const Basis<T,Orthogonal,Interval,Multi> &basis,
+index_cone(const Index1D &lambda, T /*c*/, const Basis<T,Orthogonal,Interval,Multi> &basis,
            IndexSet<Index1D> &ret)
 {
     int j=lambda.j, k=lambda.k;

@@ -121,9 +121,6 @@ class Basis<_T,Orthogonal,Interval,MultiRefinement>
                 DenseVector<Array<long double> > inner_values2;
         };
 
-        LaplaceOperator1D  LaplaceOp1D;
-        IdentityOperator1D IdentityOp1D;
-
 
         MRA<T,Orthogonal,Interval,MultiRefinement> mra;
 
@@ -131,7 +128,9 @@ class Basis<_T,Orthogonal,Interval,MultiRefinement>
         const int j0;          // minimal used(!) level.
 
         mutable int _j;                // the current level.
-
+        
+        LaplaceOperator1D  LaplaceOp1D;
+        IdentityOperator1D IdentityOp1D;
 };
 
 } // namespace lawa

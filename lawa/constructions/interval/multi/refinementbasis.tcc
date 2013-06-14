@@ -82,16 +82,16 @@ getBSplineNeighborsForBSpline(int j_bspline1, long k_bspline1,
     T a = supp.l1, b = supp.l2;
     if (a==0.L) {
         k_bspline2_first = 0;       // In this case, range always starts with 0
-        k_bspline2_last  = std::min(k_bspline1 + d, (long)mra.rangeI(j_bspline2).lastIndex());
+        k_bspline2_last  = std::min(k_bspline1 + d, (long)secondrefinementbasis.mra.rangeI(j_bspline2).lastIndex());
         return;
     }
     if (b<1.L) {
         k_bspline2_first = std::max(k_bspline1 - d + 1, 0L);
-        k_bspline2_last  = std::min(k_bspline1 + d - 1, (long)mra.rangeI(j_bspline2).lastIndex());
+        k_bspline2_last  = std::min(k_bspline1 + d - 1, (long)secondrefinementbasis.mra.rangeI(j_bspline2).lastIndex());
         return;
     }
     k_bspline2_first = std::max(0L,k_bspline1 - d);
-    k_bspline2_last  = (long)mra.rangeI(j_bspline2).lastIndex();
+    k_bspline2_last  = (long)secondrefinementbasis.mra.rangeI(j_bspline2).lastIndex();
 
     return;
 }
