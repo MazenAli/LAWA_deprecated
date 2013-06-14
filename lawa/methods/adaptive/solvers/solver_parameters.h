@@ -14,17 +14,25 @@
 
 namespace lawa {
 
+enum StableExpansionVersion {
+	FullExpansion,				// include all combinations of higher wavelet neighbours (i.e. (lambda_t + 1, lambda_x + 1)
+	WoMixedHWExpansion,			// include only higher wavelets in one coordinate direction (i.e. (lambda_t + 1, lambda_x), (lambda_t, lambda_x + 1)
+	OnlyTemporalHWExpansion		// include only higher wavelets in time
+};
+
 /**
  * Parameters for the Adaptive Wavelet-Galerkin Method
  *  (= the outer solver), Petrov-Galerkin version
  */
 struct AWGM_PG_Parameters{
 
-    double        	tol;
-    double        	alpha;
-    std::size_t    	max_its;
-    std::size_t    	max_basissize;
-    bool           	reset_res;
+    double        			tol;
+    double        			alpha;
+    std::size_t    			max_its;
+    std::size_t    			max_basissize;
+    bool           			reset_res;
+    StableExpansionVersion 	stable_exp_u;
+    StableExpansionVersion 	stable_exp_res;
 
     bool        	print_info;
     bool         	verbose;
@@ -42,6 +50,8 @@ struct AWGM_PG_Parameters{
                     std::size_t _max_its = 100,
                     std::size_t _max_basissize = 400000,
                     bool _reset_res = false,
+                    StableExpansionVersion _stable_exp_u = FullExpansion,
+                    StableExpansionVersion _stable_exp_res = FullExpansion,
                     bool _print_info = true,
                     bool _verbose = true,
                     bool _plot_solution = false,

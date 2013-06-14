@@ -146,7 +146,20 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 		if(!is_default_set){
 			std::cerr << "Computing stable expansion as test set. " << std::endl;
 			Coefficients<Lexicographical,T,Index2D> Lambda_aux;
-			getStableExpansion(trialbasis, testbasis, LambdaTrial, Lambda_aux);
+	        switch(awgm_params.stable_exp_u){
+				case FullExpansion:
+					getStableExpansion(trialbasis, testbasis, LambdaTrial, Lambda_aux);
+					break;
+				case WoMixedHWExpansion:
+					getStableExpansion_woMixedHW(trialbasis, testbasis, LambdaTrial, Lambda_aux);
+					break;
+				case OnlyTemporalHWExpansion:
+					getStableExpansion_onlyTemporalHW(trialbasis, testbasis, LambdaTrial, Lambda_aux);
+					break;
+				default:
+					std::cerr << "Stable Expansion type doesn't exist!" << std::endl;
+					break;
+	        }
 			LambdaTest = get_indexset(Lambda_aux);
 		}
 		// Else we just use the default test set
@@ -315,7 +328,20 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
         if(awgm_params.reset_res){
         	res.clear();
         }
-        getStableExpansion(trialbasis, testbasis, resNE, res);
+        switch(awgm_params.stable_exp_res){
+			case FullExpansion:
+				getStableExpansion(trialbasis, testbasis, resNE, res);
+				break;
+			case WoMixedHWExpansion:
+				getStableExpansion_woMixedHW(trialbasis, testbasis, resNE, res);
+				break;
+			case OnlyTemporalHWExpansion:
+				getStableExpansion_onlyTemporalHW(trialbasis, testbasis, resNE, res);
+				break;
+			default:
+				std::cerr << "Stable Expansion type doesn't exist!" << std::endl;
+				break;
+        }
 
         // Compute rhs on expanded test index set
 
@@ -346,6 +372,10 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
             									   << " (on " << std::setw(8) << std::right <<  res.size() << std::left << " indizes)" << std::endl;
             std::cout << "       Residual NE  :  " << std::setw(20) << resNE_norm
             									   << " (on " << std::setw(8) << std::right << resNE.size()<< std::left << " indizes)" << std::endl;
+        }
+
+        if(awgm_params.write_intermediary_solutions && awgm_params.print_info){
+        	awgm_info.print(awgm_params.info_filename.c_str());
         }
 
         // Test for convergence
@@ -428,7 +458,20 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 
         // New LambdaTest: stable expansion of LambdaTrial (on dummy vector Ap)
         Ap.clear();
-        getStableExpansion(trialbasis, testbasis, u, Ap);
+        switch(awgm_params.stable_exp_u){
+			case FullExpansion:
+				getStableExpansion(trialbasis, testbasis, u, Ap);
+				break;
+			case WoMixedHWExpansion:
+				getStableExpansion_woMixedHW(trialbasis, testbasis, u, Ap);
+				break;
+			case OnlyTemporalHWExpansion:
+				getStableExpansion_onlyTemporalHW(trialbasis, testbasis, u, Ap);
+				break;
+			default:
+				std::cerr << "Stable Expansion type doesn't exist!" << std::endl;
+				break;
+        }
 
         if(awgm_params.verbose){
             std::cout << "       LambdaTrial:  raw extension  " <<  std::setw(8) << std::right <<  p.size() << std::endl;

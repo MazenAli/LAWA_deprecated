@@ -265,10 +265,42 @@ getCounterpart(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_t
 // so that the system is "stable" (or at least A^T A is approximated well enough).
 // This is realized by taking the cone consisting of neighbours of all bfs in indexset_origin
 // plus the HigherWavelet-Neighbours.
+
+// Version A) Include all combinations of HigherWavelet-Neighbours
+// (i.e. with levels (lambda_t + 1, lambda_x + 1))
 template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
 void
 getStableExpansion(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
 				   IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
+
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getStableExpansion(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+			Coefficients<Lexicographical,T,Index2D>& coeffs_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
+
+// Version B) Include only HigherWavelet-Neighbours in one coordinate direction
+// (i.e. with levels (lambda_t + 1, lambda_x), (lambda_t, lambda_x + 1))
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getStableExpansion_woMixedHW(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+				   IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
+
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getStableExpansion_woMixedHW(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+			Coefficients<Lexicographical,T,Index2D>& coeffs_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
+
+// Version C) Include only HigherWavelet-Neighbours in time
+// (i.e. with levels (lambda_t + 1, lambda_x))
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getStableExpansion_onlyTemporalHW(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+				   IndexSet<Index2D>& indexset_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
+
+template <typename T, typename Basis2D_Origin, typename Basis2D_Target>
+void
+getStableExpansion_onlyTemporalHW(const Basis2D_Origin& basis_origin, const Basis2D_Target& basis_target,
+			Coefficients<Lexicographical,T,Index2D>& coeffs_origin, Coefficients<Lexicographical,T,Index2D>& coeffs_target);
 
 } // namespace lawa
 

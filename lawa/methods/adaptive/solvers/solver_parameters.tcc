@@ -5,13 +5,14 @@
 namespace lawa {
 
 AWGM_PG_Parameters::AWGM_PG_Parameters(double _tol, double _alpha, std::size_t _max_its,
-		std::size_t _max_basissize, bool _reset_res, bool _print_info,
-		bool _verbose, bool _plot_solution, bool _verbose_extra,
+		std::size_t _max_basissize, bool _reset_res,
+        StableExpansionVersion _stable_exp_u, StableExpansionVersion _stable_exp_res,
+        bool _print_info, bool _verbose, bool _plot_solution, bool _verbose_extra,
 		std::size_t _hashmapsize_trial, std::size_t _hashmapsize_test,
 		std::string _info_filename,	std::string _plot_filename,
 		bool _write_intermediary_solutions, std::string _intermediary_solutions_filename)
 : tol(_tol), alpha(_alpha), max_its(_max_its), max_basissize(_max_basissize),
-  reset_res(_reset_res), print_info(_print_info),
+  reset_res(_reset_res), stable_exp_u(_stable_exp_u), stable_exp_res(_stable_exp_res), print_info(_print_info),
   verbose(_verbose), plot_solution(_plot_solution), verbose_extra(_verbose_extra),
   hashmapsize_trial(_hashmapsize_trial), hashmapsize_test(_hashmapsize_test),
   info_filename(_info_filename), plot_filename(_plot_filename),
@@ -28,6 +29,8 @@ AWGM_PG_Parameters::print()
 	std::cout << std::left << std::setw(24) << "# max_its:" << std::setw(20) <<  max_its << std::endl;
 	std::cout << std::left << std::setw(24) << "# max_basissize:" << std::setw(20) <<  max_basissize << std::endl;
 	std::cout << std::left << std::setw(24) << "# reset_res:" << std::setw(20) <<  (reset_res?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(24) << "# stable_exp_u:" << std::setw(20) <<  (stable_exp_u == FullExpansion?"Full": (stable_exp_u == WoMixedHWExpansion? "WoMixedHW" : "OnlyTemporalHW")) << std::endl;
+	std::cout << std::left << std::setw(24) << "# stable_exp_res:" << std::setw(20) <<  (stable_exp_res == FullExpansion?"Full": (stable_exp_res == WoMixedHWExpansion? "WoMixedHW" : "OnlyTemporalHW")) << std::endl;
 	std::cout << std::left << std::setw(24) << "# print_info:" << std::setw(20) <<  (print_info?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(24) << "# verbose:" << std::setw(20) <<  (verbose?"true":"false") << (verbose_extra?" (extra)":"") << std::endl;
 	std::cout << std::left << std::setw(24) << "# plot_solution:" << std::setw(20) <<  (plot_solution?"true":"false") << std::endl;
