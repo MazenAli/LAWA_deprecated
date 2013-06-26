@@ -17,9 +17,7 @@ Consequences of the design:
 - extensibility
 - flexibility
 
-:link: __roadmap__ -> lawa::roadmap
-:link: __documentation__ -> lawa::documentation
-:link: __available features__ -> lawa::features
+
 
 LAWA is still in continuous development. Several parts have reached some quite 
 stable state whereas others still underly permanent change and improvements 
@@ -29,3 +27,7 @@ __roadmap__.
 To get started with LAWA, please see the 
 __documentation__ which is intended as a developers guide or read about the 
 __available features__.
+
+:links: roadmap -> lawa::roadmap
+        documentation -> lawa::documentation
+        available features -> lawa::features

@@ -16,8 +16,8 @@ steadily grow and bit by bit we will add adaptive stuff soon.
 Tutorials
 ---------
 
-:link: __Poisson Equation in 1D__ -> tutorials::examples::poisson1d
-:link: __Helmholtz Equation in 2D__ -> tutorials::examples::helmholtz2d
-
 - _Tutorial 1_:  __Poisson Equation in 1D__
 - _Tutorial 2_:  __Helmholtz Equation in 2D__
+
+:links: Poisson Equation in 1D -> tutorials::examples::poisson1d
+        Helmholtz Equation in 2D -> tutorials::examples::helmholtz2d

@@ -157,3 +157,6 @@ applications/finance/bs2d_basketput_10_strike_1_maturity_0.25_weight1_0.5_weight
 applications/finance/bs2d_refprices_basketput_10_strike_1_maturity_0.25_weight1_0.5_weight2_0.5_BS2D_r_0_sigma1_0.3_sigma2_0.2_rho_0
 applications/finance/bs2d_multitree_mw_sg
 applications/finance/cgmye2d_multitree_mw_sg
+doctool.config_old
+doctool.preconfig_old
+tutorials/examples/doctool.preconfig
