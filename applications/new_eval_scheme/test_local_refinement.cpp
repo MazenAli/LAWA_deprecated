@@ -220,7 +220,7 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
     DenseVectorLD *refCoeffs;
     cout << " *******************************************" << endl;
     cout << " ******* Refinement of multiwavelets *******" << endl;
-    for (int j=basis.j0; j<=basis.j0+4; ++j) {
+    for (int j=basis.j0; j<=basis.j0+10; ++j) {
         for (int k=basis.rangeJ(j).firstIndex(); k<=basis.rangeJ(j).lastIndex(); ++k) {
             ofstream plotfile_wavelet("refinement_interval_multiwavelet.txt");
             T abs_error = 0.L, rel_error = 0.L;
@@ -248,7 +248,13 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
             cout << "Relative error: " << rel_error << ", x_rel_crit = " << x_rel_crit << endl;
             cout << "Absolute error: " << abs_error << ", x_abs_crit = " << x_abs_crit << endl;
             cout << "Please hit enter." << endl;
-            getchar();
+
+            if (fabs(abs_error)>1e-12) {
+                cout << "Critical error!" << endl;
+                getchar();
+            }
+
+            //getchar();
         }
     }
     cout << " *******************************************" << endl << endl;
