@@ -19,7 +19,6 @@ typedef OptimizedH1Preconditioner2D<T,Basis2D>                      Precondition
 typedef RefinementBasis::LaplaceOperator1D                          RefinementLaplaceOp1D;
 typedef AdaptiveLaplaceOperator1D<T,Orthogonal,Interval,Multi>      LaplaceOp1D;
 
-
 ///  Local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
                         RefinementLaplaceOp1D,LaplaceOp1D>          LocalOp1D;

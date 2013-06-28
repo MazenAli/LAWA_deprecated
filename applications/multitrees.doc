@@ -1,5 +1,7 @@
 :document:    lawa::applications::multitrees
 
+__PhD thesis by S.K.__ - __Multitree based algorithms__
+
 Multitree based algorithms (Chapters 6 and 7)
 =============================================
 
@@ -31,7 +33,7 @@ for $j \in \mathbb{N}$ corresponds to the collection of scaling functions on lev
 The evaluation schemes $\textbf{EvalS}$, $\textbf{EvalU}$ and $\textbf{EvalL}$ are (mainly) based on the refinement of scaling functions $\phi_{j,k}$ and wavelets $\psi_{j,k}$ in terms of scaling functions on level $j+1$, i.e.,
 
 ___ LATEX ________________
-   \Psi_j^\top = \Phi_{j+1} \mathrm{M}_{j,1}, \qquad \Phi_j^\top = \Phi_{j+1} \mathrm{M}_{j,0}.
+   \Psi_j = \mathrm{M}_{j,1}^\top \Phi_{j+1} , \qquad \Phi_j = \mathrm{M}_{j,0}^\top \Phi_{j+1}.
 ___________________________
 
 for refinement matrices $\mathrm{M}_{j,0}$ and $\mathrm{M}_{j,1}$.
@@ -42,12 +44,12 @@ ___ LATEX ________________
    \bar\Phi_j = \{ \bar\phi_{j,k} : k \in \bar{\mathcal{J}}_j \}
 ___________________________
 
-for $j = j_0, j_0+1, \ldots$ for a certain $j_0>0$ such that
+for $j = j_0, j_0+1, \ldots$ for a certain $\bar j>0$ such that
 
 ___ LATEX ________________
 \begin{align*}
-  & \Psi_j^\top = \bar{\mathrm{M}}_{j,1} \bar{\Phi}_{j+j_0+1}, \qquad \Phi_j^\top = \bar{\mathrm{M}}_{j,0} \bar{\Phi}_{j+j_0+1}\\
-  & \mathrm{span}\bar{\Phi}_{j+j_0+1} \supseteq \mathrm{span} \Phi_j \cup \Psi_j
+  & \Psi_j = \bar{\mathrm{M}}_{j,1}^\top \bar{\Phi}_{j+\bar j+1}, \qquad \Phi_j = \bar{\mathrm{M}}^\top_{j,0} \bar{\Phi}_{j+\bar j+1}\\
+  & \mathrm{span}\bar{\Phi}_{j+\bar j+1} \supseteq \mathrm{span} \Phi_j \cup \Psi_j
 \end{align*}
 ___________________________
 
@@ -57,6 +59,14 @@ It is important to note, as we shall also see below, that the adoption of the al
 
 In order to set up, test and understand the tree structure of one-dimensional index sets (or, respectively, coefficient vectors), we have the following test programs:
 
-- __Refinements and neighbors__ (of scaling functions, wavelets and refinement B-Splines)
+- __Refinements and neighbors on the interval__: `applications/new_eval_scheme/test_local_refinement.cpp`
+- __Refinements and neighbors on the realline__: `applications/new_eval_scheme/test_local_refinement_realline.cpp`
+- __Local reconstruction on the interval__: `applications/new_eval_scheme/test_local_reconstruction.cpp`
+- __Local reconstruction on the realline__: `applications/new_eval_scheme/test_local_reconstruction_realline.cpp`
 
-:links:  __Refinements and neighbors__ -> lawa::applications::multitrees::testlocalrefinement
+:links:   PhD thesis by S.K. -> lawa::applications::home
+          Multitree based algorithms -> lawa::applications::multitrees
+          Refinements and neighbors on the interval -> lawa::applications::multitrees::testlocalrefinement
+          Refinements and neighbors on the realline -> lawa::applications::multitrees::testlocalrefinementrealline
+          Local reconstruction on the interval -> lawa::applications::multitrees::testlocalreconstruction
+          Local reconstruction on the realline -> lawa::applications::multitrees::testlocalreconstructionrealline
