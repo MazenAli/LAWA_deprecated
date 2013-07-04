@@ -819,15 +819,30 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 						for (long new_k=new_k_first; new_k<=new_k_last; ++new_k) {
 							PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
 							// left boundary of periodic support: max(l1, li2)
-							// right boundary of periodic support: min(l2, max(li1,0))
-	                        if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
-	                        	long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
-	                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,sparsetree);
+	                        if (std::max(new_supp.l1, new_supp.li2) >= std::max(supp.l1, supp.li2)) {
+	                            T rightbd = supp.li1 > 0 ? supp.li1 : supp.l2;
+	                            bool gap = supp.gaplength() > 0 ? true : false;
+	                            bool wrapped = false;
+	                            if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
+	                        		long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
+		                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,sparsetree);
+		                            if(basis.generator(new_type).support(new_j,left_k).gaplength() > 0){
+		                            	wrapped = true;
+		                            }
+	                        	}
 	                            completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,sparsetree);
-	                            while(std::min(new_supp.l2, std::max(new_supp.li1,0.)) < std::min(supp.l2, std::max(supp.li1,0.))){
+	                            if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+	                            	wrapped = true;
+	                            }
+
+	                            while((new_supp.li1 > 0 ? new_supp.li1 : new_supp.l2) < rightbd ||( gap && !wrapped)){
 	                            	new_k++;
+									if(new_k > lastIndex) new_k = firstIndex;
 	                            	new_supp = basis.generator(new_type).support(new_j,new_k);
 	                                completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,sparsetree);
+		                            if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+		                            	wrapped = true;
+		                            }
 	                            }
 	                            break;
 	                        }
@@ -837,19 +852,34 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 						bool is_break = false;
 						for (long new_k=new_k_first; new_k <= lastIndex ; ++new_k) {
 							PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
-	                        if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
-	                        	long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
-	                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,sparsetree);
+	                        if (std::max(new_supp.l1, new_supp.li2) >= std::max(supp.l1, supp.li2)) {
+	                            T rightbd = supp.li1 > 0 ? supp.li1 : supp.l2;
+	                            bool gap = supp.gaplength() > 0 ? true : false;
+	                            bool wrapped = false;
+	                            if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
+	                        		long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
+		                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,sparsetree);
+		                            if(basis.generator(new_type).support(new_j,left_k).gaplength() > 0){
+		                            	wrapped = true;
+		                            }
+	                        	}
 	                            completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,sparsetree);
-	                            while(std::min(new_supp.l2, std::max(new_supp.li1,0.)) < std::min(supp.l2, std::max(supp.li1,0.))){
-	                            	new_k++;
-	                            	if(new_k > lastIndex){
-	                            		is_break = false;
-	                            		break;
-	                            	}
+	                            if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+	                            	wrapped = true;
+	                            }
+
+	                            while((new_supp.li1 > 0 ? new_supp.li1 : new_supp.l2) < rightbd ||( gap && !wrapped)){
+									new_k++;
+									if(new_k > lastIndex){
+										is_break = false;
+										break;
+									}
 	                            	new_supp = basis.generator(new_type).support(new_j,new_k);
 	                                completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,sparsetree);
-	                                is_break = true;
+		                            if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+		                            	wrapped = true;
+		                            }
+		                            is_break = true;
 	                            }
 	                            break;
 	                        }
@@ -857,14 +887,30 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 						if(is_break == false){
 							for (long new_k=firstIndex; new_k <=new_k_last ; ++new_k) {
 								PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
-		                        if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
-		                        	long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
-		                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,sparsetree);
+		                        if (std::max(new_supp.l1, new_supp.li2) >= std::max(supp.l1, supp.li2)) {
+		                            T rightbd = supp.li1 > 0 ? supp.li1 : supp.l2;
+		                            bool gap = supp.gaplength() > 0 ? true : false;
+		                            bool wrapped = false;
+		                            if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
+		                        		long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
+			                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,sparsetree);
+			                            if(basis.generator(new_type).support(new_j,left_k).gaplength() > 0){
+			                            	wrapped = true;
+			                            }
+		                        	}
 		                            completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,sparsetree);
-		                            while(std::min(new_supp.l2, std::max(new_supp.li1,0.)) < std::min(supp.l2, std::max(supp.li1,0.))){
-		                            	new_k++;
+		                            if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+		                            	wrapped = true;
+		                            }
+
+		                            while((new_supp.li1 > 0 ? new_supp.li1 : new_supp.l2) < rightbd ||( gap && !wrapped)){
+										new_k++;
+										if(new_k > lastIndex) new_k = firstIndex;
 		                            	new_supp = basis.generator(new_type).support(new_j,new_k);
 		                                completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,sparsetree);
+			                            if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+			                            	wrapped = true;
+			                            }
 		                            }
 		                            break;
 		                        }
@@ -1127,59 +1173,105 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 						firstIndex = basis.rangeJ(new_j).firstIndex();
 						lastIndex = basis.rangeJ(new_j).lastIndex();
 					}
-            		if(new_k_first < new_k_last){
+					if(new_k_first < new_k_last){
 						for (long new_k=new_k_first; new_k<=new_k_last; ++new_k) {
 							PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
 							// left boundary of periodic support: max(l1, li2)
-							// right boundary of periodic support: min(l2, max(li1,0))
-	                        if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
-	                        	long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
-	                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,diff_v,sparsetree);
-	                            completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
-	                            while(std::min(new_supp.l2, std::max(new_supp.li1,0.)) < std::min(supp.l2, std::max(supp.li1,0.))){
-	                            	new_k++;
-	                            	new_supp = basis.generator(new_type).support(new_j,new_k);
-	                                completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
-	                            }
-	                            break;
-	                        }
+							if (std::max(new_supp.l1, new_supp.li2) >= std::max(supp.l1, supp.li2)) {
+								T rightbd = supp.li1 > 0 ? supp.li1 : supp.l2;
+								bool gap = supp.gaplength() > 0 ? true : false;
+								bool wrapped = false;
+								if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
+									long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
+									completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,diff_v,sparsetree);
+									if(basis.generator(new_type).support(new_j,left_k).gaplength() > 0){
+										wrapped = true;
+									}
+								}
+								completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
+								if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+									wrapped = true;
+								}
+
+								while((new_supp.li1 > 0 ? new_supp.li1 : new_supp.l2) < rightbd ||( gap && !wrapped)){
+									new_k++;
+									if(new_k > lastIndex) new_k = firstIndex;
+									new_supp = basis.generator(new_type).support(new_j,new_k);
+									completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
+									if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+										wrapped = true;
+									}
+								}
+								break;
+							}
 						}
 					}
 					else{
 						bool is_break = false;
 						for (long new_k=new_k_first; new_k <= lastIndex ; ++new_k) {
 							PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
-	                        if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
-	                        	long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
-	                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,diff_v,sparsetree);
-	                            completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
-	                            while(std::min(new_supp.l2, std::max(new_supp.li1,0.)) < std::min(supp.l2, std::max(supp.li1,0.))){
-	                            	new_k++;
-	                            	if(new_k > lastIndex){
-	                            		is_break = false;
-	                            		break;
-	                            	}
-	                            	new_supp = basis.generator(new_type).support(new_j,new_k);
-	                                completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
-	                                is_break = true;
-	                            }
-	                            break;
-	                        }
+							if (std::max(new_supp.l1, new_supp.li2) >= std::max(supp.l1, supp.li2)) {
+								T rightbd = supp.li1 > 0 ? supp.li1 : supp.l2;
+								bool gap = supp.gaplength() > 0 ? true : false;
+								bool wrapped = false;
+								if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
+									long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
+									completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,diff_v,sparsetree);
+									if(basis.generator(new_type).support(new_j,left_k).gaplength() > 0){
+										wrapped = true;
+									}
+								}
+								completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
+								if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+									wrapped = true;
+								}
+
+								while((new_supp.li1 > 0 ? new_supp.li1 : new_supp.l2) < rightbd ||( gap && !wrapped)){
+									new_k++;
+									if(new_k > lastIndex){
+										is_break = false;
+										break;
+									}
+									new_supp = basis.generator(new_type).support(new_j,new_k);
+									completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
+									if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+										wrapped = true;
+									}
+									is_break = true;
+								}
+								break;
+							}
 						}
 						if(is_break == false){
 							for (long new_k=firstIndex; new_k <=new_k_last ; ++new_k) {
 								PeriodicSupport<typename Basis::T> new_supp = basis.generator(new_type).support(new_j,new_k);
-		                        if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
-		                        	long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
-		                            completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,diff_v,sparsetree);
-		                            completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
-		                            while(std::min(new_supp.l2, std::max(new_supp.li1,0.)) < std::min(supp.l2, std::max(supp.li1,0.))){
-		                            	new_k++;
-		                            	new_supp = basis.generator(new_type).support(new_j,new_k);
-		                                completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
-		                            }
-		                            break;
-		                        }
+								if (std::max(new_supp.l1, new_supp.li2) >= std::max(supp.l1, supp.li2)) {
+									T rightbd = supp.li1 > 0 ? supp.li1 : supp.l2;
+									bool gap = supp.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp.l1, new_supp.li2) > std::max(supp.l1, supp.li2)) {
+										long left_k = new_k-1 >= firstIndex ? new_k - 1 : lastIndex;
+										completeMultiTree(basis, Index1D(new_j,left_k,new_type),v,diff_v,sparsetree);
+										if(basis.generator(new_type).support(new_j,left_k).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+									completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
+									if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp.li1 > 0 ? new_supp.li1 : new_supp.l2) < rightbd ||( gap && !wrapped)){
+										new_k++;
+										if(new_k > lastIndex) new_k = firstIndex;
+										new_supp = basis.generator(new_type).support(new_j,new_k);
+										completeMultiTree(basis, Index1D(new_j,new_k,new_type),v,diff_v,sparsetree);
+										if(basis.generator(new_type).support(new_j,new_k).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+									break;
+								}
 							}
 						}
 					}
@@ -1517,62 +1609,109 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							firstIndex = basis.first.rangeJ(new_j_x).firstIndex();
 							lastIndex = basis.first.rangeJ(new_j_x).lastIndex();
 						}
+
 						if(new_k_x_first < new_k_x_last){
 							for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
 								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-			                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-		                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-		                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+								if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+									T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+									bool gap = supp_x.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+	                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+									if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 										new_k_x++;
+										if(new_k_x > lastIndex) new_k_x = firstIndex;
 										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
+	                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
 									}
 									break;
-			                    }
+								}
 							}
 						}
+
 						else{
 							bool is_break = false;
 							for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
 								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-			                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-		                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-		                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+								if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+									T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+									bool gap = supp_x.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+									if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 										new_k_x++;
 			                          	if(new_k_x > lastIndex){
 											is_break = false;
 											break;
 										}
-										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
+			                          	new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+		                                is_break = true;
 									}
 									break;
-			                    }
+								}
 							}
 							if(is_break==false){
 								for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
 									PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 									// left boundary of periodic support: max(l1, li2)
-									// right boundary of periodic support: min(l2, max(li1,0))
-				                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-			                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-			                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+									if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+										T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+										bool gap = supp_x.gaplength() > 0 ? true : false;
+										bool wrapped = false;
+										if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+											long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+											if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+												wrapped = true;
+											}
+										}
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+
+										while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 											new_k_x++;
+											if(new_k_x > lastIndex) new_k_x = firstIndex;
 											new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-				                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+											if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+												wrapped = true;
+											}
 										}
 										break;
-				                    }
+									}
 								}
 							}
 						}
@@ -1724,15 +1863,30 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, coordDirec, sparsetree);
+								if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+									T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+									bool gap = supp_y.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+			                            completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+									}
 									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
-									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+									if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 										new_k_y++;
+										if(new_k_y > lastIndex) new_k_y = firstIndex;
 										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
 									}
 									break;
 								}
@@ -1740,15 +1894,26 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 						}
 						else{
 							bool is_break = false;
-							for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, coordDirec, sparsetree);
+								if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+									T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+									bool gap = supp_y.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+			                            completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+									}
 									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
-									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+									if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 										new_k_y++;
 										if(new_k_y > lastIndex){
 											is_break = false;
@@ -1756,23 +1921,43 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 										}
 										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+										is_break=true;
+
 									}
 									break;
 								}
 							}
 							if(is_break==false){
-								for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+								for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 									PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 									// left boundary of periodic support: max(l1, li2)
-									// right boundary of periodic support: min(l2, max(li1,0))
-									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, coordDirec, sparsetree);
+									if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+										T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+										bool gap = supp_y.gaplength() > 0 ? true : false;
+										bool wrapped = false;
+										if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+											long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+				                            completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,coordDirec, sparsetree);
+											if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+												wrapped = true;
+											}
+										}
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
-										while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+
+										while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 											new_k_y++;
+											if(new_k_y > lastIndex) new_k_y = firstIndex;
 											new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
+											if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+												wrapped = true;
+											}
 										}
 										break;
 									}
@@ -1944,15 +2129,30 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
 								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-									long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-									while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+								if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+									T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+									bool gap = supp_x.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+	                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+									if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 										new_k_x++;
+										if(new_k_x > lastIndex) new_k_x = firstIndex;
 										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
+	                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
 									}
 									break;
 								}
@@ -1963,19 +2163,34 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
 								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-									long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-									while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+								if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+									T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+									bool gap = supp_x.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+									if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 										new_k_x++;
-										if(new_k_x > lastIndex){
+			                          	if(new_k_x > lastIndex){
 											is_break = false;
 											break;
 										}
-										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
+			                          	new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+		                                is_break = true;
 									}
 									break;
 								}
@@ -1984,15 +2199,30 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 								for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
 									PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 									// left boundary of periodic support: max(l1, li2)
-									// right boundary of periodic support: min(l2, max(li1,0))
-									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-										completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
-										while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+									if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+										T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+										bool gap = supp_x.gaplength() > 0 ? true : false;
+										bool wrapped = false;
+										if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+											long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+											if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+												wrapped = true;
+											}
+										}
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+
+										while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 											new_k_x++;
+											if(new_k_x > lastIndex) new_k_x = firstIndex;
 											new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-											completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, coordDirec, sparsetree);
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,coordDirec,sparsetree);
+											if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+												wrapped = true;
+											}
 										}
 										break;
 									}
@@ -2318,15 +2548,30 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, coordDirec, sparsetree);
+								if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+									T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+									bool gap = supp_y.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+									}
 									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
-									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+									if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 										new_k_y++;
+										if(new_k_y > lastIndex) new_k_y = firstIndex;
 										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
 									}
 									break;
 								}
@@ -2334,15 +2579,26 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 						}
 						else{
 							bool is_break = false;
-							for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, coordDirec, sparsetree);
+								if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+									T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+									bool gap = supp_y.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,coordDirec,sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+									}
 									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
-									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+									if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 										new_k_y++;
 										if(new_k_y > lastIndex){
 											is_break = false;
@@ -2350,23 +2606,43 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 										}
 										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+										is_break=true;
+
 									}
 									break;
 								}
 							}
 							if(is_break==false){
-								for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+								for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 									PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 									// left boundary of periodic support: max(l1, li2)
-									// right boundary of periodic support: min(l2, max(li1,0))
-									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, coordDirec, sparsetree);
+									if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+										T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+										bool gap = supp_y.gaplength() > 0 ? true : false;
+										bool wrapped = false;
+										if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+											long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,coordDirec,sparsetree);
+											if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+												wrapped = true;
+											}
+										}
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
-										while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+
+										while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 											new_k_y++;
+											if(new_k_y > lastIndex) new_k_y = firstIndex;
 											new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, coordDirec, sparsetree);
+											if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+												wrapped = true;
+											}
 										}
 										break;
 									}
@@ -2726,18 +3002,33 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
 								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-			                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-		                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-		                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+								if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+									T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+									bool gap = supp_x.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+	                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+									if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 										new_k_x++;
+										if(new_k_x > lastIndex) new_k_x = firstIndex;
 										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+	                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
 									}
 									break;
-			                    }
+								}
 							}
 						}
 						else{
@@ -2745,39 +3036,69 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
 								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-			                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-		                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-		                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-		                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+								if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+									T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+									bool gap = supp_x.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+									if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 										new_k_x++;
 			                          	if(new_k_x > lastIndex){
 											is_break = false;
 											break;
 										}
-										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v,diff_v, coordDirec, sparsetree);
+			                          	new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+		                                is_break = true;
 									}
 									break;
-			                    }
+								}
 							}
 							if(is_break==false){
 								for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
 									PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 									// left boundary of periodic support: max(l1, li2)
-									// right boundary of periodic support: min(l2, max(li1,0))
-				                    if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-			                        	long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-			                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-			                            while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+									if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+										T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+										bool gap = supp_x.gaplength() > 0 ? true : false;
+										bool wrapped = false;
+										if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+											long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+											if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+												wrapped = true;
+											}
+										}
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+
+										while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 											new_k_x++;
+											if(new_k_x > lastIndex) new_k_x = firstIndex;
 											new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-				                        	completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+											if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+												wrapped = true;
+											}
 										}
 										break;
-				                    }
+									}
 								}
 							}
 						}
@@ -2929,15 +3250,30 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v,diff_v, coordDirec, sparsetree);
-									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+								if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+									T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+									bool gap = supp_y.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,diff_v,coordDirec,sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 										new_k_y++;
+										if(new_k_y > lastIndex) new_k_y = firstIndex;
 										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
 									}
 									break;
 								}
@@ -2945,15 +3281,26 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 						}
 						else{
 							bool is_break = false;
-							for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+								if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+									T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+									bool gap = supp_y.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,diff_v, coordDirec,sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+									}
 									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
-									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+									if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 										new_k_y++;
 										if(new_k_y > lastIndex){
 											is_break = false;
@@ -2961,23 +3308,43 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 										}
 										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+										is_break=true;
+
 									}
 									break;
 								}
 							}
 							if(is_break==false){
-								for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+								for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 									PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 									// left boundary of periodic support: max(l1, li2)
-									// right boundary of periodic support: min(l2, max(li1,0))
-									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+										T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+										bool gap = supp_y.gaplength() > 0 ? true : false;
+										bool wrapped = false;
+										if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+											long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,diff_v, coordDirec,sparsetree);
+											if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+												wrapped = true;
+											}
+										}
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
-										while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+
+										while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 											new_k_y++;
+											if(new_k_y > lastIndex) new_k_y = firstIndex;
 											new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+											if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+												wrapped = true;
+											}
 										}
 										break;
 									}
@@ -3155,15 +3522,30 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_x=new_k_x_first; new_k_x<=new_k_x_last; ++new_k_x) {
 								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-									long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v,diff_v, coordDirec, sparsetree);
-									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v,diff_v, coordDirec, sparsetree);
-									while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+								if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+									T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+									bool gap = supp_x.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+	                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+									if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 										new_k_x++;
+										if(new_k_x > lastIndex) new_k_x = firstIndex;
 										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v,diff_v, coordDirec, sparsetree);
+	                                    completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
 									}
 									break;
 								}
@@ -3174,19 +3556,34 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_x=new_k_x_first; new_k_x<=lastIndex; ++new_k_x) {
 								PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-									long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-									while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+								if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+									T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+									bool gap = supp_x.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+									}
+									completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+									if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 										new_k_x++;
-										if(new_k_x > lastIndex){
+			                          	if(new_k_x > lastIndex){
 											is_break = false;
 											break;
 										}
-										new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+			                          	new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+		                                is_break = true;
 									}
 									break;
 								}
@@ -3195,15 +3592,30 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 								for (long new_k_x=firstIndex; new_k_x<=new_k_x_last; ++new_k_x) {
 									PeriodicSupport<typename Basis::T> new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
 									// left boundary of periodic support: max(l1, li2)
-									// right boundary of periodic support: min(l2, max(li1,0))
-									if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
-										long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
-										completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
-										while(std::min(new_supp_x.l2, std::max(new_supp_x.li1,0.)) < std::min(supp_x.l2, std::max(supp_x.li1,0.))){
+									if (std::max(new_supp_x.l1, new_supp_x.li2) >= std::max(supp_x.l1, supp_x.li2)) {
+										T rightbd = supp_x.li1 > 0 ? supp_x.li1 : supp_x.l2;
+										bool gap = supp_x.gaplength() > 0 ? true : false;
+										bool wrapped = false;
+										if (std::max(new_supp_x.l1, new_supp_x.li2) > std::max(supp_x.l1, supp_x.li2)) {
+											long left_k_x = new_k_x-1 >= firstIndex ? new_k_x - 1 : lastIndex;
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,left_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+											if(basis.first.generator(new_type_x).support(new_j_x,left_k_x).gaplength() > 0){
+												wrapped = true;
+											}
+										}
+										completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+										if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+											wrapped = true;
+										}
+
+										while((new_supp_x.li1 > 0 ? new_supp_x.li1 : new_supp_x.l2) < rightbd ||( gap && !wrapped)){
 											new_k_x++;
+											if(new_k_x > lastIndex) new_k_x = firstIndex;
 											new_supp_x = basis.first.generator(new_type_x).support(new_j_x,new_k_x);
-											completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y), v, diff_v,coordDirec, sparsetree);
+											completeMultiTree(basis, Index2D(Index1D(new_j_x,new_k_x,new_type_x),index_y),v,diff_v,coordDirec,sparsetree);
+											if(basis.first.generator(new_type_x).support(new_j_x,new_k_x).gaplength() > 0){
+												wrapped = true;
+											}
 										}
 										break;
 									}
@@ -3535,15 +3947,30 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+								if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+									T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+									bool gap = supp_y.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,diff_v,coordDirec,sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+									}
 									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
-									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+									if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 										new_k_y++;
+										if(new_k_y > lastIndex) new_k_y = firstIndex;
 										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
 									}
 									break;
 								}
@@ -3551,15 +3978,26 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 						}
 						else{
 							bool is_break = false;
-							for (long new_k_y=new_k_y_first; new_k_y<=lastIndex; ++new_k_y) {
+							for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 								PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 								// left boundary of periodic support: max(l1, li2)
-								// right boundary of periodic support: min(l2, max(li1,0))
-								if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-									long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+								if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+									T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+									bool gap = supp_y.gaplength() > 0 ? true : false;
+									bool wrapped = false;
+									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,diff_v, coordDirec,sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+									}
 									completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
-									while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+									if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+										wrapped = true;
+									}
+
+									while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 										new_k_y++;
 										if(new_k_y > lastIndex){
 											is_break = false;
@@ -3567,23 +4005,43 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 										}
 										new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+										is_break=true;
+
 									}
 									break;
 								}
 							}
 							if(is_break==false){
-								for (long new_k_y=firstIndex; new_k_y<=new_k_y_last; ++new_k_y) {
+								for (long new_k_y=new_k_y_first; new_k_y<=new_k_y_last; ++new_k_y) {
 									PeriodicSupport<typename Basis::T> new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 									// left boundary of periodic support: max(l1, li2)
-									// right boundary of periodic support: min(l2, max(li1,0))
-									if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
-										long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
-										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+									if (std::max(new_supp_y.l1, new_supp_y.li2) >= std::max(supp_y.l1, supp_y.li2)) {
+										T rightbd = supp_y.li1 > 0 ? supp_y.li1 : supp_y.l2;
+										bool gap = supp_y.gaplength() > 0 ? true : false;
+										bool wrapped = false;
+										if (std::max(new_supp_y.l1, new_supp_y.li2) > std::max(supp_y.l1, supp_y.li2)) {
+											long left_k_y = new_k_y-1 >= firstIndex ? new_k_y - 1 : lastIndex;
+											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,left_k_y,new_type_y)),v,diff_v, coordDirec,sparsetree);
+											if(basis.second.generator(new_type_y).support(new_j_y,left_k_y).gaplength() > 0){
+												wrapped = true;
+											}
+										}
 										completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
-										while(std::min(new_supp_y.l2, std::max(new_supp_y.li1,0.)) < std::min(supp_y.l2, std::max(supp_y.li1,0.))){
+										if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+											wrapped = true;
+										}
+
+										while((new_supp_y.li1 > 0 ? new_supp_y.li1 : new_supp_y.l2) < rightbd ||( gap && !wrapped)){
 											new_k_y++;
+											if(new_k_y > lastIndex) new_k_y = firstIndex;
 											new_supp_y = basis.second.generator(new_type_y).support(new_j_y,new_k_y);
 											completeMultiTree(basis, Index2D(index_x, Index1D(new_j_y,new_k_y,new_type_y)), v, diff_v,coordDirec, sparsetree);
+											if(basis.second.generator(new_type_y).support(new_j_y,new_k_y).gaplength() > 0){
+												wrapped = true;
+											}
 										}
 										break;
 									}

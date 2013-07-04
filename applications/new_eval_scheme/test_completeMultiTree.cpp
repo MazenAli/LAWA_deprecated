@@ -85,7 +85,7 @@ int main (int argc, char *argv[]) {
 		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
 
 		IndexSet<Index1D> additional_indizes_i;
-		Index1D index2_i(j0+j+3,16,XWavelet);
+		Index1D index2_i(j0+j,16,XWavelet);
 		cout << "Adding Index " << index1_i << " with support "
 			 << intervalbasis.generator(index2_i.xtype).support(index2_i.j, index2_i.k) << endl;
 		completeMultiTree(intervalbasis,index2_i,Coeffs_Interval,additional_indizes_i,true);
@@ -94,16 +94,18 @@ int main (int argc, char *argv[]) {
 
 		cout << "===== PERIODIC: j = " << j << " ======= " << endl;
 
-		Index1D index1_p(j0+j+2,15,XWavelet);
+		//Index1D index1_p(j0+j+2,15,XWavelet);
+		Index1D index1_p(j0+j,4,XWavelet);
 		cout << "Adding Index " << index1_p << " with support "
 			 << periodicbasis.generator(index1_p.xtype).support(index1_p.j, index1_p.k) << endl;
 		completeMultiTree(periodicbasis,index1_p,Coeffs_Periodic,true);
 		cout << "Extended Coeffs: " << Coeffs_Periodic.size() << Coeffs_Periodic << endl << endl;
 
+
 		cout << "--------    2nd Completion -- return added indizes   ---------------" << endl << endl;
 
 		IndexSet<Index1D> additional_indizes_p;
-		Index1D index2_p(j0+j+3,15,XWavelet);
+		Index1D index2_p(j0+j,4,XWavelet);
 		cout << "Adding Index " << index2_p << " with support "
 			 << periodicbasis.generator(index2_p.xtype).support(index2_p.j, index2_p.k) << endl;
 		completeMultiTree(periodicbasis,index2_p,Coeffs_Periodic,additional_indizes_p,true);
@@ -132,13 +134,17 @@ int main (int argc, char *argv[]) {
 	    Index1D index1_y_p(j0+j+1,1,XWavelet);
 	    */
 
-        Index1D index1_x_p(j0+j+4,42,XWavelet);
-        Index1D index1_y_p(j0+j+4,4,XWavelet);
+        //Index1D index1_x_p(j0+j+4,42,XWavelet);
+        //Index1D index1_y_p(j0+j+4,4,XWavelet);
+		Index1D index1_x_p(j0,4,XWavelet);
+		Index1D index1_y_p(j0,4,XWavelet);
         Index1D index1_x_i(j0+j+4,7,XWavelet);
         Index1D index1_y_i(j0+j+4,17,XWavelet);
 
-        Index1D index2_x_p(j0+j+5,30,XWavelet);
-        Index1D index2_y_p(j0+j+5,3,XWavelet);
+        //Index1D index2_x_p(j0+j+5,30,XWavelet);
+        //Index1D index2_y_p(j0+j+5,3,XWavelet);
+        Index1D index2_x_p(j0+j,4,XWavelet);
+        Index1D index2_y_p(j0+j,4,XWavelet);
         Index1D index2_x_i(j0+j+5,9,XWavelet);
         Index1D index2_y_i(j0+j+5,11,XWavelet);
 
@@ -182,8 +188,8 @@ int main (int argc, char *argv[]) {
 		cout << "Added Indizes: " << additional_indizes_ii.size() << additional_indizes_ii << endl << endl;
 
 		cout << "===== PERIODIC x PERIODIC : j = " << j << " ======= " << endl;
-		getSparseGridIndexSet(periodicbasis2d,Lambda_Periodic,j,0.2);
-		FillWithZeros(Lambda_Periodic, Coeffs_Periodic);
+		//getSparseGridIndexSet(periodicbasis2d,Lambda_Periodic,j,0.2);
+		//FillWithZeros(Lambda_Periodic, Coeffs_Periodic);
 		
 		cout << "Sparse Grid 2D: " << Lambda_Periodic.size() << endl;// << Lambda_Periodic << endl;		
 	    Index2D new_index1_p(index1_x_p,index1_y_p);

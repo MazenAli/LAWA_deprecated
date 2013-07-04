@@ -25,3 +25,5 @@ test_local_operator1d_pg
 test_local_operator2d_pg
 multitree_mv2d_mixedbases_2
 multitree_mv2d_mixedbases_mw
+test_completeMultiTree1d
+test_completeMultiTree2d
