@@ -22,6 +22,6 @@ The necessity of a corresponding routine becomes clear when having a closer look
 
 :import: applications/new_eval_scheme/test_local_refinement.cpp [brief]
 
-:links:   __PhD thesis by S.K.__ -> lawa::applications::home
-          __Multitree based algorithms__ -> lawa::applications::multitrees
-          __Refinements and neighbors__ -> lawa::applications::multitrees::testlocalrefinement
+:links:   PhD thesis by S.K. -> lawa::applications::home
+          Multitree based algorithms -> lawa::applications::multitrees
+          Refinements and neighbors -> lawa::applications::multitrees::testlocalrefinement
