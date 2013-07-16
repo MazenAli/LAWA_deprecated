@@ -6049,8 +6049,8 @@ getStableExpansion_onlyTemporalHW(const Basis2D_Origin& basis_origin, const Basi
 	getCounterpart(basis_origin, basis_target, indexset_origin, coeffs_target);
 
 	// Then we insert all HigherWaveletNeighbours in x direction (= time)
-    long k_first_x, k_last_x, k_first_y, k_last_y;
-    int j_x, j_y;
+    long k_first_x, k_last_x;
+    int j_x;
     for(IndexSet<Index2D>::const_iterator it = indexset_origin.begin(); it != indexset_origin.end(); ++it){
 
 		// Get neighbours for index_x

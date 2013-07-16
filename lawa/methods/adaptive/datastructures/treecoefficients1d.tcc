@@ -232,7 +232,8 @@ TreeCoefficients1D<T>::addTo(const PrincipalIndex &lambda, Coefficients<Lexicogr
             Index index;
             Index1D aligIndex(j,(*it).first,xtype_row_y);
             join(lambda,aligIndex,index);
-            if (fabs((*it).second)>0) v[index] += (*it).second;
+            //if (fabs((*it).second)>0) v[index] += (*it).second;
+            v[index] += (*it).second;
         }
     }
 }
