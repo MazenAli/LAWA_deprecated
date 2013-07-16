@@ -129,7 +129,7 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 
 		// Check if this is the default trial index set
 		bool is_default_set = true;
-		if(LambdaTrial.size() != default_init_Lambda_trial){
+		if(LambdaTrial.size() != default_init_Lambda_trial.size()){
 			is_default_set = false;
 		}
 		else{
@@ -193,8 +193,10 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
                                             p(awgm_params.hashmapsize_trial),
                                             Ap(awgm_params.hashmapsize_test),
                                             res(awgm_params.hashmapsize_test),     // approximate residual for f-Au
-                                    		resNE(awgm_params.hashmapsize_test),   // cone around u_leafs
-                                            u_leafs(awgm_params.hashmapsize_trial); // "leafs" of u
+                                    		resNE(awgm_params.hashmapsize_trial),   // cone around u_leafs
+                                            u_leafs(awgm_params.hashmapsize_trial), // "leafs" of u
+                                            resNE_tmp(awgm_params.hashmapsize_trial); // cone around u_leafs if we further extend resNE
+
 
     if(u.size() != LambdaTrial.size()){
     	FillWithZeros(LambdaTrial, u);
@@ -271,7 +273,8 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 		// CGLS Iterations
 		for(std::size_t cgls_its=0; cgls_its <= is_params.max_its; ++cgls_its){
 
-			Ap.setToZero();						// Ap = A*p
+			Ap.setToZero();// Ap = A*p
+			//std::cout << "Eval Ap = A * p" << std::endl;
 			Op.eval(p,Ap,trialPrec,testPrec);
 
 			alpha = gamma_cgls_Prev / (Ap*Ap);
@@ -279,6 +282,8 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 			r -= alpha * Ap;
 
 			s.setToZero();
+
+			//std::cout << "Eval s = A^T * r" << std::endl;
 			OpTransp.eval(r,s,testPrec,trialPrec);	// s = A^T*r
 
 			gamma_cgls = s*s;
@@ -320,27 +325,66 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
 
 		// Compute cone around solution u
 		IndexSet<Index2D>	Cdiff_u_leafs;	// new indizes in cone
-        res.setToZero();
 
-        extendMultiTree(trialbasis, u_leafs, resNE, Cdiff_u_leafs, "standard", false, true);
-
-        // Compute stable expansion in test basis
         if(awgm_params.reset_res){
         	res.clear();
         }
-        switch(awgm_params.stable_exp_res){
-			case FullExpansion:
-				getStableExpansion(trialbasis, testbasis, resNE, res);
-				break;
-			case WoMixedHWExpansion:
-				getStableExpansion_woMixedHW(trialbasis, testbasis, resNE, res);
-				break;
-			case OnlyTemporalHWExpansion:
-				getStableExpansion_onlyTemporalHW(trialbasis, testbasis, resNE, res);
-				break;
-			default:
-				std::cerr << "Stable Expansion type doesn't exist!" << std::endl;
-				break;
+        else{
+            res.setToZero();
+        }
+
+        // If we have more than one cone extension for resNE, use auxiliary index set resNE_tmp
+        // for the cone around u_leafs, as it blows up otherwise (we never "reset" resNE)
+        if(awgm_params.res_construction == SimpleStableExpansion || awgm_params.res_construction == ParallelMTCones){
+            extendMultiTree(trialbasis, u_leafs, resNE, Cdiff_u_leafs, "standard", false, true);
+
+            // Compute stable expansion in test basis to get res
+            if(awgm_params.res_construction != ParallelMTCones){
+    			switch(awgm_params.stable_exp_res){
+    				case FullExpansion:
+    					getStableExpansion(trialbasis, testbasis, resNE, res);
+    					break;
+    				case WoMixedHWExpansion:
+    					getStableExpansion_woMixedHW(trialbasis, testbasis, resNE, res);
+    					break;
+    				case OnlyTemporalHWExpansion:
+    					getStableExpansion_onlyTemporalHW(trialbasis, testbasis, resNE, res);
+    					break;
+    				default:
+    					std::cerr << "Stable Expansion type doesn't exist!" << std::endl;
+    					break;
+    			}
+            }
+            else{
+            	extendMultiTree(testbasis, Ap, res, "standard", false, true);
+            }
+        }
+        else{
+            extendMultiTree(trialbasis, u_leafs, resNE_tmp, Cdiff_u_leafs, "standard", false, true);
+
+            // Compute stable expansion of resNE_tmp in test basis to get res
+			switch(awgm_params.stable_exp_res){
+				case FullExpansion:
+					getStableExpansion(trialbasis, testbasis, resNE_tmp, res);
+					break;
+				case WoMixedHWExpansion:
+					getStableExpansion_woMixedHW(trialbasis, testbasis, resNE_tmp, res);
+					break;
+				case OnlyTemporalHWExpansion:
+					getStableExpansion_onlyTemporalHW(trialbasis, testbasis, resNE_tmp, res);
+					break;
+				default:
+					std::cerr << "Stable Expansion type doesn't exist!" << std::endl;
+					break;
+			}
+
+			if(awgm_params.res_construction == DoubleStableExpansion){
+				resNE.clear();
+				getStableExpansion(testbasis, trialbasis, res, resNE);
+			}
+			if(awgm_params.res_construction == DoubleMTExtension){
+		        extendMultiTree(trialbasis, resNE_tmp, resNE, Cdiff_u_leafs, "standard", false, true);
+			}
         }
 
         // Compute rhs on expanded test index set

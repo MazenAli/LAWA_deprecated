@@ -20,6 +20,13 @@ enum StableExpansionVersion {
 	OnlyTemporalHWExpansion		// include only higher wavelets in time
 };
 
+enum ResidualConstruction {
+	SimpleStableExpansion,		// LambdaHat --(MT-Cone)--> XiHat --(StableExp)--> XiCheck
+	DoubleStableExpansion,		// LambdaHat --(MT-Cone)--(StableExp)--> XiCheck --(StableExp)--> XiHat
+	ParallelMTCones,			// LambdaHat --(MT-Cone)--> XiHat, LambdaCheck --(MT-Cone)--> XiCheck
+	DoubleMTExtension,			// LambdaHat --(MT-Cone)--> XiHat_tmp --(StableExp)--> XiCheck, XiHat_tmp --(MT-Cone)--> XiHat
+};
+
 /**
  * Parameters for the Adaptive Wavelet-Galerkin Method
  *  (= the outer solver), Petrov-Galerkin version
@@ -33,6 +40,8 @@ struct AWGM_PG_Parameters{
     bool           			reset_res;
     StableExpansionVersion 	stable_exp_u;
     StableExpansionVersion 	stable_exp_res;
+    ResidualConstruction	res_construction;
+
 
     bool        	print_info;
     bool         	verbose;
@@ -52,6 +61,7 @@ struct AWGM_PG_Parameters{
                     bool _reset_res = false,
                     StableExpansionVersion _stable_exp_u = FullExpansion,
                     StableExpansionVersion _stable_exp_res = FullExpansion,
+                    ResidualConstruction _res_construction = SimpleStableExpansion,
                     bool _print_info = true,
                     bool _verbose = true,
                     bool _plot_solution = false,
