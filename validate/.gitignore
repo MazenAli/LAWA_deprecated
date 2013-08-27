@@ -9,3 +9,4 @@ plot_solutions
 *.dat
 convertCoeffFilesToCorrectSupportCenter
 test_sparseTransp
+plot_2dwavelet_X

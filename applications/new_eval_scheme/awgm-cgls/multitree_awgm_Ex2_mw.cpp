@@ -148,14 +148,15 @@ int main () {
     IS_Parameters cgls_parameters;
     // .... set them here:
     awgm_parameters.tol = 0.0001;
-    awgm_parameters.stable_exp_u = OnlyTemporalHWExpansion;
-    awgm_parameters.stable_exp_res = OnlyTemporalHWExpansion;
+    //awgm_parameters.stable_exp_u = OnlyTemporalHWExpansion;
+    //awgm_parameters.stable_exp_res = OnlyTemporalHWExpansion;
+    awgm_parameters.res_construction = DoubleStableExpansion; // ParallelMTCones
     awgm_parameters.plot_solution = false;
     awgm_parameters.verbose_extra = true;
-    awgm_parameters.info_filename = "awgm_ExSaw_mw_conv_info.txt";
-    awgm_parameters.plot_filename = "awgm_ExSaw_mw_u_plot";
+    awgm_parameters.info_filename = "awgm_ExSaw_mw_DoubleExp_conv_info.txt";
+    awgm_parameters.plot_filename = "awgm_ExSaw_mw_DoubleExp_u_plot";
     awgm_parameters.write_intermediary_solutions = true;
-    awgm_parameters.intermediary_solutions_filename = "awgm_ExSaw_mw_u_Iteration";
+    awgm_parameters.intermediary_solutions_filename = "awgm_ExSaw_mw_DoubleExp_u_Iteration";
     
     cgls_parameters.adaptive_tol = true;
     cgls_parameters.init_tol = 1e-4;
@@ -185,7 +186,7 @@ int main () {
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl;
 
-    saveCoeffVector2D(u, basis2d_trial, "awgm_ExSaw_mw_u.txt");
+    saveCoeffVector2D(u, basis2d_trial, "awgm_ExSaw_mw_DoubleExp_u.txt");
     return 0;
 }
 
