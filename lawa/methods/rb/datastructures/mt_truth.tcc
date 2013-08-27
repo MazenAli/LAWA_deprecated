@@ -33,6 +33,20 @@ get_truth_solution(ParamType& mu)
     return u;
 }
 
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
+void
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
+get_truth_solution(ParamType& mu, DataType& u)
+{
+	solver.get_lhs().set_param(mu);
+	solver.get_rhs().set_param(mu);
+
+	solver.reset_info();
+    solver.solve(u);
+    solver.remove_preconditioner(u);
+}
+
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
@@ -46,6 +60,18 @@ get_riesz_representor_f(std::size_t i)
 	riesz_solver_f.remove_preconditioner(r_f);
 
 	return r_f;
+}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u>
+void
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u>::
+get_riesz_representor_f(std::size_t i, DataType& r_f)
+{
+	riesz_solver_f.get_rhs().set_active_comp(i);
+
+	riesz_solver_f.solve(r_f);
+	riesz_solver_f.remove_preconditioner(r_f);
 }
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,

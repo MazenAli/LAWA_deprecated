@@ -305,6 +305,9 @@ int main () {
 			bool orthonormalize_bfs = true,
 			bool tighten_tol	= false,
 			double tighten_tol_reduction = 0.1
+			bool update_snapshot = false,
+			bool update_rieszF = false
+
      */
 
 
@@ -329,6 +332,8 @@ int main () {
     rb_base.greedy_params.tighten_tol = true;
     rb_base.greedy_params.tighten_tol_rieszA = true;
     rb_base.greedy_params.tighten_tol_rieszF = true;
+    rb_base.greedy_params.update_snapshot = true;
+    rb_base.greedy_params.update_rieszF = true;
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();

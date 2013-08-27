@@ -52,6 +52,8 @@ struct RB_Greedy_Parameters{
 	bool		tighten_tol_rieszA;
 	bool		tighten_tol_rieszF;
 	double		tighten_tol_reduction;
+	bool		update_snapshot;			// Do not recompute snapshots at same param from scratch
+	bool		update_rieszF;
 
 	RB_Greedy_Parameters(double _tol = 1e-2,
 						std::size_t _Nmax = 20,
@@ -69,7 +71,9 @@ struct RB_Greedy_Parameters{
 						bool _tighten_tol	= false,
 						bool _tighten_tol_rieszA = false,
 						bool _tighten_tol_rieszF = false,
-						double _tighten_tol_reduction = 0.1);
+						double _tighten_tol_reduction = 0.1,
+						bool _update_snapshot = false,
+						bool _update_rieszF = false);
 
 	void print();
 };

@@ -67,6 +67,8 @@ train_Greedy(std::size_t N)
 		    std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
 		}
 
+
+		// Find parameter with maximum error estimator
 		T error_est;
 		max_error = 0;
 		for(auto& mu : Xi_train){
@@ -87,8 +89,10 @@ train_Greedy(std::size_t N)
             }
 		}
 
+		// Check if we have to tighten the snapshot tolerance
+		bool update_snapshot = false;
 		if(greedy_params.tighten_tol){
-			// find current parameter
+			// find (first occurence of) current parameter
 			for(auto& mu : greedy_info.snapshot_params){
 				bool is_current_param = true;
 				for(std::size_t i = 0; i < mu.size(); ++i){
@@ -99,6 +103,7 @@ train_Greedy(std::size_t N)
 				}
 				if(is_current_param){
 					rb_truth.access_solver().access_params().tol *= greedy_params.tighten_tol_reduction;
+					update_snapshot = true;
 					if(greedy_params.verbose){
 						std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
 						std::cout << "====>     Reduced snapshot tolerance to " << std::scientific << rb_truth.access_solver().access_params().tol << std::endl;
@@ -143,8 +148,11 @@ train_Greedy(std::size_t N)
 							write_rieszrepresentors(old_repr_folder.str(), 0);
 						}
 						// Recalculate F Representors
-						F_representors.clear();
-						calculate_Riesz_RHS_information();
+						bool update = false;
+						if(greedy_params.update_rieszF){
+							update = true;
+						}
+						calculate_Riesz_RHS_information(update);
 						recalculate_A_F_norms();
 					}
 					break;
@@ -191,7 +199,39 @@ train_Greedy(std::size_t N)
 			filename << greedy_params.print_file << "_bf" << N+1 << ".txt";
 			rb_truth.access_solver().access_params().info_filename = filename.str();
 		}
-		DataType u = rb_truth.get_truth_solution(current_param);
+
+		// Compute next snapshot
+		DataType u;
+		if(update_snapshot && greedy_params.update_snapshot){
+			// Find last corresponding snapshot:
+			// Find (last occurence of) current parameter
+			int last_snapshot_index;
+			for(auto& mu : greedy_info.snapshot_params){
+				bool is_current_param = true;
+				for(std::size_t i = 0; i < mu.size(); ++i){
+					if(mu[i]!=current_param[i]){
+						is_current_param = false;
+						break;
+					}
+				}
+				if(is_current_param){
+					if(&mu - &greedy_info.snapshot_params[0] < greedy_info.snapshot_params.size()-1){
+						last_snapshot_index = &mu - &greedy_info.snapshot_params[0];
+					}
+				}
+			}
+
+			if(greedy_params.verbose){
+				std::cout << " Starting truth computation with snapshot nb " << last_snapshot_index+1 << std::endl << std::endl;
+			}
+
+			// Start solver with copy of old snapshot
+			u = rb_basisfunctions[last_snapshot_index];
+			rb_truth.get_truth_solution(current_param, u);
+		}
+		else{
+			u = rb_truth.get_truth_solution(current_param);
+		}
 		add_to_basis(u);
 		N++;
 
@@ -718,14 +758,26 @@ add_to_RB_structures(const DataType& bf)
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-calculate_Riesz_RHS_information()
+calculate_Riesz_RHS_information(bool update)
 {
-	if(greedy_params.verbose){
-		std::cout << "||---------------------------------------------------------------------||" << std::endl;
-		std::cout << "||-------------- Calculate Riesz Representors for F -------------------||" << std::endl;
-		std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
-	}
 
+	if(!update){
+		F_representors.clear();
+
+		if(greedy_params.verbose){
+			std::cout << "||---------------------------------------------------------------------||" << std::endl;
+			std::cout << "||-------------- Calculate Riesz Representors for F -------------------||" << std::endl;
+			std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+		}
+	}
+	else{
+
+		if(greedy_params.verbose){
+			std::cout << "||---------------------------------------------------------------------||" << std::endl;
+			std::cout << "||-------------- Update Riesz Representors for F --------   -----------||" << std::endl;
+			std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+		}
+	}
 	// Calculate the Riesz Representors for F
 	std::size_t Qf = rb_system.Q_f();
 	for (unsigned int i = 0; i < Qf; ++i) {
@@ -734,8 +786,13 @@ calculate_Riesz_RHS_information()
 			std::cout << "||------- Component Nb " << std::setw(3) << i << "  -------------------------------------------||" << std::endl << std::endl;
 		}
 
-		DataType c = rb_truth.get_riesz_representor_f(i);
-		F_representors.push_back(c);
+		if(update){
+			rb_truth.get_riesz_representor_f(i, F_representors[i]);
+		}
+		else{
+			DataType c = rb_truth.get_riesz_representor_f(i);
+			F_representors.push_back(c);
+		}
 	}
 
 	// Update the Riesz Representor Norms

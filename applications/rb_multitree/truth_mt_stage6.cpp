@@ -304,7 +304,8 @@ int main () {
 			bool erase_snapshot_params = false,
 			bool orthonormalize_bfs = true,
 			bool tighten_tol	= false,
-			double tighten_tol_reduction = 0.1
+			double tighten_tol_reduction = 0.1,
+			bool update_snapshot = false
      */
 
 
@@ -328,6 +329,7 @@ int main () {
     rb_base.greedy_params.trainingdata_folder = "training_data_stage6";
     rb_base.greedy_params.tighten_tol = true;
     rb_base.greedy_params.tighten_tol_rieszA = true;
+    rb_base.greedy_params.update_snapshot = true;
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();

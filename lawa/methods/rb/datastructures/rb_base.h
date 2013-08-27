@@ -69,7 +69,7 @@ private:
 	add_to_RB_structures(const DataType& bf);
 
 	void
-	calculate_Riesz_RHS_information();
+	calculate_Riesz_RHS_information(bool update = false);
 
 	void
 	update_Riesz_LHS_information(const DataType& bf);

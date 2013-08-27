@@ -42,8 +42,15 @@ public:
 	DataType
     get_truth_solution(ParamType& mu);
 
+	void
+	get_truth_solution(ParamType& mu, DataType& u);
+
+
     DataType
     get_riesz_representor_f(std::size_t i);
+
+    void
+    get_riesz_representor_f(std::size_t i, DataType& r_f);
 
     DataType
     get_riesz_representor_a(std::size_t i, const DataType& u);
