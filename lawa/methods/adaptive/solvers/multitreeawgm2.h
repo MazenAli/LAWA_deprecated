@@ -63,6 +63,12 @@ public:
     solve();
 
     void
+    coarsen(Coefficients<Lexicographical,T,Index>& u, T delta);
+
+    void
+    coarsen(Coefficients<Lexicographical,T,Index>& u);
+
+    void
     set_sol(sol_fct_2d _sol);
 
     void

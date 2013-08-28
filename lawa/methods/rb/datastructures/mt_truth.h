@@ -55,6 +55,9 @@ public:
     DataType
     get_riesz_representor_a(std::size_t i, const DataType& u);
 
+    void
+    get_riesz_representor_a(std::size_t i, const DataType& u, DataType& r_a, bool coarsen = false);
+
     /* Inner Product in Test Space Y for functions
      * u1,u2 in Trial Space
      */

@@ -906,11 +906,52 @@ void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
 update_Riesz_LHS_information(const DataType& bf)
 {
-	if(greedy_params.verbose){
-		std::cout << "||---------------------------------------------------------------------||" << std::endl;
-		std::cout << "||-------------- Calculate Riesz Representors for A -------------------||" << std::endl;
-		std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+
+	// Check if we only do an update and search for "old" bf index
+	bool update = false;
+	int last_snapshot_index = -1;
+	if(greedy_params.update_rieszA){
+		for(auto& mu : greedy_info.snapshot_params){
+			bool is_last_param = true;
+			for(std::size_t i = 0; i < mu.size(); ++i){
+				if(mu[i]!=greedy_info.snapshot_params[greedy_info.snapshot_params.size()-1][i]){
+					is_last_param = false;
+					break;
+				}
+			}
+			if(is_last_param){
+				if(&mu - &greedy_info.snapshot_params[0] < greedy_info.snapshot_params.size()-1){
+					last_snapshot_index = &mu - &greedy_info.snapshot_params[0];
+				}
+			}
+		}
+		if(last_snapshot_index >= 0){
+			update=true;
+
+			if(greedy_params.verbose){
+				std::cout << "||---------------------------------------------------------------------||" << std::endl;
+				std::cout << "||-------------- Update Riesz Representors for A -------------------||" << std::endl;
+				std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+
+				std::cout << " Starting representor computation with snapshot nb " << last_snapshot_index+1 << std::endl << std::endl;
+			}
+		}
+		else{
+			if(greedy_params.verbose){
+				std::cout << "||---------------------------------------------------------------------||" << std::endl;
+				std::cout << "||-------------- Calculate Riesz Representors for A -------------------||" << std::endl;
+				std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+			}
+		}
 	}
+	else{
+		if(greedy_params.verbose){
+			std::cout << "||---------------------------------------------------------------------||" << std::endl;
+			std::cout << "||-------------- Calculate Riesz Representors for A -------------------||" << std::endl;
+			std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+		}
+	}
+
 
 	// Calculate the Riesz Representors for A
 	std::size_t Qa = rb_system.Q_a();
@@ -921,7 +962,16 @@ update_Riesz_LHS_information(const DataType& bf)
 			std::cout << "||------- Component Nb " << std::setw(3) << i << "  -------------------------------------------||" << std::endl << std::endl;
 		}
 
-		DataType c = rb_truth.get_riesz_representor_a(i, bf);
+		DataType c;
+		if(update && greedy_params.update_rieszA){
+			// Start solver with copy of old Riesz representor
+			c = A_representors[last_snapshot_index][i];
+			std::cout << "Old Representor: " << c.size() << " indizes" << std::endl;
+			rb_truth.get_riesz_representor_a(i, bf, c, greedy_params.coarsen_rieszA_for_update);
+		}
+		else{
+			c = rb_truth.get_riesz_representor_a(i, bf);
+		}
 		new_A_reprs[i] = c;
 	}
 	A_representors.push_back(new_A_reprs);

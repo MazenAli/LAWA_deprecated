@@ -365,6 +365,67 @@ template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
 void
 MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+coarsen(Coefficients<Lexicographical,T,Index>& u, T delta)
+{
+	if(u.size() > 0){
+		// Take support of u as initial index set
+	    IndexSet<Index> Lambda = supp(u);
+
+	    Coefficients<Lexicographical,T,Index2D> res(awgm_params.hashmapsize);
+		FillWithZeros(Lambda,res);
+
+		// res = Au - f
+		Op.eval(u,res,Prec);
+		{
+			Coefficients<Lexicographical,T,Index> f = F(Lambda);
+		    for(auto& lambda : Lambda){
+		    	res[lambda] -= Prec(lambda)*f[lambda];
+		    }
+		}
+        T res_norm = res.norm(2.);
+
+		// Compute buckets
+		T threshbound = std::sqrt(1.-delta*delta) * res_norm/std::sqrt(T(res.size()));
+		Coefficients<Bucket,T,Index2D> r_bucket;
+		r_bucket.bucketsort(res, threshbound);
+
+        if(awgm_params.verbose){
+            std::cout << "   --- Coarsen solution ---" << std::endl;
+            std::cout << "       Threshbound:         " << threshbound <<  std::endl;
+            std::cout << "       alpha*Residual:   " << awgm_params.alpha*res_norm << std::endl;
+        }
+
+		// Reconstruct u by adding buckets
+		u.clear();
+		T P_Lambda_Res_square = 0;
+		for (int i=0; i<(int)r_bucket.bucket_ell2norms.size(); ++i) {
+			P_Lambda_Res_square += std::pow(r_bucket.bucket_ell2norms[i],2.0L);
+			r_bucket.addBucketToCoefficients(u,i);
+
+			if(awgm_params.verbose){
+				std::cerr << "          Bucket " << i << ": L2-norm " << r_bucket.bucket_ell2norms[i] << std::endl;
+			}
+
+			if (P_Lambda_Res_square >= delta*res_norm*delta*res_norm) {
+				break;
+			}
+		}
+	}
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+void
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+coarsen(Coefficients<Lexicographical,T,Index>& u)
+{
+	coarsen(u, awgm_params.alpha);
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+void
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
 set_sol(sol_fct_2d _sol)
 {
 	exact_sol = _sol;

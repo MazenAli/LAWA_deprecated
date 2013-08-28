@@ -25,7 +25,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		bool _print_paramset, bool _erase_snapshot_params,
 		bool _orthonormalize_bfs, bool _tighten_tol, bool _tighten_tol_rieszA,
 		bool _tighten_tol_rieszF, double _tighten_tol_reduction,
-		bool _update_snapshot, bool _update_rieszF)
+		bool _update_snapshot, bool _update_rieszF,
+		bool _update_rieszA, bool _coarsen_rieszA_for_update)
  : training_type(_training_type),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
@@ -39,7 +40,9 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    tighten_tol_rieszF(_tighten_tol_rieszF),
    tighten_tol_reduction(_tighten_tol_reduction),
    update_snapshot(_update_snapshot),
-   update_rieszF(_update_rieszF)
+   update_rieszF(_update_rieszF),
+   update_rieszA(_update_rieszA),
+   coarsen_rieszA_for_update(_coarsen_rieszA_for_update)
 {}
 
 template<typename ParamType>
@@ -78,6 +81,7 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "# tighten tolerance red.:" << std::setw(20) <<  tighten_tol_reduction << std::endl;
 	std::cout << std::left << std::setw(32) << "# update snapshots:" << std::setw(20) << (update_snapshot ?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# update Riesz Repr F:" << std::setw(20) << (update_rieszF ?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# update Riesz Repr A:" << std::setw(10) << (update_rieszA ?"true":"false") << "  " << (coarsen_rieszA_for_update?"(coarsened)":"") << std::endl;
 	std::cout << "####################################################" << std::endl << std::endl;
 
 }

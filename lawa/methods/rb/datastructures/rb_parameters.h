@@ -58,6 +58,8 @@ struct RB_Greedy_Parameters{
 	double		tighten_tol_reduction;
 	bool		update_snapshot;			// Do not recompute snapshots at same param from scratch
 	bool		update_rieszF;
+	bool		update_rieszA;
+	bool 		coarsen_rieszA_for_update;
 
 	RB_Greedy_Parameters(
 						TrainingType _training_type = weak,
@@ -79,7 +81,9 @@ struct RB_Greedy_Parameters{
 						bool _tighten_tol_rieszF = false,
 						double _tighten_tol_reduction = 0.1,
 						bool _update_snapshot = false,
-						bool _update_rieszF = false);
+						bool _update_rieszF = false,
+						bool _update_rieszA = false,
+						bool _coarsen_rieszA_for_update = false);
 
 	void print();
 };
