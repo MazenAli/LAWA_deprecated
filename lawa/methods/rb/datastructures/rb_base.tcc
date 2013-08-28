@@ -35,7 +35,7 @@ train_Greedy(std::size_t N)
 		std::cout.precision(12);
 	    std::cout << "||=====================================================================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl;
-	    std::cout << "||=========      OFFLINE TRAINING                      ================||" << std::endl;
+	    std::cout << "||=========      OFFLINE TRAINING  " << (greedy_params.training_type==weak?"(WEAK)":"(STRONG)") << "            ================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl << std::endl;
 
@@ -49,6 +49,59 @@ train_Greedy(std::size_t N)
 	if(greedy_params.print_paramset){
 		std::cout << "Training Parameters: " << std::endl;
 		print_paramset(Xi_train);
+	}
+
+
+	// Preparations for strong Greedy (Output Folder / Calculation of Truth Sols)
+	std::map<ParamType, DataType> truth_sols;
+	if(greedy_params.training_type == strong){
+		std::string truthdatafolder;
+		std::string paraminfo_filename;
+		std::ofstream paraminfo_file;
+		if(greedy_params.write_during_training){
+			truthdatafolder = greedy_params.trainingdata_folder + "/truthsolutions";
+
+			// Make a directory to store all the basisfunction files
+			if(mkdir(greedy_params.trainingdata_folder.c_str(), 0777) == -1)
+			{
+				if(rb_system.rb_params.verbose){
+					  std::cerr << "         [In RB_Base::train_strong_Greedy: Directory "
+							    << greedy_params.trainingdata_folder << " already exists, overwriting contents.]" << std::endl;
+				}
+			}
+			if(mkdir(truthdatafolder.c_str(), 0777) == -1)
+			{
+				if(rb_system.rb_params.verbose){
+					  std::cerr << "         [In RB_Base::train_strong_Greedy: Directory "
+							    << truthdatafolder << " already exists, overwriting contents.]" << std::endl;
+				}
+			}
+
+			// Open file for parameter information
+			paraminfo_filename = truthdatafolder + "/paraminfo.txt";
+		}
+
+		// Calculate all truth solutions
+		std::size_t count = 0;
+	    for (auto& mu : Xi_train) {
+			DataType u = rb_truth.get_truth_solution(mu);
+	    	truth_sols.insert(std::make_pair(mu, u));
+	    	count++;
+
+	    	if(greedy_params.write_during_training){
+	    		std::stringstream filename;
+	    		filename << truthdatafolder << "/truthsol_" << count << ".txt";
+			    saveCoeffVector2D(u, rb_truth.get_trialbasis(), filename.str().c_str());
+
+			    paraminfo_file.open(paraminfo_filename.c_str(), std::fstream::app);
+			    paraminfo_file << count;
+			    for(auto& d : mu){
+			    	paraminfo_file << " " << d;
+			    }
+			    paraminfo_file << std::endl;
+			    paraminfo_file.close();
+	    	}
+	    }
 	}
 
 	if(N == 0){
@@ -74,7 +127,17 @@ train_Greedy(std::size_t N)
 		for(auto& mu : Xi_train){
             typename RB_Model::DenseVectorT u_N = rb_system.get_rb_solution(N, mu);
 
-            error_est = rb_system.get_errorbound(u_N,mu);
+            if(greedy_params.training_type == weak){
+                error_est = rb_system.get_errorbound(u_N,mu);
+            }
+            else{
+                DataType diff;
+                if(N > 0){
+                	diff = reconstruct_u_N(u_N,N);
+                }
+                diff -= (*truth_sols.find(mu)).second;
+                error_est = std::sqrt(rb_truth.innprod_Y_u_u(diff,diff));
+            }
 
             if(greedy_params.verbose){
             	std::cout << "    u_N = " << u_N;
@@ -228,9 +291,30 @@ train_Greedy(std::size_t N)
 			// Start solver with copy of old snapshot
 			u = rb_basisfunctions[last_snapshot_index];
 			rb_truth.get_truth_solution(current_param, u);
+
+			if(greedy_params.training_type == strong){
+				truth_sols.erase(current_param);
+		    	truth_sols.insert(std::make_pair(current_param, u));
+			}
 		}
 		else{
-			u = rb_truth.get_truth_solution(current_param);
+			if(greedy_params.training_type == strong){
+				for(auto& entry : truth_sols){
+					bool is_current_mu = true;
+					for(std::size_t i = 0; i < current_param.size(); ++i){
+						if(entry.first[i]!=current_param[i]){
+							is_current_mu = false;
+							break;
+						}
+					}
+					if(is_current_mu){
+						u = entry.second;
+					}
+				}
+			}
+			else{
+				u = rb_truth.get_truth_solution(current_param);
+			}
 		}
 		add_to_basis(u);
 		N++;
@@ -282,7 +366,7 @@ train_Greedy(std::size_t N)
 	}
 }
 
-template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+/*template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
 train_strong_Greedy()
@@ -496,7 +580,7 @@ train_strong_Greedy()
 	if(greedy_params.print_info){
 		greedy_info.print();
 	}
-}
+}*/
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 DataType

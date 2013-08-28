@@ -16,7 +16,8 @@ ParamInfo<std::array<T,N> >::print(std::array<T,N> mu)
 }
 
 template<typename ParamType>
-RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(double _tol, size_t _Nmax,
+RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
+		TrainingType _training_type, double _tol, std::size_t _Nmax,
 		ParamType _min_param, ParamType _max_param,
 		intArray _training_params_per_dim, bool _print_info,
 		std::string _print_file, bool _verbose,
@@ -25,7 +26,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(double _tol, size_t _Nmax,
 		bool _orthonormalize_bfs, bool _tighten_tol, bool _tighten_tol_rieszA,
 		bool _tighten_tol_rieszF, double _tighten_tol_reduction,
 		bool _update_snapshot, bool _update_rieszF)
- : tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
+ : training_type(_training_type),
+   tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
    print_file(_print_file), verbose(_verbose),
    write_during_training(_write_during_training), trainingdata_folder(_trainingdata_folder),
@@ -45,6 +47,7 @@ void
 RB_Greedy_Parameters<ParamType>::print()
 {
 	std::cout << "###### RB Training Parameters ######################" << std::endl;
+	std::cout << std::left << std::setw(24) << "# Training Type:" << std::setw(20) <<  (training_type==weak?"weak Greedy":"strong Greedy") << std::endl;
 	std::cout << std::left << std::setw(24) << "# tol:" << std::setw(20) <<  tol << std::endl;
 	std::cout << std::left << std::setw(24) << "# Nmax:" << std::setw(20) <<  Nmax << std::endl;
 	std::cout << std::left << std::setw(24) << "# Min_Param:" << std::setw(2) << "[ ";

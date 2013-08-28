@@ -27,7 +27,7 @@ int main () {
     Function<T> w_conv_Fct(weight_convection,no_singPts);
 
     // Bilinear Forms
-    Convection1D_Time			ConvectionBil_t(basis_per, basis_int);
+    Convection1D_Time	 		ConvectionBil_t(basis_per, basis_int);
     Identity1D_Time 		    IdentityBil_t(basis_per, basis_int);
     Identity1D_Space 	        IdentityBil_x(basis_intbc, basis_intbc);
     Laplace1D_Space 	        LaplaceBil_x(basis_intbc, basis_intbc);
@@ -290,6 +290,7 @@ int main () {
     RB_BaseModel rb_base(rb_system, rb_truth);
 
     /* RB Greedy Parameters Default Values
+      		TrainingType training_type = weak,
       		double tol = 1e-2,
 			size_t Nmax = 20,
 			ParamType min_param = ParamType(),

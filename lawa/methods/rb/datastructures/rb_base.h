@@ -34,8 +34,10 @@ public:
 	void
 	train_Greedy(std::size_t N = 0);
 
+	/*
 	void
 	train_strong_Greedy();
+	*/
 
     DataType
     reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N);

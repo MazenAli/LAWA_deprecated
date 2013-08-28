@@ -290,6 +290,7 @@ int main () {
     RB_BaseModel rb_base(rb_system, rb_truth);
 
     /* RB Greedy Parameters Default Values
+      		TrainingType training_type = weak,
       		double tol = 1e-2,
 			size_t Nmax = 20,
 			ParamType min_param = ParamType(),

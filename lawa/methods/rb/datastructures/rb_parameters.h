@@ -12,6 +12,8 @@
 
 namespace lawa {
 
+enum TrainingType {weak, strong};
+
 /* Helper struct to get size of an array
  */
 template<typename ParamType>
@@ -33,9 +35,11 @@ struct ParamInfo<std::array<T,N> >
 template<typename ParamType>
 struct RB_Greedy_Parameters{
 
-	typedef typename std::array<size_t,ParamInfo<ParamType>::dim> intArray;
+	TrainingType training_type;
+
+	typedef typename std::array<std::size_t,ParamInfo<ParamType>::dim> intArray;
 	double 		tol;
-	size_t 		Nmax;
+	std::size_t 		Nmax;
 	ParamType 	min_param;
 	ParamType 	max_param;
 	intArray	nb_training_params;
@@ -55,7 +59,9 @@ struct RB_Greedy_Parameters{
 	bool		update_snapshot;			// Do not recompute snapshots at same param from scratch
 	bool		update_rieszF;
 
-	RB_Greedy_Parameters(double _tol = 1e-2,
+	RB_Greedy_Parameters(
+						TrainingType _training_type = weak,
+						double _tol = 1e-2,
 						std::size_t _Nmax = 20,
 						ParamType _min_param = ParamType(),
 						ParamType _max_param = ParamType(),
