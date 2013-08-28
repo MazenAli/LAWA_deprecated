@@ -48,6 +48,27 @@ getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, in
     return;
 }
 
+template <typename Basis1D>
+void
+getFullIndexSet(const Basis1D &basis, IndexSet<Index1D> &Lambda, int J)
+{
+	int j0 = basis.j0;
+
+	// Scaling Functions
+	for(long k = basis.mra.rangeI(j0).firstIndex(); k <= basis.mra.rangeI(j0).lastIndex(); ++k){
+		Lambda.insert(Index1D(j0, k, XBSpline));
+	}
+
+	// Wavelets
+	for(int j = j0; j < J; ++j){
+		for(long k = basis.rangeJ(j).firstIndex(); k <= basis.rangeJ(j).lastIndex(); ++k){
+			Lambda.insert(Index1D(j, k, XWavelet));
+		}
+	}
+}
+
+
+
 template <typename Basis2D>
 void
 getFullIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int J1, int J2, int deltaL)

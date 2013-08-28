@@ -16,6 +16,12 @@ template <typename T, typename Basis2D>
 void
 getSparseGridIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int j, int deltaL, T gamma = 0.);
 
+
+template <typename Basis1D>
+void
+getFullIndexSet(const Basis1D &basis, IndexSet<Index1D> &Lambda, int J);
+
+
 template <typename Basis2D>
 void
 getFullIndexSet(const Basis2D &basis, IndexSet<Index2D> &Lambda, int J1, int J2, int deltaL);
