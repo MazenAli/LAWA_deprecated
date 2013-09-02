@@ -278,7 +278,7 @@ train_Greedy(std::size_t N)
 					}
 				}
 				if(is_current_param){
-					if(&mu - &greedy_info.snapshot_params[0] < greedy_info.snapshot_params.size()-1){
+					if(&mu - &greedy_info.snapshot_params[0] < (int)greedy_info.snapshot_params.size()-1){
 						last_snapshot_index = &mu - &greedy_info.snapshot_params[0];
 					}
 				}
@@ -920,7 +920,7 @@ update_Riesz_LHS_information(const DataType& bf)
 				}
 			}
 			if(is_last_param){
-				if(&mu - &greedy_info.snapshot_params[0] < greedy_info.snapshot_params.size()-1){
+				if(&mu - &greedy_info.snapshot_params[0] < (int)greedy_info.snapshot_params.size()-1){
 					last_snapshot_index = &mu - &greedy_info.snapshot_params[0];
 				}
 			}
