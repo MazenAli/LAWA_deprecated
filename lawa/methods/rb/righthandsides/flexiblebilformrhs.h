@@ -23,19 +23,23 @@ public:
 
 	FlexibleBilformRhs(std::vector<LocalOperatorType*>& _bilformvec);
 
+	virtual
 	T
     operator()(const Index &index);
 
+	virtual
 	Coefficients<Lexicographical,T,Index>
 	operator()(const IndexSet<Index> &indexset);
 
+	virtual
 	void
 	set_active_comp(int i);
 
+	virtual
 	void
 	set_active_u(Coefficients<Lexicographical,T,Index> const* _u);
 
-private:
+protected:
 
     std::vector<LocalOperatorType*>& 				bilformvec;
     std::vector<int> 								active_comp;

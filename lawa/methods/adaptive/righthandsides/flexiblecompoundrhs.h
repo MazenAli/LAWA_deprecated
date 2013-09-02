@@ -32,12 +32,15 @@ public:
 
 	FlexibleCompoundRhs(std::vector<RHSType*>& _rhsvec);
 
+	virtual
 	T
     operator()(const Index &index);
 
+	virtual
 	Coefficients<Lexicographical,T,Index>
 	operator()(const IndexSet<Index> &indexset);
 
+	virtual
 	void
 	set_active_comp(int i);
 
