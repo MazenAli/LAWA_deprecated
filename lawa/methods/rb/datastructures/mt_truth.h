@@ -67,7 +67,10 @@ public:
     get_riesz_representor_a(std::size_t i, const DataType& u, DataType& r_a, bool coarsen = false);
 
     DataType
-    get_riesz_representor_res(const DataType& u, const ParamType& mu);
+    get_riesz_representor_res(const DataType& u, ParamType& mu);
+
+    void
+    get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res);
 
     /* Inner Product in Test Space Y for functions
      * u1,u2 in Trial Space

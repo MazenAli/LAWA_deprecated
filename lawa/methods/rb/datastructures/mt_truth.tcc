@@ -136,16 +136,29 @@ template <typename DataType, typename ParamType, typename TruthSolver, typename 
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>
 DataType
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u, RieszSolver_Res>::
-get_riesz_representor_res(const DataType& u, const ParamType& mu)
+get_riesz_representor_res(const DataType& u, ParamType& mu)
 {
 	riesz_solver_res->get_rhs().set_active_u(&u);
-	riesz_solver_res->get_rhs().set_active_comp(-1);
 	riesz_solver_res->get_rhs().set_param(mu);
 
 	DataType r_res = riesz_solver_res->solve();
 	riesz_solver_res->remove_preconditioner(r_res);
 
 	return r_res;
+}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>
+void
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u, RieszSolver_Res>::
+get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res)
+{
+	riesz_solver_res->get_rhs().set_active_u(&u);
+	riesz_solver_res->get_rhs().set_param(mu);
+
+	riesz_solver_res->solve(r_res);
+	riesz_solver_res->remove_preconditioner(r_res);
+
 }
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
@@ -308,7 +321,7 @@ access_RieszSolver_Res()
 	}
 	else
 		std::cerr << "No Riesz Solver for direct residual defined!" << std::endl;
-		return riesz_solver_a;
+		exit(1);
 }
 
 } // namespace lawa

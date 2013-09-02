@@ -12,7 +12,7 @@
 
 namespace lawa {
 
-enum TrainingType {weak, strong};
+enum TrainingType {weak, strong, weak_direct};
 
 /* Helper struct to get size of an array
  */
@@ -60,6 +60,8 @@ struct RB_Greedy_Parameters{
 	bool		update_rieszF;
 	bool		update_rieszA;
 	bool 		coarsen_rieszA_for_update;
+	bool		test_estimator_equivalence;
+	double 		equivalence_tol_factor;
 
 	RB_Greedy_Parameters(
 						TrainingType _training_type = weak,
@@ -83,7 +85,9 @@ struct RB_Greedy_Parameters{
 						bool _update_snapshot = false,
 						bool _update_rieszF = false,
 						bool _update_rieszA = false,
-						bool _coarsen_rieszA_for_update = false);
+						bool _coarsen_rieszA_for_update = false,
+						bool _test_estimator_equivalence = false,
+						bool _equivalence_tol_factor = 1.);
 
 	void print();
 };
@@ -96,9 +100,13 @@ struct RB_Greedy_Information{
 	std::vector<std::vector<std::size_t> >  	repr_f_size;		    // Dim 1 x Q_f in each iteration (if refined)
 	std::vector<std::vector<std::size_t> > 		repr_a_size;			// Dim n_bf x Q_a
 
+	std::vector<std::vector<double> >			eps_res_bound;
+
 	void print(const char* filename = "greedy_info.txt");
 
 	void read(const char* filename, std::size_t Qf, std::size_t Qa, int nb = -1);
+
+	void print_bounds();
 };
 
 /* Parameters for a RB solution

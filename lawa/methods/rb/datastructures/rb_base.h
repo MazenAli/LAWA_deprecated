@@ -62,6 +62,12 @@ public:
 	void
 	read_greedy_info(const char* filename, int nb = -1);
 
+	virtual T
+	get_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& mu, DataType& res_repr);
+
+	virtual T
+	update_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& mu, DataType& res_repr);
+
 private:
 
 	void

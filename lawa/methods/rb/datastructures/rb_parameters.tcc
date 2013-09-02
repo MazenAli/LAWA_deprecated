@@ -26,7 +26,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		bool _orthonormalize_bfs, bool _tighten_tol, bool _tighten_tol_rieszA,
 		bool _tighten_tol_rieszF, double _tighten_tol_reduction,
 		bool _update_snapshot, bool _update_rieszF,
-		bool _update_rieszA, bool _coarsen_rieszA_for_update)
+		bool _update_rieszA, bool _coarsen_rieszA_for_update,
+		bool _test_estimator_equivalence, bool _equivalence_tol_factor)
  : training_type(_training_type),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
@@ -42,7 +43,9 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    update_snapshot(_update_snapshot),
    update_rieszF(_update_rieszF),
    update_rieszA(_update_rieszA),
-   coarsen_rieszA_for_update(_coarsen_rieszA_for_update)
+   coarsen_rieszA_for_update(_coarsen_rieszA_for_update),
+   test_estimator_equivalence(_test_estimator_equivalence),
+   equivalence_tol_factor(_equivalence_tol_factor)
 {}
 
 template<typename ParamType>
@@ -50,7 +53,7 @@ void
 RB_Greedy_Parameters<ParamType>::print()
 {
 	std::cout << "###### RB Training Parameters ######################" << std::endl;
-	std::cout << std::left << std::setw(24) << "# Training Type:" << std::setw(20) <<  (training_type==weak?"weak Greedy":"strong Greedy") << std::endl;
+	std::cout << std::left << std::setw(24) << "# Training Type:" << std::setw(20) <<  (training_type==strong?"strong Greedy":"weak Greedy") << (training_type==weak_direct?" (direct)":"") << std::endl;
 	std::cout << std::left << std::setw(24) << "# tol:" << std::setw(20) <<  tol << std::endl;
 	std::cout << std::left << std::setw(24) << "# Nmax:" << std::setw(20) <<  Nmax << std::endl;
 	std::cout << std::left << std::setw(24) << "# Min_Param:" << std::setw(2) << "[ ";
@@ -82,13 +85,16 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "# update snapshots:" << std::setw(20) << (update_snapshot ?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# update Riesz Repr F:" << std::setw(20) << (update_rieszF ?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# update Riesz Repr A:" << std::setw(10) << (update_rieszA ?"true":"false") << "  " << (coarsen_rieszA_for_update?"(coarsened)":"") << std::endl;
+	std::cout << std::left << std::setw(32) << "# test estimator equivalence:" << std::setw(20) << (test_estimator_equivalence?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "#  tol equivalence factor:" << std::setw(20) << equivalence_tol_factor << std::endl;
 	std::cout << "####################################################" << std::endl << std::endl;
 
 }
 
 template<typename ParamType>
 void
-RB_Greedy_Information<ParamType>::RB_Greedy_Information::print(const char* filename)
+RB_Greedy_Information<ParamType>::RB_Greedy_Information::
+print(const char* filename)
 {
 	std::size_t pdim = ParamInfo<ParamType>::dim;
     std::ofstream infofile(filename);
@@ -122,7 +128,8 @@ RB_Greedy_Information<ParamType>::RB_Greedy_Information::print(const char* filen
 
 template<typename ParamType>
 void
-RB_Greedy_Information<ParamType>::RB_Greedy_Information::read(const char* filename, std::size_t Qf, std::size_t Qa, int nb)
+RB_Greedy_Information<ParamType>::RB_Greedy_Information::
+read(const char* filename, std::size_t Qf, std::size_t Qa, int nb)
 {
 	std::size_t pdim = ParamInfo<ParamType>::dim;
     std::ifstream infofile(filename);
@@ -186,6 +193,27 @@ RB_Greedy_Information<ParamType>::RB_Greedy_Information::read(const char* filena
     else{
     	std::cerr << "Error opening file " << filename << " for reading! " << std::endl;
     }
+}
+
+template<typename ParamType>
+void
+RB_Greedy_Information<ParamType>::RB_Greedy_Information::
+print_bounds()
+{
+	for(std::size_t i = 0; i < eps_res_bound.size(); ++i){
+		std::stringstream filename;
+		filename << "eps_bound_N_" << i << ".txt";
+		std::ofstream file(filename.str().c_str());
+		if(file.is_open()){
+			for(auto& entry : eps_res_bound[i]){
+				file << entry << std::endl;
+			}
+			file.close();
+		}
+	    else{
+	    	std::cerr << "Error opening file " << filename.str() << " for writing! " << std::endl;
+	    }
+	}
 }
 
 template<typename ParamType>

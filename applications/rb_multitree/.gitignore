@@ -9,6 +9,7 @@ truth_mt_stage5
 truth_mt_stage6
 truth_mt_stage6_ctnd
 truth_mt_stage6_checkBFChoice
+truth_mt_stage7
 truth_get_alphas
 *.txt
 *.dat

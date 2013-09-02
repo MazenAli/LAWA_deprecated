@@ -35,7 +35,8 @@ train_Greedy(std::size_t N)
 		std::cout.precision(12);
 	    std::cout << "||=====================================================================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl;
-	    std::cout << "||=========      OFFLINE TRAINING  " << (greedy_params.training_type==weak?"(WEAK)":"(STRONG)") << "            ================||" << std::endl;
+	    std::cout << "||=========      OFFLINE TRAINING  " << (greedy_params.training_type==strong?"(STRONG)":"(WEAK)")
+	    												   << (greedy_params.training_type==weak_direct?" (direct)":"") << "            ================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl;
 	    std::cout << "||=====================================================================||" << std::endl << std::endl;
 
@@ -120,6 +121,10 @@ train_Greedy(std::size_t N)
 		    std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
 		}
 
+		if(greedy_params.training_type == weak_direct){
+			std::vector<double> bounds;
+			greedy_info.eps_res_bound.push_back(bounds);
+		}
 
 		// Find parameter with maximum error estimator
 		T error_est;
@@ -127,16 +132,38 @@ train_Greedy(std::size_t N)
 		for(auto& mu : Xi_train){
             typename RB_Model::DenseVectorT u_N = rb_system.get_rb_solution(N, mu);
 
-            if(greedy_params.training_type == weak){
+            switch(greedy_params.training_type){
+            case weak:
+            {
                 error_est = rb_system.get_errorbound(u_N,mu);
+            	break;
             }
-            else{
+            case strong:
+            {
                 DataType diff;
                 if(N > 0){
                 	diff = reconstruct_u_N(u_N,N);
                 }
                 diff -= (*truth_sols.find(mu)).second;
                 error_est = std::sqrt(rb_truth.innprod_Y_u_u(diff,diff));
+            	break;
+            }
+            case weak_direct:
+            	DataType res_repr;
+            	error_est = get_direct_errorbound(u_N,mu, res_repr);
+            	if(greedy_params.test_estimator_equivalence){
+            		T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
+            		T bound = rb_system.alpha_LB(mu)*error_est;
+            		std::cout << "Eps = " << effective_eps << ", Bound: " << bound;
+            		while(effective_eps > bound){
+            			rb_truth.access_RieszSolver_Res().access_params().tol *= greedy_params.tighten_tol_reduction;
+            			error_est = update_direct_errorbound(u_N, mu, res_repr);
+            			effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
+            			bound = rb_system.alpha_LB(mu)*error_est;
+                		std::cout << "Eps = " << effective_eps << ", Bound: " << bound;
+            		}
+            		greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
+            	}
             }
 
             if(greedy_params.verbose){
@@ -357,6 +384,11 @@ train_Greedy(std::size_t N)
 
 			// Write Training Information
 			greedy_info.print(greedy_params.print_file.c_str());
+
+			// If gathered, write Error Estimator Bound Information
+			if(greedy_params.training_type == weak_direct){
+				greedy_info.print_bounds();
+			}
 		}
 
 	} while( (N < greedy_params.Nmax) && (max_error > greedy_params.tol) );
@@ -598,6 +630,37 @@ reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N)
 
 	return u_full;
 }
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+typename DataType::ValueType
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+get_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& mu, DataType& res_repr)
+{
+
+	DataType u_approx = reconstruct_u_N(u_N, u_N.length());
+	if(greedy_params.verbose){
+		std::cout << "||---------------------------------------------------------------------||" << std::endl;
+		std::cout << "||-------------- Calculate Direct Riesz Representors for Residual -----||" << std::endl;
+		std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
+	}
+	res_repr = rb_truth.get_riesz_representor_res(u_approx, mu);
+    return  res_repr.norm(2.) / rb_system.alpha_LB(mu);
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+typename DataType::ValueType
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+update_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& mu, DataType& res_repr)
+{
+
+	DataType u_approx = reconstruct_u_N(u_N, u_N.length());
+	if(greedy_params.verbose){
+		std::cout << "||-------------- Update Direct Riesz Representors for Residual -----||" << std::endl << std::endl;
+	}
+	rb_truth.get_riesz_representor_res(u_approx, mu, res_repr);
+    return  res_repr.norm(2.) / rb_system.alpha_LB(mu);
+}
+
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 std::vector<ParamType>

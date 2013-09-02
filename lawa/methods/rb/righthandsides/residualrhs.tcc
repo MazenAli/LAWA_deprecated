@@ -34,6 +34,9 @@ set_param(ParamType& mu)
 {
 	lhs_bilform.set_param(mu);
 	rhs_fct.set_param(mu);
+
+	lhs_bilform.set_active_comp(-1);
+	rhs_fct.set_active_comp(-1);
 }
 
 
