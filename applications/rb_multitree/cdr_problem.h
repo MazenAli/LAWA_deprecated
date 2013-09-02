@@ -233,16 +233,21 @@ typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs>							RieszF_Rhs_2D;
 typedef FlexibleBilformRhs<Index2D,AbstractLocalOperator2D<T> >				RieszA_Rhs_2D;
 typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs_Trial>					Flex_Rhs_2D;
 
+typedef AffineBilformRhs<Index2D, AbstractLocalOperator2D<T>, ParamType>			AffineA_Rhs_2D;
+typedef ResidualRhs<Index2D, AffineA_Rhs_2D, Affine_Rhs_2D, ParamType, DataType>	RieszRes_Rhs_2D;
+
 typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,Affine_Op_2D,
 		Affine_Op_2D,Affine_Rhs_2D,RightPrec2D,LeftPrec2D>					MT_AWGM_Truth;
 typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
 		RieszF_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_F;
 typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
 		RieszA_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_A;
+typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
+		RieszRes_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_Res;
 
 typedef MT_Truth<DataType,ParamType,MT_AWGM_Truth,
 				 MT_AWGM_Riesz_F,MT_AWGM_Riesz_A,TrialInnProdY,
-				 Flex_COp_2D, Flex_Rhs_2D>									MTTruthSolver;
+				 Flex_COp_2D, Flex_Rhs_2D, MT_AWGM_Riesz_Res>				MTTruthSolver;
 
 typedef LB_Base<ParamType, MTTruthSolver> 									LB_Type;
 typedef Simple_RB_System<T,ParamType, LB_Type>								RB_Model;
