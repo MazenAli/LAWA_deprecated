@@ -270,7 +270,7 @@ int main () {
     MT_AWGM_Riesz_Res awgm_rieszRes(basis2d_test, innprod_Y, rieszRes_rhs, leftPrec, awgm_riesz_res_parameters, is_parameters);
     awgm_rieszRes.set_sol(dummy);
     awgm_rieszRes.set_initial_indexset(LambdaTest);
-    awgm_rieszRes.awgm_params.tol = 5e-02;
+    awgm_rieszRes.awgm_params.tol = 0.036;
     awgm_rieszRes.awgm_params.info_filename = "awgm_stage7_rieszRes_conv_info.txt";
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, &awgm_rieszRes, innprod_Y_u_u, A_u_u, flex_rhs_u);

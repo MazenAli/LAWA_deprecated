@@ -152,17 +152,20 @@ train_Greedy(std::size_t N)
             	DataType res_repr;
             	error_est = get_direct_errorbound(u_N,mu, res_repr);
             	if(greedy_params.test_estimator_equivalence){
+            		T initial_eps = rb_truth.access_RieszSolver_Res().access_params().tol;
             		T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
             		T bound = rb_system.alpha_LB(mu)*error_est;
-            		std::cout << "Eps = " << effective_eps << ", Bound: " << bound;
+            		std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
             		while(effective_eps > bound){
             			rb_truth.access_RieszSolver_Res().access_params().tol *= greedy_params.tighten_tol_reduction;
             			error_est = update_direct_errorbound(u_N, mu, res_repr);
             			effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
             			bound = rb_system.alpha_LB(mu)*error_est;
-                		std::cout << "Eps = " << effective_eps << ", Bound: " << bound;
+                		std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
             		}
             		greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
+            		// Reset tolerance to initial value, so that it is not reduced for the next parameters
+            		rb_truth.access_RieszSolver_Res().access_params().tol = initial_eps;
             	}
             }
 
