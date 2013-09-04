@@ -233,8 +233,9 @@ int main () {
     AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
     awgm_truth_parameters.max_its = 1000;
     
-    is_parameters.adaptive_tol = false;
-    is_parameters.absolute_tol = 1e-08;
+    is_parameters.adaptive_tol = true;
+    is_parameters.init_tol = 0.0001;
+    is_parameters.res_reduction = 0.01;
 
     //----------- Solver ---------------- //
 
@@ -307,6 +308,11 @@ int main () {
 			bool tighten_tol	= false,
 			double tighten_tol_reduction = 0.1,
 			bool update_snapshot = false
+			bool update_rieszF = false,
+			bool update_rieszA = false,
+			bool coarsen_rieszA_for_update = false,
+			bool test_estimator_equivalence = false,
+			bool equivalence_tol_factor = 1.				// = Riesz constant of basis
      */
 
 
@@ -330,7 +336,11 @@ int main () {
     rb_base.greedy_params.trainingdata_folder = "training_data_stage6";
     rb_base.greedy_params.tighten_tol = true;
     rb_base.greedy_params.tighten_tol_rieszA = true;
+    rb_base.greedy_params.tighten_tol_rieszF = true;
     rb_base.greedy_params.update_snapshot = true;
+    rb_base.greedy_params.update_rieszF = true;
+    rb_base.greedy_params.update_rieszA = true;
+    rb_base.greedy_params.coarsen_rieszA_for_update = true;
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();
