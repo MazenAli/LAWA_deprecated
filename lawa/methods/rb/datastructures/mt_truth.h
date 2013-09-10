@@ -72,6 +72,9 @@ public:
     void
     get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res);
 
+    T
+    estimate_riesz_representor_res_accuracy(const DataType& u, ParamType& mu, DataType& repr);
+
     /* Inner Product in Test Space Y for functions
      * u1,u2 in Trial Space
      */

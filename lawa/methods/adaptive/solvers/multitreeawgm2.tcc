@@ -422,6 +422,45 @@ coarsen(Coefficients<Lexicographical,T,Index>& u)
 	coarsen(u, awgm_params.alpha);
 }
 
+
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+typename LocalOperator::T
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+estimate_residual_norm(Coefficients<Lexicographical,T,Index>& u)
+{
+    //---------------------------------------//
+    //---- COMPUTE APPROXIMATE RESIDUAL -----//
+    //---------------------------------------//
+    Coefficients<Lexicographical,T,Index2D> u_copy(u);
+    
+    // Precondition u 
+    for(auto& el : u_copy){
+		el.second /= Prec(el.first);
+	}
+
+	// Compute cone around solution u
+	Coefficients<Lexicographical,T,Index2D> res(awgm_params.hashmapsize);
+    FillWithZeros(supp(u_copy),res);
+    extendMultiTree(basis, u_copy, res, "standard", false, true);
+
+    // Compute rhs on expanded test index set
+    IndexSet<Index2D> LambdaRes = supp(res); 
+    std::cout << "Estimate residual norm on " << LambdaRes.size() << " indizes." << std::endl;
+
+	// Compute residual Au - f on expanded test index set
+    res.setToZero();
+    Op.eval(u_copy,res,Prec); 	// res = A*u
+    //res -= f;
+	Coefficients<Lexicographical,T,Index> f = F(LambdaRes);
+	for(auto& lambda : LambdaRes){
+		res[lambda] -= Prec(lambda)*f[lambda];
+	}
+
+    return res.norm(2.);
+}
+
 template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
 void

@@ -121,9 +121,10 @@ train_Greedy(std::size_t N)
 		    std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
 		}
 
-		if(greedy_params.training_type == weak_direct){
-			std::vector<double> bounds;
+		if(greedy_params.test_estimator_equivalence){
+			std::vector<double> bounds, eps_aff;
 			greedy_info.eps_res_bound.push_back(bounds);
+			greedy_info.eps_aff.push_back(eps_aff);
 		}
 
 		// Find parameter with maximum error estimator
@@ -136,6 +137,19 @@ train_Greedy(std::size_t N)
             case weak:
             {
                 error_est = rb_system.get_errorbound(u_N,mu);
+
+                if(greedy_params.test_estimator_equivalence){
+            		T eps_F = rb_truth.access_RieszSolver_F().access_params().tol * greedy_params.equivalence_tol_factor;
+            		T eps_A = rb_truth.access_RieszSolver_A().access_params().tol * greedy_params.equivalence_tol_factor;
+
+            		T eps_aff = rb_system.get_errorbound_accuracy(u_N, mu, eps_F, eps_A);
+            		T bound = rb_system.alpha_LB(mu)*error_est;
+
+            		std::cout << "Eps = " << eps_aff << ", Bound: " << bound << std::endl;
+
+            		greedy_info.eps_aff[greedy_info.eps_aff.size()-1].push_back(eps_aff);
+            		greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
+                }
             	break;
             }
             case strong:
@@ -389,8 +403,9 @@ train_Greedy(std::size_t N)
 			greedy_info.print(greedy_params.print_file.c_str());
 
 			// If gathered, write Error Estimator Bound Information
-			if(greedy_params.training_type == weak_direct){
-				greedy_info.print_bounds();
+			if(greedy_params.test_estimator_equivalence){
+				std::string eps_file = greedy_params.print_file + "_eps";
+				greedy_info.print_bound_info(eps_file.c_str());
 			}
 		}
 
@@ -633,6 +648,31 @@ reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N)
 
 	return u_full;
 }
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+DataType
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+reconstruct_res_repr_N(typename RB_Model::DenseVectorT u, std::size_t N, ParamType& mu)
+{
+	assert(N <= n_bf());
+	assert(u.length() >= (int)N);
+
+
+	DataType res_full;
+	for(std::size_t i = 0; i < rb_system.Q_f(); ++i){
+		res_full += rb_system.thetas_f.eval(i,mu) * F_representors[i];
+	}
+	for(std::size_t n = 1; n <= N; ++n){
+		for(std::size_t i = 0; i < rb_system.Q_a(); ++i){
+			res_full += u(n) * rb_system.thetas_a.eval(i,mu) * A_representors[n-1][i];
+		}
+	}
+
+	return res_full;
+}
+
+
+
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 typename DataType::ValueType

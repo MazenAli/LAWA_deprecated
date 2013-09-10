@@ -77,6 +77,9 @@ public:
     void
     remove_preconditioner(Coefficients<Lexicographical,T,Index> &u);
 
+    T
+    estimate_residual_norm(Coefficients<Lexicographical,T,Index>& u);
+
     RHS&
     get_rhs();
 

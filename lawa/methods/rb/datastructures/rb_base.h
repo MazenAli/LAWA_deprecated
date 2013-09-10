@@ -42,6 +42,9 @@ public:
     DataType
     reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N);
 
+    DataType
+    reconstruct_res_repr_N(typename RB_Model::DenseVectorT u, std::size_t N, ParamType& mu);
+
 	void
 	write_basisfunctions(const std::string& directory_name = "offline_data/bf", int nb = -1);
 
@@ -54,8 +57,6 @@ public:
 	void
 	read_rieszrepresentors(const std::string& directory_name = "offline_data/representors", int nb = -1);
 
-	RB_Greedy_Parameters<ParamType> 	greedy_params;
-
 	DataType&
 	get_bf(std::size_t i);
 
@@ -67,6 +68,14 @@ public:
 
 	virtual T
 	update_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& mu, DataType& res_repr);
+
+	std::vector<ParamType>
+	generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb);
+
+	void
+	print_paramset(std::vector<ParamType> PSet);
+
+	RB_Greedy_Parameters<ParamType> 	greedy_params;
 
 private:
 
@@ -84,12 +93,6 @@ private:
 
 	void
 	recalculate_A_F_norms();
-
-	std::vector<ParamType>
-	generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb);
-
-	void
-	print_paramset(std::vector<ParamType>);
 
 	RB_Model& 		rb_system;
 	TruthModel& 	rb_truth;

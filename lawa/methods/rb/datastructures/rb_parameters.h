@@ -101,12 +101,13 @@ struct RB_Greedy_Information{
 	std::vector<std::vector<std::size_t> > 		repr_a_size;			// Dim n_bf x Q_a
 
 	std::vector<std::vector<double> >			eps_res_bound;
+	std::vector<std::vector<double> >			eps_aff;
 
 	void print(const char* filename = "greedy_info.txt");
 
 	void read(const char* filename, std::size_t Qf, std::size_t Qa, int nb = -1);
 
-	void print_bounds();
+	void print_bound_info(const char* filename = "greedy_info_eps_errest.txt");
 };
 
 /* Parameters for a RB solution

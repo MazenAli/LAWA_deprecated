@@ -198,12 +198,12 @@ read(const char* filename, std::size_t Qf, std::size_t Qa, int nb)
 template<typename ParamType>
 void
 RB_Greedy_Information<ParamType>::RB_Greedy_Information::
-print_bounds()
+print_bound_info(const char* filename)
 {
 	for(std::size_t i = 0; i < eps_res_bound.size(); ++i){
-		std::stringstream filename;
-		filename << "eps_bound_N_" << i << ".txt";
-		std::ofstream file(filename.str().c_str());
+		std::stringstream filename_boundN;
+		filename_boundN << filename << "_bound_N_" << i << ".txt";
+		std::ofstream file(filename_boundN.str().c_str());
 		if(file.is_open()){
 			for(auto& entry : eps_res_bound[i]){
 				file << entry << std::endl;
@@ -211,7 +211,22 @@ print_bounds()
 			file.close();
 		}
 	    else{
-	    	std::cerr << "Error opening file " << filename.str() << " for writing! " << std::endl;
+	    	std::cerr << "Error opening file " << filename_boundN.str() << " for writing! " << std::endl;
+	    }
+	}
+
+	for(std::size_t i = 0; i < eps_aff.size(); ++i){
+		std::stringstream filename_epsN;
+		filename_epsN << filename << "_aff_N_" << i << ".txt";
+		std::ofstream file(filename_epsN.str().c_str());
+		if(file.is_open()){
+			for(auto& entry : eps_aff[i]){
+				file << entry << std::endl;
+			}
+			file.close();
+		}
+	    else{
+	    	std::cerr << "Error opening file " << filename_epsN.str() << " for writing! " << std::endl;
 	    }
 	}
 }

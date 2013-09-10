@@ -27,7 +27,7 @@ int main () {
     Function<T> w_conv_Fct(weight_convection,no_singPts);
 
     // Bilinear Forms
-    Convection1D_Time	 		ConvectionBil_t(basis_per, basis_int);
+    Convection1D_Time			ConvectionBil_t(basis_per, basis_int);
     Identity1D_Time 		    IdentityBil_t(basis_per, basis_int);
     Identity1D_Space 	        IdentityBil_x(basis_intbc, basis_intbc);
     Laplace1D_Space 	        LaplaceBil_x(basis_intbc, basis_intbc);
@@ -184,6 +184,10 @@ int main () {
     rhs_fcts_u.push_back(&F_u);
     Flex_Rhs_2D flex_rhs_u(rhs_fcts_u);
 
+    // Right Hand Sides for direct Riesz Representor
+    AffineA_Rhs_2D	 	affineA_rhs(lhs_theta, lhs_ops);
+    RieszRes_Rhs_2D		rieszRes_rhs(affineA_rhs, affine_rhs);
+
 
 	//===============================================================//
 	//===============  AWGM =========================================//
@@ -230,7 +234,7 @@ int main () {
 
     AWGM_PG_Parameters awgm_truth_parameters;
     IS_Parameters is_parameters;
-    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
+    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters, awgm_riesz_res_parameters;
     awgm_truth_parameters.max_its = 1000;
     
     is_parameters.adaptive_tol = false;
@@ -254,14 +258,14 @@ int main () {
     awgm_rieszF.set_sol(dummy);
     awgm_rieszF.set_initial_indexset(LambdaTest);
     awgm_rieszF.awgm_params.tol = 5e-04;
-    awgm_rieszF.awgm_params.info_filename = "awgm_stage6_rieszF_conv_info.txt";
+    awgm_rieszF.awgm_params.info_filename = "awgm_stage8_rieszF_conv_info.txt";
 
 
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
     awgm_rieszA.awgm_params.tol = 5e-04;
-    awgm_rieszA.awgm_params.info_filename = "awgm_stage6_rieszA_conv_info.txt";
+    awgm_rieszA.awgm_params.info_filename = "awgm_stage8_rieszA_conv_info.txt";
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
 
@@ -290,7 +294,7 @@ int main () {
     RB_BaseModel rb_base(rb_system, rb_truth);
 
     /* RB Greedy Parameters Default Values
-      		TrainingType training_type = weak,
+      		TrainingType training_type = weak, (strong/weak_direct)
       		double tol = 1e-2,
 			size_t Nmax = 20,
 			ParamType min_param = ParamType(),
@@ -307,12 +311,13 @@ int main () {
 			bool tighten_tol	= false,
 			bool tighten_tol_rieszA = false;
     		bool tighten_tol_rieszF = false;
-			double tighten_tol_reduction = 0.1
+			double tighten_tol_reduction = 0.1,
 			bool update_snapshot = false,
 			bool update_rieszF = false,
 			bool update_rieszA = false,
-			bool coarsen_rieszA_for_update = false
-
+			bool coarsen_rieszA_for_update = false,
+			bool test_estimator_equivalence = false,
+			bool equivalence_tol_factor = 1.				// = Riesz constant of basis
      */
 
 
@@ -325,6 +330,7 @@ int main () {
     ParamType mu_min = {{0., -9.}};
     ParamType mu_max = {{30, 15}};
 
+    rb_base.greedy_params.training_type = weak;
     rb_base.greedy_params.min_param = mu_min;
     rb_base.greedy_params.max_param = mu_max;
     rb_base.greedy_params.Nmax = 	15;
@@ -332,15 +338,17 @@ int main () {
     rb_base.greedy_params.print_paramset = true;
     rb_base.greedy_params.erase_snapshot_params = false;
     rb_base.greedy_params.orthonormalize_bfs = false;
-    rb_base.greedy_params.print_file = "awgm_stage6_greedy_info.txt";
-    rb_base.greedy_params.trainingdata_folder = "training_data_stage6";
+    rb_base.greedy_params.print_file = "awgm_stage8_greedy_info.txt";
+    rb_base.greedy_params.trainingdata_folder = "training_data_stage8";
     rb_base.greedy_params.tighten_tol = true;
     rb_base.greedy_params.tighten_tol_rieszA = true;
     rb_base.greedy_params.tighten_tol_rieszF = true;
     rb_base.greedy_params.update_snapshot = true;
-    rb_base.greedy_params.update_rieszF = true;
-    rb_base.greedy_params.update_rieszA = true;
-    rb_base.greedy_params.coarsen_rieszA_for_update = true;
+    rb_base.greedy_params.update_rieszF = false,
+    rb_base.greedy_params.update_rieszA = false,
+    rb_base.greedy_params.test_estimator_equivalence = true;
+    rb_base.greedy_params.equivalence_tol_factor = 2.5;
+
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();
@@ -356,16 +364,11 @@ int main () {
     cout << "Parameters Riesz Solver A : " << std::endl << std::endl;
     awgm_rieszA.awgm_params.print();
 
-    rb_system.read_rb_data("Runs/Stage6/Run2/training_data_stage6", 4);
-    rb_base.read_basisfunctions("Runs/Stage6/Run2/training_data_stage6/bf", 4);
-    rb_base.read_rieszrepresentors("Runs/Stage6/Run2/training_data_stage6/representors", 4);
-    rb_base.read_greedy_info("Runs/Stage6/Run2/awgm_stage6_greedy_info.txt", 4);
+    rb_base.train_Greedy();
 
-    rb_base.train_Greedy(4);
-
-    rb_system.write_rb_data("offline_data_stage6");
-    rb_base.write_basisfunctions("offline_data_stage6");
-    rb_base.write_rieszrepresentors("offline_data_stage6");
+    rb_system.write_rb_data("offline_data_stage8");
+    rb_base.write_basisfunctions("offline_data_stage8");
+    rb_base.write_rieszrepresentors("offline_data_stage8");
 
 
     return 0;

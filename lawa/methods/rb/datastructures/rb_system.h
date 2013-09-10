@@ -41,6 +41,9 @@ public:
 	get_errorbound(const DenseVectorT& u_N, ParamType& mu);
 
 	T
+	get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, T eps_f, T eps_a);
+
+	T
 	residual_dual_norm(const DenseVectorT& u_N, ParamType& mu);
 
 	T
