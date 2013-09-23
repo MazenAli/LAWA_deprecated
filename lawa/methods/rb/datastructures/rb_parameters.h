@@ -62,6 +62,8 @@ struct RB_Greedy_Parameters{
 	bool 		coarsen_rieszA_for_update;
 	bool		test_estimator_equivalence;
 	double 		equivalence_tol_factor;
+	bool 		write_direct_representors;
+
 
 	RB_Greedy_Parameters(
 						TrainingType _training_type = weak,
@@ -87,7 +89,8 @@ struct RB_Greedy_Parameters{
 						bool _update_rieszA = false,
 						bool _coarsen_rieszA_for_update = false,
 						bool _test_estimator_equivalence = false,
-						bool _equivalence_tol_factor = 1.);
+						bool _equivalence_tol_factor = 1.,
+						bool _write_direct_representors = false);
 
 	void print();
 };
@@ -99,6 +102,7 @@ struct RB_Greedy_Information{
 	std::vector<std::size_t>		 	   		u_size;					// Dim 1 x n_bf
 	std::vector<std::vector<std::size_t> >  	repr_f_size;		    // Dim 1 x Q_f in each iteration (if refined)
 	std::vector<std::vector<std::size_t> > 		repr_a_size;			// Dim n_bf x Q_a
+	std::vector<std::vector<std::size_t> >		repr_r_size;			// Dim n_bf x n_train (only for weak direct Greedy!)
 
 	std::vector<std::vector<double> >			eps_res_bound;
 	std::vector<std::vector<double> >			eps_aff;
@@ -107,7 +111,7 @@ struct RB_Greedy_Information{
 
 	void read(const char* filename, std::size_t Qf, std::size_t Qa, int nb = -1);
 
-	void print_bound_info(const char* filename = "greedy_info_eps_errest.txt");
+	void print_bound_info(const char* filename = "greedy_info_eps_errest");
 };
 
 /* Parameters for a RB solution

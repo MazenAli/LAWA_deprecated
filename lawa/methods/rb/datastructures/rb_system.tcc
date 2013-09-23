@@ -168,24 +168,32 @@ T
 RB_System<T,ParamType>::
 get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, T eps_f, T eps_a){
 
-	T sum_theta_f = 0;
-	T sum_theta_a = 0;
-	T sum_u_coeffs = 0;
+	T val = 0;
     for (std::size_t i = 1; i <= thetas_f.size(); ++i) {
-    	sum_theta_f += thetas_f.eval(i-1,mu);
+        for (std::size_t j = 1; j <= thetas_f.size(); ++j) {
+        	val += std::max(thetas_f.eval(i-1,mu)*thetas_f.eval(j-1, mu), 0.) * eps_f * eps_f;
+        }
     }
-    for (std::size_t i = 1; i <= thetas_a.size(); ++i) {
-    	sum_theta_a += thetas_a.eval(i-1,mu);
-    }
+
     for(int i = 1; i <= u_N.length(); ++i){
-    	sum_u_coeffs += u_N(i);
+        for(int j = 1; j <= u_N.length(); ++j){
+            for (std::size_t k = 1; k <= thetas_a.size(); ++k) {
+                for (std::size_t l = 1; l <= thetas_a.size(); ++l) {
+                	val += std::max(u_N(i)*u_N(j)*thetas_a.eval(k-1,mu)*thetas_a.eval(l-1,mu),0.) * eps_a * eps_a;
+                }
+            }
+        }
     }
 
-    std::cout << "Sum_Thetas_F = " << sum_theta_f << ", Sum_Thetas_A = " << sum_theta_a << ", sum_u_coeffs = " << sum_u_coeffs << std::endl;
+    for(int i = 1; i <= u_N.length(); ++i){
+        for (std::size_t j = 1; j <= thetas_f.size(); ++j) {
+            for (std::size_t k = 1; k <= thetas_a.size(); ++k) {
+            	val += 2.* std::max(u_N(i)*thetas_f.eval(j-1, mu)*thetas_a.eval(k-1,mu), 0.) * eps_f * eps_a;
+            }
+        }
+    }
 
-    return std::sqrt(eps_f*eps_f*sum_theta_f*sum_theta_f
-    		+ 2*eps_f*eps_a*sum_theta_f*sum_u_coeffs*sum_theta_a
-    		+ eps_a*eps_a*sum_u_coeffs*sum_u_coeffs*sum_theta_a*sum_theta_a);
+    return std::sqrt(val);
 }
 
 

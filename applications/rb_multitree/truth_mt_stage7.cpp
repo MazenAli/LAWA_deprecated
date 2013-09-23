@@ -257,21 +257,21 @@ int main () {
     MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, is_parameters);
     awgm_rieszF.set_sol(dummy);
     awgm_rieszF.set_initial_indexset(LambdaTest);
-    awgm_rieszF.awgm_params.tol = 5e-04;
-    awgm_rieszF.awgm_params.info_filename = "awgm_stage7_rieszF_conv_info.txt";
+    awgm_rieszF.awgm_params.tol = 5e-01;
+    awgm_rieszF.awgm_params.print_info = false;
 
 
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
-    awgm_rieszA.awgm_params.tol = 5e-04;
-    awgm_rieszA.awgm_params.info_filename = "awgm_stage7_rieszA_conv_info.txt";
+    awgm_rieszA.awgm_params.tol = 5e-01;
+    awgm_rieszA.awgm_params.print_info = false;
 
     MT_AWGM_Riesz_Res awgm_rieszRes(basis2d_test, innprod_Y, rieszRes_rhs, leftPrec, awgm_riesz_res_parameters, is_parameters);
     awgm_rieszRes.set_sol(dummy);
     awgm_rieszRes.set_initial_indexset(LambdaTest);
     awgm_rieszRes.awgm_params.tol = 0.036;
-    awgm_rieszRes.awgm_params.info_filename = "awgm_stage7_rieszRes_conv_info.txt";
+    awgm_rieszRes.awgm_params.print_info = false;
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, &awgm_rieszRes, innprod_Y_u_u, A_u_u, flex_rhs_u);
 
@@ -300,28 +300,31 @@ int main () {
     RB_BaseModel rb_base(rb_system, rb_truth);
 
     /* RB Greedy Parameters Default Values
-      		TrainingType training_type = weak, (strong/weak_direct)
-      		double tol = 1e-2,
-			size_t Nmax = 20,
+			TrainingType training_type = weak, 	 (strong/weak_direct)
+			double tol = 1e-2,
+			std::size_t Nmax = 20,
 			ParamType min_param = ParamType(),
 			ParamType max_param = ParamType(),
 			intArray  training_params_per_dim = intArray(),
 			bool print_info = true,
-    		std::string print_file = "greedy_info.txt",
+			std::string print_file = "greedy_info.txt",
 			bool verbose = true,
 			bool write_during_training = true,
-    		std::string trainingdata_folder = "training_data",
+			std::string trainingdata_folder = "training_data",
 			bool print_paramset = false,
 			bool erase_snapshot_params = false,
 			bool orthonormalize_bfs = true,
 			bool tighten_tol	= false,
+			bool tighten_tol_rieszA = false,
+			bool tighten_tol_rieszF = false,
 			double tighten_tol_reduction = 0.1,
 			bool update_snapshot = false,
 			bool update_rieszF = false,
 			bool update_rieszA = false,
 			bool coarsen_rieszA_for_update = false,
 			bool test_estimator_equivalence = false,
-			bool equivalence_tol_factor = 1.				// = Riesz constant of basis
+			bool equivalence_tol_factor = 1.,				// = Riesz constant of basis
+			bool write_direct_representors = false;
      */
 
 
@@ -348,6 +351,7 @@ int main () {
     rb_base.greedy_params.update_snapshot = true;
     rb_base.greedy_params.test_estimator_equivalence = true;
     rb_base.greedy_params.equivalence_tol_factor = 2.5;
+    rb_base.greedy_params.write_direct_representors = true;
 
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
@@ -372,6 +376,7 @@ int main () {
     rb_system.write_rb_data("offline_data_stage7");
     rb_base.write_basisfunctions("offline_data_stage7");
     rb_base.write_rieszrepresentors("offline_data_stage7");
+
 
 
     return 0;

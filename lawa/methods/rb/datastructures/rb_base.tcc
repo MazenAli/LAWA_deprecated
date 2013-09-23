@@ -127,6 +127,11 @@ train_Greedy(std::size_t N)
 			greedy_info.eps_aff.push_back(eps_aff);
 		}
 
+		if(greedy_params.training_type == weak_direct){
+			std::vector<std::size_t> res_repr_sizes;
+			greedy_info.repr_r_size.push_back(res_repr_sizes);
+		}
+
 		// Find parameter with maximum error estimator
 		T error_est;
 		max_error = 0;
@@ -165,7 +170,9 @@ train_Greedy(std::size_t N)
             case weak_direct:
             	DataType res_repr;
             	error_est = get_direct_errorbound(u_N,mu, res_repr);
+
             	if(greedy_params.test_estimator_equivalence){
+            		/*
             		T initial_eps = rb_truth.access_RieszSolver_Res().access_params().tol;
             		T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
             		T bound = rb_system.alpha_LB(mu)*error_est;
@@ -180,7 +187,83 @@ train_Greedy(std::size_t N)
             		greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
             		// Reset tolerance to initial value, so that it is not reduced for the next parameters
             		rb_truth.access_RieszSolver_Res().access_params().tol = initial_eps;
+            		*/
+
+            		// Initial Check if we have to update the representor
+            		T bound = rb_system.alpha_LB(mu)*error_est;
+            		T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
+            		std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
+
+            		// Save old values, so they can be restored
+            		T initial_tol = rb_truth.access_RieszSolver_Res().access_params().tol;
+            		std::size_t max_its = rb_truth.access_RieszSolver_Res().access_params().max_its;
+            		// Set maximum iteration number to 1, so that we can check after each iteration
+            		rb_truth.access_RieszSolver_Res().access_params().max_its = 0;
+            		// Set tolerance small, so that we alway do 1 iteration  (including extension of index set)
+            		rb_truth.access_RieszSolver_Res().access_params().tol = 1e-14;
+
+        			DataType res_repr_old = res_repr;
+            		while(effective_eps > bound){
+
+            			// Save old representor
+            			res_repr_old = res_repr;
+
+            			// Get new riesz representor
+                		DataType u_approx = reconstruct_u_N(u_N, u_N.length());
+                		if(greedy_params.verbose){
+                			std::cout << "||-------------- Update Direct Riesz Representors for Residual -----||" << std::endl << std::endl;
+                		}
+
+                		// Attention: We return estimated residual of solution,
+                		// but in res_repr is the already extended index set (which doesn't make any difference for the norm)!
+                		T res_repr_norm = rb_truth.get_riesz_representor_res(u_approx, mu, res_repr);
+                		effective_eps = res_repr_norm*greedy_params.equivalence_tol_factor;
+                		error_est = res_repr.norm(2.) / rb_system.alpha_LB(mu);
+                		bound = res_repr.norm(2.);
+                		std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
+
+            		}
+
+            		greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
+            		greedy_info.eps_aff[greedy_info.eps_aff.size()-1].push_back(effective_eps);
+            		// Reset tolerance to initial value, so that it is not reduced for the next parameters
+            		rb_truth.access_RieszSolver_Res().access_params().tol = initial_tol;
+            		rb_truth.access_RieszSolver_Res().access_params().max_its = max_its;
+
+            		// Get res_repr without extension
+            		for(auto it = res_repr.begin(); it != res_repr.end();){
+            			if(res_repr_old.find((*it).first) == res_repr_old.end()){
+            				it = res_repr.erase(it);
+            			}
+            			else{
+            				++it;
+            			}
+            		}
+
             	}
+
+    			greedy_info.repr_r_size[greedy_info.repr_r_size.size()-1].push_back(res_repr.size());
+
+    			if(greedy_params.write_direct_representors){
+
+    				if(greedy_params.verbose){
+    					std::cout << "=====>  Writing Direct Riesz Representor to file " << std::endl << std::endl;
+    				}
+    				mkdir(greedy_params.trainingdata_folder.c_str(), 0777);
+
+    				// Write Riesz Representors
+    				std::string repr_folder = greedy_params.trainingdata_folder + "/direct_representors";
+    				mkdir(repr_folder.c_str(), 0777);
+
+    				std::stringstream filename;
+    				filename << repr_folder << "/Res_representor_N_" <<  N << "_Mu";
+    				for(auto& el : mu){
+    					filename << "_"<< el;
+    				}
+    				filename  << ".txt";
+    				saveCoeffVector2D(res_repr, rb_truth.get_testbasis(), filename.str().c_str());
+    			}
+
             }
 
             if(greedy_params.verbose){

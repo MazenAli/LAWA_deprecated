@@ -27,7 +27,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		bool _tighten_tol_rieszF, double _tighten_tol_reduction,
 		bool _update_snapshot, bool _update_rieszF,
 		bool _update_rieszA, bool _coarsen_rieszA_for_update,
-		bool _test_estimator_equivalence, bool _equivalence_tol_factor)
+		bool _test_estimator_equivalence, bool _equivalence_tol_factor,
+		bool _write_direct_representors)
  : training_type(_training_type),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
@@ -45,7 +46,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    update_rieszA(_update_rieszA),
    coarsen_rieszA_for_update(_coarsen_rieszA_for_update),
    test_estimator_equivalence(_test_estimator_equivalence),
-   equivalence_tol_factor(_equivalence_tol_factor)
+   equivalence_tol_factor(_equivalence_tol_factor),
+   write_direct_representors(_write_direct_representors)
 {}
 
 template<typename ParamType>
@@ -87,6 +89,7 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "# update Riesz Repr A:" << std::setw(10) << (update_rieszA ?"true":"false") << "  " << (coarsen_rieszA_for_update?"(coarsened)":"") << std::endl;
 	std::cout << std::left << std::setw(32) << "# test estimator equivalence:" << std::setw(20) << (test_estimator_equivalence?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "#  tol equivalence factor:" << std::setw(20) << equivalence_tol_factor << std::endl;
+	std::cout << std::left << std::setw(32) << "# write direct representors:" << std::setw(20) <<  (write_direct_representors?"true":"false") << std::endl;
 	std::cout << "####################################################" << std::endl << std::endl;
 
 }
@@ -120,6 +123,23 @@ print(const char* filename)
     		infofile << std::endl;
     	}
         infofile.close();
+    }
+    else{
+    	std::cerr << "Error opening file " << filename << " for writing! " << std::endl;
+    }
+
+    if(repr_r_size.size() > 0){
+    	std::string file(filename);
+    	file += "_repr_res.txt";
+    	std::ofstream infofile_r(file.c_str());
+    	if(infofile_r.is_open()){
+    		for(std::size_t n = 0; n < repr_r_size[0].size(); ++n){
+        		for(std::size_t i = 0; i < repr_r_size.size(); ++i){
+        			infofile_r << repr_r_size[i][n] << " ";
+        		}
+        		infofile_r << std::endl;
+    		}
+    	}
     }
     else{
     	std::cerr << "Error opening file " << filename << " for writing! " << std::endl;

@@ -79,7 +79,7 @@ solve()
 
 template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
-void
+typename LocalOperator::T
 MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
 solve(Coefficients<Lexicographical,T,Index> &u)
 {
@@ -94,13 +94,13 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 		FillWithZeros(Lambda,u);
 	}
 
-	solve(u, Lambda);
+	return solve(u, Lambda);
 
 }
 
 template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
-void
+typename LocalOperator::T
 MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
 solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 {
@@ -273,7 +273,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
                 plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
             }
 
-            return;
+            return res_norm;
         }
 
         //---------------------------------------//
@@ -359,6 +359,8 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
     	}
         plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
     }
+
+    return res_norm;
 }
 
 template <typename Index, typename Basis, typename LocalOperator,

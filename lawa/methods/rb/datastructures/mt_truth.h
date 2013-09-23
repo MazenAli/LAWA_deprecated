@@ -69,7 +69,7 @@ public:
     DataType
     get_riesz_representor_res(const DataType& u, ParamType& mu);
 
-    void
+    T
     get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res);
 
     T
