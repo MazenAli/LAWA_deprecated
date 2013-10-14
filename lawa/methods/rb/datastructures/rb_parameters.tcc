@@ -23,12 +23,12 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		std::string _print_file, bool _verbose,
 		bool _write_during_training, std::string _trainingdata_folder,
 		bool _print_paramset, bool _erase_snapshot_params,
-		bool _orthonormalize_bfs, bool _tighten_tol, bool _tighten_tol_rieszA,
-		bool _tighten_tol_rieszF, double _tighten_tol_reduction,
-		bool _update_snapshot, bool _update_rieszF,
-		bool _update_rieszA, bool _coarsen_rieszA_for_update,
+		bool _orthonormalize_bfs, bool _tighten_tol,
+		SnapshotTolReductionCrit _snapshot_tol_red_crit,
+		bool _tighten_tol_rieszA, bool _tighten_tol_rieszF, double _tighten_tol_reduction,
+		bool _update_snapshot, bool _update_rieszF, bool _update_rieszA, bool _coarsen_rieszA_for_update,
 		bool _test_estimator_equivalence, bool _equivalence_tol_factor,
-		bool _write_direct_representors)
+		bool _write_direct_representors, double _min_error_reduction)
  : training_type(_training_type),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
@@ -38,6 +38,7 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    erase_snapshot_params(_erase_snapshot_params),
    orthonormalize_bfs(_orthonormalize_bfs),
    tighten_tol(_tighten_tol),
+   snapshot_tol_red_crit(_snapshot_tol_red_crit),
    tighten_tol_rieszA(_tighten_tol_rieszA),
    tighten_tol_rieszF(_tighten_tol_rieszF),
    tighten_tol_reduction(_tighten_tol_reduction),
@@ -47,7 +48,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    coarsen_rieszA_for_update(_coarsen_rieszA_for_update),
    test_estimator_equivalence(_test_estimator_equivalence),
    equivalence_tol_factor(_equivalence_tol_factor),
-   write_direct_representors(_write_direct_representors)
+   write_direct_representors(_write_direct_representors),
+   min_error_reduction(_min_error_reduction)
 {}
 
 template<typename ParamType>
@@ -80,7 +82,8 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "# print_paramset:" << std::setw(20) <<  (print_paramset?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# erase snapshot params:" << std::setw(20) <<  (erase_snapshot_params?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# orthonormalize bfs:" << std::setw(20) <<  (orthonormalize_bfs?"true":"false") << std::endl;
-	std::cout << std::left << std::setw(32) << "# tighten tolerance:" << std::setw(20) <<  (tighten_tol?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# tighten tolerance:" << std::setw(20) <<  (tighten_tol?"true":"false")
+			 << ((tighten_tol && snapshot_tol_red_crit == repeated_param)? " (at repeated param choice)": " (at Greedy conv. degradation)") << std::endl;
 	std::cout << std::left << std::setw(32) << "# tighten tolerance Riesz A:" << std::setw(20) <<  (tighten_tol_rieszA?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# tighten tolerance Riesz F:" << std::setw(20) <<  (tighten_tol_rieszF ?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# tighten tolerance red.:" << std::setw(20) <<  tighten_tol_reduction << std::endl;
@@ -90,6 +93,7 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "# test estimator equivalence:" << std::setw(20) << (test_estimator_equivalence?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "#  tol equivalence factor:" << std::setw(20) << equivalence_tol_factor << std::endl;
 	std::cout << std::left << std::setw(32) << "# write direct representors:" << std::setw(20) <<  (write_direct_representors?"true":"false") << std::endl;
+	std::cout << std::left << std::setw(32) << "# min_error_reduction (if conv_rate_degrad.):" << std::setw(20) <<  min_error_reduction << std::endl;
 	std::cout << "####################################################" << std::endl << std::endl;
 
 }

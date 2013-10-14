@@ -282,70 +282,121 @@ train_Greedy(std::size_t N)
 		// Check if we have to tighten the snapshot tolerance
 		bool update_snapshot = false;
 		if(greedy_params.tighten_tol){
-			// find (first occurence of) current parameter
-			for(auto& mu : greedy_info.snapshot_params){
-				bool is_current_param = true;
-				for(std::size_t i = 0; i < mu.size(); ++i){
-					if(mu[i]!=current_param[i]){
-						is_current_param = false;
+
+			bool tol_red_crit = false;
+
+			switch(greedy_params.snapshot_tol_red_crit){
+			case repeated_param:
+			{
+				// find (first occurence of) current parameter
+				for(auto& mu : greedy_info.snapshot_params){
+					bool is_current_param = true;
+					for(std::size_t i = 0; i < mu.size(); ++i){
+						//if(mu[i]!=current_param[i]){
+						if(std::abs(mu[i] - current_param[i]) > 1e-05){
+							is_current_param = false;
+							break;
+						}
+					}
+					if(is_current_param){
+						tol_red_crit = true;
+						update_snapshot = true;
 						break;
 					}
 				}
-				if(is_current_param){
-					rb_truth.access_solver().access_params().tol *= greedy_params.tighten_tol_reduction;
-					update_snapshot = true;
+				break;
+			}
+			case conv_rate_degradation:
+			{
+				// First check criterion
+				if(N >= 2 && log10(greedy_info.greedy_errors[N-1]/max_error)/log10(greedy_info.greedy_errors[N-2]/greedy_info.greedy_errors[N-1]) < greedy_params.min_error_reduction){
+					if(greedy_params.verbose){
+						std::cout << std::endl<< "----> Error reduction: " << std::endl;
+						std::cout << "      Greedy Errors: N-1 = " <<greedy_info.greedy_errors[N-2] << ", N = " << greedy_info.greedy_errors[N-1] << ", error est = " << max_error << std::endl;
+						std::cout << "          with log10: N-1 = " << log10(greedy_info.greedy_errors[N-2]) << ", N = " << log10(greedy_info.greedy_errors[N-1]) << ", error est = " << log10(max_error) << std::endl;
+						std::cout << "          -> reduction factor" << log10(greedy_info.greedy_errors[N-1]/max_error)/log10(greedy_info.greedy_errors[N-2]/greedy_info.greedy_errors[N-1])
+								  << " < " << greedy_params.min_error_reduction << std::endl;
+
+					}
+					tol_red_crit = true;
+				}
+
+
+				// Then check if we can update the snapshot
+				for(auto& mu : greedy_info.snapshot_params){
+					bool is_current_param = true;
+					for(std::size_t i = 0; i < mu.size(); ++i){
+						//if(mu[i]!=current_param[i]){
+						if(std::abs(mu[i] - current_param[i]) > 1e-05){
+							is_current_param = false;
+							break;
+						}
+					}
+					if(is_current_param){
+						update_snapshot = true;
+						break;
+					}
+				}
+				break;
+			}
+			default:
+                std::cerr << "Snapshot Tolerance Adaptation Method not implemented yet!" << std::endl;
+                exit(1);
+			}
+
+
+			if(tol_red_crit){
+				rb_truth.access_solver().access_params().tol *= greedy_params.tighten_tol_reduction;
+				if(greedy_params.verbose){
+					std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
+					std::cout << "====>     Reduced snapshot tolerance to " << std::scientific << rb_truth.access_solver().access_params().tol << std::endl;
+					std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
+
+				}
+
+				if(greedy_params.tighten_tol_rieszA){
+					rb_truth.access_RieszSolver_A().access_params().tol *= greedy_params.tighten_tol_reduction;
 					if(greedy_params.verbose){
 						std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
-						std::cout << "====>     Reduced snapshot tolerance to " << std::scientific << rb_truth.access_solver().access_params().tol << std::endl;
+						std::cout << "====>     Reduced Riesz Repr A tolerance to " << std::scientific << rb_truth.access_RieszSolver_A().access_params().tol << std::endl;
 						std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
-
 					}
-
-					if(greedy_params.tighten_tol_rieszA){
-						rb_truth.access_RieszSolver_A().access_params().tol *= greedy_params.tighten_tol_reduction;
-						if(greedy_params.verbose){
-							std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
-							std::cout << "====>     Reduced Riesz Repr A tolerance to " << std::scientific << rb_truth.access_RieszSolver_A().access_params().tol << std::endl;
-							std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
-						}
+				}
+				if(greedy_params.tighten_tol_rieszF){
+					rb_truth.access_RieszSolver_F().access_params().tol *= greedy_params.tighten_tol_reduction;
+					if(greedy_params.verbose){
+						std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
+						std::cout << "====>     Reduced Riesz Repr F tolerance to " << std::scientific << rb_truth.access_RieszSolver_F().access_params().tol << std::endl;
+						std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
 					}
-					if(greedy_params.tighten_tol_rieszF){
-						rb_truth.access_RieszSolver_F().access_params().tol *= greedy_params.tighten_tol_reduction;
-						if(greedy_params.verbose){
-							std::cout << std::endl<< "====> -------------------------------------------------------------- <=====" << std::endl;
-							std::cout << "====>     Reduced Riesz Repr F tolerance to " << std::scientific << rb_truth.access_RieszSolver_F().access_params().tol << std::endl;
-							std::cout << "====> -------------------------------------------------------------- <=====" << std::endl;
-						}
-						// Save old Riesz Representor
-						if(greedy_params.write_during_training){
-							if(mkdir(greedy_params.trainingdata_folder.c_str(), 0777) == -1)
-							{
-								if(greedy_params.verbose){
-									  std::cerr << "         [In RB_Base::train_Greedy: Directory "
-											    << greedy_params.trainingdata_folder << " already exists, overwriting contents.]" << std::endl;
-								}
+					// Save old Riesz Representor
+					if(greedy_params.write_during_training){
+						if(mkdir(greedy_params.trainingdata_folder.c_str(), 0777) == -1)
+						{
+							if(greedy_params.verbose){
+								  std::cerr << "         [In RB_Base::train_Greedy: Directory "
+											<< greedy_params.trainingdata_folder << " already exists, overwriting contents.]" << std::endl;
 							}
-							std::string repr_folder = greedy_params.trainingdata_folder + "/representors";
-							if(mkdir(repr_folder.c_str(), 0777) == -1)
-							{
-								if(greedy_params.verbose){
-									  std::cerr << "         [In RB_Base::train_Greedy: Directory "
-											    << repr_folder << " already exists, overwriting contents.]" << std::endl;
-								}
+						}
+						std::string repr_folder = greedy_params.trainingdata_folder + "/representors";
+						if(mkdir(repr_folder.c_str(), 0777) == -1)
+						{
+							if(greedy_params.verbose){
+								  std::cerr << "         [In RB_Base::train_Greedy: Directory "
+											<< repr_folder << " already exists, overwriting contents.]" << std::endl;
 							}
-							std::stringstream old_repr_folder;
-							old_repr_folder << greedy_params.trainingdata_folder << "/representors/F_repr_before_it_" << N+1;
-							write_rieszrepresentors(old_repr_folder.str(), 0);
 						}
-						// Recalculate F Representors
-						bool update = false;
-						if(greedy_params.update_rieszF){
-							update = true;
-						}
-						calculate_Riesz_RHS_information(update);
-						recalculate_A_F_norms();
+						std::stringstream old_repr_folder;
+						old_repr_folder << greedy_params.trainingdata_folder << "/representors/F_repr_before_it_" << N+1;
+						write_rieszrepresentors(old_repr_folder.str(), 0);
 					}
-					break;
+					// Recalculate F Representors
+					bool update = false;
+					if(greedy_params.update_rieszF){
+						update = true;
+					}
+					calculate_Riesz_RHS_information(update);
+					recalculate_A_F_norms();
 				}
 			}
 		}
@@ -359,7 +410,8 @@ train_Greedy(std::size_t N)
 			for(auto& mu : Xi_train){
 				bool is_current_param = true;
 				for(std::size_t i = 0; i < mu.size(); ++i){
-					if(mu[i]!=current_param[i]){
+					//if(mu[i]!=current_param[i]){
+					if(std::abs(mu[i] - current_param[i]) > 1e-05){
 						is_current_param = false;
 						break;
 					}
@@ -399,7 +451,8 @@ train_Greedy(std::size_t N)
 			for(auto& mu : greedy_info.snapshot_params){
 				bool is_current_param = true;
 				for(std::size_t i = 0; i < mu.size(); ++i){
-					if(mu[i]!=current_param[i]){
+					//if(mu[i]!=current_param[i]){
+					if(std::abs(mu[i] - current_param[i]) > 1e-05){
 						is_current_param = false;
 						break;
 					}
@@ -429,7 +482,8 @@ train_Greedy(std::size_t N)
 				for(auto& entry : truth_sols){
 					bool is_current_mu = true;
 					for(std::size_t i = 0; i < current_param.size(); ++i){
-						if(entry.first[i]!=current_param[i]){
+						//if(entry.first[i]!=current_param[i]){
+						if(std::abs(entry.first[i] - current_param[i]) > 1e-05){
 							is_current_mu = false;
 							break;
 						}

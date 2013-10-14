@@ -13,6 +13,7 @@
 namespace lawa {
 
 enum TrainingType {weak, strong, weak_direct};
+enum SnapshotTolReductionCrit {repeated_param, conv_rate_degradation};
 
 /* Helper struct to get size of an array
  */
@@ -35,7 +36,8 @@ struct ParamInfo<std::array<T,N> >
 template<typename ParamType>
 struct RB_Greedy_Parameters{
 
-	TrainingType training_type;
+	TrainingType 				training_type;
+	SnapshotTolReductionCrit 	snapshot_tol_red_crit;
 
 	typedef typename std::array<std::size_t,ParamInfo<ParamType>::dim> intArray;
 	double 		tol;
@@ -63,6 +65,7 @@ struct RB_Greedy_Parameters{
 	bool		test_estimator_equivalence;
 	double 		equivalence_tol_factor;
 	bool 		write_direct_representors;
+	double 		min_error_reduction;		// if snapshot_tol_red_crit = conv_rate_degradation
 
 
 	RB_Greedy_Parameters(
@@ -81,6 +84,7 @@ struct RB_Greedy_Parameters{
 						bool _erase_snapshot_params = false,
 						bool _orthonormalize_bfs = true,
 						bool _tighten_tol	= false,
+						SnapshotTolReductionCrit _snapshot_tol_red_crit = repeated_param,
 						bool _tighten_tol_rieszA = false,
 						bool _tighten_tol_rieszF = false,
 						double _tighten_tol_reduction = 0.1,
@@ -90,7 +94,8 @@ struct RB_Greedy_Parameters{
 						bool _coarsen_rieszA_for_update = false,
 						bool _test_estimator_equivalence = false,
 						bool _equivalence_tol_factor = 1.,
-						bool _write_direct_representors = false);
+						bool _write_direct_representors = false,
+						double _min_error_reduction = 0.5);
 
 	void print();
 };

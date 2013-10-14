@@ -127,7 +127,10 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
     for(std::size_t awgm_its = 0; awgm_its <= awgm_params.max_its; ++awgm_its){
 
     	if (Lambda.size()>awgm_params.max_basissize){
-    		break;
+    	    std::cerr << "AWGM reached maximal basis size " << awgm_params.max_basissize << ": "
+    	    		  << "Residual = " << res_norm << " "
+    	              << ", awgm_tol = " << awgm_params.tol << std::endl << std::endl;
+    	    break;
     	}
 
         awgm_info.sizeLambda.push_back(Lambda.size());
