@@ -75,6 +75,9 @@ public:
 	void
 	print_paramset(std::vector<ParamType> PSet);
 
+	void
+	remove_basisfunction(std::size_t nb, bool from_greedy_info);
+
 	RB_Greedy_Parameters<ParamType> 	greedy_params;
 
 private:

@@ -29,7 +29,7 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		bool _update_snapshot, bool _update_rieszF, bool _update_rieszA, bool _coarsen_rieszA_for_update,
 		bool _test_estimator_equivalence, bool _equivalence_tol_factor,
 		bool _write_direct_representors, double _min_error_reduction)
- : training_type(_training_type),
+ : training_type(_training_type), snapshot_tol_red_crit(_snapshot_tol_red_crit),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), print_info(_print_info),
    print_file(_print_file), verbose(_verbose),
@@ -38,7 +38,6 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    erase_snapshot_params(_erase_snapshot_params),
    orthonormalize_bfs(_orthonormalize_bfs),
    tighten_tol(_tighten_tol),
-   snapshot_tol_red_crit(_snapshot_tol_red_crit),
    tighten_tol_rieszA(_tighten_tol_rieszA),
    tighten_tol_rieszF(_tighten_tol_rieszF),
    tighten_tol_reduction(_tighten_tol_reduction),

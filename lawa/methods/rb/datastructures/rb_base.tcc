@@ -31,6 +31,11 @@ void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
 train_Greedy(std::size_t N)
 {
+
+	//================================================//
+	//      Initial Computations
+	//================================================//
+
 	if(greedy_params.verbose){
 		std::cout.precision(12);
 	    std::cout << "||=====================================================================||" << std::endl;
@@ -44,6 +49,9 @@ train_Greedy(std::size_t N)
 
 	}
 
+	//------------------------------------------------//
+	//      Parameter training set generation
+	//------------------------------------------------//
 	std::vector<ParamType> Xi_train = generate_uniform_paramset(greedy_params.min_param,
 																greedy_params.max_param,
 																greedy_params.nb_training_params);
@@ -53,6 +61,9 @@ train_Greedy(std::size_t N)
 	}
 
 
+	//------------------------------------------------//
+	//      Strong Greedy snapshot calculations
+	//------------------------------------------------//
 	// Preparations for strong Greedy (Output Folder / Calculation of Truth Sols)
 	std::map<ParamType, DataType> truth_sols;
 	if(greedy_params.training_type == strong){
@@ -105,11 +116,18 @@ train_Greedy(std::size_t N)
 	    }
 	}
 
+	//------------------------------------------------//
+	//      F Riesz representors
+	//------------------------------------------------//
 	if(N == 0){
 		// In order to be able to calculate empty error bounds,
 		// we have to calculate the Riesz Representors for F
 		calculate_Riesz_RHS_information();
 	}
+
+	//================================================//
+	//      Greedy Iterations
+	//================================================//
 
 	ParamType current_param;
 	T max_error = 0;
@@ -132,7 +150,9 @@ train_Greedy(std::size_t N)
 			greedy_info.repr_r_size.push_back(res_repr_sizes);
 		}
 
-		// Find parameter with maximum error estimator
+		//------------------------------------------------//
+		//  Find Parameter with maximum error (estimator)
+		//------------------------------------------------//
 		T error_est;
 		max_error = 0;
 		for(auto& mu : Xi_train){
@@ -279,8 +299,11 @@ train_Greedy(std::size_t N)
             }
 		}
 
-		// Check if we have to tighten the snapshot tolerance
+		//------------------------------------------------//
+		//      Check conditions for tolerance tightening
+		//------------------------------------------------//
 		bool update_snapshot = false;
+		DataType u;
 		if(greedy_params.tighten_tol){
 
 			bool tol_red_crit = false;
@@ -316,27 +339,23 @@ train_Greedy(std::size_t N)
 						std::cout << "          with log10: N-1 = " << log10(greedy_info.greedy_errors[N-2]) << ", N = " << log10(greedy_info.greedy_errors[N-1]) << ", error est = " << log10(max_error) << std::endl;
 						std::cout << "          -> reduction factor" << log10(greedy_info.greedy_errors[N-1]/max_error)/log10(greedy_info.greedy_errors[N-2]/greedy_info.greedy_errors[N-1])
 								  << " < " << greedy_params.min_error_reduction << std::endl;
+						std::cout << "=====> Recalculate Snapshot Nb. " << N << std::endl << std::endl;
 
 					}
 					tol_red_crit = true;
+
+					// Reset training to last iteration
+					u = rb_basisfunctions[rb_basisfunctions.size()-1];
+
+					max_error = greedy_info.greedy_errors[greedy_info.greedy_errors.size()-1];
+					current_param = greedy_info.snapshot_params[greedy_info.snapshot_params.size()-1];
+
+					remove_basisfunction(N, true);
+					N = N-1;
+
+					update_snapshot=true;
 				}
 
-
-				// Then check if we can update the snapshot
-				for(auto& mu : greedy_info.snapshot_params){
-					bool is_current_param = true;
-					for(std::size_t i = 0; i < mu.size(); ++i){
-						//if(mu[i]!=current_param[i]){
-						if(std::abs(mu[i] - current_param[i]) > 1e-05){
-							is_current_param = false;
-							break;
-						}
-					}
-					if(is_current_param){
-						update_snapshot = true;
-						break;
-					}
-				}
 				break;
 			}
 			default:
@@ -404,6 +423,10 @@ train_Greedy(std::size_t N)
 		greedy_info.greedy_errors.push_back(max_error);
 		greedy_info.snapshot_params.push_back(current_param);
 
+
+		//------------------------------------------------//
+		//      Update parameter training set
+		//------------------------------------------------//
 		// Remove parameter from indexset
 		if(greedy_params.erase_snapshot_params){
 			// find current parameter
@@ -425,7 +448,9 @@ train_Greedy(std::size_t N)
 		}
 
 
-
+		//------------------------------------------------//
+		//      Compute next snapshot
+		//------------------------------------------------//
 		if(greedy_params.verbose){
 			std::cout << std::endl << "Greedy Error = " << std::scientific << max_error << std::endl << std::endl;
 		}
@@ -442,34 +467,42 @@ train_Greedy(std::size_t N)
 			rb_truth.access_solver().access_params().info_filename = filename.str();
 		}
 
-		// Compute next snapshot
-		DataType u;
 		if(update_snapshot && greedy_params.update_snapshot){
-			// Find last corresponding snapshot:
-			// Find (last occurence of) current parameter
-			int last_snapshot_index;
-			for(auto& mu : greedy_info.snapshot_params){
-				bool is_current_param = true;
-				for(std::size_t i = 0; i < mu.size(); ++i){
-					//if(mu[i]!=current_param[i]){
-					if(std::abs(mu[i] - current_param[i]) > 1e-05){
-						is_current_param = false;
-						break;
+
+			if(greedy_params.snapshot_tol_red_crit == conv_rate_degradation){
+				if(greedy_params.verbose){
+					std::cout << " Repeating truth computation for snapshot nb " << N << ", starting with old solution." << std::endl << std::endl;
+				}
+			}
+			else{
+				// Find last corresponding snapshot:
+				// Find (last occurence of) current parameter
+				int last_snapshot_index;
+				for(auto& mu : greedy_info.snapshot_params){
+					bool is_current_param = true;
+					for(std::size_t i = 0; i < mu.size(); ++i){
+						//if(mu[i]!=current_param[i]){
+						if(std::abs(mu[i] - current_param[i]) > 1e-05){
+							is_current_param = false;
+							break;
+						}
+					}
+					if(is_current_param){
+						if(&mu - &greedy_info.snapshot_params[0] < (int)greedy_info.snapshot_params.size()-1){
+							last_snapshot_index = &mu - &greedy_info.snapshot_params[0];
+						}
 					}
 				}
-				if(is_current_param){
-					if(&mu - &greedy_info.snapshot_params[0] < (int)greedy_info.snapshot_params.size()-1){
-						last_snapshot_index = &mu - &greedy_info.snapshot_params[0];
-					}
+
+				if(greedy_params.verbose){
+					std::cout << " Starting truth computation with snapshot nb " << last_snapshot_index+1 << std::endl << std::endl;
 				}
+
+				u = rb_basisfunctions[last_snapshot_index];
 			}
 
-			if(greedy_params.verbose){
-				std::cout << " Starting truth computation with snapshot nb " << last_snapshot_index+1 << std::endl << std::endl;
-			}
 
 			// Start solver with copy of old snapshot
-			u = rb_basisfunctions[last_snapshot_index];
 			rb_truth.get_truth_solution(current_param, u);
 
 			if(greedy_params.training_type == strong){
@@ -497,6 +530,10 @@ train_Greedy(std::size_t N)
 				u = rb_truth.get_truth_solution(current_param);
 			}
 		}
+
+		//------------------------------------------------//
+		//      Update RB basis and infos
+		//------------------------------------------------//
 		add_to_basis(u);
 		N++;
 
@@ -1299,6 +1336,46 @@ recalculate_A_F_norms(){
 			std::cout << rb_system.A_F_representor_norms[N-1] << std::endl;
 		}
 	}
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+remove_basisfunction(std::size_t nb, bool from_greedy_info){
+
+	assert(nb <= n_bf());
+
+
+	if(greedy_params.orthonormalize_bfs == false){
+
+		// Remove calN-data
+		rb_basisfunctions.erase(rb_basisfunctions.begin()+(nb-1));
+		A_representors.erase(A_representors.begin() + (nb-1));
+
+		// Remove N-data
+		rb_system.remove_basisfunction(nb);
+
+		// Remove meta-data
+		if(from_greedy_info){
+			greedy_info.greedy_errors.erase(greedy_info.greedy_errors.begin()+nb-1);
+			greedy_info.snapshot_params.erase(greedy_info.snapshot_params.begin()+nb-1);
+			greedy_info.u_size.erase(greedy_info.u_size.begin()+nb-1);
+			greedy_info.repr_a_size.erase(greedy_info.repr_a_size.begin()+nb-1);
+
+			if(greedy_info.repr_r_size.size() >= nb){
+				greedy_info.repr_r_size.erase(greedy_info.repr_r_size.begin()+nb-1);
+			}
+		}
+
+
+	}
+	else{
+		// Re-Orthogonalization
+		std::cerr << "$$$ !!!!!!!!!!!!!!!!!!!! $$$" << std::endl;
+		std::cerr << "     Orthogonalized Snapshots! Didn't know what to do! Didn't erase anything" << std::endl;
+		std::cerr << "$$$ !!!!!!!!!!!!!!!!!!!! $$$" << std::endl;
+	}
+
 
 }
 

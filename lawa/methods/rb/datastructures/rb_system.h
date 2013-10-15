@@ -64,6 +64,9 @@ public:
 	void
 	read_rb_data(const std::string& directory_name = "offline_data", int nb = -1);
 
+	void
+	remove_basisfunction(std::size_t nb);
+
 	RB_Parameters<ParamType> 					rb_params;
 
     ThetaStructure<ParamType>& 					thetas_a;
