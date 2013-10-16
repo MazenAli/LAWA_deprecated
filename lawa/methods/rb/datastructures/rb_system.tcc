@@ -652,11 +652,11 @@ remove_basisfunction(std::size_t nb)
 
 	if(nb == 1){
 		// F_vectors
-		for(std::size_t qf = 0; qf <= Q_f(); ++qf){
+		for(std::size_t qf = 0; qf < Q_f(); ++qf){
 			RB_F_vectors[qf] = RB_F_vectors[qf](_(RB_F_vectors[qf].firstIndex()+1,RB_F_vectors[qf].lastIndex()));
 		}
 		// A_matrices
-		for(std::size_t qa = 0; qa <= Q_a(); ++qa){
+		for(std::size_t qa = 0; qa < Q_a(); ++qa){
 			RB_A_matrices[qa] = RB_A_matrices[qa](_(RB_A_matrices[qa].firstRow()+1,RB_A_matrices[qa].lastRow()),
 												  _(RB_A_matrices[qa].firstCol()+1,RB_A_matrices[qa].lastCol()));
 		}
@@ -664,57 +664,26 @@ remove_basisfunction(std::size_t nb)
 		RB_inner_product = RB_inner_product(_(RB_inner_product.firstRow()+1,RB_inner_product.lastRow()),
 				   	   	   	   	   	   	    _(RB_inner_product.firstCol()+1,RB_inner_product.lastCol()));
 
-		// Representor norms
-		F_F_representor_norms = F_F_representor_norms( _(F_F_representor_norms.firstRow()+1, F_F_representor_norms.lastRow()),
-				 	 	 	 	 	 	 	 	 	   _(F_F_representor_norms.firstCol()+1, F_F_representor_norms.lastCol()));
-
-		for(std::size_t i = 0; i < A_F_representor_norms.size(); ++i){
-			A_F_representor_norms[i] = A_F_representor_norms[i]( _(A_F_representor_norms[i].firstRow()+1, A_F_representor_norms[i].lastRow()),
-																 _(A_F_representor_norms[i].firstCol()+1, A_F_representor_norms[i].lastCol()));
-		}
-
-		for(std::size_t i = 0; i < A_A_representor_norms.size(); ++i){
-			for(std::size_t j = 0; j < A_A_representor_norms[i].size(); ++j){
-				A_A_representor_norms[i][j] = A_A_representor_norms[i][j]( _(A_A_representor_norms[i][j].firstRow()+1, A_A_representor_norms[i][j].lastRow()),
-						   	   	   	   	   	   	   	   	   	   	   	   	   _(A_A_representor_norms[i][j].firstCol()+1, A_A_representor_norms[i][j].lastCol()));
-			}
-		}
-
 	}
 	else{
 		if((int)nb == n_bf){
 			// F_vectors
-			for(std::size_t qf = 0; qf <= Q_f(); ++qf){
-				RB_F_vectors[qf] = RB_F_vectors[qf](_(RB_F_vectors[qf].firstIndex(),RB_F_vectors[qf].lastIndex()+1));
+			for(std::size_t qf = 0; qf < Q_f(); ++qf){
+				RB_F_vectors[qf] = RB_F_vectors[qf](_(RB_F_vectors[qf].firstIndex(),RB_F_vectors[qf].lastIndex()-1));
 			}
 			// A_matrices
-			for(std::size_t qa = 0; qa <= Q_a(); ++qa){
-				RB_A_matrices[qa] = RB_A_matrices[qa](_(RB_A_matrices[qa].firstRow(),RB_A_matrices[qa].lastRow()+1),
-													  _(RB_A_matrices[qa].firstCol(),RB_A_matrices[qa].lastCol()+1));
+			for(std::size_t qa = 0; qa < Q_a(); ++qa){
+
+				RB_A_matrices[qa] = RB_A_matrices[qa](_(RB_A_matrices[qa].firstRow(),RB_A_matrices[qa].lastRow()-1),
+													  _(RB_A_matrices[qa].firstCol(),RB_A_matrices[qa].lastCol()-1));
 			}
 			// Inner product matrix
-			RB_inner_product = RB_inner_product(_(RB_inner_product.firstRow(),RB_inner_product.lastRow()+1),
-					   	   	   	   	   	   	    _(RB_inner_product.firstCol(),RB_inner_product.lastCol()+1));
-
-			// Representor norms
-			F_F_representor_norms = F_F_representor_norms( _(F_F_representor_norms.firstRow(), F_F_representor_norms.lastRow()+1),
-					 	 	 	 	 	 	 	 	 	   _(F_F_representor_norms.firstCol(), F_F_representor_norms.lastCol()+1));
-
-			for(std::size_t i = 0; i < A_F_representor_norms.size(); ++i){
-				A_F_representor_norms[i] = A_F_representor_norms[i]( _(A_F_representor_norms[i].firstRow(), A_F_representor_norms[i].lastRow()+1),
-																	 _(A_F_representor_norms[i].firstCol(), A_F_representor_norms[i].lastCol()+1));
-			}
-
-			for(std::size_t i = 0; i < A_A_representor_norms.size(); ++i){
-				for(std::size_t j = 0; j < A_A_representor_norms[i].size(); ++j){
-					A_A_representor_norms[i][j] = A_A_representor_norms[i][j]( _(A_A_representor_norms[i][j].firstRow(), A_A_representor_norms[i][j].lastRow()+1),
-							   	   	   	   	   	   	   	   	   	   	   	   	   _(A_A_representor_norms[i][j].firstCol(), A_A_representor_norms[i][j].lastCol()+1));
-				}
-			}
+			RB_inner_product = RB_inner_product(_(RB_inner_product.firstRow(),RB_inner_product.lastRow()-1),
+					   	   	   	   	   	   	    _(RB_inner_product.firstCol(),RB_inner_product.lastCol()-1));
 		}
 		else{
 			// F_vectors
-			for(std::size_t qf = 0; qf <= Q_f(); ++qf){
+			for(std::size_t qf = 0; qf < Q_f(); ++qf){
 				DenseVectorT tmp = RB_F_vectors[qf];
 				RB_F_vectors[qf].engine().resize(n_bf-1);
 				RB_F_vectors[qf](_(RB_F_vectors[qf].firstIndex(), nb-1)) = tmp(_(tmp.firstIndex(), nb-1));
@@ -722,7 +691,7 @@ remove_basisfunction(std::size_t nb)
 
 			}
 			// A_matrices
-			for(std::size_t qa = 0; qa <= Q_a(); ++qa){
+			for(std::size_t qa = 0; qa < Q_a(); ++qa){
 				FullColMatrixT tmp = RB_A_matrices[qa];
 				RB_A_matrices[qa].engine().resize(n_bf-1, n_bf-1);
 				RB_A_matrices[qa](_(RB_A_matrices[qa].firstRow(),nb-1),_(RB_A_matrices[qa].firstCol(),nb-1))
@@ -746,48 +715,12 @@ remove_basisfunction(std::size_t nb)
 				= tmp(_(tmp.firstRow(), nb-1), _(nb+1, tmp.lastCol()));
 			RB_inner_product(_(nb, RB_inner_product.lastRow()),_(nb, RB_inner_product.lastCol()))
 				= tmp(_(nb+1, tmp.lastRow()), _(nb+1, tmp.lastCol()));
-
-			// Representor norms
-			tmp = F_F_representor_norms;
-			F_F_representor_norms.engine().resize(n_bf-1, n_bf-1);
-			F_F_representor_norms(_(F_F_representor_norms.firstRow(),nb-1), _(F_F_representor_norms.firstCol(),nb-1))
-				= tmp(_(tmp.firstRow(), nb-1), _(tmp.firstCol(), nb-1));
-			F_F_representor_norms(_(nb, F_F_representor_norms.lastRow()),_(F_F_representor_norms.firstCol(),nb-1))
-				= tmp(_(nb+1, tmp.lastRow()), _(tmp.firstCol(), nb-1));
-			F_F_representor_norms(_(F_F_representor_norms.firstRow(),nb-1),_(nb, F_F_representor_norms.lastCol()))
-				= tmp(_(tmp.firstRow(), nb-1), _(nb+1, tmp.lastCol()));
-			F_F_representor_norms(_(nb, F_F_representor_norms.lastRow()),_(nb, F_F_representor_norms.lastCol()))
-				= tmp(_(nb+1, tmp.lastRow()), _(nb+1, tmp.lastCol()));
-
-			for(std::size_t i = 0; i < A_F_representor_norms.size(); ++i){
-				tmp = A_F_representor_norms[i];
-				A_F_representor_norms[i].engine().resize(n_bf-1, n_bf-1);
-				A_F_representor_norms[i](_(A_F_representor_norms[i].firstRow(),nb-1), _(A_F_representor_norms[i].firstCol(),nb-1))
-					= tmp(_(tmp.firstRow(), nb-1), _(tmp.firstCol(), nb-1));
-				A_F_representor_norms[i](_(nb, A_F_representor_norms[i].lastRow()),_(A_F_representor_norms[i].firstCol(),nb-1))
-					= tmp(_(nb+1, tmp.lastRow()), _(tmp.firstCol(), nb-1));
-				A_F_representor_norms[i](_(A_F_representor_norms[i].firstRow(),nb-1),_(nb, A_F_representor_norms[i].lastCol()))
-					= tmp(_(tmp.firstRow(), nb-1), _(nb+1, tmp.lastCol()));
-				A_F_representor_norms[i](_(nb, A_F_representor_norms[i].lastRow()),_(nb, A_F_representor_norms[i].lastCol()))
-					= tmp(_(nb+1, tmp.lastRow()), _(nb+1, tmp.lastCol()));
-			}
-
-			for(std::size_t i = 0; i < A_A_representor_norms.size(); ++i){
-				for(std::size_t j = 0; j < A_A_representor_norms[i].size(); ++j){
-					tmp = A_A_representor_norms[i][j];
-					A_A_representor_norms[i][j].engine().resize(n_bf-1, n_bf-1);
-					A_A_representor_norms[i][j](_(A_A_representor_norms[i][j].firstRow(),nb-1), _(A_A_representor_norms[i][j].firstCol(),nb-1))
-						= tmp(_(tmp.firstRow(), nb-1), _(tmp.firstCol(), nb-1));
-					A_A_representor_norms[i][j](_(nb, A_A_representor_norms[i][j].lastRow()),_(A_A_representor_norms[i][j].firstCol(),nb-1))
-						= tmp(_(nb+1, tmp.lastRow()), _(tmp.firstCol(), nb-1));
-					A_A_representor_norms[i][j](_(A_A_representor_norms[i][j].firstRow(),nb-1),_(nb, A_A_representor_norms[i][j].lastCol()))
-						= tmp(_(tmp.firstRow(), nb-1), _(nb+1, tmp.lastCol()));
-					A_A_representor_norms[i][j](_(nb, A_A_representor_norms[i][j].lastRow()),_(nb, A_A_representor_norms[i][j].lastCol()))
-						= tmp(_(nb+1, tmp.lastRow()), _(nb+1, tmp.lastCol()));
-				}
-			}
 		}
 	}
+
+	// Representor norms
+	A_F_representor_norms.erase(A_F_representor_norms.begin()+nb-1);
+	A_A_representor_norms.erase(A_A_representor_norms.begin()+nb-1);
 }
 
 } // namespace lawa

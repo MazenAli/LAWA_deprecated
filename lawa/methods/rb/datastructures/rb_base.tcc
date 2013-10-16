@@ -192,22 +192,6 @@ train_Greedy(std::size_t N)
             	error_est = get_direct_errorbound(u_N,mu, res_repr);
 
             	if(greedy_params.test_estimator_equivalence){
-            		/*
-            		T initial_eps = rb_truth.access_RieszSolver_Res().access_params().tol;
-            		T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
-            		T bound = rb_system.alpha_LB(mu)*error_est;
-            		std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
-            		while(effective_eps > bound){
-            			rb_truth.access_RieszSolver_Res().access_params().tol *= greedy_params.tighten_tol_reduction;
-            			error_est = update_direct_errorbound(u_N, mu, res_repr);
-            			effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
-            			bound = rb_system.alpha_LB(mu)*error_est;
-                		std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
-            		}
-            		greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
-            		// Reset tolerance to initial value, so that it is not reduced for the next parameters
-            		rb_truth.access_RieszSolver_Res().access_params().tol = initial_eps;
-            		*/
 
             		// Initial Check if we have to update the representor
             		T bound = rb_system.alpha_LB(mu)*error_est;
@@ -337,7 +321,7 @@ train_Greedy(std::size_t N)
 						std::cout << std::endl<< "----> Error reduction: " << std::endl;
 						std::cout << "      Greedy Errors: N-1 = " <<greedy_info.greedy_errors[N-2] << ", N = " << greedy_info.greedy_errors[N-1] << ", error est = " << max_error << std::endl;
 						std::cout << "          with log10: N-1 = " << log10(greedy_info.greedy_errors[N-2]) << ", N = " << log10(greedy_info.greedy_errors[N-1]) << ", error est = " << log10(max_error) << std::endl;
-						std::cout << "          -> reduction factor" << log10(greedy_info.greedy_errors[N-1]/max_error)/log10(greedy_info.greedy_errors[N-2]/greedy_info.greedy_errors[N-1])
+						std::cout << "          -> reduction factor " << log10(greedy_info.greedy_errors[N-1]/max_error)/log10(greedy_info.greedy_errors[N-2]/greedy_info.greedy_errors[N-1])
 								  << " < " << greedy_params.min_error_reduction << std::endl;
 						std::cout << "=====> Recalculate Snapshot Nb. " << N << std::endl << std::endl;
 
@@ -351,6 +335,10 @@ train_Greedy(std::size_t N)
 					current_param = greedy_info.snapshot_params[greedy_info.snapshot_params.size()-1];
 
 					remove_basisfunction(N, true);
+					if(greedy_params.verbose){
+						std::cout << "       Removed old snapshot and corresponding information" << std::endl;
+					}
+
 					N = N-1;
 
 					update_snapshot=true;
@@ -471,7 +459,7 @@ train_Greedy(std::size_t N)
 
 			if(greedy_params.snapshot_tol_red_crit == conv_rate_degradation){
 				if(greedy_params.verbose){
-					std::cout << " Repeating truth computation for snapshot nb " << N << ", starting with old solution." << std::endl << std::endl;
+					std::cout << " Repeating truth computation for snapshot nb " << N+1 << ", starting with old solution." << std::endl << std::endl;
 				}
 			}
 			else{
