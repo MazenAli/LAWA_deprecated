@@ -131,6 +131,7 @@ train_Greedy(std::size_t N)
 
 	ParamType current_param;
 	T max_error = 0;
+	bool repeated_iteration = false;
 	do {
 
 		if(greedy_params.verbose){
@@ -316,7 +317,7 @@ train_Greedy(std::size_t N)
 			case conv_rate_degradation:
 			{
 				// First check criterion
-				if(N >= 2 && log10(greedy_info.greedy_errors[N-1]/max_error)/log10(greedy_info.greedy_errors[N-2]/greedy_info.greedy_errors[N-1]) < greedy_params.min_error_reduction){
+				if(repeated_iteration == false && N >= 2 && log10(greedy_info.greedy_errors[N-1]/max_error)/log10(greedy_info.greedy_errors[N-2]/greedy_info.greedy_errors[N-1]) < greedy_params.min_error_reduction){
 					if(greedy_params.verbose){
 						std::cout << std::endl<< "----> Error reduction: " << std::endl;
 						std::cout << "      Greedy Errors: N-1 = " <<greedy_info.greedy_errors[N-2] << ", N = " << greedy_info.greedy_errors[N-1] << ", error est = " << max_error << std::endl;
@@ -327,6 +328,7 @@ train_Greedy(std::size_t N)
 
 					}
 					tol_red_crit = true;
+					repeated_iteration = true;
 
 					// Reset training to last iteration
 					u = rb_basisfunctions[rb_basisfunctions.size()-1];
@@ -342,6 +344,9 @@ train_Greedy(std::size_t N)
 					N = N-1;
 
 					update_snapshot=true;
+				}
+				else{
+					repeated_iteration = false;
 				}
 
 				break;

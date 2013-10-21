@@ -342,9 +342,10 @@ int main () {
     rb_base.greedy_params.trainingdata_folder = "training_data_stage9";
     rb_base.greedy_params.tighten_tol = true;
     rb_base.greedy_params.snapshot_tol_red_crit = conv_rate_degradation;
-    rb_base.greedy_params.tighten_tol_rieszA = false;
-    rb_base.greedy_params.tighten_tol_rieszF = false;
+    rb_base.greedy_params.tighten_tol_rieszA = true;
+    rb_base.greedy_params.tighten_tol_rieszF = true;
     rb_base.greedy_params.update_snapshot = true;
+    rb_base.greedy_params.test_estimator_equivalence = true;
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();
