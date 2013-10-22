@@ -296,6 +296,22 @@ get_testbasis()
 }
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>const typename TruthSolver::TrialPrecType&
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u, RieszSolver_Res>::
+get_trialprec()
+{
+	return solver.get_trialprec();
+}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
+		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>const typename TruthSolver::TestPrecType&
+MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u, RieszSolver_Res>::
+get_testprec()
+{
+	return solver.get_trialprec();
+}
+
+template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>
 TruthSolver&
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u, RieszSolver_Res>::

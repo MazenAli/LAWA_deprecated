@@ -10,6 +10,8 @@
 
 #include <lawa/methods/adaptive/solvers/multitreeawgm_pg.h>
 #include <lawa/methods/adaptive/solvers/multitreeawgm2.h>
+#include <lawa/methods/rb/righthandsides/residualrhs.h>
+#include <lawa/methods/rb/righthandsides/affinebilformrhs.h>
 
 namespace lawa {
 
@@ -21,7 +23,12 @@ template <typename DataType, typename ParamType, typename TruthSolver, typename 
 		  typename InnProd_Y_u_u = typename RieszSolver_F::LHSType,
 		  typename LHS_u_u = typename TruthSolver::LHSType,
 		  typename RHS_u = typename TruthSolver::RHSType,
-		  typename RieszSolver_Res = RieszSolver_A>
+		  typename RieszSolver_Res = MultiTreeAWGM2<typename DataType::IndexType,typename RieszSolver_A::BasisType,
+		  	  	  	  	  	  	  	  	  	  	  	 typename RieszSolver_A::LHSType,
+		  	  	  	  	  	  	  	  	  	  	  	 ResidualRhs<typename DataType::IndexType,
+		  	  	  	  	  	  	  	  	  	  	  	 	 	 	AffineBilformRhs<typename DataType::IndexType, AbstractLocalOperator2D<typename DataType::ValueType>, ParamType>,
+		  	  	  	  	  	  	  	  	  	  	  	 	 	 	typename TruthSolver::RHSType, ParamType, DataType>,
+		  	  	  	  	  	  	  	  	  	  	  	 typename RieszSolver_A::PrecType> >
 class MT_Truth{
 
 	/*typedef typename MultiTreeAWGM_PG<Index2D,TrialBasis,TestBasis,LHS,LHS,RHS,TrialPrec,TestPrec> TruthSolver;
@@ -34,6 +41,7 @@ public:
 	typedef typename DataType::ValueType T;
 	typedef typename DataType::IndexType IndexType;
     typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
+    typedef TruthSolver TruthSolverType;
 
 	MT_Truth(TruthSolver& _solver, RieszSolver_F& _riesz_solver_f, RieszSolver_A& _riesz_solver_a);
 
@@ -108,6 +116,12 @@ public:
 
     const typename TruthSolver::TestBasisType&
     get_testbasis();
+
+    const typename TruthSolver::TrialPrecType&
+    get_trialprec();
+
+    const typename TruthSolver::TestPrecType&
+    get_testprec();
 
     TruthSolver&
     access_solver();

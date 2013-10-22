@@ -11,6 +11,7 @@
 #include <vector>
 #include <lawa/methods/adaptive/datastructures/datastructures.h>
 
+#include <lawa/methods/rb/righthandsides/flexiblebilformrhs.h>
 
 namespace lawa {
 

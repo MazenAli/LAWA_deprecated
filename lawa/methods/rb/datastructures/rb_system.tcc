@@ -171,6 +171,7 @@ get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, T eps_f, T eps_a
 	T val = 0;
     for (std::size_t i = 1; i <= thetas_f.size(); ++i) {
         for (std::size_t j = 1; j <= thetas_f.size(); ++j) {
+        	//std::cout << "F_F (q=" << i << ",q'=" << j << ") = " << std::max(thetas_f.eval(i-1,mu)*thetas_f.eval(j-1, mu), 0.) << " * " << eps_f << " * " << eps_f << std::endl;
         	val += std::max(thetas_f.eval(i-1,mu)*thetas_f.eval(j-1, mu), 0.) * eps_f * eps_f;
         }
     }
@@ -179,6 +180,10 @@ get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, T eps_f, T eps_a
         for(int j = 1; j <= u_N.length(); ++j){
             for (std::size_t k = 1; k <= thetas_a.size(); ++k) {
                 for (std::size_t l = 1; l <= thetas_a.size(); ++l) {
+
+                	//std::cout << "A_A (n=" << i << ",n'=" << j << ",q=" << k << ",q'=" << l << ") = "
+                	//		  << std::max(u_N(i)*u_N(j)*thetas_a.eval(k-1,mu)*thetas_a.eval(l-1,mu),0.) << " * " << eps_a << " * " << eps_a << std::endl;
+
                 	val += std::max(u_N(i)*u_N(j)*thetas_a.eval(k-1,mu)*thetas_a.eval(l-1,mu),0.) * eps_a * eps_a;
                 }
             }
@@ -188,6 +193,9 @@ get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, T eps_f, T eps_a
     for(int i = 1; i <= u_N.length(); ++i){
         for (std::size_t j = 1; j <= thetas_f.size(); ++j) {
             for (std::size_t k = 1; k <= thetas_a.size(); ++k) {
+            	//std::cout << "A_F (n=" << i << ",qf=" << j << ",qa=" << k << ") = "
+            	//		  << 2.* std::max(u_N(i)*thetas_f.eval(j-1, mu)*thetas_a.eval(k-1,mu), 0.) << " * " << eps_a << " * " << eps_f << std::endl;
+
             	val += 2.* std::max(u_N(i)*thetas_f.eval(j-1, mu)*thetas_a.eval(k-1,mu), 0.) * eps_f * eps_a;
             }
         }
@@ -719,8 +727,38 @@ remove_basisfunction(std::size_t nb)
 	}
 
 	// Representor norms
+
+	std::cout << "A_F_representor_norms before: " << std::endl;
+	for(auto& el : A_F_representor_norms){
+		std::cout << el << std::endl;
+	}
+
 	A_F_representor_norms.erase(A_F_representor_norms.begin()+nb-1);
+	std::cout << "A_F_representor_norms after: " << std::endl;
+	for(auto& el : A_F_representor_norms){
+		std::cout << el << std::endl;
+	}
+	std::cout << std::endl;
+
+	std::cout << "A_A_representor_norms before: " << std::endl;
+	for(auto& el : A_A_representor_norms){
+		std::cout << "  (next inner loop) " << std::endl;
+		for(auto& el2 : el){
+			std::cout << el2 << std::endl;
+		}
+	}
+	for(std::size_t  i = 0; i < nb-1; ++i){
+		A_A_representor_norms[i].erase(A_A_representor_norms[i].begin()+(nb-i-1));
+	}
 	A_A_representor_norms.erase(A_A_representor_norms.begin()+nb-1);
+
+	std::cout << "A_A_representor_norms after: " << std::endl;
+	for(auto& el : A_A_representor_norms){
+		std::cout << "  (next inner loop) " << std::endl;
+		for(auto& el2 : el){
+			std::cout << el2 << std::endl;
+		}
+	}
 }
 
 } // namespace lawa
