@@ -54,7 +54,8 @@ train_Greedy(std::size_t N)
 	//------------------------------------------------//
 	std::vector<ParamType> Xi_train = generate_uniform_paramset(greedy_params.min_param,
 																greedy_params.max_param,
-																greedy_params.nb_training_params);
+																greedy_params.nb_training_params,
+																greedy_params.log_scaling);
 	if(greedy_params.print_paramset){
 		std::cout << "Training Parameters: " << std::endl;
 		print_paramset(Xi_train);
@@ -875,7 +876,7 @@ update_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 std::vector<ParamType>
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb)
+generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb, intArrayType log_scaling)
 {
 	std::size_t pdim = ParamInfo<ParamType>::dim;
 
@@ -883,7 +884,12 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
     std::vector<T> h(pdim);
     for(std::size_t d = 0; d < pdim; ++d) {
     	if(param_nb[d] > 1){
-            h[d] = (max_param[d] - min_param[d]) / ((T)param_nb[d]-1.);
+    		if(log_scaling[d] == 0){
+                h[d] = (max_param[d] - min_param[d]) / ((T)param_nb[d]-1.);
+    		}
+    		else{
+    			h[d] = std::log10(max_param[d] / min_param[d]) / ((T)param_nb[d]-1.);
+    		}
     	}
     	else{
     		h[d] = 0;
@@ -897,7 +903,12 @@ generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType
     while(true){
         ParamType new_mu;
         for(std::size_t i = 0; i < pdim; ++i){
-        	new_mu[i] = std::min(min_param[i] + index[i]*h[i], max_param[i]);
+        	if(log_scaling[i]==0){
+            	new_mu[i] = std::min(min_param[i] + index[i]*h[i], max_param[i]);
+        	}
+        	else{
+            	new_mu[i] = std::min( std::pow(10., log10(min_param[i]) + index[i]*h[i]), max_param[i]);
+        	}
         }
         Xi_train.push_back(new_mu);
 

@@ -19,7 +19,8 @@ template<typename ParamType>
 RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		TrainingType _training_type, double _tol, std::size_t _Nmax,
 		ParamType _min_param, ParamType _max_param,
-		intArray _training_params_per_dim, bool _print_info,
+		intArray _training_params_per_dim,
+		intArray _log_scaling, bool _print_info,
 		std::string _print_file, bool _verbose,
 		bool _write_during_training, std::string _trainingdata_folder,
 		bool _print_paramset, bool _erase_snapshot_params,
@@ -31,8 +32,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		bool _write_direct_representors, double _min_error_reduction)
  : training_type(_training_type), snapshot_tol_red_crit(_snapshot_tol_red_crit),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
-   nb_training_params(_training_params_per_dim), print_info(_print_info),
-   print_file(_print_file), verbose(_verbose),
+   nb_training_params(_training_params_per_dim), log_scaling(_log_scaling),
+   print_info(_print_info), print_file(_print_file), verbose(_verbose),
    write_during_training(_write_during_training), trainingdata_folder(_trainingdata_folder),
    print_paramset(_print_paramset),
    erase_snapshot_params(_erase_snapshot_params),
@@ -71,6 +72,11 @@ RB_Greedy_Parameters<ParamType>::print()
 		std::cout << std::left << " ]" << std::endl;
 	std::cout << std::left << std::setw(24) << "# Nb of train. params:" << std::setw(2) << "[ ";
 		for(auto& el : nb_training_params){
+			std::cout << std::right << std::setw(4) << el << " ";
+		}
+		std::cout << std::left << " ]" << std::endl;
+	std::cout << std::left << std::setw(24) << "# Log Scaling:" << std::setw(2) << "[ ";
+		for(auto& el : log_scaling){
 			std::cout << std::right << std::setw(4) << el << " ";
 		}
 		std::cout << std::left << " ]" << std::endl;

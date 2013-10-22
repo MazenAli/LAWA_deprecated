@@ -70,7 +70,7 @@ public:
 	update_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& mu, DataType& res_repr);
 
 	std::vector<ParamType>
-	generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb);
+	generate_uniform_paramset(ParamType min_param, ParamType max_param, intArrayType param_nb, intArrayType log_scaling);
 
 	void
 	print_paramset(std::vector<ParamType> PSet);

@@ -45,6 +45,7 @@ struct RB_Greedy_Parameters{
 	ParamType 	min_param;
 	ParamType 	max_param;
 	intArray	nb_training_params;
+	intArray	log_scaling;
 
 	bool 		print_info;
 	std::string print_file;
@@ -75,6 +76,7 @@ struct RB_Greedy_Parameters{
 						ParamType _min_param = ParamType(),
 						ParamType _max_param = ParamType(),
 						intArray  _training_params_per_dim = intArray(),
+						intArray _log_scaling = intArray(),
 						bool _print_info = true,
 						std::string _print_file = "greedy_info.txt",
 						bool _verbose = true,
