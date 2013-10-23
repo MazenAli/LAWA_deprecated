@@ -4,8 +4,8 @@
 namespace lawa {
 
 template <typename ParamType, typename Truth>
-LB_Base<ParamType,Truth>::LB_Base(Truth& _truth, ThetaStructure<ParamType>& _thetas_lhs)
- : truth(_truth), thetas(_thetas_lhs)
+LB_Base<ParamType,Truth>::LB_Base(Truth& _truth, ThetaStructure<ParamType>& _thetas_lhs, bool _preconditioned_truth)
+ : truth(_truth), thetas(_thetas_lhs), preconditioned_truth(_preconditioned_truth)
 {}
 
 template <typename ParamType, typename Truth>
@@ -22,27 +22,53 @@ assemble_matrices_for_alpha_computation(IndexSetType& indexset)
 	I_Y_u_u_matrix.resize((int)indexset.size(), (int)indexset.size());
 
     int col_count = 1;
-    for (auto& ind_col : indexset) {
-    	int row_count = 1;
-        for (auto& ind_row : indexset) {
+    T tmp;
 
-        	// Get entry in A_u_u_matrices
-        	for(std::size_t i = 0; i < thetas.size(); ++i){
-        		T tmp = truth.lhs_u_u(i,ind_row, ind_col);                
-        		if(fabs(tmp) > 0){
-        			A_u_u_matrices[i](row_count, col_count) = tmp;
-        		}
-        	}
-        	// Get entry for I_u_u_matrix
-        	T tmp = truth.innprod_Y_u_u(ind_row, ind_col);
-        	if(fabs(tmp) > 0){
-        		I_Y_u_u_matrix(row_count,col_count) = tmp;
-        	}
+	if(!preconditioned_truth){
+		typename Truth::TruthSolverType::TrialPrecType& trialprec = truth.get_trialprec();
+		typename Truth::TruthSolverType::TestPrecType& testprec = truth.get_testprec();
+	    for (auto& ind_col : indexset) {
+	    	int row_count = 1;
+	        for (auto& ind_row : indexset) {
+	        	// Get entry in A_u_u_matrices
+	        	for(std::size_t i = 0; i < thetas.size(); ++i){
+	            	tmp = testprec(ind_row) * truth.lhs_u_u(i,ind_row, ind_col) * trialprec(ind_col);
+	        		if(fabs(tmp) > 0){
+	        			A_u_u_matrices[i](row_count, col_count) = tmp;
+	        		}
+	        	}
+	        	// Get entry for I_u_u_matrix
+	        	T tmp = testprec(ind_row) * truth.innprod_Y_u_u(ind_row, ind_col) * testprec(ind_col);
+	        	if(fabs(tmp) > 0){
+	        		I_Y_u_u_matrix(row_count,col_count) = tmp;
+	        	}
+	            row_count++;
+	        }
+	        col_count++;
+	    }
+	}
+	else{
+	    for (auto& ind_col : indexset) {
+	    	int row_count = 1;
+	        for (auto& ind_row : indexset) {
+	        	// Get entry in A_u_u_matrices
+	        	for(std::size_t i = 0; i < thetas.size(); ++i){
+	            	tmp = truth.lhs_u_u(i,ind_row, ind_col);
+	        		if(fabs(tmp) > 0){
+	        			A_u_u_matrices[i](row_count, col_count) = tmp;
+	        		}
+	        	}
+	        	// Get entry for I_u_u_matrix
+	        	T tmp = truth.innprod_Y_u_u(ind_row, ind_col);
+	        	if(fabs(tmp) > 0){
+	        		I_Y_u_u_matrix(row_count,col_count) = tmp;
+	        	}
+	            row_count++;
+	        }
+	        col_count++;
+	    }
+	}
 
-            row_count++;
-        }
-        col_count++;
-    }
 
 	for(std::size_t i = 0; i < A_u_u_matrices.size(); ++i){
 		A_u_u_matrices[i].finalize();
@@ -94,12 +120,36 @@ calculate_alpha(ParamType& mu)
 
 	A.finalize();
 	A *= 0.5;
-//
+
 	FullColMatrixT A_dense, I_dense;
 	std::cout << "      Densify A .... " << std::endl;
 	densify(cxxblas::NoTrans, A, A_dense);
+
+
+	//<-------------------------
+	std::ofstream Afile("A.txt");
+	if(Afile.is_open()){
+		Afile << A_dense << std::endl;
+		Afile.close();
+	}
+	else{
+		std::cerr << "Couldn't open Afile for writing" << std::endl;
+	}
+	//------------------------->
+
 	std::cout << "      Densify I .... " << std::endl;
 	densify(cxxblas::NoTrans, I_Y_u_u_matrix, I_dense);
+
+	//<-------------------------
+	std::ofstream Ifile("I.txt");
+	if(Ifile.is_open()){
+		Ifile << I_dense << std::endl;
+		Ifile.close();
+	}
+	else{
+		std::cerr << "Couldn't open Ifile for writing" << std::endl;
+	}
+	//------------------------->
 
 	std::cout << "      Solving EVP .... " << std::endl;
     DenseVectorT    wr(N), wi(N), beta(N);

@@ -63,6 +63,42 @@ get_lhs()
 
 template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
+const Basis&
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+get_trialbasis()
+{
+	return basis;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+const Basis&
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+get_testbasis()
+{
+	return basis;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+Preconditioner&
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+get_trialprec()
+{
+	return Prec;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
+Preconditioner&
+MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
+get_testprec()
+{
+	return Prec;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename RHS, typename Preconditioner>
 Coefficients<Lexicographical,typename LocalOperator::T,Index>
 MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
 solve()

@@ -24,7 +24,6 @@ H1NormPreconditioner2D<T,Basis2D>::operator()(XType xtype1, int j1, long k1,
     T dd_x, id_x, dd_y, id_y;
     if (    (flens::IsSame<Basis_x, Basis<T,Primal,R,CDF> >::value)
              && (flens::IsSame<Basis_y, Basis<T,Primal,R,CDF> >::value) ){
-        T tmp = 0.;
         if (xtype1==XBSpline) {
             dd_x = pow2i<T>(2*j1)*refval_dd_bspline;
             id_x = refval_id_bspline;

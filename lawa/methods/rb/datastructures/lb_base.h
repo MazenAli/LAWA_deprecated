@@ -31,7 +31,7 @@ class LB_Base {
 
 public:
 
-    LB_Base(Truth& _truth, ThetaStructure<ParamType>& _thetas_lhs);
+    LB_Base(Truth& _truth, ThetaStructure<ParamType>& _thetas_lhs, bool _preconditioned_truth = false);
 
     T
     calculate_alpha(ParamType& mu);
@@ -44,6 +44,8 @@ private:
 
     Truth& 							truth;
     ThetaStructure<ParamType>& 		thetas;
+
+    bool 							preconditioned_truth;
 
 	std::vector<SparseMatrixT> 		A_u_u_matrices;
 	SparseMatrixT					I_Y_u_u_matrix;

@@ -117,10 +117,10 @@ public:
     const typename TruthSolver::TestBasisType&
     get_testbasis();
 
-    const typename TruthSolver::TrialPrecType&
+    typename TruthSolver::TrialPrecType&
     get_trialprec();
 
-    const typename TruthSolver::TestPrecType&
+    typename TruthSolver::TestPrecType&
     get_testprec();
 
     TruthSolver&
