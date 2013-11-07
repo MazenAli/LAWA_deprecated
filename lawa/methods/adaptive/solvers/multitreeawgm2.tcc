@@ -117,7 +117,7 @@ template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
 typename LocalOperator::T
 MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
-solve(Coefficients<Lexicographical,T,Index> &u)
+solve(Coefficients<Lexicographical,T,Index> &u, T old_res_norm)
 {
     IndexSet<Index> Lambda;
 	if(u.size() > 0){
@@ -130,7 +130,7 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 		FillWithZeros(Lambda,u);
 	}
 
-	return solve(u, Lambda);
+	return solve(u, Lambda, old_res_norm);
 
 }
 
@@ -138,7 +138,7 @@ template <typename Index, typename Basis, typename LocalOperator,
 		  typename RHS, typename Preconditioner>
 typename LocalOperator::T
 MultiTreeAWGM2<Index,Basis,LocalOperator,RHS,Preconditioner>::
-solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
+solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda, T old_res_norm)
 {
     //---------------------------------------//
     //------- AWGM Initialization -----------//
@@ -155,7 +155,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 	FillWithZeros(Lambda,res);
 
     // Default for initial cg tolerance computation if adaptive
-    T res_norm = 1.;
+    T res_norm = old_res_norm;
 
     //---------------------------------------//
     //------- AWGM Iterations ---------------//

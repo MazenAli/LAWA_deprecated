@@ -161,12 +161,12 @@ template <typename DataType, typename ParamType, typename TruthSolver, typename 
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>
 typename DataType::ValueType
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u, RieszSolver_Res>::
-get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res)
+get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res, T old_res_norm)
 {
 	riesz_solver_res->get_rhs().set_active_u(&u);
 	riesz_solver_res->get_rhs().set_param(mu);
 
-	T res_norm = riesz_solver_res->solve(r_res);
+	T res_norm = riesz_solver_res->solve(r_res, old_res_norm);
 	riesz_solver_res->remove_preconditioner(r_res);
 
 	return res_norm;
@@ -272,7 +272,6 @@ rhs_u(std::size_t i, const DataType& u)
 		comp = 1.;
 	}
 	solver.get_rhs().set_param(mu);
-
 
 	DataType tmp = F_u_ops(supp(u));
 

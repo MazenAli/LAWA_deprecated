@@ -59,11 +59,11 @@ public:
 
     // CG solve (returs res_norm)
     T
-    solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& init_Lambda);
+    solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& init_Lambda, T old_res_norm = 1.);
 
     // CG solve
     T
-    solve(Coefficients<Lexicographical,T,Index> &u);
+    solve(Coefficients<Lexicographical,T,Index> &u, T old_res_norm = 1.);
 
     // CG solve
     Coefficients<Lexicographical,T,Index>

@@ -78,7 +78,7 @@ public:
     get_riesz_representor_res(const DataType& u, ParamType& mu);
 
     T
-    get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res);
+    get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res, T old_res_norm = 1.);
 
     T
     estimate_riesz_representor_res_accuracy(const DataType& u, ParamType& mu, DataType& repr);

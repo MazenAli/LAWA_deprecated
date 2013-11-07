@@ -97,6 +97,9 @@ private:
 	void
 	recalculate_A_F_norms();
 
+	T
+	find_max_errest(std::size_t N, std::vector<ParamType>& Xi_train, ParamType& current_param, std::map<ParamType, DataType>& truth_sols);
+
 	RB_Model& 		rb_system;
 	TruthModel& 	rb_truth;
 
