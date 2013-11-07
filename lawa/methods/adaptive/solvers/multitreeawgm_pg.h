@@ -48,6 +48,8 @@ public:
     typedef TrialBasis					TrialBasisType;
     typedef TestBasis					TestBasisType;
     typedef AWGM_PG_Parameters			ParamType;
+    typedef TrialPrec					TrialPrecType;
+    typedef TestPrec					TestPrecType;
 
     MultiTreeAWGM_PG(const TrialBasis &_trialbasis, const TestBasis& _testbasis,
     				LocalOperator &_Op, LocalOperatorTransp& _OpTransp, RHS &_F,
@@ -81,6 +83,12 @@ public:
 
     const TestBasis&
     get_testbasis();
+
+    TrialPrec&
+    get_trialprec();
+
+    TestPrec&
+    get_testprec();
 
     void
     set_sol(sol_fct_2d _sol);

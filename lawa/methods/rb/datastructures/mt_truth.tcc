@@ -6,7 +6,12 @@ MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_
 MT_Truth(TruthSolver& _solver, RieszSolver_F& _riesz_solver_f, RieszSolver_A& _riesz_solver_a)
  : solver(_solver), riesz_solver_f(_riesz_solver_f), riesz_solver_a(_riesz_solver_a), riesz_solver_res(nullptr),
    innprod_Y_u_u_op(_riesz_solver_f.get_lhs()), A_u_u_ops(_solver.get_lhs()), F_u_ops(_solver.get_rhs())
-{}
+{
+	std::cout << "!!!!! ==========================================================================================================" << std::endl;
+	std::cout << "	WARNING: Initializing theta-independent operators for the RB system construction (A,F) with affine operators: " << std::endl;
+    std::cout << "         	 This is only valid if theta(mu) = mu for all components! "                                             << std::endl;
+	std::cout << "!!!!! ==========================================================================================================" << std::endl;
+}
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>
@@ -24,7 +29,12 @@ MT_Truth(TruthSolver& _solver, RieszSolver_F& _riesz_solver_f, RieszSolver_A& _r
 		 RieszSolver_Res* _riesz_solver_res)
  : solver(_solver), riesz_solver_f(_riesz_solver_f), riesz_solver_a(_riesz_solver_a), riesz_solver_res(_riesz_solver_res),
    innprod_Y_u_u_op(_riesz_solver_f.get_lhs()), A_u_u_ops(_solver.get_lhs()), F_u_ops(_solver.get_rhs())
-{}
+{
+	std::cout << "!!!!! ==========================================================================================================" << std::endl;
+	std::cout << "	WARNING: Initializing theta-independent operators for the RB system construction (A,F) with affine operators: " << std::endl;
+	std::cout << "         	 This is only valid if theta(mu) = mu for all components! "                                             << std::endl;
+	std::cout << "!!!!! ==========================================================================================================" << std::endl;
+}
 
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,

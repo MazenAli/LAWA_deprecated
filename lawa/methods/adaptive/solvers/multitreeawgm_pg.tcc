@@ -75,6 +75,26 @@ get_testbasis()
 template <typename Index, typename TrialBasis, typename TestBasis,
 		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
 		  typename TrialPrec, typename TestPrec>
+TrialPrec&
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+get_trialprec()
+{
+	return trialPrec;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
+TestPrec&
+MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
+get_testprec()
+{
+	return testPrec;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename RHS,
+		  typename TrialPrec, typename TestPrec>
 void
 MultiTreeAWGM_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,RHS,TrialPrec,TestPrec>::
 set_initial_indexsets(const IndexSet<Index> _LambdaTrial, const IndexSet<Index> _LambdaTest)
