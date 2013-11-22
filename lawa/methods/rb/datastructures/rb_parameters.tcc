@@ -29,7 +29,7 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		bool _tighten_tol_rieszA, bool _tighten_tol_rieszF, double _tighten_tol_reduction,
 		bool _update_snapshot, bool _update_rieszF, bool _update_rieszA, bool _coarsen_rieszA_for_update,
 		bool _test_estimator_equivalence, bool _tighten_estimator_accuracy,
-		double _equivalence_tol_factor,
+		double _riesz_constant_X, double _riesz_constant_Y,
 		bool _write_direct_representors, double _min_error_reduction)
  : training_type(_training_type), snapshot_tol_red_crit(_snapshot_tol_red_crit),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
@@ -49,7 +49,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    coarsen_rieszA_for_update(_coarsen_rieszA_for_update),
    test_estimator_equivalence(_test_estimator_equivalence),
    tighten_estimator_accuracy(_tighten_estimator_accuracy),
-   equivalence_tol_factor(_equivalence_tol_factor),
+   riesz_constant_X(_riesz_constant_X),
+   riesz_constant_Y(_riesz_constant_Y),
    write_direct_representors(_write_direct_representors),
    min_error_reduction(_min_error_reduction)
 {}
@@ -99,7 +100,8 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "# update Riesz Repr A:" << std::setw(10) << (update_rieszA ?"true":"false") << "  " << (coarsen_rieszA_for_update?"(coarsened)":"") << std::endl;
 	std::cout << std::left << std::setw(32) << "# test estimator equivalence:" << std::setw(20) << (test_estimator_equivalence?"true":"false")
 																			   << " " << (tighten_estimator_accuracy?"(with adjustment)":"(no adjustment)") << std::endl;
-	std::cout << std::left << std::setw(32) << "#  tol equivalence factor:" << std::setw(20) << equivalence_tol_factor << std::endl;
+	std::cout << std::left << std::setw(32) << "#  riesz_constant_X:" << std::setw(20) << riesz_constant_X << std::endl;
+	std::cout << std::left << std::setw(32) << "#  riesz_constant_Y:" << std::setw(20) << riesz_constant_Y << std::endl;
 	std::cout << std::left << std::setw(32) << "# write direct representors:" << std::setw(20) <<  (write_direct_representors?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# min_error_reduction (if conv_rate_degrad.):" << std::setw(20) <<  min_error_reduction << std::endl;
 	std::cout << "####################################################" << std::endl << std::endl;

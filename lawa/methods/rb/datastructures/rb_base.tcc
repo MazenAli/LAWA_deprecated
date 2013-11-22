@@ -731,7 +731,7 @@ get_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& mu,
 		std::cout << "||---------------------------------------------------------------------||" << std::endl << std::endl;
 	}
 	res_repr = rb_truth.get_riesz_representor_res(u_approx, mu);
-    return  res_repr.norm(2.) / rb_system.alpha_LB(mu);
+    return  res_repr.norm(2.)*std::sqrt(greedy_params.riesz_constant_Y) / rb_system.alpha_LB(mu);
 }
 
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
@@ -745,7 +745,7 @@ update_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& 
 		std::cout << "||-------------- Update Direct Riesz Representors for Residual -----||" << std::endl << std::endl;
 	}
 	rb_truth.get_riesz_representor_res(u_approx, mu, res_repr);
-    return  res_repr.norm(2.) / rb_system.alpha_LB(mu);
+    return  res_repr.norm(2.)*std::sqrt(greedy_params.riesz_constant_Y) / rb_system.alpha_LB(mu);
 }
 
 
@@ -1039,11 +1039,11 @@ calculate_Riesz_RHS_information(bool update)
 			DataType c;
 			eps = rb_truth.get_riesz_representor_f(i, c);
 			if(std::fabs(eps-1.) < 1e-8){
-				eps = eps_F_representors[i] / greedy_params.equivalence_tol_factor;
+				eps = eps_F_representors[i] / std::sqrt(greedy_params.riesz_constant_Y);
 			}
 			F_representors.push_back(c);
 		}
-		eps_F_representors[i] = eps * greedy_params.equivalence_tol_factor;
+		eps_F_representors[i] = eps * std::sqrt(greedy_params.riesz_constant_Y);
 	}
 
 	// Update the Riesz Representor Norms
@@ -1143,14 +1143,14 @@ calculate_Riesz_LHS_information(const DataType& bf, bool update)
 			std::cout << "Old Representor: " << c.size() << " indizes" << std::endl;
 			eps = rb_truth.get_riesz_representor_a(i, bf, c, greedy_params.coarsen_rieszA_for_update);
 			if(std::fabs(eps-1.) < 1e-8){
-				eps = eps_A_representors[last_snapshot_index][i] / greedy_params.equivalence_tol_factor;
+				eps = eps_A_representors[last_snapshot_index][i] / std::sqrt(greedy_params.riesz_constant_Y);
 			}
 		}
 		else{
 			eps = rb_truth.get_riesz_representor_a(i, bf, c);
 		}
 		new_A_reprs[i] = c;
-		new_A_eps[i] = eps * greedy_params.equivalence_tol_factor;
+		new_A_eps[i] = eps * std::sqrt(greedy_params.riesz_constant_Y);
 	}
 
 	if(update){
@@ -1393,7 +1393,7 @@ find_max_errest(std::size_t N, std::vector<ParamType>& Xi_train, ParamType& curr
 
 					// Initial Check if we have to update the representor
 					T bound = rb_system.alpha_LB(mu)*error_est;
-					T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
+					T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*std::sqrt(greedy_params.riesz_constant_Y);
 					std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
 
 					// Save old values, so they can be restored
@@ -1405,13 +1405,13 @@ find_max_errest(std::size_t N, std::vector<ParamType>& Xi_train, ParamType& curr
 					rb_truth.access_RieszSolver_Res().access_params().tol = 1e-14;
 
 					DataType res_repr_old = res_repr;
-					T res_repr_norm = 1.;
-					T old_res_repr_norm;
+					T res_repr_resnorm = 1.;
+					T old_res_repr_resnorm;
 					while(effective_eps > bound){
 
 						// Save old representor
 						res_repr_old = res_repr;
-						old_res_repr_norm = res_repr_norm;
+						old_res_repr_resnorm = res_repr_resnorm;
 
 						// Get new riesz representor
 						DataType u_approx = reconstruct_u_N(u_N, u_N.length());
@@ -1422,10 +1422,10 @@ find_max_errest(std::size_t N, std::vector<ParamType>& Xi_train, ParamType& curr
 						// Attention: We return estimated residual of solution,
 						// but in res_repr is the already extended index set
 						// (which doesn't make any difference for the norm, as the extension coefficients are zero)!
-						res_repr_norm = rb_truth.get_riesz_representor_res(u_approx, mu, res_repr, old_res_repr_norm);
-						effective_eps = res_repr_norm*greedy_params.equivalence_tol_factor;
-						error_est = res_repr.norm(2.) / rb_system.alpha_LB(mu);
-						bound = res_repr.norm(2.);
+						res_repr_resnorm = rb_truth.get_riesz_representor_res(u_approx, mu, res_repr, old_res_repr_resnorm);
+						effective_eps = res_repr_resnorm*std::sqrt(greedy_params.riesz_constant_Y);
+						error_est = res_repr.norm(2.)*std::sqrt(greedy_params.riesz_constant_Y) / rb_system.alpha_LB(mu);
+						bound = res_repr.norm(2.)*std::sqrt(greedy_params.riesz_constant_Y);
 						std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
 
 					}

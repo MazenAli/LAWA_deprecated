@@ -65,7 +65,8 @@ struct RB_Greedy_Parameters{
 	bool 		coarsen_rieszA_for_update;
 	bool		test_estimator_equivalence;
 	bool		tighten_estimator_accuracy;
-	double 		equivalence_tol_factor;
+	double 		riesz_constant_X;
+	double 		riesz_constant_Y;
 	bool 		write_direct_representors;
 	double 		min_error_reduction;		// if snapshot_tol_red_crit = conv_rate_degradation
 
@@ -97,7 +98,8 @@ struct RB_Greedy_Parameters{
 						bool _coarsen_rieszA_for_update = false,
 						bool _test_estimator_equivalence = false,
 						bool _tighten_estimator_accuracy = false,
-						double _equivalence_tol_factor = 1.,
+						double _riesz_constant_X = 1.,
+						double _riesz_constant_Y = 1.,
 						bool _write_direct_representors = false,
 						double _min_error_reduction = 0.5);
 
