@@ -323,7 +323,8 @@ int main () {
 			bool update_rieszA = false,
 			bool coarsen_rieszA_for_update = false,
 			bool test_estimator_equivalence = false,
-			bool equivalence_tol_factor = 1.,				// = Riesz constant of basis
+			double riesz_constant_X = 1.,				// = (upper) Riesz constant of basis
+			double riesz_constant_Y = 1.,				// = (upper) Riesz constant of basis
 			bool write_direct_representors = false;
      */
 
@@ -351,7 +352,8 @@ int main () {
     rb_base.greedy_params.tighten_tol = true;
     rb_base.greedy_params.update_snapshot = true;
     rb_base.greedy_params.test_estimator_equivalence = true;
-    rb_base.greedy_params.equivalence_tol_factor = 2.5;
+    rb_base.greedy_params.riesz_constant_X = 5.5;
+    rb_base.greedy_params.riesz_constant_Y = 5.5;
     rb_base.greedy_params.write_direct_representors = true;
 
     cout << "Parameters Training: " << std::endl << std::endl;
