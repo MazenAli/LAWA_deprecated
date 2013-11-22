@@ -65,13 +65,13 @@ public:
     DataType
     get_riesz_representor_f(std::size_t i);
 
-    void
+    T
     get_riesz_representor_f(std::size_t i, DataType& r_f);
 
     DataType
     get_riesz_representor_a(std::size_t i, const DataType& u);
 
-    void
+    T
     get_riesz_representor_a(std::size_t i, const DataType& u, DataType& r_a, bool coarsen = false);
 
     DataType

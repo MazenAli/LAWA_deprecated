@@ -64,6 +64,7 @@ struct RB_Greedy_Parameters{
 	bool		update_rieszA;
 	bool 		coarsen_rieszA_for_update;
 	bool		test_estimator_equivalence;
+	bool		tighten_estimator_accuracy;
 	double 		equivalence_tol_factor;
 	bool 		write_direct_representors;
 	double 		min_error_reduction;		// if snapshot_tol_red_crit = conv_rate_degradation
@@ -95,7 +96,8 @@ struct RB_Greedy_Parameters{
 						bool _update_rieszA = false,
 						bool _coarsen_rieszA_for_update = false,
 						bool _test_estimator_equivalence = false,
-						bool _equivalence_tol_factor = 1.,
+						bool _tighten_estimator_accuracy = false,
+						double _equivalence_tol_factor = 1.,
 						bool _write_direct_representors = false,
 						double _min_error_reduction = 0.5);
 
@@ -113,6 +115,9 @@ struct RB_Greedy_Information{
 
 	std::vector<std::vector<double> >			eps_res_bound;
 	std::vector<std::vector<double> >			eps_aff;
+
+	std::vector<std::vector<double> >					accuracies_f_reprs;			// Dim N x Q_f
+	std::vector<std::vector<std::vector<double> > >		accuracies_a_reprs;			// Dim N x n_bf x Q_a
 
 	void print(const char* filename = "greedy_info.txt");
 

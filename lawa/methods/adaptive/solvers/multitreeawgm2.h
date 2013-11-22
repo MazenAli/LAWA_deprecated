@@ -57,7 +57,7 @@ public:
     MultiTreeAWGM2(const Basis &_basis, LocalOperator &_Op, RHS &_F, Preconditioner &_Prec,
     				AWGM_Parameters& _awgm_params, IS_Parameters& _is_params);
 
-    // CG solve (returs res_norm)
+    // CG solve (returns res_norm)
     T
     solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& init_Lambda, T old_res_norm = 1.);
 

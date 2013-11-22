@@ -416,6 +416,8 @@ train_Greedy(std::size_t N)
 			a_sizes.push_back(el.size());
 		}
 		greedy_info.repr_a_size.push_back(a_sizes);
+		greedy_info.accuracies_f_reprs.push_back(eps_F_representors);
+		greedy_info.accuracies_a_reprs.push_back(eps_A_representors);
 
 		if(greedy_params.write_during_training){
 
@@ -879,7 +881,7 @@ add_to_basis(const DataType& u)
 
 	add_to_RB_structures(new_bf);
 
-	update_Riesz_LHS_information(new_bf);
+	calculate_Riesz_LHS_information(new_bf);
 
 }
 
@@ -1005,6 +1007,7 @@ calculate_Riesz_RHS_information(bool update)
 
 	if(!update){
 		F_representors.clear();
+		eps_F_representors.resize(rb_system.Q_f());
 
 		if(greedy_params.verbose){
 			std::cout << "||---------------------------------------------------------------------||" << std::endl;
@@ -1028,13 +1031,19 @@ calculate_Riesz_RHS_information(bool update)
 			std::cout << "||------- Component Nb " << std::setw(3) << i << "  -------------------------------------------||" << std::endl << std::endl;
 		}
 
+		T eps;
 		if(update){
-			rb_truth.get_riesz_representor_f(i, F_representors[i]);
+			eps = rb_truth.get_riesz_representor_f(i, F_representors[i]);
 		}
 		else{
-			DataType c = rb_truth.get_riesz_representor_f(i);
+			DataType c;
+			eps = rb_truth.get_riesz_representor_f(i, c);
+			if(std::fabs(eps-1.) < 1e-8){
+				eps = eps_F_representors[i] / greedy_params.equivalence_tol_factor;
+			}
 			F_representors.push_back(c);
 		}
+		eps_F_representors[i] = eps * greedy_params.equivalence_tol_factor;
 	}
 
 	// Update the Riesz Representor Norms
@@ -1062,29 +1071,34 @@ calculate_Riesz_RHS_information(bool update)
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-update_Riesz_LHS_information(const DataType& bf)
+calculate_Riesz_LHS_information(const DataType& bf, bool update)
 {
 
 	// Check if we only do an update and search for "old" bf index
-	bool update = false;
 	int last_snapshot_index = -1;
-	if(greedy_params.update_rieszA){
-		for(auto& mu : greedy_info.snapshot_params){
-			bool is_last_param = true;
-			for(std::size_t i = 0; i < mu.size(); ++i){
-				if(mu[i]!=greedy_info.snapshot_params[greedy_info.snapshot_params.size()-1][i]){
-					is_last_param = false;
-					break;
-				}
-			}
-			if(is_last_param){
-				if(&mu - &greedy_info.snapshot_params[0] < (int)greedy_info.snapshot_params.size()-1){
-					last_snapshot_index = &mu - &greedy_info.snapshot_params[0];
-				}
-			}
-		}
+	if(update || greedy_params.update_rieszA){
+	    if(update){
+            last_snapshot_index = greedy_info.snapshot_params.size()-1;
+	    }
+	    else{
+    		for(auto& mu : greedy_info.snapshot_params){
+    			bool is_last_param = true;
+    			for(std::size_t i = 0; i < mu.size(); ++i){
+    				if(mu[i]!=greedy_info.snapshot_params[greedy_info.snapshot_params.size()-1][i]){
+    					is_last_param = false;
+    					break;
+    				}
+    			}
+    			if(is_last_param){
+    				if(&mu - &greedy_info.snapshot_params[0] < (int)greedy_info.snapshot_params.size()-1){
+    					last_snapshot_index = &mu - &greedy_info.snapshot_params[0];
+    				}
+    			}
+    		}	        
+	    }
+
+		
 		if(last_snapshot_index >= 0){
-			update=true;
 
 			if(greedy_params.verbose){
 				std::cout << "||---------------------------------------------------------------------||" << std::endl;
@@ -1113,7 +1127,8 @@ update_Riesz_LHS_information(const DataType& bf)
 
 	// Calculate the Riesz Representors for A
 	std::size_t Qa = rb_system.Q_a();
-	std::vector<DataType> new_A_reprs(Qa);
+	std::vector<DataType> 	new_A_reprs(Qa);
+	std::vector<T>			new_A_eps(Qa);
 	for (unsigned int i = 0; i < Qa; ++i) {
 
 		if(greedy_params.verbose){
@@ -1121,18 +1136,32 @@ update_Riesz_LHS_information(const DataType& bf)
 		}
 
 		DataType c;
-		if(update && greedy_params.update_rieszA){
+		T eps;
+		if(update || greedy_params.update_rieszA){
 			// Start solver with copy of old Riesz representor
 			c = A_representors[last_snapshot_index][i];
 			std::cout << "Old Representor: " << c.size() << " indizes" << std::endl;
-			rb_truth.get_riesz_representor_a(i, bf, c, greedy_params.coarsen_rieszA_for_update);
+			eps = rb_truth.get_riesz_representor_a(i, bf, c, greedy_params.coarsen_rieszA_for_update);
+			if(std::fabs(eps-1.) < 1e-8){
+				eps = eps_A_representors[last_snapshot_index][i] / greedy_params.equivalence_tol_factor;
+			}
 		}
 		else{
-			c = rb_truth.get_riesz_representor_a(i, bf);
+			eps = rb_truth.get_riesz_representor_a(i, bf, c);
 		}
 		new_A_reprs[i] = c;
+		new_A_eps[i] = eps * greedy_params.equivalence_tol_factor;
 	}
-	A_representors.push_back(new_A_reprs);
+
+	if(update){
+		A_representors[A_representors.size()-1] = new_A_reprs;
+		eps_A_representors[eps_A_representors.size()-1] = new_A_eps;
+	}
+	else{
+		A_representors.push_back(new_A_reprs);
+		eps_A_representors.push_back(new_A_eps);
+	}
+
 
 	// Update the Riesz Representor Norms A x A
 	int N = rb_basisfunctions.size();
@@ -1157,14 +1186,20 @@ update_Riesz_LHS_information(const DataType& bf)
         		}
         	}
         }
-        if(n1 == N-1){
-        	std::vector<typename RB_Model::FullColMatrixT> newvec;
-        	newvec.push_back(A_n1_N);
-        	rb_system.A_A_representor_norms.push_back(newvec);
+        if(update){
+            rb_system.A_A_representor_norms[n1][rb_system.A_A_representor_norms[n1].size()-1] = A_n1_N;
         }
         else{
-        	rb_system.A_A_representor_norms[n1].push_back(A_n1_N);
+            if(n1 == N-1){
+            	std::vector<typename RB_Model::FullColMatrixT> newvec;
+            	newvec.push_back(A_n1_N);
+            	rb_system.A_A_representor_norms.push_back(newvec);
+            }
+            else{
+            	rb_system.A_A_representor_norms[n1].push_back(A_n1_N);
+            }
         }
+
 
     	if(greedy_params.verbose){
     		std::cout << std::endl << "||------- Representor Norms A["<< n1 <<"] x A["<< N-1 << "]  -----------------------------||" << std::endl;
@@ -1182,7 +1217,12 @@ update_Riesz_LHS_information(const DataType& bf)
             A_F(qa, qf) = rb_truth.innprod_Y_v_v(vec1, vec2);
         }
     }
-    rb_system.A_F_representor_norms.push_back(A_F);
+    if(update){
+        rb_system.A_F_representor_norms[rb_system.A_F_representor_norms.size()-1] = A_F;
+    }
+    else{
+        rb_system.A_F_representor_norms.push_back(A_F);
+    }
 	if(greedy_params.verbose){
 		std::cout << std::endl << "||------- Representor Norms A["<< N-1 <<"] x F  --------------------------------||" << std::endl;
 		std::cout << rb_system.A_F_representor_norms[N-1] << std::endl;
@@ -1192,7 +1232,8 @@ update_Riesz_LHS_information(const DataType& bf)
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-recalculate_A_F_norms(){
+recalculate_A_F_norms()
+{
 
 	rb_system.A_F_representor_norms.clear();
 
@@ -1219,141 +1260,234 @@ recalculate_A_F_norms(){
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 typename DataType::ValueType
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-find_max_errest(std::size_t N, std::vector<ParamType>& Xi_train, ParamType& current_param, std::map<ParamType, DataType>& truth_sols){
+find_max_errest(std::size_t N, std::vector<ParamType>& Xi_train, ParamType& current_param, std::map<ParamType, DataType>& truth_sols)
+{
 
-	T max_error = 0;
-	T error_est = 0;
-	for(auto& mu : Xi_train){
-		typename RB_Model::DenseVectorT u_N = rb_system.get_rb_solution(N, mu);
+	T max_error;
 
-		switch(greedy_params.training_type){
-		case weak:
-		{
-			error_est = rb_system.get_errorbound(u_N,mu);
+	bool do_restart = true;
+	while(do_restart){
+		max_error = 0;
+		T error_est = 0;
 
-			if(greedy_params.test_estimator_equivalence){
-				T eps_F = rb_truth.access_RieszSolver_F().access_params().tol * greedy_params.equivalence_tol_factor;
-				T eps_A = rb_truth.access_RieszSolver_A().access_params().tol * greedy_params.equivalence_tol_factor;
+		do_restart = false;
+		for(auto& mu : Xi_train){
 
-				T eps_aff = rb_system.get_errorbound_accuracy(u_N, mu, eps_F, eps_A);
-				T bound = rb_system.alpha_LB(mu)*error_est;
+			typename RB_Model::DenseVectorT u_N = rb_system.get_rb_solution(N, mu);
 
-				std::cout << "Eps = " << eps_aff << ", Bound: " << bound << std::endl;
+			switch(greedy_params.training_type){
+			case weak:
+			{
+				error_est = rb_system.get_errorbound(u_N,mu);
 
-				greedy_info.eps_aff[greedy_info.eps_aff.size()-1].push_back(eps_aff);
-				greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
-			}
-			break;
-		}
-		case strong:
-		{
-			DataType diff;
-			if(N > 0){
-				diff = reconstruct_u_N(u_N,N);
-			}
-			diff -= (*truth_sols.find(mu)).second;
-			error_est = std::sqrt(rb_truth.innprod_Y_u_u(diff,diff));
-			break;
-		}
-		case weak_direct:
-			DataType res_repr;
-			error_est = get_direct_errorbound(u_N,mu, res_repr);
+				if(greedy_params.test_estimator_equivalence){
+					//T eps_F = rb_truth.access_RieszSolver_F().access_params().tol * greedy_params.equivalence_tol_factor;
+					//T eps_A = rb_truth.access_RieszSolver_A().access_params().tol * greedy_params.equivalence_tol_factor;
 
-			if(greedy_params.test_estimator_equivalence){
+					T eps_aff = rb_system.get_errorbound_accuracy(u_N, mu, eps_F_representors, eps_A_representors);
+					T bound = rb_system.alpha_LB(mu)*error_est;
 
-				// Initial Check if we have to update the representor
-				T bound = rb_system.alpha_LB(mu)*error_est;
-				T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
-				std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
+					if(eps_aff > bound && greedy_params.tighten_estimator_accuracy){
+						std::cout << " !$!$! Equivalence Criterion violated: Eps_Aff = " << eps_aff << " > " << bound << "  !$!$!" << std::endl;
+						std::cout << " !$!$! " << std::endl;
+						// Can we do sth about it in this iteration?
+						auto old_eps_a = eps_A_representors;
+						std::vector<T> empty_eps(eps_F_representors.size());
+						for(auto& el : old_eps_a[old_eps_a.size()-1]){
+							el = 0;
+						}
 
-				// Save old values, so they can be restored
-				T initial_tol = rb_truth.access_RieszSolver_Res().access_params().tol;
-				std::size_t max_its = rb_truth.access_RieszSolver_Res().access_params().max_its;
-				// Set maximum iteration number to 1, so that we can check after each iteration
-				rb_truth.access_RieszSolver_Res().access_params().max_its = 0;
-				// Set tolerance small, so that we alway do 1 iteration  (including extension of index set)
-				rb_truth.access_RieszSolver_Res().access_params().tol = 1e-14;
+						T eps_zero = rb_system.get_errorbound_accuracy(u_N, mu, empty_eps, old_eps_a);
+						if(eps_zero > bound){
+							std::cerr << "!$!$!    No Chance: We have to recalculate old representors!! " << std::endl;
+						}
+						else{
+							// Find accuracies that would be ok (hopefully)
+							auto test_eps_f = eps_F_representors;
+							auto test_eps_a = eps_A_representors;
 
-				DataType res_repr_old = res_repr;
-				T res_repr_norm = 1.;
-				T old_res_repr_norm;
-				while(effective_eps > bound){
+							T old_eps_aff = eps_aff;
+							// Reduce first the accuracies for a(N)
+							int count = 0;
+							int count_A = 0;
+							int count_F = 0;
 
-					// Save old representor
-					res_repr_old = res_repr;
-					old_res_repr_norm = res_repr_norm;
+							// Reduce accuracies of A and F equally
+							// (but only if it decreases eps_aff)
+							// (Alternative: test reducing eps_a as far as possible, then eps_f)
+							do{
+								if(count_A == count){
+									for(auto& el : test_eps_a[test_eps_a.size()-1]){
+										el *= 0.5;
+									}
+									eps_aff = rb_system.get_errorbound_accuracy(u_N, mu, test_eps_f, test_eps_a);
+									if(eps_aff < old_eps_aff) count_A++;
+									std::cout << "!$!$!    Reducing eps_A by 0.5: Eps_Aff = " << eps_aff << std::endl;
+								}
+								if(count_A > count) old_eps_aff = eps_aff;
 
-					// Get new riesz representor
-					DataType u_approx = reconstruct_u_N(u_N, u_N.length());
-					if(greedy_params.verbose){
-						std::cout << "||-------------- Update Direct Riesz Representors for Residual -----||" << std::endl << std::endl;
+								if(eps_aff > bound && count_F == count){
+									for(auto& el : test_eps_f){
+										el *= 0.5;
+									}
+									eps_aff = rb_system.get_errorbound_accuracy(u_N, mu, test_eps_f, test_eps_a);
+									if(eps_aff < old_eps_aff) count_F++;
+									std::cout << "!$!$!    Reducing eps_F by 0.5: Eps_Aff = " << eps_aff << std::endl;
+								}
+								if(count_F > count) old_eps_aff = eps_aff;
+
+								count++;
+
+							}while(eps_aff > bound || (count > count_A && count > count_F));
+
+							// Set new solver tolerances
+							for(int i = 0; i < count_A; ++i){
+								rb_truth.access_RieszSolver_A().access_params().tol *= 0.5;
+							}
+							for(int i = 0; i < count_F; ++i){
+								rb_truth.access_RieszSolver_F().access_params().tol *= 0.5;
+							}
+
+							// Compute updates
+							if(count_F > 0){
+								calculate_Riesz_RHS_information(true);
+								for(int i = 0; i < rb_system.Q_f(); ++i){
+									greedy_info.repr_f_size[greedy_info.repr_f_size.size()-1][i] = F_representors[i].size();
+								}
+							}
+							if(count_A > 0){
+								calculate_Riesz_LHS_information(rb_basisfunctions[rb_basisfunctions.size()-1], true);
+								for(int i = 0; i < rb_system.Q_a(); ++i){
+									greedy_info.repr_a_size[greedy_info.repr_a_size.size()-1][i] = A_representors[A_representors.size()-1][i].size();
+								}
+							}
+
+							greedy_info.eps_aff[greedy_info.eps_aff.size()-1].clear();
+							greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].clear();
+
+							do_restart = true;
+
+							break;
+						}
 					}
+					greedy_info.eps_aff[greedy_info.eps_aff.size()-1].push_back(eps_aff);
+					greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
+				}
+				break;
+			}
+			case strong:
+			{
+				DataType diff;
+				if(N > 0){
+					diff = reconstruct_u_N(u_N,N);
+				}
+				diff -= (*truth_sols.find(mu)).second;
+				error_est = std::sqrt(rb_truth.innprod_Y_u_u(diff,diff));
+				break;
+			}
+			case weak_direct:
+				DataType res_repr;
+				error_est = get_direct_errorbound(u_N,mu, res_repr);
 
-					// Attention: We return estimated residual of solution,
-					// but in res_repr is the already extended index set
-					// (which doesn't make any difference for the norm, as the extension coefficients are zero)!
-					res_repr_norm = rb_truth.get_riesz_representor_res(u_approx, mu, res_repr, old_res_repr_norm);
-					effective_eps = res_repr_norm*greedy_params.equivalence_tol_factor;
-					error_est = res_repr.norm(2.) / rb_system.alpha_LB(mu);
-					bound = res_repr.norm(2.);
+				if(greedy_params.test_estimator_equivalence){
+
+					// Initial Check if we have to update the representor
+					T bound = rb_system.alpha_LB(mu)*error_est;
+					T effective_eps = rb_truth.access_RieszSolver_Res().access_params().tol*greedy_params.equivalence_tol_factor;
 					std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
 
+					// Save old values, so they can be restored
+					T initial_tol = rb_truth.access_RieszSolver_Res().access_params().tol;
+					std::size_t max_its = rb_truth.access_RieszSolver_Res().access_params().max_its;
+					// Set maximum iteration number to 1, so that we can check after each iteration
+					rb_truth.access_RieszSolver_Res().access_params().max_its = 0;
+					// Set tolerance small, so that we alway do 1 iteration  (including extension of index set)
+					rb_truth.access_RieszSolver_Res().access_params().tol = 1e-14;
+
+					DataType res_repr_old = res_repr;
+					T res_repr_norm = 1.;
+					T old_res_repr_norm;
+					while(effective_eps > bound){
+
+						// Save old representor
+						res_repr_old = res_repr;
+						old_res_repr_norm = res_repr_norm;
+
+						// Get new riesz representor
+						DataType u_approx = reconstruct_u_N(u_N, u_N.length());
+						if(greedy_params.verbose){
+							std::cout << "||-------------- Update Direct Riesz Representors for Residual -----||" << std::endl << std::endl;
+						}
+
+						// Attention: We return estimated residual of solution,
+						// but in res_repr is the already extended index set
+						// (which doesn't make any difference for the norm, as the extension coefficients are zero)!
+						res_repr_norm = rb_truth.get_riesz_representor_res(u_approx, mu, res_repr, old_res_repr_norm);
+						effective_eps = res_repr_norm*greedy_params.equivalence_tol_factor;
+						error_est = res_repr.norm(2.) / rb_system.alpha_LB(mu);
+						bound = res_repr.norm(2.);
+						std::cout << "Eps = " << effective_eps << ", Bound: " << bound << std::endl;
+
+					}
+
+					greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
+					greedy_info.eps_aff[greedy_info.eps_aff.size()-1].push_back(effective_eps);
+					// Reset tolerance to initial value, so that it is not reduced for the next parameters
+					rb_truth.access_RieszSolver_Res().access_params().tol = initial_tol;
+					rb_truth.access_RieszSolver_Res().access_params().max_its = max_its;
+
+					// Get res_repr without extension
+					for(auto it = res_repr.begin(); it != res_repr.end();){
+						if(res_repr_old.find((*it).first) == res_repr_old.end()){
+							it = res_repr.erase(it);
+						}
+						else{
+							++it;
+						}
+					}
+
 				}
 
-				greedy_info.eps_res_bound[greedy_info.eps_res_bound.size()-1].push_back(bound);
-				greedy_info.eps_aff[greedy_info.eps_aff.size()-1].push_back(effective_eps);
-				// Reset tolerance to initial value, so that it is not reduced for the next parameters
-				rb_truth.access_RieszSolver_Res().access_params().tol = initial_tol;
-				rb_truth.access_RieszSolver_Res().access_params().max_its = max_its;
+				greedy_info.repr_r_size[greedy_info.repr_r_size.size()-1].push_back(res_repr.size());
 
-				// Get res_repr without extension
-				for(auto it = res_repr.begin(); it != res_repr.end();){
-					if(res_repr_old.find((*it).first) == res_repr_old.end()){
-						it = res_repr.erase(it);
+				if(greedy_params.write_direct_representors){
+
+					if(greedy_params.verbose){
+						std::cout << "=====>  Writing Direct Riesz Representor to file " << std::endl << std::endl;
 					}
-					else{
-						++it;
+					mkdir(greedy_params.trainingdata_folder.c_str(), 0777);
+
+					// Write Riesz Representors
+					std::string repr_folder = greedy_params.trainingdata_folder + "/direct_representors";
+					mkdir(repr_folder.c_str(), 0777);
+
+					std::stringstream filename;
+					filename << repr_folder << "/Res_representor_N_" <<  N << "_Mu";
+					for(auto& el : mu){
+						filename << "_"<< el;
 					}
+					filename  << ".txt";
+					saveCoeffVector2D(res_repr, rb_truth.get_testbasis(), filename.str().c_str());
 				}
 
 			}
 
-			greedy_info.repr_r_size[greedy_info.repr_r_size.size()-1].push_back(res_repr.size());
+			if(do_restart) break;
 
-			if(greedy_params.write_direct_representors){
-
-				if(greedy_params.verbose){
-					std::cout << "=====>  Writing Direct Riesz Representor to file " << std::endl << std::endl;
-				}
-				mkdir(greedy_params.trainingdata_folder.c_str(), 0777);
-
-				// Write Riesz Representors
-				std::string repr_folder = greedy_params.trainingdata_folder + "/direct_representors";
-				mkdir(repr_folder.c_str(), 0777);
-
-				std::stringstream filename;
-				filename << repr_folder << "/Res_representor_N_" <<  N << "_Mu";
-				for(auto& el : mu){
-					filename << "_"<< el;
-				}
-				filename  << ".txt";
-				saveCoeffVector2D(res_repr, rb_truth.get_testbasis(), filename.str().c_str());
+			if(greedy_params.verbose){
+				std::cout << "    u_N = " << u_N;
+				std::cout << "    Mu = ";
+				ParamInfo<ParamType>::print(mu);
+				std::cout << " : Error = " << std::scientific << std::setw(15) << error_est << std::endl;
 			}
 
-		}
-
-		if(greedy_params.verbose){
-			std::cout << "    u_N = " << u_N;
-			std::cout << "    Mu = ";
-			ParamInfo<ParamType>::print(mu);
-			std::cout << " : Error = " << std::scientific << std::setw(15) << error_est << std::endl;
-		}
-
-		if(error_est > max_error){
-			max_error = error_est;
-			current_param = mu;
+			if(error_est > max_error){
+				max_error = error_est;
+				current_param = mu;
+			}
 		}
 	}
+
 
 	return max_error;
 }

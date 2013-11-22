@@ -166,13 +166,13 @@ get_errorbound(const DenseVectorT& u_N, ParamType& mu)
 template<typename T, typename ParamType>
 T
 RB_System<T,ParamType>::
-get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, T eps_f, T eps_a){
+get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu,  std::vector<T> eps_f, std::vector<std::vector<T> > eps_a){
 
 	T val = 0;
     for (std::size_t i = 1; i <= thetas_f.size(); ++i) {
         for (std::size_t j = 1; j <= thetas_f.size(); ++j) {
         	//std::cout << "F_F (q=" << i << ",q'=" << j << ") = " << std::max(thetas_f.eval(i-1,mu)*thetas_f.eval(j-1, mu), 0.) << " * " << eps_f << " * " << eps_f << std::endl;
-        	val += std::max(thetas_f.eval(i-1,mu)*thetas_f.eval(j-1, mu), 0.) * eps_f * eps_f;
+        	val += std::max(thetas_f.eval(i-1,mu)*thetas_f.eval(j-1, mu), 0.) * eps_f[i-1] * eps_f[j-1];
         }
     }
 
@@ -184,7 +184,7 @@ get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, T eps_f, T eps_a
                 	//std::cout << "A_A (n=" << i << ",n'=" << j << ",q=" << k << ",q'=" << l << ") = "
                 	//		  << std::max(u_N(i)*u_N(j)*thetas_a.eval(k-1,mu)*thetas_a.eval(l-1,mu),0.) << " * " << eps_a << " * " << eps_a << std::endl;
 
-                	val += std::max(u_N(i)*u_N(j)*thetas_a.eval(k-1,mu)*thetas_a.eval(l-1,mu),0.) * eps_a * eps_a;
+                	val += std::max(u_N(i)*u_N(j)*thetas_a.eval(k-1,mu)*thetas_a.eval(l-1,mu),0.) * eps_a[i-1][k-1] * eps_a[j-1][l-1];
                 }
             }
         }
@@ -196,7 +196,7 @@ get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, T eps_f, T eps_a
             	//std::cout << "A_F (n=" << i << ",qf=" << j << ",qa=" << k << ") = "
             	//		  << 2.* std::max(u_N(i)*thetas_f.eval(j-1, mu)*thetas_a.eval(k-1,mu), 0.) << " * " << eps_a << " * " << eps_f << std::endl;
 
-            	val += 2.* std::max(u_N(i)*thetas_f.eval(j-1, mu)*thetas_a.eval(k-1,mu), 0.) * eps_f * eps_a;
+            	val += 2.* std::max(u_N(i)*thetas_f.eval(j-1, mu)*thetas_a.eval(k-1,mu), 0.) * eps_f[j-1] * eps_a[i-1][k-1];
             }
         }
     }
@@ -228,13 +228,18 @@ residual_dual_norm(const DenseVectorT& u_N, ParamType& mu)
     for (std::size_t i = 1; i <= Qf; ++i) {
         ThetaF(i) = thetas_f.eval(i-1,mu);
     }
+    std::cout << "ThetaF = " << ThetaF << std::endl;
     for (std::size_t i = 1; i <= Qa; ++i) {
         ThetaA(i) = thetas_a.eval(i-1,mu);
     }
 
     DenseVectorT FF_T = F_F_representor_norms * ThetaF;
+    std::cout << "FF_T = " << FF_T << std::endl;
 
     res_dual_norm = ThetaF * FF_T;
+
+    std::cout << "res_dual_norm = " << res_dual_norm << std::endl;
+
 
 	if(N==0){
 		return std::sqrt(res_dual_norm);

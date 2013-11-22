@@ -93,14 +93,16 @@ get_riesz_representor_f(std::size_t i)
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>
-void
+typename DataType::ValueType
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u, RieszSolver_Res>::
 get_riesz_representor_f(std::size_t i, DataType& r_f)
 {
 	riesz_solver_f.get_rhs().set_active_comp(i);
 
-	riesz_solver_f.solve(r_f);
+	T eps = riesz_solver_f.solve(r_f);
 	riesz_solver_f.remove_preconditioner(r_f);
+
+	return eps;
 }
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
@@ -123,7 +125,7 @@ get_riesz_representor_a(std::size_t i, const DataType& u)
 
 template <typename DataType, typename ParamType, typename TruthSolver, typename RieszSolver_F, typename RieszSolver_A,
 		  typename InnProd_Y_u_u, typename LHS_u_u, typename RHS_u, typename RieszSolver_Res>
-void
+typename DataType::ValueType
 MT_Truth<DataType,ParamType,TruthSolver,RieszSolver_F,RieszSolver_A,InnProd_Y_u_u, LHS_u_u, RHS_u, RieszSolver_Res>::
 get_riesz_representor_a(std::size_t i, const DataType& u, DataType& r_a, bool coarsen)
 {
@@ -133,12 +135,14 @@ get_riesz_representor_a(std::size_t i, const DataType& u, DataType& r_a, bool co
 	if(coarsen){
 		riesz_solver_a.coarsen(r_a);
 	}
-	riesz_solver_a.solve(r_a);
+	T eps = riesz_solver_a.solve(r_a);
 	riesz_solver_a.remove_preconditioner(r_a);
 
 	// We should have calculated (r,v) = - a^q(u,v)
 	// but we did (r,v) = a^q(u,v)
 	r_a *= (-1);
+
+	return eps;
 }
 
 

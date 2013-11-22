@@ -92,7 +92,7 @@ private:
 	calculate_Riesz_RHS_information(bool update = false);
 
 	void
-	update_Riesz_LHS_information(const DataType& bf);
+	calculate_Riesz_LHS_information(const DataType& bf, bool update = false	);
 
 	void
 	recalculate_A_F_norms();
@@ -107,6 +107,9 @@ private:
 
 	std::vector<DataType>				F_representors;  // Dim: 1 x Q_f
 	std::vector<std::vector<DataType> > A_representors;  // Dim: n x Q_a
+
+	std::vector<T>						eps_F_representors;  // Dim: 1 x Q_f
+	std::vector<std::vector<T> > 		eps_A_representors;  // Dim: n x Q_a
 
 	RB_Greedy_Information<ParamType>	greedy_info;
 
