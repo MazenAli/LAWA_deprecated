@@ -294,30 +294,33 @@ int main () {
     RB_BaseModel rb_base(rb_system, rb_truth);
 
     /* RB Greedy Parameters Default Values
-      		TrainingType training_type = weak, (strong/weak_direct)
-      		double tol = 1e-2,
-			size_t Nmax = 20,
-			ParamType min_param = ParamType(),
-			ParamType max_param = ParamType(),
-			intArray  training_params_per_dim = intArray(),
-			bool print_info = true,
-    		std::string print_file = "greedy_info.txt",
-			bool verbose = true,
-			bool write_during_training = true,
-    		std::string trainingdata_folder = "training_data",
-			bool print_paramset = false,
-			bool erase_snapshot_params = false,
-			bool orthonormalize_bfs = true,
-			bool tighten_tol	= false,
-			bool tighten_tol_rieszA = false;
-    		bool tighten_tol_rieszF = false;
-			double tighten_tol_reduction = 0.1,
-			bool update_snapshot = false,
-			bool update_rieszF = false,
-			bool update_rieszA = false,
-			bool coarsen_rieszA_for_update = false,
-			bool test_estimator_equivalence = false,
-			bool equivalence_tol_factor = 1.				// = Riesz constant of basis
+      	TrainingType training_type = weak, (strong/weak_direct)
+ 		double tol = 1e-2,
+		std::size_t Nmax = 20,
+		ParamType_min_param = ParamType(),
+		ParamType max_param = ParamType(),
+		intArray  training_params_per_dim = intArray(),
+		bool print_info = true,
+		std::string print_file = "greedy_info.txt",
+		bool verbose = true,
+		bool write_during_training = true,
+		std::string trainingdata_folder = "training_data",
+		bool print_paramset = false,
+		bool erase_snapshot_params = false,
+		bool orthonormalize_bfs = true,
+		bool tighten_tol	= false,
+		SnapshotTolReductionCrit snapshot_tol_red_crit = repeated_param,
+		bool tighten_tol_rieszA = false,
+		bool tighten_tol_rieszF = false,
+		double tighten_tol_reduction = 0.1,
+		bool update_snapshot = false,
+		bool update_rieszF = false,
+		bool update_rieszA = false,
+		bool coarsen_rieszA_for_update = false,
+		bool test_estimator_equivalence = false,
+		bool equivalence_tol_factor = 1.,			// = Riesz constant of Basis
+		bool write_direct_representors = false,
+		T min_error_reduction = 0.5;
      */
 
 

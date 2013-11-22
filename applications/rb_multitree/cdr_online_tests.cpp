@@ -1,6 +1,8 @@
 #include "cdr_problem.h"
+#include <fstream>
+#include <sstream>
 
-int main () {
+int main (int argc, char* argv[]) {
 
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
@@ -9,6 +11,13 @@ int main () {
     int d   = 2;
     int d_  = 2;
     int j0  = 2;
+
+    if(argc < 2 || argc > 3){
+    	cerr << "Usage: " << argv[0] << " readSols(0/1) (Solution Folder)" << endl;
+    	exit(1);
+     }
+
+    int readSols = atoi(argv[1]);
 
     //getchar();
 
@@ -252,7 +261,7 @@ int main () {
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
-    awgm_u.awgm_params.tol = 5e-03;
+    awgm_u.awgm_params.tol = 1e-04;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
@@ -278,15 +287,15 @@ int main () {
     LB_Base<ParamType, MTTruthSolver> lb_base(rb_truth, lhs_theta);
     IndexSet<Index2D> LambdaTrial_Alpha_sparse, LambdaTrial_Alpha_full ;
 
-    //getSparseGridIndexSet(basis2d_trial,LambdaTrial_Alpha_sparse,3,0,gamma);
-    getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full, 3,3,0);
+    getSparseGridIndexSet(basis2d_trial,LambdaTrial_Alpha_sparse,3,0,gamma);
+    //getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full, 3,3,0);
 
 
     cout << "++ Assembling Matrices for Alpha Computation ... " << endl << endl;
-    lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_full);
+    lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_sparse);
 
     RB_Model rb_system(lhs_theta, rhs_theta, lb_base);
-    rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
+    //rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
 
     rb_system.rb_params.ref_param = {{1., 1.}};
     rb_system.rb_params.call = call_gmres;
@@ -364,14 +373,116 @@ int main () {
 
     cout << "Parameters Riesz Solver A : " << std::endl << std::endl;
     awgm_rieszA.awgm_params.print();
+    
+    // Read RB Data
+    rb_system.read_rb_data("./Runs/Stage6/Run2/training_data_stage6");
+    rb_base.read_basisfunctions("./Runs/Stage6/Run2/training_data_stage6/bf");
+    rb_base.read_rieszrepresentors("./Runs/Stage6/Run2/training_data_stage6/representors");
+    rb_base.read_greedy_info("./Runs/Stage6/Run2/awgm_stage6_greedy_info.txt");
 
-    rb_base.train_Greedy();
+    // Read Test Parameters
+    std::vector<ParamType> Xi_test;
 
-    rb_system.write_rb_data("offline_data_stage9");
-    rb_base.write_basisfunctions("offline_data_stage9");
-    rb_base.write_rieszrepresentors("offline_data_stage9");
+    ifstream paramfile("Xitest.txt");
+    T mu1, mu2;
+    if(paramfile.is_open()){
+    	while(!paramfile.eof()){
+        	paramfile >> mu1 >> mu2;
+        	ParamType mu = {{mu1, mu2}};
+        	Xi_test.push_back(mu);
+    	}
+    	paramfile.close();
+    }
+    else{
+    	cerr << "Couldn't open Xitest.txt for reading!" << endl;
+    }
+
+    cout << "===============================" << endl;
+    cout << "Test Parameters: " << endl;
+    for(auto& mu : Xi_test){
+    	cout << mu[0] << " " << mu[1] << endl;
+    }
+    cout << "===============================" << endl;
 
 
-    return 0;
+    // Test Reduced Solutions
+    std::map<ParamType, std::vector<T> > errs, errbounds;
+
+    // For all parameters:
+    for(auto& mu : Xi_test){
+        
+    	stringstream ufilename;
+    	if(argc == 3){
+    		ufilename << argv[2] << "/";
+    	}
+    	ufilename << "u_" << mu[0] << "_" << mu[1] << ".txt";
+
+    	DataType u;
+    	if(!readSols){
+        	// Compute truth solution
+        	u = rb_truth.get_truth_solution(mu);
+        	saveCoeffVector2D(u, basis2d_trial, ufilename.str().c_str());
+    	}
+    	else{
+    		readCoeffVector2D(u, ufilename.str().c_str());
+    	}
+
+
+    	std::vector<T> errs_mu, errbounds_mu;
+
+    	T err, errbound;
+    	for(size_t n = 1; n <= (size_t)rb_system.RB_inner_product.numRows(); ++n){
+
+    		// Compute RB solution
+    		DenseVectorT u_N = rb_system.get_rb_solution(n, mu);
+
+    		// Compute real error
+    		DataType u_approx = rb_base.reconstruct_u_N(u_N, n);
+    		u_approx -= u;
+    		err = u_approx.norm(2.);
+    		errs_mu.push_back(err);
+
+    		// Compute error estimator
+    		errbound = rb_system.get_errorbound(u_N, mu);
+    		errbounds_mu.push_back(errbound);
+    	}
+
+    	errs.insert(make_pair(mu, errs_mu));
+    	errbounds.insert(make_pair(mu, errbounds_mu));
+    }
+    
+    rb_system.write_alpha("Test_Alphas.txt");
+
+    ofstream errfile("Test_Errors.txt");
+    if(errfile.is_open()){
+    	errfile << "Mu1 Mu2 Err(N=1) Err(N=2) ...." << endl;
+    	for(auto& entry : errs){
+    		errfile << entry.first[0] << " " << entry.first[1];
+    		for(auto& e : entry.second){
+    			errfile << " " << e;
+    		}
+    		errfile << endl;
+    	}
+    	errfile.close();
+    }
+    else{
+    	cerr << "Couldn't open Test_Errors.txt for writing!" << endl;
+    }
+
+    ofstream errestfile("Test_ErrorEstimators.txt");
+    if(errestfile.is_open()){
+    	errestfile << "Mu1 Mu2 ErrEst(N=1) ErrEst(N=2) ...." << endl;
+    	for(auto& entry : errbounds){
+    		errestfile << entry.first[0] << " " << entry.first[1];
+    		for(auto& e : entry.second){
+    			errestfile << " " << e;
+    		}
+    		errestfile << endl;
+    	}
+    	errestfile.close();
+    }
+    else{
+    	cerr << "Couldn't open Test_Errors.txt for writing!" << endl;
+    }
 }
 
