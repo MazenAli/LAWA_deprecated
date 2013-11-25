@@ -166,6 +166,14 @@ get_errorbound(const DenseVectorT& u_N, ParamType& mu)
 template<typename T, typename ParamType>
 T
 RB_System<T,ParamType>::
+get_errorbound(std::vector<std::size_t> indices, const DenseVectorT& u_N, ParamType& mu)
+{
+    return  residual_dual_norm(indices, u_N, mu) / alpha_LB(mu);
+}
+
+template<typename T, typename ParamType>
+T
+RB_System<T,ParamType>::
 get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu,  std::vector<T> eps_f, std::vector<std::vector<T> > eps_a){
 
 	T val = 0;

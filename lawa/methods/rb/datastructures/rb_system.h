@@ -39,6 +39,9 @@ public:
 
 	virtual T
 	get_errorbound(const DenseVectorT& u_N, ParamType& mu);
+	
+	virtual T
+	get_errorbound(std::vector<std::size_t> indices, const DenseVectorT& u_N, ParamType& mu);
 
 	T
 	get_errorbound_accuracy(const DenseVectorT& u_N, ParamType& mu, std::vector<T> eps_f, std::vector<std::vector<T> > eps_a);
