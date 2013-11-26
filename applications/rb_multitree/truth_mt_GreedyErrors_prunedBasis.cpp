@@ -144,6 +144,9 @@ int main (int argc, char* argv[]) {
     int Nmax = rb_system.RB_inner_product.numRows();
     FullColMatrixT err_ests_full_basis(Xi_train.size(), Nmax);
     FullColMatrixT err_ests_pruned_basis(Xi_train.size() + 1, Nmax);
+   
+    DenseVectorT max_full_basis(Nmax);
+    DenseVectorT max_pruned_basis(Nmax);
 
     vector<size_t> pruned_indizes;
 
@@ -186,21 +189,27 @@ int main (int argc, char* argv[]) {
             cout << "  u_N = " << u_N;
             err_ests_full_basis(row_index, N) = rb_system.get_errorbound(u_N, mu); 
             cout << "  Error Estimator: " << err_ests_full_basis(row_index, N) << endl;
+            if(err_ests_full_basis(row_index,N) > max_full_basis(N)){
+                max_full_basis(N) = err_ests_full_basis(row_index,N);
+            }
             
             if(pruning){
                 DenseVectorT u_N_pruned = rb_system.get_rb_solution(pruned_indizes, mu);
                 cout << "  u_N_pruned = " << u_N_pruned;
-                err_ests_pruned_basis(row_index+1, N) = rb_system.get_errorbound(pruned_indizes, u_N, mu); 
+                err_ests_pruned_basis(row_index+1, N) = rb_system.get_errorbound(pruned_indizes, u_N_pruned, mu); 
                 cout << "  Error Estimator pruned: " << err_ests_pruned_basis(row_index+1, N) << endl;                
             }
             else{
                 err_ests_pruned_basis(row_index+1, N) = err_ests_full_basis(row_index, N);
             }
+            if(err_ests_pruned_basis(row_index+1, N) > max_pruned_basis(N)){
+                max_pruned_basis(N) = err_ests_pruned_basis(row_index+1, N);
+            }
 
             row_index++;         
         }
     }
-    
+      
     string full_file_name = output;
     full_file_name += "_fullBasis.txt";
     ofstream full_file(full_file_name.c_str());
@@ -223,6 +232,21 @@ int main (int argc, char* argv[]) {
         cerr << "Couldn't open file " << pruned_file_name << " for writing! " << endl;
     }
 
+    string max_file_name = output;
+    max_file_name += "_maxErrors.txt";
+    ofstream max_file(max_file_name.c_str());
+    if(max_file.is_open()){
+        max_file << "# N_full max_full N_pruned max_pruned" << endl;
+        for(int i = 1; i <= Nmax; ++i){
+            max_file << i << " " << max_full_basis(i) << " " << err_ests_pruned_basis(1,i) << " " << max_pruned_basis(i) << endl;
+        }
+        
+        max_file.close();        
+    }
+    else{
+        cerr << "Couldn't open file " << max_file_name << " for writing! " << endl;
+    }
+    
     return 0;
 }
 
