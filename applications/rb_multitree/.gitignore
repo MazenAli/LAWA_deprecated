@@ -26,3 +26,5 @@ plot_coeffs_trial_mw
 plot_coeffs_trial_mw_wPrec
 test_eps_aff_accuracy
 test_residualrhs
+cdr_online_tests
+cdr_online_tests_pruned

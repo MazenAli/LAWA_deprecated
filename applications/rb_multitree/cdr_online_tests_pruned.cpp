@@ -29,21 +29,18 @@ int main (int argc, char* argv[]) {
     int d_  = 2;
     int j0  = 2;
 
-    if(argc < 5 || argc > 7){
-    	cerr << "Usage: " << argv[0] << " offline_data_folder output_name readSols(0/1) updateSols(0/1) (InputSolutionFolder) (OutputSolutionFolder)" << endl;
+    if(argc < 5 || argc > 6){
+    	cerr << "Usage: " << argv[0] << " offline_data_folder snapshot_param_file output_name readSols(0/1) (Solution Folder)" << endl;
     	exit(1);
      }
 
     string offline_folder = argv[1];
-    string output = argv[2];
-    int readSols = atoi(argv[3]);
-    int updateSols = atoi(argv[4]);
-    string solfolder_in, solfolder_out;
-    if(argc >= 6){
-        solfolder_in = argv[5];
-    }
-    if(argc == 7){
-        solfolder_out = argv[6];
+    string param_file = argv[2];
+    string output = argv[3];
+    int readSols = atoi(argv[4]);
+    string solfolder;
+    if(readSols){
+        solfolder = argv[5];
     }
 
     //getchar();
@@ -288,9 +285,7 @@ int main (int argc, char* argv[]) {
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
-    awgm_u.awgm_params.tol = 1e-05;
-    awgm_u.awgm_params.max_basissize = 800000;
-    awgm_u.awgm_params.stable_exp_u = OnlyTemporalHWExpansion;
+    awgm_u.awgm_params.tol = 1e-04;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
@@ -407,12 +402,13 @@ int main (int argc, char* argv[]) {
     rb_system.read_rb_data(offline_folder);
     rb_base.read_basisfunctions(offline_folder + "/bf");
     rb_base.read_rieszrepresentors(offline_folder + "/representors");
+    //rb_base.read_greedy_info("./Runs/Stage8/Run3/awgm_stage8_greedy_info.txt");
 
     // Read Test Parameters
-    std::vector<ParamType> Xi_test;
-
+    std::vector<ParamType> Xi_test, snapshot_params;
+    
     read_paramfile("Xitest.txt", Xi_test);
-
+    read_paramfile(param_file, snapshot_params);
 
     cout << "===============================" << endl;
     cout << "Test Parameters: " << endl;
@@ -421,72 +417,159 @@ int main (int argc, char* argv[]) {
     }
     cout << "===============================" << endl;
 
-
     // Test Reduced Solutions
     std::map<ParamType, std::vector<T> > errs, errbounds;
+
+    
+    // Construct pruned index sets
     int Nmax = rb_system.RB_inner_product.numRows();
+    vector<vector<size_t> > pruned_indizes;
+    
+    DenseVectorT av_err(Nmax);
+    DenseVectorT av_errest(Nmax);
+    
+    vector<size_t> pr_inds;
+    pruned_indizes.push_back(pr_inds);
+    for(size_t N = 1; N <= Nmax; N++){
+        // Construct index set of pruned basis
+        ParamType bf_param = snapshot_params[N-1];
+        int index_first_occurence = -1;
+        for(size_t i = 0; i < pruned_indizes[N-1].size(); ++i){
+            if(fabs(snapshot_params[pruned_indizes[N-1][i]][0] - bf_param[0]) <= 1e-05 
+            && fabs(snapshot_params[pruned_indizes[N-1][i]][1] - bf_param[1]) <= 1e-05){
+                index_first_occurence = i;
+                break;
+            }
+        }
+        if(index_first_occurence >= 0){
+            pruned_indizes[N-1][index_first_occurence] = N-1;
+        }
+        else{
+            pruned_indizes[N-1].push_back(N-1);
+        }
+        
+        cout << "Pruned basis has indices { ";
+        for(auto& ind : pruned_indizes[N-1]){
+            cout << ind << " ";
+        }
+        cout << "}" << endl << endl;
+        
+        pruned_indizes.push_back(pruned_indizes[N-1]);
+    }
 
     // For all parameters:
     int count = 0;
     for(auto& mu : Xi_test){
         count++;
         
-    	stringstream ufilename_in, ufilename_out;
-    	if(argc >= 6){
-    		ufilename_in << solfolder_in << "/";
+    	stringstream ufilename;
+    	if(argc == 6){
+    		ufilename << solfolder << "/";
     	}
-    	if(argc == 7){
-            ufilename_out << solfolder_out << "/";
-    	}
-    	ufilename_in << "u_" << mu[0] << "_" << mu[1] << ".txt";
-    	ufilename_out << "u_" << mu[0] << "_" << mu[1] << ".txt";
+    	ufilename << "u_" << mu[0] << "_" << mu[1] << ".txt";
 
     	DataType u;
     	if(!readSols){
         	// Compute truth solution
         	u = rb_truth.get_truth_solution(mu);
-        	saveCoeffVector2D(u, basis2d_trial, ufilename_out.str().c_str());
+        	saveCoeffVector2D(u, basis2d_trial, ufilename.str().c_str());
     	}
     	else{
-    		readCoeffVector2D(u, ufilename_in.str().c_str());
-    		
-    		if(updateSols){
-    		    rb_truth.get_truth_solution(mu, u);
-    		    saveCoeffVector2D(u, basis2d_trial, ufilename_out.str().c_str());
-    		}
+    		readCoeffVector2D(u, ufilename.str().c_str());
     	}
 
 
     	std::vector<T> errs_mu, errbounds_mu;
 
     	T err, errbound;
+        cout << " Mu = " << mu[0] << " " << mu[1] << endl;
+        
+        if(count==3){
     	for(size_t n = 1; n <= Nmax; ++n){
 
     		// Compute RB solution
-    		DenseVectorT u_N = rb_system.get_rb_solution(n, mu);
+    		DenseVectorT u_N = rb_system.get_rb_solution(pruned_indizes[n-1], mu);
+            cout << "u_" << n << " = " << u_N; 
+            
+            /*// Test
+            vector<size_t> rev_indices;
+            for(int i = pruned_indizes[n-1].size()-1; i >= 0; --i){
+                rev_indices.push_back(pruned_indizes[n-1][i]);
+            }
+            cout << "Reversed basis has indices { ";
+            for(auto& ind : rev_indices){
+                cout << ind << " ";
+            }
+            cout << "}" << endl << endl;
+            DenseVectorT u_N_rev = rb_system.get_rb_solution(rev_indices, mu);
+    		cout << "u_" << n << "_rev = " << u_N_rev; */
+            
 
     		// Compute real error
-    		DataType u_approx = rb_base.reconstruct_u_N(u_N, n);
+    		DataType u_approx = rb_base.reconstruct_u_N(u_N, pruned_indizes[n-1]);
+            DataType u_approx2 = u;
+            u_approx2 *= -1;
+            u_approx2 += u_approx;
     		u_approx -= u;
     		err = u_approx.norm(2.);
     		errs_mu.push_back(err);
-
+    		cout << "Err = " << u_approx.norm(2.)  << " " << u_approx2.norm(2.) << endl;
+             
+            av_err(n) += err;
+            
+            // Compute Test Eror
+            if(n == 5){
+                DenseVectorT u_matlab(4);
+                u_matlab = -0.318813831238767, 0.052248298758068, 0.378849394120243, -0.022477947638239;
+                DataType u_matlab_calN = rb_base.reconstruct_u_N(u_matlab, pruned_indizes[n-1]);
+                u_matlab_calN -= u;
+                cout << "Error matlab: " <<  u_matlab_calN.norm(2.) << endl;
+            }
+            
+            if(n == 6){
+                DenseVectorT u_matlab(5);
+                u_matlab = -0.283258508355013,
+                 0.067042010189775,
+                 0.376066243029085,
+                -0.023503958709718,
+                -0.047257695469651;
+                DataType u_matlab_calN = rb_base.reconstruct_u_N(u_matlab, 5);
+                u_matlab_calN -= u;
+                cout << "Error full (matlab): " <<  u_matlab_calN.norm(2.) << endl;
+            }
+            
+        
+            /*//Test 
+            DataType u_approx_rev = rb_base.reconstruct_u_N(u_N_rev, rev_indices);
+            u_approx_rev -= u;
+            cout << "Err Rev = " << u_approx_rev.norm(2.) << endl;*/
+            
     		// Compute error estimator
-    		errbound = rb_system.get_errorbound(u_N, mu);
+    		/*errbound = rb_system.get_errorbound(pruned_indizes[n-1], u_N, mu);
     		errbounds_mu.push_back(errbound);
+    		
+            av_errest(n) += errbound;*/
     	}
-
+        }
     	errs.insert(make_pair(mu, errs_mu));
     	errbounds.insert(make_pair(mu, errbounds_mu));
     	
-        if(count >= 5){ break;}
+        if(count >= 5){break;}
     }
     
-    rb_system.write_alpha("Test_Alphas.txt");
+    av_err *= 1./Xi_test.size();
+    av_errest *= 1./Xi_test.size();
+    
+   // rb_system.write_alpha("Test_Alphas.txt");
 
-    ofstream errfile(output + "_OnlineTest_Errors.txt");
+    ofstream errfile(output + "_PrunedOnlineTest_Errors.txt");
     if(errfile.is_open()){
-    	errfile << "Mu1 Mu2 Err(N=1) Err(N=2) ...." << endl;
+        errfile << "# Mu1 Mu2";
+        for(int n = 0; n < Nmax; ++n){
+            errfile << " " << pruned_indizes[n].size();
+        }
+        errfile << endl;
+    	
     	for(auto& entry : errs){
     		errfile << entry.first[0] << " " << entry.first[1];
     		for(auto& e : entry.second){
@@ -500,10 +583,14 @@ int main (int argc, char* argv[]) {
     	cerr << "Couldn't open Test_Errors.txt for writing!" << endl;
     }
 
-    ofstream errestfile(output + "_OnlineTest_ErrorEstimators.txt");
+    ofstream errestfile(output + "_PrunedOnlineTest_ErrorEstimators.txt");
     if(errestfile.is_open()){
-    	errestfile << "Mu1 Mu2 ErrEst(N=1) ErrEst(N=2) ...." << endl;
-    	for(auto& entry : errbounds){
+        errestfile << "# Mu1 Mu2";
+        for(int n = 0; n < Nmax; ++n){
+            errestfile << " " << pruned_indizes[n].size();
+        }
+        errestfile << endl;    	
+        for(auto& entry : errbounds){
     		errestfile << entry.first[0] << " " << entry.first[1];
     		for(auto& e : entry.second){
     			errestfile << " " << e;
@@ -513,7 +600,22 @@ int main (int argc, char* argv[]) {
     	errestfile.close();
     }
     else{
-    	cerr << "Couldn't open Test_ErrorEstimators.txt for writing!" << endl;
+    	cerr << "Couldn't open Test_Errors.txt for writing!" << endl;
+    }
+    
+    string av_file_name = output;
+    av_file_name += "_PrunedOnlineTest_Averages.txt";
+    ofstream av_file(av_file_name.c_str());
+    if(av_file.is_open()){
+        av_file << "# N_pruned avErr avErrEst" << endl;
+        for(int i = 1; i <= Nmax; ++i){
+            av_file << i << " " << pruned_indizes[i-1].size() << " " << av_err(i) << " " << av_errest(i) << endl;
+        }
+        
+        av_file.close();        
+    }
+    else{
+        cerr << "Couldn't open file " << av_file_name << " for writing! " << endl;
     }
 }
 
