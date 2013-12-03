@@ -69,6 +69,8 @@ get_rb_solution(std::size_t N, ParamType& mu)
 				std::cout << "RB solution: " << its << " gmres iterations" << std::endl;
 			}
 			break;
+		//case call_svd:
+		
 		default:
 			if(rb_params.verbose){
 				std::cerr << "RB solution: unrecognized solver call " << std::endl;
@@ -137,8 +139,8 @@ get_rb_solution(std::vector<std::size_t> indices, ParamType& mu)
 			}
 			break;
 		case call_gmres:
-//			std::cout << "A = " << A << std::endl;
-//			std::cout << "F = " << F << std::endl;
+			std::cout << "A = " << A << std::endl;
+			std::cout << "F = " << F << std::endl;
 			its = gmres(A, u, F);
 			if(rb_params.verbose){
 				std::cout << "RB solution: " << its << " gmres iterations" << std::endl;
@@ -236,17 +238,17 @@ residual_dual_norm(const DenseVectorT& u_N, ParamType& mu)
     for (std::size_t i = 1; i <= Qf; ++i) {
         ThetaF(i) = thetas_f.eval(i-1,mu);
     }
-    std::cout << "ThetaF = " << ThetaF << std::endl;
+    //std::cout << "ThetaF = " << ThetaF << std::endl;
     for (std::size_t i = 1; i <= Qa; ++i) {
         ThetaA(i) = thetas_a.eval(i-1,mu);
     }
 
     DenseVectorT FF_T = F_F_representor_norms * ThetaF;
-    std::cout << "FF_T = " << FF_T << std::endl;
+    //std::cout << "FF_T = " << FF_T << std::endl;
 
     res_dual_norm = ThetaF * FF_T;
 
-    std::cout << "res_dual_norm = " << res_dual_norm << std::endl;
+    //std::cout << "res_dual_norm = " << res_dual_norm << std::endl;
 
 
 	if(N==0){

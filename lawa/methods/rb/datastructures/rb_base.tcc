@@ -696,6 +696,24 @@ reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N)
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 DataType
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+reconstruct_u_N(typename RB_Model::DenseVectorT u, std::vector<std::size_t> indices)
+{
+    size_t N = u.length();
+	assert(N <= n_bf());
+	assert(u.length() > 0);
+	assert(u.length() >= (int)N);
+
+	DataType u_full;
+	for (unsigned int i = 1; i <= N; ++i) {
+		u_full +=  u(i) * rb_basisfunctions[indices[i-1]];
+	}
+
+	return u_full;
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+DataType
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
 reconstruct_res_repr_N(typename RB_Model::DenseVectorT u, std::size_t N, ParamType& mu)
 {
 	assert(N <= n_bf());
@@ -1285,7 +1303,7 @@ find_max_errest(std::size_t N, std::vector<ParamType>& Xi_train, ParamType& curr
 					//T eps_A = rb_truth.access_RieszSolver_A().access_params().tol * greedy_params.equivalence_tol_factor;
 
 					T eps_aff = rb_system.get_errorbound_accuracy(u_N, mu, eps_F_representors, eps_A_representors);
-					T bound = rb_system.alpha_LB(mu)*error_est;
+					T bound = rb_system.alpha_LB(mu)*error_est*std::sqrt(greedy_params.riesz_constant_Y);
 
 					if(eps_aff > bound && greedy_params.tighten_estimator_accuracy){
 						std::cout << " !$!$! Equivalence Criterion violated: Eps_Aff = " << eps_aff << " > " << bound << "  !$!$!" << std::endl;
@@ -1669,9 +1687,11 @@ read_rieszrepresentors(const std::string& directory_name, int nb)
 		DataType rieszf_coeffs;
 		readCoeffVector2D(rieszf_coeffs, filename.str().c_str(),false);
 		F_representors.push_back(rieszf_coeffs);
+        eps_F_representors.push_back(rb_truth.access_RieszSolver_F().access_params().tol);
 
 		if(rb_system.rb_params.verbose){
 			std::cout << " Read " << filename.str() << std::endl;
+            std::cout << "      Set accuracy to " << *(eps_F_representors.end()-1) << std::endl;
 		}
 	}
 
@@ -1680,6 +1700,8 @@ read_rieszrepresentors(const std::string& directory_name, int nb)
 
 	for(std::size_t n = 0; n < n_bf; ++n){
 		std::vector<DataType> A_reprs_n;
+		std::vector<T> eps_A_n;
+        
 		for(std::size_t i = 0; i < rb_system.Q_a(); ++i){
 			std::stringstream filename;
 			filename << directory_name << "/A_representor_" << i+1 << "_" << n+1 << ".txt";
@@ -1687,12 +1709,16 @@ read_rieszrepresentors(const std::string& directory_name, int nb)
 			DataType riesza_coeffs;
 			readCoeffVector2D(riesza_coeffs, filename.str().c_str(),false);
 			A_reprs_n.push_back(riesza_coeffs);
-
+			
+			eps_A_n.push_back(rb_truth.access_RieszSolver_A().access_params().tol);
+            
 			if(rb_system.rb_params.verbose){
 				std::cout << " Read " << filename.str() << std::endl;
+				std::cout << "      Set accuracy to " << *(eps_A_n.end()-1) << std::endl;
 			}
 		}
 		A_representors.push_back(A_reprs_n);
+		eps_A_representors.push_back(eps_A_n);
 	}
 }
 
@@ -1701,6 +1727,31 @@ void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
 read_greedy_info(const char* filename, int nb){
 	greedy_info.read(filename, rb_system.Q_f(), rb_system.Q_a(), nb);
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+read_repr_accuracies(const char* filename, int Nmax){
+	greedy_info.read_repr_accuracies(filename, rb_system.Q_f(), rb_system.Q_a(), Nmax);
+    eps_F_representors = *(greedy_info.accuracies_f_reprs.end()-1);
+    eps_A_representors = *(greedy_info.accuracies_a_reprs.end()-1);
+    if(rb_system.rb_params.verbose){
+        std::cout << "     Set repr_F accuracies to: [";
+        for(auto& a : eps_F_representors){
+            std::cout << " " << a;
+        }
+        std::cout << "]" << std::endl;
+        
+        std::cout << "     Set repr_A accuracies to: ";
+        for(auto& a : eps_A_representors){
+            std::cout << " [";
+            for(auto& el : a){
+                std::cout << " " << el;
+            }
+            std::cout << "]" << std::endl;
+        }
+    }
 }
 
 } // namespace lawa

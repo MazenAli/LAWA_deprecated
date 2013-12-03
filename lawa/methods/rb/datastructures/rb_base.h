@@ -41,7 +41,10 @@ public:
 
     DataType
     reconstruct_u_N(typename RB_Model::DenseVectorT u, std::size_t N);
-
+    
+    DataType
+    reconstruct_u_N(typename RB_Model::DenseVectorT u, std::vector<std::size_t> indices);
+    
     DataType
     reconstruct_res_repr_N(typename RB_Model::DenseVectorT u, std::size_t N, ParamType& mu);
 
@@ -62,6 +65,9 @@ public:
 
 	void
 	read_greedy_info(const char* filename, int nb = -1);
+	
+	void
+    read_repr_accuracies(const char* filename, int Nmax);
 
 	virtual T
 	get_direct_errorbound(const typename RB_Model::DenseVectorT& u_N, ParamType& mu, DataType& res_repr);

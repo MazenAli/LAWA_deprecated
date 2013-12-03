@@ -259,6 +259,43 @@ read(const char* filename, std::size_t Qf, std::size_t Qa, int nb)
 template<typename ParamType>
 void
 RB_Greedy_Information<ParamType>::RB_Greedy_Information::
+read_repr_accuracies(const char* filename, std::size_t Qf, std::size_t Qa, int Nmax)
+{
+    std::ifstream accfile(filename);
+    if(accfile.is_open()){
+    	std::string header;
+    	std::getline(accfile, header);
+    	
+        int N;
+    	for(std::size_t n = 0; n < Nmax; ++n){
+    		accfile >> N;
+    		
+            std::vector<double> eps_f_n(Qf);
+    		for(std::size_t qf = 0; qf < Qf; ++qf){
+    			accfile >> eps_f_n[qf];
+    		}
+            accuracies_f_reprs.push_back(eps_f_n);
+
+            std::vector<double>                 eps_a_n_q(Qa);
+            std::vector<std::vector<double> >   eps_a_n;
+    		for(std::size_t m = 0; m <= n; ++m){
+    			for(std::size_t qa = 0; qa < Qa; ++qa){
+    				accfile >> eps_a_n_q[qa];
+    			}
+                eps_a_n.push_back(eps_a_n_q);
+    		}
+    		accuracies_a_reprs.push_back(eps_a_n);
+    	}
+    	accfile.close();
+    }
+    else{
+    	std::cerr << "Error opening file " << filename << " for writing! " << std::endl;
+    }
+}
+
+template<typename ParamType>
+void
+RB_Greedy_Information<ParamType>::RB_Greedy_Information::
 print_bound_info(const char* filename)
 {
 	for(std::size_t i = 0; i < eps_res_bound.size(); ++i){
