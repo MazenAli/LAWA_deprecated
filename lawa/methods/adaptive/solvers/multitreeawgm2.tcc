@@ -312,6 +312,11 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda, T old_r
                 plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
             }
 
+            if(awgm_params.clear_solver){
+                Op.clear();
+                F.clear();
+            }
+            
             return res_norm;
         }
 
@@ -399,6 +404,11 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda, T old_r
         plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
     }
 
+    if(awgm_params.clear_solver){
+        Op.clear();
+        F.clear();
+    }
+    
     return res_norm;
 }
 
@@ -528,6 +538,5 @@ reset_info()
 {
 	return awgm_info.reset();
 }
-
 
 } // namespace lawa

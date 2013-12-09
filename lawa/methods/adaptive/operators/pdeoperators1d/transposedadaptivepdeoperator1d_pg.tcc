@@ -40,4 +40,12 @@ TransposedAdaptivePDEOperator1D_PG<T,TrialBasis,TestBasis>::toFlensSparseMatrix(
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
 }
 
+template <typename T, typename TrialBasis, typename TestBasis>
+void
+TransposedAdaptivePDEOperator1D_PG<T,TrialBasis,TestBasis>::
+clear()
+{
+    data.clear();
+}
+
 }   // namespace lawa

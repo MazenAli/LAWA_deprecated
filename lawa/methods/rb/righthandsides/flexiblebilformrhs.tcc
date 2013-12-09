@@ -64,4 +64,14 @@ set_active_u(Coefficients<Lexicographical,T,Index> const* _u)
 	active_u = _u;
 }
 
+template <typename Index, typename LocalOperatorType>
+void
+FlexibleBilformRhs<Index,LocalOperatorType>::
+clear()
+{
+    for(auto& op : bilformvec){
+        op->clear();
+    }
+}
+
 } // namespace lawa

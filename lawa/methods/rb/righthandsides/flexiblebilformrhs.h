@@ -38,6 +38,9 @@ public:
 	virtual
 	void
 	set_active_u(Coefficients<Lexicographical,T,Index> const* _u);
+	
+	void
+    clear();
 
 protected:
 

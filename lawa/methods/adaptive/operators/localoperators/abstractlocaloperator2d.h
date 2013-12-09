@@ -21,6 +21,9 @@ struct AbstractLocalOperator2D {
 
     virtual T
     operator()(const Index2D &row_index, const Index2D &col_index) = 0;
+    
+    virtual void
+    clear() = 0;
 
 };
 

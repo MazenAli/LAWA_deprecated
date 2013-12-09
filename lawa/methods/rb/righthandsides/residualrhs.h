@@ -38,6 +38,9 @@ public:
 
 	void
 	set_active_u(DataType const* u); // supposed to be the reconstructed approximate solution u_RB
+	
+	void
+    clear();
 
 private:
 

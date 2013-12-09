@@ -114,5 +114,15 @@ size()
 	return localops.size();
 }
 
+template <typename Index, typename LocalOperatorType>
+void
+FlexibleCompoundLocalOperator<Index, LocalOperatorType>::
+clear()
+{
+    for(auto& op : localops){
+		op->clear();
+	}
+}
+
 } // namespace lawa
 

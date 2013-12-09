@@ -462,6 +462,12 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
             	}
                 plot2D<T,TrialBasis,TrialPrec>(trialbasis, u, trialPrec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
             }
+            
+            if(awgm_params.clear_solver){
+                Op.clear();
+                OpTransp.clear();
+                F.clear();
+            }
 
             return;
         }
@@ -566,6 +572,14 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
     	}
         plot2D<T,TrialBasis,TrialPrec>(trialbasis, u, trialPrec, exact_sol, 0., 1., 0., 1., 0.01, awgm_params.plot_filename.c_str());
     }
+    
+    if(awgm_params.clear_solver){
+        Op.clear();
+        OpTransp.clear();
+        F.clear();
+    }
+    
+    return;
 }
 
 template <typename Index, typename TrialBasis, typename TestBasis,

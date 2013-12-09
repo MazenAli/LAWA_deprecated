@@ -57,6 +57,9 @@ class RHS : public AdaptiveRhs<T, Index>
 
         Coefficients<Lexicographical,T,Index>
         operator()(T t, const IndexSet<Index> &Lambda);
+        
+        void
+        clear();
 
 };
 

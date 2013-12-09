@@ -48,5 +48,13 @@ set_active_u(DataType const* u)
 	lhs_bilform.set_active_u(u);
 }
 
+template <typename Index, typename LHSType, typename RHSType, typename ParamType, typename DataType>
+void
+ResidualRhs<Index,LHSType, RHSType, ParamType, DataType>::
+clear()
+{
+    lhs_bilform.clear();
+    rhs_fct.clear();
+}
 
 } // namespace lawa

@@ -49,6 +49,9 @@ class SeparableRHS2D : public Rhs2D<T>
 
         T
         operator()(const Index2D &index) const;
+        
+        void
+        clear(){}
 
 
     private:

@@ -37,4 +37,12 @@ operator()(XType xtype_row, int j_row, long k_row, XType xtype_col, int j_col, l
     return this->operator()(row_index,col_index);
 }
 
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+void
+AdaptiveLaplaceOperator1D<T,Side,Domain,Cons>::
+clear()
+{
+    data.clear();
+}
+
 }   // namespace lawa

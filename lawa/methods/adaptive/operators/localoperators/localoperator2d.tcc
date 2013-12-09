@@ -1060,7 +1060,18 @@ operator()(const Index2D &row_index, const Index2D &col_index)
 	return localoperator1(row_index.index1, col_index.index1) * localoperator2(row_index.index2,col_index.index2);
 }
 
+template <typename LocalOperator1, typename LocalOperator2>
+void
+LocalOperator2D<LocalOperator1, LocalOperator2>::
+clear()
+{
+    localoperator1.clear();
+    localoperator2.clear();
+}
+
+
 }   // namespace lawa
+
 
 
 /*

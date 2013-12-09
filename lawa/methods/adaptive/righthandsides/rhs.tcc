@@ -109,7 +109,14 @@ RHS<T,Index,RHSINTEGRAL,Preconditioner>::operator()(T t, const IndexSet<Index> &
     return ret;
 }
 
-
+template <typename T, typename Index, typename RHSINTEGRAL, typename Preconditioner>
+void
+RHS<T,Index,RHSINTEGRAL,Preconditioner>::
+clear()
+{
+    rhs_data.clear();
+    rhs_abs_data.clear();
+}
 
 }    //namespace lawa
 

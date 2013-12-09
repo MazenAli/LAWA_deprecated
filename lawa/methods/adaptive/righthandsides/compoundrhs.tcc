@@ -46,6 +46,31 @@ CompoundRhs<T,Index,FirstRhs,SecondRhs,ThirdRhs,FourthRhs,FifthRhs>::operator()(
     }
 }
 
+template <typename T, typename Index, typename FirstRhs, typename SecondRhs, typename ThirdRhs,
+          typename FourthRhs, typename FifthRhs>
+void
+CompoundRhs<T,Index,FirstRhs,SecondRhs,ThirdRhs,FourthRhs,FifthRhs>::
+clear()
+{
+    switch(numOfRhs)
+    {
+        case 5:
+            fifthRhs.clear();
+        case 4:
+            fourthRhs.clear();
+        case 3:
+            thirdRhs.clear();
+        case 2:
+            secondRhs.clear();
+        case 1:
+            firstRhs.clear();
+            break;
+        default: 
+            std::cerr << "CompoundRhs not yet implemented for " << numOfRhs
+                  << " operators. Exit." << std::endl;
+            exit(1);
+    }
+}
 
 }   // namespace lawa
 

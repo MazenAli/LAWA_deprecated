@@ -58,5 +58,15 @@ FlexibleCompoundRhs<T, Index,RHSType>::set_active_comp(int i)
 	}
 }
 
+template <typename T, typename Index, typename RHSType>
+void
+FlexibleCompoundRhs<T, Index,RHSType>::
+clear()
+{
+    for(auto& rhs : rhsvec){
+        rhs->clear();
+    }
+}
+
 }   // namespace lawa
 

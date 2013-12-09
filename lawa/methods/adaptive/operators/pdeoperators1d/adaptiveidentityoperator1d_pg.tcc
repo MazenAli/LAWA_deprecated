@@ -38,4 +38,12 @@ AdaptiveIdentityOperator1D_PG<T,TrialBasis,TestBasis>::toFlensSparseMatrix(const
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
 }
 
+template <typename T, typename TrialBasis, typename TestBasis>
+void
+AdaptiveIdentityOperator1D_PG<T,TrialBasis,TestBasis>::
+clear()
+{
+    data.clear();
+}
+
 }   // namespace lawa

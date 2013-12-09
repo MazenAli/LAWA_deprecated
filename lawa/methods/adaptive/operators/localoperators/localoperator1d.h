@@ -64,6 +64,9 @@ class LocalOperator1D {
 
         T
         operator()(const Index1D &row_index, const Index1D &col_index);
+        
+        void
+        clear();
 
     private:
         void

@@ -26,4 +26,12 @@ AdaptiveConvectionOperator1D<T,Side,Domain,Cons>::operator()(const Index1D &row_
     }
 }
 
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+void
+AdaptiveConvectionOperator1D<T,Side,Domain,Cons>::
+clear()
+{
+    data.clear();
+}
+
 }   // namespace lawa

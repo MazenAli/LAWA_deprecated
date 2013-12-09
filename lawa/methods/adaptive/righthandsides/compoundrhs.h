@@ -37,6 +37,9 @@ class CompoundRhs {
 
     T
     operator()(const Index &index);
+    
+    void
+    clear();
 
     int               numOfRhs;
     FirstRhs          &firstRhs;

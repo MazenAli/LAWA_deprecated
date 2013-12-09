@@ -660,6 +660,17 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 }
 
 
+template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm,
+          typename BilinearForm>
+void
+LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>::
+clear()
+{
+    RefinementBil.clear();
+    Bil.clear();
+}
+
+
 /*
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 void

@@ -47,4 +47,12 @@ AdaptiveIdentityOperator1D<T,Side,Domain,Cons>::toFlensSparseMatrix(const IndexS
     this->data.toFlensSparseMatrix(LambdaRow, LambdaCol, A_flens,-1);
 }
 
+template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
+void
+AdaptiveIdentityOperator1D<T,Side,Domain,Cons>::
+clear()
+{
+    data.clear();
+}
+
 }   // namespace lawa

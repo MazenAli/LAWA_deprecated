@@ -81,6 +81,9 @@ class CompoundLocalOperator {
 
         T
         eval(const Index& ind_row, const Index& ind_col);
+        
+        void
+        clear();
 
         int                         numOfLocalOp;
         FirstLocalOperator          &firstLocalOp;

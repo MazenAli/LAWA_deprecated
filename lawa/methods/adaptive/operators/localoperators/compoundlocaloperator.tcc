@@ -413,4 +413,28 @@ apply(Coefficients<Lexicographical,T,Index> &v,
     }
 }
 
+
+template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
+          typename ThirdLocalOperator,typename FourthLocalOperator>
+void
+CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>::
+clear(){
+    switch (numOfLocalOp)
+    {
+        case 4:
+            fourthLocalOp.clear();
+        case 3:
+            thirdLocalOp.clear();
+        case 2:
+             secondLocalOp.clear();
+        case 1:
+            firstLocalOp.clear();
+            break;
+        default:
+            std::cerr << "CompoundLocalOperator not yet implemented for " << numOfLocalOp
+                      << " operators. Exit." << std::endl;
+            exit(1);
+    }
+}
+
 }   // namespace lawa

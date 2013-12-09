@@ -43,6 +43,9 @@ public:
 	virtual
 	void
 	set_active_comp(int i);
+	
+	void
+    clear();
 
 protected:
 

@@ -49,4 +49,12 @@ operator()(XType xtype_row, int j_row, long k_row, XType xtype_col, int j_col, l
     return this->operator()(row_index,col_index);
 }
 
+template <typename T, typename TrialBasis, typename TestBasis>
+void
+AdaptiveWeightedPDEOperator1D_PG<T,TrialBasis,TestBasis>::
+clear()
+{
+    data.clear();
+}
+
 }   //namespace lawa
