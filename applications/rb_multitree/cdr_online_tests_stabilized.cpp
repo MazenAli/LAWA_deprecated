@@ -1,6 +1,25 @@
 #include "cdr_problem.h"
+#include <fstream>
+#include <sstream>
 
-int main () {
+void
+read_paramfile(string paramfilename, vector<ParamType>& v){
+    T mu1, mu2;
+    ifstream paramfile(paramfilename);
+    if(paramfile.is_open()){
+    	while(!paramfile.eof()){
+        	paramfile >> mu1 >> mu2;
+        	ParamType mu = {{mu1, mu2}};
+        	v.push_back(mu);
+    	}
+    	paramfile.close();
+    }
+    else{
+    	cerr << "Couldn't open " << paramfile << " for reading!" << endl;
+    }
+}
+
+int main (int argc, char* argv[]) {
 
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
@@ -9,6 +28,20 @@ int main () {
     int d   = 2;
     int d_  = 2;
     int j0  = 2;
+
+    if(argc < 5 || argc > 6){
+    	cerr << "Usage: " << argv[0] << " offline_data_folder snapshot_param_file output_name readSols(0/1) (Solution Folder)" << endl;
+    	exit(1);
+     }
+
+    string offline_folder = argv[1];
+    string param_file = argv[2];
+    string output = argv[3];
+    int readSols = atoi(argv[4]);
+    string solfolder;
+    if(readSols){
+        solfolder = argv[5];
+    }
 
     //getchar();
 
@@ -195,6 +228,9 @@ int main () {
 	size_t max_its = 100;
 	size_t max_basissize = 400000;
 	bool reset_res = false;
+	StableExpansionVersion stable_exp_u = FullExpansion,
+    StableExpansionVersion stable_exp_res = FullExpansion,
+    ResidualConstruction res_construction = SimpleStableExpansion,
 	bool print_info = true;
 	bool verbose = true;
 	bool plot_solution = false;
@@ -203,6 +239,8 @@ int main () {
 	size_t hashmapsize_test = 10;
 	std::string info_filename = "awgm_cgls_conv_info.txt";
 	std::string plot_filename = "awgm_cgls_u_plot";
+	bool write_intermediary_solutions = false,
+    std::string intermediary_solutions_filename = "awgm_cgls_u"
 	*/
 
     /* IS Parameters Default Values
@@ -236,6 +274,7 @@ int main () {
     is_parameters.adaptive_tol = false;
     is_parameters.absolute_tol = 1e-08;
 
+
     //----------- Solver ---------------- //
 
     T gamma = 0.2;
@@ -244,9 +283,9 @@ int main () {
     getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
 
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
-    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
+   							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
-    awgm_u.awgm_params.tol = 5e-01;
+    awgm_u.awgm_params.tol = 1e-04;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
@@ -254,16 +293,17 @@ int main () {
     awgm_rieszF.set_sol(dummy);
     awgm_rieszF.set_initial_indexset(LambdaTest);
     awgm_rieszF.awgm_params.tol = 5e-04;
-    awgm_rieszF.awgm_params.info_filename = "awgm_stage4_rieszF_conv_info.txt";
+    awgm_rieszF.awgm_params.info_filename = "awgm_stage9_rieszF_conv_info.txt";
 
 
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
     awgm_rieszA.awgm_params.tol = 5e-04;
-    awgm_rieszA.awgm_params.info_filename = "awgm_stage4_rieszA_conv_info.txt";
+    awgm_rieszA.awgm_params.info_filename = "awgm_stage9_rieszA_conv_info.txt";
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
+
 
     //----------- RB System ---------------- //
 
@@ -271,32 +311,30 @@ int main () {
     LB_Base<ParamType, MTTruthSolver> lb_base(rb_truth, lhs_theta);
     IndexSet<Index2D> LambdaTrial_Alpha_sparse, LambdaTrial_Alpha_full ;
 
-    //getSparseGridIndexSet(basis2d_trial,LambdaTrial_Alpha_sparse,3,0,gamma);
-    getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full, 3,3,0);
+    getSparseGridIndexSet(basis2d_trial,LambdaTrial_Alpha_sparse,3,0,gamma);
+    //getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full, 3,3,0);
 
 
     cout << "++ Assembling Matrices for Alpha Computation ... " << endl << endl;
-    lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_full);
+    lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_sparse);
 
     RB_Model rb_system(lhs_theta, rhs_theta, lb_base);
+    rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
 
     rb_system.rb_params.ref_param = {{1., 1.}};
     rb_system.rb_params.call = call_gmres;
-
-    rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
 
     //----------- RB Base ---------------- //
 
     RB_BaseModel rb_base(rb_system, rb_truth);
 
     /* RB Greedy Parameters Default Values
-      	TrainingType training_type = weak, (strong/weak_direct)
- 		double tol = 1e-2,
+		TrainingType training_type = weak,
+		double tol = 1e-2,
 		std::size_t Nmax = 20,
 		ParamType_min_param = ParamType(),
 		ParamType max_param = ParamType(),
 		intArray  training_params_per_dim = intArray(),
-		intArray log_scaling = intArray(),
 		bool print_info = true,
 		std::string print_file = "greedy_info.txt",
 		bool verbose = true,
@@ -314,12 +352,10 @@ int main () {
 		bool update_rieszF = false,
 		bool update_rieszA = false,
 		bool coarsen_rieszA_for_update = false,
-		bool test_estimator_equivalence = false
-		bool tighten_estimator_accuracy = false;
-		double riesz_constant_X = 1.,			    // = Riesz constant of Basis
-		double riesz_constant_Y = 1.,
+		bool test_estimator_equivalence = false,
+		bool equivalence_tol_factor = 1.,
 		bool write_direct_representors = false,
-		T min_error_reduction = 0.5;
+		T min_error_reduction = 0.5);
      */
 
 
@@ -332,6 +368,7 @@ int main () {
     ParamType mu_min = {{0., -9.}};
     ParamType mu_max = {{30, 15}};
 
+    rb_base.greedy_params.tol = 1e-04;
     rb_base.greedy_params.min_param = mu_min;
     rb_base.greedy_params.max_param = mu_max;
     rb_base.greedy_params.Nmax = 	15;
@@ -339,22 +376,20 @@ int main () {
     rb_base.greedy_params.print_paramset = true;
     rb_base.greedy_params.erase_snapshot_params = false;
     rb_base.greedy_params.orthonormalize_bfs = false;
-    rb_base.greedy_params.print_file = "awgm_stage4_greedy_info.txt";
-    rb_base.greedy_params.trainingdata_folder = "training_data_stage4";
-    rb_base.greedy_params.tighten_tol = false;
+    rb_base.greedy_params.print_file = "awgm_stage9_greedy_info.txt";
+    rb_base.greedy_params.trainingdata_folder = "training_data_stage9";
+    rb_base.greedy_params.tighten_tol = true;
+    rb_base.greedy_params.snapshot_tol_red_crit = conv_rate_degradation;
     rb_base.greedy_params.tighten_tol_rieszA = false;
     rb_base.greedy_params.tighten_tol_rieszF = false;
-    rb_base.greedy_params.test_estimator_equivalence = true;
-    rb_base.greedy_params.riesz_constant_X = 5.5;
-    rb_base.greedy_params.riesz_constant_Y = 5.5;
-	
-
+    rb_base.greedy_params.update_snapshot = true;
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();
 
     cout << "Parameters Truth Solver: " << std::endl << std::endl;
     awgm_u.awgm_params.print();
+
     awgm_u.is_params.print();
 
     cout << "Parameters Riesz Solver F : " << std::endl << std::endl;
@@ -362,13 +397,103 @@ int main () {
 
     cout << "Parameters Riesz Solver A : " << std::endl << std::endl;
     awgm_rieszA.awgm_params.print();
+    
+    // Read RB Data
+    rb_system.read_rb_data(offline_folder);
+    rb_base.read_basisfunctions(offline_folder + "/bf");
+    //rb_base.read_rieszrepresentors(offline_folder + "/representors");
+    //rb_base.read_greedy_info("./Runs/Stage8/Run3/awgm_stage8_greedy_info.txt");
 
-    rb_base.train_Greedy();
+    // Read Test Parameters
+    std::vector<ParamType> Xi_test, snapshot_params;
+    
+    read_paramfile("Xitest.txt", Xi_test);
+    read_paramfile(param_file, snapshot_params);
 
-    rb_system.write_rb_data("offline_data_stage4");
-    rb_base.write_basisfunctions("offline_data_stage4");
-    rb_base.write_rieszrepresentors("offline_data_stage4");
+    cout << "===============================" << endl;
+    cout << "Test Parameters: " << endl;
+    for(auto& mu : Xi_test){
+    	cout << mu[0] << " " << mu[1] << endl;
+    }
+    cout << "===============================" << endl;
 
+    // Test Reduced Solutions
+    std::map<ParamType, std::vector<T> > errs, errbounds;
+
+    
+    // Construct pruned index sets
+    int Nmax = 6;
+    vector<vector<size_t> > pruned_indizes;
+
+    
+    vector<size_t> pr_inds;
+    pruned_indizes.push_back(pr_inds);
+    for(size_t N = 1; N <= Nmax; N++){
+        // Construct index set of pruned basis
+        ParamType bf_param = snapshot_params[N-1];
+        int index_first_occurence = -1;
+        for(size_t i = 0; i < pruned_indizes[N-1].size(); ++i){
+            if(fabs(snapshot_params[pruned_indizes[N-1][i]][0] - bf_param[0]) <= 1e-05 
+            && fabs(snapshot_params[pruned_indizes[N-1][i]][1] - bf_param[1]) <= 1e-05){
+                index_first_occurence = i;
+                break;
+            }
+        }
+        if(index_first_occurence >= 0){
+            pruned_indizes[N-1][index_first_occurence] = N-1;
+        }
+        else{
+            pruned_indizes[N-1].push_back(N-1);
+        }
+        
+        cout << "Pruned basis has indices { ";
+        for(auto& ind : pruned_indizes[N-1]){
+            cout << ind << " ";
+        }
+        cout << "}" << endl << endl;
+        
+        pruned_indizes.push_back(pruned_indizes[N-1]);
+    }
+
+    ParamType mu = {{0.36936058457034515,3.1396037564550863}};
+
+	stringstream ufilename;
+	if(argc == 6){
+		ufilename << solfolder << "/";
+	}
+	ufilename << "u_" << mu[0] << "_" << mu[1] << ".txt";
+
+	DataType u;
+	if(!readSols){
+    	// Compute truth solution
+    	u = rb_truth.get_truth_solution(mu);
+    	saveCoeffVector2D(u, basis2d_trial, ufilename.str().c_str());
+	}
+	else{
+		readCoeffVector2D(u, ufilename.str().c_str());
+	}
+
+    cout << " Mu = " << mu[0] << " " << mu[1] << endl;
+    
+	for(size_t n = 1; n <= Nmax; ++n){
+
+		// Compute RB solution
+		DenseVectorT u_N = rb_system.get_rb_solution(n, mu);
+        cout << "u_" << n << " = " << u_N << endl;
+
+		// Compute real error
+		DataType u_approx = rb_base.reconstruct_u_N(u_N, n);
+		u_approx -= u;
+		cout << "Err = " << u_approx.norm(2.)  << endl;
+		        
+	    // And now the same for the pruned indizes
+		DenseVectorT u_N_pr = rb_system.get_rb_solution(pruned_indizes[n-1], mu);
+        cout << "u_" << n << "_pr = " << u_N_pr; 
+        
+        DataType u_approx_pr = rb_base.reconstruct_u_N(u_N_pr, pruned_indizes[n-1]);
+		u_approx_pr -= u;
+		cout << "Err = " << u_approx_pr.norm(2.)  << endl;
+	}
 
     return 0;
 }

@@ -426,10 +426,16 @@ int main (int argc, char* argv[]) {
     std::map<ParamType, std::vector<T> > errs, errbounds;
     int Nmax = rb_system.RB_inner_product.numRows();
 
+    DenseVectorT av_err(Nmax);
+    DenseVectorT av_errest(Nmax);
+    
     // For all parameters:
     int count = 0;
     for(auto& mu : Xi_test){
         count++;
+        
+       // if(count != 3){ continue;}
+        cout << "Mu = [" << mu[0] << " " << mu[1] << "]" << endl;
         
     	stringstream ufilename_in, ufilename_out;
     	if(argc >= 6){
@@ -464,25 +470,56 @@ int main (int argc, char* argv[]) {
 
     		// Compute RB solution
     		DenseVectorT u_N = rb_system.get_rb_solution(n, mu);
-
+            cout << "u_" << n << " = " << u_N << endl;
     		// Compute real error
     		DataType u_approx = rb_base.reconstruct_u_N(u_N, n);
     		u_approx -= u;
     		err = u_approx.norm(2.);
+            cout << "Err = " << err << endl;
     		errs_mu.push_back(err);
+    		
+    		av_err(n) += err;
+            
+    		
+    		// Test
+    	/*	if(n == 5){
+                DenseVectorT u_N_pr(5);
+                u_N_pr = 0,     0.05224829875809290647  ,   0.37884939412024032368 ,   -0.02247794763824094433, -0.31881383123878792585 ;
+                cout << "u_" << n << "_pruned = " << u_N_pr << endl;
+                
+                FullColMatrixT A;
+                DenseVectorT F;
+                rb_system.get_rb_LGS(n, mu, A, F);
+                cout << "A = " << A  << endl;
+                cout << "F = " << F << endl;
+                DenseVectorT Au = A*u_N_pr;
+                cout << "A*u_pruned = " << setprecision(20) << Au << endl;
+                Au -= F;
+                cout << "A*u_pruned - F = " << setprecision(20) << Au << endl;
+                
+                DataType u_approx_pr = rb_base.reconstruct_u_N(u_N_pr, n);
+                u_approx_pr -= u;
+                cout << "Err pr = " << u_approx_pr.norm(2.) << endl;
+            }*/
 
     		// Compute error estimator
     		errbound = rb_system.get_errorbound(u_N, mu);
     		errbounds_mu.push_back(errbound);
+    		av_errest(n) += errbound;
+            
     	}
 
     	errs.insert(make_pair(mu, errs_mu));
     	errbounds.insert(make_pair(mu, errbounds_mu));
     	
-        if(count >= 5){ break;}
+       // if(count >= 5){ break;}
     }
     
-    rb_system.write_alpha("Test_Alphas.txt");
+    av_err *= 1./Xi_test.size();
+    av_errest *= 1./Xi_test.size();
+    
+    
+    //rb_system.write_alpha("Test_Alphas.txt");
 
     ofstream errfile(output + "_OnlineTest_Errors.txt");
     if(errfile.is_open()){
@@ -514,6 +551,19 @@ int main (int argc, char* argv[]) {
     }
     else{
     	cerr << "Couldn't open Test_ErrorEstimators.txt for writing!" << endl;
+    }
+    
+    ofstream av_file(output + "_OnlineTest_Averages.txt");
+    if(av_file.is_open()){
+        av_file << "# N avErr avErrEst" << endl;
+        for(int i = 1; i <= Nmax; ++i){
+            av_file << i << " " << i << " " << av_err(i) << " " << av_errest(i) << endl;
+        }
+        
+        av_file.close();        
+    }
+    else{
+        cerr << "Couldn't open file " << output << "_OnlineTest_Averages.txt" << " for writing! " << endl;
     }
 }
 

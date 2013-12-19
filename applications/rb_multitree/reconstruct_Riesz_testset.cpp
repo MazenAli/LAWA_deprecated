@@ -1,6 +1,25 @@
 #include "cdr_problem.h"
+#include <fstream>
+#include <sstream>
 
-int main () {
+void
+read_paramfile(string paramfilename, vector<ParamType>& v){
+    T mu1, mu2;
+    ifstream paramfile(paramfilename);
+    if(paramfile.is_open()){
+    	while(!paramfile.eof()){
+        	paramfile >> mu1 >> mu2;
+        	ParamType mu = {{mu1, mu2}};
+        	v.push_back(mu);
+    	}
+    	paramfile.close();
+    }
+    else{
+    	cerr << "Couldn't open " << paramfile << " for reading!" << endl;
+    }
+}
+
+int main (int argc, char* argv[]) {
 
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
@@ -9,6 +28,16 @@ int main () {
     int d   = 2;
     int d_  = 2;
     int j0  = 2;
+
+    if(argc != 5){
+    	cerr << "Usage: " << argv[0] << " offline_data_folder output_data_folder N readTestFcts(0/1)" << endl;
+    	exit(1);
+     }
+
+    string offline_folder = argv[1];
+    string output_folder = argv[2];
+    int N = atoi(argv[3]);
+    int read_testfcts = atoi(argv[4]);
 
     //getchar();
 
@@ -183,6 +212,15 @@ int main () {
     vector<SeparableRhs_Trial*> rhs_fcts_u;
     rhs_fcts_u.push_back(&F_u);
     Flex_Rhs_2D flex_rhs_u(rhs_fcts_u);
+    
+    vector<ThetaStructure<ParamType>::ThetaFct> empty_theta_fcts;
+    ThetaStructure<ParamType> empty_theta(empty_theta_fcts);
+    vector<SeparableRhs*> empty_rhs_fcts;
+    Affine_Rhs_2D empty_rhs(empty_theta, empty_rhs_fcts);
+    
+    // Right Hand Sides for direct Riesz Representor
+    AffineA_Rhs_2D	 	affineA_rhs(lhs_theta, lhs_ops);
+    RieszRes_Rhs_2D		rieszRes_rhs(affineA_rhs, empty_rhs);
 
 
 	//===============================================================//
@@ -195,6 +233,9 @@ int main () {
 	size_t max_its = 100;
 	size_t max_basissize = 400000;
 	bool reset_res = false;
+	StableExpansionVersion stable_exp_u = FullExpansion,
+    StableExpansionVersion stable_exp_res = FullExpansion,
+    ResidualConstruction res_construction = SimpleStableExpansion,
 	bool print_info = true;
 	bool verbose = true;
 	bool plot_solution = false;
@@ -203,6 +244,8 @@ int main () {
 	size_t hashmapsize_test = 10;
 	std::string info_filename = "awgm_cgls_conv_info.txt";
 	std::string plot_filename = "awgm_cgls_u_plot";
+	bool write_intermediary_solutions = false,
+    std::string intermediary_solutions_filename = "awgm_cgls_u"
 	*/
 
     /* IS Parameters Default Values
@@ -230,11 +273,12 @@ int main () {
 
     AWGM_PG_Parameters awgm_truth_parameters;
     IS_Parameters is_parameters;
-    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
+    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters, awgm_riesz_res_parameters;
     awgm_truth_parameters.max_its = 1000;
     
     is_parameters.adaptive_tol = false;
     is_parameters.absolute_tol = 1e-08;
+
 
     //----------- Solver ---------------- //
 
@@ -244,9 +288,11 @@ int main () {
     getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
 
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
-    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
+   							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
-    awgm_u.awgm_params.tol = 5e-01;
+    awgm_u.awgm_params.tol = 1e-05;
+    awgm_u.awgm_params.max_basissize = 800000;
+    awgm_u.awgm_params.stable_exp_u = OnlyTemporalHWExpansion;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
@@ -254,16 +300,24 @@ int main () {
     awgm_rieszF.set_sol(dummy);
     awgm_rieszF.set_initial_indexset(LambdaTest);
     awgm_rieszF.awgm_params.tol = 5e-04;
-    awgm_rieszF.awgm_params.info_filename = "awgm_stage4_rieszF_conv_info.txt";
+    awgm_rieszF.awgm_params.info_filename = "awgm_stage9_rieszF_conv_info.txt";
 
 
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
     awgm_rieszA.awgm_params.tol = 5e-04;
-    awgm_rieszA.awgm_params.info_filename = "awgm_stage4_rieszA_conv_info.txt";
+    awgm_rieszA.awgm_params.info_filename = "awgm_stage9_rieszA_conv_info.txt";
+    
+    
+    MT_AWGM_Riesz_Res awgm_rieszRes(basis2d_test, innprod_Y, rieszRes_rhs, leftPrec, awgm_riesz_res_parameters, is_parameters);
+    awgm_rieszRes.set_sol(dummy);
+    awgm_rieszRes.set_initial_indexset(LambdaTest);
+    awgm_rieszRes.awgm_params.tol = 5e-04;
+    awgm_rieszRes.awgm_params.print_info = false;
 
-    MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
+    MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, &awgm_rieszRes, innprod_Y_u_u, A_u_u, flex_rhs_u);
+
 
     //----------- RB System ---------------- //
 
@@ -271,32 +325,30 @@ int main () {
     LB_Base<ParamType, MTTruthSolver> lb_base(rb_truth, lhs_theta);
     IndexSet<Index2D> LambdaTrial_Alpha_sparse, LambdaTrial_Alpha_full ;
 
-    //getSparseGridIndexSet(basis2d_trial,LambdaTrial_Alpha_sparse,3,0,gamma);
-    getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full, 3,3,0);
+    getSparseGridIndexSet(basis2d_trial,LambdaTrial_Alpha_sparse,3,0,gamma);
+    //getFullIndexSet(basis2d_trial, LambdaTrial_Alpha_full, 3,3,0);
 
 
     cout << "++ Assembling Matrices for Alpha Computation ... " << endl << endl;
-    lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_full);
+    lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_sparse);
 
     RB_Model rb_system(lhs_theta, rhs_theta, lb_base);
+    rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
 
     rb_system.rb_params.ref_param = {{1., 1.}};
     rb_system.rb_params.call = call_gmres;
-
-    rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
 
     //----------- RB Base ---------------- //
 
     RB_BaseModel rb_base(rb_system, rb_truth);
 
     /* RB Greedy Parameters Default Values
-      	TrainingType training_type = weak, (strong/weak_direct)
- 		double tol = 1e-2,
+		TrainingType training_type = weak,
+		double tol = 1e-2,
 		std::size_t Nmax = 20,
 		ParamType_min_param = ParamType(),
 		ParamType max_param = ParamType(),
 		intArray  training_params_per_dim = intArray(),
-		intArray log_scaling = intArray(),
 		bool print_info = true,
 		std::string print_file = "greedy_info.txt",
 		bool verbose = true,
@@ -314,12 +366,10 @@ int main () {
 		bool update_rieszF = false,
 		bool update_rieszA = false,
 		bool coarsen_rieszA_for_update = false,
-		bool test_estimator_equivalence = false
-		bool tighten_estimator_accuracy = false;
-		double riesz_constant_X = 1.,			    // = Riesz constant of Basis
-		double riesz_constant_Y = 1.,
+		bool test_estimator_equivalence = false,
+		bool equivalence_tol_factor = 1.,
 		bool write_direct_representors = false,
-		T min_error_reduction = 0.5;
+		T min_error_reduction = 0.5);
      */
 
 
@@ -332,6 +382,7 @@ int main () {
     ParamType mu_min = {{0., -9.}};
     ParamType mu_max = {{30, 15}};
 
+    rb_base.greedy_params.tol = 1e-04;
     rb_base.greedy_params.min_param = mu_min;
     rb_base.greedy_params.max_param = mu_max;
     rb_base.greedy_params.Nmax = 	15;
@@ -339,22 +390,20 @@ int main () {
     rb_base.greedy_params.print_paramset = true;
     rb_base.greedy_params.erase_snapshot_params = false;
     rb_base.greedy_params.orthonormalize_bfs = false;
-    rb_base.greedy_params.print_file = "awgm_stage4_greedy_info.txt";
-    rb_base.greedy_params.trainingdata_folder = "training_data_stage4";
-    rb_base.greedy_params.tighten_tol = false;
+    rb_base.greedy_params.print_file = "awgm_stage9_greedy_info.txt";
+    rb_base.greedy_params.trainingdata_folder = "training_data_stage9";
+    rb_base.greedy_params.tighten_tol = true;
+    rb_base.greedy_params.snapshot_tol_red_crit = conv_rate_degradation;
     rb_base.greedy_params.tighten_tol_rieszA = false;
     rb_base.greedy_params.tighten_tol_rieszF = false;
-    rb_base.greedy_params.test_estimator_equivalence = true;
-    rb_base.greedy_params.riesz_constant_X = 5.5;
-    rb_base.greedy_params.riesz_constant_Y = 5.5;
-	
-
+    rb_base.greedy_params.update_snapshot = true;
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();
 
     cout << "Parameters Truth Solver: " << std::endl << std::endl;
     awgm_u.awgm_params.print();
+
     awgm_u.is_params.print();
 
     cout << "Parameters Riesz Solver F : " << std::endl << std::endl;
@@ -362,14 +411,99 @@ int main () {
 
     cout << "Parameters Riesz Solver A : " << std::endl << std::endl;
     awgm_rieszA.awgm_params.print();
+    
+    cout << "Parameters Riesz Solver Res : " << std::endl << std::endl;
+    awgm_rieszRes.awgm_params.print();
+    
+    // Read RB Data
+    rb_system.read_rb_data(offline_folder);
+    rb_base.read_basisfunctions(offline_folder + "/bf");
+    //rb_base.read_rieszrepresentors(offline_folder + "/representors");
 
-    rb_base.train_Greedy();
+    int Nmax = rb_base.n_bf();
+    
+    ParamType mu = {{0.36936058457034515,3.1396037564550863}};
+    
+    // Orthogonalize Snapshots:
+    // 1. Build Union of first N basis functions
+    
+    vector<DataType> test_fcts;
+    if(!read_testfcts){
+        for(int i = 0; i < N; ++i){
+        
+            DataType repr_bf = rb_truth.get_riesz_representor_res(rb_base.rb_basisfunctions[i], mu);
+            T repr_norm = rb_truth.innprod_Y_v_v(repr_bf, repr_bf);
+        	repr_bf.scale(-1./std::sqrt(repr_norm));
+        
+            test_fcts.push_back(repr_bf);
+        
+            stringstream repr_bf_filename;
+            repr_bf_filename << output_folder << "/TestFct_" << i+1 << ".txt";
+            saveCoeffVector2D(repr_bf, basis2d_test, repr_bf_filename.str().c_str());
+        }
+    }
+    else{
+        for(int i = 0; i < N; ++i){
+            DataType repr_bf;
+            stringstream repr_bf_filename;
+            repr_bf_filename << output_folder << "/TestFct_" << i+1 << ".txt";
+            readCoeffVector2D(repr_bf, repr_bf_filename.str().c_str());
+        
+            cout << "Read " << repr_bf_filename.str() << endl;
+            test_fcts.push_back(repr_bf);
+        }
+    }
 
-    rb_system.write_rb_data("offline_data_stage4");
-    rb_base.write_basisfunctions("offline_data_stage4");
-    rb_base.write_rieszrepresentors("offline_data_stage4");
+    
+    // Compute RB Matrices:
+    vector<FullColMatrixT> RB_A;
+    vector<DenseVectorT>   RB_F;    
+    
+    for(int qa = 0; qa < rb_system.Q_a(); ++qa){
+        FullColMatrixT RB_A_qa(N,N);
+        for(int i = 1; i <= N; ++i){
+            for(int j = 1; j <= N; ++j){
+                
+                DataType tmp = test_fcts[j-1];
+            	tmp.setToZero();
 
+                (*lhs_ops[qa]).eval(rb_base.rb_basisfunctions[i],tmp);
 
+            	T val = 0;
+            	for(auto& lambda : test_fcts[j-1]){
+            		val += lambda.second * tmp[lambda.first];
+            	}
+            	
+                RB_A_qa(i,j) = val;	
+            }
+        }
+        cout << "QA = " << qa << ": " << RB_A_qa << endl;
+        RB_A.push_back(RB_A_qa);
+    }
+    
+    for(int qf = 0; qf < rb_system.Q_f(); ++qf){
+        DenseVectorT RB_F_qf(N);
+        for(int i = 1; i <= N; ++i){
+            
+            T val = 0;
+        	for(auto& lambda : test_fcts[i-1]){
+        		val += lambda.second * F(lambda.first);
+        	}
+            
+            RB_F_qf(i) = val;
+        }
+        cout << "QF = " << qf << ": " << RB_F_qf << endl;
+        RB_F.push_back(RB_F_qf);
+    }
+    
+    rb_system.RB_A_matrices = RB_A;
+    rb_system.RB_F_vectors = RB_F;
+    
+    rb_system.write_rb_data(output_folder);
+    
+    
+    
+    
     return 0;
 }
 

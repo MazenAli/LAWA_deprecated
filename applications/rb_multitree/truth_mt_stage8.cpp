@@ -257,14 +257,14 @@ int main () {
     MT_AWGM_Riesz_F awgm_rieszF(basis2d_test, innprod_Y, rieszF_rhs, leftPrec, awgm_riesz_f_parameters, is_parameters);
     awgm_rieszF.set_sol(dummy);
     awgm_rieszF.set_initial_indexset(LambdaTest);
-    awgm_rieszF.awgm_params.tol = 5e-04;
+    awgm_rieszF.awgm_params.tol = 5e-02;
     awgm_rieszF.awgm_params.info_filename = "awgm_stage8_rieszF_conv_info.txt";
 
 
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
-    awgm_rieszA.awgm_params.tol = 5e-04;
+    awgm_rieszA.awgm_params.tol = 5e-02;
     awgm_rieszA.awgm_params.info_filename = "awgm_stage8_rieszA_conv_info.txt";
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
@@ -300,6 +300,7 @@ int main () {
 		ParamType_min_param = ParamType(),
 		ParamType max_param = ParamType(),
 		intArray  training_params_per_dim = intArray(),
+		intArray log_scaling = intArray(),
 		bool print_info = true,
 		std::string print_file = "greedy_info.txt",
 		bool verbose = true,
@@ -317,8 +318,10 @@ int main () {
 		bool update_rieszF = false,
 		bool update_rieszA = false,
 		bool coarsen_rieszA_for_update = false,
-		bool test_estimator_equivalence = false,
-		bool equivalence_tol_factor = 1.,			// = Riesz constant of Basis
+		bool test_estimator_equivalence = false
+		bool tighten_estimator_accuracy = false;
+		double riesz_constant_X = 1.,			    // = Riesz constant of Basis
+		double riesz_constant_Y = 1.,
 		bool write_direct_representors = false,
 		T min_error_reduction = 0.5;
      */
@@ -350,7 +353,9 @@ int main () {
     rb_base.greedy_params.update_rieszF = false,
     rb_base.greedy_params.update_rieszA = false,
     rb_base.greedy_params.test_estimator_equivalence = true;
-    rb_base.greedy_params.equivalence_tol_factor = 2.5;
+    rb_base.greedy_params.tighten_estimator_accuracy = true;
+    rb_base.greedy_params.riesz_constant_X = 5.5;
+    rb_base.greedy_params.riesz_constant_Y = 5.5;
 
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();

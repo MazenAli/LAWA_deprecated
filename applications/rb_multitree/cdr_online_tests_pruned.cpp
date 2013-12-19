@@ -401,7 +401,7 @@ int main (int argc, char* argv[]) {
     // Read RB Data
     rb_system.read_rb_data(offline_folder);
     rb_base.read_basisfunctions(offline_folder + "/bf");
-    rb_base.read_rieszrepresentors(offline_folder + "/representors");
+    //rb_base.read_rieszrepresentors(offline_folder + "/representors");
     //rb_base.read_greedy_info("./Runs/Stage8/Run3/awgm_stage8_greedy_info.txt");
 
     // Read Test Parameters
@@ -422,7 +422,7 @@ int main (int argc, char* argv[]) {
 
     
     // Construct pruned index sets
-    int Nmax = rb_system.RB_inner_product.numRows();
+    int Nmax = snapshot_params.size();
     vector<vector<size_t> > pruned_indizes;
     
     DenseVectorT av_err(Nmax);
@@ -457,6 +457,7 @@ int main (int argc, char* argv[]) {
         pruned_indizes.push_back(pruned_indizes[N-1]);
     }
 
+    DenseVectorT av_alt(3);
     // For all parameters:
     int count = 0;
     for(auto& mu : Xi_test){
@@ -484,12 +485,12 @@ int main (int argc, char* argv[]) {
     	T err, errbound;
         cout << " Mu = " << mu[0] << " " << mu[1] << endl;
         
-        if(count==3){
     	for(size_t n = 1; n <= Nmax; ++n){
 
+     		cout << n << endl << endl;
     		// Compute RB solution
     		DenseVectorT u_N = rb_system.get_rb_solution(pruned_indizes[n-1], mu);
-            cout << "u_" << n << " = " << u_N; 
+            //cout << "u_" << n << " = " << u_N;
             
             /*// Test
             vector<size_t> rev_indices;
@@ -507,58 +508,60 @@ int main (int argc, char* argv[]) {
 
     		// Compute real error
     		DataType u_approx = rb_base.reconstruct_u_N(u_N, pruned_indizes[n-1]);
-            DataType u_approx2 = u;
-            u_approx2 *= -1;
-            u_approx2 += u_approx;
     		u_approx -= u;
     		err = u_approx.norm(2.);
     		errs_mu.push_back(err);
-    		cout << "Err = " << u_approx.norm(2.)  << " " << u_approx2.norm(2.) << endl;
+    		cout << "Err = " << u_approx.norm(2.)  << endl;
+    		
+    		if(n == 5){
+        		DenseVectorT u_N_full = rb_system.get_rb_solution(n, mu);
+                cout << "u_" << n << "_alt = " << u_N_full;
+                
+                DataType u_appr_full = rb_base.reconstruct_u_N(u_N_full,n);
+                u_appr_full -= u;
+                cout << "Err = " << u_appr_full.norm(2.) << endl;
+                
+                av_alt(1) += u_appr_full.norm(2.);
+    		}
+    		if(n == 6){
+                vector<size_t> indizes = {{0,1,2,3,5}};
+    		    DenseVectorT u_N_full = rb_system.get_rb_solution(indizes, mu);
+                cout << "u_" << n << "_alt = " << u_N_full;
+                
+                DataType u_appr_full = rb_base.reconstruct_u_N(u_N_full,indizes);
+                u_appr_full -= u;
+                cout << "Err = " << u_appr_full.norm(2.) << endl;
+                
+                av_alt(2) += u_appr_full.norm(2.);
+    		}
+    		if(n == 7){
+                vector<size_t> indizes = {{0,1,6,3,5}};
+    		    DenseVectorT u_N_full = rb_system.get_rb_solution(indizes, mu);
+                cout << "u_" << n << "_alt = " << u_N_full;
+                
+                DataType u_appr_full = rb_base.reconstruct_u_N(u_N_full,indizes);
+                u_appr_full -= u;
+                cout << "Err = " << u_appr_full.norm(2.) << endl;
+                
+                av_alt(3) += u_appr_full.norm(2.);
+    		}
              
             av_err(n) += err;
             
-            // Compute Test Eror
-            if(n == 5){
-                DenseVectorT u_matlab(4);
-                u_matlab = -0.318813831238767, 0.052248298758068, 0.378849394120243, -0.022477947638239;
-                DataType u_matlab_calN = rb_base.reconstruct_u_N(u_matlab, pruned_indizes[n-1]);
-                u_matlab_calN -= u;
-                cout << "Error matlab: " <<  u_matlab_calN.norm(2.) << endl;
-            }
-            
-            if(n == 6){
-                DenseVectorT u_matlab(5);
-                u_matlab = -0.283258508355013,
-                 0.067042010189775,
-                 0.376066243029085,
-                -0.023503958709718,
-                -0.047257695469651;
-                DataType u_matlab_calN = rb_base.reconstruct_u_N(u_matlab, 5);
-                u_matlab_calN -= u;
-                cout << "Error full (matlab): " <<  u_matlab_calN.norm(2.) << endl;
-            }
-            
-        
-            /*//Test 
-            DataType u_approx_rev = rb_base.reconstruct_u_N(u_N_rev, rev_indices);
-            u_approx_rev -= u;
-            cout << "Err Rev = " << u_approx_rev.norm(2.) << endl;*/
-            
     		// Compute error estimator
-    		/*errbound = rb_system.get_errorbound(pruned_indizes[n-1], u_N, mu);
+    		//errbound = rb_system.get_errorbound(pruned_indizes[n-1], u_N, mu);
     		errbounds_mu.push_back(errbound);
     		
-            av_errest(n) += errbound;*/
+            av_errest(n) += errbound;
     	}
-        }
     	errs.insert(make_pair(mu, errs_mu));
     	errbounds.insert(make_pair(mu, errbounds_mu));
-    	
-        if(count >= 5){break;}
+    	    	
     }
     
     av_err *= 1./Xi_test.size();
     av_errest *= 1./Xi_test.size();
+    av_alt *= 1./Xi_test.size();
     
    // rb_system.write_alpha("Test_Alphas.txt");
 
@@ -607,9 +610,15 @@ int main (int argc, char* argv[]) {
     av_file_name += "_PrunedOnlineTest_Averages.txt";
     ofstream av_file(av_file_name.c_str());
     if(av_file.is_open()){
-        av_file << "# N_pruned avErr avErrEst" << endl;
+        av_file << "# N_pruned avErr avErrEst av_err_alt" << endl;
         for(int i = 1; i <= Nmax; ++i){
-            av_file << i << " " << pruned_indizes[i-1].size() << " " << av_err(i) << " " << av_errest(i) << endl;
+            av_file << i << " " << pruned_indizes[i-1].size() << " " << av_err(i) << " " << av_errest(i);
+            if(i>=5){
+                av_file << " " << av_alt(i-4) << endl;
+            }
+            else{
+                av_file << endl;
+            }
         }
         
         av_file.close();        

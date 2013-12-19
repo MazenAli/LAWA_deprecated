@@ -184,6 +184,10 @@ int main () {
     rhs_fcts_u.push_back(&F_u);
     Flex_Rhs_2D flex_rhs_u(rhs_fcts_u);
 
+    // Right Hand Sides for direct Riesz Representor
+    AffineA_Rhs_2D	 	affineA_rhs(lhs_theta, lhs_ops);
+    RieszRes_Rhs_2D		rieszRes_rhs(affineA_rhs, affine_rhs);
+
 
 	//===============================================================//
 	//===============  AWGM =========================================//
@@ -230,7 +234,7 @@ int main () {
 
     AWGM_PG_Parameters awgm_truth_parameters;
     IS_Parameters is_parameters;
-    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters;
+    AWGM_Parameters awgm_riesz_f_parameters, awgm_riesz_a_parameters, awgm_riesz_res_parameters;
     awgm_truth_parameters.max_its = 1000;
     
     is_parameters.adaptive_tol = false;
@@ -244,9 +248,9 @@ int main () {
     getSparseGridIndexSet(basis2d_test ,LambdaTest ,2,1,gamma);
 
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
-    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
+   							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
-    awgm_u.awgm_params.tol = 5e-01;
+    awgm_u.awgm_params.tol = 5e-03;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
@@ -254,16 +258,17 @@ int main () {
     awgm_rieszF.set_sol(dummy);
     awgm_rieszF.set_initial_indexset(LambdaTest);
     awgm_rieszF.awgm_params.tol = 5e-04;
-    awgm_rieszF.awgm_params.info_filename = "awgm_stage4_rieszF_conv_info.txt";
+    awgm_rieszF.awgm_params.info_filename = "awgm_stage8_rieszF_conv_info.txt";
 
 
     MT_AWGM_Riesz_A awgm_rieszA(basis2d_test, innprod_Y, rieszA_rhs, leftPrec, awgm_riesz_a_parameters, is_parameters);
     awgm_rieszA.set_sol(dummy);
     awgm_rieszA.set_initial_indexset(LambdaTest);
     awgm_rieszA.awgm_params.tol = 5e-04;
-    awgm_rieszA.awgm_params.info_filename = "awgm_stage4_rieszA_conv_info.txt";
+    awgm_rieszA.awgm_params.info_filename = "awgm_stage8_rieszA_conv_info.txt";
 
     MTTruthSolver rb_truth(awgm_u, awgm_rieszF, awgm_rieszA, innprod_Y_u_u, A_u_u, flex_rhs_u);
+
 
     //----------- RB System ---------------- //
 
@@ -279,11 +284,10 @@ int main () {
     lb_base.assemble_matrices_for_alpha_computation(LambdaTrial_Alpha_full);
 
     RB_Model rb_system(lhs_theta, rhs_theta, lb_base);
+    rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
 
     rb_system.rb_params.ref_param = {{1., 1.}};
     rb_system.rb_params.call = call_gmres;
-
-    rb_system.read_alpha("S-5-5-Per-Intbc_Alpha.txt");
 
     //----------- RB Base ---------------- //
 
@@ -332,22 +336,23 @@ int main () {
     ParamType mu_min = {{0., -9.}};
     ParamType mu_max = {{30, 15}};
 
+    rb_base.greedy_params.training_type = weak;
     rb_base.greedy_params.min_param = mu_min;
     rb_base.greedy_params.max_param = mu_max;
     rb_base.greedy_params.Nmax = 	15;
     rb_base.greedy_params.nb_training_params = {{20, 20}};
     rb_base.greedy_params.print_paramset = true;
-    rb_base.greedy_params.erase_snapshot_params = false;
+    rb_base.greedy_params.erase_snapshot_params = true;
     rb_base.greedy_params.orthonormalize_bfs = false;
-    rb_base.greedy_params.print_file = "awgm_stage4_greedy_info.txt";
-    rb_base.greedy_params.trainingdata_folder = "training_data_stage4";
+    rb_base.greedy_params.print_file = "awgm_stage10_greedy_info.txt";
+    rb_base.greedy_params.trainingdata_folder = "training_data_stage10";
     rb_base.greedy_params.tighten_tol = false;
     rb_base.greedy_params.tighten_tol_rieszA = false;
     rb_base.greedy_params.tighten_tol_rieszF = false;
     rb_base.greedy_params.test_estimator_equivalence = true;
+    rb_base.greedy_params.tighten_estimator_accuracy = false;
     rb_base.greedy_params.riesz_constant_X = 5.5;
     rb_base.greedy_params.riesz_constant_Y = 5.5;
-	
 
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
@@ -355,6 +360,7 @@ int main () {
 
     cout << "Parameters Truth Solver: " << std::endl << std::endl;
     awgm_u.awgm_params.print();
+
     awgm_u.is_params.print();
 
     cout << "Parameters Riesz Solver F : " << std::endl << std::endl;
@@ -365,9 +371,9 @@ int main () {
 
     rb_base.train_Greedy();
 
-    rb_system.write_rb_data("offline_data_stage4");
-    rb_base.write_basisfunctions("offline_data_stage4");
-    rb_base.write_rieszrepresentors("offline_data_stage4");
+    rb_system.write_rb_data("offline_data_stage10");
+    rb_base.write_basisfunctions("offline_data_stage10");
+    rb_base.write_rieszrepresentors("offline_data_stage10");
 
 
     return 0;
