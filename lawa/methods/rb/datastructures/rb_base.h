@@ -86,6 +86,8 @@ public:
 
 	RB_Greedy_Parameters<ParamType> 	greedy_params;
 
+	std::vector<DataType> 				rb_basisfunctions;
+
 private:
 
 	void
@@ -108,8 +110,6 @@ private:
 
 	RB_Model& 		rb_system;
 	TruthModel& 	rb_truth;
-
-	std::vector<DataType> 				rb_basisfunctions;
 
 	std::vector<DataType>				F_representors;  // Dim: 1 x Q_f
 	std::vector<std::vector<DataType> > A_representors;  // Dim: n x Q_a

@@ -67,10 +67,25 @@ get_rb_solution(std::size_t N, ParamType& mu)
 			its = gmres(A, u, F);
 			if(rb_params.verbose){
 				std::cout << "RB solution: " << its << " gmres iterations" << std::endl;
+                DenseVectorT Au = A*u;
+                std::cout << "  A * u = " << Au << std::endl;
+                Au -= F;
+                std::cout << "  A*u - F = " << std::setprecision(20) << Au << std::endl;
 			}
 			break;
-		//case call_svd:
-		
+		case call_cgls:
+		    std::cout << "A = " << A << std::endl;
+			std::cout << "F = " << F << std::endl;
+            std::cout << "tol = " << std::numeric_limits<T>::epsilon() << std::endl;
+			its = cgls(A, u, F);
+			if(rb_params.verbose){
+				std::cout << "RB solution: " << its << " cgls iterations" << std::endl;
+				DenseVectorT Au = A*u;
+                std::cout << "  A * u = " << Au << std::endl;
+                Au -= F;
+                std::cout << "  A*u - F = " << std::setprecision(20) << Au << std::endl;
+			}
+			break;	
 		default:
 			if(rb_params.verbose){
 				std::cerr << "RB solution: unrecognized solver call " << std::endl;
@@ -119,6 +134,7 @@ get_rb_solution(std::vector<std::size_t> indices, ParamType& mu)
 	std::size_t count_i=1;
 	for(auto& i : indices){
 		F(count_i) = Ffull(i+1);
+		//std::cout << F << std::endl;
 		std::size_t count_j=1;
 		for(auto& j : indices){
 			A(count_i, count_j) = Afull(i+1,j+1);
@@ -144,6 +160,23 @@ get_rb_solution(std::vector<std::size_t> indices, ParamType& mu)
 			its = gmres(A, u, F);
 			if(rb_params.verbose){
 				std::cout << "RB solution: " << its << " gmres iterations" << std::endl;
+				DenseVectorT Au = A*u;
+                std::cout << "  A * u = " << Au << std::endl;
+                Au -= F;
+                std::cout << "  A*u - F = " << std::setprecision(20) << Au << std::endl;
+			}
+			break;
+		case call_cgls:
+		    std::cout << "A = " << A << std::endl;
+			std::cout << "F = " << F << std::endl;
+            std::cout << "tol = " << std::numeric_limits<T>::epsilon() << std::endl;
+			its = cgls(A, u, F);
+			if(rb_params.verbose){
+				std::cout << "RB solution: " << its << " cgls iterations" << std::endl;
+				DenseVectorT Au = A*u;
+                std::cout << "  A * u = " << Au << std::endl;
+                Au -= F;
+                std::cout << "  A*u - F = " << std::setprecision(20) << Au << std::endl;
 			}
 			break;
 		default:
@@ -155,6 +188,29 @@ get_rb_solution(std::vector<std::size_t> indices, ParamType& mu)
 	}
 
 	return u;
+}
+
+
+
+template<typename T, typename ParamType>
+void
+RB_System<T,ParamType>::
+get_rb_LGS(std::size_t N, ParamType& mu, FullColMatrixT& A, DenseVectorT& F){
+    
+    FullColMatrixT A_(N, N);
+	for (std::size_t i = 0; i < thetas_a.size(); ++i) {
+		//A += thetas_a.eval(i,mu) * RB_A_matrices[i](_(1,N), _(1,N));
+		flens::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,N), _(1,N)), A);
+	}
+
+    DenseVectorT F_(N);
+	for (unsigned int i = 0; i < thetas_f.size(); ++i) {
+		//F += thetas_f.eval(i,mu) * RB_F_vectors[i](_(1,N));
+		flens::axpy(thetas_f.eval(i,mu), RB_F_vectors[i](_(1,N)), F);
+	}
+	
+    flens::copy(F, F_);
+    flens::copy(cxxblas::NoTrans, A, A_);
 }
 
 template<typename T, typename ParamType>

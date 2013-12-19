@@ -36,6 +36,9 @@ public:
 
 	DenseVectorT
 	get_rb_solution(std::vector<std::size_t> indices, ParamType& mu);
+	
+	void
+    get_rb_LGS(std::size_t N, ParamType& mu, FullColMatrixT& A, DenseVectorT& F);
 
 	virtual T
 	get_errorbound(const DenseVectorT& u_N, ParamType& mu);

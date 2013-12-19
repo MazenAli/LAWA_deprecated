@@ -705,6 +705,7 @@ reconstruct_u_N(typename RB_Model::DenseVectorT u, std::vector<std::size_t> indi
 
 	DataType u_full;
 	for (unsigned int i = 1; i <= N; ++i) {
+		//std::cout << "i = " << u(i) << ", bf index = " << indices[i-1]  << " with size " << rb_basisfunctions[indices[i-1]].size() << std::endl;
 		u_full +=  u(i) * rb_basisfunctions[indices[i-1]];
 	}
 
