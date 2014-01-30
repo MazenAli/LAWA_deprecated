@@ -1,267 +1,4 @@
-#include <iostream>
-#include <iomanip>
-#include <utility>
-#include <array>
-#include <vector>
-#define _USE_MATH_DEFINES
-#include <cmath>
-
-#include <lawa/lawa.h>
-
-/*
-#include <lawa/methods/rb/datastructures/thetastructure.h>
-#include <lawa/methods/rb/operators/affinelocaloperator.h>
-#include <lawa/methods/rb/righthandsides/affinerhs.h>
-#include <lawa/methods/adaptive/solvers/multitreeawgm2.h>
-#include <lawa/methods/rb/righthandsides/flexiblebilformrhs.h>
-#include <lawa/methods/rb/datastructures/mt_truth.h>
-#include <lawa/methods/rb/datastructures/rb_system.h>
-#include <lawa/methods/rb/datastructures/rb_base.h>
-#include <lawa/methods/rb/datastructures/rb_parameters.h>
-*/
-
-using namespace std;
-using namespace lawa;
-
-//===============================================================//
-//========= Simple RB System	  ===============================//
-//===============================================================//
-
-template <typename _T, typename _ParamType>
-class Simple_RB_System: public RB_System<_T,_ParamType> {
-
-    typedef std::map<_ParamType, _T>   StabConstVec;
-
-public:
-	Simple_RB_System(ThetaStructure<_ParamType>& _thetas_a,
-			  	  ThetaStructure<_ParamType>& _thetas_f)
-	 : RB_System<_T,_ParamType>(_thetas_a, _thetas_f) {}
-
-    _T
-	alpha_LB(_ParamType& mu)
-    {
-    	for(auto& el: alphas){
-    	    bool is_mu = true;
-			for(std::size_t i = 0; i < mu.size(); ++i){
-				if((mu[i]-(el.first)[i]) > 1e-4){
-					is_mu = false;
-					break;
-				}
-			}
-			if(is_mu){
-				return el.second;
-			}
-    	}
-		std::cerr << "Couldn't find alpha" << std::endl;
-		return 1.;
-    }
-
-    void
-    read_alpha(const char* filename){
-        ifstream alphaFile(filename);
-        while(alphaFile.good()){
-             _ParamType mu;
-             _T alpha;
-             alphaFile >> mu[0] >> mu[1] >> alpha;
-             alphas.insert(std::make_pair(mu, alpha));
-        }
-    }
-
-private:
-    StabConstVec	alphas;
-};
-
-
-//===============================================================//
-//========= TYPEDEFS  =======================//
-//===============================================================//
-
-//==== General ====//
-typedef double T;
-typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
-typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
-typedef Coefficients<Lexicographical,T,Index2D>						CoeffVector;
-
-//==== Basis 1D & 2D ====//
-typedef Basis<T, Primal, Periodic, CDF>	                            TrialBasis_Time;
-//typedef Basis<T, Primal, Periodic, CDF>								TestBasis_Time;
-typedef Basis<T, Primal, Interval, Dijkema>						    TestBasis_Time;
-typedef Basis<T, Primal, Interval, Dijkema>							Basis_Space;
-typedef TrialBasis_Time::RefinementBasis                            TrialRefBasis_Time;
-typedef TestBasis_Time::RefinementBasis                           	TestRefBasis_Time;
-typedef Basis_Space::RefinementBasis                                RefBasis_Space;
-
-// !!! ATTENTION: Use typedefs in space for definition of space-time inner product !!!
-//    => Assumption that test basis in time = space basis (+/- boundary conditions)
-
-typedef TensorBasis2D<Adaptive,TrialBasis_Time,Basis_Space>         Basis2D_Trial;
-typedef TensorBasis2D<Adaptive,TestBasis_Time,Basis_Space>          Basis2D_Test;
-
-//==== Adaptive Operators ====//
-typedef AdaptiveConvectionOperator1D_PG<T,TrialBasis_Time,TestBasis_Time>                   Convection1D_Time;
-typedef AdaptiveIdentityOperator1D_PG<T,TrialBasis_Time,TestBasis_Time>                     Identity1D_Time;
-typedef AdaptiveIdentityOperator1D_PG<T,Basis_Space,Basis_Space>                            Identity1D_Space;
-typedef AdaptiveLaplaceOperator1D_PG<T,Basis_Space,Basis_Space>                             Laplace1D_Space;
-typedef AdaptiveWeightedPDEOperator1D_PG<T,Basis_Space,Basis_Space>                         Convection1D_Space;
-typedef AdaptiveIdentityOperator1D_PG<T,TrialBasis_Time,TrialBasis_Time>                    Identity1D_Time_Trial;
-typedef AdaptiveConvectionOperator1D_PG<T,TrialBasis_Time,TrialBasis_Time>                  Convection1D_Time_Trial;
-
-typedef TransposedAdaptiveConvectionOperator1D_PG<T,TrialBasis_Time,TestBasis_Time>         TranspConvection1D_Time;
-typedef TransposedAdaptiveIdentityOperator1D_PG<T,TrialBasis_Time,TestBasis_Time>           TranspIdentity1D_Time;
-typedef TransposedAdaptiveIdentityOperator1D_PG<T,Basis_Space,Basis_Space>                  TranspIdentity1D_Space;
-typedef TransposedAdaptiveLaplaceOperator1D_PG<T,Basis_Space,Basis_Space>                   TranspLaplace1D_Space;
-typedef TransposedAdaptiveWeightedPDEOperator1D_PG<T,Basis_Space,Basis_Space>               TranspConvection1D_Space;
-
-typedef AdaptiveConvectionOperator1D_PG<T,TrialRefBasis_Time,TestRefBasis_Time>             RefConvection1D_Time;
-typedef AdaptiveIdentityOperator1D_PG<T,TrialRefBasis_Time,TestRefBasis_Time>               RefIdentity1D_Time;
-typedef AdaptiveIdentityOperator1D_PG<T,RefBasis_Space,RefBasis_Space>                      RefIdentity1D_Space;
-typedef AdaptiveLaplaceOperator1D_PG<T,RefBasis_Space,RefBasis_Space>                       RefLaplace1D_Space;
-typedef AdaptiveWeightedPDEOperator1D_PG<T,RefBasis_Space,RefBasis_Space>                   RefConvection1D_Space;
-typedef AdaptiveIdentityOperator1D_PG<T,TrialRefBasis_Time,TrialRefBasis_Time>              RefIdentity1D_Time_Trial;
-typedef AdaptiveConvectionOperator1D_PG<T,TrialRefBasis_Time,TrialRefBasis_Time>            RefConvection1D_Time_Trial;
-
-typedef TransposedAdaptiveConvectionOperator1D_PG<T,TrialRefBasis_Time,TestRefBasis_Time>   RefTranspConvection1D_Time;
-typedef TransposedAdaptiveIdentityOperator1D_PG<T,TrialRefBasis_Time,TestRefBasis_Time>     RefTranspIdentity1D_Time;
-typedef TransposedAdaptiveIdentityOperator1D_PG<T,RefBasis_Space,RefBasis_Space>            RefTranspIdentity1D_Space;
-typedef TransposedAdaptiveLaplaceOperator1D_PG<T,RefBasis_Space,RefBasis_Space>             RefTranspLaplace1D_Space;
-typedef TransposedAdaptiveWeightedPDEOperator1D_PG<T,RefBasis_Space,RefBasis_Space>         RefTranspConvection1D_Space;
-
-//==== LocalOperators ====//
-typedef LocalOperator1D<TestBasis_Time,TrialBasis_Time, 
-                        RefConvection1D_Time,Convection1D_Time>                 LOp_Conv1D_Time;
-typedef LocalOperator1D<TestBasis_Time,TrialBasis_Time, 
-                        RefIdentity1D_Time,Identity1D_Time>                     LOp_Id1D_Time;                        
-typedef LocalOperator1D<Basis_Space,Basis_Space,
-						RefIdentity1D_Space,Identity1D_Space>	                LOp_Id1D_Space;
-typedef LocalOperator1D<Basis_Space,Basis_Space,
-						RefLaplace1D_Space,Laplace1D_Space>	                    LOp_Lapl1D_Space;
-typedef LocalOperator1D<Basis_Space,Basis_Space,
-						RefConvection1D_Space,Convection1D_Space>	            LOp_Conv1D_Space;
-typedef LocalOperator1D<TrialBasis_Time,TrialBasis_Time,
-                        RefIdentity1D_Time_Trial,Identity1D_Time_Trial>         LOp_Id1D_Time_Trial;
-typedef LocalOperator1D<TrialBasis_Time,TrialBasis_Time,
-                        RefConvection1D_Time_Trial,Convection1D_Time_Trial>     LOp_Conv1D_Time_Trial;
-
-typedef LocalOperator1D<TrialBasis_Time,TestBasis_Time, 
-                        RefTranspConvection1D_Time,TranspConvection1D_Time>     LOpT_Conv1D_Time;
-typedef LocalOperator1D<TrialBasis_Time,TestBasis_Time, 
-                        RefTranspIdentity1D_Time,TranspIdentity1D_Time>         LOpT_Id1D_Time;                        
-typedef LocalOperator1D<Basis_Space,Basis_Space,
-						RefTranspIdentity1D_Space,TranspIdentity1D_Space>	    LOpT_Id1D_Space;
-typedef LocalOperator1D<Basis_Space,Basis_Space,
-						RefTranspLaplace1D_Space,TranspLaplace1D_Space>	        LOpT_Lapl1D_Space;
-typedef LocalOperator1D<Basis_Space,Basis_Space,
-						RefTranspConvection1D_Space,TranspConvection1D_Space>	LOpT_Conv1D_Space;
-
-typedef LocalOperator2D<LOp_Conv1D_Time, LOp_Id1D_Space>                        LOp_Conv_Id_2D;
-typedef LocalOperator2D<LOp_Id1D_Time, LOp_Id1D_Space>                        	LOp_Id_Id_2D;
-typedef LocalOperator2D<LOp_Id1D_Time, LOp_Lapl1D_Space>                        LOp_Id_Lapl_2D;
-typedef LocalOperator2D<LOp_Id1D_Time, LOp_Conv1D_Space>                        LOp_Id_Conv_2D;
-typedef LocalOperator2D<LOpT_Conv1D_Time, LOpT_Id1D_Space>                      LOpT_Conv_Id_2D;
-typedef LocalOperator2D<LOpT_Id1D_Time, LOpT_Id1D_Space>                      	LOpT_Id_Id_2D;
-typedef LocalOperator2D<LOpT_Id1D_Time, LOpT_Lapl1D_Space>                      LOpT_Id_Lapl_2D;
-typedef LocalOperator2D<LOpT_Id1D_Time, LOpT_Conv1D_Space>                      LOpT_Id_Conv_2D;
-
-
-typedef LocalOperator2D<LOp_Id1D_Space,LOp_Id1D_Space>							LOp_Test_Id_Id_2D;
-typedef LocalOperator2D<LOp_Id1D_Space,LOp_Lapl1D_Space>						LOp_Test_Id_Lapl_2D;
-typedef LocalOperator2D<LOp_Id1D_Time_Trial,LOp_Id1D_Space>						LOp_Trial_Id_Id_2D;
-typedef LocalOperator2D<LOp_Id1D_Time_Trial,LOp_Conv1D_Space>					LOp_Trial_Id_Conv_2D;
-typedef LocalOperator2D<LOp_Id1D_Time_Trial,LOp_Lapl1D_Space>					LOp_Trial_Id_Lapl_2D;
-typedef LocalOperator2D<LOp_Conv1D_Time_Trial,LOp_Id1D_Space>					LOp_Trial_Conv_Id_2D;
-
-//==== CompoundOperators ====//
-typedef FlexibleCompoundLocalOperator<Index2D,AbstractLocalOperator2D<T> > 		Flex_COp_2D;
-typedef CompoundLocalOperator<Index2D,LOp_Conv_Id_2D,LOp_Id_Lapl_2D>    		COp_Heat;
-typedef CompoundLocalOperator<Index2D,LOpT_Conv_Id_2D,LOpT_Id_Lapl_2D>    	    COpT_Heat;
-typedef CompoundLocalOperator<Index2D,LOp_Test_Id_Id_2D, LOp_Test_Id_Lapl_2D>	COp_TestInnProd;
-typedef CompoundLocalOperator<Index2D,LOp_Trial_Id_Id_2D, LOp_Trial_Id_Lapl_2D>	TrialInnProdY;
-
-//==== Preconditioners ====//
-typedef AdaptiveLeftNormPreconditioner2D<T,Basis2D_Test>            LeftPrec2D;
-typedef AdaptiveRightNormPreconditioner2D_c<T,Basis2D_Trial>        RightPrec2D;
-typedef NoPreconditioner<T, Index2D>								NoPrec2D;
-
-//==== RightHandSides ====//
-typedef SeparableRHS2D<T,Basis2D_Test>                              SeparableRhsIntegral2D;
-typedef RHS<T,Index2D,SeparableRhsIntegral2D,
-            NoPrec2D>                                         		SeparableRhs;
-typedef SeparableRHS2D<T,Basis2D_Trial>                             SeparableRhsIntegral2D_Trial;
-typedef RHS<T,Index2D,SeparableRhsIntegral2D_Trial,
-            NoPrec2D>                                         		SeparableRhs_Trial;
-
-
-//==== RB Stuff ====//
-const size_t PDim = 2;
-
-typedef CoeffVector 								 						DataType;
-typedef array<T,PDim>	 													ParamType;
-
-typedef AffineLocalOperator<Index2D,AbstractLocalOperator2D<T>,ParamType>	Affine_Op_2D;
-typedef AffineRhs<T,Index2D,SeparableRhs,ParamType>							Affine_Rhs_2D;
-typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs>							RieszF_Rhs_2D;
-typedef FlexibleBilformRhs<Index2D,AbstractLocalOperator2D<T> >				RieszA_Rhs_2D;
-typedef FlexibleCompoundRhs<T,Index2D,SeparableRhs_Trial>					Flex_Rhs_2D;
-
-typedef MultiTreeAWGM_PG<Index2D,Basis2D_Trial, Basis2D_Test,Affine_Op_2D,
-		Affine_Op_2D,Affine_Rhs_2D,RightPrec2D,LeftPrec2D>					MT_AWGM_Truth;
-typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
-		RieszF_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_F;
-typedef MultiTreeAWGM2<Index2D,Basis2D_Test, COp_TestInnProd,
-		RieszA_Rhs_2D,LeftPrec2D>											MT_AWGM_Riesz_A;
-
-typedef MT_Truth<DataType,ParamType,MT_AWGM_Truth,
-				 MT_AWGM_Riesz_F,MT_AWGM_Riesz_A,TrialInnProdY,
-				 Flex_COp_2D, Flex_Rhs_2D>									MTTruthSolver;
-
-typedef Simple_RB_System<T,ParamType>										RB_Model;
-typedef RB_Base<RB_Model,MTTruthSolver,DataType,ParamType>					RB_BaseModel;
-
-T f_t(T t)
-{
-    return cos(2.L*M_PI*t);
-}
-
-/*T f_x(T x)
-{
-    return -4*(x-0.5)*(x-0.5) + 1;
-}
-*/
-T f_x(T)
-{
-	return 1.;
-}
-
-T dummy(T, T)
-{
-    return 0;
-}
-
-T no_theta(const std::array<T,PDim>& /*mu*/)
-{
-	return 1.;
-}
-
-T theta_conv(const std::array<T,PDim>& mu)
-{
-	return mu[0];
-}
-
-T theta_reac(const std::array<T,PDim>& mu)
-{
-	return mu[1];
-}
-
-T
-weight_convection(T x)
-{
-  return 0.5 - x;
-}
-
-T zero_fct(T /*x*/){
-	return 0;
-}
-
+#include "cdr_problem.h"
 
 int main () {
 
@@ -509,6 +246,7 @@ int main () {
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
     							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
+    awgm_u.awgm_params.tol = 5e-03;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
@@ -529,7 +267,9 @@ int main () {
 
     //----------- RB System ---------------- //
 
-    RB_Model rb_system(lhs_theta, rhs_theta);
+    LB_Base<ParamType, MTTruthSolver> lb_base(rb_truth, lhs_theta);
+
+    RB_Model rb_system(lhs_theta, rhs_theta, lb_base);
 
     rb_system.rb_params.ref_param = {{1., 1.}};
     rb_system.rb_params.call = call_gmres;
@@ -541,19 +281,37 @@ int main () {
     RB_BaseModel rb_base(rb_system, rb_truth);
 
     /* RB Greedy Parameters Default Values
-      		double tol = 1e-2,
-			size_t Nmax = 20,
-			ParamType min_param = ParamType(),
-			ParamType max_param = ParamType(),
-			intArray  training_params_per_dim = intArray(),
-			bool print_info = true,
+			TrainingType training_type = weak, (strong/weak_direct)
+     		double tol = 1e-2,
+    		std::size_t Nmax = 20,
+    		ParamType_min_param = ParamType(),
+    		ParamType max_param = ParamType(),
+    		intArray  training_params_per_dim = intArray(),
+    		intArray log_scaling = intArray(),
+    		bool print_info = true,
     		std::string print_file = "greedy_info.txt",
-			bool verbose = true,
-			bool write_during_training = true,
+    		bool verbose = true,
+    		bool write_during_training = true,
     		std::string trainingdata_folder = "training_data",
-			bool print_paramset = false,
-			bool erase_snapshot_params = false,
-			bool orthonormalize_bfs = true
+    		bool print_paramset = false,
+    		bool erase_snapshot_params = false,
+    		bool orthonormalize_bfs = true,
+    		bool tighten_tol	= false,
+    		SnapshotTolReductionCrit snapshot_tol_red_crit = repeated_param,
+    		bool tighten_tol_rieszA = false,
+    		bool tighten_tol_rieszF = false,
+    		double tighten_tol_reduction = 0.1,
+    		bool update_snapshot = false,
+    		bool update_rieszF = false,
+    		bool update_rieszA = false,
+    		bool coarsen_rieszA_for_update = false,
+    		bool test_estimator_equivalence = false
+    		bool tighten_estimator_accuracy = false;
+    		double riesz_constant_X = 1.,			    // = Riesz constant of Basis
+    		double riesz_constant_Y = 1.,
+    		bool write_direct_representors = false,
+    		T min_error_reduction = 0.5;
+    		double	refSolution_tol_factor = 0.1;
      */
 
 
@@ -566,6 +324,7 @@ int main () {
     ParamType mu_min = {{0., -9.}};
     ParamType mu_max = {{30, 15}};
 
+    rb_base.greedy_params.training_type = strong_adaptive;
     rb_base.greedy_params.tol = 1e-12;
     rb_base.greedy_params.min_param = mu_min;
     rb_base.greedy_params.max_param = mu_max;
@@ -576,7 +335,10 @@ int main () {
     rb_base.greedy_params.orthonormalize_bfs = false;
     rb_base.greedy_params.print_file = "awgm_stage4b_greedy_info.txt";
     rb_base.greedy_params.trainingdata_folder = "training_data_stage4b";
-
+    rb_base.greedy_params.riesz_constant_X = 5.5;
+    rb_base.greedy_params.riesz_constant_Y = 5.5;
+    rb_base.greedy_params.refSolution_tol_factor = 0.1;
+    
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
     rb_system.rb_params.print();
@@ -593,7 +355,7 @@ int main () {
     awgm_rieszA.awgm_params.print();
     awgm_rieszA.is_params.print();
 
-    rb_base.train_strong_Greedy();
+    rb_base.train_Greedy();
 
     rb_system.write_rb_data("offline_data_stage4b");
     rb_base.write_basisfunctions("offline_data_stage4b");
