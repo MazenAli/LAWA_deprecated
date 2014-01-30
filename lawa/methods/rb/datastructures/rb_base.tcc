@@ -67,7 +67,7 @@ train_Greedy(std::size_t N)
 	//------------------------------------------------//
 	// Preparations for strong Greedy (Output Folder / Calculation of Truth Sols)
 	std::map<ParamType, DataType> truth_sols;
-	if(greedy_params.training_type == strong){
+	if(greedy_params.training_type == strong || greedy_params.training_type == strong_adaptive){
 		std::string truthdatafolder;
 		std::string paraminfo_filename;
 		std::ofstream paraminfo_file;
@@ -96,6 +96,14 @@ train_Greedy(std::size_t N)
 
 		// Calculate all truth solutions
 		std::size_t count = 0;
+
+		// If we want to compute the error w.r.t. a reference solution (!= truth),
+		// lower the AWGM tolerance (needed in adaptive RBM)
+		T snapshot_acc;
+		if(greedy_params.training_type == strong_adaptive){
+			snapshot_acc = rb_truth.access_solver().access_params().tol;
+			rb_truth.access_solver().access_params().tol *= greedy_params.refSolution_tol_factor;
+		}
 	    for (auto& mu : Xi_train) {
 			DataType u = rb_truth.get_truth_solution(mu);
 	    	truth_sols.insert(std::make_pair(mu, u));
@@ -115,6 +123,10 @@ train_Greedy(std::size_t N)
 			    paraminfo_file.close();
 	    	}
 	    }
+	    // Reset snapshot tolerance
+		if(greedy_params.training_type == strong_adaptive){
+			rb_truth.access_solver().access_params().tol = snapshot_acc;
+		}
 	}
 
 	//------------------------------------------------//
@@ -1394,6 +1406,7 @@ find_max_errest(std::size_t N, std::vector<ParamType>& Xi_train, ParamType& curr
 				}
 				break;
 			}
+			case strong_adaptive:
 			case strong:
 			{
 				DataType diff;

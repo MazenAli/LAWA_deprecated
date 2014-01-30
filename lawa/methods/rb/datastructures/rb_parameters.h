@@ -12,7 +12,7 @@
 
 namespace lawa {
 
-enum TrainingType {weak, strong, weak_direct};
+enum TrainingType {weak, strong, strong_adaptive, weak_direct};
 enum SnapshotTolReductionCrit {repeated_param, conv_rate_degradation};
 
 /* Helper struct to get size of an array
@@ -69,7 +69,7 @@ struct RB_Greedy_Parameters{
 	double 		riesz_constant_Y;
 	bool 		write_direct_representors;
 	double 		min_error_reduction;		// if snapshot_tol_red_crit = conv_rate_degradation
-
+	double		refSolution_tol_factor; 	// factor between accuracy of "exact" sol and that of "truth"
 
 	RB_Greedy_Parameters(
 						TrainingType _training_type = weak,
@@ -101,7 +101,8 @@ struct RB_Greedy_Parameters{
 						double _riesz_constant_X = 1.,
 						double _riesz_constant_Y = 1.,
 						bool _write_direct_representors = false,
-						double _min_error_reduction = 0.5);
+						double _min_error_reduction = 0.5,
+						double	_refSolution_tol_factor = 0.1);
 
 	void print();
 };

@@ -30,7 +30,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		bool _update_snapshot, bool _update_rieszF, bool _update_rieszA, bool _coarsen_rieszA_for_update,
 		bool _test_estimator_equivalence, bool _tighten_estimator_accuracy,
 		double _riesz_constant_X, double _riesz_constant_Y,
-		bool _write_direct_representors, double _min_error_reduction)
+		bool _write_direct_representors, double _min_error_reduction,
+		double	_refSolution_tol_factor)
  : training_type(_training_type), snapshot_tol_red_crit(_snapshot_tol_red_crit),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), log_scaling(_log_scaling),
@@ -52,7 +53,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    riesz_constant_X(_riesz_constant_X),
    riesz_constant_Y(_riesz_constant_Y),
    write_direct_representors(_write_direct_representors),
-   min_error_reduction(_min_error_reduction)
+   min_error_reduction(_min_error_reduction),
+   refSolution_tol_factor(_refSolution_tol_factor)
 {}
 
 template<typename ParamType>
@@ -60,7 +62,8 @@ void
 RB_Greedy_Parameters<ParamType>::print()
 {
 	std::cout << "###### RB Training Parameters ######################" << std::endl;
-	std::cout << std::left << std::setw(24) << "# Training Type:" << std::setw(20) <<  (training_type==strong?"strong Greedy":"weak Greedy") << (training_type==weak_direct?" (direct)":"") << std::endl;
+	std::cout << std::left << std::setw(24) << "# Training Type:" << std::setw(20) <<  ((training_type==strong || training_type==strong_adaptive)?"strong Greedy":"weak Greedy")
+			  << (training_type==weak_direct?" (direct)":"") << (training_type==strong_adaptive?" (w.r.t. reference solution)":"") << std::endl;
 	std::cout << std::left << std::setw(24) << "# tol:" << std::setw(20) <<  tol << std::endl;
 	std::cout << std::left << std::setw(24) << "# Nmax:" << std::setw(20) <<  Nmax << std::endl;
 	std::cout << std::left << std::setw(24) << "# Min_Param:" << std::setw(2) << "[ ";
@@ -104,6 +107,7 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "#  riesz_constant_Y:" << std::setw(20) << riesz_constant_Y << std::endl;
 	std::cout << std::left << std::setw(32) << "# write direct representors:" << std::setw(20) <<  (write_direct_representors?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# min_error_reduction (if conv_rate_degrad.):" << std::setw(20) <<  min_error_reduction << std::endl;
+	std::cout << std::left << std::setw(32) << "# reference sol accuracy (w.r.t snapshot acc):" << std::setw(20) <<  refSolution_tol_factor << std::endl;
 	std::cout << "####################################################" << std::endl << std::endl;
 
 }
