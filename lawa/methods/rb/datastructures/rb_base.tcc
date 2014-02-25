@@ -71,27 +71,29 @@ train_Greedy(std::size_t N)
 		std::string truthdatafolder;
 		std::string paraminfo_filename;
 		std::ofstream paraminfo_file;
-		if(greedy_params.write_during_training){
+		if(greedy_params.write_during_training || greedy_params.read_truth_sols){
 			truthdatafolder = greedy_params.trainingdata_folder + "/truthsolutions";
 
-			// Make a directory to store all the basisfunction files
-			if(mkdir(greedy_params.trainingdata_folder.c_str(), 0777) == -1)
-			{
-				if(rb_system.rb_params.verbose){
-					  std::cerr << "         [In RB_Base::train_strong_Greedy: Directory "
-							    << greedy_params.trainingdata_folder << " already exists, overwriting contents.]" << std::endl;
-				}
-			}
-			if(mkdir(truthdatafolder.c_str(), 0777) == -1)
-			{
-				if(rb_system.rb_params.verbose){
-					  std::cerr << "         [In RB_Base::train_strong_Greedy: Directory "
-							    << truthdatafolder << " already exists, overwriting contents.]" << std::endl;
-				}
-			}
+            if(greedy_params.write_during_training){
+    			// Make a directory to store all the basisfunction files
+    			if(mkdir(greedy_params.trainingdata_folder.c_str(), 0777) == -1)
+    			{
+    				if(rb_system.rb_params.verbose){
+    					  std::cerr << "         [In RB_Base::train_strong_Greedy: Directory "
+    							    << greedy_params.trainingdata_folder << " already exists, overwriting contents.]" << std::endl;
+    				}
+    			}
+    			if(mkdir(truthdatafolder.c_str(), 0777) == -1)
+    			{
+    				if(rb_system.rb_params.verbose){
+    					  std::cerr << "         [In RB_Base::train_strong_Greedy: Directory "
+    							    << truthdatafolder << " already exists, overwriting contents.]" << std::endl;
+    				}
+    			}
 
-			// Open file for parameter information
-			paraminfo_filename = truthdatafolder + "/paraminfo.txt";
+    			// Open file for parameter information
+    			paraminfo_filename = truthdatafolder + "/paraminfo.txt";
+    		}
 		}
 
 		// Calculate all truth solutions
@@ -105,22 +107,32 @@ train_Greedy(std::size_t N)
 			rb_truth.access_solver().access_params().tol *= greedy_params.refSolution_tol_factor;
 		}
 	    for (auto& mu : Xi_train) {
-			DataType u = rb_truth.get_truth_solution(mu);
+            DataType u;
+	        if(greedy_params.read_truth_sols && greedy_params.nb_existing_truth_sols >= count){
+	            std::stringstream filename;
+	    		filename << truthdatafolder << "/truthsol_" << count << ".txt";
+                readCoeffVector2D(u, filename.str().c_str());
+	        }
+	        else{
+    			u = rb_truth.get_truth_solution(mu);	            
+	        }
 	    	truth_sols.insert(std::make_pair(mu, u));
 	    	count++;
 
 	    	if(greedy_params.write_during_training){
-	    		std::stringstream filename;
-	    		filename << truthdatafolder << "/truthsol_" << count << ".txt";
-			    saveCoeffVector2D(u, rb_truth.get_trialbasis(), filename.str().c_str());
+	    		if(!(greedy_params.read_truth_sols && greedy_params.nb_existing_truth_sols > count)){
+    	    		std::stringstream filename;
+    	    		filename << truthdatafolder << "/truthsol_" << count << ".txt";
+    			    saveCoeffVector2D(u, rb_truth.get_trialbasis(), filename.str().c_str());
 
-			    paraminfo_file.open(paraminfo_filename.c_str(), std::fstream::app);
-			    paraminfo_file << count;
-			    for(auto& d : mu){
-			    	paraminfo_file << " " << d;
-			    }
-			    paraminfo_file << std::endl;
-			    paraminfo_file.close();
+    			    paraminfo_file.open(paraminfo_filename.c_str(), std::fstream::app);
+    			    paraminfo_file << count;
+    			    for(auto& d : mu){
+    			    	paraminfo_file << " " << d;
+    			    }
+    			    paraminfo_file << std::endl;
+    			    paraminfo_file.close();
+    			}
 	    	}
 	    }
 	    // Reset snapshot tolerance

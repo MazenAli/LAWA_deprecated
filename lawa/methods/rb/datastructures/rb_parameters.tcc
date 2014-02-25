@@ -31,7 +31,8 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
 		bool _test_estimator_equivalence, bool _tighten_estimator_accuracy,
 		double _riesz_constant_X, double _riesz_constant_Y,
 		bool _write_direct_representors, double _min_error_reduction,
-		double	_refSolution_tol_factor)
+		double	_refSolution_tol_factor,
+		bool _read_truth_sols, std::size_t _nb_existing_truth_sols)
  : training_type(_training_type), snapshot_tol_red_crit(_snapshot_tol_red_crit),
    tol(_tol), Nmax(_Nmax), min_param(_min_param), max_param(_max_param),
    nb_training_params(_training_params_per_dim), log_scaling(_log_scaling),
@@ -54,7 +55,9 @@ RB_Greedy_Parameters<ParamType>::RB_Greedy_Parameters(
    riesz_constant_Y(_riesz_constant_Y),
    write_direct_representors(_write_direct_representors),
    min_error_reduction(_min_error_reduction),
-   refSolution_tol_factor(_refSolution_tol_factor)
+   refSolution_tol_factor(_refSolution_tol_factor),
+   read_truth_sols(_read_truth_sols),
+   nb_existing_truth_sols(_nb_existing_truth_sols)
 {}
 
 template<typename ParamType>
@@ -108,6 +111,8 @@ RB_Greedy_Parameters<ParamType>::print()
 	std::cout << std::left << std::setw(32) << "# write direct representors:" << std::setw(20) <<  (write_direct_representors?"true":"false") << std::endl;
 	std::cout << std::left << std::setw(32) << "# min_error_reduction (if conv_rate_degrad.):" << std::setw(20) <<  min_error_reduction << std::endl;
 	std::cout << std::left << std::setw(32) << "# reference sol accuracy (w.r.t snapshot acc):" << std::setw(20) <<  refSolution_tol_factor << std::endl;
+	std::cout << std::left << std::setw(32) << "# read in truth sols? :" << std::setw(20) <<  read_truth_sols << std::endl;
+	std::cout << std::left << std::setw(32) << "#       yes: how many?:" << std::setw(20) <<  nb_existing_truth_sols << std::endl;
 	std::cout << "####################################################" << std::endl << std::endl;
 
 }

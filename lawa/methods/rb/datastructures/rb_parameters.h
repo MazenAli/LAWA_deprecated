@@ -70,7 +70,10 @@ struct RB_Greedy_Parameters{
 	bool 		write_direct_representors;
 	double 		min_error_reduction;		// if snapshot_tol_red_crit = conv_rate_degradation
 	double		refSolution_tol_factor; 	// factor between accuracy of "exact" sol and that of "truth"
-
+    bool        read_truth_sols;            // for strong Greedy    
+    std::size_t nb_existing_truth_sols;     // for strong Greedy
+	
+	
 	RB_Greedy_Parameters(
 						TrainingType _training_type = weak,
 						double _tol = 1e-2,
@@ -102,7 +105,9 @@ struct RB_Greedy_Parameters{
 						double _riesz_constant_Y = 1.,
 						bool _write_direct_representors = false,
 						double _min_error_reduction = 0.5,
-						double	_refSolution_tol_factor = 0.1);
+						double	_refSolution_tol_factor = 0.1,
+						bool _read_truth_sols = false,
+						std::size_t _nb_existing_truth_sols = 0);
 
 	void print();
 };

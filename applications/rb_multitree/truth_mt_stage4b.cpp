@@ -312,6 +312,8 @@ int main () {
     		bool write_direct_representors = false,
     		T min_error_reduction = 0.5;
     		double	refSolution_tol_factor = 0.1;
+    		bool _read_truth_sols = false,
+			std::size_t _nb_existing_truth_sols = 0
      */
 
 
@@ -338,6 +340,8 @@ int main () {
     rb_base.greedy_params.riesz_constant_X = 5.5;
     rb_base.greedy_params.riesz_constant_Y = 5.5;
     rb_base.greedy_params.refSolution_tol_factor = 0.1;
+    rb_base.greedy_params.read_truth_sols = true;
+    rb_base.greedy_params.nb_existing_truth_sols = 124;
     
     cout << "Parameters Training: " << std::endl << std::endl;
     rb_base.greedy_params.print();
