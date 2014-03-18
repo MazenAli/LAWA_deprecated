@@ -51,8 +51,8 @@ int main(int argc, char* argv[]) {
     
     Coeffs repr;
     readCoeffVector2D(repr, argv[6], false);
-    plot2D(basis2d, repr, prec, sol_dummy , 0., 1., 0., 1., 0.01, argv[7]);
-
+    //plot2D(basis2d, repr, prec, sol_dummy , 0., 1., 0., 1., 0.01, argv[7]);
+    plot2D(basis2d, repr, prec, sol_dummy, sol_dummy, 0., 1., 0., 1., 0.01, 0.02, argv[7]);
 
 
     return 0;

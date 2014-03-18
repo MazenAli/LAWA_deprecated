@@ -28,6 +28,10 @@ int main(int argc, char *argv[]){
 	int j = atoi(argv[4]);
 
 	PeriodicBasis basis(d,d_,j0);
+	
+	cout << "INFO:" << endl;
+    cout << "  d = " << d << ", d_ = " << d_ << endl;
+    cout << "  j0 = " << j0 <<  endl;
 
 	cout << "------- BSplines -----------" << endl;
 	cout << j << " " << basis.mra.rangeI(j) << endl;
@@ -38,8 +42,10 @@ int main(int argc, char *argv[]){
 	cout << "Inner Indices: " << basis.mra.cardII(j) << " " << basis.mra.rangeII(j) << endl;
 	cout << "Right Indices: " << basis.mra.cardIR(j) << " " << basis.mra.rangeIR(j) << endl;
 
-	ofstream bsplinefile("bsplines.txt");
-	for(T x = 0; x <= 1; x += pow2i<T>(-10-j)){
+    stringstream bsplinefilename;
+    bsplinefilename << "bsplines_periodic_d" << d << d_ << "_j0" << j0 << "_" << j << ".txt";  
+	ofstream bsplinefile(bsplinefilename.str().c_str());
+	for(T x = 0; x <= 1; x += pow2i<T>(-4-j)){
 		bsplinefile << x << " ";
 		for(int k = basis.mra.rangeI(j).firstIndex(); k <= basis.mra.rangeI(j).lastIndex(); ++k){
 			bsplinefile << basis.generator(XBSpline).operator()(x,j,k, 0) << " ";
@@ -58,8 +64,10 @@ int main(int argc, char *argv[]){
 	cout << "Right Indices: " << basis.cardJR(j) << " " << basis.rangeJR(j) << endl;
 
 
-	ofstream waveletfile("wavelets.txt");
-	for(T x = 0; x <= 1; x += pow2i<T>(-10-j)){
+    stringstream waveletfilename;
+    waveletfilename << "wavelets_periodic_d" << d << d_ << "_j0" << j0 << "_" << j << ".txt";  
+	ofstream waveletfile(waveletfilename.str().c_str());
+	for(T x = 0; x <= 1; x += pow2i<T>(-4-j)){
 		waveletfile << x << " ";
 		for(int k = basis.rangeJ(j).firstIndex(); k <= basis.rangeJ(j).lastIndex(); ++k){
 			waveletfile << basis.generator(XWavelet).operator()(x,j,k, 0) << " ";

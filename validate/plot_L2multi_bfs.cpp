@@ -13,30 +13,42 @@ using namespace std;
 using namespace lawa;
 
 typedef double T;
-typedef Basis<T, Primal, Interval, Dijkema> IntervalBasis;
+typedef Basis<T,Orthogonal,Interval,Multi> L2MultiBasis;
 
 int main(int argc, char *argv[]){
 
-	if(argc != 6){
-		cerr << "Usage: " << argv[0] << " d d_ j0 j bc" << endl;
+	if(argc != 4){
+		cerr << "Usage: " << argv[0] << " d j0 j" << endl;
 		exit(1);
 	}
 
 	int d = atoi(argv[1]);
-	int d_ = atoi(argv[2]);
-	int j0 = atoi(argv[3]);
-	int j = atoi(argv[4]);
-	int bc = atoi(argv[5]);
+	int j0 = atoi(argv[2]);
+	int j = atoi(argv[3]);
 
-	IntervalBasis basis(d,d_,j0);
-	if(bc){
-		basis.enforceBoundaryCondition<DirichletBC>();
+	L2MultiBasis basis(d,j0);
+	basis.enforceBoundaryCondition<DirichletBC>();
 
-	}
     cout << "INFO:" << endl;
-    cout << "  d = " << d << ", d_ = " << d_ << endl;
-    cout << "  j0 = " << j0 << " (min_j0 = " << basis.min_j0 << ")" <<  endl;
-    cout << "  bc: " << (bc?"true":"false") << endl;
+    cout << "  d = " << d << endl;
+    cout << "  j0 = " << j0 <<  endl;
+    
+    cout << "------- Generators -----------" << endl;
+	
+	stringstream generatorfilename;
+    generatorfilename << "generators_L2multi_d" << d << "_j0" << j0 << ".txt";
+	ofstream generatorfile(generatorfilename.str().c_str());
+	for(T x = -1; x <= 1; x += pow2i<T>(-6-j)){
+		generatorfile << x << " ";
+        generatorfile << _linear_bspline_inner_evaluator0(x, 0) << " ";
+        generatorfile << _linear_bspline_inner_evaluator1(x, 0) << " ";
+        generatorfile << _linear_bspline_inner_evaluator2(x, 0) << " ";
+        generatorfile << _linear_wavelet_inner_evaluator0(x, 0) << " ";
+        generatorfile << _linear_wavelet_inner_evaluator1(x, 0) << " ";
+        generatorfile << _linear_wavelet_inner_evaluator2(x, 0) << " ";
+		generatorfile << endl;
+	}
+	generatorfile.close();
 
 	cout << "------- BSplines -----------" << endl;
 	cout << j << " " << basis.mra.rangeI(j) << endl;
@@ -48,7 +60,7 @@ int main(int argc, char *argv[]){
 	cout << "Right Indices: " << basis.mra.cardIR(j) << " " << basis.mra.rangeIR(j) << endl;
 
     stringstream bsplinefilename;
-    bsplinefilename << "bsplines_Dijkema_d" << d << d_ << "_j0" << j0 << "_" << j << "_bc" << bc << ".txt";  
+    bsplinefilename << "bsplines_L2Multi_d" << d << "_j0" << j0 << "_" << j << ".txt";  
 	ofstream bsplinefile(bsplinefilename.str().c_str());
 	for(T x = 0; x <= 1; x += pow2i<T>(-4-j)){
 		bsplinefile << x << " ";
@@ -70,7 +82,7 @@ int main(int argc, char *argv[]){
 
 
     stringstream waveletfilename;
-    waveletfilename << "wavelets_Dijkema_d" << d << d_ << "_j0" << j0 << "_" << j << "_bc" << bc << ".txt";  
+    waveletfilename << "wavelets_L2Multi_d" << d << "_j0" << j0 << "_" << j << ".txt";  
 	ofstream waveletfile(waveletfilename.str().c_str());
 	for(T x = 0; x <= 1; x += pow2i<T>(-4-j)){
 		waveletfile << x << " ";
