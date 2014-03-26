@@ -86,8 +86,6 @@ get_riesz_representor_f(std::size_t i)
 	riesz_solver_f.get_rhs().set_active_comp(i);
 
 	DataType r_f = riesz_solver_f.solve();
-	// As the riesz map R: Y' \to Y, it is stable wrt to the _dual_ basis D_Y^-1
-	riesz_solver_f.remove_preconditioner(r_f);
 	riesz_solver_f.remove_preconditioner(r_f);
 
 	return r_f;
@@ -103,7 +101,6 @@ get_riesz_representor_f(std::size_t i, DataType& r_f)
 
 	T eps = riesz_solver_f.solve(r_f);
 	riesz_solver_f.remove_preconditioner(r_f);
-	riesz_solver_f.remove_preconditioner(r_f);
 
 	return eps;
 }
@@ -118,7 +115,6 @@ get_riesz_representor_a(std::size_t i, const DataType& u)
 	riesz_solver_a.get_rhs().set_active_comp(i);
 
 	DataType r_a = riesz_solver_a.solve();
-	riesz_solver_a.remove_preconditioner(r_a);
 	riesz_solver_a.remove_preconditioner(r_a);
 
 	// We should have calculated (r,v) = - a^q(u,v)
@@ -141,7 +137,6 @@ get_riesz_representor_a(std::size_t i, const DataType& u, DataType& r_a, bool co
 	}
 	T eps = riesz_solver_a.solve(r_a);
 	riesz_solver_a.remove_preconditioner(r_a);
-	riesz_solver_a.remove_preconditioner(r_a);
 
 	// We should have calculated (r,v) = - a^q(u,v)
 	// but we did (r,v) = a^q(u,v)
@@ -162,7 +157,6 @@ get_riesz_representor_res(const DataType& u, ParamType& mu)
 
 	DataType r_res = riesz_solver_res->solve();
 	riesz_solver_res->remove_preconditioner(r_res);
-	riesz_solver_res->remove_preconditioner(r_res);
 
 	return r_res;
 }
@@ -177,7 +171,6 @@ get_riesz_representor_res(const DataType& u, ParamType& mu, DataType& r_res, T o
 	riesz_solver_res->get_rhs().set_param(mu);
 
 	T res_norm = riesz_solver_res->solve(r_res, old_res_norm);
-	riesz_solver_res->remove_preconditioner(r_res);
 	riesz_solver_res->remove_preconditioner(r_res);
 
 	return res_norm;
