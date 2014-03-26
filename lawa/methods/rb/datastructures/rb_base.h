@@ -33,6 +33,9 @@ public:
 
 	void
 	train_Greedy(std::size_t N = 0);
+	
+	void
+	train_Greedy(std::vector<ParamType>& Xi_train, std::size_t N = 0);
 
 	/*
 	void

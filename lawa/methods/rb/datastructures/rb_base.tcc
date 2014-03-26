@@ -29,7 +29,22 @@ get_bf(std::size_t i)
 template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
 void
 RB_Base<RB_Model,TruthModel, DataType, ParamType>::
-train_Greedy(std::size_t N)
+train_Greedy(std::size_t N){
+    //------------------------------------------------//
+	//      Parameter training set generation
+	//------------------------------------------------//
+	std::vector<ParamType> Xi_train = generate_uniform_paramset(greedy_params.min_param,
+																greedy_params.max_param,
+																greedy_params.nb_training_params,
+																greedy_params.log_scaling);
+																
+    train_Greedy(Xi_train, N);
+}
+
+template <typename RB_Model, typename TruthModel, typename DataType, typename ParamType>
+void
+RB_Base<RB_Model,TruthModel, DataType, ParamType>::
+train_Greedy(std::vector<ParamType>& Xi_train, std::size_t N)
 {
 
 	//================================================//
@@ -49,13 +64,6 @@ train_Greedy(std::size_t N)
 
 	}
 
-	//------------------------------------------------//
-	//      Parameter training set generation
-	//------------------------------------------------//
-	std::vector<ParamType> Xi_train = generate_uniform_paramset(greedy_params.min_param,
-																greedy_params.max_param,
-																greedy_params.nb_training_params,
-																greedy_params.log_scaling);
 	if(greedy_params.print_paramset){
 		std::cout << "Training Parameters: " << std::endl;
 		print_paramset(Xi_train);
