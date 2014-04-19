@@ -25,6 +25,18 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
 
 template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
           typename ThirdLocalOperator,typename FourthLocalOperator>
+CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>
+::CompoundLocalOperator(FirstLocalOperator &_firstLocalOp, SecondLocalOperator &_secondLocalOp,
+                        ThirdLocalOperator &_thirdLocalOp, FourthLocalOperator  &_fourthLocalOp)
+: numOfLocalOp(4),
+  firstLocalOp(_firstLocalOp), secondLocalOp(_secondLocalOp),
+  thirdLocalOp(_thirdLocalOp), fourthLocalOp(_fourthLocalOp)
+{
+
+}
+
+template <typename Index, typename FirstLocalOperator, typename SecondLocalOperator,
+          typename ThirdLocalOperator,typename FourthLocalOperator>
 void
 CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOperator,FourthLocalOperator>
 ::eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographical,T,Index> &Av)
@@ -40,6 +52,12 @@ CompoundLocalOperator<Index,FirstLocalOperator,SecondLocalOperator,ThirdLocalOpe
             secondLocalOp.eval(v, Av);
             thirdLocalOp.eval(v, Av);
             break;
+        case 4:
+                firstLocalOp.eval( v, Av);
+                secondLocalOp.eval(v, Av);
+                thirdLocalOp.eval(v, Av);
+                fourthLocalOp.eval(v, Av);
+                break;
         default:
             std::cerr << "CompoundLocalOperator not yet implemented for " << numOfLocalOp
                       << " operators. Exit." << std::endl;

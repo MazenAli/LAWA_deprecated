@@ -18,6 +18,7 @@ typedef Basis<T, Orthogonal,Interval,Multi> L2MWBasis;
 
 
 typedef AdaptiveIdentityOperator1D<T,Orthogonal,Interval,Multi>   			IdentityOp;
+typedef AdaptiveLaplaceOperator1D<T,Orthogonal,Interval,Multi>   			LaplaceOp;
 
 typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    		SparseMatrixT;
 typedef flens::SparseSyMatrix<flens::CRS<T,flens::CRS_UpperTriangular> >    SparseSymMatrixT;
@@ -27,19 +28,24 @@ typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  		FullColMat
 
 int main(int argc, char *argv[]){
 
-	if(argc != 4){
-		cerr << "Usage: " << argv[0] << " d j0 J" << endl;
+	if(argc != 5){
+		cerr << "Usage: " << argv[0] << " d j0 J RBs(0=false)" << endl;
 		exit(1);
 	}
 
 	int d = atoi(argv[1]);
 	int j0 = atoi(argv[2]);
 	int J = atoi(argv[3]);
+	int rbs = atoi(argv[4]);
 
 	cout << "L2 MW Basis with d = " << d << ", j0 = " << j0 << ", J = " << J << endl << endl;
 
 	L2MWBasis basis(d,j0);
+	if(rbs > 0){
+	    basis.enforceBoundaryCondition<DirichletBC>();
+	}
 	IdentityOp id_op(basis);
+	LaplaceOp  lapl_op(basis);
 
 
 	IndexSet<Index1D> Lambda;
@@ -94,7 +100,7 @@ int main(int argc, char *argv[]){
 			T P_col = 1./std::sqrt(_integral(ind_col.j,ind_col.k,ind_col.xtype,0,ind_col.j,ind_col.k,ind_col.xtype,0)
 						         + _integral(ind_col.j,ind_col.k,ind_col.xtype,1,ind_col.j,ind_col.k,ind_col.xtype,1));
 			for (auto& ind_row : Lambda) {
-				I_H1(row_count, col_count) = P_col * id_op(ind_row, ind_col) *
+				I_H1(row_count, col_count) = P_col * (id_op(ind_row, ind_col) + lapl_op(ind_row, ind_col)) *
 						1./std::sqrt(_integral(ind_row.j,ind_row.k,ind_row.xtype,0,ind_row.j,ind_row.k,ind_row.xtype,0)
 								   + _integral(ind_row.j,ind_row.k,ind_row.xtype,1,ind_row.j,ind_row.k,ind_row.xtype,1));
 				row_count++;

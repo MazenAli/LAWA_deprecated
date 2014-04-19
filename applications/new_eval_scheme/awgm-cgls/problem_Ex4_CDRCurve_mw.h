@@ -90,6 +90,8 @@ typedef LocalOperator2D<LOpT_Id1D_Time, LOpT_Conv1D_Space>                      
 
 //==== CompoundOperators ====//
 typedef FlexibleCompoundLocalOperator<Index2D,AbstractLocalOperator2D<T> > 		Flex_COp_2D;
+typedef CompoundLocalOperator<Index2D,LOp_Conv_Id_2D,LOp_Id_Lapl_2D,
+                                        LOp_Id_Conv_2D, LOp_Id_Id_2D>    		Comp_COp_2D;
 
 const size_t PDim = 2;
 typedef array<T,PDim>	 													ParamType;

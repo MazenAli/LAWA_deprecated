@@ -41,6 +41,11 @@ class CompoundLocalOperator {
         CompoundLocalOperator(FirstLocalOperator  &_firstLocalOp,
                               SecondLocalOperator &_secondLocalOp,
                               ThirdLocalOperator  &_thirdLocalOp);
+        
+        CompoundLocalOperator(FirstLocalOperator  &_firstLocalOp,
+                              SecondLocalOperator &_secondLocalOp,
+                              ThirdLocalOperator  &_thirdLocalOp,
+                              FourthLocalOperator  &_fourthLocalOp);
 
         void
         eval(const Coefficients<Lexicographical,T,Index> &v,

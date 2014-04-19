@@ -18,6 +18,7 @@ typedef Basis<T, Primal, Interval, Dijkema> DijkemaBasis;
 
 
 typedef AdaptiveIdentityOperator1D<T,Primal, Interval, Dijkema>   			IdentityOp;
+typedef AdaptiveLaplaceOperator1D<T,Primal, Interval, Dijkema>   			LaplaceOp;
 
 typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    		SparseMatrixT;
 typedef flens::SparseSyMatrix<flens::CRS<T,flens::CRS_UpperTriangular> >    SparseSymMatrixT;
@@ -41,6 +42,7 @@ int main(int argc, char *argv[]){
 
 	DijkemaBasis basis(d,d_,j0);
 	IdentityOp id_op(basis);
+	LaplaceOp  lapl_op(basis);
 
 
 	IndexSet<Index1D> Lambda;
@@ -95,7 +97,7 @@ int main(int argc, char *argv[]){
 			T P_col = 1./std::sqrt(_integral(ind_col.j,ind_col.k,ind_col.xtype,0,ind_col.j,ind_col.k,ind_col.xtype,0)
 						         + _integral(ind_col.j,ind_col.k,ind_col.xtype,1,ind_col.j,ind_col.k,ind_col.xtype,1));
 			for (auto& ind_row : Lambda) {
-				I_H1(row_count, col_count) = P_col * id_op(ind_row, ind_col) *
+				I_H1(row_count, col_count) = P_col * (id_op(ind_row, ind_col)+lapl_op(ind_row, ind_col)) *
 						1./std::sqrt(_integral(ind_row.j,ind_row.k,ind_row.xtype,0,ind_row.j,ind_row.k,ind_row.xtype,0)
 								   + _integral(ind_row.j,ind_row.k,ind_row.xtype,1,ind_row.j,ind_row.k,ind_row.xtype,1));
 				row_count++;

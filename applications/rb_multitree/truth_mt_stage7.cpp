@@ -250,7 +250,7 @@ int main () {
     MT_AWGM_Truth awgm_u(basis2d_trial, basis2d_test, affine_lhs, affine_lhs_T,
    							 affine_rhs, rightPrec, leftPrec, awgm_truth_parameters, is_parameters);
     awgm_u.set_sol(dummy);
-    awgm_u.awgm_params.tol = 5e-03;
+    awgm_u.awgm_params.tol = 5e-01;
     awgm_u.set_initial_indexsets(LambdaTrial,LambdaTest);
 
 
