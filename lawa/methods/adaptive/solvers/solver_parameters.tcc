@@ -55,7 +55,7 @@ AWGM_PG_Parameters::print()
 IS_Parameters::IS_Parameters(bool _adaptive_tol, std::size_t _max_its, double _init_tol,
 			  double _res_reduction, double _absolute_tol, bool _verbose)
 : adaptive_tol(_adaptive_tol), max_its(_max_its), init_tol(_init_tol),
-  res_reduction(_res_reduction), absolute_tol(_absolute_tol), verbose(_verbose)
+  res_reduction(_res_reduction), absolute_tol(_absolute_tol), tol(adaptive_tol?_init_tol:_absolute_tol),verbose(_verbose)
 {}
 
 void

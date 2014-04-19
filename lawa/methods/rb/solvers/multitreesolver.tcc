@@ -63,6 +63,42 @@ get_lhs()
 
 template <typename Index, typename Basis, typename LocalOperator,
 		  typename F_RHS, typename Preconditioner>
+const Basis&
+MultiTreeSolver<Index,Basis,LocalOperator,F_RHS,Preconditioner>::
+get_trialbasis()
+{
+	return basis;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename F_RHS, typename Preconditioner>
+const Basis&
+MultiTreeSolver<Index,Basis,LocalOperator,F_RHS,Preconditioner>::
+get_testbasis()
+{
+	return basis;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename F_RHS, typename Preconditioner>
+Preconditioner&
+MultiTreeSolver<Index,Basis,LocalOperator,F_RHS,Preconditioner>::
+get_trialprec()
+{
+	return Prec;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename F_RHS, typename Preconditioner>
+Preconditioner&
+MultiTreeSolver<Index,Basis,LocalOperator,F_RHS,Preconditioner>::
+get_testprec()
+{
+	return Prec;
+}
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename F_RHS, typename Preconditioner>
 Coefficients<Lexicographical,typename LocalOperator::T,Index>
 MultiTreeSolver<Index,Basis,LocalOperator,F_RHS,Preconditioner>::
 solve()
@@ -79,9 +115,9 @@ solve()
 
 template <typename Index, typename Basis, typename LocalOperator,
 		  typename F_RHS, typename Preconditioner>
-void
+typename LocalOperator::T
 MultiTreeSolver<Index,Basis,LocalOperator,F_RHS,Preconditioner>::
-solve(Coefficients<Lexicographical,T,Index> &u)
+solve(Coefficients<Lexicographical,T,Index> &u, T)
 {
     IndexSet<Index> Lambda;
 	if(u.size() > 0){
@@ -94,15 +130,15 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 		FillWithZeros(Lambda,u);
 	}
 
-	solve(u, Lambda);
+	return solve(u, Lambda);
 
 }
 
 template <typename Index, typename Basis, typename LocalOperator,
 		  typename F_RHS, typename Preconditioner>
-void
+typename LocalOperator::T
 MultiTreeSolver<Index,Basis,LocalOperator,F_RHS,Preconditioner>::
-solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
+solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda, T)
 {
     //---------------------------------------//
     //------- Initialization -----------//
@@ -193,6 +229,7 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda)
 		plot2D<T,Basis,Preconditioner>(basis, u, Prec, exact_sol, 0., 1., 0., 1., 0.01, iswgm_params.plot_filename.c_str());
 	}
 
+    return res_cg;
 }
 
 template <typename Index, typename Basis, typename LocalOperator,
@@ -221,6 +258,12 @@ reset_info()
 {
 	iswgm_info.reset();
 }
+
+template <typename Index, typename Basis, typename LocalOperator,
+		  typename F_RHS, typename Preconditioner>
+void
+MultiTreeSolver<Index,Basis,LocalOperator,F_RHS,Preconditioner>::
+coarsen(Coefficients<Lexicographical,T,Index>& u){}
 
 
 } // namespace lawa

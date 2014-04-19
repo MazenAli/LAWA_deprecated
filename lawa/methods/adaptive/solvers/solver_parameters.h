@@ -125,6 +125,8 @@ struct IS_Parameters{
     double          init_tol;
     double          res_reduction;
     double          absolute_tol;
+    
+    double          tol;
 
     bool            verbose;
 
@@ -149,6 +151,9 @@ struct ISWGM_Parameters{
     bool    		plot_solution;
     std::string 	info_filename;
     std::string 	plot_filename;
+    
+    double          tol;
+    std::size_t     max_its;
 
     ISWGM_Parameters(bool _print_info = true,
                     bool _verbose = true,

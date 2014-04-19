@@ -48,6 +48,8 @@ public:
     typedef F_RHS						RHSType;
     typedef TrialBasis					TrialBasisType;
     typedef TestBasis					TestBasisType;
+    typedef TrialPrec   				TrialPrecType;
+    typedef TestPrec    				TestPrecType;
     typedef ISWGM_Parameters			ParamType;
 
     MultiTreeSolver_PG(const TrialBasis &_trialbasis, const TestBasis& _testbasis,
@@ -60,12 +62,12 @@ public:
     				ISWGM_Parameters& _iswgm_params, IS_Parameters& _is_params);
 
     // CGLS solve
-    void
-    solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda_trial, IndexSet<Index>& Lambda_test);
+    T
+    solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& Lambda_trial, IndexSet<Index>& Lambda_test, T dummy = 0.);
 
     // CGLS solve
-    void
-    solve(Coefficients<Lexicographical,T,Index> &u);
+    T
+    solve(Coefficients<Lexicographical,T,Index> &u, T dummy = 0.);
 
     // CGLS solve
     Coefficients<Lexicographical,T,Index>
@@ -82,6 +84,12 @@ public:
 
     const TestBasis&
     get_testbasis();
+    
+    TrialPrec&
+    get_trialprec();
+
+    TestPrec&
+    get_testprec();
 
     void
     set_sol(sol_fct_2d _sol);
@@ -100,6 +108,9 @@ public:
 
     ISWGM_Parameters						iswgm_params;
     IS_Parameters							is_params;
+    
+    void
+    coarsen(Coefficients<Lexicographical,T,Index>& u);
 
 private:
 

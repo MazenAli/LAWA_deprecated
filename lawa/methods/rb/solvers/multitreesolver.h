@@ -39,7 +39,15 @@ class MultiTreeSolver {
     typedef typename LocalOperator::T 	T;
     typedef LocalOperator 			  	LHSType;
     typedef F_RHS						RHSType;
+    typedef Basis						BasisType;
+    typedef Basis						TrialBasisType;
+    typedef Basis						TestBasisType;
+    typedef Preconditioner				PrecType;
+    typedef Preconditioner				TrialPrecType;
+    typedef Preconditioner				TestPrecType;
     typedef ISWGM_Parameters			ParamType;
+
+
 
     typedef T (*sol_fct_2d)(T,T);
 
@@ -51,12 +59,12 @@ public:
     				ISWGM_Parameters& _iswgm_params, IS_Parameters& _is_params);
 
     // CG solve
-    void
-    solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& init_Lambda);
+    T
+    solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& init_Lambda, T dummy = 0.);
 
     // CG solve
-    void
-    solve(Coefficients<Lexicographical,T,Index> &u);
+    T
+    solve(Coefficients<Lexicographical,T,Index> &u, T dummy = 0.);
 
     // CG solve
     Coefficients<Lexicographical,T,Index>
@@ -77,6 +85,18 @@ public:
     LocalOperator&
     get_lhs();
 
+    const Basis&
+    get_trialbasis();
+
+    const Basis&
+    get_testbasis();
+
+    Preconditioner&
+    get_trialprec();
+
+    Preconditioner&
+    get_testprec();
+
     ParamType&
     access_params();
 
@@ -86,6 +106,9 @@ public:
     ISWGM_Parameters				   iswgm_params;
 
     IS_Parameters					   is_params;
+    
+    void
+    coarsen(Coefficients<Lexicographical,T,Index>& u);
 
 private:
 

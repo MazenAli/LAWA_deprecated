@@ -71,6 +71,26 @@ get_testbasis()
 template <typename Index, typename TrialBasis, typename TestBasis,
 		  typename LocalOperator, typename LocalOperatorTransp, typename F_RHS,
 		  typename TrialPrec, typename TestPrec>
+TrialPrec&
+MultiTreeSolver_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,F_RHS,TrialPrec,TestPrec>::
+get_trialprec()
+{
+	return trialPrec;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename F_RHS,
+		  typename TrialPrec, typename TestPrec>
+TestPrec&
+MultiTreeSolver_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,F_RHS,TrialPrec,TestPrec>::
+get_testprec()
+{
+	return testPrec;
+}
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename F_RHS,
+		  typename TrialPrec, typename TestPrec>
 void
 MultiTreeSolver_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,F_RHS,TrialPrec,TestPrec>::
 set_indexsets(const IndexSet<Index> _LambdaTrial, const IndexSet<Index> _LambdaTest)
@@ -113,9 +133,9 @@ solve()
 template <typename Index, typename TrialBasis, typename TestBasis,
 		  typename LocalOperator, typename LocalOperatorTransp, typename F_RHS,
 		  typename TrialPrec, typename TestPrec>
-void
+typename LocalOperator::T
 MultiTreeSolver_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,F_RHS,TrialPrec,TestPrec>::
-solve(Coefficients<Lexicographical,T,Index> &u)
+solve(Coefficients<Lexicographical,T,Index> &u, T)
 {
     IndexSet<Index> LambdaTrial, LambdaTest;
 	if(u.size() > 0){
@@ -125,7 +145,7 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 
 		// Check if this is the default trial index set
 		bool is_default_set = true;
-		if(LambdaTrial.size() != default_Lambda_trial){
+		if(LambdaTrial.size() != default_Lambda_trial.size()){
 			is_default_set = false;
 		}
 		else{
@@ -156,15 +176,15 @@ solve(Coefficients<Lexicographical,T,Index> &u)
 		FillWithZeros(LambdaTrial,u);
 	}
 
-	solve(u, LambdaTrial, LambdaTest);
+	return solve(u, LambdaTrial, LambdaTest);
 }
 
 template <typename Index, typename TrialBasis, typename TestBasis,
 		  typename LocalOperator, typename LocalOperatorTransp, typename F_RHS,
 		  typename TrialPrec, typename TestPrec>
-void
+typename LocalOperator::T
 MultiTreeSolver_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,F_RHS,TrialPrec,TestPrec>::
-solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, IndexSet<Index>& LambdaTest)
+solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, IndexSet<Index>& LambdaTest, T)
 {
     //---------------------------------------//
     //------- Initialization -----------//
@@ -257,6 +277,8 @@ solve(Coefficients<Lexicographical,T,Index> &u, IndexSet<Index>& LambdaTrial, In
     	}
         plot2D<T,TrialBasis,TrialPrec>(trialbasis, u, trialPrec, exact_sol, 0., 1., 0., 1., 0.01, iswgm_params.plot_filename.c_str());
     }
+    
+    return gamma_cgls;
 }
 
 template <typename Index, typename TrialBasis, typename TestBasis,
@@ -288,5 +310,12 @@ reset_info()
 {
 	iswgm_info.reset();
 }
+
+template <typename Index, typename TrialBasis, typename TestBasis,
+		  typename LocalOperator, typename LocalOperatorTransp, typename F_RHS,
+		  typename TrialPrec, typename TestPrec>
+void
+MultiTreeSolver_PG<Index,TrialBasis,TestBasis,LocalOperator,LocalOperatorTransp,F_RHS,TrialPrec,TestPrec>::
+coarsen(Coefficients<Lexicographical,T,Index>& u){}
 
 } // namespace lawa
