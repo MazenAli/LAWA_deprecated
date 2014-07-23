@@ -33,7 +33,7 @@ template <typename T, typename Basis1D>
 struct FinanceOperator1D<T, CGMY, Basis1D>
 {
     FinanceOperator1D(const Basis1D& _basis, const ProcessParameters1D<T,CGMY> &_processparameters,
-                      const T _eta=0., T _R1=0., T _R2=1., int order=10,
+                      T _R1=0., T _R2=1., int order=10,
                       const int internal_compression_level=-1,
                       T _convection=0., T _reaction=0.,
                       const bool _use_predef_convection=true, const bool _use_predef_reaction=true);

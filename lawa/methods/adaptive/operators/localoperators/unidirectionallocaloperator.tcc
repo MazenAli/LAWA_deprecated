@@ -45,6 +45,8 @@ eval(const Coefficients<Lexicographical,T,Index> &v, Coefficients<Lexicographica
     T time_add_aligned = 0.;
     for (typename NotCoordXAlignedCoefficients::const_map_prindex_it it =notCoordXAligned_v.map.begin();
                                                                      it!=notCoordXAligned_v.map.end(); ++it) {
+
+        //std::cerr << "UniDirectionalLocalOperator: aligned index = " << (*it).first << std::endl;
         time.start();
         TreeCoefficients1D<T> PsiLambdaHat_CoordX(n2,trialBasis_CoordX.j0);
         PsiLambdaHat_CoordX = (*it).second;

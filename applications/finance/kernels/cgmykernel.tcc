@@ -30,14 +30,84 @@ Kernel<T,CGMY>::Kernel(const ProcessParameters1D<T,CGMY> &_params)
     Gdiv1mY  = G/(1.-Y);
     OnedivSix= 1./6.;
 
-    constants[0] =  0.5    * C * powM_Ym2 * boost::math::tgamma(2-Y);
-    constants[1] = -0.5    * C * powG_Ym2 * boost::math::tgamma(2-Y);
-    constants[2] =  1./6.  * C * powM_Ym3 * boost::math::tgamma(3-Y);
-    constants[3] =  1./6.  * C * powG_Ym3 * boost::math::tgamma(3-Y);
-    constants[4] =  1./24. * C * powM_Ym4 * boost::math::tgamma(4-Y);
-    constants[5] = -1./24. * C * powG_Ym4 * boost::math::tgamma(4-Y);
-    constants[6] =  1./120.* C * powM_Ym5 * boost::math::tgamma(5-Y);
-    constants[7] =  1./120.* C * powG_Ym5 * boost::math::tgamma(5-Y);
+    constants[0] =  0.5L     * C * powM_Ym2 * boost::math::tgamma(2-Y);
+    constants[1] = -0.5L     * C * powG_Ym2 * boost::math::tgamma(2-Y);
+    constants[2] =  1.L/6.L  * C * powM_Ym3 * boost::math::tgamma(3-Y);
+    constants[3] =  1.L/6.L  * C * powG_Ym3 * boost::math::tgamma(3-Y);
+    constants[4] =  1.L/24.L * C * powM_Ym4 * boost::math::tgamma(4-Y);
+    constants[5] = -1.L/24.L * C * powG_Ym4 * boost::math::tgamma(4-Y);
+    constants[6] =  1.L/120.L* C * powM_Ym5 * boost::math::tgamma(5-Y);
+    constants[7] =  1.L/120.L* C * powG_Ym5 * boost::math::tgamma(5-Y);
+    constants[8] =  nthTailIntegral(10e-16,7,ZeroAtInfinity);
+    constants[9] =  nthTailIntegral(-10e-16,7,ZeroAtInfinity);
+
+    c3 = constants[0]-constants[1];
+    c4 = constants[2]-constants[3];
+    c5 = constants[4]-constants[5];
+    c6 = constants[6]-constants[7];
+
+    ExpXmOnemX_k_pos = C*boost::math::tgamma(-Y)*( std::pow(M-1,Y)-std::pow(M,Y)+Y*std::pow(M,Y-1));
+    ExpXmOnemX_k_neg = C*boost::math::tgamma(-Y)*( std::pow(G+1,Y)-std::pow(G,Y)-Y*std::pow(G,Y-1));
+    ExpXmOnemX_k     = ExpXmOnemX_k_pos + ExpXmOnemX_k_neg;
+    ExpXmOne_k1_pos =  ExpXmOnemX_k_pos;
+    ExpXmOne_k1_neg =  ExpXmOnemX_k_neg;
+    ExpXmOne_k2_pos =  (CdivY/(1-Y))*(boost::math::tgamma(2-Y)*( powM_Y-2*powM_Ym1-std::pow(M-1,Y) )
+                                      + boost::math::tgamma(3-Y)*powM_Ym1  ) - constants[0];
+    ExpXmOne_k2_neg = -(CdivY/(1-Y))*(boost::math::tgamma(2-Y)*(-powG_Y-2*powG_Ym1+std::pow(G+1,Y) )
+                                      + boost::math::tgamma(3-Y)*powG_Ym1  ) + constants[1];
+
+
+/*
+    std::cout << "CGMY-Utils: c3=" << c3 << ", c4=" << c4 << ", c5=" << c5 << ", c6=" << c6 << std::endl;
+    std::cout << "CGMY-Utils: constants[0]=" << constants[0] << ", constants[1]=" << constants[1] << ", constants[2]=" << constants[2] << ", constants[3]=" << constants[3] << std::endl;
+    std::cout << "CGMY-Utils: constants[4]=" << constants[4] << ", constants[5]=" << constants[5] << ", constants[6]=" << constants[6] << ", constants[7]=" << constants[7] << std::endl;
+
+    std::cout << "CGMY-Utils: ExpXmOnemX_k_pos = " << ExpXmOnemX_k_pos << ", ExpXmOnemX_k_neg = " << ExpXmOnemX_k_neg << std::endl;
+    std::cout << "CGMY-Utils: ExpXmOne_k1_pos = " << ExpXmOne_k1_pos << ", ExpXmOne_k1_neg = " << ExpXmOne_k1_neg << std::endl;
+    std::cout << "CGMY-Utils: ExpXmOne_k2_pos = " << ExpXmOne_k2_pos << ", ExpXmOne_k2_neg = " << ExpXmOne_k2_neg << std::endl;
+    std::cout << "CGMY-Utils: Initialization finished." << std::endl;
+*/
+
+}
+
+template <typename T>
+Kernel<T,CGMY>::Kernel(const ProcessParameters1D<T,CGMYe> &_params)
+: params(_params.r, _params.k_C, _params.k_G, _params.k_M, _params.k_Y),
+  C(_params.k_C), G(_params.k_G), M(_params.k_M), Y(_params.k_Y)
+{
+    if ((Y == 0) || (Y == 1)) {
+        std::cout << "The cases Y=0 and Y=1 are not implemented yet." << std::endl;
+        exit(1);
+    }
+
+    powM_Ym5 = std::pow(M,Y-5);
+    powM_Ym4 = M*powM_Ym5;
+    powM_Ym3 = M*powM_Ym4;
+    powM_Ym2 = M*powM_Ym3;
+    powM_Ym1 = M*powM_Ym2;
+    powM_Y   = M*powM_Ym1;
+
+    powG_Ym5 = std::pow(G,Y-5);
+    powG_Ym4 = G*powG_Ym5;
+    powG_Ym3 = G*powG_Ym4;
+    powG_Ym2 = G*powG_Ym3;
+    powG_Ym1 = G*powG_Ym2;
+    powG_Y   = G*powG_Ym1;
+
+    CdivY    = C/Y;
+    Cdiv1mY  = C/(1.L-Y);
+    Mdiv1mY  = M/(1.L-Y);
+    Gdiv1mY  = G/(1.L-Y);
+    OnedivSix= 1.L/6.L;
+
+    constants[0] =  0.5L     * C * powM_Ym2 * boost::math::tgamma(2-Y);
+    constants[1] = -0.5L     * C * powG_Ym2 * boost::math::tgamma(2-Y);
+    constants[2] =  1.L/6.L  * C * powM_Ym3 * boost::math::tgamma(3-Y);
+    constants[3] =  1.L/6.L  * C * powG_Ym3 * boost::math::tgamma(3-Y);
+    constants[4] =  1.L/24.L * C * powM_Ym4 * boost::math::tgamma(4-Y);
+    constants[5] = -1.L/24.L * C * powG_Ym4 * boost::math::tgamma(4-Y);
+    constants[6] =  1.L/120.L* C * powM_Ym5 * boost::math::tgamma(5-Y);
+    constants[7] =  1.L/120.L* C * powG_Ym5 * boost::math::tgamma(5-Y);
     constants[8] =  nthTailIntegral(10e-16,7,ZeroAtInfinity);
     constants[9] =  nthTailIntegral(-10e-16,7,ZeroAtInfinity);
 
@@ -144,6 +214,8 @@ Kernel<T,CGMY>::nthTailIntegral(T x, int n, AntiDerivativeType type) const {
 template <typename T>
 T
 Kernel<T,CGMY>::FirstTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 1, ZeroAtInfinity);
+
     if (x>0)    return (C/Y)*( (std::pow(x,-Y)*exp(-M*x)) * (1+(M/(1-Y))*x)
                                - std::pow(M,Y)/(1-Y)*boost::math::tgamma(2-Y,M*x));
     else        return -(C/Y)*( (std::pow(-x,-Y)*exp(G*x)) * (1+(G/(1-Y))*(-x))
@@ -164,15 +236,16 @@ Kernel<T,CGMY>::FirstTailFirstExpMomIntegral(T x) const {
 template <typename T>
 T
 Kernel<T,CGMY>::SecondTailIntegral(T x) const{
+    //return this->nthTailIntegral(x, 2, ZeroAtInfinity);
     assert(fabs(x)>0);
     if (x>0) return (C/(Y*(1-Y)))*(  boost::math::tgamma(2-Y,M*x)*(
-                         2.0*std::pow(M,Y-1)+std::pow(M,Y)*x )
+                         2.0L*std::pow(M,Y-1)+std::pow(M,Y)*x )
                         -boost::math::tgamma(3-Y,M*x)*std::pow(M,Y-1)
                         -std::pow(x,1-Y)*exp(-M*x) );
     else  {
         x=fabs(x);
         return  (C/(Y*(1-Y)))*(  boost::math::tgamma(2-Y,G*x)*(
-                         2.0*std::pow(G,Y-1)+std::pow(G,Y)*x )
+                         2.0L*std::pow(G,Y-1)+std::pow(G,Y)*x )
                         -boost::math::tgamma(3-Y,G*x)*std::pow(G,Y-1)
                         -std::pow(x,1-Y)*exp(-G*x) );
     }
@@ -187,11 +260,12 @@ Kernel<T,CGMY>::SecondTailFirstExpMomIntegral(T x) const{
 template <typename T>
 T
 Kernel<T,CGMY>::ThirdTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 3, ZeroAtInfinity);
     assert(fabs(x)>0);
     if (x>0) return C/(Y*(1-Y))*( - boost::math::tgamma(2-Y,M*x)*( 2*std::pow(M,Y-1)*x
-                                                        +0.5*std::pow(M,Y)*x*x+std::pow(M,Y-2) )
+                                                        +0.5L*std::pow(M,Y)*x*x+std::pow(M,Y-2) )
                       + boost::math::tgamma(3-Y,M*x)*( 2*std::pow(M,Y-2)+x*std::pow(M,Y-1) )
-                      + boost::math::tgamma(4-Y,M*x)*( -0.5*std::pow(M,Y-2) )   );
+                      + boost::math::tgamma(4-Y,M*x)*( -0.5L*std::pow(M,Y-2) )   );
     else {
         x = fabs(x);
          return -C/(Y*(1-Y))*( - boost::math::tgamma(2-Y,G*x)*( 2*std::pow(G,Y-1)*x
@@ -254,6 +328,7 @@ Kernel<T,CGMY>::ThirdTailFirstExpMomIntegral(T x) const{
 template <typename T>
 T
 Kernel<T,CGMY>::ForthTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 4, ZeroAtInfinity);
     assert(fabs(x)>0);
 
     if (x>0) {
@@ -296,6 +371,7 @@ Kernel<T,CGMY>::ForthTailFirstExpMomIntegral(T x) const{
 template <typename T>
 T
 Kernel<T,CGMY>::FifthTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 5, ZeroAtInfinity);
     assert(fabs(x)>0);
 
     if (x>0) {
@@ -338,6 +414,7 @@ Kernel<T,CGMY>::FifthTailIntegral(T x) const {
 template <typename T>
 T
 Kernel<T,CGMY>::SixthTailIntegral(T x) const {
+    //return this->nthTailIntegral(x, 6, ZeroAtInfinity);
     assert(fabs(x)>0);
 
     if (x>0) {

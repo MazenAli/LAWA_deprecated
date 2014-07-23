@@ -81,7 +81,19 @@ ThetaTimeStepLocalOperator<Index,StiffnessMatrixLocalOperator,MassMatrixLocalOpe
     StiffnessMatrixLocalOp.eval(v, Av);
     Av *= (theta*timestep);
     if (MassIsIdentity) Av += v;
-    else                MassMatrixLocalOp.eval(v, Av);
+    else  {
+        //MassMatrixLocalOp.eval(v, Av);
+        Av += v;
+        /*
+        Coefficients<Lexicographical,T,Index> test(196613);
+        test = Av;
+        test.setToZero();
+        MassMatrixLocalOp.eval(v, test);
+        //test *= 0.5;
+        test -= v;
+        std::cerr << "---> TEST1: ||v - Eval[v]||_2 = " << test.norm(2.) << std::endl;
+        */
+    }
 }
 
 template <typename Index, typename StiffnessMatrixLocalOperator, typename MassMatrixLocalOperator>
@@ -98,7 +110,19 @@ ThetaTimeStepLocalOperator<Index,StiffnessMatrixLocalOperator,MassMatrixLocalOpe
     StiffnessMatrixLocalOp.eval(v, Av, evalType);
     Av *= (theta*timestep);
     if (MassIsIdentity) Av += v;
-    else                MassMatrixLocalOp.eval(v, Av, evalType);
+    else {
+        //MassMatrixLocalOp.eval(v, Av, evalType);
+        Av += v;
+        /*
+        Coefficients<Lexicographical,T,Index> test(196613);
+        test = Av;
+        test.setToZero();
+        MassMatrixLocalOp.eval(v, test, evalType);
+        //test *= 0.5;
+        test -= v;
+        std::cerr << "---> TEST2: ||v - Eval[v]||_2 = " << test.norm(2.) << " " << v.norm(2.) << std::endl;
+        */
+    }
 
     for (coeff_it it=Av.begin(); it!=Av.end(); ++it) {
         (*it).second *= P((*it).first);
@@ -107,6 +131,5 @@ ThetaTimeStepLocalOperator<Index,StiffnessMatrixLocalOperator,MassMatrixLocalOpe
         (*it).second *= 1./P((*it).first);
     }
 }
-
 
 }   // namespace lawa

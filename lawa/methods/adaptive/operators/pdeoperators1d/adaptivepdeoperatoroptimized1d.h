@@ -37,6 +37,81 @@ struct AdaptivePDEOperatorOptimized1D {
 
 };
 
+
+template <typename T>
+struct AdaptivePDEOperatorOptimized1D<T,Primal,R,CDF> {
+
+    typedef Basis<T,Primal,R,CDF>                                             ReallineCDFBasis1D;
+
+    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
+    typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
+
+    typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator  const_coeff1d_it;
+    typedef typename Coefficients<Lexicographical,T,Index1D>::iterator        coeff1d_it;
+    typedef typename Coefficients<AbsoluteValue,T,Index1D>::const_iterator    const_abs_coeff1d_it;
+
+    typedef CompressionPDE1D<T, ReallineCDFBasis1D>                           Compression1D;
+
+    typedef NoPreconditioner<T,Index1D>                                       NoPreconditioner1D;
+
+    typedef PDEOperator1D<T, ReallineCDFBasis1D>                              PDEOp1D;
+
+    typedef MapMatrix<T, Index1D, PDEOp1D,
+                     Compression1D, NoPreconditioner1D>                       DataPDE1D;
+
+    AdaptivePDEOperatorOptimized1D(const ReallineCDFBasis1D &_basis, T _reaction, T _convection,
+                                   T _diffusion, T thresh=0., int NumOfCols=4096, int NumOfRows=4096);
+
+    T
+    operator()(const Index1D &row_index, const Index1D &col_index);
+
+    T
+    prec(const Index1D &index);
+
+    Coefficients<Lexicographical,T,Index1D>
+    mv(const IndexSet<Index1D> &LambdaRow,
+       const Coefficients<Lexicographical,T,Index1D> &x);
+
+    void
+    toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
+                        SparseMatrixT &A_flens, int J=-1);
+
+    void
+    toFlensSparseMatrix(const IndexSet<Index1D>& LambdaRow, const IndexSet<Index1D>& LambdaCol,
+                        SparseMatrixT &A_flens, T eps);
+
+
+    Coefficients<Lexicographical,T,Index1D>
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, int k=0, int J=-1000);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps,
+          Coefficients<Lexicographical,T,Index1D> &ret);
+
+    void
+    apply(const Coefficients<Lexicographical,T,Index1D> &v, T eps,
+          const IndexSet<Index1D> &Lambda, Coefficients<Lexicographical,T,Index1D> &ret);
+
+    int
+    findK(const Coefficients<AbsoluteValue,T,Index1D> &v, T eps);
+
+    void
+    clear();
+
+    const ReallineCDFBasis1D                &basis;
+    T                                       reaction, convection, diffusion;
+    T cA, CA, kappa;
+
+    Compression1D                           compression;
+    const PDEOp1D                           pde_op1d;
+    NoPreconditioner1D                      prec1d;
+    DataPDE1D                               pde_data1d;
+
+    Coefficients<Lexicographical,T,Index1D> P_data;
+};
+
+
+
 template <typename T, DomainType Domain>
 struct AdaptivePDEOperatorOptimized1D<T,Primal,Domain,SparseMulti>
 {

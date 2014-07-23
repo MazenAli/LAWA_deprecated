@@ -5,21 +5,22 @@
 using namespace std;
 using namespace lawa;
 
-/// Several typedefs for notational convenience.
-
 ///  Typedefs for Flens data types:
 typedef double T;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
-typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
-
-///  Typedefs for problem components:
 
 ///  Wavelet basis over an interval
-typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
-//typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
+//typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
+typedef Basis<T, Primal, Interval, Dijkema>                         PrimalBasis;
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
-///  Underlying bilinear form
+///  Underlying bilinear form for $a(v,w) := \int_0^1 w'(x) v'(x) dx$ and
+///  $a(v,w) := \int_0^1 w(x) v(x) dx$.
+///  Observe that the first definition of a corresponding operator is the standard definition and is
+///  required for the computation of reference values. The second operator is solely for refinement
+///  B-Spline bases as here, we only require evaluation of type
+///  $a(\bar{\phi}_{j,k_1},\bar{\phi}_{j,k_2})$ which permit some optimizations. The third operator
+///  can be used for debugging of the (optimized) operator for refinement B-Spline bases.
 typedef LaplaceOperator1D<T,PrimalBasis>                            BilinearForm;
 typedef RefinementBasis::LaplaceOperator1D                          RefinementBilinearForm;
 typedef LaplaceOperator1D<T,RefinementBasis>                        RefinementBilinearFormTest;
@@ -27,7 +28,7 @@ typedef LaplaceOperator1D<T,RefinementBasis>                        RefinementBi
 //typedef RefinementBasis::IdentityOperator1D                       RefinementBilinearForm;
 //typedef IdentityOperator1D<T,RefinementBasis>                     RefinementBilinearFormTest;
 
-///  Local operator in 1d
+///  Initialization of a local operator in 1d
 typedef LocalOperator1D<PrimalBasis,PrimalBasis,
                         RefinementBilinearForm>                     LocOp1D;
 
@@ -36,18 +37,22 @@ typedef IndexSet<Index1D>::const_iterator                           const_set1d_
 typedef Coefficients<Lexicographical,T,Index1D>::const_iterator     const_coeff1d_it;
 typedef Coefficients<Lexicographical,T,Index1D>::iterator           coeff1d_it;
 
+/// Construction of a random tree with (possibly) random values.
 void
 constructRandomTree(const PrimalBasis &basis, int J, bool withRandomValues,
                     TreeCoefficients1D<T> &LambdaTree, bool sparsetree, int seed);
 
+/// Computation of a reference value $\mathbf{L}_{\widetilde{\Lambda}\times \Lambda} \mathbf{v}_{\Lambda}$.
 void
 computeEvalLRef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Lv_tree);
 
+/// Computation of a reference value $\mathbf{U}_{\widetilde{\Lambda}\times \Lambda} \mathbf{v}_{\Lambda}$.
 void
 computeEvalURef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Uv_tree);
 
+/// Computation of a reference value $\mathbf{A}_{\widetilde{\Lambda}\times \Lambda} \mathbf{v}_{\Lambda}$.
 void
 computeEvalARef(const BilinearForm &Bil, const PrimalBasis &basis,
                 const TreeCoefficients1D<T> &v_tree, TreeCoefficients1D<T> &Av_tree);
@@ -69,8 +74,8 @@ int main(int argc, char*argv[])
     Timer time;
 
     /// Basis initialization, using Dirichlet boundary conditions
-    PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
-    //PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
+    //PrimalBasis basis(d, j0);           // For L2_orthonormal and special MW bases
+    PrimalBasis basis(d, d, j0);      // For biorthogonal wavelet bases
     basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis &refinementbasis = basis.refinementbasis;
 
@@ -79,6 +84,8 @@ int main(int argc, char*argv[])
     LocOp1D localOperator1D(basis,basis,refinementbasis.LaplaceOp1D);
     //LocOp1D localOperator1D(basis,basis,refinementbasis.IdentityOp1D);
 
+
+    /// We test proper functionality of the (optimized) operator based on refinement B-Splines.
     RefinementBilinearFormTest  RefinementBilTest(refinementbasis);
     int j=j0+4;
     for (int k1=refinementbasis.mra.rangeI(j).firstIndex(); k1<=refinementbasis.mra.rangeI(j).lastIndex(); ++k1) {
@@ -100,11 +107,17 @@ int main(int argc, char*argv[])
 
     for (int j=j0; j<=J; ++j) {
         T time_evalA = 0., time_evalU = 0., time_evalL = 0.;
+
+        /// Initialization of input and output trees. Observe that for tree coefficients we always
+        /// require the minimal level of the basis for proper implementations.
         TreeCoefficients1D<T> v_tree(389,basis.j0), Av_tree(389,basis.j0),
                               Uv_tree(COEFFBYLEVELSIZE,basis.j0), Lv_tree(COEFFBYLEVELSIZE,basis.j0);
         TreeCoefficients1D<T> Av_ref_tree(COEFFBYLEVELSIZE,basis.j0),
                               Uv_ref_tree(COEFFBYLEVELSIZE,basis.j0),
                               Lv_ref_tree(COEFFBYLEVELSIZE,basis.j0);
+
+        /// We construct random tree based coefficients where the output vector is initialized
+        /// with zero values.
         constructRandomTree(basis, j, true, v_tree, sparsetree, seed);
         constructRandomTree(basis, j+1, false, Av_tree, sparsetree, seed+37);
         Av_ref_tree = Av_tree;
@@ -121,7 +134,11 @@ int main(int argc, char*argv[])
         time.stop();
         cout << "Elapsed time for EvalARef: " << time.elapsed() << endl;
         time.start();
+
+        /// Computation of $\mathbf{A}_{\widetilde{\Lambda}\times \Lambda} \mathbf{v}_{\Lambda}$
+        /// by $\textbf{EvalS}$.
         localOperator1D.eval(v_tree, Av_tree,"A");
+
         time.stop();
         time_evalA = time.elapsed();
         cout << "Elapsed time for evalA: " << time_evalA << endl;
@@ -139,7 +156,11 @@ int main(int argc, char*argv[])
         computeEvalURef(Bil, basis, v_tree, Uv_ref_tree);
         time.stop();
         time.start();
+
+        /// Computation of $\mathbf{U}_{\widetilde{\Lambda}\times \Lambda} \mathbf{v}_{\Lambda}$
+        /// by $\textbf{EvalU}$.
         localOperator1D.eval(v_tree, Uv_tree,"U");
+
         time.stop();
         time_evalU = time.elapsed();
         cout << "Elapsed time for evalU: " << time_evalU << endl;
@@ -156,7 +177,11 @@ int main(int argc, char*argv[])
         computeEvalLRef(Bil, basis, v_tree, Lv_ref_tree);
         time.stop();
         time.start();
+
+        /// Computation of $\mathbf{L}_{\widetilde{\Lambda}\times \Lambda} \mathbf{v}_{\Lambda}$
+        /// by $\textbf{EvalL}$.
         localOperator1D.eval(v_tree, Lv_tree,"L");
+
         time.stop();
         time_evalL = time.elapsed();
         cout << "Elapsed time for evalL: " << time_evalL << endl;

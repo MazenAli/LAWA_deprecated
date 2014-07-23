@@ -44,6 +44,25 @@ struct ProcessParameters1D<T,CGMY>
 };
 
 template <typename T>
+std::ostream& operator<<(std::ostream &s, const ProcessParameters1D<T,CGMY> &processparameters);
+
+template <typename T>
+struct ProcessParameters1D<T,CGMYe>
+{
+  ProcessParameters1D(T _r, T _k_C, T _k_G, T _k_M, T _k_Y, T _sigma);
+
+  T r;
+  T k_C;
+  T k_G;
+  T k_M;
+  T k_Y;
+  T sigma;
+};
+
+template <typename T>
+std::ostream& operator<<(std::ostream &s, const ProcessParameters1D<T,CGMYe> &processparameters);
+
+template <typename T>
 struct ProcessParameters1D<T,BlackScholes>
 {
     ProcessParameters1D(T _r, T _sigma);
@@ -51,6 +70,9 @@ struct ProcessParameters1D<T,BlackScholes>
     T r;
     T sigma;
 };
+
+template <typename T>
+std::ostream& operator<<(std::ostream &s, const ProcessParameters1D<T,BlackScholes> &processparameters);
 
 }   // namespace lawa
 

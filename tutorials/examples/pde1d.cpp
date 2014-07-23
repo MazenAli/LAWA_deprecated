@@ -42,7 +42,6 @@ typedef DiagonalMatrixPreconditioner1D<T, PrimalBasis, PDEOp>       Prec;
 ///     possibly with additional peak contributions (not needed here)
 typedef RHSWithPeaks1D<T, PrimalBasis>                              Rhs;
 
-
 /// Reference solution
 T
 u_f(T x)
@@ -69,16 +68,16 @@ u_xx_f(T x)
 T
 a_f(T x)
 {
-    //return 1.;
-    return 1+exp(x);
+    return 1.;
+    //return 1+exp(x);
 }
 
 /// Non-constant convection term
 T
 b_f(T x)
 {
-    return 1+exp(x);
-    //return 0.;
+    //return 1+exp(x);
+    return 1.;
 }
 
 /// constant diffusion term
@@ -170,7 +169,7 @@ int main(int argc, char*argv[])
     DenseVectorT singPts;                      // singular points of the rhs forcing function: here none
     DenseMatrixT deltas;                     // peaks (and corresponding scaling coefficients): here none
     Function<T> F(rhs_f, singPts);             // Function object (wraps a function and its singular points)
-    Rhs rhs(basis, F, deltas, 10, false, true); // RHS: specify integration order for Gauss quadrature (here: 4) and
+    Rhs rhs(basis, F, deltas, 40, false, true); // RHS: specify integration order for Gauss quadrature (here: 4) and
                                                //      if there are singular parts (false) and/or smooth parts (true)
                                                //      in the integral
 
@@ -212,11 +211,11 @@ int main(int argc, char*argv[])
         DenseVectorT u(basis.mra.rangeI(j));
 
         /// Solve problem using pgmres
-        cout << pgmres(P, A, u, f, 1e-8) << " pgmres iterations" << endl;
+        cout << pgmres(P, A, u, f, 1e-12) << " pgmres iterations" << endl;
 
         /// Compute errors
         long double L2error=0.L, H1error=0.L;
-        H1errorU(u, basis, j, L2error, H1error, pow2i<T>(-j-22));
+        H1errorU(u, basis, j, L2error, H1error, 0.0000001/*pow2i<T>(-j-15)*/);
         file << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
         cout << basis.mra.cardI(j) << " " << L2error << " " << H1error << endl;
 

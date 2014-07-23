@@ -106,10 +106,25 @@ S_ADWAV<T,Index,Basis,MA,RHS>::solve(const IndexSet<Index> &InitialLambda, const
 
         timer.stop();
 
+        std::stringstream coeff_filename;
+        coeff_filename << "s_adwav_coeff_" << u.size();
+        Coefficients<AbsoluteValue,T,Index1D> u_abs;
+        u_abs = u;
+        plotCoeff(u_abs, basis, coeff_filename.str().c_str());
+
         std::cout << "Computing error..." << std::endl;
         T time1 = timer.elapsed();
+
+        Coefficients<Lexicographical,T,Index> Au_test;
+        Au_test = A.mv(LambdaThresh,u);
+        T uAu_test = u*Au_test;
+        std::cerr << "    Estimated energy norm squared: " << uAu_test << std::endl;
+
         T Error_H_energy = 0.;
         if (H1norm>0) Error_H_energy = computeErrorInH1Norm(A, F, u, H1norm, true);
+        std::cerr << "    Estimated energy error squared: " << Error_H_energy*Error_H_energy
+                  << ", ref_value: " << H1norm*H1norm << std::endl;
+
         std::cout << "... finished." << std::endl;
 
 

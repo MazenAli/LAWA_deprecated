@@ -33,6 +33,8 @@ namespace lawa {
 template <typename T>
 struct Option1D<T,Put>
 {
+    Option1D();
+
     Option1D(const OptionParameters1D<T,Put> &_optionparameters);
 
     T
@@ -43,7 +45,7 @@ struct Option1D<T,Put>
 
 
     T
-    value(const ProcessParameters1D<T,BlackScholes> &processparameters, T S, T t);
+    value(const ProcessParameters1D<T,BlackScholes> &processparameters, T S, T t) const;
 
     T
     value(const ProcessParameters1D<T,CGMY> &processparameters, T S, T t);
@@ -53,6 +55,7 @@ struct Option1D<T,Put>
 
     OptionParameters1D<T,Put> optionparameters;
     DenseVector<Array<T> >    singularPoints;
+    std::map<T,T> values;
 };
 
 } // namespace lawa

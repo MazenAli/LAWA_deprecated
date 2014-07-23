@@ -33,7 +33,9 @@ struct Kernel<T,CGMY>
 {
     typedef boost::math::policies::policy<boost::math::policies::digits2<64> > my_prec_policy;
 
-    Kernel(const ProcessParameters1D<T,CGMY> &_params);
+    Kernel(const ProcessParameters1D<T,CGMY>  &_params);
+
+    Kernel(const ProcessParameters1D<T,CGMYe> &_params);
 
     ProcessParameters1D<T,CGMY> params;
     const T C, G, M, Y;
@@ -52,6 +54,10 @@ struct Kernel<T,CGMY>
     T TailIntegralMoments(T x, int l) const;
 
     T nthTailIntegral(T x, int n, AntiDerivativeType type) const;
+
+
+    T
+    operator()(T x) const { return this->SecondTailIntegral(-x); }
 
     T
     FirstTailIntegral(T x) const;

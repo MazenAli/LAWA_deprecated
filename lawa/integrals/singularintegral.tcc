@@ -11,13 +11,23 @@ _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral
     typedef typename First::T T;
     // note: called phi_... but can also be a wavelet.
     Support<T> supp_x = singularintegral.first.generator(singularintegral.e1).support(singularintegral.j1,singularintegral.k1);
-    Support<T> supp_y = singularintegral.second.generator(singularintegral.e2).support(singularintegral.j2,singularintegral.k2);
+    supp_x.l1 *= singularintegral.RightmLeft; supp_x.l1 += singularintegral.left;
+    supp_x.l2 *= singularintegral.RightmLeft; supp_x.l2 += singularintegral.left;
 
-    std::cerr << "Integrate: [" << supp_x.l1 << ", " <<supp_x.l2 << "], [" << supp_y.l1 << ", " << supp_y.l2 << "]" << std::endl;
+    Support<T> supp_y = singularintegral.second.generator(singularintegral.e2).support(singularintegral.j2,singularintegral.k2);
+    supp_y.l1 *= singularintegral.RightmLeft; supp_y.l1 += singularintegral.left;
+    supp_y.l2 *= singularintegral.RightmLeft; supp_y.l2 += singularintegral.left;
+
+    //std::cerr << "Integrate: [" << supp_x.l1 << ", " <<supp_x.l2 << "], [" << supp_y.l1 << ", " << supp_y.l2 << "]" << std::endl;
     DenseVector<Array<T> > SingularPoints_x =
              singularintegral.first.generator(singularintegral.e1).singularSupport(singularintegral.j1,singularintegral.k1);
+    SingularPoints_x *= singularintegral.RightmLeft;
+    SingularPoints_x += singularintegral.left;
+
     DenseVector<Array<T> > SingularPoints_y =
             singularintegral.second.generator(singularintegral.e2).singularSupport(singularintegral.j2,singularintegral.k2);
+    SingularPoints_y *= singularintegral.RightmLeft;
+    SingularPoints_y += singularintegral.left;
 
     std::vector<T> AllSingularPoints_x, AllSingularPoints_y;
     for (int i=SingularPoints_x.firstIndex(); i<=SingularPoints_x.lastIndex(); ++i) {
@@ -53,7 +63,9 @@ _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral
         it_y2=AllSingularPoints_y.begin(); ++it_y2;
         while (it_y2!=AllSingularPoints_y.end()) {
             long double a2 = (*it_y1), b2 = (*it_y2);
-            ret += singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
+            long double tmp = singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
+            ret += tmp;
+            //std::cerr << "   [" << a1 << ", " << b1 << "], [" << a2 << ", " << b2 << "]: " << tmp << std::endl;
             ++it_y1; ++it_y2;
         }
         ++it_x1; ++it_x2;
@@ -134,8 +146,12 @@ _integrate(const SingularIntegralPP<SingularKernel,FirstPolynomial,SecondPolynom
 template <typename SingularKernel, typename First, typename Second>
 SingularIntegral<SingularKernel,First,Second>::SingularIntegral(const SingularKernel &_singularkernel,
                                                                 const First &_first,
-                                                                const Second &_second)
-    : singularkernel(_singularkernel), first(_first), second(_second), singularquadrature(*this)
+                                                                const Second &_second,
+                                                                const T _left, const T _right)
+    : singularkernel(_singularkernel), first(_first), second(_second), left(_left), right(_right),
+      RightmLeft(right-left), SqrtRightmLeft(std::sqrt(right-left)),
+      OneDivSqrtRightmLeft(1./SqrtRightmLeft),
+      singularquadrature(*this)
 {
 }
 
@@ -143,14 +159,15 @@ template <typename SingularKernel, typename First, typename Second>
 typename First::T
 SingularIntegral<SingularKernel,First,Second>::p1(T x) const
 {
-    return first.generator(e1).operator()(x,j1,k1,deriv1);
+    return first.generator(e1).operator()((x-left)/(RightmLeft),j1,k1,deriv1) / (SqrtRightmLeft*RightmLeft);
 }
 
 template <typename SingularKernel, typename First, typename Second>
 typename First::T
 SingularIntegral<SingularKernel,First,Second>::p2(T x) const
 {
-    return second.generator(e2).operator()(x,j2,k2,deriv2);
+    //return second.generator(e2).operator()(x,j2,k2,deriv2);
+    return second.generator(e2).operator()((x-left)/(RightmLeft),j2,k2,deriv2) / (SqrtRightmLeft*RightmLeft);
 }
 
 template <typename SingularKernel, typename First, typename Second>

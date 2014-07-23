@@ -95,7 +95,8 @@ plotScatterCoeff2D_interval(const Coefficients<Lexicographical,T,Index> &coeff,
 template <typename T, typename Basis>
 void
 plotScatterCoeff(const Coefficients<Lexicographical,T,Index2D> &coeff, const Basis &basis,
-                 const char* filename, bool useSupportCenter=false);
+                 const char* filename, bool useSupportCenter=false, T left_x1=0., T right_x1=0.,
+                 T left_x2=0., T right_x2=0.);
 
 template <typename T, typename Basis>
 void

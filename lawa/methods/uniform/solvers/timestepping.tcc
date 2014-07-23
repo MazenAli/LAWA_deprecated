@@ -17,7 +17,10 @@ TimeStepping<T,Solver>::solve(flens::DenseVector<flens::Array<T> >& u_0, bool sa
     }
     
     for(int k = 1; k <= timesteps; ++k){
+        if (k%100==0) std::cerr << "TimeStepping<T,Solver>: time step = " << k << " of " << timesteps << std::endl;
+        //std::cout << "k = " << k << ": u      = " << u << std::endl;
         u_next = solver.solve((k-1)*deltaT, k*deltaT, u, levelX);
+        //std::cout << "k = " << k << ": u_next = " << u_next << std::endl;
         u = u_next;
         if(saveSols){
             U(flens::_, k) = u;

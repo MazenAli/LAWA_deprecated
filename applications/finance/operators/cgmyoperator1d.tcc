@@ -4,8 +4,7 @@ template <typename T, typename Basis1D>
 FinanceOperator1D<T, CGMY, Basis1D>::FinanceOperator1D
                                     (const Basis1D& _basis,
                                      const ProcessParameters1D<T,CGMY> &_processparameters,
-                                     const T _eta, T _R1, T _R2, int order,
-                                     const int _internal_compression_level,
+                                     T _R1, T _R2, int order, const int _internal_compression_level,
                                      T _convection, T _reaction, const bool _use_predef_convection,
                                      const bool _use_predef_reaction)
     : basis(_basis), processparameters(_processparameters), kernel(processparameters),
@@ -35,11 +34,12 @@ FinanceOperator1D<T, CGMY, Basis1D>::operator()(XType xtype1, int j1, int k1,
    typedef typename std::map<T,T>::const_iterator const_it;
 
    if (internal_compression_level>-1) {
-       T compr_c=0.1;
+       //T compr_c=0.1;
+       T compr_c=1.;
        T compr_alpha=T(2*basis.d)/T(2*basis.d_+processparameters.k_Y);
        if (xtype1==XWavelet && xtype2==XWavelet) {
            int J=internal_compression_level;
-           T delta = 0.1*std::max(pow2i<T>(-std::min(j1,j2)),
+           T delta = compr_c*std::max(pow2i<T>(-std::min(j1,j2)),
                                       pow2i<T>(-(J-1)+compr_alpha*(2*(J-1)-j1-j2)));
            if ( ( distance(basis.generator(xtype1).support(j1,k1),
                            basis.generator(xtype2).support(j2,k2)) > delta/(R1+R2))
@@ -118,7 +118,7 @@ FinanceOperator1D<T, CGMY, Basis1D>::operator()(XType xtype1, int j1, int k1,
            if (fabs(varphi_col_deltas(mu,2)) < 1e-14) continue;
 
            part1 += varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,0)*kernel.c4;
-           part1 -= varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,0)*kernel.c5;
+           part1 -= varphi_col_deltas(mu,2)*basis.generator(xtype1)(y,j1,k1,1)*kernel.c5;
 
            for (int lambda=varphi_row_deltas.rows().firstIndex();
                     lambda<=varphi_row_deltas.rows().lastIndex(); ++lambda) {

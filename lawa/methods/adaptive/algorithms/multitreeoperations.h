@@ -128,7 +128,7 @@ typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::v
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
-                  int coordDirec=0, bool sparsetree=false);
+                  int coordDirec=0, bool sparsetree=false, bool isAlreadyMultiTree=true);
 
 // NonPeriodic-Periodic version
 template <typename T, typename Basis>

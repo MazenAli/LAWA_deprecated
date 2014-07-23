@@ -213,12 +213,16 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basi
     int numSplines = (int)phi._numSplines;
     int numWavelets = (int)psi._numSplines;
 
-    int j = lambda.j;
+    int j  = lambda.j;
     long k = lambda.k;
-    //int d = psi.d;
+    int d  = basis.d;
 
     Support<T> max_support_refbspline = phi.max_support();
     Support<T> max_support_refwavelet = psi.max_support();
+
+    //std::cerr << "numSplines = " << numSplines << ", numWavelets = " << numWavelets
+    //          << ", max_support_refbspline = " << max_support_refbspline
+    //          << ", max_support_refwavelet = " << max_support_refwavelet << std::endl;
 
 
     if (lambda.xtype == XBSpline) {
@@ -228,7 +232,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basi
         //std::cout << "lambdaTilde_R: Calculating IndexSet_R for BSpline with " << lambda << " " << " " << supp << std::endl;
 
         // Inserting all indices corresponding to Bsplines with intersecting support using local compactness
-        for (long k_row=k-numSplines; k_row<=k+numSplines; ++k_row) {
+        for (long k_row=k-(d-1)*numSplines; k_row<=k+(d-1)*numSplines; ++k_row) {
             if (overlap(supp, phi.support(j,k_row)) > 0) {
                 //std::cout << "lambdaTilde: BSpline (" << j << ", " << k_row << "): " << phi.support(j,k_row) << std::endl;
                 ret.insert(Index1D(j,k_row,XBSpline));

@@ -62,6 +62,10 @@ TensorRefSols_PDE_Realline2D<T>::setExample(int _nr, T _reaction, T _convection_
     assert(reaction>=0);
     nr=_nr;
 
+    std::cerr << "TensorRefSols_PDE_Realline2D<T>: nr = " << nr << ", reaction = " << reaction
+              << ", convection_x = " << convection_x << ", convection_y = " << convection_y
+              << ", diffusion_y = " << diffusion_y << std::endl;
+
     if (nr==2) {
         sing_pts_x.engine().resize(1); sing_pts_x(1) = singpt_ex2;
         sing_pts_y.engine().resize(1); sing_pts_y(1) = singpt_ex2;

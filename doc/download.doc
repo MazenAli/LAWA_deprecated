@@ -3,8 +3,6 @@ Installation of LAWA
 
 :document:  lawa::installation
 
-:link: __download site__ -> http://sf.net/projects/lawa/files
-
 LAWA is distributed as release to be downloaded from
 the project-site at sourceforge (download lawa).
 
@@ -39,3 +37,5 @@ installation support for) takes the following steps:
     - additional compiler flags
     - debug mode/release mode/profile mode
   The `config`-file is the only place where you can/should change such settings.
+
+:links: __download site__ -> http://sf.net/projects/lawa/files

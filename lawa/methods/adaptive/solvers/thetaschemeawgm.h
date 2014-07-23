@@ -40,7 +40,7 @@ struct ThetaSchemeAWGM {
 
     void
     setParameters(T _theta, T _timestep, int numOfTimesteps, T _timestep_eps, int _maxiterations,
-                  T _init_cgtol);
+                  T _init_cgtol, int _strategy);
 
     void
     applyPreconditioner(Coefficients<Lexicographical,T,Index> &v);
@@ -49,7 +49,7 @@ struct ThetaSchemeAWGM {
     applyInvPreconditioner(Coefficients<Lexicographical,T,Index> &v);
 
     void
-    solve(Coefficients<Lexicographical,T,Index> &u);
+    solve(Coefficients<Lexicographical,T,Index> &u, int &avDof, int &maxDof, int &terminalDof, int j);
 
     ThetaTimeStepSolver     &timestep_solver;
     T                       theta, timestep;
@@ -57,6 +57,7 @@ struct ThetaSchemeAWGM {
     T                       timestep_eps;
     int                     maxiterations;
     T                       init_cgtol;
+    int                     strategy;
 };
 
 

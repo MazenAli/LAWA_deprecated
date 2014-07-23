@@ -770,8 +770,8 @@ C(const IndexSet<Index2D> &Lambda, T c, const Basis2D &basis, bool extralevel)
     //Security zone of Lambda should not contain indices which are already in Lambda
     for (const_set2d_it lambda=Lambda.begin(); lambda!=Lambda.end(); ++lambda) {
         IndexSet<Index1D > C_index1, C_index2;
-        C_index1 = C((*lambda).index1, c, basis.first);
-        C_index2 = C((*lambda).index2, c, basis.second);
+        C_index1 = C((*lambda).index1, (T)c, basis.first);
+        C_index2 = C((*lambda).index2, (T)c, basis.second);
 
         if (!extralevel) {
             for (const_set1d_it it_C_index1=C_index1.begin(); it_C_index1!=C_index1.end(); ++it_C_index1) {

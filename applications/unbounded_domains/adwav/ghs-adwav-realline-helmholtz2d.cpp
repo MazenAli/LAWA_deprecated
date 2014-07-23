@@ -24,7 +24,7 @@
 #define ROW_SIZE 4*8192
 #define COL_SIZE 4*2048
 
-typedef double T;
+typedef long double T;
 using namespace lawa;
 using namespace std;
 
@@ -116,7 +116,7 @@ int main (int argc, char *argv[]) {
     int j0_x=atoi(argv[4]);
     int j0_y=atoi(argv[5]);
     T c = 1.;
-    T diffusion_y = 0.0001;
+    T diffusion_y = 1.;
     int example=atoi(argv[6]);
     int NumOfIterations=atoi(argv[7]);
 
@@ -190,8 +190,8 @@ int main (int argc, char *argv[]) {
             Function2D<T> Func2d_x(refsol.exact_dx, refsol.sing_pts_x, refsol.sing_pts_y);
             Function2D<T> Func2d_y(refsol.exact_dy, refsol.sing_pts_x, refsol.sing_pts_y);
 
-            if (d==2) {
-                int order = 20;
+            if (d==2 || d==3) {
+                int order = 40;
                 MW_NonSeparableRhsIntegralFG2D    MW_rhsintegral_reaction(MW_basis2d, Func2d, order);
                 MW_NonSeparableRhsIntegralFG2D    MW_rhsintegral_diffusion_x(MW_basis2d, Func2d_x, order, 1, 0);
                 MW_NonSeparableRhsIntegralFG2D    MW_rhsintegral_diffusion_y(MW_basis2d, Func2d_y, order, 0, 1);

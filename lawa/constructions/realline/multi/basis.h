@@ -54,6 +54,20 @@ class Basis<_T,Orthogonal,R,Multi>
         const BasisFunctionType &
         generator(XType xtype) const;
 
+        const flens::Range<int>
+        rangeJL(const int j=-1) const
+        {
+            std::cerr << "Basis<_T,Orthogonal,R,Multi>: rangeJL is dummy routine!" << std::endl;
+            exit(1);
+        }
+
+        const flens::Range<int>
+        rangeJR(const int j=-1) const
+        {
+            std::cerr << "Basis<_T,Orthogonal,R,Multi>: rangeJR is dummy routine!" << std::endl;
+            exit(1);
+        }
+
         //void
         //getLowerEnclosingScaling(int j_wavelet, long k_wavelet,
         //                         int &j_scaling, long &k_scaling) const;
@@ -123,7 +137,7 @@ class Basis<_T,Orthogonal,R,Multi>
 
         MRA<T,Orthogonal,R,Multi> mra;
 
-        const int d, j0;
+        const int d, d_, j0;
 
         Wavelet<T,Orthogonal,R,Multi> psi;
 

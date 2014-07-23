@@ -383,9 +383,23 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::AdaptiveHelmhol
             else if (basis.j0==-2) {    cA = 0.19;  CA = 2.9;    }
             else if (basis.j0==-3) {    cA = 0.19;  CA = 2.9;    }
             else if (basis.j0==-4) {    cA = 0.19;  CA = 2.9;    }
+            else if (basis.j0==-5) {    cA = 0.19;  CA = 2.9;    }
+            else if (basis.j0==-6) {    cA = 0.19;  CA = 2.9;    }
+            else if (basis.j0==-7) {    cA = 0.19;  CA = 2.9;    }
+            else if (basis.j0==-8) {    cA = 0.19;  CA = 2.9;    }
             else assert(0);
         }
-        else assert(0);
+        else if (basis.d==3 && c==1.) {
+            if (basis.j0==0)       {    cA = 0.02;  CA = 2.15;    }
+            else if (basis.j0==-1) {    cA = 0.077;  CA = 2.15;    }
+            else if (basis.j0==-2) {    cA = 0.22;  CA = 2.15;    }
+            else if (basis.j0==-3) {    cA = 0.36;  CA = 2.15;    }
+            else if (basis.j0==-4) {    cA = 0.36;  CA = 2.15;    }
+            else assert(0);
+        }
+        else {
+            //assert(0);
+        }
     }
     else if (Domain == Interval) {
         if (basis.d==2 && c==0.) {
@@ -402,7 +416,9 @@ AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi>::AdaptiveHelmhol
         }
         else assert(0);
     }
-    else assert(0);
+    else {
+        //assert(0);
+    }
 
     kappa = CA/cA;
 }

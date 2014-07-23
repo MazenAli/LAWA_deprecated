@@ -40,19 +40,22 @@ computeErrorInH1Norm(MA &A_H, RHS &F_H, const Coefficients<Lexicographical,T,Ind
                      T HNormOfExactSolution, bool optimized)
 {
     Coefficients<Lexicographical,T,Index> Au, f_H;
+    IndexSet<Index> LambdaRow;
+    LambdaRow = supp(u);
     if (optimized) {
-        Au = A_H.mv(supp(u),u);
+        Au = A_H.mv(LambdaRow,u);
     }
     else {
-        Au = mv_sparse(supp(u),A_H,u);
+        Au = mv_sparse(LambdaRow,A_H,u);
     }
     //Au = mv(supp(u),A_H,u);
     //std::cerr << "Attention: Slow matrix vector product..." << std::endl;
     T uAu = u*Au;
     f_H   = F_H(supp(u));
     T fu  = f_H*u;
+    std::cerr << "   Estimated Energy norm squared: " << uAu << std::endl;
 
-    return std::sqrt(fabs(std::pow(HNormOfExactSolution,2.)- 2*fu + uAu));
+    return std::sqrt(fabs(std::pow(HNormOfExactSolution,(T)2.)- 2*fu + uAu));
 
 }
 

@@ -35,24 +35,24 @@ spy(const SparseGeMatrix<CRS<T,CRS_General> > &A, const char* filename,
     ofstream gps(spy_filename.str().c_str());
     stringstream content;
 
-    const CRS<T> crs=A.engine();
-    int n=crs.numCols(), m=crs.numRows();
+    //const CRS<T> crs=A.engine();
+    int n=A.engine().numCols(), m=A.engine().numRows();
     // get first entry
     T min, max;
     if (absoluteValues==true) {
-        min = fabs(crs.values(1)); max = fabs(crs.values(1));
+        min = fabs(A.engine().values(1)); max = fabs(A.engine().values(1));
     } else {
-        min = crs.values(1); max = crs.values(1);
+        min = A.engine().values(1); max = A.engine().values(1);
     }
 
     int nnz = 0;
     T value = 0;
     for (int i=1; i<=m; ++i) {
-        for (int j=crs.rows(i); j<crs.rows(i+1); ++j) {
+        for (int j=A.engine().rows(i); j<A.engine().rows(i+1); ++j) {
             if (absoluteValues==true) {
-                value = fabs(crs.values(j));
+                value = fabs(A.engine().values(j));
             } else {
-                value = crs.values(j);
+                value = A.engine().values(j);
             }
 
             if (fabs(value) >= eps) {
@@ -64,7 +64,7 @@ spy(const SparseGeMatrix<CRS<T,CRS_General> > &A, const char* filename,
                 }
             }
             // i=column => y-value, j=row => x-value
-            content << crs.columns(j) << " " << i << " " << value << endl;
+            content << A.engine().columns(j) << " " << i << " " << value << endl;
         }
     }
     

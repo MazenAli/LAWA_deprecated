@@ -42,7 +42,7 @@ p3(T x) {   return x*x*x; }
 int main()
 {
     /// wavelet basis parameters:
-    int d = 1;          // d-wavelets
+    int d = 4;          // d-wavelets
     int j0 = 0;         // minimal level
     int J = 3;         // maximal level
     cout.precision(16);
@@ -63,7 +63,7 @@ int main()
     }
     /// Plot multi-scaling function and multi-wavelets
     ofstream plotfile_scaling("interval_multiscaling.txt");
-    for (T x=0.; x<=2.; x+=pow2i<T>(-12)) {
+    for (T x=0.; x<=1.; x+=pow2i<T>(-12)) {
         plotfile_scaling << x;
         for (int k=basis.mra.rangeI(j0).firstIndex(); k<=basis.mra.rangeI(j0).lastIndex(); ++k) {
             plotfile_scaling << " " << basis.generator(XBSpline)(x,j0,k,0);
@@ -94,7 +94,6 @@ int main()
     IntegralF<Gauss,MWBasis> mw_p1(p1_Fct, basis);
     IntegralF<Gauss,MWBasis> mw_p2(p2_Fct, basis);
     IntegralF<Gauss,MWBasis> mw_p3(p3_Fct, basis);
-
 
     /// Assembler: Check for orthogonality
     Assembler1D<T, MWBasis> assembler(basis);

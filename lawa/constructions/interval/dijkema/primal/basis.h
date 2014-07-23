@@ -155,12 +155,12 @@ class Basis<_T,Primal,Interval,Dijkema>
         /// translation index k_wavelet from the current Basis. This is required for tree-based algorithms.
         /// The returned level of the functions is chosen s.t. there is "no scale difference", i.e.,
         /// the corresponding refinements should live on the same scale.
-        template <typename SecondRefinementBasis>
-        void
-        getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
-                                      const SecondRefinementBasis &secondrefinementbasis,
-                                      int &j_bspline, long &k_bspline_first,
-                                      long &k_bspline_last) const;
+        template <typename SecondBasis>
+            void
+            getBSplineNeighborsForWavelet(int j_wavelet, long k_wavelet,
+                                          const SecondBasis &secondrefinementbasis,
+                                          int &j_bspline, long &k_bspline_first,
+                                          long &k_bspline_last) const;
 
         template <typename SecondBasis>
         void

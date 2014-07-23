@@ -29,40 +29,47 @@
 
 namespace lawa {
 
-template <OptionTypenD OType, ProcessType2D PType, typename Basis>
+template <QuadratureType Quad, typename Basis, typename PayoffFunction>
 struct PayoffIntegral2D
 {
     typedef typename Basis::T T;
     typedef flens::DenseVector<flens::Array<T> > DenseVectorT;
 
-    PayoffIntegral2D(const Option2D<T,OType> &_option,
-                     ProcessParameters2D<T,PType> &_processparameters,
-                     const Basis &_basis, const T _left1=0., const T _right1=1.,
-                     const T _left2=0., const T _right2=1.);
-
-    T
-    operator()(Index2D &lambda) const;
-
-    T
-    payoff(T x1, T x2) const;
+    PayoffIntegral2D(const Basis &_basis, const PayoffFunction &_payofffunction,
+                     const T _left_x1=0., const T _right_x1=1.,
+                     const T _left_x2=0., const T _right_x2=1.,
+                     bool _useSpecialRefinement=false, T _maxRectangleLength=0.25, int _order=20);
 
     T
     integrand(T x1, T x2) const;
 
     T
-    operator()(Index2D &index2d);
+    operator()(const Index2D &lambda) const;
 
-    const Option2D<T,OType>         &option;
-    ProcessParameters2D<T,PType>    &processparameters;
+    T
+    integrate(T a1, T b1, T a2, T b2) const;
+
+    T
+    _getOrderAndValue(T a1, T b1, T a2, T b2) const;
+
     const Basis                     &basis;
-    AdaptivePayoffQuadrature2D<OType, PayoffIntegral2D<OType,PType,Basis> > adapquad;
-    const T                         left1, right1;
-    const T                         left2, right2;
-    const T                         RightmLeft1, SqrtRightmLeft1;
-    const T                         RightmLeft2, SqrtRightmLeft2;
+    const PayoffFunction            &payofffunction;
 
-    mutable int j1, deriv1,
-                j2, deriv2;
+    Quadrature2D<Quad, PayoffIntegral2D<Quad,Basis,PayoffFunction> > highestOrderQuadrature;
+    Quadrature2D<Quad, PayoffIntegral2D<Quad,Basis,PayoffFunction> > highOrderQuadrature;
+    Quadrature2D<Quad, PayoffIntegral2D<Quad,Basis,PayoffFunction> > mediumOrderQuadrature;
+    Quadrature2D<Quad, PayoffIntegral2D<Quad,Basis,PayoffFunction> > lowOrderQuadrature;
+
+    const T                         left_x1, right_x1;
+    const T                         left_x2, right_x2;
+    const T                         RightmLeft_x1, SqrtRightmLeft_x1;
+    const T                         RightmLeft_x2, SqrtRightmLeft_x2;
+
+    bool                            useSpecialRefinement;
+    T                               maxRectangleLength;
+    int                             order;
+
+    mutable int j1, deriv1, j2, deriv2;
     mutable long k1, k2;
     mutable XType e1, e2;
 };

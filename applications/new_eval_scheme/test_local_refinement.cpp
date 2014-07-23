@@ -5,58 +5,97 @@
 using namespace std;
 using namespace lawa;
 
-/// Several typedefs for notational convenience.
+// Several typedefs for notational convenience.
 
-///  Typedefs for Flens data types:
+// Typedefs for Flens data types:
 typedef double T;
 typedef flens::DenseVector<flens::Array<long double> >              DenseVectorLD;
 
-///  Typedefs for problem components:
-///     Multiwavelet basis over an interval
+/// Wavelet basis over an interval: Dijkema interval basis and $L_2$-orthonormal multiwavelet basis
+/// are possible.
 typedef Basis<T, Orthogonal, Interval, Multi>                       PrimalBasis;
 //typedef Basis<T, Primal, Interval, Dijkema>                       PrimalBasis;
+
+/// Refinement basis containing $\bar \Phi_j$ - the collection of refinement B-Splines
 typedef PrimalBasis::RefinementBasis                                RefinementBasis;
 
 typedef Integral<Gauss,PrimalBasis,PrimalBasis>                     MultiWaveletIntegral;
 typedef Integral<Gauss,RefinementBasis,RefinementBasis>             MultiRefinementIntegral;
 
+/// Check if refinement coefficients for refinement B-Splines, i.e., $\bar \phi_{\bar j,k} =
+/// \sum_{k} \bar a_{k,m}^{\bar j} \bar \phi_{\bar j+1,k}$, are correct.
 void
 test_refinementOfBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis, int deriv);
 
+/// Check if refinement coefficients for scaling functions, i.e., $\phi_{j,k} =
+/// \sum_{k} \bar c_{k,m}^{j} \bar \phi_{\bar j+j,k}$, are correct.
 void
 test_refinementOfScaling(const PrimalBasis &basis, const RefinementBasis &refinementbasis, int deriv);
 
+/// Check if refinement coefficients for wavelets, i.e., $\psi_{j,k} =
+/// \sum_{k} \bar b_{k,m}^{j} \bar \phi_{\bar j+j+1,k}$, are correct.
+/// Observe that we use a higher level $\bar j+j+1$ here as wavelets on level $j$ are (finite)
+/// linear combinations of scaling functions on level $j+1$.
 void
 test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refinementbasis, int deriv);
 
+/// Check if refinement B-Spline neighbors $\bar \phi_{\bar j,m}$ for a given refinement
+/// B-Spline $\bar \phi_{\bar j,k}$ with $|\mathrm{supp}\,\bar \phi_{\bar j,m} \cap
+/// \mathrm{supp}\,\bar \phi_{\bar j,k}|>0$ are computed correctly.
 void
 test_getBSplineNeighborsForBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis);
 
+/// Check if wavelet neighbors $\psi_{j,m}$ for a given refinement B-Spline $\bar \phi_{j+\bar j+1,k}$
+/// with $|\mathrm{supp}\,\psi_{j,m} \cap \mathrm{supp}\,\bar \phi_{j+\bar j+1,k}|>0$ are
+/// computed correctly. Here, $j+\bar j+1$ should be the smallest level satisfying
+/// $\mathrm{span}\, \bar \Phi_{j+\bar j+1} \supset \mathrm{span}\, \Psi_j$.
 void
 test_getWaveletNeighborsForBSpline(const PrimalBasis &basis, const RefinementBasis &refinementbasis);
 
+/// Check if scaling function neighbors $\phi_{j,m}$ for a given scaling function $\phi_{j,k}$
+/// with $|\mathrm{supp}\,\phi_{j,m} \cap \mathrm{supp}\,\phi_{j,k}|>0$ are
+/// computed correctly.
 void
 test_getScalingNeighborsForScaling(const PrimalBasis &basis);
 
+/// Check if wavelet neighbors $\psi_{j,m}$ for a given scaling function $\phi_{j,k}$
+/// with $|\mathrm{supp}\,\psi_{j,m} \cap \mathrm{supp}\,\phi_{j,k}|>0$ are
+/// computed correctly.
 void
 test_getWaveletNeighborsForScaling(const PrimalBasis &basis);
 
+/// Check if refinement B-Spline neighbors $\bar \phi_{j+\bar j+1,m}$ for a given wavelet $\psi_{j,k}$
+/// with $|\mathrm{supp}\,\bar \phi_{j+\bar j+1,m} \cap \mathrm{supp}\,\psi_{j,k}|>0$ are
+/// computed correctly. Here, $j+\bar j+1$ should be the smallest level satisfying
+/// $\mathrm{span}\, \bar \Phi_{j+\bar j+1} \supset \mathrm{span}\, \Psi_j$.
 void
 test_getBSplineNeighborsForWavelet(const PrimalBasis &basis, const RefinementBasis &refinementbasis);
 
+/// Check if scaling functions neighbors $\phi_{j,m}$ for a given wavelet $\psi_{j,k}$
+/// with $|\mathrm{supp}\,\phi_{j,m} \cap \mathrm{supp}\,\psi_{j,k}|>0$ are
+/// computed correctly.
 void
 test_getScalingNeighborsForWavelet(const PrimalBasis &basis);
 
+/// Check if wavelet neighbors $\psi_{j,m}$ for a given wavelet $\psi_{j,k}$
+/// with $|\mathrm{supp}\,\psi_{j,m} \cap \mathrm{supp}\,\psi_{j,k}|>0$ are
+/// computed correctly.
 void
 test_getWaveletNeighborsForWavelet(const PrimalBasis &basis);
 
+/// Check if lower wavelet neighbors $\psi_{j-1,m}$ for a given wavelet $\psi_{j,k}$
+/// with $|\mathrm{supp}\,\psi_{j-1,m} \cap \mathrm{supp}\,\psi_{j,k}|>0$ are
+/// computed correctly.
 void
 test_getLowerWaveletNeighborsForWavelet(const PrimalBasis &basis);
 
+/// Check if higher wavelet neighbors $\psi_{j+1,m}$ for a given wavelet $\psi_{j,k}$
+/// with $|\mathrm{supp}\,\psi_{j+1,m} \cap \mathrm{supp}\,\psi_{j,k}|>0$ are
+/// computed correctly.
 void
 test_getHigherWaveletNeighborsForWavelet(const PrimalBasis &basis);
 
-
+// Check precision of some generators
 void
 test_precisionOfGenerators();
 
@@ -67,7 +106,7 @@ int main(int argc, char*argv[])
         cout << "Usage: " << argv[0] << " d j0 J" << endl;
         return 0;
     }
-    /// wavelet basis parameters:
+    // wavelet basis parameters:
     int d  = atoi(argv[1]);
     int j0 = atoi(argv[2]);
     int J  = atoi(argv[3]);
@@ -79,16 +118,16 @@ int main(int argc, char*argv[])
     if (d>1) basis.enforceBoundaryCondition<DirichletBC>();
     RefinementBasis& refinementbasis = basis.refinementbasis;
 
-    /// Test refinement of B-splines
+    // Test refinement of B-splines
 
     //test_refinementOfBSpline(basis, refinementbasis, deriv);
 
-    /// Test refinement of multiscaling functions. In case biorthogonal wavelet bases, this is just
-    /// the same as the test above as here, the scaling function are already B-splines.
+    // Test refinement of multiscaling functions. In case biorthogonal wavelet bases, this is just
+    // the same as the test above as here, the scaling function are already B-splines.
 
     //test_refinementOfScaling(basis, refinementbasis, deriv);
 
-    /// Test refinement of multiwavelets: We check the refinement of wavelets in terms of B-splines.
+    // Test refinement of multiwavelets: We check the refinement of wavelets in terms of B-splines.
 
     test_refinementOfWavelet(basis, refinementbasis, deriv);
 
@@ -254,7 +293,13 @@ test_refinementOfWavelet(const PrimalBasis &basis, const RefinementBasis &refine
             cout << "Relative error: " << rel_error << ", x_rel_crit = " << x_rel_crit << endl;
             cout << "Absolute error: " << abs_error << ", x_abs_crit = " << x_abs_crit << endl;
             cout << "Please hit enter." << endl;
-            getchar();
+
+            if (fabs(abs_error)>1e-12) {
+                cout << "Critical error!" << endl;
+                getchar();
+            }
+
+            //getchar();
         }
     }
     cout << " *******************************************" << endl << endl;

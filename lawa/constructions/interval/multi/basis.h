@@ -159,6 +159,7 @@ class Basis<_T,Orthogonal,Interval,Multi>
         MRA<T,Orthogonal,Interval,Multi> mra;
 
         const int d;
+        const int d_;
         const int j0;          // minimal used(!) level.
 
         unsigned int _numLeftParts,

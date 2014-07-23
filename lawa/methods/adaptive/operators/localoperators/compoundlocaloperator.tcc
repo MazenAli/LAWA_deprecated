@@ -317,7 +317,7 @@ apply(Coefficients<Lexicographical,T,Index> &v,
     //todo: CA should be a read-in parameter
     T CA = 2.;
     Coefficients<Bucket,T,Index> v_bucket;
-    T tol = 0.5*eps/CA;
+    T tol = 0.5*eps/CA;     //works better than tol=0.5*eps and multiply delta by CA... why??
     v_bucket.bucketsort(v,tol);
     long double squared_v_norm = (long double)std::pow(v.norm(2.),(T)2.);
     long double squared_v_bucket_norm = 0.;
@@ -357,7 +357,7 @@ apply(Coefficients<Lexicographical,T,Index> &v,
         if (w_p.size()==0) continue;
         T numerator = w_p.norm(2.) * support_size_all_buckets;
         T denominator = w_p.size() * (eps-delta) / CA;
-        int jp = (int)std::max((std::log(numerator/denominator) / std::log(2.) / gamma )/*-1*/, (T)0.);
+        int jp = (int)std::max(((std::log(numerator/denominator) / std::log(2.) ) / gamma )/*-1*/, (T)0.);
         //int jp = ceil(std::max((std::log(numerator/denominator) / std::log(2.) / gamma )/*-1*/, (T)0.));
 
         //if (w_p.size()>1000 && eps > 5e-10) {

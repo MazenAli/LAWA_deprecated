@@ -3,8 +3,8 @@
 namespace lawa {
 
 template <typename T, typename Basis2D, typename BilinearForm>
-DiagonalMatrixPreconditioner2D<T,Basis2D,BilinearForm>::DiagonalMatrixPreconditioner2D(const BilinearForm &a)
-    : _a(a)
+DiagonalMatrixPreconditioner2D<T,Basis2D,BilinearForm>::DiagonalMatrixPreconditioner2D(BilinearForm &a)
+    : _a(a), theta(0.), timestep(0.)
 {
 }
 
@@ -13,16 +13,48 @@ T
 DiagonalMatrixPreconditioner2D<T,Basis2D,BilinearForm>::operator()(XType xtype1, int j1, long k1,
                                                                    XType xtype2, int j2, long k2) const
 {
-    return 1./std::sqrt(fabs(_a(xtype1,j1,k1,xtype2,j2,k2,
-                                xtype1,j1,k1,xtype2,j2,k2)));
+    T val = fabs(_a(xtype1,j1,k1,xtype2,j2,k2,xtype1,j1,k1,xtype2,j2,k2));
+    if (theta==0) {
+        return 1./sqrt(val);
+    }
+    else {
+        return 1./sqrt(1 + theta*timestep*val);
+    }
 }
 
 template <typename T, typename Basis2D, typename BilinearForm>
 T
 DiagonalMatrixPreconditioner2D<T,Basis2D,BilinearForm>::operator()(const Index2D &index) const
 {
-    return this->operator()(index.index1.xtype, index.index1.j, index.index1.k,
-                            index.index2.xtype, index.index2.j, index.index2.k);
+    T val = fabs(_a(index,index));
+    if (theta==0) {
+        return 1./sqrt(val);
+    }
+    else {
+        return 1./sqrt(1 + theta*timestep*val);
+    }
+}
+
+template <typename T, typename Basis2D, typename BilinearForm>
+T
+DiagonalMatrixPreconditioner2D<T,Basis2D,BilinearForm>::operator[](const Index2D &index)
+{
+    T val = fabs(_a(index,index));
+    if (theta==0) {
+        return 1./sqrt(val);
+    }
+    else {
+        return 1./sqrt(1 + theta*timestep*val);
+    }
+}
+
+template <typename T, typename Basis2D, typename BilinearForm>
+void
+DiagonalMatrixPreconditioner2D<T,Basis2D,BilinearForm>
+::setThetaTimeStepParameters(T _theta, T _timestep)
+{
+    theta = _theta;
+    timestep = _timestep;
 }
 
 template <typename T, typename Basis2D, typename BilinearForm>
