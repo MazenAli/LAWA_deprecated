@@ -1476,13 +1476,21 @@ template <typename T, typename Basis>
 typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
-                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec, bool sparsetree)
+                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec, bool sparsetree,
+                    bool isAlreadyMultiTree)
 {
     int j0_x = basis.first.j0;
     int j0_y = basis.second.j0;
 
-    if (v.find(index2d)!=v.end())  return;
-    else                           v[index2d] = 0.;
+    if (isAlreadyMultiTree) {
+        if (v.find(index2d)!=v.end())  return;
+        else                           v[index2d] = 0.;
+    }
+    else {
+        //std::cerr << "     Completion to multitree for index = " << index2d << std::endl;
+        if (v.find(index2d)==v.end())  v[index2d] = 0.;
+        //std::cerr << "     Node inserted for index = " << index2d << std::endl;
+    }
 
 
     Index1D index_x = index2d.index1;
@@ -1992,13 +2000,21 @@ template <typename T, typename Basis>
 typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
-                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec, bool sparsetree)
+                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec, bool sparsetree,
+                    bool isAlreadyMultiTree)
 {
     int j0_x = basis.first.j0;
     int j0_y = basis.second.j0;
 
-    if (v.find(index2d)!=v.end())  return;
-    else                           v[index2d] = 0.;
+    if (isAlreadyMultiTree) {
+        if (v.find(index2d)!=v.end())  return;
+        else                           v[index2d] = 0.;
+    }
+    else {
+        //std::cerr << "     Completion to multitree for index = " << index2d << std::endl;
+        if (v.find(index2d)==v.end())  v[index2d] = 0.;
+        //std::cerr << "     Node inserted for index = " << index2d << std::endl;
+    }
 
 
     Index1D index_x = index2d.index1;
@@ -2332,13 +2348,21 @@ template <typename T, typename Basis>
 typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
-                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec, bool sparsetree)
+                  Coefficients<Lexicographical,T,Index2D>  &v, int coordDirec, bool sparsetree,
+                    bool isAlreadyMultiTree)
 {
     int j0_x = basis.first.j0;
     int j0_y = basis.second.j0;
 
-    if (v.find(index2d)!=v.end())  return;
-    else                           v[index2d] = 0.;
+    if (isAlreadyMultiTree) {
+        if (v.find(index2d)!=v.end())  return;
+        else                           v[index2d] = 0.;
+    }
+    else {
+        //std::cerr << "     Completion to multitree for index = " << index2d << std::endl;
+        if (v.find(index2d)==v.end())  v[index2d] = 0.;
+        //std::cerr << "     Node inserted for index = " << index2d << std::endl;
+    }
 
 
     Index1D index_x = index2d.index1;
