@@ -1,0 +1,55 @@
+set terminal pdf enhanced color
+
+set output "eps_comparison.pdf"
+
+set xlabel "Parameter index"
+
+
+set title "N=0"
+plot "awgm_stage8_greedy_info.txt_eps_aff_N_0.txt" w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_0.txt" w lp title "bound"
+
+set title "N=1"
+plot "awgm_stage8_greedy_info.txt_eps_aff_N_1.txt" w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_1.txt" w lp title "bound"
+
+set title "N=2"
+plot "awgm_stage8_greedy_info.txt_eps_aff_N_2.txt" w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_2.txt" w lp title "bound"
+
+set title "N=3"
+plot "awgm_stage8_greedy_info.txt_eps_aff_N_3.txt" w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_3.txt" w lp title "bound"
+
+set title "N=4"
+plot "awgm_stage8_greedy_info.txt_eps_aff_N_4.txt" w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_4.txt" w lp title "bound"
+
+set title "N=5"
+plot "awgm_stage8_greedy_info.txt_eps_aff_N_5.txt" w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_5.txt" w lp title "bound"
+
+set title "N=6"
+plot "awgm_stage8_greedy_info.txt_eps_aff_N_6.txt" w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_6.txt" w lp title "bound"
+
+
+set xlabel "Mu_1"
+set ylabel "Mu_2"
+
+set title "N=0"
+set cbrange [-0.000000001:0]
+splot "< paste awgm_stage8_greedy_info.txt_eps_aff_N_0_bLines.txt awgm_stage8_greedy_info.txt_eps_bound_N_0_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):($2-$1<0?($2-$1):0) w pm3d at b title "", "awgm_stage8_greedy_info.txt_eps_aff_N_0_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_0_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "bound"
+
+set cbrange [*:*]
+set title "N=1"
+splot "< paste awgm_stage8_greedy_info.txt_eps_aff_N_1_bLines.txt awgm_stage8_greedy_info.txt_eps_bound_N_1_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):($2-$1<0?($2-$1):0) w pm3d at b title "", "awgm_stage8_greedy_info.txt_eps_aff_N_1_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_1_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "bound"
+set title "N=2"
+splot "awgm_stage8_greedy_info.txt_eps_aff_N_2_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_2_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "bound","< paste awgm_stage8_greedy_info.txt_eps_aff_N_2_bLines.txt awgm_stage8_greedy_info.txt_eps_bound_N_2_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):($2-$1<0?($2-$1):0) w pm3d at b title ""
+
+set title "N=3"
+splot "awgm_stage8_greedy_info.txt_eps_aff_N_3_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_3_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "bound", "< paste awgm_stage8_greedy_info.txt_eps_aff_N_3_bLines.txt awgm_stage8_greedy_info.txt_eps_bound_N_3_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):($2-$1<0?($2-$1):0) w pm3d at b title ""
+
+set title "N=4"
+splot "awgm_stage8_greedy_info.txt_eps_aff_N_4_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_4_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "bound", "< paste awgm_stage8_greedy_info.txt_eps_aff_N_4_bLines.txt awgm_stage8_greedy_info.txt_eps_bound_N_4_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):($2-$1<0?($2-$1):0) w pm3d at b title ""
+
+set title "N=5"
+set cbrange [-0.00000001:0]
+splot "< paste awgm_stage8_greedy_info.txt_eps_aff_N_5_bLines.txt awgm_stage8_greedy_info.txt_eps_bound_N_5_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):($2-$1<0?($2-$1):0) w pm3d at b title "", "awgm_stage8_greedy_info.txt_eps_aff_N_5_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_5_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "bound"
+
+set cbrange [*:*]
+set title "N=6"
+splot "< paste awgm_stage8_greedy_info.txt_eps_aff_N_6_bLines.txt awgm_stage8_greedy_info.txt_eps_bound_N_6_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):($2-$1<0?($2-$1):0) w pm3d at b title "", "awgm_stage8_greedy_info.txt_eps_aff_N_6_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "eps aff", "awgm_stage8_greedy_info.txt_eps_bound_N_6_bLines.txt" u ((column(0)/20)*(30./19.)):(-9+(int(column(0))%20)*(24./19.)):1 w lp title "bound"
