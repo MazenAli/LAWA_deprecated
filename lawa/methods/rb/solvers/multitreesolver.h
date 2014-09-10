@@ -1,6 +1,7 @@
 /*
   LAWA - Library for Adaptive Wavelet Applications.
-  Copyright (C) 2008,2009  Sebastian Kestler, Mario Rometsch, Kristina Steih, Alexander Stippler.
+  Copyright (C) 2008-2014  Sebastian Kestler, Mario Rometsch, Kristina Steih, 
+  Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ */
 
 #ifndef  LAWA_METHODS_RB_SOLVERS_MULTITREESOLVER_H
 #define  LAWA_METHODS_RB_SOLVERS_MULTITREESOLVER_H 1
@@ -26,8 +27,9 @@
 namespace lawa {
 
 /**
- * Class for the solution of problems using an Adaptive Wavelet Galerkin Method
- * based on multitree matrix-vector-multiplications
+* Class for the solution of problems using an Wavelet Galerkin Method
+* on FIXED index sets,
+* based on multitree matrix-vector-multiplications
  *
  * !!! Assumes that neither the Operators nor the right hand side are already
  * !!! preconditioned.
