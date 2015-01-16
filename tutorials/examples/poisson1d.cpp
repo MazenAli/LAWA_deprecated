@@ -12,6 +12,7 @@
 /// All LAWA features reside in the namespace lawa, so we introduce the `namespace lawa` globally.
 #include <iostream>
 #include <fstream>
+#include <math.h>
 #include <lawa/lawa.h>
 
 using namespace std;
@@ -39,9 +40,33 @@ typedef RHSWithPeaks1D<T, PrimalBasis>                              Rhs;
 
 /// Forcing function of the form `T f(T x)` - here a constant function
 T
-rhs_f(T /*x*/)
+rhs_f(T x)
 {
-    return 1.;
+    T a = 20.;
+    if (x>=0 && x<=0.5) {
+        return exp(a*x);
+    } else if (x>0.5 && x<=1.) {
+        return exp(a*(1-x));
+    } else {
+        return 0.;
+    }
+    /*
+    if (x>=0 && x<=0.5) {
+        return 1.;
+    } else if (x>0.5 && x<=1.) {
+        return -1.;
+    } else {
+        return 0.;
+    }
+    */
+    /*
+    if (x>=0 && x<=0.5) {
+        return x;
+    } else if (x>0.5 && x<=1.) {
+        return -x;
+    } else {
+        return 0.;
+    }*/
 }
 
 /// Auxiliary function to print solution values, generates `.txt`-file with
