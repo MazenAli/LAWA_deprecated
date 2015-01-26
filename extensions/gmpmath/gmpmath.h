@@ -17,8 +17,8 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-/*#include <extensions/gmpmath/ceil.h>
+/*
+#include <extensions/gmpmath/ceil.h>
 #include <extensions/gmpmath/const.h>
 #include <extensions/gmpmath/fabs.h>
 #include <extensions/gmpmath/floor.h>

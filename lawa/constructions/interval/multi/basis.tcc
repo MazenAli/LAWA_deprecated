@@ -743,8 +743,8 @@ Basis<T,Orthogonal,Interval,Multi>::enforceBoundaryCondition()
             exit(-1);
     }
     
-    refinementbasis.enforceBoundaryCondition<BC>();
-    mra.enforceBoundaryCondition<BC>();
+    refinementbasis.template enforceBoundaryCondition<BC>();
+    mra.template enforceBoundaryCondition<BC>();
 }
 
 template <typename T>

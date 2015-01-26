@@ -60,8 +60,8 @@ Basis<T,Dual,Interval,Dijkema>::enforceBoundaryCondition()
 {
     if ((_bc(0)==0) && (_bc(1)==0)) {
         _bc(0) = _bc(1) = 1;
-        mra.enforceBoundaryCondition<BC>();
-        mra_.enforceBoundaryCondition<BC>();
+        mra.template enforceBoundaryCondition<BC>();
+        mra_.template enforceBoundaryCondition<BC>();
         GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
         const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;

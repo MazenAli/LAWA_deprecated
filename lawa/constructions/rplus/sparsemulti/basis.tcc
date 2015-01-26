@@ -118,7 +118,7 @@ Basis<T,Primal,RPlus,SparseMulti>::enforceBoundaryCondition()
     }
 
 
-    mra.enforceBoundaryCondition<BC>();
+    mra.template enforceBoundaryCondition<BC>();
 }
 
 template <typename T>

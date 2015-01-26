@@ -21,7 +21,16 @@
 #ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEHELMHOLTZOPERATOROPTIMIZED2D_H
 #define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_OPERATORS_ADAPTIVEHELMHOLTZOPERATOROPTIMIZED2D_H 1
 
-#include <ext/hash_map>
+#ifdef TRONE
+    #include <tr1/unordered_map>
+#elif BOOST
+    #include <boost/unordered_map.hpp>
+#elif CONEONE
+	#include <unordered_map>
+#else
+    #include <ext/hash_map>
+#endif
+
 
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>

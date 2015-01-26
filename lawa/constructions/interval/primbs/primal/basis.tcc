@@ -61,8 +61,8 @@ Basis<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
     if ((_bc(0)==0) && (_bc(1)==0)) {
         setLevel(min_j0);
         _bc(0) = _bc(1) = 1;
-        mra.enforceBoundaryCondition<BC>();
-        mra_.enforceBoundaryCondition<BC>();
+        mra.template enforceBoundaryCondition<BC>();
+        mra_.template enforceBoundaryCondition<BC>();
 
         int j = min_j0;
         FullColMatrix H(pow2i<T>(j+1)-d+1,

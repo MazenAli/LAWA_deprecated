@@ -49,7 +49,7 @@ void
 Basis<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
 {
     assert(BC==DirichletBC);
-    mra.enforceBoundaryCondition<BC>();
+    mra.template enforceBoundaryCondition<BC>();
 }
 
 template <typename T>
