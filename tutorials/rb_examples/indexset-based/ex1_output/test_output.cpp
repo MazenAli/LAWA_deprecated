@@ -11,7 +11,7 @@
 #include <lawa/lawa.h>
 #include "problem_output.h"
 #include <lawa/methods/rb/postprocessing/plotting.h>
-#include <lawa/methods/rb/outputs/averageoutput.h>
+#include <lawa/methods/rb/deprecated/outputs/averageoutput.h>
 
 
 /* Example: Thermal block mit Testfeld

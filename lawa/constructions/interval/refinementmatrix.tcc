@@ -18,7 +18,7 @@
  */
 
 #include <cassert>
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 
 namespace flens {
 

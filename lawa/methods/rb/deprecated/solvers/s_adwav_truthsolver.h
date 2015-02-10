@@ -2,7 +2,7 @@
 #define LAWA_METHODS_RB_SOLVERS_S_ADWAV_TRUTHSOLVER2D_H 1
 
 #include <lawa/methods/adaptive/solvers/s_adwav.h>
-#include <lawa/methods/rb/solvers/truthsolver.h>
+#include <lawa/methods/rb/deprecated/solvers/truthsolver.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/settings/enum.h>
 
@@ -112,6 +112,6 @@ class S_ADWAV_TruthSolver {
     
 } // namespace lawa
 
-#include <lawa/methods/rb/solvers/s_adwav_truthsolver.tcc>
+#include <lawa/methods/rb/deprecated/solvers/s_adwav_truthsolver.tcc>
 
 #endif // LAWA_METHODS_RB_SOLVERS_S_ADWAV_TRUTHSOLVER_H

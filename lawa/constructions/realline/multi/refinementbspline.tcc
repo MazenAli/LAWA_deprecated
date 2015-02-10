@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <iostream>
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 
 #include <lawa/constructions/interval/multi/_linear_evaluator.h>
 #include <lawa/constructions/interval/multi/_quadratic_evaluator.h>

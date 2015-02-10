@@ -41,6 +41,10 @@ Wavelet<T,Primal,RPlus,SparseMulti>::operator()(T x, int j, long k, unsigned sho
         return pow2ih<T>(2*j*deriv+j) * basis._innerScalingFactors(type) *
                basis._innerEvaluator[type](pow2i<T>(j)*x-shift,deriv);
     }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return (T) 0;
+    }
 }
     
 template <typename T>
@@ -71,6 +75,10 @@ Wavelet<T,Primal,RPlus,SparseMulti>::support(int j, long k) const
         */
         return pow2i<T>(-j) * (basis._innerSupport[type]+shift);
     }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return Support<T>(-0.,0.);
+    }
 }
 
 template <typename T>
@@ -100,6 +108,10 @@ Wavelet<T,Primal,RPlus,SparseMulti>::singularSupport(int j, long k) const
         DenseVector<Array<T> > result = basis._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;
+    }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return DenseVector<Array<T> > ();
     }
 }
     

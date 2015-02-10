@@ -38,6 +38,10 @@ BSpline<T,Primal,Interval,SparseMulti>::operator()(T x, int j, long k, unsigned 
         return pow2ih<T>(2*j*deriv+j) * mra._rightScalingFactors(0) *
                mra._rightEvaluator[0](pow2i<T>(j)*x-shift,deriv);
     }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return (T) 0;
+    }
 }
     
 template <typename T>
@@ -61,6 +65,11 @@ BSpline<T,Primal,Interval,SparseMulti>::support(int j, long k) const
         long shift = k / mra._numInnerParts + 1;
         return pow2i<T>(-j) * (mra._rightSupport[0]+shift);
     }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return Support<T>(-0.,0.);
+    }
+
 }
 
 template <typename T>
@@ -88,6 +97,11 @@ BSpline<T,Primal,Interval,SparseMulti>::singularSupport(int j, long k) const
         result += shift;
         return pow2i<T>(-j) * result;
     }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return DenseVector<Array<T> >();
+    }
+
 }
 
 template <typename T>

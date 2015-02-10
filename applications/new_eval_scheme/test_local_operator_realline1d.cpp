@@ -129,7 +129,8 @@ int main(int argc, char*argv[])
         time.stop();
         cout << "Elapsed time for EvalARef: " << time.elapsed() << endl;
         time.start();
-        localOperator1D.eval(v_tree, Av_tree,"A");
+        //localOperator1D.eval(v_tree, Av_tree,"A");
+        cerr << "Warning: call to eval commented out, incompatible" << endl;
         time.stop();
         time_evalA = time.elapsed();
         cout << "Elapsed time for evalA: " << time_evalA << endl;
@@ -147,7 +148,8 @@ int main(int argc, char*argv[])
         computeEvalURef(Bil, basis, v_tree, Uv_ref_tree);
         time.stop();
         time.start();
-        localOperator1D.eval(v_tree, Uv_tree,"U");
+        //localOperator1D.eval(v_tree, Uv_tree,"U");
+        cerr << "Warning: call to eval commented out, incompatible" << endl;
         time.stop();
         time_evalU = time.elapsed();
         cout << "Elapsed time for evalU: " << time_evalU << endl;
@@ -164,7 +166,8 @@ int main(int argc, char*argv[])
         computeEvalLRef(Bil, basis, v_tree, Lv_ref_tree);
         time.stop();
         time.start();
-        localOperator1D.eval(v_tree, Lv_tree,"L");
+        //localOperator1D.eval(v_tree, Lv_tree,"L");
+        cerr << "Warning: call to eval commented out, incompatible" << endl;
         time.stop();
         time_evalL = time.elapsed();
         cout << "Elapsed time for evalL: " << time_evalL << endl;

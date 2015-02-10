@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <iostream>
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 
 namespace lawa {
 

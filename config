@@ -1,5 +1,5 @@
 TARGET = $(shell uname)
-COMPILER = gcc
+COMPILER = clang
 BLASLAPACK = platform
 
 STANDARD = c11
@@ -29,7 +29,8 @@ ifeq ($(TARGET),Darwin)
   endif
   ifeq ($(BLASLAPACK),platform)
     CPPFLAGS += -DWITH_VECLIB
-    LDFLAGS  += -framework Accelerate
+    LIBS     += -lmpfr -lgmpxx -lgmp -lgmpfrxx
+    LDFLAGS  += -framework Accelerate $(LIBS)
   endif
 endif
 
@@ -47,14 +48,11 @@ ifeq ($(TARGET),Linux)
   endif
 endif
 
-CXX = g++-4.9
-CPPFLAGS += -std=c++11
-
 # compilation modes ------------------------------------------------------------
 
 #HASHTYPE = -DGNUCXX
-#HASHTYPE = -DBOOST
-HASHTYPE = -DTRONE -DBOOST_HAS_TR1_TUPLE
+HASHTYPE = -DBOOST -DBOOST_HAS_TR1_TUPLE
+#HASHTYPE = -DTRONE -DBOOST_HAS_TR1_TUPLE
 #HASHTYPE = -DCONEONE
 
 # --- debug mode -----------------------

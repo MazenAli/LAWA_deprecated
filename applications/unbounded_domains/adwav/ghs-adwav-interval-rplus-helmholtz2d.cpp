@@ -105,10 +105,14 @@ int main (int argc, char *argv[]) {
     TensorRefSols_PDE_Interval_RPlus<T> refsol;
     refsol.setExample(example, reaction, convection_x, convection_y, diffusion_y);
 
-    SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
-                                    refsol.exact_y, refsol.sing_pts_y);
-    SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
-                                    refsol.rhs_y, refsol.sing_pts_y);
+    SeparableFunction2D<T> SepFunc1(TensorRefSols_PDE_Interval_RPlus<T>::rhs_x,
+                                    TensorRefSols_PDE_Interval_RPlus<T>::sing_pts_x,
+                                    TensorRefSols_PDE_Interval_RPlus<T>::exact_y,
+                                    TensorRefSols_PDE_Interval_RPlus<T>::sing_pts_y);
+    SeparableFunction2D<T> SepFunc2(TensorRefSols_PDE_Interval_RPlus<T>::exact_x,
+                                    TensorRefSols_PDE_Interval_RPlus<T>::sing_pts_x,
+                                    TensorRefSols_PDE_Interval_RPlus<T>::rhs_y,
+                                    TensorRefSols_PDE_Interval_RPlus<T>::sing_pts_y);
     GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
     SparseMW_SeparableRhsIntegral2D      SparseMW_rhsintegral_x(SparseMW_basis2d, SepFunc1, refsol.deltas_x, no_deltas, order);
     SparseMW_SeparableRhsIntegral2D      SparseMW_rhsintegral_y(SparseMW_basis2d, SepFunc2, no_deltas, refsol.deltas_y, order);

@@ -95,8 +95,8 @@ int main(int argc, char* argv[]){
     cout << steps << " " << J << " " << basis1d.mra.cardI(J) << " " << timer.elapsed() << " seconds " << endl;
     print_U(u, basis1d, J, "FP_u_T.txt");
 
-    cout << "L2_error at t = T = " << calculateL2Error(1., u, refsol.sol, basis1d, J, 1./pow2i<T>(J+2)) << endl;
-    cout << "H1_error at t = T = " << calculateH1Error(1., u, refsol.sol, refsol.dx_sol, basis1d, J, 1./pow2i<T>(J+2)) << endl;
+    cout << "L2_error at t = T = " << calculateL2Error(1., u, SpaceTimeTensorRefSols1D<T,TensorBasis2D<Uniform, PeriodicBasis, PrimalBasis> >::sol, basis1d, J, 1./pow2i<T>(J+2)) << endl;
+    cout << "H1_error at t = T = " << calculateH1Error(1., u, SpaceTimeTensorRefSols1D<T,TensorBasis2D<Uniform, PeriodicBasis, PrimalBasis> >::sol, SpaceTimeTensorRefSols1D<T,TensorBasis2D<Uniform, PeriodicBasis, PrimalBasis> >::dx_sol, basis1d, J, 1./pow2i<T>(J+2)) << endl;
     
     /*FullColMatrixT& solutions = fixedpointsolver.getSolutions();
     print_U(solutions, basis1d, J, "FP_u_2d.txt", timestep, steps);

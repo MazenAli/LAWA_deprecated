@@ -1,7 +1,7 @@
 #ifndef LAWA_METHODS_RB_OUTPUTS_AVERAGEOUTPUT2D_H
 #define LAWA_METHODS_RB_OUTPUTS_AVERAGEOUTPUT2D_H 1
 
-#include <lawa/methods/rb/outputs/adaptiveoutput.h>
+#include <lawa/methods/rb/deprecated/outputs/adaptiveoutput.h>
 #include <lawa/methods/adaptive/righthandsides/rhs.h>
 
 using namespace std;
@@ -44,6 +44,6 @@ private:
     
 } //  namespace lawa
 
-#include <lawa/methods/rb/outputs/averageoutput.tcc>
+#include <lawa/methods/rb/deprecated/outputs/averageoutput.tcc>
 
 #endif // LAWA_METHODS_RB_OUTPUTS_AVERAGEOUTPUT2D_H

@@ -23,8 +23,8 @@
 #include <vector>
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
-#include <lawa/methods/rb/datastructures/datastructures.h>
-#include <lawa/methods/rb/solvers/solvers.h>
+#include <lawa/methods/rb/deprecated/datastructures/datastructures.h>
+#include <lawa/methods/rb/deprecated/solvers/solvers.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>
 #include <lawa/settings/enum.h>
@@ -209,6 +209,6 @@ class RBModel2D {
 } // namespace lawa
 
 
-#include <lawa/methods/rb/datastructures/rbmodel2d.tcc>
+#include <lawa/methods/rb/deprecated/datastructures/rbmodel2d.tcc>
 
 #endif // LAWA_METHODS_RB_DATASTRUCTURES_RBMODEL2D_H

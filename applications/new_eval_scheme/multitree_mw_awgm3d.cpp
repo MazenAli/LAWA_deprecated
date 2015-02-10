@@ -173,8 +173,8 @@ int main (int argc, char *argv[]) {
     stringstream coefffilename;
     coefffilename << "coeff_multitree_mw_awgm_poisson3d_" << example << "_" << argv[1] << "_"
                  << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << "_" << treeType;
-    multiTreeAWGM3D.cg_solve(u, eps, 100, 1e-2, EnergyErrorSquared,
-                             convfilename.str().c_str(), coefffilename.str().c_str());
+   //multiTreeAWGM3D.cg_solve(u, eps, 100, 1e-2, EnergyErrorSquared,
+   //                          convfilename.str().c_str(), coefffilename.str().c_str());
     /*
     for (int j=0; j<=20; ++j) {
         Coefficients<Lexicographical,T,Index3D> u(SIZEHASHINDEX2D);
@@ -183,6 +183,7 @@ int main (int argc, char *argv[]) {
 
     }
     */
+    cerr << "Warning: cg solver not started, RHS type incompatible with cg_solve, no propagation present" << endl;
     return 0;
 }
 

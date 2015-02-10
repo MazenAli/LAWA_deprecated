@@ -21,7 +21,7 @@
 #include <cmath>
 #include <lawa/flensforlawa.h>
 
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 #include <extensions/extensions.h>
 
 namespace lawa {

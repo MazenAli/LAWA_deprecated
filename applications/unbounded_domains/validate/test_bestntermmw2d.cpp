@@ -85,13 +85,17 @@ int main(int argc, char *argv[]) {
     DenseMatrixT nodeltas;
     TensorRefSols_PDE_Realline2D<T> refsol;
     refsol.setExample(example, c, 0., 0, 1.);
-    Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
-    Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
+    Function<T> u1Fct(TensorRefSols_PDE_Realline2D<T>::exact_x,
+                      TensorRefSols_PDE_Realline2D<T>::sing_pts_x);
+    Function<T> u2Fct(TensorRefSols_PDE_Realline2D<T>::exact_y,
+                      TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
     RhsIntegral1D       u1_integral(mwbasis2d.first, u1Fct, nodeltas, 35);
     RhsIntegral1D       u2_integral(mwbasis2d.second, u2Fct, nodeltas, 35);
 
-    Function<T> f1Fct(refsol.rhs_x, refsol.sing_pts_x);
-    Function<T> f2Fct(refsol.rhs_y, refsol.sing_pts_y);
+    Function<T> f1Fct(TensorRefSols_PDE_Realline2D<T>::rhs_x,
+                      TensorRefSols_PDE_Realline2D<T>::sing_pts_x);
+    Function<T> f2Fct(TensorRefSols_PDE_Realline2D<T>::rhs_y,
+                      TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
     RhsIntegral1D       f1_integral(mwbasis2d.first, f1Fct, refsol.deltas_x, 35);
     RhsIntegral1D       f2_integral(mwbasis2d.second, f2Fct, refsol.deltas_y, 35);
 

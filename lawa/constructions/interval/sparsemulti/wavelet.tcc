@@ -40,6 +40,11 @@ Wavelet<T,Primal,Interval,SparseMulti>::operator()(T x, int j, long k, unsigned 
         return pow2ih<T>(2*j*deriv+j) * basis._rightScalingFactors(0) *
                basis._rightEvaluator[0](pow2i<T>(j)*x-shift,deriv);
     }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return (T) 0;
+    }
+
 }
     
 template <typename T>
@@ -64,6 +69,10 @@ Wavelet<T,Primal,Interval,SparseMulti>::support(int j, long k) const
         // right boundary
         long shift = basis.cardJ(j)/2;
         return pow2i<T>(-j) * (basis._rightSupport[0]+shift);
+    }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return Support<T>(-0.,0.);
     }
 }
 
@@ -94,6 +103,11 @@ Wavelet<T,Primal,Interval,SparseMulti>::singularSupport(int j, long k) const
         result += shift;
         return pow2i<T>(-j) * result;
     }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return DenseVector<Array<T> >();
+    }
+
 }
     
 template <typename T>

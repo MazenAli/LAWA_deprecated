@@ -20,7 +20,7 @@
 #include <cassert>
 #include <cmath>
 
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 
 namespace lawa {
 

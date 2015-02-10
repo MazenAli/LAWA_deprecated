@@ -38,7 +38,8 @@ typedef ThetaTimeStepLocalOperator<Index2D, CompoundLocalOperator2D> ThetaTimeSt
 typedef RHSWithPeaks1D<T,PrimalBasis>                               Rhs1D;
 typedef AdaptiveSeparableRhs<T,Index2D,Rhs1D,Rhs1D >                AdaptiveSeparableRhsIntegral2D;
 typedef ThetaTimeStepSeparableRHS<T,Index2D,
-                                  AdaptiveSeparableRhsIntegral2D>   ThetaTimeStepRhs2d;
+                                  AdaptiveSeparableRhsIntegral2D,
+                                  ThetaTimeStepLocalOperator2D>   ThetaTimeStepRhs2d;
 
 typedef MultiTreeAWGM<Index2D,Basis2D,ThetaTimeStepLocalOperator2D,
                       ThetaTimeStepRhs2d,Preconditioner>            ThetaTimeStepMultiTreeAWGM2D;
@@ -146,7 +147,7 @@ int main (int argc, char *argv[]) {
     AdaptiveSeparableRhsIntegral2D F_rhs(rhs_f1, rhs_f1_data, rhs_f2, rhs_f2_data);
     AdaptiveSeparableRhsIntegral2D F_u0(rhs_u1, rhs_u1_data, rhs_u2, rhs_u2_data);
 
-    ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs);
+    ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs,localThetaTimeStepOp2D);
 
     /// Initialization of multi tree based adaptive wavelet Galerkin method
     ApproxL2AWGM2D approxL2_solver(basis2d, localThetaTimeStepOp2D, F_u0, NoPrec);
@@ -168,19 +169,20 @@ int main (int argc, char *argv[]) {
 
     for (int numOfTimesteps=1; numOfTimesteps<=64; numOfTimesteps*=2) {
         timestep = 1./numOfTimesteps;
-        thetascheme.setParameters(theta, timestep, numOfTimesteps, timestep_eps, maxiterations,
-                                  init_cgtol);
+        //thetascheme.setParameters(theta, timestep, numOfTimesteps, timestep_eps, maxiterations,
+        //                          init_cgtol);
 
         size_t hms = 49157;
         Coefficients<Lexicographical,T,Index2D> u(hms);
         getSparseGridVector(basis2d, u, j, 0.L);
 
-        approxL2_solver.approxL2(u, timestep_eps, maxiterations);
+        //approxL2_solver.approxL2(u, timestep_eps, maxiterations);
         //if (example = 1) {
         //    for (coeff2d_it it=u.begin(); it!=u.end(); ++it) { (*it).second = rhs((*it).first); }
         //}
 
-        thetascheme.solve(u);
+        //thetascheme.solve(u);
+        cerr << "Warning: solve commented out, incompatable" << endl;
         T maxerror = plot_current_solution(numOfTimesteps*timestep, basis2d, u);
         convfile << timestep << " " << maxerror << endl;
 

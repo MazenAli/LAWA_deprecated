@@ -72,6 +72,6 @@ private:
 
 } // namespace lawa
 
-#include <lawa/methods/rb/solvers/indexset_truthsolver.tcc>
+#include <lawa/methods/rb/deprecated/solvers/indexset_truthsolver.tcc>
 
 #endif // LAWA_METHODS_RB_SOLVERS_INDEXSET_TRUTHSOLVER_H

@@ -24,7 +24,7 @@
 #include <lawa/constructions/constructions.h>
 #include <lawa/functiontypes/functiontypes.h>
 #include <lawa/integrals/integrals.h>
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 #include <lawa/methods/methods.h>
 #include <lawa/operators/operators.h>
 #include <lawa/preconditioners/preconditioners.h>

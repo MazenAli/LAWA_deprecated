@@ -23,7 +23,7 @@
 #include <lawa/constructions/support.h>
 #include <lawa/constructions/wavelet.h>
 #include <lawa/constructions/periodic/integrals.h>
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 #include <lawa/settings/enum.h>
 #include <lawa/settings/typetraits.h>
 #include <lawa/settings/param.h>

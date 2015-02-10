@@ -361,7 +361,7 @@ plotCoeff(const Coefficients<AbsoluteValue,T,Index1D > &coeff, const Basis &basi
         j0 = std::min(j0, j);
         J  = std::max(J, j);
         if ((*it).second.xtype == XBSpline) {
-            maxCoeffSca = std::max(maxCoeffSca, fabs((*it).first));
+            maxCoeffSca = std::max(maxCoeffSca, (T) fabs((*it).first));
             a_sca = std::min(a_sca, basis.mra.phi.support(j,k).l1);
             b_sca = std::max(b_sca, basis.mra.phi.support(j,k).l2);
         }

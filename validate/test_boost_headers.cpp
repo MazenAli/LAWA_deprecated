@@ -1,7 +1,14 @@
 #include <iostream>
 
 #include <boost/math/special_functions/gamma.hpp>
-#include <tr1/unordered_map>
+
+#ifdef TRONE
+    #include <tr1/unordered_map>
+#elif BOOST
+    #include <boost/unordered_set.hpp>
+#else
+    #include <ext/hash_set>
+#endif
 //#include <boost/unordered_map.hpp>
 
 

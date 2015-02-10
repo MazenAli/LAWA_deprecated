@@ -10,8 +10,9 @@
 #include <iomanip>
 #include <lawa/lawa.h>
 #include <lawa/methods/rb/postprocessing/plotting.h>
-#include <lawa/methods/rb/outputs/averageoutput.h>
-
+#include <lawa/methods/rb/deprecated/datastructures/datastructures.h>
+#include <lawa/methods/rb/deprecated/outputs/averageoutput.h>
+#include <lawa/methods/rb/deprecated/solvers/solvers.h>
 /*********************************************************************
  *    EXAMPLE
  *********************************************************************/

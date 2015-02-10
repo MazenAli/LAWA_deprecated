@@ -106,9 +106,9 @@ int main (int argc, char *argv[]) {
 
     LocalOp1D_x localOperator_x(basis,basis,RefineBil_x);
     LocalOp1D_y localOperator_y(basis,basis,RefineBil_y);
-    LocalOp2D   localop2d(localOperator_x,localOperator_y);
-    localop2d.setJ(9);
-
+    //LocalOp2D   localop2d(localOperator_x,localOperator_y);
+    //localop2d.setJ(9);
+    cerr << "Warning: invalid object initialization commented out, compatible Identity Operator not implemented" << endl;
     Timer time;
 
     ofstream file2("comptimes_mv2d_periodic.dat");
@@ -236,7 +236,7 @@ int main (int argc, char *argv[]) {
             cout << "Reference calculation finished." << endl;
             cout << "New scheme started..." << endl;
             time.start();
-            localop2d.debug_eval(v, LIIAv, IAUIv, IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref);
+            //localop2d.debug_eval(v, LIIAv, IAUIv, IAv_ref, LIIAv_ref, UIv_ref, IAUIv_ref, AAv_ref);
             time.stop();
             time_evalAA1 = time.elapsed();
             cout << "New scheme finished." << endl;
@@ -251,12 +251,12 @@ int main (int argc, char *argv[]) {
             cout << "**** New scheme started ****" << endl;
             cout << "   #v = " << Lambda.size() << endl;
 
-            localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
-                           time_IAv1, time_IAv2, time_LIv, time_UIv);
+            //localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
+            //               time_IAv1, time_IAv2, time_LIv, time_UIv);
 
             time.start();
-            localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
-                           time_IAv1, time_IAv2, time_LIv, time_UIv);
+            //localop2d.eval(v, AAv, time_intermediate1, time_intermediate2,
+            //               time_IAv1, time_IAv2, time_LIv, time_UIv);
             time.stop();
             time_evalAA1 = time.elapsed();
             cout << "   N = " << N << ", time = " << time_evalAA1 << " -> ratio new / old = "

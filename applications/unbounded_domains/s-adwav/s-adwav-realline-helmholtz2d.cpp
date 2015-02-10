@@ -247,11 +247,15 @@ int main (int argc, char *argv[]) {
             int order = 35;
             TensorRefSols_PDE_Realline2D<T> refsol;
             refsol.setExample(example, 1., 0., 0., 1.);
-            SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
-                                            refsol.exact_y, refsol.sing_pts_y);
+            SeparableFunction2D<T> SepFunc1(TensorRefSols_PDE_Realline2D<T>::rhs_x,
+                                            TensorRefSols_PDE_Realline2D<T>::sing_pts_x,
+                                            TensorRefSols_PDE_Realline2D<T>::exact_y,
+                                            TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
 
-            SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
-                                            refsol.rhs_y, refsol.sing_pts_y);
+            SeparableFunction2D<T> SepFunc2(TensorRefSols_PDE_Realline2D<T>::exact_x,
+                                            TensorRefSols_PDE_Realline2D<T>::sing_pts_x,
+                                            TensorRefSols_PDE_Realline2D<T>::rhs_y,
+                                            TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
             GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
 
             MW_SeparableRhsIntegral2D MW_rhsintegral_x(MW_basis2d, SepFunc1, refsol.deltas_x,
@@ -362,15 +366,21 @@ int main (int argc, char *argv[]) {
             }
             rhsfile.close();
 
-            plot2D<T,MW_Basis2D,MW_Prec>(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, refsol.exact,
+            plot2D<T,MW_Basis2D,MW_Prec>(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1], MW_P, RefSols_PDE_Realline2D<T>::exact,
                    -2.5, 2.5, -2.5, 2.5, pow2i<T>(-4), "example4");
         }
         else if (example==5) {
             RefSols_PDE_Realline2D<T> refsol;
             refsol.setExample(2, 1.);
-            Function2D<T> Func2d(refsol.exact, refsol.sing_pts_x, refsol.sing_pts_y);
-            Function2D<T> Func2d_x(refsol.exact_dx, refsol.sing_pts_x, refsol.sing_pts_y);
-            Function2D<T> Func2d_y(refsol.exact_dy, refsol.sing_pts_x, refsol.sing_pts_y);
+            Function2D<T> Func2d(RefSols_PDE_Realline2D<T>::exact,
+                                 RefSols_PDE_Realline2D<T>::sing_pts_x,
+                                 RefSols_PDE_Realline2D<T>::sing_pts_y);
+            Function2D<T> Func2d_x(RefSols_PDE_Realline2D<T>::exact_dx,
+                                   RefSols_PDE_Realline2D<T>::sing_pts_x,
+                                   RefSols_PDE_Realline2D<T>::sing_pts_y);
+            Function2D<T> Func2d_y(RefSols_PDE_Realline2D<T>::exact_dy,
+                                   RefSols_PDE_Realline2D<T>::sing_pts_x,
+                                   RefSols_PDE_Realline2D<T>::sing_pts_y);
 
             if (d==2 || d==3) {
                 int order = 40;
@@ -389,7 +399,7 @@ int main (int argc, char *argv[]) {
 
                 std::cerr << "Started plotting..." << std::endl;
                 plot2D<T,MW_Basis2D,MW_Prec>(MW_basis2d, MW_s_adwav_solver.solutions[NumOfIterations-1],
-                                             MW_P, refsol.exact, -12., 12., -12., 12., pow2i<T>(-5), "example5");
+                                             MW_P, RefSols_PDE_Realline2D<T>::exact, -12., 12., -12., 12., pow2i<T>(-5), "example5");
                 std::cerr << "... finished." << std::endl;
 
 
@@ -449,11 +459,15 @@ int main (int argc, char *argv[]) {
             int order = 50;
             TensorRefSols_PDE_Realline2D<T> refsol;
             refsol.setExample(example, 1., 0., 0., 1.);
-            SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
-                                            refsol.exact_y, refsol.sing_pts_y);
+            SeparableFunction2D<T> SepFunc1(TensorRefSols_PDE_Realline2D<T>::rhs_x,
+                                            TensorRefSols_PDE_Realline2D<T>::sing_pts_x,
+                                            TensorRefSols_PDE_Realline2D<T>::exact_y,
+                                            TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
 
-            SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
-                                            refsol.rhs_y, refsol.sing_pts_y);
+            SeparableFunction2D<T> SepFunc2(TensorRefSols_PDE_Realline2D<T>::exact_x,
+                                            TensorRefSols_PDE_Realline2D<T>::sing_pts_x,
+                                            TensorRefSols_PDE_Realline2D<T>::rhs_y,
+                                            TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
             GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
 
             SparseMW_SeparableRhsIntegral2D SparseMW_rhsintegral_x(SparseMW_basis2d, SepFunc1, refsol.deltas_x,

@@ -119,12 +119,12 @@ RefSols_PDE_Realline2D<T>::exact(T x, T y, int deriv_x, int deriv_y)
         }
         else if ((deriv_x==0) && (deriv_y==2)) {
             return ( (y-0.1)*(y-0.1)/XmA_p2_p_YmB_p2 -
-                     1./sqrt(XmA_p2_p_YmB_p2) + (y-0.1)*(y-0.1)/pow(XmA_p2_p_YmB_p2,1.5) )*
+                     1./sqrt(XmA_p2_p_YmB_p2) + (y-0.1)*(y-0.1)/pow(XmA_p2_p_YmB_p2,(T) 1.5) )*
                    exp(-sqrt( XmA_p2_p_YmB_p2 ));
         }
         else if ((deriv_x==2) && (deriv_y==0)) {
             return ( (x-0.1)*(x-0.1)/XmA_p2_p_YmB_p2 -
-                     1./sqrt(XmA_p2_p_YmB_p2) + (x-0.1)*(x-0.1)/pow(XmA_p2_p_YmB_p2,1.5) )*
+                     1./sqrt(XmA_p2_p_YmB_p2) + (x-0.1)*(x-0.1)/pow(XmA_p2_p_YmB_p2,(T) 1.5) )*
                    exp(-sqrt( XmA_p2_p_YmB_p2 ));
         }
         else {

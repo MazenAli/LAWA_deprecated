@@ -1,6 +1,13 @@
 #include <iostream>
 #include <lawa/lawa.h>
-#include <tr1/unordered_set>
+
+#ifdef TRONE
+    #include <tr1/unordered_set>
+#elif BOOST
+    #include <boost/unordered_set.hpp>
+#else
+    #include <ext/hash_set>
+#endif
 
 using namespace std;
 using namespace lawa;

@@ -177,11 +177,11 @@ int main (int argc, char *argv[]) {
     coefffilename << "coeff_multitree_mw_awgm_poisson2d_" << example << "_" << argv[1] << "_"
                  << argv[2] << "_" << alpha << "_" << gamma << "_" << residualType << "_" << treeType;
 
-    multiTreeAWGM2D.cg_solve(u, eps, 100, 1e-2, EnergyErrorSquared, convfilename.str().c_str(),
-                             coefffilename.str().c_str());
+    //multiTreeAWGM2D.cg_solve(u, eps, 100, 1e-2, EnergyErrorSquared, convfilename.str().c_str(),
+    //                         coefffilename.str().c_str());
 
     plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.1, "multiTreeAWGM_sol");
-
+    cerr << "Warning: cg solver not started, RHS type incompatible with cg_solve, no propagation present" << endl;
     return 0;
 }
 

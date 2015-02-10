@@ -511,6 +511,8 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, MA &A, Coefficients<Lexicographical
                p += s;
                gammaPrev_cgls = gamma_cgls;
             }
+            assert(0); // Control may reach end of non-void function
+            return -1;
         }
         else {
             //Attention: LambdaCol = supp(u)!!

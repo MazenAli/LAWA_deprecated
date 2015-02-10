@@ -58,7 +58,8 @@ typedef ThetaTimeStepLocalOperator<Index2D, CompoundLocalOperator2D> ThetaTimeSt
 typedef RHSWithPeaks1D<T,PrimalBasis>                               Rhs1D;
 typedef AdaptiveSeparableRhs<T,Index2D,Rhs1D,Rhs1D >                AdaptiveSeparableRhsIntegral2D;
 typedef ThetaTimeStepSeparableRHS<T,Index2D,
-                                  AdaptiveSeparableRhsIntegral2D>   ThetaTimeStepRhs2d;
+                                  AdaptiveSeparableRhsIntegral2D,
+                                  ThetaTimeStepLocalOperator2D>      ThetaTimeStepRhs2d;
 typedef CompoundRhs<T,Index2D,AdaptiveSeparableRhsIntegral2D,
                     AdaptiveSeparableRhsIntegral2D>                 CompoundRhsIntegral2D;
 
@@ -87,7 +88,7 @@ T decaywidth = 1.;
 T alpha = 1.L  / 100.L;
 T beta  = 99.L / 100.L;
 
-T trunc(T x) {
+T itrunc(T x) {
     if (x <= alpha)                 return 1.;
     else if (alpha < x && x < beta) {
         T numerator = std::exp(-1.L/((beta-x)*(beta-x)));
@@ -102,12 +103,12 @@ T sol(T t, T x, T y) { return 1.; }
 T dom_map(T x) { return (b-a)*x + a; }
 
 T u0(T x, T y)   {  return   (weight1*max(1.-exp(dom_map(x)),0.L) + weight2*max(1.-exp(dom_map(y)),0.L))
-                           * trunc(a+decaywidth-dom_map(x)) * trunc(a+decaywidth-dom_map(y))
-                           * trunc(decaywidth-b+dom_map(x)) * trunc(decaywidth-b+dom_map(y)); }
-T u1_x(T x)      {  return  weight1*max(1.-exp(dom_map(x)),0.L) * trunc(a+decaywidth-dom_map(x)) * trunc(decaywidth-b+dom_map(x)); }
-T u1_y(T y)      {  return  1. * trunc(a+decaywidth-dom_map(y)) * trunc(decaywidth-b+dom_map(y)); }
-T u2_x(T x)      {  return  1. * trunc(a+decaywidth-dom_map(x)) * trunc(decaywidth-b+dom_map(x)); }
-T u2_y(T y)      {  return  weight2*max(1.-exp(dom_map(y)),0.L) * trunc(a+decaywidth-dom_map(y))  * trunc(decaywidth-b+dom_map(y)); }
+                           * itrunc(a+decaywidth-dom_map(x)) * itrunc(a+decaywidth-dom_map(y))
+                           * itrunc(decaywidth-b+dom_map(x)) * itrunc(decaywidth-b+dom_map(y)); }
+T u1_x(T x)      {  return  weight1*max(1.-exp(dom_map(x)),0.L) * itrunc(a+decaywidth-dom_map(x)) * itrunc(decaywidth-b+dom_map(x)); }
+T u1_y(T y)      {  return  1. * itrunc(a+decaywidth-dom_map(y)) * itrunc(decaywidth-b+dom_map(y)); }
+T u2_x(T x)      {  return  1. * itrunc(a+decaywidth-dom_map(x)) * itrunc(decaywidth-b+dom_map(x)); }
+T u2_y(T y)      {  return  weight2*max(1.-exp(dom_map(y)),0.L) * itrunc(a+decaywidth-dom_map(y))  * itrunc(decaywidth-b+dom_map(y)); }
 
 T f_t(T t)       {  return 0.; }
 T f_x(T x)       {  return 0.; }
@@ -190,7 +191,7 @@ int main (int argc, char *argv[]) {
                                             rhs_u2_x_data(SIZEHASHINDEX1D), rhs_u2_y_data(SIZEHASHINDEX1D);
 
     AdaptiveSeparableRhsIntegral2D F_rhs(rhs_f_x, rhs_f_x_data, rhs_f_y, rhs_f_y_data);
-    ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs);
+    ThetaTimeStepRhs2d thetatimestep_F(fct_f_t,F_rhs, localThetaTimeStepOp2D);
 
     AdaptiveSeparableRhsIntegral2D F_u0_1(rhs_u1_x, rhs_u1_x_data, rhs_u1_y, rhs_u1_y_data);
     AdaptiveSeparableRhsIntegral2D F_u0_2(rhs_u2_x, rhs_u2_x_data, rhs_u2_y, rhs_u2_y_data);
@@ -222,7 +223,7 @@ int main (int argc, char *argv[]) {
             //convfile << u.size() << " " << error << endl;
         //}
 
-        approxL2_solver.approxL2(u, 0.1*timestep_eps, maxiterations);
+        //approxL2_solver.approxL2(u, 0.1*timestep_eps, maxiterations);
         //plot_initial_cond(basis2d, u);
         //plotScatterCoeff(u, basis2d, "coeff_u0", true);
 
@@ -231,8 +232,10 @@ int main (int argc, char *argv[]) {
         for (int numOfTimesteps=256; numOfTimesteps<=256; numOfTimesteps*=2) {
             timestep = 1./numOfTimesteps;
             thetascheme.setParameters(theta, timestep, numOfTimesteps, timestep_eps, maxiterations,
-                                      init_cgtol);
-            thetascheme.solve(u);
+                                      init_cgtol, 1);
+
+            int avDof, maxDof, terminalDof;
+            thetascheme.solve(u, avDof, maxDof, terminalDof, 10);
             max_error = plot_current_solution(numOfTimesteps*timestep, basis2d, u);
         }
         convfile << u.size() << " " << j << " " << max_error << endl;

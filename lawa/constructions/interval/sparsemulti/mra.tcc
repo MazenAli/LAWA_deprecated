@@ -52,6 +52,10 @@ Support<T>
 MRA<T,Primal,Interval,SparseMulti>::max_support() const
 {
     if (d==4) return Support<T>(0.,2.);
+    else{ // Control may reach end of non-void function
+        assert(d==4);
+        return Support<T>(-0.,0.);
+    }
 }
 
 template <typename T>

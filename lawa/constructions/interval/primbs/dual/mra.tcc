@@ -22,7 +22,7 @@
 #include <list>
 
 #include <lawa/aux/arrow.h>
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 #include <lawa/constructions/realline/dual/bspline.h>
 #include <extensions/flens/lapack_flens.h>
 

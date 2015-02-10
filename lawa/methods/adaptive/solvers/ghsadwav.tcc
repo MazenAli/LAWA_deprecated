@@ -123,7 +123,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::SOLVE(T nuM1, T _eps, const char *filen
 
         std::stringstream coeff_filename;
         coeff_filename << "adwav_coeff_" << w_k.size();
-        plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coeff_filename.str().c_str());
+        // plotScatterCoeff2D(w_k, A.basis.first, A.basis.second, coeff_filename.str().c_str()); // "first" and "second" members not guaranteed
 
         std::cerr << std::endl;
     }

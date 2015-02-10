@@ -93,11 +93,15 @@ int main (int argc, char *argv[]) {
     if (example==1 || example==2 || example==3) {
         TensorRefSols_PDE_Realline2D<T> refsol;
         refsol.setExample(example, c, 0., 0., 1.);
-        SeparableFunction2D<T> SepFunc1(refsol.rhs_x, refsol.sing_pts_x,
-                                        refsol.exact_y, refsol.sing_pts_y);
+        SeparableFunction2D<T> SepFunc1(TensorRefSols_PDE_Realline2D<T>::rhs_x,
+                                        TensorRefSols_PDE_Realline2D<T>::sing_pts_x,
+                                        TensorRefSols_PDE_Realline2D<T>::exact_y,
+                                        TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
 
-        SeparableFunction2D<T> SepFunc2(refsol.exact_x, refsol.sing_pts_x,
-                                        refsol.rhs_y, refsol.sing_pts_y);
+        SeparableFunction2D<T> SepFunc2(TensorRefSols_PDE_Realline2D<T>::exact_x,
+                                        TensorRefSols_PDE_Realline2D<T>::sing_pts_x,
+                                        TensorRefSols_PDE_Realline2D<T>::rhs_y,
+                                        TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
         GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > no_deltas;
 
         int order=35;
@@ -112,15 +116,19 @@ int main (int argc, char *argv[]) {
             MW_MA            MW_A(MW_basis2d, c);
             MW_Prec          MW_P(MW_A);
 
-            Function<T> u1Fct(refsol.exact_x, refsol.sing_pts_x);
-            Function<T> u2Fct(refsol.exact_y, refsol.sing_pts_y);
+            Function<T> u1Fct(TensorRefSols_PDE_Realline2D<T>::exact_x,
+                              TensorRefSols_PDE_Realline2D<T>::sing_pts_x);
+            Function<T> u2Fct(TensorRefSols_PDE_Realline2D<T>::exact_y,
+                              TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
             MW_RhsIntegral1D       u1_integral(MW_basis2d.first, u1Fct, no_deltas, order);
             MW_Rhs_Ref1D           u1_rhs(u1_integral,NoP);
             MW_RhsIntegral1D       u2_integral(MW_basis2d.second, u2Fct, no_deltas, order);
             MW_Rhs_Ref1D           u2_rhs(u2_integral,NoP);
 
-            Function<T> f1Fct(refsol.rhs_x, refsol.sing_pts_x);
-            Function<T> f2Fct(refsol.rhs_y, refsol.sing_pts_y);
+            Function<T> f1Fct(TensorRefSols_PDE_Realline2D<T>::rhs_x,
+                              TensorRefSols_PDE_Realline2D<T>::sing_pts_x);
+            Function<T> f2Fct(TensorRefSols_PDE_Realline2D<T>::rhs_y,
+                              TensorRefSols_PDE_Realline2D<T>::sing_pts_y);
             MW_RhsIntegral1D       f1_integral(MW_basis2d.first, f1Fct, refsol.deltas_x, order);
             MW_Rhs_Ref1D           f1_rhs(f1_integral,NoP);
             MW_RhsIntegral1D       f2_integral(MW_basis2d.second, f2Fct, refsol.deltas_y, order);

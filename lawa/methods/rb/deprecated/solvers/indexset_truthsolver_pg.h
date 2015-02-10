@@ -71,6 +71,6 @@ private:
 
 } // namespace lawa
 
-#include <lawa/methods/rb/solvers/indexset_truthsolver_pg.tcc>
+#include <lawa/methods/rb/deprecated/solvers/indexset_truthsolver_pg.tcc>
 
 #endif // LAWA_METHODS_RB_SOLVERS_INDEXSET_TRUTHSOLVER_PG_H

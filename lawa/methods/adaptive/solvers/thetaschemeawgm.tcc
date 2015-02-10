@@ -97,7 +97,7 @@ ThetaSchemeAWGM<Index,ThetaTimeStepSolver>::solve(Coefficients<Lexicographical,T
         this->applyInvPreconditioner(u);
         T res = 0.;
         if (strategy==1 && (discrete_timepoint<0.125 || i % 2 == 0)) {
-            std::cerr << "Applying stratgey 1" << std::endl;
+            std::cerr << "Applying strategy 1" << std::endl;
             res = timestep_solver.bicgstab_solve(u,1e-12,3,1e-10,0.,"conv.dat", "coeff.dat", 100000);
         }
         else {

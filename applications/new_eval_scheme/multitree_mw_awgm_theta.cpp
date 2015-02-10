@@ -38,7 +38,8 @@ typedef ThetaTimeStepLocalOperator<Index2D, CompoundLocalOperator2D> ThetaTimeSt
 typedef RHSWithPeaks1D<T,PrimalBasis>                               Rhs1D;
 typedef AdaptiveSeparableRhs<T,Index2D,Rhs1D,Rhs1D >                AdaptiveSeparableRhsIntegral2D;
 typedef ThetaTimeStepSeparableRHS<T,Index2D,
-                                  AdaptiveSeparableRhsIntegral2D>   ThetaTimeStepRhs2d;
+                                  AdaptiveSeparableRhsIntegral2D,
+                                  ThetaTimeStepLocalOperator2D>   ThetaTimeStepRhs2d;
 
 typedef IndexSet<Index1D>::const_iterator                           const_set1d_it;
 typedef IndexSet<Index2D>::const_iterator                           const_set2d_it;
@@ -123,7 +124,7 @@ int main (int argc, char *argv[]) {
     Coefficients<Lexicographical,T,Index1D> rhs_f1_data(SIZEHASHINDEX1D),
                                             rhs_f2_data(SIZEHASHINDEX1D);
     AdaptiveSeparableRhsIntegral2D rhs(rhs_f1, rhs_f1_data, rhs_f2, rhs_f2_data);
-    ThetaTimeStepRhs2d thetatimestep_rhs(fct_f_t,rhs);
+    ThetaTimeStepRhs2d thetatimestep_rhs(fct_f_t,rhs,localThetaTimeStepOp2D);
 
     stringstream convfilename;
     convfilename << "conv_theta_" << theta << "_d_" << d << "_j_" << j << ".dat";
@@ -154,7 +155,7 @@ int main (int argc, char *argv[]) {
                 propagated_u_k *= (theta-1.)*timestep;
             }
             propagated_u_k += u_k;
-            thetatimestep_rhs.setThetaTimeStepParameters(theta, timestep, time, &propagated_u_k);
+            thetatimestep_rhs.setThetaTimeStepParameters(theta, timestep, time, propagated_u_k);
             for (coeff2d_it it=f.begin(); it!=f.end(); ++it) {
                 (*it).second = thetatimestep_rhs((*it).first);
             }

@@ -22,7 +22,7 @@
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
-#include <lawa/methods/rb/datastructures/rbmodel2d.h>
+#include <lawa/methods/rb/deprecated/datastructures/rbmodel2d.h>
 #include <lawa/operators/operator2d.h>
 #include <lawa/righthandsides/rhs2d.h>
 #include <lawa/settings/enum.h>
@@ -355,6 +355,6 @@ class AdaptiveRBTruth2D{
 } // namespace lawa
 
 
-#include <lawa/methods/rb/datastructures/adaptive_rbtruth2d.tcc>
+#include <lawa/methods/rb/deprecated/datastructures/adaptive_rbtruth2d.tcc>
 
 #endif // LAWA_METHODS_RB_DATASTRUCTURES_ADAPTIVE_RBTRUTH2D_H

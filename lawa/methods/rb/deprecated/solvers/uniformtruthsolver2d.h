@@ -4,7 +4,7 @@
 #include <vector>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 //#include <lawa/methods/rb/datastructures/rbmodel2d.h>
-#include <lawa/methods/rb/solvers/truthsolver.h>
+#include <lawa/methods/rb/deprecated/solvers/truthsolver.h>
 #include <lawa/methods/uniform/algorithms/assembler2d.h>
 
 namespace lawa {
@@ -68,6 +68,6 @@ class UniformTruthSolver2D {
     
 } // namespace lawa
 
-#include <lawa/methods/rb/solvers/uniformtruthsolver2d.tcc>
+#include <lawa/methods/rb/deprecated/solvers/uniformtruthsolver2d.tcc>
 
 #endif // LAWA_METHODS_RB_SOLVERS_UNIFORMTRUTHSOLVER2D_H

@@ -22,7 +22,7 @@
 #define LAWA_INTEGRALS_QUADRATURE2D_H 1
 
 #include <extensions/sparsegrid/sparse_grid_mixed.h>
-#include <lawa/math/math.h>
+#include <lawa/math/lawa_math.h>
 #include <lawa/settings/enum.h>
 #include <lawa/integrals/integral2d.h>
 

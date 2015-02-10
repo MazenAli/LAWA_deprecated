@@ -599,8 +599,8 @@ simpleExtendMultiTree(const Basis2D &basis, const Index2D &index2d, IndexSet<Ind
         }
     }
     else {
-        long k_first = std::max((long)basis.first.rangeJ(index_x.j-1).firstIndex(),index_x.k/2 - offset);
-        long k_last  = std::min((long)basis.first.rangeJ(index_x.j-1).lastIndex(),index_x.k/2 + offset);
+        long k_first = std::max((long)basis.first.rangeJ(index_x.j-1).firstIndex(),(long)(index_x.k/2 - offset));
+        long k_last  = std::min((long)basis.first.rangeJ(index_x.j-1).lastIndex(),(long)(index_x.k/2 + offset));
         for (long k=k_first; k<=k_last; ++k) {
             Support<T> new_supp_x = basis.first.generator(XWavelet).support(index_x.j-1,k);
             if (overlap(supp_x,new_supp_x)>0) {
@@ -622,8 +622,8 @@ simpleExtendMultiTree(const Basis2D &basis, const Index2D &index2d, IndexSet<Ind
         }
     }
     else {
-        long k_first = std::max((long)basis.second.rangeJ(index_y.j-1).firstIndex(),index_y.k/2 - offset);
-        long k_last  = std::min((long)basis.second.rangeJ(index_y.j-1).lastIndex(),index_y.k/2 + offset);
+        long k_first = std::max((long)basis.second.rangeJ(index_y.j-1).firstIndex(),(long)(index_y.k/2 - offset));
+        long k_last  = std::min((long)basis.second.rangeJ(index_y.j-1).lastIndex(),(long)(index_y.k/2 + offset));
         for (long k=k_first; k<=k_last; ++k) {
             Support<T> new_supp_y = basis.second.generator(XWavelet).support(index_y.j-1,k);
             if (overlap(supp_y,new_supp_y)>0) {

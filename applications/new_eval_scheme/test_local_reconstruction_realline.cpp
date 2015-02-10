@@ -72,7 +72,8 @@ int main(int argc, char*argv[])
     CoefficientsByLevel<T> u_bspline1;
     int refinement_j_bspline = 0;
     if (PrimalBasis::Cons==Multi && d>1) {
-        LocalRefine.reconstructOnlyMultiScaling(u_scaling1, j, u_bspline1, refinement_j_bspline);
+        //LocalRefine.reconstructOnlyMultiScaling(u_scaling1, j, u_bspline1, refinement_j_bspline);
+        cerr << "Warning: reconstruct commented out, incompatible" << endl;
     }
     else {
         refinement_j_bspline = j;
@@ -85,7 +86,8 @@ int main(int argc, char*argv[])
     int refinement_j = 0;
     Timer time;
     time.start();
-    LocalRefine.reconstruct(u_bspline1, refinement_j_bspline, u_wavelet1, j, u_loc_single1, refinement_j);
+    //LocalRefine.reconstruct(u_bspline1, refinement_j_bspline, u_wavelet1, j, u_loc_single1, refinement_j);
+    cerr << "Warning: reconstruct commented out, incompatible" << endl;
     time.stop();
     cout << "Local reconstruction took: " << time.elapsed() << endl;
 
@@ -137,7 +139,8 @@ int main(int argc, char*argv[])
     /// The vector u contains the multilevel representation of a coefficient vector. We transform
     /// it to the local single scale representation.
     time.start();
-    LocalRefine.reconstruct(u, j0, u_loc_single);
+    //LocalRefine.reconstruct(u, j0, u_loc_single);
+    cerr << "Warning: reconstruct commented out, incompatible" << endl;
     time.stop();
     cout << "Local reconstruction took " << time.elapsed() << endl;
 

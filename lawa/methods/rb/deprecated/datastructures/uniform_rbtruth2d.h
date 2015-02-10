@@ -22,7 +22,7 @@
 
 #include <lawa/methods/adaptive/datastructures/index.h>
 #include <lawa/methods/adaptive/datastructures/indexset.h>
-#include <lawa/methods/rb/datastructures/rbmodel2d.h>
+#include <lawa/methods/rb/deprecated/datastructures/rbmodel2d.h>
 #include <lawa/operators/uniformoperator2d.h>
 #include <lawa/preconditioners/nopreconditioner.h>
 #include <lawa/righthandsides/rhs2d.h>
@@ -116,6 +116,6 @@ class UniformRBTruth2D {
 } // namespace lawa
 
 
-#include <lawa/methods/rb/datastructures/uniform_rbtruth2d.tcc>
+#include <lawa/methods/rb/deprecated/datastructures/uniform_rbtruth2d.tcc>
 
 #endif // LAWA_METHODS_RB_DATASTRUCTURES_UNIFORM_RBTRUTH2D_H

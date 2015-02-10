@@ -154,12 +154,10 @@ int main(int argc, char* argv[]) {
         T error_bound = rb_model.residual_dual_norm(u_N, Xi_test[i]) / rb_model.alpha_LB(Xi_test[i]);
         
         Coeffs u_approx = rb_model.reconstruct_u_N(u_N, n);
-        //**************************************************************************
         if(n==1)
         {
             plot2D(basis2d,u_approx,noprec,plot_dummy_fct,0., 1., 0., 1., 0.01, "Test_Snapshot_ReferenceParameter_approx_1");
         }
-        //****************************************************************************
         Coeffs coeff_diff = u - u_approx;
         T err_norm = rb_model.truth->inner_product(coeff_diff, coeff_diff);
 

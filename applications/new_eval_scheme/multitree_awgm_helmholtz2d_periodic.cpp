@@ -210,11 +210,11 @@ int main (int argc, char *argv[]) {
     // Multitree Adaptive Wavelet Galerkin Method
     MT_AWGM multitree_awgm(basis2d, localOperator2D, F, Prec);
     multitree_awgm.setParameters(threshtol, gamma, "standard", "sparsetree", false, false);
-    multitree_awgm.cg_solve(u, eps, 100, 1e-5, 0., "multitree_awgm_helmholtz_periodic_conv.dat",
-    		"multitree_awgm_helmholtz_periodic_coeff.dat");
+    //multitree_awgm.cg_solve(u, eps, 100, 1e-5, 0., "multitree_awgm_helmholtz_periodic_conv.dat",
+    //		"multitree_awgm_helmholtz_periodic_coeff.dat");
 
     plot2D<T,Basis2D,Preconditioner>(basis2d, u, Prec, sol, 0., 1., 0., 1., 0.01, "multitree_awgm_helmholtz_periodic.txt");
-
+    cerr << "Warning: cg solver not started, RHS type incompatible with cg_solve, no propagation present" << endl;
     return 0;
 }
 

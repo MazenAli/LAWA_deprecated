@@ -42,6 +42,10 @@ BSpline<T,Primal,RPlus,SparseMulti>::operator()(T x, int j, long k, unsigned sho
         return pow2ih<T>(2*j*deriv+j) * mra._innerScalingFactors(type) *
                mra._innerEvaluator[type](pow2i<T>(j)*x-shift,deriv);
     }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return (T) 0;
+    }
 }
     
 template <typename T>
@@ -58,6 +62,10 @@ BSpline<T,Primal,RPlus,SparseMulti>::support(int j, long k) const
         long shift = (long)std::ceil(T(k) / T(mra._numInnerParts));
         return pow2i<T>(-j) * (mra._innerSupport[type]+shift);
 
+    }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return Support<T>(-0.,0.);
     }
 }
 
@@ -84,6 +92,10 @@ BSpline<T,Primal,RPlus,SparseMulti>::singularSupport(int j, long k) const
         DenseVector<Array<T> > result = mra._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;
+    }
+    else { // Control may reach end of non-void function
+        assert(d==4);
+        return DenseVector<Array<T> > ();
     }
 }
 
