@@ -27,7 +27,7 @@ typedef TimeStepping<T, Theta>                                              Time
 typedef FixedPointSolver<T, TimeStepper>                                    ThetaFPSolver;
 
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
-typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 const double c = 1.;

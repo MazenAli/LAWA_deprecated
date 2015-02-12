@@ -7,7 +7,7 @@ using namespace lawa;
 
 //  Typedefs for Flens data types:
 typedef double T;
-typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
 //  Typedefs for Basis:

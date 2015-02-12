@@ -7,7 +7,7 @@ using namespace lawa;
 typedef double T;
 
 typedef flens::DenseVector<flens::Array<T> >        DenseVectorT;
-typedef flens::SparseGeMatrix<CRS<T,CRS_General> >  SparseMatrixT;
+typedef flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> >  SparseMatrixT;
 
 /// Basis definitions
 typedef Basis<T,Primal,Interval,Dijkema>            PrimalBasis;

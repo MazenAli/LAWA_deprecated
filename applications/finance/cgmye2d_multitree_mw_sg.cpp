@@ -352,7 +352,7 @@ void
 spyStiffnessMatrix(const Basis2D &basis2d, CGMYeOp2D & cgmyeop2d, int j,
                    const ProcessParameters2D<T,CGMYeUnivariateJump2D> &processparameters)
 {
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >  SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >  SparseMatrixT;
     typedef std::list<Index2D>::const_iterator                        const_list_it;
     std::list<Index2D> row_indices, col_indices, indices;
 

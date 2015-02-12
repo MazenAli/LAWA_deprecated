@@ -178,7 +178,7 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
 
     FullColMatrix Mj1_Tmp = MjInv(_(pow2i<T>(j)+d-1+1-mra_._bc(0)-mra_._bc(1),
                                     pow2i<T>(j+1)+d-1-mra_._bc(0)-mra_._bc(1)), _ );
-    copy(Trans, Mj1_Tmp, M1_);
+    flens::blas::copy(Trans, Mj1_Tmp, M1_);
 
     M1.engine().changeIndexBase(1+mra_._bc(0),1);
     M1_.engine().changeIndexBase(1+mra_._bc(0),1);

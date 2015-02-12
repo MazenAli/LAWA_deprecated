@@ -6,7 +6,7 @@ using namespace lawa;
 
 typedef double T;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
-typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >    SparseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                          DenseVectorT;
 
 int main(){

@@ -130,7 +130,7 @@ int main (int argc, char *argv[]) {
             cout << "Size of Lambda: " << N << endl;
             /*
             cout << "Norm preconditioning ..." << endl;
-            flens::SparseGeMatrix<CRS<T,CRS_General> > A_norm_prec_sparse(N,N);
+            flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_norm_prec_sparse(N,N);
             toFlensSparseMatrix(A_norm_prec, Lambda, Lambda, A_norm_prec_sparse);
             spy(A_norm_prec_sparse,"A_norm_prec");
             densify(cxxblas::NoTrans,A_norm_prec_sparse,A_dense);
@@ -141,7 +141,7 @@ int main (int argc, char *argv[]) {
             */
 
             cout << "Midpoint preconditioning..." << endl;
-            flens::SparseGeMatrix<CRS<T,CRS_General> > A_midpoint_prec_sparse(N,N);
+            flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_midpoint_prec_sparse(N,N);
             toFlensSparseMatrix(A_midpoint_prec, Lambda, Lambda, A_midpoint_prec_sparse);
             densify(cxxblas::NoTrans,A_midpoint_prec_sparse,A_dense);
             spy(A_midpoint_prec_sparse,"A_midpoint_prec");

@@ -29,7 +29,7 @@ typedef double T;
 using namespace lawa;
 using namespace std;
 
-typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >        SparseMatrixT;
+typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >        SparseMatrixT;
 typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >      DenseMatrixT;
 typedef flens::DenseVector<flens::Array<T> >                            DenseVectorT;
 
