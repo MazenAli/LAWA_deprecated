@@ -29,7 +29,7 @@ SparseGrid2D<T, IndexOneD, Basis2D, BilinearForm, RHS>::solve_cg(T &energynorm)
         b(row_count) = rhs(*row);
     }
     std::cerr << "Right-hand side assembling finished." << std::endl;
-    flens::SparseGeMatrix<CRS<T,CRS_General> > A(N,N);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A(N,N);
     lawa::toFlensSparseMatrix(a, Lambda, Lambda, A);
     std::cerr << "Sparse matrix assembled: (" << A.numNonZeros()
               << " / " << Lambda.size()*Lambda.size() << ")"<< std::endl;

@@ -55,7 +55,7 @@ struct AdaptivePDEOperatorOptimized2D
 template <typename T, DomainType Domain1, DomainType Domain2>
 struct AdaptivePDEOperatorOptimized2D<T,Primal,Domain1,SparseMulti,Primal,Domain2,SparseMulti>
 {
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >          SparseMatrixT;
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
     typedef IndexSet<Index2D>::const_iterator                                 const_set2d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::iterator        coeff1d_it;

@@ -36,7 +36,7 @@ class BlockAssembler1D
         BlockAssembler1D(const Basis& _basis);
 
         template <typename BilinearForm>
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >
         assembleStiffnessMatrixBlock(BilinearForm& a, int i1, int i2, T tol = 10e-15);
 
         template <typename BilinearForm>

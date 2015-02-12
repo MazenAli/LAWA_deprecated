@@ -45,7 +45,7 @@ class AdaptiveRBTruth2D_PG{
 
         typedef T (*theta_fctptr)(const std::vector<T>& params); // Argumente -> eher auch RBThetaData-Objekt?
         typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  FullColMatrixT;
-        typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+        typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >    SparseMatrixT;
         typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;  
         typedef Coefficients<Lexicographical,T,Index2D>                     CoeffVector;
 

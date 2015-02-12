@@ -28,7 +28,7 @@ using namespace flens;
 
 template <typename T>
     void
-    spy(const SparseGeMatrix<CRS<T,CRS_General> > &A, const char* filename,
+    spy(const SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > &A, const char* filename,
         bool absoluteValues = true, T eps = std::numeric_limits<T>::epsilon());
 
 template <typename I>

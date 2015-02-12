@@ -922,7 +922,7 @@ RBModel2D<T, TruthSolver>::update_RB_A_matrices()
 	// Initializations for structures that depend on Galerkin or Petrov-Galerkin formulation
   typename std::vector<typename TruthSolver::OperatorType*>& A_ops = (TruthSolver::Type == Galerkin || truth->A_u_u_operators.size() == 0)? truth->A_operators: truth->A_u_u_operators;
 
-  typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+  typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >    SparseMatrixT;
   std::vector<SparseMatrixT>& A_mats = (TruthSolver::Type == Galerkin)? truth->A_operator_matrices: truth->A_u_u_op_matrices;
   bool matrices_assembled = (TruthSolver::Type == Galerkin)? truth->assembled_A_operator_matrices: truth->assembled_A_u_u_matrices;
 

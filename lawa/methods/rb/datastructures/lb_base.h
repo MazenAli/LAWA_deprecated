@@ -24,8 +24,8 @@ template <typename ParamType, typename Truth>
 class LB_Base {
 
 	typedef typename Truth::T 													T;
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    		SparseMatrixT;
-    typedef flens::SparseSyMatrix<flens::CRS<T,flens::CRS_UpperTriangular> >    SparseSymMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >    		SparseMatrixT;
+    typedef flens::SparseSyMatrix<flens::extensions::CRS<T,flens::CRS_UpperTriangular> >    SparseSymMatrixT;
     typedef flens::DenseVector<flens::Array<T> >                        		DenseVectorT;
     typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  		FullColMatrixT;
 

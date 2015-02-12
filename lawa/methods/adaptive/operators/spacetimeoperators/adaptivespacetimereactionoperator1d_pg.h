@@ -49,7 +49,7 @@ template <typename T, typename TrialBasis, typename TestBasis,
           typename TrialPrec, typename TestPrec, typename InitialCondition>
 struct AdaptiveSpaceTimeReactionOperator1D_PG : public AdaptiveOperator2D<T> {
     
-    typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> >                  SparseMatrixT;
 
     typedef typename TrialBasis::FirstBasisType    TrialBasis_t;
     typedef typename TrialBasis::SecondBasisType   TrialBasis_x;

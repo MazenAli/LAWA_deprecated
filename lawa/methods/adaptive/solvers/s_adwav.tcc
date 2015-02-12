@@ -948,7 +948,7 @@ plotScatterCoeff2D(u, A.basis.first, A.basis.second, coefffile.str().c_str());
        std::cout << "Computing eigenvalues..." << std::endl;
        T cB, CB;
        int N = LambdaActive.size();
-       SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A_sparse(N,N);
+       SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A_sparse(N,N);
        A.toFlensSparseMatrix(LambdaActive,LambdaActive,A_sparse);
        flens::DenseVector<flens::Array<T> > x(N);
        for (int i=1; i<=N; ++i) {

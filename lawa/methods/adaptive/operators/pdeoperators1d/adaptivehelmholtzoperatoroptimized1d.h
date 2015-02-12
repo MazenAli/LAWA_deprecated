@@ -44,7 +44,7 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,R,CDF> {
 
     typedef Basis<T,Primal,R,CDF>                                             ReallineCDFBasis1D;
 
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >          SparseMatrixT;
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
 
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator  const_coeff1d_it;
@@ -118,7 +118,7 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Orthogonal,Domain,Multi> {
 
     typedef Basis<T,Orthogonal,Domain,Multi>  MWBasis1D;
 
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >          SparseMatrixT;
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
 
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator  const_coeff1d_it;
@@ -193,7 +193,7 @@ struct AdaptiveHelmholtzOperatorOptimized1D<T,Primal,Domain,SparseMulti>
     //ct_assert( IsRealline<SparseMultiBasis1D>::value);
 
 
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >          SparseMatrixT;
     typedef IndexSet<Index1D>::const_iterator                                 const_set1d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::const_iterator  const_coeff1d_it;
     typedef typename Coefficients<Lexicographical,T,Index1D>::iterator        coeff1d_it;

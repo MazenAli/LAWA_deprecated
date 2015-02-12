@@ -33,13 +33,13 @@ namespace lawa {
 template <typename T, typename Index, typename MA>
 void
 toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens);
+                    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens);
 
 template <typename T, typename Index, typename SpaceIndex, typename MA>
 void
 toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRowOp, const IndexSet<SpaceIndex>& LambdaRowInitCond,
                     const IndexSet<Index>& LambdaCol,
-                    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens);
+                    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens);
 
 template <typename T, typename RowIndex, typename ColIndex, typename MA>
 Coefficients<Lexicographical,T,RowIndex>

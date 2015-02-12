@@ -223,7 +223,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
         //std::cerr << "    Assembling of B started with N=" << N << std::endl;
 
 
-        flens::SparseGeMatrix<CRS<T,CRS_General> > B(N,N);
+        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > B(N,N);
         Timer time_assemble;
         time_assemble.start();
         A.toFlensSparseMatrix(Lambda,Lambda,B,J);

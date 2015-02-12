@@ -39,7 +39,7 @@ namespace lawa {
 template <typename T, typename TrialBasis, typename TestBasis>
 struct TransposedAdaptivePDEOperator1D_PG
 {
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >        SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >        SparseMatrixT;
     typedef NoCompression<T,Index1D,TrialBasis>                        		NoCompression1D;
     typedef NoPreconditioner<T,Index1D>                                     NoPreconditioner1D;
     typedef TransposedPDEOperator1D_PG<T,TrialBasis,TestBasis>              PDEOp1D;

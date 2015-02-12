@@ -42,27 +42,27 @@ namespace flens { namespace blas {
 // sparse_gemv
 template <typename T, typename VX, typename VY>
 void
-mv(cxxblas::Transpose trans, T alpha, const SparseGeMatrix<CRS<T> > &A,
+mv(cxxblas::Transpose trans, T alpha, const SparseGeMatrix<flens::extensions::CRS<T> > &A,
    const DenseVector<VX> &x,
    typename DenseVector<VY>::ElementType beta, DenseVector<VY> &y);
 
 // sparse_symv
 template <typename T, CRS_Storage Storage, typename VX, typename VY>
 void
-mv(T alpha, const SparseSyMatrix<CRS<T, Storage> > &A,
+mv(T alpha, const SparseSyMatrix<flens::extensions::CRS<T, Storage> > &A,
    const DenseVector<VX> &x,
    typename DenseVector<VY>::ElementType beta, DenseVector<VY> &y);
 
 template <typename T>
 void
-my_mm_t(const SparseGeMatrix<CRS<T> > &A,
-        SparseGeMatrix<CRS<T> > &B);
+my_mm_t(const SparseGeMatrix<flens::extensions::CRS<T> > &A,
+        SparseGeMatrix<flens::extensions::CRS<T> > &B);
 
 //   computes A^t A, requires A^t stored in CRS format
 template <typename T>
 void
-my_mm_At_A(const SparseGeMatrix<CRS<T> > &A,
-           SparseGeMatrix<CRS<T> > &B);
+my_mm_At_A(const SparseGeMatrix<flens::extensions::CRS<T> > &A,
+           SparseGeMatrix<flens::extensions::CRS<T> > &B);
 
 // sparse_gemm (sparse x dense)
 template <typename T, CRS_Storage Storage>
@@ -70,7 +70,7 @@ void
 mm(cxxblas::Transpose transA,
    cxxblas::Transpose transB,
    T alpha,
-   const SparseGeMatrix<CRS<T, Storage> > &A,
+   const SparseGeMatrix<flens::extensions::CRS<T, Storage> > &A,
    const GeMatrix<FullStorage<T, cxxblas::ColMajor> > &B,
    T beta, GeMatrix<FullStorage<T, cxxblas::ColMajor> > &C);
 

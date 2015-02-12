@@ -90,7 +90,7 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 void
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
                                 (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                                 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
+                                 flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens,
                                  int /*J*/)
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);
@@ -101,7 +101,7 @@ template <typename T, typename Index, typename BilinearForm, typename Compressio
 void
 MapMatrix<T,Index,BilinearForm,Compression,Preconditioner>::toFlensSparseMatrix
                                 (const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                                 flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens,
+                                 flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens,
                                  T /*tol*/)
 {
     lawa::toFlensSparseMatrix(*this,LambdaRow,LambdaCol,A_flens);

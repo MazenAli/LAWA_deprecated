@@ -8,7 +8,7 @@ BlockAssembler1D<T, Basis>::BlockAssembler1D(const Basis& _basis)
 
 template<typename T, typename Basis>
 template <typename BilinearForm>
-flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
+flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >
 BlockAssembler1D<T, Basis>::assembleStiffnessMatrixBlock(BilinearForm& a, int i1, int i2, T tol)
 {
     assert(i1>=-1);
@@ -23,7 +23,7 @@ BlockAssembler1D<T, Basis>::assembleStiffnessMatrixBlock(BilinearForm& a, int i1
     if (i2<0) { N2 = basis.mra.cardI(j0); }
     else      { N2 = basis.cardJ(j0+i2); }
 
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A(N1,N2);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A(N1,N2);
 
     if (i1<0) {
         if (i2<0) {    //SF*SF

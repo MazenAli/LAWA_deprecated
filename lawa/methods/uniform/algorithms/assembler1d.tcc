@@ -8,7 +8,7 @@ Assembler1D<T, Basis>::Assembler1D(const Basis& _basis)
 
 template<typename T, typename Basis>
 template <typename BilinearForm>
-flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
+flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >
 Assembler1D<T, Basis>::assembleStiffnessMatrix(BilinearForm& a, int J, T tol)
 {   
     int j0 = basis.j0;
@@ -16,7 +16,7 @@ Assembler1D<T, Basis>::assembleStiffnessMatrix(BilinearForm& a, int J, T tol)
     int offsetI = basis.mra.rangeI(j0).firstIndex()-1;
     
     int N = basis.mra.cardI(J);
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A(N,N);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A(N,N);
     
     // SF * SF 
     for(int k1 = basis.mra.rangeI(j0).firstIndex(); k1 <= basis.mra.rangeI(j0).lastIndex(); ++k1){

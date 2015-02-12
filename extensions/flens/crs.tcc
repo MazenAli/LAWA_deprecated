@@ -34,6 +34,8 @@
 
 namespace flens {
 
+namespace extensions {
+
 //-- CRS -----------------------------------------------------------------------
 
 // -- constructors -------------------------------------------------------------
@@ -145,6 +147,10 @@ CRS<T, Storage>::end()
 {
     return iterator(*this, numNonZeros()+1);
 }
+
+} // namespace extensions
+
+#define CRS extensions::CRS
 
 //-- CRS_Coordinate ------------------------------------------------------------
 
@@ -538,4 +544,6 @@ CRS_Iterator<T, Storage>::operator->()
 }
 
 } // namespace flens
+
+#undef CRS
 

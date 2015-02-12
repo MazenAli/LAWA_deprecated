@@ -48,7 +48,7 @@ namespace lawa {
 template <typename T, typename Basis2D, typename LeftPrec2D, typename RightPrec2D, typename InitialCondition>
 struct AdaptiveSpaceTimeLaplaceOperator1D : public AdaptiveOperator2D<T> {
     
-    typedef flens::SparseGeMatrix<CRS<T,CRS_General> >                  SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> >                  SparseMatrixT;
 
     typedef typename Basis2D::FirstBasisType    Basis_t;
     typedef typename Basis2D::SecondBasisType   Basis_x;

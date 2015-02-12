@@ -67,7 +67,7 @@ solve(flens::DenseVector<flens::Array<T> > u0, flens::DenseVector<flens::Array<T
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > fmatrix(u0.length(), steps);
     
     
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >
     lhsmatrix = mg_ptr->hom_theta.getLHSMatrix(mg_ptr->mg.getMinLevel());
     
     flens::DenseVector<flens::Array<T> > rhsvector = lhsmatrix * f;

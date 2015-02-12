@@ -48,7 +48,7 @@ class ThetaScheme1D_LTV
         void
         setRHS(RHSIntegral& _rhs);
         
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > 
         getLHSMatrix(T time_old, T time_new, int level);
                            
         // Adaptive Erweiterung: Timestep in jedem Lösungsschritt neu setzen,

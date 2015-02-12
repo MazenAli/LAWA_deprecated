@@ -77,11 +77,11 @@ struct MapMatrix
 
     void
     toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, int J=-1);
+                        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens, int J=-1);
 
     void
     toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, T tol);
+                        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens, T tol);
 
     void
     apply(const Coefficients<Lexicographical,T,Index> &u, T tol, const IndexSet<Index> Lambda,

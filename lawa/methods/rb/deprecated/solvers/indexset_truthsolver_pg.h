@@ -26,7 +26,7 @@ class IndexsetTruthSolver_PG {
   typedef typename Truth::Operator_RHS_FunctionalRepresentor           RHS_FctRepr;
   typedef typename Truth::Operator_Residual_Representor                RHS_ResRepr;
   
-  typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+  typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >    SparseMatrixT;
   
   
 public:

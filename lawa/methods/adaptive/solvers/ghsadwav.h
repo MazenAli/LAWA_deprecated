@@ -37,7 +37,7 @@ struct GHS_ADWAV {
         typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator      const_coeff_abs_it;
         typedef typename Coefficients<Lexicographical,T,Index>::value_type        val_type;
 
-        typedef typename flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > SparseMatrixT;
+        typedef typename flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > SparseMatrixT;
 
         GHS_ADWAV(AdaptiveOperator &_A, RHS &_F, bool _optimized_grow=false,
                   int _assemble_matrix=1);

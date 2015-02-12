@@ -29,7 +29,7 @@ Assembler2D(Basis& _basis)
 
 template<typename T, typename Basis>
 template<typename BilinearForm>
-flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
+flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >
 Assembler2D<T, Basis>::
 assembleStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol)
 {   
@@ -40,7 +40,7 @@ assembleStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol)
     
     UniformIndex2D<Basis> I(basis, J_x, J_y);
     
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > A(basis.dim(J_x,J_y), basis.dim(J_x,J_y));
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A(basis.dim(J_x,J_y), basis.dim(J_x,J_y));
                                                  
      /* ============  v = Scaling Fct x Scaling Fct ==========================*/
      //std::cout << "===== v = SF * SF =======" << std::endl;

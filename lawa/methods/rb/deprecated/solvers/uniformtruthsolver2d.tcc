@@ -26,7 +26,7 @@ template <typename T, typename Basis, typename Prec>
 Coefficients<Lexicographical,T,Index2D>
 UniformTruthSolver2D<T, Basis, Prec>::truth_solve()
 {
-	typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 	SparseMatrixT;
+	typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > 	SparseMatrixT;
     typedef flens::DenseVector<flens::Array<T> > 						DenseVectorT;
     typedef flens::DiagonalMatrix<T>  									DiagMatrixT;
     

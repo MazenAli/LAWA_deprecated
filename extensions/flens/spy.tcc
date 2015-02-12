@@ -24,7 +24,7 @@ namespace lawa {
 
 template <typename T>
 void
-spy(const SparseGeMatrix<CRS<T,CRS_General> > &A, const char* filename,
+spy(const SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > &A, const char* filename,
     bool absoluteValues, T eps)
 {
     using namespace flens;
@@ -35,7 +35,7 @@ spy(const SparseGeMatrix<CRS<T,CRS_General> > &A, const char* filename,
     ofstream gps(spy_filename.str().c_str());
     stringstream content;
 
-    //const CRS<T> crs=A.engine();
+    //const flens::extensions::CRS<T> crs=A.engine();
     int n=A.engine().numCols(), m=A.engine().numRows();
     // get first entry
     T min, max;

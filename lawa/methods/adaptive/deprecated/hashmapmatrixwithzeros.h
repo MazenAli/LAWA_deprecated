@@ -94,11 +94,11 @@ struct MapMatrixWithZeros
 
     void
     toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, int J);
+                        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens, int J);
 
     void
     toFlensSparseMatrix(const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens, T tol);
+                        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens, T tol);
 
     void
     clear();

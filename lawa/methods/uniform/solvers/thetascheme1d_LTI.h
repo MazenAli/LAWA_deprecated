@@ -68,7 +68,7 @@ class ThetaScheme1D_LTI
         void
         setRHS(RHSIntegral& _rhs);
         
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > 
         getLHSMatrix(int level);                         
         
         // Adaptive Erweiterung: Timestep in jedem Lösungsschritt neu setzen,
@@ -165,8 +165,8 @@ class ThetaScheme1D_LTI
         DiagonalMatrixPreconditioner1D<T, Basis, Operator_LHSMatrix> prec;
         
         int currentLevel;
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix;
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix;
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > lhsmatrix;
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > rhsmatrix;
         flens::DiagonalMatrix<T>                                 P;
         flens::DenseVector<flens::Array<T> >                     rhsvector;
 };

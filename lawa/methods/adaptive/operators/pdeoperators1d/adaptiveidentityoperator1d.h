@@ -36,7 +36,7 @@ namespace lawa {
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
 struct AdaptiveIdentityOperator1D
 {
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >        SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >        SparseMatrixT;
     typedef Basis<T,Side,Domain,Cons>                                       Basis1D;
     typedef CompressionPDE1D<T, Basis1D>                                    Compression1D;
     typedef NoPreconditioner<T,Index1D>                                     NoPreconditioner1D;

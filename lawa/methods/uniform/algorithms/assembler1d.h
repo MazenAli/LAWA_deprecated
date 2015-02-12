@@ -38,7 +38,7 @@ class Assembler1D
          * corresponding to a(v,u)
          */
         template <typename BilinearForm>
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >
         assembleStiffnessMatrix(BilinearForm& a, int J, T tol = 10e-15);
     
         template <typename RHSIntegral>

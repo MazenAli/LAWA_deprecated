@@ -57,6 +57,8 @@ class CRS_ConstIterator;
 template <typename T, CRS_Storage Storage>
 class CRS_Iterator;
 
+namespace extensions { // hack to resolve compatibility issues
+
 template <typename T, CRS_Storage Storage=CRS_General>
 class CRS
 {
@@ -117,6 +119,10 @@ class CRS
     private:
         int  _numRows, _numCols, _k;
 };
+
+} // namespace extensions
+
+#define CRS extensions::CRS
 
 //-- CRS_Coordinate ------------------------------------------------------------
 
@@ -247,6 +253,7 @@ class CRS_Iterator
 
 } // namespace flens
 
+#undef CRS
 #include <extensions/flens/crs.tcc>
 
 #endif // EXTENSIONS_FLENS_CRS_H

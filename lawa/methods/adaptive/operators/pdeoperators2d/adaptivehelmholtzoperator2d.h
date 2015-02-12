@@ -41,7 +41,7 @@ struct AdaptiveHelmholtzOperator2D : public AdaptiveOperator2D<T>
     typedef typename Basis2D::FirstBasisType  Basis_x;
     typedef typename Basis2D::SecondBasisType Basis_y;
 
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > SparseMatrixT;
 
     typedef CompressionPDE1D<T, Basis_x>                             Compression1D_x;
     typedef CompressionPDE1D<T, Basis_y>                             Compression1D_y;

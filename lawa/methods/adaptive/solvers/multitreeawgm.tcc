@@ -715,7 +715,7 @@ compute_f_minus_Au(Coefficients<Lexicographical,T,Index> &u, T eps, T &f_minus_A
 
 /*
         AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Interval,Multi,Orthogonal,Interval,Multi> adHeOp2D(basis,0.);
-        typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >          SparseMatrixT;
+        typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >          SparseMatrixT;
 
         time.start();
         IndexSet<Index2D> Lambda;

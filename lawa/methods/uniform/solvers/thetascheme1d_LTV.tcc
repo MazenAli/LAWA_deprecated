@@ -20,8 +20,8 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init, int l
     op_RHSMatrix.setTimes(time_old, time_new);
     op_RHSVector.setTimes(time_old, time_new);
     
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level);
     flens::DenseVector<flens::Array<T> > rhsvector = assembler.assembleRHS(op_RHSVector, level);
     flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + rhsvector;
     flens::DiagonalMatrix<T> P = assembler.assemblePreconditioner(prec, level);
@@ -44,8 +44,8 @@ solve(T time_old, T time_new, flens::DenseVector<flens::Array<T> > u_init,
      op_RHSMatrix.setTimes(time_old, time_new);
      op_RHSVector.setTimes(time_old, time_new);
 
-     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
-     flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level);
+     flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
+     flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > rhsmatrix = assembler.assembleStiffnessMatrix(op_RHSMatrix, level);
      flens::DenseVector<flens::Array<T> > rhs = rhsmatrix * u_init + f;
      flens::DiagonalMatrix<T> P = assembler.assemblePreconditioner(prec, level);
      flens::DenseVector<flens::Array<T> > u(u_init);
@@ -66,12 +66,12 @@ setRHS(RHSIntegral& _rhs)
 }
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral>
-flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
+flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > 
 ThetaScheme1D_LTV<T, Basis, BilinearForm, RHSIntegral>::
 getLHSMatrix(T time_old, T time_new, int level)
 {
     op_LHSMatrix.setTimes(time_old, time_new);
-    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > lhsmatrix = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
     
     return lhsmatrix;
 }

@@ -31,7 +31,7 @@ template<typename T, typename UniformBasis2D, typename S1_x, typename S1_y,
 class UniformTensorMatrix2D
 {
     typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DenseMatrixT;
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >    SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >    SparseMatrixT;
     typedef flens::DenseVector<flens::Array<T> >                        DenseVectorT;
 
     public:

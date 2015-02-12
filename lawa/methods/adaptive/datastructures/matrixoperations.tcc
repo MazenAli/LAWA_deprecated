@@ -24,7 +24,7 @@ namespace lawa {
 template <typename T, typename Index, typename MA>
 void
 toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRow, const IndexSet<Index>& LambdaCol,
-                    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens)
+                    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens)
 {
     //std::cout << "   Assembling of sparse matrix started..." << std::endl;
     typedef typename IndexSet<Index>::const_iterator const_set_it;
@@ -49,7 +49,7 @@ template <typename T, typename Index, typename SpaceIndex, typename MA>
 void
 toFlensSparseMatrix(MA &A, const IndexSet<Index>& LambdaRowOp, const IndexSet<SpaceIndex>& LambdaRowInitCond,
                     const IndexSet<Index>& LambdaCol,
-                    flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > &A_flens)
+                    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A_flens)
 {
     std::cout << "   Assembling of sparse matrix started..." << std::endl;
     typedef typename IndexSet<Index>::const_iterator const_set_op_it;
@@ -179,7 +179,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 
     Timer timer;
     int N = Lambda.size();
-    flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(N,N);
     if (useOptimizedAssembling) {
         A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
     }
@@ -240,7 +240,7 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
         typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
         int N = Lambda.size();
-        flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
+        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(N,N);
         if (useOptimizedAssembling) {
             A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
         }
@@ -287,7 +287,7 @@ GMRESM_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,
     typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
     
     int N = Lambda.size();
-    flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(N,N);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(N,N);
     if (useOptimizedAssembling) {
         A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
     }
@@ -342,7 +342,7 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
 
         int NumOfRows = (int)LambdaRow.size();
         int NumOfCols = (int)LambdaCol.size();
-        flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
         toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
     
   
@@ -406,7 +406,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &Lambd
     std::cerr << "CGLS_SOLVE called..." << std::endl;
     int NumOfCols = LambdaCol.size();
     int NumOfRows = LambdaRowOp.size() + LambdaRowInitCond.size();
-    flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
     toFlensSparseMatrix(A, LambdaRowOp, LambdaRowInitCond, LambdaCol, A_flens);
 
     if (LambdaCol.size() > 0) {
@@ -458,7 +458,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
 
         int NumOfRows = (int)LambdaRow.size();
         int NumOfCols = (int)LambdaCol.size();
-        flens::SparseGeMatrix<CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
         toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
 
         if (LambdaRow.size() > 0) {

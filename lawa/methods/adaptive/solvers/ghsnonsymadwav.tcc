@@ -230,7 +230,7 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
     if (assemble_matrix) {
 
 
-        flens::SparseGeMatrix<CRS<T,CRS_General> > B(LambdaRow.size(),LambdaCol.size());
+        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > B(LambdaRow.size(),LambdaCol.size());
         A.toFlensSparseMatrix(LambdaRow,LambdaCol,B,1);
 
         std::cerr << "      LambdaRow.size() = " << LambdaRow.size() << ", LambdaCol.size() = " << LambdaCol.size() << std::endl;

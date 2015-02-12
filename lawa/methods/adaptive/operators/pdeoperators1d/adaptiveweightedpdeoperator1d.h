@@ -35,7 +35,7 @@ namespace lawa {
 template <typename T, FunctionSide Side, DomainType Domain, Construction Cons>
 struct AdaptiveWeightedPDEOperator1D
 {
-    typedef flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> >        SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >        SparseMatrixT;
     typedef Basis<T,Side,Domain,Cons>                                       Basis1D;
     typedef NoCompression<T,Index1D,Basis1D>                                NoCompression1D;
     typedef NoPreconditioner<T,Index1D>                                     NoPreconditioner1D;

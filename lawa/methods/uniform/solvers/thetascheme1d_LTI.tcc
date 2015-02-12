@@ -118,12 +118,12 @@ setRHS(RHSIntegral& _rhs)
 
 template<typename T, typename Basis, typename BilinearForm, typename RHSIntegral,
          typename L2ScalarProduct>
-flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > 
+flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > 
 ThetaScheme1D_LTI<T, Basis, BilinearForm, RHSIntegral, L2ScalarProduct>::
 getLHSMatrix(int level)
 {   
     if (level != currentLevel) {
-        flens::SparseGeMatrix<flens::CRS<T,flens::CRS_General> > matrix
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > matrix
                     = assembler.assembleStiffnessMatrix(op_LHSMatrix, level);
         return matrix;
     }
