@@ -1,5 +1,5 @@
 #include <lawa/lawa.h>
-#include <flens/flens.h>
+#include <flens/flens.cxx>
 
 using namespace lawa;
 using namespace std;

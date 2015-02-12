@@ -21,7 +21,7 @@
 #ifndef LAWA_FLENSFORLAWA_H
 #define LAWA_FLENSFORLAWA_H 1
 
-#include <flens/flens.h>
+#include <flens/flens.cxx>
 
 namespace flens {
 

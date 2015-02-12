@@ -21,7 +21,7 @@
 #ifndef LAWA_METHODS_RB_DATASTRUCTURES_RB_SYSTEM_H_
 #define LAWA_METHODS_RB_DATASTRUCTURES_RB_SYSTEM_H_
 
-#include <flens/flens.h>
+#include <flens/flens.cxx>
 #include <array>
 #include <vector>
 #include <lawa/methods/rb/datastructures/thetastructure.h>

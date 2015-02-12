@@ -21,7 +21,7 @@
 #ifndef LAWA_CONSTRUCTIONS_INTERVAL_PRIMAL_BSPLINE_H
 #define LAWA_CONSTRUCTIONS_INTERVAL_PRIMAL_BSPLINE_H 1
 
-#include <flens/flens.h>
+#include <flens/flens.cxx>
 
 #include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/bspline.h>

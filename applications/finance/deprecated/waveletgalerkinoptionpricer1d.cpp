@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include <flens/flens.h>
+#include <flens/flens.cxx>
 #include <lawa/lawa.h>
 #include <applications/finance/fourierpricing/fourierpricing.h>
 #include <applications/finance/initialconditions/initialconditions.h>
