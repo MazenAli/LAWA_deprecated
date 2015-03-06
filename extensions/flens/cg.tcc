@@ -22,6 +22,7 @@
 #include <iomanip>
 #include <fstream>
 #include <lawa/aux/densify.h>
+#include <extensions/flens/sparse_blas_flens.h>
 
 namespace lawa {
 
@@ -92,7 +93,7 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     r = A*x;
     r += (-1.)*b;
     r *= -1.;
-    flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+    flens::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
     p = s;
     gammaPrev = s*s;
 #ifdef SOLVER_DEBUG
@@ -110,7 +111,7 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         alpha = gammaPrev/(q*q);
         x +=   alpha *p;
         r += (-alpha)*q;
-        flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+        flens::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
         gamma = s*s;
         if (sqrt(gamma)<=tol) {
             return k-1;

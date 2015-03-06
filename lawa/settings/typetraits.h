@@ -22,6 +22,7 @@
 #define LAWA_SETTINGS_TYPETRAITS_H 1
 
 #include <lawa/settings/enum.h>
+#include <lawa/constructions/basis.h>
 #include <lawa/constructions/bspline.h>
 #include <lawa/constructions/wavelet.h>
 #include <lawa/methods/adaptive/datastructures/index.h>

@@ -102,13 +102,13 @@ T sol(T t, T x, T y) { return 1.; }
 
 T dom_map(T x) { return (b-a)*x + a; }
 
-T u0(T x, T y)   {  return   (weight1*max(1.-exp(dom_map(x)),0.L) + weight2*max(1.-exp(dom_map(y)),0.L))
+T u0(T x, T y)   {  return   (weight1*std::max(1.-exp(dom_map(x)),0.L) + weight2*std::max(1.-exp(dom_map(y)),0.L))
                            * itrunc(a+decaywidth-dom_map(x)) * itrunc(a+decaywidth-dom_map(y))
                            * itrunc(decaywidth-b+dom_map(x)) * itrunc(decaywidth-b+dom_map(y)); }
-T u1_x(T x)      {  return  weight1*max(1.-exp(dom_map(x)),0.L) * itrunc(a+decaywidth-dom_map(x)) * itrunc(decaywidth-b+dom_map(x)); }
+T u1_x(T x)      {  return  weight1*std::max(1.-exp(dom_map(x)),0.L) * itrunc(a+decaywidth-dom_map(x)) * itrunc(decaywidth-b+dom_map(x)); }
 T u1_y(T y)      {  return  1. * itrunc(a+decaywidth-dom_map(y)) * itrunc(decaywidth-b+dom_map(y)); }
 T u2_x(T x)      {  return  1. * itrunc(a+decaywidth-dom_map(x)) * itrunc(decaywidth-b+dom_map(x)); }
-T u2_y(T y)      {  return  weight2*max(1.-exp(dom_map(y)),0.L) * itrunc(a+decaywidth-dom_map(y))  * itrunc(decaywidth-b+dom_map(y)); }
+T u2_y(T y)      {  return  weight2*std::max(1.-exp(dom_map(y)),0.L) * itrunc(a+decaywidth-dom_map(y))  * itrunc(decaywidth-b+dom_map(y)); }
 
 T f_t(T t)       {  return 0.; }
 T f_x(T x)       {  return 0.; }

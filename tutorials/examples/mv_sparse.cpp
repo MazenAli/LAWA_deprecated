@@ -59,7 +59,7 @@ int main(){
     DenseVectorT u_sparse1(6);
     DenseVectorT u_sparse2(6);
 
-    flens::blas::mv(cxxblas::NoTrans, 1., A_sparse, u1, 0., u_sparse1);
+    flens::mv(cxxblas::NoTrans, 1., A_sparse, u1, 0., u_sparse1);
     cout << "(mv) A_sparse * u1 = " << u_sparse1 << endl;
     u_sparse2 = A_sparse * u1;
     cout << "A_sparse * u1 = " << u_sparse2 << endl;

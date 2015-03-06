@@ -127,7 +127,7 @@ void test_periodic_mt_completion(const PeriodicBasis2D& basis, int J)
 								 << supp_y << endl;
 
 							// set obj rect from x1,y1 to x2,y2
-							int level = max(c.first.index1.j, c.first.index2.j);
+							int level = std::max(c.first.index1.j, c.first.index2.j);
 							if(c.first.index1.xtype==XBSpline && c.first.index2.xtype==XBSpline) level -= 1;
 
 							if(supp_x.gaplength() > 0){
@@ -219,7 +219,7 @@ void test_periodic_mt_completion_returningIndizes(const PeriodicBasis2D& basis, 
 								 << supp_y << endl;
 
 							// set obj rect from x1,y1 to x2,y2
-							int level = max(c.first.index1.j, c.first.index2.j);
+							int level = std::max(c.first.index1.j, c.first.index2.j);
 							if(c.first.index1.xtype==XBSpline && c.first.index2.xtype==XBSpline) level -= 1;
 
 							if(supp_x.gaplength() > 0){

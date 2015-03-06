@@ -307,7 +307,7 @@ int main (int argc, char *argv[]) {
                             << apply_residual_norm << " " << apply_residual_diff << " "
                             << apply_residual_length << " " << apply_residual_time <<  endl;
 
-        eps = min(eps, 0.1*tol);
+        eps = std::min(eps, 0.1*tol);
 
     }
     return 0;

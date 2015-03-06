@@ -33,7 +33,7 @@
 #include <cassert>
 #include <extensions/flens/sparse_blas.h>
 
-namespace flens { namespace blas {
+namespace flens {
 
 template <typename T, typename VX, typename VY>
 void
@@ -60,7 +60,7 @@ mv(cxxblas::Transpose trans, T alpha, const SparseGeMatrix<flens::extensions::CR
     assert(x.engine().stride()==1);
     assert(y.engine().stride()==1);
 
-    crs_gemv(trans, A.numRows(), A.numCols(),
+    blas::crs_gemv(trans, A.numRows(), A.numCols(),
              alpha,
              A.engine().values.engine().data(),
              A.engine().rows.engine().data(),
@@ -87,7 +87,7 @@ mv(T alpha, const SparseSyMatrix<flens::extensions::CRS<T, Storage> > &A,
     assert(y.engine().stride()==1);
 
     if (Storage==CRS_General) {
-        crs_gemv(cxxblas::NoTrans, A.dim(), A.dim(),
+        blas::crs_gemv(cxxblas::NoTrans, A.dim(), A.dim(),
                  alpha,
                  A.engine().values.data(),
                  A.engine().rows.data(),
@@ -96,7 +96,7 @@ mv(T alpha, const SparseSyMatrix<flens::extensions::CRS<T, Storage> > &A,
                  beta, y.data());
     } else {
         cxxblas::StorageUpLo upLo = (Storage==CRS_UpperTriangular) ? cxxblas::Upper : cxxblas::Lower;
-        crs_symv(upLo, A.dim(), alpha,
+        blas::crs_symv(upLo, A.dim(), alpha,
                  A.engine().values.data(),
                  A.engine().rows.data(),
                  A.engine().columns.data(),
@@ -209,12 +209,12 @@ mm(cxxblas::Transpose transA,
 
     char matdescra[] = {'G', 'U', 'N', 'F', ' ', ' '};
 
-    csrmm(transA, A.numRows(), C.numCols(), A.numCols(), alpha, matdescra,
+    blas::csrmm(transA, A.numRows(), C.numCols(), A.numCols(), alpha, matdescra,
           A.engine().values.engine().data(), A.engine().columns.engine().data(),
           A.engine().rows.engine().data(), pointerE.engine().data(),
           B.engine().data(), B.leadingDimension(), 
           beta, C.engine().data(), C.leadingDimension());
 }
 
-} } // namespase blas, flens
+}// flens
 
