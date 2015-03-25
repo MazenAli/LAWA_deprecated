@@ -25,7 +25,7 @@
 #include <lawa/constructions/basis.h>
 #include <lawa/constructions/basisfunction.h>
 #include <lawa/constructions/bspline.h>
-#include <lawa/constructions/mra.h>
+#include <lawa/constructions/interval/multi/mra.h>
 #include <lawa/constructions/wavelet.h>
 
 namespace lawa {

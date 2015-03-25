@@ -4,6 +4,8 @@
 #include <cassert>
 #include <lawa/math/linspace.h>
 #include <lawa/math/pow2.h>
+#include <lawa/constructions/interval/multi/wavelet.h>
+#include <lawa/constructions/interval/multi/refinementbasis.h>
 #include <lawa/constructions/interval/multi/_constant_evaluator.h>
 #include <lawa/constructions/interval/multi/_linear_evaluator.h>
 #include <lawa/constructions/interval/multi/_quadratic_evaluator.h>

@@ -2,6 +2,9 @@
 #define LAWA_CONSTRUCTIONS_INTERVAL_MULTI_MRA_TCC 1
 
 #include <cassert>
+#include <lawa/math/pow2.h>
+#include <lawa/constructions/interval/multi/bspline.h>
+#include <lawa/constructions/interval/multi/_constant_evaluator.h>
 #include <lawa/constructions/interval/multi/_linear_evaluator.h>
 #include <lawa/constructions/interval/multi/_quadratic_evaluator.h>
 #include <lawa/constructions/interval/multi/_cubic_evaluator.h>
