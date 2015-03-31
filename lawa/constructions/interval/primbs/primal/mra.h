@@ -29,8 +29,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename _T>
 class MRA<_T,Primal,Interval,Primbs>
 {
@@ -64,16 +62,16 @@ class MRA<_T,Primal,Interval,Primbs>
         cardIR(int j=0) const;
 
         // ranges of whole left, inner, right index sets.
-        Range<int>
+        flens::Range<int>
         rangeI(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIL(int j=0) const;
 
-        Range<int>
+        flens::Range<int>
         rangeII(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIR(int j) const;
 
         int
@@ -91,7 +89,7 @@ class MRA<_T,Primal,Interval,Primbs>
         const int j0;          // minimal used(!) level.
 
         BSpline<T,Primal,R,CDF> phiR;
-        RefinementMatrix<T,Interval,Primbs> M0;
+        flens::RefinementMatrix<T,Interval,Primbs> M0;
 
         const int l1, l2;      // support of phi  = [ l1, l2 ] (real line).
         
@@ -99,7 +97,7 @@ class MRA<_T,Primal,Interval,Primbs>
         void
         _calcM0();
 
-        DenseVector<Array<int> > _bc;    // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 
@@ -107,7 +105,7 @@ class MRA<_T,Primal,Interval,Primbs>
 
         friend class BSpline<T,Primal,Interval,Dijkema>;
 
-        DenseVector<Array<long double> > *_leftRefCoeffs,
+        flens::DenseVector<flens::Array<long double> > *_leftRefCoeffs,
                                          *_innerRefCoeffs,
                                          *_rightRefCoeffs;
 

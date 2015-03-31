@@ -27,8 +27,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename _T>
 class MRA<_T,Dual,Interval,Dijkema>
 {
@@ -59,16 +57,16 @@ class MRA<_T,Dual,Interval,Dijkema>
         cardI_R(int j=0) const;
 
         // ranges of whole left, inner, right index sets.
-        Range<int>
+        flens::Range<int>
         rangeI_(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_L(int j=0) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_I(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_R(int j) const;
 
         int
@@ -92,8 +90,8 @@ class MRA<_T,Dual,Interval,Dijkema>
         const int j0;          // minimal used(!) level.
 
         BSpline<T,Dual,Interval,Dijkema> phi_;
-        GeMatrix<FullStorage<T,cxxblas::ColMajor> > R_Left, R_Right;
-        RefinementMatrix<T,Interval,Dijkema> M0_;
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > R_Left, R_Right;
+        flens::RefinementMatrix<T,Interval,Dijkema> M0_;
         BSpline<T,Dual,R,CDF> phi_R;
 
     private:
@@ -101,7 +99,7 @@ class MRA<_T,Dual,Interval,Dijkema>
         _calcM0_();
 
     public: // FIXME: "public: " TO BE ELIMINATED !!!!!!!!!!!!!!
-        DenseVector<Array<int> > _bc;    // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 

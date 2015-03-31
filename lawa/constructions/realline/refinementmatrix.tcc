@@ -23,16 +23,16 @@
 namespace flens {
 
 template <typename T>
-template <FunctionSide Side>
-RefinementMatrix<T,R,CDF>::RefinementMatrix(const BSpline<T,Side,R,CDF> &spline)
-      : band(Const<T>::R_SQRT2 * spline.mask())
+template <lawa::FunctionSide Side>
+RefinementMatrix<T,lawa::R,lawa::CDF>::RefinementMatrix(const lawa::BSpline<T,Side,lawa::R,lawa::CDF> &spline)
+      : band(lawa::Const<T>::R_SQRT2 * spline.mask())
 {
 }
 
 template <typename T>
-template <FunctionSide Side>
-RefinementMatrix<T,R,CDF>::RefinementMatrix(const Wavelet<T,Side,R,CDF> &wavelet)
-      : band(Const<T>::R_SQRT2 * wavelet.mask())
+template <lawa::FunctionSide Side>
+RefinementMatrix<T,lawa::R,lawa::CDF>::RefinementMatrix(const lawa::Wavelet<T,Side,lawa::R,lawa::CDF> &wavelet)
+      : band(lawa::Const<T>::R_SQRT2 * wavelet.mask())
 {
 }
 
@@ -43,7 +43,7 @@ RefinementMatrix<T,R,CDF>::RefinementMatrix(const Wavelet<T,Side,R,CDF> &wavelet
 template <typename X, typename Y>
 void
 mv(cxxblas::Transpose transA, typename X::ElementType alpha,
-   const RefinementMatrix<typename X::ElementType,R,CDF> &A,
+   const RefinementMatrix<typename X::ElementType,lawa::R,lawa::CDF> &A,
    const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y)
 {
     assert(0);

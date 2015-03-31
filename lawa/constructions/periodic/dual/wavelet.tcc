@@ -21,8 +21,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
 Wavelet<T,Dual,Periodic,CDF>::Wavelet(int _d, int _d_)
     : d(_d), d_(_d_), mu(d&1),
@@ -84,14 +82,14 @@ Wavelet<T,Dual,Periodic,CDF>::support(int j, long k) const
 }
 
 template <typename T>
-const DenseVector<Array<T> > &
+const flens::DenseVector<flens::Array<T> > &
 Wavelet<T,Dual,Periodic,CDF>::mask() const
 {
     return psiR_.b_;
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Dual,Periodic,CDF>::mask(int d, int d_)
 {
     assert(d<=d_);
@@ -99,7 +97,7 @@ Wavelet<T,Dual,Periodic,CDF>::mask(int d, int d_)
 
     int mu = d & 1;
     BSpline<T,Primal,R,CDF>  phi(d);
-    DenseVector<Array<T> > b_(_(1-(d+mu)/2, 1+(d-mu)/2));
+    flens::DenseVector<flens::Array<T> > b_(flens::_(1-(d+mu)/2, 1+(d-mu)/2));
     for (int k=b_.firstIndex(); k<=b_.lastIndex(); ++k) {
         int sign = (k&1) ? -1 : 1;
         b_(k) = sign * phi.a(1-k);

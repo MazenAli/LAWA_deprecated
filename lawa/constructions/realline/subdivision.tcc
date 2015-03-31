@@ -28,13 +28,15 @@ namespace lawa {
 // calculate values at integer nodes by solving an eigenvalue problem (EVP).
 template <typename T>
 void
-_evalAtIntegersByEVP(const DenseVector<Array<T> > &a, 
-                     DenseVector<Array<T> > &valuesAtIntegers)
+_evalAtIntegersByEVP(const flens::DenseVector<flens::Array<T> > &a, 
+                     flens::DenseVector<flens::Array<T> > &valuesAtIntegers)
 {
+    using flens::_;
+
     int l1 = a.firstIndex(),
         l2 = a.lastIndex();
 
-    GeMatrix<FullStorage<T, cxxblas::ColMajor> > A(a.length(), a.length(), l1, l1);
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A(a.length(), a.length(), l1, l1);
     
     // fill matrix A of eigenvalue problem.
     for (int m=l1; m<=l2; ++m) {
@@ -46,8 +48,8 @@ _evalAtIntegersByEVP(const DenseVector<Array<T> > &a,
     }
     
     // calculate eigenvalues of A.
-    DenseVector<Array<T> > wr(A.numRows()), wi(A.numRows()); // eigenvalues
-    GeMatrix<FullStorage<T,cxxblas::ColMajor> > VL, 
+    flens::DenseVector<flens::Array<T> > wr(A.numRows()), wi(A.numRows()); // eigenvalues
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > VL, 
                                                 VR(A.numRows(),A.numRows()); // left and right eigenvectors
     ev(false, true, A, wr, wi, VL, VR); //only calculate right eigenvectors.
     // TODO: as soon as iamax is in FLENS, take next line one level higher!!!!
@@ -66,7 +68,7 @@ _evalAtIntegersByEVP(const DenseVector<Array<T> > &a,
 template <typename T>
 void
 _evalAtIntegers(const BSpline<T,Primal,R,CDF> phi,
-                DenseVector<Array<T> > &valuesAtIntegers)
+                flens::DenseVector<flens::Array<T> > &valuesAtIntegers)
 {
     _evalAtIntegersByEVP(phi.a, valuesAtIntegers);
 }
@@ -74,7 +76,7 @@ _evalAtIntegers(const BSpline<T,Primal,R,CDF> phi,
 template <typename T>
 void
 _evalAtIntegers(const BSpline<T,Dual,R,CDF> phi_,
-                DenseVector<Array<T> > &valuesAtIntegers)
+                flens::DenseVector<flens::Array<T> > &valuesAtIntegers)
 {
     if (phi_.d==phi_.d_) {
         switch (phi_.d) {
@@ -110,9 +112,11 @@ _evalAtIntegers(const BSpline<T,Dual,R,CDF> phi_,
 template <typename T>
 void
 subdivide(const BSpline<T,Primal,R,CDF> &phi, int j,
-          DenseVector<Array<T> > &dyadicValues)
+          flens::DenseVector<flens::Array<T> > &dyadicValues)
 {
-    DenseVector<Array<T> > valuesAtIntegers;
+    using flens::_;
+
+    flens::DenseVector<flens::Array<T> > valuesAtIntegers;
     _evalAtIntegers(phi, valuesAtIntegers);
     
     // set values at integer positions of result.
@@ -137,9 +141,11 @@ subdivide(const BSpline<T,Primal,R,CDF> &phi, int j,
 template <typename T>
 void
 subdivide(const BSpline<T,Dual,R,CDF> &phi_, int j,
-          DenseVector<Array<T> > &dyadicValues)
+          flens::DenseVector<flens::Array<T> > &dyadicValues)
 {
-    DenseVector<Array<T> > valuesAtIntegers;
+    using flens::_;
+
+    flens::DenseVector<flens::Array<T> > valuesAtIntegers;
     _evalAtIntegers(phi_, valuesAtIntegers);
     
     // set values at integer positions of result.

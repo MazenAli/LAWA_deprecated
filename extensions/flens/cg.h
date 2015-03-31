@@ -25,8 +25,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename A>
 struct _cg
 {
@@ -55,10 +53,10 @@ template <typename Prec, typename MA, typename VA, typename VB>
 //-- trait specialization for FLENS types --------------------------------------
 
 template <typename I>
-struct _cg<DenseVector<I> >
+struct _cg<flens::DenseVector<I> >
 {
-    typedef typename DenseVector<I>::NoView AuxVector;
-    typedef typename DenseVector<I>::ElementType T;
+    typedef typename flens::DenseVector<I>::NoView AuxVector;
+    typedef typename flens::DenseVector<I>::ElementType T;
 };
 
 } // namespace lawa

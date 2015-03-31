@@ -41,7 +41,7 @@ struct BasisFunction
     virtual Support<T>
     support(int j, long k) const;
 
-    virtual DenseVector<Array<T> >
+    virtual flens::DenseVector<flens::Array<T> >
     singularSupport(int j, long k) const;
 
     virtual T

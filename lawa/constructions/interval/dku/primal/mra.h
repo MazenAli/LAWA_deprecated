@@ -28,8 +28,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename _T>
 class MRA<_T,Primal,Interval,DKU>
 {
@@ -60,16 +58,16 @@ class MRA<_T,Primal,Interval,DKU>
         cardIR(int j=0) const;
 
         // ranges of whole left, inner, right index sets.
-        Range<int>
+        flens::Range<int>
         rangeI(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIL(int j=0) const;
 
-        Range<int>
+        flens::Range<int>
         rangeII(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIR(int j) const;
 
         int
@@ -90,10 +88,10 @@ class MRA<_T,Primal,Interval,DKU>
 
 //        BSpline<T,Primal,R,CDF> phiR;
 //        BSpline<T,Primal,R,CDF> phi_R;
-//        RefinementMatrix<T,Interval,Primbs> M0;
+//        flens::RefinementMatrix<T,Interval,Primbs> M0;
 
         BSpline<T,Primal,Interval,DKU> phi;
-        RefinementMatrix<T,Interval,DKU> M0;
+        flens::RefinementMatrix<T,Interval,DKU> M0;
     private:
         void
         _alpha_();
@@ -108,7 +106,7 @@ class MRA<_T,Primal,Interval,DKU>
                                // I_L = { 1-l2, ..., l+1 } with l >= -l1 and
                                // I_R = { 2^-q, ..., 2^-l1-1 } with q >= l2.
 
-        DenseVector<Array<int> > _bc;    // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;    // the boundary conditions
                                          // bc(0) = 1 -> Dirichlet BC left.
                                          // bc(1) = 1 -> Dirichlet BC right.
 
@@ -117,9 +115,9 @@ class MRA<_T,Primal,Interval,DKU>
                                                     // helper matrices for
                                                     // reproduction of monomials
                                                     // at boundaries.
-        GeMatrix<FullStorage<T,cxxblas::ColMajor> > _Alpha_, _Beta_;
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _Alpha_, _Beta_;
 
-        GeMatrix<FullStorage<T,cxxblas::ColMajor> > _ML, _MR;  // upper left,
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _ML, _MR;  // upper left,
                                                       // lower right block of
                                                       // refinement matrix M0.
 //        DenseVector<Array<T> > _a; // refinement coefficients of inner

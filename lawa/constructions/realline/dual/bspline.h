@@ -48,12 +48,12 @@ struct BSpline<_T,Dual,R,CDF>
     Support<T>
     support(int j, long k) const;
     
-    const DenseVector<Array<T> > &
+    const flens::DenseVector<flens::Array<T> > &
     mask() const;
 
     const int d, d_, mu;
     const int l1_, l2_;
-    const DenseVector<Array<T> > a_;
+    const flens::DenseVector<flens::Array<T> > a_;
 };
 
 template <typename T>
@@ -61,123 +61,123 @@ BSpline<T,Dual,R,CDF>
 N_(int d, int d_);
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_1();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_3();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_5();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_7();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_9();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_2();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_4();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_6();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_8();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_10();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_3_3();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_3_5();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_3_7();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_3_9();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_4_4();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_4_6();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_4_8();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_4_10();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_5_5();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_5_7();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_5_9();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_6_6();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_6_8();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_6_10();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_7_7();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_7_9();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_8_8();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_8_10();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_9_9();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_10_10();
 
 } // namespace lawa

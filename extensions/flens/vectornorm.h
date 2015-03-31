@@ -34,11 +34,11 @@ struct NormTraits
 
 template <NormType N, typename X>
     typename NormTraits<N,typename X::ElementType>::Type
-    norm(const DenseVector<X> &x);
+    norm(const flens::DenseVector<X> &x);
 
 template <NormType N, typename T>
     typename NormTraits<N,T>::Type
-    norm(const Array<T> &x);
+    norm(const flens::Array<T> &x);
 
 } // namespace flens
 

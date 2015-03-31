@@ -27,8 +27,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 //template <typename T>
 //BSpline<T,Primal,Periodic,CDF>::BSpline(int _d)
 //    : d(_d), mu(d&1), phiR(_d)
@@ -86,7 +84,7 @@ BSpline<T,Primal,Periodic,CDF>::support(int j, long k) const
 
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BSpline<T,Primal,Periodic,CDF>::singularSupport(int j, long k) const
 {   
     if((phiR.support(j,k).l1 >= 0) && (phiR.support(j,k).l2 <= 1)){
@@ -94,7 +92,7 @@ BSpline<T,Primal,Periodic,CDF>::singularSupport(int j, long k) const
     }
     
     std::list<T> temp;
-    DenseVector<Array<T> > singSuppR = linspace(phiR.support(j,k).l1, phiR.support(j,k).l2, d+1);
+    flens::DenseVector<flens::Array<T> > singSuppR = linspace(phiR.support(j,k).l1, phiR.support(j,k).l2, d+1);
     temp.push_back(0.);
     temp.push_back(1.);
     for(int i = singSuppR.firstIndex(); i <= singSuppR.lastIndex(); ++i){
@@ -103,7 +101,7 @@ BSpline<T,Primal,Periodic,CDF>::singularSupport(int j, long k) const
     temp.sort();
     temp.unique();
     
-    DenseVector<Array<T> > singSupp(temp.size());
+    flens::DenseVector<flens::Array<T> > singSupp(temp.size());
     int i = 1;
     for (typename std::list<T>::const_iterator it = temp.begin(); it != temp.end(); ++it, ++i) {
         singSupp(i) = *it;
@@ -120,7 +118,7 @@ BSpline<T,Primal,Periodic,CDF>::tic(int j) const
 }
 
 template <typename T>
-DenseVector<Array<long double> > *
+flens::DenseVector<flens::Array<long double> > *
 BSpline<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
 											  long &split, long &refinement_k_restart) const
 {
@@ -173,7 +171,7 @@ BSpline<T,Primal,Periodic,CDF>::getH1SemiNorm(int j, long k) const
 }
 
 template <typename T>
-const DenseVector<Array<T> > &
+const flens::DenseVector<flens::Array<T> > &
 BSpline<T,Primal,Periodic,CDF>::mask() const
 {
     return phiR.a;

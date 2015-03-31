@@ -32,7 +32,7 @@ struct NormTraits<l1, int>
 };
 
 template <typename T>
-struct NormTraits<l1, complex<T> >
+struct NormTraits<l1, flens::complex<T> >
 {
     typedef T Type;
 };
@@ -44,7 +44,7 @@ struct NormTraits<l2, int>
 };
 
 template <typename T>
-struct NormTraits<l2, complex<T> >
+struct NormTraits<l2, flens::complex<T> >
 {
     typedef T Type;
 };
@@ -56,7 +56,7 @@ struct NormTraits<lInfinity, int>
 };
 
 template <typename T>
-struct NormTraits<lInfinity, complex<T> >
+struct NormTraits<lInfinity, flens::complex<T> >
 {
     typedef T Type;
 };
@@ -72,13 +72,13 @@ template <typename T>
 struct VectorNorm<l1, T>
 {
     static const typename NormTraits<l1,T>::Type
-    apply(const DenseVector<Array<T> > &x)
+    apply(const flens::DenseVector<flens::Array<T> > &x)
     {
         return asum(x);
     }
 
     static const typename NormTraits<l1,T>::Type
-    apply(const Array<T> &x)
+    apply(const flens::Array<T> &x)
     {
         return asum(x.length(), x.data(), 1);
     }
@@ -88,7 +88,7 @@ template <typename T>
 struct VectorNorm<l2, T>
 {
     static const typename NormTraits<l2,T>::Type
-    apply(const DenseVector<Array<T> > &x)
+    apply(const flens::DenseVector<flens::Array<T> > &x)
     {
         T norm=0.;
         cxxblas::nrm2<int>((int)x.length(),x.engine().data(),(int)1,norm);
@@ -96,7 +96,7 @@ struct VectorNorm<l2, T>
     }
 
     static const typename NormTraits<l2,T>::Type
-    apply(const Array<T> &x)
+    apply(const flens::Array<T> &x)
     {
         return nrm2(x.length(), x.data(), 1);
     }
@@ -106,7 +106,7 @@ template <typename T>
 struct VectorNorm<lInfinity, T>
 {
     static const typename NormTraits<lInfinity,T>::Type
-    apply(const DenseVector<Array<T> > &x)
+    apply(const flens::DenseVector<flens::Array<T> > &x)
     {
         int i=0;
         cxxblas::iamax<int>((int)x.length(),x.engine().data(),(int)1,i);
@@ -115,7 +115,7 @@ struct VectorNorm<lInfinity, T>
     }
 
     static const typename NormTraits<lInfinity,T>::Type
-    apply(const Array<T> &x)
+    apply(const flens::Array<T> &x)
     {
         return absolute(x(amax(x.length(), x.data(), 1)));
     }
@@ -123,14 +123,14 @@ struct VectorNorm<lInfinity, T>
 
 template <NormType N, typename X>
 typename NormTraits<N,typename X::ElementType>::Type
-norm(const DenseVector<X> &x)
+norm(const flens::DenseVector<X> &x)
 {
     return VectorNorm<N,typename X::ElementType>::apply(x);
 }
 
 template <NormType N, typename T>
 typename NormTraits<N,T>::Type
-norm(const Array<T> &x)
+norm(const flens::Array<T> &x)
 {
     return VectorNorm<N, T>::apply(x);
 }

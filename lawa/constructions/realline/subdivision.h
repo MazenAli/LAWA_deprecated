@@ -28,7 +28,7 @@ namespace lawa {
 template <typename T, FunctionSide Side>
     void
     subdivide(const BSpline<T,Side,R,CDF> &phi, int j,
-              DenseVector<Array<T> > &dyadicValues);
+              flens::DenseVector<flens::Array<T> > &dyadicValues);
 
 } // namespace lawa
 

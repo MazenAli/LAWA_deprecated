@@ -47,30 +47,30 @@ template <typename Prec, typename MatA, typename VecX>
     powerMethod(const Prec &P, const MatA &A, typename MatA::ElementType tol,
                 typename MatA::ElementType &lambda, VecX &y);
 
-//--- SymmetricMatrix ---
+//--- Symmetricflens::Matrix ---
 
 template <typename I, typename VecX>
     void
-    inversePowerMethod(const SymmetricMatrix<I> &A,
+    inversePowerMethod(const Symmetricflens::Matrix<I> &A,
                        typename _powerMethod<I>::T tol,
                        typename _powerMethod<I>::T &lambda, VecX &y);
 
 template <typename Prec, typename I, typename VecX>
     void
-    inversePowerMethod(const Prec &P, const SymmetricMatrix<I> &A,
+    inversePowerMethod(const Prec &P, const Symmetricflens::Matrix<I> &A,
                        typename _powerMethod<I>::T tol,
                        typename _powerMethod<I>::T &lambda, VecX &y);
 
-//--- Matrix ---
+//--- flens::Matrix ---
 
 template <typename I, typename VecX>
     void
-    inversePowerMethod(const Matrix<I> &A, typename _powerMethod<I>::T tol,
+    inversePowerMethod(const flens::Matrix<I> &A, typename _powerMethod<I>::T tol,
                        typename _powerMethod<I>::T &lambda, VecX &y);
 
 template <typename Prec, typename I, typename VecX>
     void
-    inversePowerMethod(const Prec &P, const Matrix<I> &A, typename _powerMethod<I>::T tol,
+    inversePowerMethod(const Prec &P, const flens::Matrix<I> &A, typename _powerMethod<I>::T tol,
                        typename _powerMethod<I>::T &lambda, VecX &y);
 
 template <typename MatA>
@@ -86,9 +86,9 @@ template <typename Prec, typename MatA>
 //-- trait specialization for FLENS types --------------------------------------
 
 template <typename I>
-struct _powerMethod<Matrix<I> >
+struct _powerMethod<flens::Matrix<I> >
 {
-    typedef typename Matrix<I>::ElementType T;
+    typedef typename flens::Matrix<I>::ElementType T;
 };
 
 } // namespace lawa

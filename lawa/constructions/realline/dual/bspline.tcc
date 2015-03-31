@@ -25,10 +25,8 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     _bspline_mask(int d, int d_);
 
 template <typename T>
@@ -55,7 +53,7 @@ BSpline<T,Dual,R,CDF>::operator()(T x, int j, long k, unsigned short deriv) cons
     
     int resolution = Param<BSpline<T,Dual,R,CDF> >::resolution;
     // we precompute values for dual B-spline on first call ...
-    static DenseVector<Array<T> > values;
+    static flens::DenseVector<flens::Array<T> > values;
     static int storedD = 0, storedD_ = 0;
     static int storedResolution = resolution;
     Support<T> supp = support(j,k);
@@ -91,7 +89,7 @@ BSpline<T,Dual,R,CDF>::support(int j, long k) const
 }
 
 template <typename T>
-const DenseVector<Array<T> > &
+const flens::DenseVector<flens::Array<T> > &
 BSpline<T,Dual,R,CDF>::mask() const
 {
     return a_;
@@ -109,20 +107,20 @@ N_(int d, int d_)
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_1()
 {
-    DenseVector<Array<T> > ret(_(0, 1));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(0, 1));
     ret = T(1),
             1;
     return ret;
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_3()
 {
-    DenseVector<Array<T> > ret(_(-2, 3));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-2, 3));
     ret = T(-0.125),
              0.125,
              1,
@@ -133,10 +131,10 @@ N_1_3()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_5()
 {
-    DenseVector<Array<T> > ret(_(-4, 5));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-4, 5));
     ret = T(0.0234375),
            -0.0234375,
            -0.171875,
@@ -151,10 +149,10 @@ N_1_5()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_7()
 {
-    DenseVector<Array<T> > ret(_(-6, 7));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-6, 7));
     ret = T(-0.0048828125),
              0.0048828125,
              0.04296875,
@@ -173,10 +171,10 @@ N_1_7()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_1_9()
 {
-    DenseVector<Array<T> > ret(_(-8, 9));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-8, 9));
     ret = T(0.001068115234375),
            -0.001068115234375,
            -0.01129150390625,
@@ -199,10 +197,10 @@ N_1_9()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_2()
 {
-    DenseVector<Array<T> > ret(_(-2, 2));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-2, 2));
     ret = T(-0.25),
              0.5,
              1.5,
@@ -212,10 +210,10 @@ N_2_2()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_4()
 {
-    DenseVector<Array<T> > ret(_(-4, 4));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-4, 4));
     ret = T(0.046875),
            -0.09375,
            -0.25,
@@ -229,10 +227,10 @@ N_2_4()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_6()
 {
-    DenseVector<Array<T> > ret(_(-6, 6));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-6, 6));
     ret = T(-0.009765625),
              0.01953125,
              0.06640625,
@@ -250,10 +248,10 @@ N_2_6()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_8()
 {
-    DenseVector<Array<T> > ret(_(-8, 8));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-8, 8));
     ret = T(0.00213623046875),
            -0.0042724609375,
            -0.018310546875,
@@ -275,10 +273,10 @@ N_2_8()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_2_10()
 {
-    DenseVector<Array<T> > ret(_(-10, 10));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-10, 10));
     ret = T(-0.00048065185546875),
              0.0009613037109375,
              0.0050201416015625,
@@ -304,10 +302,10 @@ N_2_10()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_3_3()
 {
-    DenseVector<Array<T> > ret(_(-3, 4));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-3, 4));
     ret = T(0.09375),
            -0.28125,
            -0.21875,
@@ -320,10 +318,10 @@ N_3_3()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_3_5()
 {
-    DenseVector<Array<T> > ret(_(-5, 6));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-5, 6));
     ret = T(-0.01953125),
              0.05859375,
              0.07421875,
@@ -340,10 +338,10 @@ N_3_5()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_3_7()
 {
-    DenseVector<Array<T> > ret(_(-7, 8));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-7, 8));
     ret = T(0.0042724609375),
            -0.0128173828125,
            -0.0238037109375,
@@ -364,10 +362,10 @@ N_3_7()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_3_9()
 {
-    DenseVector<Array<T> > ret(_(-9, 10));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-9, 10));
     ret = T(-0.0009613037109375),
              0.0028839111328125,
              0.0071563720703125,
@@ -392,10 +390,10 @@ N_3_9()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_4_4()
 {
-    DenseVector<Array<T> > ret(_(-5, 5));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-5, 5));
     ret = T(-0.0390625),
              0.15625,
             -0.0078125,
@@ -411,10 +409,10 @@ N_4_4()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_4_6()
 {
-    DenseVector<Array<T> > ret(_(-7, 7));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-7, 7));
     ret = T(0.008544921875),
            -0.0341796875,
            -0.013427734375,
@@ -434,10 +432,10 @@ N_4_6()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_4_8()
 {
-    DenseVector<Array<T> > ret(_(-9, 9));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-9, 9));
     ret = T(-0.001922607421875),
              0.0076904296875,
              0.006622314453125,
@@ -461,10 +459,10 @@ N_4_8()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_4_10()
 {
-    DenseVector<Array<T> > ret(_(-11, 11));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-11, 11));
     ret = T(0.0004405975341796875),
            -0.00176239013671875,
            -0.0023632049560546875,
@@ -492,10 +490,10 @@ N_4_10()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_5_5()
 {
-    DenseVector<Array<T> > ret(_(-6, 7));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-6, 7));
     ret = T(0.01708984375),
            -0.08544921875,
             0.05859375,
@@ -514,10 +512,10 @@ N_5_5()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_5_7()
 {
-    DenseVector<Array<T> > ret(_(-8, 9));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-8, 9));
     ret = T(-0.00384521484375),
              0.01922607421875,
             -0.0059814453125,
@@ -540,10 +538,10 @@ N_5_7()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_5_9()
 {
-    DenseVector<Array<T> > ret(_(-10, 11));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-10, 11));
     ret = T(0.000881195068359375),
            -0.004405975341796875,
            -0.0003204345703125,
@@ -570,10 +568,10 @@ N_5_9()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_6_6()
 {
-    DenseVector<Array<T> > ret(_(-8, 8));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-8, 8));
     ret = T(-0.0076904296875),
              0.046142578125,
             -0.05810546875,
@@ -595,10 +593,10 @@ N_6_6()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_6_8()
 {
-    DenseVector<Array<T> > ret(_(-10, 10));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-10, 10));
     ret = T(0.00176239013671875),
            -0.0105743408203125,
             0.0099334716796875,
@@ -624,10 +622,10 @@ N_6_8()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_6_10()
 {
-    DenseVector<Array<T> > ret(_(-12, 12));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-12, 12));
     ret = T(-0.00040912628173828125),
              0.0024547576904296875,
             -0.0015106201171875,
@@ -657,10 +655,10 @@ N_6_10()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_7_7()
 {
-    DenseVector<Array<T> > ret(_(-9, 10));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-9, 10));
     ret = T(0.0035247802734375),
            -0.0246734619140625,
             0.0445404052734375,
@@ -685,10 +683,10 @@ N_7_7()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_7_9()
 {
-    DenseVector<Array<T> > ret(_(-11, 12));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-11, 12));
     ret = T(-0.0008182525634765625),
              0.0057277679443359375,
             -0.0087490081787109375,
@@ -717,10 +715,10 @@ N_7_9()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_8_8()
 {
-    DenseVector<Array<T> > ret(_(-11, 11));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-11, 11));
     ret = T(-0.001636505126953125),
              0.013092041015625,
             -0.030590057373046875,
@@ -748,10 +746,10 @@ N_8_8()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_8_10()
 {
-    DenseVector<Array<T> > ret(_(-13, 13));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-13, 13));
     ret = T(0.000383555889129638671875),
            -0.003068447113037109375,
             0.006418168544769287109375,
@@ -783,10 +781,10 @@ N_8_10()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_9_9()
 {
-    DenseVector<Array<T> > ret(_(-12, 13));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-12, 13));
     ret = T(0.00076711177825927734375),
            -0.00690400600433349609375,
             0.0197403430938720703125,
@@ -817,10 +815,10 @@ N_9_9()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N_10_10()
 {
-    DenseVector<Array<T> > ret(_(-14, 14));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-14, 14));
     ret = T(-0.0003622472286224365234375),
              0.003622472286224365234375,
             -0.012231171131134033203125,
@@ -854,7 +852,7 @@ N_10_10()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 _calculate_bspline_mask(int d, int d_)
 {
     assert(d>=0);
@@ -862,7 +860,7 @@ _calculate_bspline_mask(int d, int d_)
     assert((d+d_)%2==0);
 
     int kappa = d & 1;
-    DenseVector<Array<T> > res(_(-(d-kappa)/2-d_+1, (d+kappa)/2+d_-1));
+    flens::DenseVector<flens::Array<T> > res(flens::_(-(d-kappa)/2-d_+1, (d+kappa)/2+d_-1));
 
     Polynomial<T> u, uh1(1), uh2(1), uh2a, uh3(1);
 
@@ -893,7 +891,7 @@ _calculate_bspline_mask(int d, int d_)
 
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 _bspline_mask(int d, int d_)
 {
     assert(d_>=d);
@@ -903,7 +901,7 @@ _bspline_mask(int d, int d_)
         return _calculate_bspline_mask<T>(d, d_);
     }
 
-    typedef DenseVector<Array<T> > (*N_Func)();
+    typedef flens::DenseVector<flens::Array<T> > (*N_Func)();
     static N_Func _N_Func[10][5] = {
         {
             &N_1_1,

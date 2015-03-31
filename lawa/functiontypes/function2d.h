@@ -23,21 +23,19 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template<typename T>
 struct Function2D
 {
 public:
-    Function2D(T (*_f)(T,T), const DenseVector<Array<T> > &_singularPts_x,
-                             const DenseVector<Array<T> > &_singularPts_y);
+    Function2D(T (*_f)(T,T), const flens::DenseVector<flens::Array<T> > &_singularPts_x,
+                             const flens::DenseVector<flens::Array<T> > &_singularPts_y);
 
     T
     operator()(T x, T y) const;
 
     T (*f)(T,T);
-    const DenseVector<Array<T> > singularPts_x; //x-aligned singularities
-    const DenseVector<Array<T> > singularPts_y; //y-aligned singularities
+    const flens::DenseVector<flens::Array<T> > singularPts_x; //x-aligned singularities
+    const flens::DenseVector<flens::Array<T> > singularPts_y; //y-aligned singularities
 };
 
 } // namespace lawa

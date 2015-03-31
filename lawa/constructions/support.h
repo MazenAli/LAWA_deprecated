@@ -25,8 +25,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
 struct Support
 {
@@ -69,11 +67,11 @@ template <typename T>
 
 template <typename T>
     T
-    distance(const DenseVector<Array<T> > &singsupp1, const Support<T> &supp2);
+    distance(const flens::DenseVector<flens::Array<T> > &singsupp1, const Support<T> &supp2);
 
 template <typename T>
     T
-    distance(const Support<T> &supp1, const DenseVector<Array<T> > &singsupp2);
+    distance(const Support<T> &supp1, const flens::DenseVector<flens::Array<T> > &singsupp2);
 
 template <typename T, typename S>
     Support<T>

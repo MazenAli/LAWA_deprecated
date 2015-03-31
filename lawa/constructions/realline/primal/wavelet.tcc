@@ -21,8 +21,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
 Wavelet<T,Primal,R,CDF>::Wavelet(int _d, int _d_)
     : d(_d), d_(_d_), mu(d&1), l1((2-d-d_)/2), l2((d+d_)/2),
@@ -152,14 +150,14 @@ Wavelet<T,Primal,R,CDF>::support(int j, long k) const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Primal,R,CDF>::singularSupport(int j, long k) const
 {
     return linspace(support(j,k).l1, support(j,k).l2, 2*(d+d_)-1);
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Primal,R,CDF>::optim_singularSupport(int j, long k) const
 {
     //return linspace(support(j,k).l1, support(j,k).l2, 2*(d+d_)-1);
@@ -178,14 +176,14 @@ Wavelet<T,Primal,R,CDF>::tic(int j) const
 }
 
 template <typename T>
-const DenseVector<Array<T> > &
+const flens::DenseVector<flens::Array<T> > &
 Wavelet<T,Primal,R,CDF>::mask() const
 {
     return b;
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Primal,R,CDF>::mask(int d, int d_)
 {
     assert(d<=d_);
@@ -193,7 +191,7 @@ Wavelet<T,Primal,R,CDF>::mask(int d, int d_)
 
     int mu = d & 1;
     BSpline<T,Dual,R,CDF> phi_(d,d_);
-    DenseVector<Array<T> > b(_(2-(d+mu)/2-d_, (d-mu)/2+d_));
+    flens::DenseVector<flens::Array<T> > b(flens::_(2-(d+mu)/2-d_, (d-mu)/2+d_));
     for (int k=b.firstIndex(); k<=b.lastIndex(); ++k) {
         int sign = (k&1) ? -1 : 1;
         b(k) = sign * phi_.a_(1-k);

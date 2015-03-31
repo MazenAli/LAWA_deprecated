@@ -27,8 +27,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename _T>
 class MRA<_T,Dual,Interval,DKU>
 {
@@ -59,16 +57,16 @@ class MRA<_T,Dual,Interval,DKU>
         cardI_R(int j=0) const;
 
         // ranges of whole left, inner, right index sets.
-        Range<int>
+        flens::Range<int>
         rangeI_(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_L(int j=0) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_I(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_R(int j) const;
 
         int
@@ -100,7 +98,7 @@ class MRA<_T,Dual,Interval,DKU>
         const int j0;          // minimal used(!) level.
         
 //        GeMatrix<FullStorage<T,cxxblas::ColMajor> > R_Left, R_Right;
-        RefinementMatrix<T,Interval,DKU> M0_;
+        flens::RefinementMatrix<T,Interval,DKU> M0_;
         BSpline<T,Dual,Interval,DKU> phi_;
 
     private:
@@ -113,12 +111,12 @@ class MRA<_T,Dual,Interval,DKU>
         void
         _calcM0_();
 
-        GeMatrix<FullStorage<T,ColMajor> >
+        flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> >
         _integral0toInfPhiPhi_();
         
-        GeMatrix<FullStorage<T,cxxblas::ColMajor> > _Alpha, _Beta;
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _Alpha, _Beta;
 
-        DenseVector<Array<int> > _bc;    // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 

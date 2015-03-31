@@ -90,34 +90,34 @@ MRA<T,Dual,Interval,DKU>::cardI_R(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets. --------------------------
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,DKU>::rangeI_(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(l_-d_+_bc(0), pow2i<T>(j)-l_-mu+d_-_bc(1));
+    return flens::Range<int>(l_-d_+_bc(0), pow2i<T>(j)-l_-mu+d_-_bc(1));
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,DKU>::rangeI_L(int /*j*/) const
 {
-    return Range<int>(l_-d_+_bc(0),l_-1);
+    return flens::Range<int>(l_-d_+_bc(0),l_-1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,DKU>::rangeI_I(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(l_, pow2i<T>(j)-l_-mu);
+    return flens::Range<int>(l_, pow2i<T>(j)-l_-mu);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,DKU>::rangeI_R(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(pow2i<T>(j)-l_-mu+1, pow2i<T>(j)-l_-mu+d_-_bc(1));
+    return flens::Range<int>(pow2i<T>(j)-l_-mu+1, pow2i<T>(j)-l_-mu+d_-_bc(1));
 }
 
 template <typename T>
@@ -154,6 +154,8 @@ template <typename T>
 void
 MRA<T,Dual,Interval,DKU>::_alpha()
 {
+    using flens::_;
+
     _Alpha.engine().resize(_(1-l2_, 2*l_+l1_-1), _(0,d_-1));
 
     _Alpha(_,0) = 1.;      // (5.1.1)
@@ -197,6 +199,8 @@ template <typename T>
 void
 MRA<T,Dual,Interval,DKU>::_beta()
 {
+    using flens::_;
+
     if (d==1) {
         _Beta.engine().resize(_(2*l_+l1_, 2*l_+l1_), _(0,0));
         return;
@@ -221,13 +225,15 @@ template <typename T>
 void
 MRA<T,Dual,Interval,DKU>::_calcM0_()
 {
-    GeMatrix<FullStorage<T,ColMajor> > Mj0_(rangeI_(min_j0+1), rangeI_(min_j0));
+    using flens::_;
+
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > Mj0_(rangeI_(min_j0+1), rangeI_(min_j0));
     
     // left upper block
     int upper = l2_+2*l_-2;
     int low   = l_-d_;
     int hi    = l_-1;
-    GeMatrix<FullStorage<T,ColMajor> > ML_c(_(low,upper), _(low,hi)), MR_c;
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > ML_c(_(low,upper), _(low,hi)), MR_c;
 
     //     setup ML_c
     for (int m=low; m<=hi; ++m) {
@@ -262,7 +268,7 @@ MRA<T,Dual,Interval,DKU>::_calcM0_()
         Mj0_(_(r,r+phi_.a_.length()-1),c) = Const<T>::R_SQRT2 * phi_.a_; 
     }
     
-    M0_ = RefinementMatrix<T,Interval,DKU>(d_,d_,Mj0_,min_j0);
+    M0_ = flens::RefinementMatrix<T,Interval,DKU>(d_,d_,Mj0_,min_j0);
 }
 
 template <typename T>
@@ -273,11 +279,11 @@ chi(T x)
 }
 
 template <typename T>
-GeMatrix<FullStorage<T, ColMajor> >
+flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
 MRA<T,Dual,Interval,DKU>::_integral0toInfPhiPhi_()
 {
 
-    GeMatrix<FullStorage<T,ColMajor> > I(_(-l2 +1, l-d+d_-1),
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > I(_(-l2 +1, l-d+d_-1),
                                          _(-l2_+1, l_-1));
     BSpline<T,Primal,R,CDF> phi(d);
     BSpline<T,Dual,R,CDF> phi_(d,d_);

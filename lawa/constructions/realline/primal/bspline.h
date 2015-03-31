@@ -51,18 +51,18 @@ struct BSpline<_T,Primal,R,CDF>
     Support<T>
     support(int j, long k) const;
 
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     singularSupport(int j, long k) const;
 
     T
     tic(int j) const;
 
-    const DenseVector<Array<T> > &
+    const flens::DenseVector<flens::Array<T> > &
     mask() const;
 
     const int d, mu;
     const int l1, l2;
-    const DenseVector<Array<T> > a;
+    const flens::DenseVector<flens::Array<T> > a;
 };
 
 //------------------------------------------------------------------------------
@@ -72,43 +72,43 @@ BSpline<T,Primal,R,CDF>
 N(int d);
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N1();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N2();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N3();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N4();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N5();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N6();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N7();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N8();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N9();
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N10();
 
 } // namespace lawa

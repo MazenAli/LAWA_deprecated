@@ -52,7 +52,7 @@ struct BSpline<_T,Dual,Periodic,CDF>
     PeriodicSupport<T>
     support(int j, long k) const;
     
-    const DenseVector<Array<T> > &
+    const flens::DenseVector<flens::Array<T> > &
     mask() const;
 
     const int d, d_, mu;

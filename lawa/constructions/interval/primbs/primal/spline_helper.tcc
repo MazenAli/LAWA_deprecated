@@ -2,7 +2,7 @@ namespace lawa {
     
 template <typename T>
 T
-w(int i, int d, const DenseVector<Array<T> > &knots, T x)
+w(int i, int d, const flens::DenseVector<flens::Array<T> > &knots, T x)
 {
     assert(1<=i);
     assert(i<=knots.length()-d+1);
@@ -17,12 +17,12 @@ w(int i, int d, const DenseVector<Array<T> > &knots, T x)
 }
 
 template <typename T>
-GeMatrix<FullStorage<T,cxxblas::ColMajor> >
-insertKnot(int d, DenseVector<Array<T> > &knots, T x)
+flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> >
+insertKnot(int d, flens::DenseVector<flens::Array<T> > &knots, T x)
 {
     assert(knots.length()-d-1>=1);
     
-    GeMatrix<FullStorage<T,cxxblas::ColMajor> > ret(knots.length()-d, 
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > ret(knots.length()-d, 
                                                     knots.length()-d-1);
     for (int i=ret.firstCol(); i<=ret.lastCol(); ++i) {
         ret(i,i) = w(i,d+1,knots,x);

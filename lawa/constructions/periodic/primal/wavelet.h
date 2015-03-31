@@ -31,8 +31,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename _T>
 struct Wavelet<_T,Primal,Periodic,CDF>
     : public BasisFunction<_T,Primal,Periodic,CDF>
@@ -55,13 +53,13 @@ struct Wavelet<_T,Primal,Periodic,CDF>
     PeriodicSupport<T>
     support(int j, long k) const;
 
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     singularSupport(int j, long k) const;
 
     T
     tic(int j) const;
 
-    DenseVector<Array<long double> > *
+    flens::DenseVector<flens::Array<long double> > *
     getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
     				long &split, long &refinement_k_restart) const;
 
@@ -74,10 +72,10 @@ struct Wavelet<_T,Primal,Periodic,CDF>
     T
     getH1SemiNorm(int j, long k) const;
 
-    const DenseVector<Array<T> > &
+    const flens::DenseVector<flens::Array<T> > &
     mask() const;
 
-    static DenseVector<Array<T> >
+    static flens::DenseVector<flens::Array<T> >
     mask(int d, int d_);
 
     const int d, d_, mu;

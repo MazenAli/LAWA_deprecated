@@ -84,34 +84,34 @@ MRA<T,Primal,Interval,DKU>::cardIR(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets (primal). -----------------
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,DKU>::rangeI(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(l-d+_bc(0), pow2i<T>(j)-l+d-mu-_bc(1));
+    return flens::Range<int>(l-d+_bc(0), pow2i<T>(j)-l+d-mu-_bc(1));
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,DKU>::rangeIL(int /*j*/) const
 {
-    return Range<int>(l-d+_bc(0), l-1);
+    return flens::Range<int>(l-d+_bc(0), l-1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,DKU>::rangeII(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(l, pow2i<T>(j)-q-1);
+    return flens::Range<int>(l, pow2i<T>(j)-q-1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,DKU>::rangeIR(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(pow2i<T>(j)-q, pow2i<T>(j)-q+d-1-_bc(1));
+    return flens::Range<int>(pow2i<T>(j)-q, pow2i<T>(j)-q+d-1-_bc(1));
 }
 
 template <typename T>
@@ -148,6 +148,8 @@ template <typename T>
 void
 MRA<T,Primal,Interval,DKU>::_alpha_()
 {
+    using flens::_;
+
     _Alpha_.engine().resize(_(1-l2, 2*l+l1-1), _(0,d-1));
 
     _Alpha_(_,0) = T(1.);      // (5.1.1)
@@ -191,6 +193,8 @@ template <typename T>
 void
 MRA<T,Primal,Interval,DKU>::_beta_()
 {
+    using flens::_;
+
     if (d==1) {
         _Beta_.engine().resize(_(2*l+l1, 2*l+l1), _(0,0));
         return;
@@ -215,7 +219,9 @@ template <typename T>
 void
 MRA<T,Primal,Interval,DKU>::_calcM0()
 {
-    GeMatrix<FullStorage<T,ColMajor> > Mj0(rangeI(min_j0+1), rangeI(min_j0)),
+    using flens::_;
+
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > Mj0(rangeI(min_j0+1), rangeI(min_j0)),
                                        Left(_(l-d,2*l+l2-2),_(l-d,l-1)), Right;
 
     for (int r=0; r<d; ++r) {
@@ -250,7 +256,7 @@ MRA<T,Primal,Interval,DKU>::_calcM0()
         Mj0(_(r,r+phi.a.length()-1),c) = Const<T>::R_SQRT2 * phi.a; 
     }
     
-    M0 = RefinementMatrix<T,Interval,DKU>(d,d,Mj0,min_j0);
+    M0 = flens::RefinementMatrix<T,Interval,DKU>(d,d,Mj0,min_j0);
 }
 
 } // namespace lawa

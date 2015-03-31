@@ -26,12 +26,9 @@
 
 namespace flens {
 
-using namespace lawa;
-using namespace cxxblas;
-
-template <typename T, Construction Cons>
-class RefinementMatrix<T, Interval, Cons>
-    : public Matrix<RefinementMatrix<T, Interval, Cons> >
+template <typename T, lawa::Construction Cons>
+class RefinementMatrix<T, lawa::Interval, Cons>
+    : public Matrix<RefinementMatrix<T, lawa::Interval, Cons> >
 {
     public:
         typedef T ElementType;
@@ -90,18 +87,18 @@ class RefinementMatrix<T, Interval, Cons>
         mutable int _additionalRows, _additionalCols;
 };
 
-template <typename T, Construction Cons>
-struct TypeInfo<RefinementMatrix<T,Interval,Cons> >
+template <typename T, lawa::Construction Cons>
+struct TypeInfo<RefinementMatrix<T,lawa::Interval,Cons> >
 {
-    typedef RefinementMatrix<T,Interval,Cons> Impl;
+    typedef RefinementMatrix<T,lawa::Interval,Cons> Impl;
     typedef T                                 ElementType;
     
 };
 
-template <typename X, Construction Cons, typename Y>
+template <typename X, lawa::Construction Cons, typename Y>
 void
 mv(Transpose transA, typename X::ElementType alpha,
-   const RefinementMatrix<typename X::ElementType,Interval,Cons> &A,
+   const RefinementMatrix<typename X::ElementType,lawa::Interval,Cons> &A,
    const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y);
 
 } // namespace flens

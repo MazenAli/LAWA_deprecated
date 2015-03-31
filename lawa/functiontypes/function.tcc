@@ -27,7 +27,7 @@ Function<T>::Function(T (*_f)(T))
 
 template <typename T>
 Function<T>::Function(T (*_f)(T), 
-                      const DenseVector<Array<T> > &_singularPoints)
+                      const flens::DenseVector<flens::Array<T> > &_singularPoints)
     : f(_f), singularPoints(_singularPoints)
 {
 }

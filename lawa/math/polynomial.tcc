@@ -2,12 +2,12 @@ namespace lawa {
 
 template <typename T>
 Polynomial<T>::Polynomial(int n)
-    : _coefficients(DenseVector<Array<T> >(_(0,n)))
+    : _coefficients(flens::DenseVector<flens::Array<T> >(flens::_(0,n)))
 {
 }
 
 template <typename T>
-Polynomial<T>::Polynomial(const DenseVector<Array<T> > &coefficients)
+Polynomial<T>::Polynomial(const flens::DenseVector<flens::Array<T> > &coefficients)
     : _coefficients(coefficients)
 {
 }
@@ -43,7 +43,7 @@ Polynomial<T>::operator+=(const Polynomial<T> &rhs)
             _coefficients(i) += rhs._coefficients(i);
         }
     } else {
-        DenseVector<Array<T> > tmp = rhs._coefficients;
+        flens::DenseVector<flens::Array<T> > tmp = rhs._coefficients;
         for (int i=0; i<=this->degree(); ++i) {
             tmp(i) += _coefficients(i);
         }

@@ -25,15 +25,13 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
 class Polynomial
 {
     public:
         Polynomial(int n=0);
 
-        Polynomial(const DenseVector<Array<T> > &coefficients);
+        Polynomial(const flens::DenseVector<flens::Array<T> > &coefficients);
 
         const T &
         operator()(int n) const;
@@ -48,7 +46,7 @@ class Polynomial
         degree() const;
 
     private:
-        DenseVector<Array<T> > _coefficients;
+        flens::DenseVector<flens::Array<T> > _coefficients;
 };
 
 template <typename T>

@@ -26,10 +26,8 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     _bspline_mask(int d);
 
 template <typename T>
@@ -89,7 +87,7 @@ BSpline<T,Primal,R,CDF>::support(int j, long k) const
 
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BSpline<T,Primal,R,CDF>::singularSupport(int j, long k) const
 {
     return linspace(support(j,k).l1, support(j,k).l2, d+1);
@@ -103,7 +101,7 @@ BSpline<T,Primal,R,CDF>::tic(int j) const
 }
 
 template <typename T>
-const DenseVector<Array<T> > &
+const flens::DenseVector<flens::Array<T> > &
 BSpline<T,Primal,R,CDF>::mask() const
 {
     return a;
@@ -119,20 +117,20 @@ N(int d)
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N1()
 {
-    DenseVector<Array<T> > ret(_(0, 1));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(0, 1));
     ret = T(1),
             1;
     return ret;
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N2()
 {
-    DenseVector<Array<T> > ret(_(-1, 1));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-1, 1));
     ret = T(0.5),
             1,
             0.5;
@@ -140,10 +138,10 @@ N2()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N3()
 {
-    DenseVector<Array<T> > ret(_(-1, 2));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-1, 2));
     ret = T(0.25),
             0.75,
             0.75,
@@ -152,10 +150,10 @@ N3()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N4()
 {
-    DenseVector<Array<T> > ret(_(-2, 2));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-2, 2));
     ret = T(0.125),
             0.5,
             0.75,
@@ -165,10 +163,10 @@ N4()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N5()
 {
-    DenseVector<Array<T> > ret(_(-2, 3));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-2, 3));
     ret = T(0.0625),
             0.3125,
             0.625,
@@ -179,10 +177,10 @@ N5()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N6()
 {
-    DenseVector<Array<T> > ret(_(-3, 3));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-3, 3));
     ret = T(0.03125),
             0.1875,
             0.46875,
@@ -194,10 +192,10 @@ N6()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N7()
 {
-    DenseVector<Array<T> > ret(_(-3, 4));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-3, 4));
     ret = T(0.015625),
             0.109375,
             0.328125,
@@ -210,10 +208,10 @@ N7()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N8()
 {
-    DenseVector<Array<T> > ret(_(-4, 4));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-4, 4));
     ret = T(0.0078125),
             0.0625,
             0.21875,
@@ -227,10 +225,10 @@ N8()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N9()
 {
-    DenseVector<Array<T> > ret(_(-4, 5));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-4, 5));
     ret = T(0.00390625),
             0.03515625,
             0.140625,
@@ -245,10 +243,10 @@ N9()
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 N10()
 {
-    DenseVector<Array<T> > ret(_(-5, 5));
+    flens::DenseVector<flens::Array<T> > ret(flens::_(-5, 5));
     ret = T(0.001953125),
             0.01953125,
             0.087890625,
@@ -266,13 +264,13 @@ N10()
 //------------------------------------------------------------------------------
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 _calculate_bspline_mask(int d)
 {
     assert(d>=0);
 
     if (d==0) {
-        DenseVector<Array<T> > res(1);
+        flens::DenseVector<flens::Array<T> > res(1);
         res = T(1.);
         return res;
     }
@@ -281,7 +279,7 @@ _calculate_bspline_mask(int d)
 
     int from = -(d+kappa)/2;
     int to   =  (d+kappa)/2;
-    DenseVector<Array<T> > res(_(from,to));
+    flens::DenseVector<flens::Array<T> > res(flens::_(from,to));
     for (int i=from; i<=to; ++i) {
         res(i) = binomial(d,i-from) / factor;
     }
@@ -289,7 +287,7 @@ _calculate_bspline_mask(int d)
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 _bspline_mask(int d)
 {
     assert(d>=1);
@@ -298,7 +296,7 @@ _bspline_mask(int d)
         return _calculate_bspline_mask<T>(d);
     }
 
-    typedef DenseVector<Array<T> > (*NFunc)();
+    typedef flens::DenseVector<flens::Array<T> > (*NFunc)();
     static NFunc _NFunc[11] = {
         NULL,
         &N1,

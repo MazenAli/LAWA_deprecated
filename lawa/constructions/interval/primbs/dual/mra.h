@@ -29,8 +29,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename _T>
 class MRA<_T,Dual,Interval,Primbs>
 {
@@ -64,16 +62,16 @@ class MRA<_T,Dual,Interval,Primbs>
         cardI_R(int j=0) const;
 
         // ranges of whole left, inner, right index sets.
-        Range<int>
+        flens::Range<int>
         rangeI_(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_L(int j=0) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_I(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_R(int j) const;
 
         int
@@ -92,13 +90,13 @@ class MRA<_T,Dual,Interval,Primbs>
 
         BSpline<T,Dual,R,CDF> phi_R;
         BSpline<T,Dual,Interval,Primbs> phi_;
-        RefinementMatrix<T,Interval,Primbs> M0_;
+        flens::RefinementMatrix<T,Interval,Primbs> M0_;
 
     private:
 
         void
-        _orthonormalize(const GeMatrix<FullStorage<T,ColMajor> > &L3,
-                        const GeMatrix<FullStorage<T,ColMajor> > &LL3);
+        _orthonormalize(const flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > &L3,
+                        const flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > &LL3);
 
         void
         _Umrechnung1(int d);
@@ -118,9 +116,9 @@ class MRA<_T,Dual,Interval,Primbs>
         void
         _calcM0_();
 
-        GeMatrix<FullStorage<T,ColMajor> > W, Mp, Mj, MP, MD, MDD, MDDD, M1, TT;
+        flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > W, Mp, Mj, MP, MD, MDD, MDDD, M1, TT;
 
-        DenseVector<Array<int> > _bc;    // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 

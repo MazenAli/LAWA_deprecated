@@ -24,7 +24,7 @@ namespace lawa {
 
 template <typename T>
 void
-spy(const SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > &A, const char* filename,
+spy(const flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A, const char* filename,
     bool absoluteValues, T eps)
 {
     using namespace flens;
@@ -103,7 +103,7 @@ spy(const SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > &A, const char*
 
 template <typename I>
 void
-spy(const Matrix<I> &A, const char* filename, bool absoluteValues,
+spy(const flens::Matrix<I> &A, const char* filename, bool absoluteValues,
     typename I::ElementType eps)
 {
     using namespace flens;

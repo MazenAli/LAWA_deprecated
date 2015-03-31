@@ -22,15 +22,13 @@
 
 namespace flens {
 
-using namespace lawa;
-
-template <typename T, Construction Cons>
-RefinementMatrix<T,Interval,Cons>::RefinementMatrix()
+template <typename T, lawa::Construction Cons>
+RefinementMatrix<T,lawa::Interval,Cons>::RefinementMatrix()
 {
 }
 
-template <typename T, Construction Cons>
-RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
+template <typename T, lawa::Construction Cons>
+RefinementMatrix<T,lawa::Interval,Cons>::RefinementMatrix(
                                 int nLeft, int nRight,
                                 const GeMatrix<FullStorage<T, ColMajor> > &A,
                                 int _min_j0, int cons_j)
@@ -61,9 +59,9 @@ RefinementMatrix<T,Interval,Cons>::RefinementMatrix(
     }
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 const typename DenseVector<Array<T> >::ConstView
-RefinementMatrix<T,Interval,Cons>::operator()(int j, const Underscore<int> &/*u*/,
+RefinementMatrix<T,lawa::Interval,Cons>::operator()(int j, const Underscore<int> &/*u*/,
                                               int col) const
 {
     assert(j>=min_j0);
@@ -71,12 +69,12 @@ RefinementMatrix<T,Interval,Cons>::operator()(int j, const Underscore<int> &/*u*
     int additionalCols = 0, additionalRows = 0;
     if (j>_cons_j) {
         for (int l=_cons_j; l<j; ++l) {
-            additionalCols += pow2i<T>(l);
+            additionalCols += lawa::pow2i<T>(l);
         }
         additionalRows = 2*additionalCols;
     } else if (j<_cons_j) {
         for (int l=_cons_j-1; l>=j; --l) {
-            additionalCols -= pow2i<T>(l);
+            additionalCols -= lawa::pow2i<T>(l);
         }
         additionalRows = 2*additionalCols;
     }
@@ -98,78 +96,78 @@ RefinementMatrix<T,Interval,Cons>::operator()(int j, const Underscore<int> &/*u*
         : leftband( _ , leftband.firstIndex() + 2*(col-left.lastIndex()-1));
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 Range<int>
-RefinementMatrix<T,Interval,Cons>::rows() const
+RefinementMatrix<T,lawa::Interval,Cons>::rows() const
 {
     return _(firstRow(), lastRow());
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 Range<int>
-RefinementMatrix<T,Interval,Cons>::cols() const
+RefinementMatrix<T,lawa::Interval,Cons>::cols() const
 {
     return _(firstCol(), lastCol());
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 int
-RefinementMatrix<T,Interval,Cons>::numRows() const
+RefinementMatrix<T,lawa::Interval,Cons>::numRows() const
 {
     return lastRow()-firstRow()+1;
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 int
-RefinementMatrix<T,Interval,Cons>::numCols() const
+RefinementMatrix<T,lawa::Interval,Cons>::numCols() const
 {
     return lastCol()-firstCol()+1;
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 int
-RefinementMatrix<T,Interval,Cons>::firstRow() const
+RefinementMatrix<T,lawa::Interval,Cons>::firstRow() const
 {
     return _firstRow;
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 int
-RefinementMatrix<T,Interval,Cons>::lastRow() const
+RefinementMatrix<T,lawa::Interval,Cons>::lastRow() const
 {
     return _lastRow + _additionalRows;
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 int
-RefinementMatrix<T,Interval,Cons>::firstCol() const
+RefinementMatrix<T,lawa::Interval,Cons>::firstCol() const
 {
     return _firstCol;
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 int
-RefinementMatrix<T,Interval,Cons>::lastCol() const
+RefinementMatrix<T,lawa::Interval,Cons>::lastCol() const
 {
     return _lastCol + _additionalCols;
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 int
-RefinementMatrix<T,Interval,Cons>::level() const
+RefinementMatrix<T,lawa::Interval,Cons>::level() const
 {
     return _j;
 }
 
 // TODO: consider setLevel as private(!) friend method or mra/basis.
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 void
-RefinementMatrix<T,Interval,Cons>::setLevel(int j) const
+RefinementMatrix<T,lawa::Interval,Cons>::setLevel(int j) const
 {
     if (j<_j) {
         assert(j>=min_j0);
         for (int l=_j-1; l>=j; --l) {
-            _additionalCols -= pow2i<T>(l);
+            _additionalCols -= lawa::pow2i<T>(l);
         }
         _additionalRows = 2*_additionalCols;
         _j = j;
@@ -177,7 +175,7 @@ RefinementMatrix<T,Interval,Cons>::setLevel(int j) const
     }
     if (j>_j) {
         for (int l=_j; l<j; ++l) {
-            _additionalCols += pow2i<T>(l);
+            _additionalCols += lawa::pow2i<T>(l);
         }
         _additionalRows = 2*_additionalCols;
         _j = j;
@@ -185,9 +183,9 @@ RefinementMatrix<T,Interval,Cons>::setLevel(int j) const
     }
 }
 
-template <typename T, Construction Cons>
+template <typename T, lawa::Construction Cons>
 void
-RefinementMatrix<T,Interval,Cons>::_extractMasks(
+RefinementMatrix<T,lawa::Interval,Cons>::_extractMasks(
                                     const GeMatrix<FullStorage<T,ColMajor> > &A)
 {
     // extract left block
@@ -266,10 +264,10 @@ RefinementMatrix<T,Interval,Cons>::_extractMasks(
 
 //------------------------------------------------------------------------------
 
-template <typename X, Construction Cons, typename Y>
+template <typename X, lawa::Construction Cons, typename Y>
 void
 mv(Transpose transA, typename X::ElementType alpha,
-   const RefinementMatrix<typename X::ElementType,Interval,Cons> &A,
+   const RefinementMatrix<typename X::ElementType,lawa::Interval,Cons> &A,
    const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y)
 {
     typedef typename X::ElementType T;
@@ -300,7 +298,7 @@ mv(Transpose transA, typename X::ElementType alpha,
         // central band (up to middle)
         int iy = A.leftband.firstIndex()-A.firstRow();
         int n = A.leftband.length();
-        int middle = iceil<int>(x.length()/2.);
+        int middle = lawa::iceil<int>(x.length()/2.);
         for (int c=A.left.lastIndex()+1; c<=middle; ++c, iy+=2, ++ix) {
             cxxblas::axpy(n,
                           x(ix),

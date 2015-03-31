@@ -29,11 +29,11 @@ namespace lawa {
 
 template <typename T>
     T
-    w(int i, int d, const DenseVector<Array<T> > &knots, T x);
+    w(int i, int d, const flens::DenseVector<flens::Array<T> > &knots, T x);
 
 template <typename T>
-    GeMatrix<FullStorage<T,cxxblas::ColMajor> >
-    insertKnot(int d, DenseVector<Array<T> > &knots, T x);
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> >
+    insertKnot(int d, flens::DenseVector<flens::Array<T> > &knots, T x);
 
 } // namespace lawa
 

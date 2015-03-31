@@ -25,15 +25,13 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template<typename T>
 struct SeparableFunction2D
 {
     SeparableFunction2D(Function<T> _F_x, Function<T>  _F_y);
 
-    SeparableFunction2D(T (*_f_x)(T), const DenseVector<Array<T> > &_singularPts_x,
-                        T (*_f_y)(T), const DenseVector<Array<T> > &_singularPts_y);
+    SeparableFunction2D(T (*_f_x)(T), const flens::DenseVector<flens::Array<T> > &_singularPts_x,
+                        T (*_f_y)(T), const flens::DenseVector<flens::Array<T> > &_singularPts_y);
 
     T
     operator()(T x, T y) const;

@@ -24,9 +24,10 @@ int
 gmres(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
       long maxIterations)
 {
-    typedef typename _gmres<MA>::T              T;
-    typedef DenseVector<Array<T> >              DeVector;
-    typedef GeMatrix<FullStorage<T, cxxblas::ColMajor> > DeMatrix;
+    typedef typename _gmres<MA>::T                                      T;
+    typedef flens::DenseVector<flens::Array<T> >                        DeVector;
+    typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DeMatrix;
+    using   flens::_;
 
     int N = b.length();
     if (maxIterations==-1) {
@@ -140,8 +141,8 @@ int
 gmresm(const MA &A, VX &x, const VB &b, typename _gmres<MA>::T tol,
        int restart, long maxIterations)
 {
-    typedef typename _gmres<MA>::T T;
-    typedef DenseVector<Array<T> > DeVector;
+    typedef typename _gmres<MA>::T                  T;
+    typedef flens::DenseVector<flens::Array<T> >    DeVector;
 
     int N=b.length();
     if (maxIterations==-1) {
@@ -164,9 +165,10 @@ template <typename Prec, typename MA, typename VX, typename VB>
 int pgmres (const Prec &P, const MA &A, VX &x, const VB &b,
             typename _gmres<MA>::T tol, long maxIterations)
 {
-    typedef typename _gmres<MA>::T              T;
-    typedef DenseVector<Array<T> >              DeVector;
-    typedef GeMatrix<FullStorage<T, cxxblas::ColMajor> > DeMatrix;
+    typedef typename _gmres<MA>::T                                      T;
+    typedef flens::DenseVector<flens::Array<T> >                        DeVector;
+    typedef flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  DeMatrix;
+    using flens::_;
 
     int N = b.length();
     if (maxIterations==-1) {
@@ -279,8 +281,8 @@ int
 pgmresm(const Prec &Pr, const MA &A, VX &x, const VB &b,
         typename _gmres<MA>::T tol, int restart, long maxIterations)
 {
-    typedef typename _gmres<MA>::T T;
-    typedef DenseVector<Array<T> > DeVector;
+    typedef typename _gmres<MA>::T                  T;
+    typedef flens::DenseVector<flens::Array<T> >    DeVector;
 
     int N=b.length();
     if (maxIterations==-1) {

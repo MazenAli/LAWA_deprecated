@@ -25,8 +25,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
 BSpline<T,Dual,Periodic,CDF>::BSpline(int _d, int _d_)
     : d(_d), d_(_d_), mu(d&1), phiR_(_d, _d_)
@@ -86,7 +84,7 @@ BSpline<T,Dual,Periodic,CDF>::support(int j, long k) const
 }
 
 template <typename T>
-const DenseVector<Array<T> > &
+const flens::DenseVector<flens::Array<T> > &
 BSpline<T,Dual,Periodic,CDF>::mask() const
 {
     return phiR_.a_;

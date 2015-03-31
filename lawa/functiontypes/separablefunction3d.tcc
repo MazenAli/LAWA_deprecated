@@ -7,9 +7,9 @@ SeparableFunction3D<T>::SeparableFunction3D(Function<T> _F_x, Function<T> _F_y, 
 }
 
 template<typename T>
-SeparableFunction3D<T>::SeparableFunction3D(T (*_f_x)(T), const DenseVector<Array<T> > &_singularPts_x,
-                                            T (*_f_y)(T), const DenseVector<Array<T> > &_singularPts_y,
-                                            T (*_f_z)(T), const DenseVector<Array<T> > &_singularPts_z)
+SeparableFunction3D<T>::SeparableFunction3D(T (*_f_x)(T), const flens::DenseVector<flens::Array<T> > &_singularPts_x,
+                                            T (*_f_y)(T), const flens::DenseVector<flens::Array<T> > &_singularPts_y,
+                                            T (*_f_z)(T), const flens::DenseVector<flens::Array<T> > &_singularPts_z)
     : F_x(Function<T>(_f_x, _singularPts_x)), F_y(Function<T>(_f_y, _singularPts_y)), F_z(Function<T>(_f_z, _singularPts_z))
 {
 }

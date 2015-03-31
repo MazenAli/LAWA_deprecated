@@ -1,5 +1,5 @@
 /*
-  LAWA - Library for Adaptive Wavelet Applications.
+  LAWA - Library for Adaptive lawa::Wavelet Applications.
   Copyright (C) 2008,2009  Mario Rometsch, Alexander Stippler.
 
   This program is free software; you can redistribute it and/or modify
@@ -23,16 +23,16 @@
 namespace flens {
 
 template <typename T>
-template <FunctionSide Side>
-RefinementMatrix<T,Periodic,CDF>::RefinementMatrix(const BSpline<T,Side,Periodic,CDF> &spline)
-      : band(Const<T>::R_SQRT2 * spline.mask())
+template <lawa::FunctionSide Side>
+RefinementMatrix<T,lawa::Periodic,lawa::CDF>::RefinementMatrix(const lawa::BSpline<T,Side,lawa::Periodic,lawa::CDF> &spline)
+      : band(lawa::Const<T>::R_SQRT2 * spline.mask())
 {
 }
 
 template <typename T>
-template <FunctionSide Side>
-RefinementMatrix<T,Periodic,CDF>::RefinementMatrix(const Wavelet<T,Side,Periodic,CDF> &wavelet)
-      : band(Const<T>::R_SQRT2 * wavelet.mask())
+template <lawa::FunctionSide Side>
+RefinementMatrix<T,lawa::Periodic,lawa::CDF>::RefinementMatrix(const lawa::Wavelet<T,Side,lawa::Periodic,lawa::CDF> &wavelet)
+      : band(lawa::Const<T>::R_SQRT2 * wavelet.mask())
 {
 }
 
@@ -42,7 +42,7 @@ RefinementMatrix<T,Periodic,CDF>::RefinementMatrix(const Wavelet<T,Side,Periodic
 template <typename X, typename Y>
 void
 mv(Transpose transA, typename X::ElementType alpha,
-   const RefinementMatrix<typename X::ElementType,Periodic,CDF> &A,
+   const RefinementMatrix<typename X::ElementType,lawa::Periodic,lawa::CDF> &A,
    const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y)
 {
     typedef typename X::ElementType T;

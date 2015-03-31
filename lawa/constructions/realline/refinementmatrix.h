@@ -29,28 +29,26 @@
 
 namespace flens {
 
-using namespace lawa;
-
 template <typename T>
-class RefinementMatrix<T,R,CDF>
-    : public Matrix<RefinementMatrix<T,R,CDF> >
+class RefinementMatrix<T,lawa::R,lawa::CDF>
+    : public Matrix<RefinementMatrix<T,lawa::R,lawa::CDF> >
 {
     public:
         typedef T ElementType;
 
-        template <FunctionSide Side>
-            RefinementMatrix(const BSpline<T,Side,R,CDF> &bw);
+        template <lawa::FunctionSide Side>
+            RefinementMatrix(const lawa::BSpline<T,Side,lawa::R,lawa::CDF> &bw);
 
-        template <FunctionSide Side>
-            RefinementMatrix(const Wavelet<T,Side,R,CDF> &bw);
+        template <lawa::FunctionSide Side>
+            RefinementMatrix(const lawa::Wavelet<T,Side,lawa::R,lawa::CDF> &bw);
 
         DenseVector<Array<T> > band;
 };
 
 template <typename T>
-struct TypeInfo<RefinementMatrix<T,R,CDF> >
+struct TypeInfo<RefinementMatrix<T,lawa::R,lawa::CDF> >
 {
-    typedef RefinementMatrix<T,R,CDF> Impl;
+    typedef RefinementMatrix<T,lawa::R,lawa::CDF> Impl;
 };
 
 //------------------------------------------------------------------------------
@@ -58,7 +56,7 @@ struct TypeInfo<RefinementMatrix<T,R,CDF> >
 template <typename X, typename Y>
 void
 mv(cxxblas::Transpose transA, typename X::ElementType alpha,
-   const RefinementMatrix<typename X::ElementType,R,CDF> &A,
+   const RefinementMatrix<typename X::ElementType,lawa::R,lawa::CDF> &A,
    const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y);
 
 } // namespace flens

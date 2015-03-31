@@ -25,14 +25,12 @@
 
 namespace flens {
 
-using namespace lawa;
-
-template <typename T, DomainType Domain, Construction Cons>
+template <typename T, lawa::DomainType Domain, lawa::Construction Cons>
 class RefinementMatrix
 {
 };
 
-template <typename T, DomainType Domain, Construction Cons>
+template <typename T, lawa::DomainType Domain, lawa::Construction Cons>
 struct TypeInfo<RefinementMatrix<T, Domain, Cons> >
 {
     typedef RefinementMatrix<T, Domain, Cons> Impl;

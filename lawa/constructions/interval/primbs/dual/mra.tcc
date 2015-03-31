@@ -81,34 +81,34 @@ MRA<T,Dual,Interval,Primbs>::cardI_R(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets. --------------------------
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,Primbs>::rangeI_(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(1 + _bc(0), pow2i<T>(j) + d - 1 - _bc(1));
+    return flens::Range<int>(1 + _bc(0), pow2i<T>(j) + d - 1 - _bc(1));
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,Primbs>::rangeI_L(int /*j*/) const
 {
-    return Range<int>(1 + _bc(0), d + d_ - 2);
+    return flens::Range<int>(1 + _bc(0), d + d_ - 2);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,Primbs>::rangeI_I(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(d+d_-1, pow2i<T>(j)+d-1-(d+d_-2));
+    return flens::Range<int>(d+d_-1, pow2i<T>(j)+d-1-(d+d_-2));
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,Primbs>::rangeI_R(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(pow2i<T>(j)+d-1-(d+d_-2)+1, pow2i<T>(j)+d-1-_bc(1));
+    return flens::Range<int>(pow2i<T>(j)+d-1-(d+d_-2)+1, pow2i<T>(j)+d-1-_bc(1));
 }
 
 template <typename T>
@@ -141,7 +141,7 @@ MRA<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
 
     _twoScaleDual_2(d, d_);
 
-    GeMatrix<FullStorage<T,ColMajor> > A(d+d_-2,d+d_-2);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > A(d+d_-2,d+d_-2);
     for (int n=1; n<=d+d_-2; ++n) {
         for (int m=1; m<=d+d_-2; ++m) {
             A(n,m) = MDD(m,n);
@@ -151,7 +151,7 @@ MRA<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
     for (int n=1; n<=d+d_-2; ++n) {
         A(n,n) = A(n,n)-1;
     }
-    DenseVector<Array<T> > O(d+d_-2), x, tmp;
+    flens::DenseVector<flens::Array<T> > O(d+d_-2), x, tmp;
     A(d+d_-2,d+d_-2) = 1.;
     O(d+d_-2) = 1.;
 
@@ -160,7 +160,7 @@ MRA<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
     tmp = x;
     x = transpose(inv(TT))*tmp;
     x.engine().changeIndexBase(1);
-    GeMatrix<FullStorage<T,ColMajor> > TR(d+d_-2,d+d_-2);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > TR(d+d_-2,d+d_-2);
     for (int n=1; n<=d+d_-2; ++n) {
         TR(n,n) = 1;
         if (n>1) {
@@ -168,7 +168,7 @@ MRA<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
         }
     }
 
-    GeMatrix<FullStorage<T,ColMajor> > TRD(3*d_+2*d-5,3*d_+2*d-5), MDDD_H, Tmp, InvTR;
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > TRD(3*d_+2*d-5,3*d_+2*d-5), MDDD_H, Tmp, InvTR;
     TRD.diag(0) = 1.;
 
 //    TRD(_(1,d+d_-2),_(1,d+d_-2)) = transpose(inv(TR));
@@ -179,17 +179,17 @@ MRA<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
         }
     }
 
-    blas::mm(NoTrans,NoTrans,1.,TRD,MDDD,0.,Tmp);
-    blas::mm(NoTrans,Trans,1.,Tmp,TR,0.,MDDD_H);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,TRD,MDDD,0.,Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::Trans,1.,Tmp,TR,0.,MDDD_H);
 
     T factor = Const<T>::R_SQRT2;
 
-    GeMatrix<FullStorage<T,ColMajor> > Mj0_(pow2i<T>(min_j0+1)+d-3,
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > Mj0_(pow2i<T>(min_j0+1)+d-3,
                                             pow2i<T>(min_j0)+d-3, 
                                             2,2),
                                        Mj0_Right, Bugfix;
     Bugfix = MDDD_H(_(2,MDDD.numRows()), _(2,MDDD.numCols()));
-    blas::scal(factor,Bugfix);
+    flens::blas::scal(factor,Bugfix);
     Mj0_(_(2,MDDD.numRows()), _(2,MDDD.numCols())) = Bugfix;
     int row = d+d_-1;
     for (int c=MDDD.lastCol()+1; c<=Mj0_.lastCol()-MDDD.numCols()+1; ++c,row+=2) {
@@ -198,20 +198,20 @@ MRA<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
     arrow(Bugfix,Mj0_Right);
     Mj0_(_(Mj0_.lastRow()-Mj0_Right.numRows()+1,Mj0_.lastRow()),
          _(Mj0_.lastCol()-Mj0_Right.numCols()+1,Mj0_.lastCol())) = Mj0_Right;
-    M0_ = RefinementMatrix<T,Interval,Primbs>(Mj0_Right.numCols(),Mj0_Right.numCols(), 
+    M0_ = flens::RefinementMatrix<T,Interval,Primbs>(Mj0_Right.numCols(),Mj0_Right.numCols(), 
                                               Mj0_, min_j0, min_j0);
     M0_.setLevel(_j);
 }
 
 template <typename T>
 void
-MRA<T,Dual,Interval,Primbs>::_orthonormalize(const GeMatrix<FullStorage<T,ColMajor> > &L3,
-                                             const GeMatrix<FullStorage<T,ColMajor> > &LL3)
+MRA<T,Dual,Interval,Primbs>::_orthonormalize(const flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > &L3,
+                                             const flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > &LL3)
 {
     int n = L3.numRows();
     int m = L3.numCols();
 
-    GeMatrix<FullStorage<T,ColMajor> > L2(n-m,m), LL2(n-m,m), L22, C(m,m);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > L2(n-m,m), LL2(n-m,m), L22, C(m,m);
 
     for (int j=1; j<=n-m; ++j) {
         for (int k=1; k<=m; ++k) {
@@ -228,15 +228,15 @@ MRA<T,Dual,Interval,Primbs>::_orthonormalize(const GeMatrix<FullStorage<T,ColMaj
         }
     }
     
-    blas::mm(NoTrans,NoTrans,0.5,L22,LL2,0.,C);
-    DenseVector<Array<T> > c(powii(m,2));
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,0.5,L22,LL2,0.,C);
+    flens::DenseVector<flens::Array<T> > c(powii(m,2));
 
     for (int j=1; j<=m; ++j) {
         for (int k=1; k<=m; ++k) {
             c((j-1)*m+k) = C(j,k);
         }
     }
-    GeMatrix<FullStorage<T,ColMajor> > B(powii(m,2),powii(m,2));
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > B(powii(m,2),powii(m,2));
 
     for (int j=1; j<=m; ++j) {
         for (int k=1; k<=m; ++k) {
@@ -252,7 +252,7 @@ MRA<T,Dual,Interval,Primbs>::_orthonormalize(const GeMatrix<FullStorage<T,ColMaj
         B(j,j) += 1;
     }
 
-    DenseVector<Array<T> > t(powii(m,2)), cc, dd;
+    flens::DenseVector<flens::Array<T> > t(powii(m,2)), cc, dd;
     bool singular;
     B.engine().changeIndexBase(0,0);
     c.engine().changeIndexBase(0);
@@ -273,10 +273,10 @@ MRA<T,Dual,Interval,Primbs>::_orthonormalize(const GeMatrix<FullStorage<T,ColMaj
 
 template <typename T>
 T
-_dividedDifferences(DenseVector<Array<T> > &a, T x)
+_dividedDifferences(flens::DenseVector<flens::Array<T> > &a, T x)
 {
     int m = a.length();
-    DenseVector<Array<T> > b(m);
+    flens::DenseVector<flens::Array<T> > b(m);
 
     for (int j=1; j<=m; ++j) {
         b(j) = std::pow(std::max(a(j)-x,T(0)),m-2);
@@ -298,9 +298,9 @@ template <typename T>
 void
 MRA<T,Dual,Interval,Primbs>::_Umrechnung1(int d)
 {
-    GeMatrix<FullStorage<T,ColMajor> > B(d-1,d-1), C(d-1,d-1);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > B(d-1,d-1), C(d-1,d-1);
     int m = d+1;
-    DenseVector<Array<T> > b(m), c(m);
+    flens::DenseVector<flens::Array<T> > b(m), c(m);
     for (int j=1; j<=m; ++j) {
         c(j) = j-m;
     }
@@ -314,15 +314,15 @@ MRA<T,Dual,Interval,Primbs>::_Umrechnung1(int d)
             C(i,l) = d*_dividedDifferences(c,T(i-1));
         }
     }
-    blas::mm(NoTrans,NoTrans,1.,inv(C),B,0.,W);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,inv(C),B,0.,W);
 }
 
 template <typename T>
 void
 MRA<T,Dual,Interval,Primbs>::_Umrechnung2(int d)
 {
-    DenseVector<Array<T> > a(2*d+1);
-    GeMatrix<FullStorage<T,ColMajor> > Tmp, InvW, B(2*(d-1),2*(d-1));
+    flens::DenseVector<flens::Array<T> > a(2*d+1);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > Tmp, InvW, B(2*(d-1),2*(d-1));
     Mj.engine().resize(2*(d-1),d-1);
 
     for (int j=1; j<=d+1; ++j) {
@@ -347,8 +347,8 @@ MRA<T,Dual,Interval,Primbs>::_Umrechnung2(int d)
     for (int j=d; j<=2*(d-1); ++j) {
         B(j,j) = 1;
     }
-    blas::mm(NoTrans,NoTrans,1.,B,Mj,0.,Tmp);
-    blas::mm(NoTrans,NoTrans,1.,Tmp,W,0.,Mp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,B,Mj,0.,Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,W,0.,Mp);
 }
 
 template <typename T>
@@ -364,7 +364,7 @@ MRA<T,Dual,Interval,Primbs>::_twoScalePrimal(int d, int d_)
         }
     }
 
-    DenseVector<Array<T> > b = BSpline<T,Primal,R,CDF>(d).a;
+    flens::DenseVector<flens::Array<T> > b = BSpline<T,Primal,R,CDF>(d).a;
     b.engine().changeIndexBase(1);
     for (int k=d; k<=d+d_-2; ++k) {
         for (int j=2*k-d; j<=2*k; ++j) {
@@ -379,8 +379,8 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_1(int d, int d_)
 {
     M1.engine().resize(3*d_+2*d-5,d+d_-2) || M1.engine().fill();
     MD.engine().resize(3*d_+2*d-5,d+d_-2) || MD.engine().fill();
-    DenseVector<Array<T> > b = BSpline<T,Primal,R,CDF>(d).a;
-    DenseVector<Array<T> > a = BSpline<T,Dual,R,CDF>(d,d_).a_;
+    flens::DenseVector<flens::Array<T> > b = BSpline<T,Primal,R,CDF>(d).a;
+    flens::DenseVector<flens::Array<T> > a = BSpline<T,Dual,R,CDF>(d,d_).a_;
     b.engine().changeIndexBase(1); a.engine().changeIndexBase(1);
 
     for (int l=d/2+d_-1; l<=d/2+3*d_+d-5; ++l) {
@@ -396,7 +396,7 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_1(int d, int d_)
         }
     }
 
-    DenseVector<Array<T> > m(d_);
+    flens::DenseVector<flens::Array<T> > m(d_);
     for (int n=-1; n<=d+2*d_-3; ++n) {
         m(1) += a(n+2);
     }
@@ -413,7 +413,7 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_1(int d, int d_)
         }
     }
 
-    GeMatrix<FullStorage<T,ColMajor> > D3(d_,d_);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > D3(d_,d_);
     D3(1,1) = 1;
     for (int k=2; k<=d_; ++k) {
         for (int i=1; i<=k; ++i) {
@@ -423,33 +423,33 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_1(int d, int d_)
         }
     }
 
-    GeMatrix<FullStorage<T,ColMajor> > J(d_,d_);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > J(d_,d_);
     for (int j=1; j<=d_; ++j) {
         J(d_+1-j,j) = 1;
     }
 
-    GeMatrix<FullStorage<T,ColMajor> > D4, Tmp;
-    blas::mm(NoTrans,Trans,1.,J,D3,0.,Tmp);
-    blas::mm(NoTrans,NoTrans,1.,Tmp,J,0.,D4);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > D4, Tmp;
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::Trans,1.,J,D3,0.,Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,J,0.,D4);
 
-    GeMatrix<FullStorage<T,ColMajor> > m1(d_,d_);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > m1(d_,d_);
     for (int j=1; j<=d_; ++j) {
         for (int k=1; k<=d_; ++k) {
             m1(j,k) = M1(d-2+j,d-2+k);
         }
     }
 
-    GeMatrix<FullStorage<T,ColMajor> > m2(2*d_+d-3,d_);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > m2(2*d_+d-3,d_);
     for (int j=1; j<=2*d_+d-3; ++j) {
         for (int k=1; k<=d_; ++k) {
             m2(j,k) = M1(d+d_-2+j,d-2+k);
         }
     }
-    blas::mm(NoTrans,NoTrans,1.,D4,m1,0.,Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,D4,m1,0.,Tmp);
 
-    blas::mm(NoTrans,NoTrans,1.,Tmp,inv(D4),0.,m1);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,inv(D4),0.,m1);
     Tmp = m2;
-    blas::mm(NoTrans,NoTrans,1.,Tmp,inv(D4),0.,m2);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,inv(D4),0.,m2);
 
     for (int j=1; j<=d_; ++j) {
         for (int k=1; k<=d_; ++k) {
@@ -468,7 +468,7 @@ void
 MRA<T,Dual,Interval,Primbs>::_twoScaleDual_2(int d, int d_)
 {
     int t = std::max(d+d_-2,4*d-6);
-    GeMatrix<FullStorage<T,ColMajor> > TL(t,t);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > TL(t,t);
     for (int j=1; j<=t; ++j) {
         TL(j,j) = 1.;
     }
@@ -483,7 +483,7 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_2(int d, int d_)
     }
 
     for (int k=d-2; k>=1; --k) {
-        GeMatrix<FullStorage<T,ColMajor> > B(d-1+k,d-1+k), C;
+        flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > B(d-1+k,d-1+k), C;
         _orthonormalize(MP,MDD);
         for (int j=1; j<=d+d_-2; ++j) {
             for (int s=1; s<=d+d_-2; ++s) {
@@ -502,7 +502,7 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_2(int d, int d_)
         C = inv(B);
 
         MDD(k,k) = 0;
-        DenseVector<Array<T> > x(d+k-1), y(d+k-1);
+        flens::DenseVector<flens::Array<T> > x(d+k-1), y(d+k-1);
         for (int j=1; j<=d+k-1; ++j) {
             x(j) = MDD(k,k)*.5*MP(k,j);
         }
@@ -512,14 +512,14 @@ MRA<T,Dual,Interval,Primbs>::_twoScaleDual_2(int d, int d_)
         }
     }
     _orthonormalize(MP,MDD);
-    GeMatrix<FullStorage<T,ColMajor> > InvT, D(2*d_+d-3,2*d_+d-3), Tmp, TmpTT;
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > InvT, D(2*d_+d-3,2*d_+d-3), Tmp, TmpTT;
     InvT = inv(TT);
 
-    GeMatrix<FullStorage<T,ColMajor> > K(3*d_+2*d-5,3*d_+2*d-5);
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > K(3*d_+2*d-5,3*d_+2*d-5);
     K.diag(0) = 1;
     K(TT.rows(),TT.cols()) = TT;
-    blas::mm(NoTrans,NoTrans,1.,K,MDD,0.,Tmp);
-    blas::mm(NoTrans,NoTrans,1.,Tmp,InvT,0.,MDDD);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,K,MDD,0.,Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,InvT,0.,MDDD);
 }
 
 
@@ -529,12 +529,12 @@ MRA<T,Dual,Interval,Primbs>::_calcM0_()
 {
     _twoScaleDual_2(d,d_);
 
-    GeMatrix<FullStorage<T,ColMajor> > Mj0_(pow2i<T>(min_j0+1)+d-1,
+    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > Mj0_(pow2i<T>(min_j0+1)+d-1,
                                             pow2i<T>(min_j0)+d-1),
                                        Mj0_Right, Bugfix;
     T factor = Const<T>::R_SQRT2;
     Bugfix = MDDD;
-    blas::scal(factor,Bugfix);
+    flens::blas::scal(factor,Bugfix);
     Mj0_(MDDD.rows(), MDDD.cols()) = Bugfix;
     int row = d+d_-1;
     for (int c=MDDD.lastCol()+1; c<=Mj0_.lastCol()-MDDD.numCols(); ++c,row+=2) {
@@ -544,7 +544,7 @@ MRA<T,Dual,Interval,Primbs>::_calcM0_()
     Mj0_(_(Mj0_.lastRow()-Mj0_Right.numRows()+1,Mj0_.lastRow()),
          _(Mj0_.lastCol()-Mj0_Right.numCols()+1,Mj0_.lastCol())) = Mj0_Right;
 
-    M0_ = RefinementMatrix<T,Interval,Primbs>(Mj0_Right.numCols(),Mj0_Right.numCols(), 
+    M0_ = flens::RefinementMatrix<T,Interval,Primbs>(Mj0_Right.numCols(),Mj0_Right.numCols(), 
                                               Mj0_, min_j0, min_j0);
     setLevel(_j);
 }

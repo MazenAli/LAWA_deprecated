@@ -30,8 +30,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename _T>
 struct Wavelet<_T,Dual,R,CDF>
     : public BasisFunction<_T,Dual,R,CDF>
@@ -52,15 +50,15 @@ struct Wavelet<_T,Dual,R,CDF>
     Support<T>
     support(int j, long k) const;
 
-    const DenseVector<Array<T> > &
+    const flens::DenseVector<flens::Array<T> > &
     mask() const;
 
-    static DenseVector<Array<T> >
+    static flens::DenseVector<flens::Array<T> >
     mask(int d, int d_);
 
     const int d, d_, mu;
     const int l1_, l2_;
-    const DenseVector<Array<T> > b_;
+    const flens::DenseVector<flens::Array<T> > b_;
     const BSpline<T,Primal,R,CDF> phi;
     const BSpline<T,Dual,R,CDF> phi_;        
 };

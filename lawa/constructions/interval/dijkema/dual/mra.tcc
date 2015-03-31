@@ -25,6 +25,8 @@
 #include <lawa/constructions/realline/dual/bspline.h>
 #include <extensions/flens/lapack_flens.h>
 #include <lawa/constructions/interval/primbs/primal/spline_helper.h>
+#include <lawa/constructions/interval/dijkema/dual/bspline.h>
+#include <lawa/constructions/realline/primal/bspline.h>
 
 namespace lawa {
 
@@ -86,34 +88,34 @@ MRA<T,Dual,Interval,Dijkema>::cardI_R(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets. --------------------------
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,Dijkema>::rangeI_(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(1 + _bc(0), pow2i<T>(j) + d - 1 - _bc(1));
+    return flens::Range<int>(1 + _bc(0), pow2i<T>(j) + d - 1 - _bc(1));
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,Dijkema>::rangeI_L(int /*j*/) const
 {
-    return Range<int>(1 + _bc(0), d + d_ - 2);
+    return flens::Range<int>(1 + _bc(0), d + d_ - 2);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,Dijkema>::rangeI_I(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(d + d_ - 1, pow2i<T>(j) - d_ + 1);
+    return flens::Range<int>(d + d_ - 1, pow2i<T>(j) - d_ + 1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Dual,Interval,Dijkema>::rangeI_R(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(pow2i<T>(j) - d_ + 2, pow2i<T>(j) + d - 1 - _bc(1));
+    return flens::Range<int>(pow2i<T>(j) - d_ + 2, pow2i<T>(j) + d - 1 - _bc(1));
 }
 
 template <typename T>
@@ -149,8 +151,10 @@ template <typename T>
 void
 MRA<T,Dual,Interval,Dijkema>::_calcM0_()
 {
-    typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
-    typedef DenseVector<Array<T> > DenseVector;
+    using flens::_;
+
+    typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
+    typedef flens::DenseVector<flens::Array<T> > DenseVector;
     
     const int cons_j = ((d==2) && ((d_==2) || (d_==4))) ? min_j0+1 : min_j0;
 
@@ -337,7 +341,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
             f(p*(qmax-qmin+1)+q) = sum;
         }
     }
-    flens::DenseVector<Array<int> > pivots(f.length(),f.firstIndex());
+    flens::DenseVector<flens::Array<int> > pivots(f.length(),f.firstIndex());
     sv(Z,pivots,f);
     for (int p=pmin; p<=pmax; ++p) {
         for (int q=qmin; q<=qmax; ++q) {
@@ -371,7 +375,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     Transformation.diag(0) = 1.;
     for (int i=1; i<d; ++i) {
         FullColMatrix Tmp = insertKnot(d-1,knots,(T)0.), Tmp2;
-        blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,
+        flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,
                  1.,Tmp,Transformation,0.,Tmp2);
         Transformation = Tmp2;
     }
@@ -429,10 +433,10 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
     }
     //--------------------------------------------------------------------------
     FullColMatrix Mass, MassTmp;
-    blas::mm(cxxblas::NoTrans, cxxblas::NoTrans,
+    flens::blas::mm(cxxblas::NoTrans, cxxblas::NoTrans,
              1., ExtMass, R_init, 0., MassTmp);
 
-    blas::mm(cxxblas::Trans, cxxblas::NoTrans,
+    flens::blas::mm(cxxblas::Trans, cxxblas::NoTrans,
              1., R, MassTmp, 0., Mass);
 
     FullColMatrix InvMass, InvMassTmp = Mass;
@@ -440,7 +444,7 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
 
     FullColMatrix R_(R_init.numRows(), R_init.numCols(),
                      R_init.firstRow(), R_init.firstCol());
-    blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., R_init, InvMass, 0., R_);
+    flens::blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., R_init, InvMass, 0., R_);
 
     R_Left = R_(_(C_L.firstRow(),C_L.lastRow()),
                 _(C_L.firstCol(),C_L.lastCol()+_bc(0)));
@@ -467,14 +471,14 @@ MRA<T,Dual,Interval,Dijkema>::_calcM0_()
                                 ExtMassjPlus1.lastCol()-C.numCols()+1);
     ExtMassjPlus1(CR) = CR;
     FullColMatrix Mj0_, M0_Tmp;
-    blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,RjPlus1,ExtMassjPlus1,0.,Mj0_);
-    blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., Mj0_, ExtM0_, 0., M0_Tmp);
-    blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., M0_Tmp, R_, 0., Mj0_);
+    flens::blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,RjPlus1,ExtMassjPlus1,0.,Mj0_);
+    flens::blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., Mj0_, ExtM0_, 0., M0_Tmp);
+    flens::blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., M0_Tmp, R_, 0., Mj0_);
     Mj0_.engine().changeIndexBase(1+_bc(0),1+_bc(1));
-    blas::scal(Const<T>::R_SQRT2, Mj0_);
+    flens::blas::scal(Const<T>::R_SQRT2, Mj0_);
     R_Left.engine().changeIndexBase(1,1+_bc(0));
     R_Right.engine().changeIndexBase(1,1);
-    M0_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2-_bc(0), d+d_-2-_bc(1),
+    M0_ = flens::RefinementMatrix<T,Interval,Dijkema>(d+d_-2-_bc(0), d+d_-2-_bc(1),
                                                Mj0_, min_j0, cons_j);
     setLevel(_j);
 }

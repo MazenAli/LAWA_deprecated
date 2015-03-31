@@ -21,19 +21,19 @@
 #define LAWA_SPY_H 1
 
 #include <lawa/flensforlawa.h>
+#include <extensions/flens/sparsematrix.h>
+#include <extensions/flens/crs.h>
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
     void
-    spy(const SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > &A, const char* filename,
+    spy(const flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > &A, const char* filename,
         bool absoluteValues = true, T eps = std::numeric_limits<T>::epsilon());
 
 template <typename I>
     void
-    spy (const Matrix<I> &A, const char* filename, bool absoluteValues = true,
+    spy (const flens::Matrix<I> &A, const char* filename, bool absoluteValues = true,
          typename I::ElementType eps = std::numeric_limits<typename I::ElementType>::epsilon());
 
 } // namespace lawa

@@ -95,7 +95,7 @@ distance(const Support<T> &supp1, const Support<T> &supp2, Support<T> &common)
 
 template <typename T>
 T
-distance(const DenseVector<Array<T> > &singsupp1, const Support<T> &supp2)
+distance(const flens::DenseVector<flens::Array<T> > &singsupp1, const Support<T> &supp2)
 {
     T first=singsupp1(singsupp1.firstIndex()), last=singsupp1(singsupp1.lastIndex());
     if (distance(Support<T>(first,last),supp2)>0) {
@@ -118,7 +118,7 @@ distance(const DenseVector<Array<T> > &singsupp1, const Support<T> &supp2)
 
 template <typename T>
 T
-distance(const Support<T> &supp1, const DenseVector<Array<T> > &singsupp2)
+distance(const Support<T> &supp1, const flens::DenseVector<flens::Array<T> > &singsupp2)
 {
     return distance(singsupp2, supp1);
 }

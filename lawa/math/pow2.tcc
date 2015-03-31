@@ -22,7 +22,7 @@
 namespace lawa {
 
 template <typename T>
-typename RestrictTo<flens::IsSame<T,int>::value 
+typename cxxblas::RestrictTo<flens::IsSame<T,int>::value 
                  || flens::IsSame<T,long>::value, T>::Type
 pow2i(int expo)
 {
@@ -30,14 +30,14 @@ pow2i(int expo)
 }
 
 template <typename T>
-typename RestrictTo<flens::IsSame<T,double>::value, T>::Type
+typename cxxblas::RestrictTo<flens::IsSame<T,double>::value, T>::Type
 pow2i(int expo)
 {
     return std::ldexp(1., expo);
 }
 
 template <typename T>
-typename RestrictTo<flens::IsSame<T,long double>::value, T>::Type
+typename cxxblas::RestrictTo<flens::IsSame<T,long double>::value, T>::Type
 pow2i(int expo)
 {
     return std::ldexp(1.L, expo);

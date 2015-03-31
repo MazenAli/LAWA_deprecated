@@ -50,7 +50,7 @@ struct BSpline<_T,Primal,Periodic,CDF>
     PeriodicSupport<T>
     support(int j, long k) const;            // subset of [0,1], may be divided in 2 parts
 
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     singularSupport(int j, long k) const;    // Points in [0,1]
 
     T
@@ -59,7 +59,7 @@ struct BSpline<_T,Primal,Periodic,CDF>
     /**
      * Get coefficients in _DIJKEMA_ Basis (not really a refinement here!!)
      */
-    DenseVector<Array<long double> > *
+    flens::DenseVector<flens::Array<long double> > *
     getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
     				long &split, long &refinement_k_restart) const;
 
@@ -73,7 +73,7 @@ struct BSpline<_T,Primal,Periodic,CDF>
     T
     getH1SemiNorm(int j, long k) const;
 
-    const DenseVector<Array<T> > &
+    const flens::DenseVector<flens::Array<T> > &
     mask() const;                           // mask of original Spline on R
 
     const int d, mu;

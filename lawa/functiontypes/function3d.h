@@ -23,22 +23,20 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template<typename T>
 struct Function3D
 {
 public:
-    Function3D(T (*_f)(T,T,T), const DenseVector<Array<T> > &_singularPts_x,
-                             const DenseVector<Array<T> > &_singularPts_y,
-                             const DenseVector<Array<T> > &_singularPts_z);
+    Function3D(T (*_f)(T,T,T), const flens::DenseVector<flens::Array<T> > &_singularPts_x,
+                             const flens::DenseVector<flens::Array<T> > &_singularPts_y,
+                             const flens::DenseVector<flens::Array<T> > &_singularPts_z);
 
     T
     operator()(T x, T y, T z) const;
 
-    const DenseVector<Array<T> > singularPts_x; //x-aligned singularities
-    const DenseVector<Array<T> > singularPts_y; //y-aligned singularities
-    const DenseVector<Array<T> > singularPts_z; //y-aligned singularities
+    const flens::DenseVector<flens::Array<T> > singularPts_x; //x-aligned singularities
+    const flens::DenseVector<flens::Array<T> > singularPts_y; //y-aligned singularities
+    const flens::DenseVector<flens::Array<T> > singularPts_z; //y-aligned singularities
     T (*f)(T,T,T);
 };
 

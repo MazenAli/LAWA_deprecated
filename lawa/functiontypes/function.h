@@ -25,20 +25,18 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
 struct Function
 {
     Function(T (*_f)(T));
 
-    Function(T (*_f)(T), const DenseVector<Array<T> > &_singularPoints);
+    Function(T (*_f)(T), const flens::DenseVector<flens::Array<T> > &_singularPoints);
 
     T
     operator()(T x) const;
 
     T (*f)(T);
-    const DenseVector<Array<T> > &singularPoints;
+    const flens::DenseVector<flens::Array<T> > &singularPoints;
 };
 
 } // namespace lawa

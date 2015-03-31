@@ -45,7 +45,7 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
 
     if (d==2) {
         // left part
-        _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+        _leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _leftRefCoeffs[0].engine().resize(2,0);
         _leftRefCoeffs[0] =  1.L/(std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L));
         _leftOffsets = new long[1];
@@ -56,7 +56,7 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _leftH1SemiNorms[0] =  1.L;
 
         // inner part
-        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _innerRefCoeffs[0].engine().resize(3,0);
         _innerRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
         _innerOffsets = new long[1];
@@ -67,7 +67,7 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _innerH1SemiNorms[0] =  std::sqrt(2.L);
 
         // right part
-        _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+        _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _rightRefCoeffs[0].engine().resize(2,0);
         _rightRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/(std::sqrt(2.L));
         _rightOffsets = new long[1];
@@ -80,7 +80,7 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
 
     else if (d==3) {
         // left part
-        _leftRefCoeffs = new DenseVector<Array<long double> >[2];
+        _leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
         _leftRefCoeffs[0].engine().resize(3,0);
         _leftRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
         _leftRefCoeffs[1].engine().resize(2,0);
@@ -93,7 +93,7 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
          */
 
         // inner part
-        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _innerRefCoeffs[0].engine().resize(4,0);
         _innerRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
         _innerOffsets = new long[1];
@@ -104,7 +104,7 @@ MRA<T,Primal,Interval,Primbs>::MRA(int _d, int j)
         _innerH1SemiNorms[0] = 1.L;//std::sqrt(0.25L);
 
         // inner part
-        _rightRefCoeffs = new DenseVector<Array<long double> >[2];
+        _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
         _rightRefCoeffs[0].engine().resize(2,0);
         _rightRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L);
         _rightRefCoeffs[1].engine().resize(3,0);
@@ -188,34 +188,34 @@ MRA<T,Primal,Interval,Primbs>::cardIR(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets. --------------------------
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,Primbs>::rangeI(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(1 + _bc(0), pow2i<T>(j) + d - 1 - _bc(1));
+    return flens::Range<int>(1 + _bc(0), pow2i<T>(j) + d - 1 - _bc(1));
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,Primbs>::rangeIL(int /*j*/) const
 {
-    return Range<int>(1 + _bc(0), d - 1);
+    return flens::Range<int>(1 + _bc(0), d - 1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,Primbs>::rangeII(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(d, pow2i<T>(j));
+    return flens::Range<int>(d, pow2i<T>(j));
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,Primbs>::rangeIR(int j) const
 {
     assert(j>=min_j0);
-    return Range<int>(pow2i<T>(j) + 1, pow2i<T>(j) + d - 1 - _bc(1));
+    return flens::Range<int>(pow2i<T>(j) + 1, pow2i<T>(j) + d - 1 - _bc(1));
 }
 
 template <typename T>
@@ -246,7 +246,7 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
     _calcM0();
 
     // Refinement coefficients only in double prec. available due to missing support of higher
-    // precision in blas routines.
+    // precision in flens::blas routines.
     if (d==2) {
 
         delete[] _innerRefCoeffs;
@@ -255,13 +255,13 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         delete[] _innerH1SemiNorms;
 
         // left part
-        //_leftRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[0];
         //_leftOffsets = new long[0];
         //_leftL2Norms = new long double[0];
         //_leftH1SemiNorms  = new long double[0];
 
         // inner part
-        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _innerRefCoeffs[0].engine().resize(3,0);
         _innerRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
         _innerOffsets = new long[1];
@@ -272,7 +272,7 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         _innerH1SemiNorms[0] =  std::sqrt(2.L);
 
         // inner part
-        //_rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[0];
         //_rightOffsets = new long[0];
         //_rightL2Norms = new long double[0];
         //_rightH1SemiNorms  = new long double[0];
@@ -289,7 +289,7 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         delete[] _innerH1SemiNorms;
 
         // left part
-        _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+        _leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _leftRefCoeffs[0].engine().resize(3,0);
         _leftRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
         _leftOffsets = new long[1];
@@ -300,7 +300,7 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         _leftH1SemiNorms[0] = std::sqrt(4.L/3.L);
 
         // inner part
-        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _innerRefCoeffs[0].engine().resize(4,0);
         _innerRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
         _innerOffsets = new long[1];
@@ -311,7 +311,7 @@ MRA<T,Primal,Interval,Primbs>::enforceBoundaryCondition()
         _innerH1SemiNorms[0] = 1.L;//std::sqrt(0.25L);
 
         // inner part
-        _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+        _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _rightRefCoeffs[0].engine().resize(3,0);
         _rightRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 3.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L));
         _rightOffsets = new long[1];
@@ -328,19 +328,21 @@ template <typename T>
 void
 MRA<T,Primal,Interval,Primbs>::_calcM0()
 {
-    typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
+    using flens::_;
+
+    typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
     FullColMatrix R(_(1-l2, pow2i<T>(min_j0)-l1-1),
                     _(1-l2, pow2i<T>(min_j0)-l1-1));
     R.diag(0) = 1.;
 
     // replace this part as soon as well understood ;-)
-    DenseVector<Array<T> > knots = linspace(-d+1., d-1., 2*d-1);
+    flens::DenseVector<flens::Array<T> > knots = linspace(-d+1., d-1., 2*d-1);
     knots.engine().changeIndexBase(1);
     FullColMatrix Transformation(knots.length()-d, knots.length()-d);
     Transformation.diag(0) = 1.;
     for (int i=1; i<d; ++i) {
         FullColMatrix Tmp = insertKnot(d-1,knots,(T)0.), Tmp2;
-        blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,
+        flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,
                  1.,Tmp,Transformation,0.,Tmp2);
         Transformation = Tmp2;
     }
@@ -385,19 +387,19 @@ MRA<T,Primal,Interval,Primbs>::_calcM0()
     
     Tmp = inv(TmpTmp);
 
-    blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,ExtM0,0.,M0Tmp);
-    blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,M0Tmp,R,0.,Mj0);
-    blas::scal(Const<T>::R_SQRT2, Mj0);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,ExtM0,0.,M0Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,M0Tmp,R,0.,Mj0);
+    flens::blas::scal(Const<T>::R_SQRT2, Mj0);
 
     // TODO: integrate boundary conditions in calculation process.
     if ((_bc(0)==DirichletBC) && (_bc(1)==DirichletBC)) {
         FullColMatrix Mj0withBC = Mj0( _(Mj0.firstRow()+1,Mj0.lastRow()-1) , 
                                        _(Mj0.firstCol()+1,Mj0.lastCol()-1));
         Mj0withBC.engine().changeIndexBase(Mj0.firstRow()+1, Mj0.firstCol()+1);
-        M0 = RefinementMatrix<T,Interval,Primbs>(d-1-_bc(0), d-1-_bc(1), 
+        M0 = flens::RefinementMatrix<T,Interval,Primbs>(d-1-_bc(0), d-1-_bc(1), 
                                                  Mj0withBC, min_j0, min_j0);
     } else {
-        M0 = RefinementMatrix<T,Interval,Primbs>(d-1, d-1, Mj0, min_j0, min_j0);
+        M0 = flens::RefinementMatrix<T,Interval,Primbs>(d-1, d-1, Mj0, min_j0, min_j0);
     }
     M0.setLevel(_j);
 }

@@ -24,8 +24,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename A>
 struct _gmres
 {
@@ -59,9 +57,9 @@ pgmresm(const Prec &Pr, const MA &A, VX &x, const VB &b,
 //-- trait specialization for FLENS types ------------------------------------
 
 template <typename I>
-struct _gmres<Matrix<I> >
+struct _gmres<flens::Matrix<I> >
 {
-    typedef typename Matrix<I>::ElementType T;
+    typedef typename flens::Matrix<I>::ElementType T;
 };
 
 } // namespace lawa

@@ -26,8 +26,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename T>
 struct PeriodicSupport : public Support<T>
 {

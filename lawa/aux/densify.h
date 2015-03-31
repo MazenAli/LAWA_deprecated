@@ -25,12 +25,10 @@
 
 namespace lawa {
 
-using namespace flens;
-    
 template <typename I>
 void
-densify(cxxblas::Transpose trans, const Matrix<I> &A,
-        GeMatrix<FullStorage<typename I::ElementType, cxxblas::ColMajor> > &D,
+densify(cxxblas::Transpose trans, const flens::Matrix<I> &A,
+        flens::GeMatrix<flens::FullStorage<typename I::ElementType, cxxblas::ColMajor> > &D,
         int firstRow=1, int firstCol=1);
 
 } // namespace lawa

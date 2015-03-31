@@ -30,8 +30,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 template <typename _T>
 struct Wavelet<_T,Primal,R,CDF>
     : public BasisFunction<_T,Primal,R,CDF>
@@ -54,25 +52,25 @@ struct Wavelet<_T,Primal,R,CDF>
     Support<T>
     support(int j, long k) const;
 
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     singularSupport(int j, long k) const;
 
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     optim_singularSupport(int j, long k) const;
 
     T
     tic(int j) const;
 
-    const DenseVector<Array<T> > &
+    const flens::DenseVector<flens::Array<T> > &
     mask() const;
 
-    static DenseVector<Array<T> >
+    static flens::DenseVector<flens::Array<T> >
     mask(int d, int d_);
 
     const int d, d_, mu;
     const int l1, l2;
     const int vanishingMoments;
-    const DenseVector<Array<T> > b;
+    const flens::DenseVector<flens::Array<T> > b;
     const BSpline<T,Primal,R,CDF> phi;
     const BSpline<T,Dual,R,CDF> phi_;
     flens::DenseVector<flens::Array<T> > singularPts;

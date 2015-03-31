@@ -21,8 +21,6 @@
 
 namespace lawa {
 
-using namespace flens;
-
 /*template <typename T>
 Wavelet<T,Primal,Periodic,CDF>::Wavelet(int _d, int _d_)
     : d(_d), d_(_d_), mu(d&1),
@@ -84,7 +82,7 @@ Wavelet<T,Primal,Periodic,CDF>::support(int j, long k) const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Primal,Periodic,CDF>::singularSupport(int j, long k) const
 {    
     if((psiR.support(j,k).l1 >= 0) && (psiR.support(j,k).l2 <= 1)){
@@ -92,7 +90,7 @@ Wavelet<T,Primal,Periodic,CDF>::singularSupport(int j, long k) const
     }
     
     std::list<T> temp;
-    DenseVector<Array<T> > singSuppR = linspace(psiR.support(j,k).l1, psiR.support(j,k).l2, 2*(d+d_)-1);
+    flens::DenseVector<flens::Array<T> > singSuppR = linspace(psiR.support(j,k).l1, psiR.support(j,k).l2, 2*(d+d_)-1);
     temp.push_back(0.);
     temp.push_back(1.);
     for(int i = singSuppR.firstIndex(); i <= singSuppR.lastIndex(); ++i){
@@ -101,7 +99,7 @@ Wavelet<T,Primal,Periodic,CDF>::singularSupport(int j, long k) const
     temp.sort();
     temp.unique();
     
-    DenseVector<Array<T> > singSupp(temp.size());
+    flens::DenseVector<flens::Array<T> > singSupp(temp.size());
     int i = 1;
     for (typename std::list<T>::const_iterator it = temp.begin(); it != temp.end(); ++it, ++i) {
         singSupp(i) = *it;
@@ -118,7 +116,7 @@ Wavelet<T,Primal,Periodic,CDF>::tic(int j) const
 }
 
 template <typename T>
-DenseVector<Array<long double> > *
+flens::DenseVector<flens::Array<long double> > *
 Wavelet<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
 												long &split, long &refinement_k_restart) const
 {
@@ -126,7 +124,7 @@ Wavelet<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, 
 
 	refinement_k_restart = 1;
 
-	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
+	//flens::DenseVector<flens::Array<long double> >* coeffs =  mra._RefCoeffs[0];
 	// Left part
 	if(k <= basis.rangeJL(j).lastIndex()){
 		std::cerr << "Ooops! Not implemented yet! " << std::endl;
@@ -140,7 +138,7 @@ Wavelet<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, 
     	return &(basis._periodicRefCoeffs[0]);
 	}
 	// Right part
-	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
+	//flens::DenseVector<flens::Array<long double> >* coeffs =  mra._RefCoeffs[0];
 	int type = k - basis.rangeJR(j).firstIndex();
 	refinement_k_first = 2*k + basis._innerOffsets[0];
 	split = basis._split[type];
@@ -170,14 +168,14 @@ Wavelet<T,Primal,Periodic,CDF>::getH1SemiNorm(int j, long k) const
 }
 
 template <typename T>
-const DenseVector<Array<T> > &
+const flens::DenseVector<flens::Array<T> > &
 Wavelet<T,Primal,Periodic,CDF>::mask() const
 {
     return psiR.b;
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Primal,Periodic,CDF>::mask(int d, int d_)
 {   
     assert(d<=d_);
@@ -185,7 +183,7 @@ Wavelet<T,Primal,Periodic,CDF>::mask(int d, int d_)
 
     int mu = d & 1;
     BSpline<T,Dual,R,CDF> phi_(d,d_);
-    DenseVector<Array<T> > b(_(2-(d+mu)/2-d_, (d-mu)/2+d_));
+    flens::DenseVector<flens::Array<T> > b(flens::_(2-(d+mu)/2-d_, (d-mu)/2+d_));
     for (int k=b.firstIndex(); k<=b.lastIndex(); ++k) {
         int sign = (k&1) ? -1 : 1;
         b(k) = sign * phi_.a_(1-k);

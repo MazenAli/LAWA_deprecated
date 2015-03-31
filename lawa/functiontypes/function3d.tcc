@@ -1,8 +1,8 @@
 namespace lawa {
 
 template <typename T>
-Function3D<T>::Function3D(T (*_f)(T,T,T), const DenseVector<Array<T> > &_singularPts_x,
-         const DenseVector<Array<T> > &_singularPts_y, const DenseVector<Array<T> > &_singularPts_z)
+Function3D<T>::Function3D(T (*_f)(T,T,T), const flens::DenseVector<flens::Array<T> > &_singularPts_x,
+         const flens::DenseVector<flens::Array<T> > &_singularPts_y, const flens::DenseVector<flens::Array<T> > &_singularPts_z)
     : f(_f), singularPts_x(_singularPts_x), singularPts_y(_singularPts_y), singularPts_z(_singularPts_z)
 {
 }
