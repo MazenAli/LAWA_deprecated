@@ -17,7 +17,7 @@ bool
 ExponentialWeightFunction1D<T>::with_precPoints = false;
 
 template <typename T>
-flens::DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 ExponentialWeightFunction1D<T>::singularPoints(2);
 
 template <typename T>

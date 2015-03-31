@@ -45,7 +45,7 @@ struct Wavelet<_T,Primal,Interval,_Cons>
     Support<T>
     support(int j, long k) const;
 
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     singularSupport(int j, long k) const;
 
     int
@@ -54,7 +54,7 @@ struct Wavelet<_T,Primal,Interval,_Cons>
     T
     tic(int j) const;
 
-    DenseVector<Array<long double> > *
+    flens::DenseVector<flens::Array<long double> > *
     getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
     				long &split, long &refinement_k_restart) const;
 

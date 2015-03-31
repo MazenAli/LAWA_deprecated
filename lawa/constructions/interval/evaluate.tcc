@@ -24,7 +24,7 @@ namespace lawa {
 template <FunctionSide Side, Construction Cons, typename X>
 typename X::ElementType
 evaluate(const MRA<typename X::ElementType,Side,Interval,Cons> &mra, int j,
-         const DenseVector<X>& coeffs, typename X::ElementType x, int deriv)
+         const flens::DenseVector<X>& coeffs, typename X::ElementType x, int deriv)
 {
     ct_assert(Side==Primal or Side==Orthogonal);
 
@@ -68,7 +68,7 @@ evaluate(const MRA<typename X::ElementType,Side,Interval,Cons> &mra, int j,
 template <FunctionSide Side, Construction Cons, typename X>
 typename X::ElementType
 evaluate(const Basis<typename X::ElementType,Side,Interval,Cons> &basis,
-         int J, const DenseVector<X> &coeffs, typename X::ElementType x,
+         int J, const flens::DenseVector<X> &coeffs, typename X::ElementType x,
          int deriv)
 {
     ct_assert(Side==Primal or Side==Orthogonal);
@@ -118,7 +118,7 @@ evaluate(const Basis<typename X::ElementType,Side,Interval,Cons> &basis,
     basis.setLevel(j0);
 
     T ret = 0;
-    ret += evaluate(basis.mra,j0,coeffs(Range<int>((int)basis.mra.rangeI(j0).firstIndex(),(int)basis.mra.rangeI(j0).lastIndex())),x,deriv);
+    ret += evaluate(basis.mra,j0,coeffs(flens::Range<int>((int)basis.mra.rangeI(j0).firstIndex(),(int)basis.mra.rangeI(j0).lastIndex())),x,deriv);
     Wavelet<T,Side,Interval,Cons> psi(basis);
     for (int j=j0; j<=J-1; ++j) {
         for (int k=1; k<=basis.cardJ(j); ++k) {

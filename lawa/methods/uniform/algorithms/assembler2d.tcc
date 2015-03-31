@@ -44,10 +44,10 @@ assembleStiffnessMatrix(BilinearForm& a, int J_x, int J_y, T tol)
                                                  
      /* ============  v = Scaling Fct x Scaling Fct ==========================*/
      //std::cout << "===== v = SF * SF =======" << std::endl;
-     Range<int> Rvx = b1.mra.rangeI(b1.j0);
-     Range<int> Rvy = b2.mra.rangeI(b2.j0);
-     Range<int> Rux = b1.mra.rangeI(b1.j0);
-     Range<int> Ruy = b2.mra.rangeI(b2.j0);
+     flens::Range<int> Rvx = b1.mra.rangeI(b1.j0);
+     flens::Range<int> Rvy = b2.mra.rangeI(b2.j0);
+     flens::Range<int> Rux = b1.mra.rangeI(b1.j0);
+     flens::Range<int> Ruy = b2.mra.rangeI(b2.j0);
      for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
        for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
 
@@ -400,8 +400,8 @@ Assembler2D<T, Basis>::assembleRHS(RHSIntegral& rhs, int J_x, int J_y)
 
     /*  ============  v = Scaling Fct x Scaling Fct ==========================*/
     //std::cout << "SF x SF : " << std::endl;
-    Range<int> Rvx = b1.mra.rangeI(b1.j0);
-    Range<int> Rvy = b2.mra.rangeI(b2.j0);
+    flens::Range<int> Rvx = b1.mra.rangeI(b1.j0);
+    flens::Range<int> Rvy = b2.mra.rangeI(b2.j0);
     for(int kvx = Rvx.firstIndex(); kvx <= Rvx.lastIndex(); ++kvx){
       for(int kvy = Rvy.firstIndex(); kvy <= Rvy.lastIndex(); ++kvy){
           
@@ -478,8 +478,8 @@ assemblePreconditioner(Preconditioner& P, int J_x, int J_y)
     flens::DenseVector<flens::Array<T> > D(basis.dim(J_x, J_y));
 
     /* SF x SF */
-    Range<int> Rx = b1.mra.rangeI(b1.j0);
-    Range<int> Ry = b2.mra.rangeI(b2.j0);   
+    flens::Range<int> Rx = b1.mra.rangeI(b1.j0);
+    flens::Range<int> Ry = b2.mra.rangeI(b2.j0);   
     for(int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx){
         for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
             D(I(XBSpline, b1.j0, kx, XBSpline, b2.j0, ky)) = P(XBSpline, b1.j0, kx, XBSpline, b2.j0, ky);

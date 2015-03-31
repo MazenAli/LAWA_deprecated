@@ -36,16 +36,16 @@ class RefinementMatrix<T, lawa::Interval, Cons>
         RefinementMatrix();
         
         RefinementMatrix(int nLeft, int nRight,
-                         const GeMatrix<FullStorage<T, ColMajor> > &A,
+                         const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &A,
                          int _min_j0, int cons_j);
 
-        const typename DenseVector<Array<T> >::ConstView
+        const typename flens::DenseVector<flens::Array<T> >::ConstView
         operator()(int j, const Underscore<int> &u, int col) const;
         
-        Range<int>
+        flens::Range<int>
         rows() const;
 
-        Range<int>
+        flens::Range<int>
         cols() const;
 
         int
@@ -72,14 +72,14 @@ class RefinementMatrix<T, lawa::Interval, Cons>
         void
         setLevel(int j) const;
 
-        DenseVector<Array<DenseVector<Array<T> > > > left, right;
-        DenseVector<Array<T> > leftband, rightband;
-        DenseVector<Array<int> > lengths;
+        flens::DenseVector<flens::Array<flens::DenseVector<flens::Array<T> > > > left, right;
+        flens::DenseVector<flens::Array<T> > leftband, rightband;
+        flens::DenseVector<flens::Array<int> > lengths;
         int min_j0;
 
     private:
         void
-        _extractMasks(const GeMatrix<FullStorage<T,ColMajor> > &A);        
+        _extractMasks(const flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &A);        
         
         int _cons_j;
         mutable int _j;
@@ -99,7 +99,7 @@ template <typename X, lawa::Construction Cons, typename Y>
 void
 mv(Transpose transA, typename X::ElementType alpha,
    const RefinementMatrix<typename X::ElementType,lawa::Interval,Cons> &A,
-   const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y);
+   const flens::DenseVector<X> &x, typename X::ElementType beta, flens::DenseVector<Y> &y);
 
 } // namespace flens
 

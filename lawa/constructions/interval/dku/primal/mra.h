@@ -120,7 +120,7 @@ class MRA<_T,Primal,Interval,DKU>
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _ML, _MR;  // upper left,
                                                       // lower right block of
                                                       // refinement matrix M0.
-//        DenseVector<Array<T> > _a; // refinement coefficients of inner
+//        flens::DenseVector<flens::Array<T> > _a; // refinement coefficients of inner
 //                                   // scaling functions.
 };
 

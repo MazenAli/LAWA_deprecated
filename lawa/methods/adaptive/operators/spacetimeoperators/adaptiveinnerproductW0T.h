@@ -49,7 +49,7 @@ namespace lawa {
 template <typename T, typename Basis2D, typename TrialPrec, typename TestPrec>
 struct AdaptiveInnerProductW0T : public AdaptiveOperator2D<T> {
 
-	typedef flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> >                  SparseMatrixT;
+	typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >                  SparseMatrixT;
 
     typedef typename Basis2D::FirstBasisType    Basis_t;
     typedef typename Basis2D::SecondBasisType   Basis_x;

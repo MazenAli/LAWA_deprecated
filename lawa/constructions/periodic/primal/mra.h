@@ -61,17 +61,17 @@ class MRA<_T,Primal,Periodic,CDF>
         int
         cardIR(int j=0) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI(int j) const;
 
 
-        Range<int>
+        flens::Range<int>
         rangeIL(int j=0) const;
 
-        Range<int>
+        flens::Range<int>
         rangeII(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIR(int j) const;
 
 
@@ -87,7 +87,7 @@ class MRA<_T,Primal,Periodic,CDF>
 
         friend class BSpline<T,Primal,Periodic,CDF>;
 
-        DenseVector<Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
+        flens::DenseVector<flens::Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
 
         long double *_periodicL2Norms,  *_periodicH1SemiNorms;
 
@@ -100,7 +100,7 @@ class MRA<_T,Primal,Periodic,CDF>
 
     public:
         BSpline<T,Primal,Periodic,CDF> phi;
-        RefinementMatrix<T,Periodic,CDF> M0;
+        flens::RefinementMatrix<T,Periodic,CDF> M0;
 };
 
 } // namespace lawa

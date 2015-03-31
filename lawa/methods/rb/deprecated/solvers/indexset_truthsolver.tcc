@@ -116,7 +116,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
       
       timer2.start();
       int N = basis_set.size();
-      DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+      flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
 
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
@@ -205,7 +205,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
       
       timer2.start();
       int N = basis_set.size();
-      DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+      flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
       
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
@@ -291,7 +291,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
       
       timer2.start();
       int N = basis_set.size();
-      DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+      flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
 
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {
@@ -378,7 +378,7 @@ IndexsetTruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_totalRes(RHS
       
       timer2.start();
       int N = basis_set.size();
-      DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+      flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
 
       for (const_set_it row = basis_set.begin(); row != basis_set.end(); ++row, ++row_count) {

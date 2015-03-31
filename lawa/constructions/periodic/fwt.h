@@ -29,27 +29,27 @@ namespace lawa {
 
 template <typename X, typename Y>
     void
-    decompose(const DenseVector<X> &x, 
+    decompose(const flens::DenseVector<X> &x, 
               const Basis<typename X::ElementType,Dual,Periodic,CDF> &basis_, int j,
-              DenseVector<Y> &y);
+              flens::DenseVector<Y> &y);
 
 template <typename X, typename Y>
     void
-    reconstruct(const DenseVector<X> &x, 
+    reconstruct(const flens::DenseVector<X> &x, 
                 const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis, int j,
-                DenseVector<Y> &y);
+                flens::DenseVector<Y> &y);
 
 template <typename X, typename Y>
     void
-    fwt(const DenseVector<X> &x, 
+    fwt(const flens::DenseVector<X> &x, 
         const Basis<typename X::ElementType,Dual,Periodic,CDF> &basis_, int j,
-        DenseVector<Y> &y);
+        flens::DenseVector<Y> &y);
 
 template <typename X, typename Y>
     void
-    ifwt(const DenseVector<X> &x, 
+    ifwt(const flens::DenseVector<X> &x, 
          const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis, int j,
-         DenseVector<Y> &y);
+         flens::DenseVector<Y> &y);
 
 } // namespace lawa
 

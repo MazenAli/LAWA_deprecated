@@ -81,7 +81,7 @@ BSpline<T,Orthogonal,Interval,Multi>::support(int j, long k) const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BSpline<T,Orthogonal,Interval,Multi>::singularSupport(int j, long k) const
 {
     // left boundary
@@ -92,14 +92,14 @@ BSpline<T,Orthogonal,Interval,Multi>::singularSupport(int j, long k) const
     if (k<mra.cardIL()+mra.cardII(j)) {
         int type  = (int)((k-mra._numLeftParts) % mra._numInnerParts);
         long shift = iceil<T>((k+1.-mra._numLeftParts)/mra._numInnerParts);
-        DenseVector<Array<T> > result = mra._innerSingularSupport[type];
+        flens::DenseVector<flens::Array<T> > result = mra._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;
     }
     // right part
     int type  = (int)(k - (mra.cardI(j)-1 - mra._numRightParts + 1));
     long shift = pow2i<long>(j)-1;
-    DenseVector<Array<T> > result = mra._rightSingularSupport[type];
+    flens::DenseVector<flens::Array<T> > result = mra._rightSingularSupport[type];
     result += shift;
     return pow2i<T>(-j) * result;
 }
@@ -113,7 +113,7 @@ BSpline<T,Orthogonal,Interval,Multi>::tic(int j) const
 }
 
 template <typename T>
-DenseVector<Array<long double> > *
+flens::DenseVector<flens::Array<long double> > *
 BSpline<T,Orthogonal,Interval,Multi>::
 getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
 				long &split, long &refinement_k_restart) const

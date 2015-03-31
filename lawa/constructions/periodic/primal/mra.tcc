@@ -31,7 +31,7 @@ MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
     if (d==2) {
 
 		// inner part
-		_periodicRefCoeffs = new DenseVector<Array<long double> >[1];
+		_periodicRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
 		//_periodicRefCoeffs[0].engine().resize(3,0);
 		//_periodicRefCoeffs[0] =  1.L/(2.L*std::sqrt(2.L)), 1.L/std::sqrt(2.L), 1.L/(2.L*std::sqrt(2.L));
 		_periodicRefCoeffs[0].engine().resize(1,0);
@@ -39,7 +39,7 @@ MRA<T,Primal,Periodic,CDF>::MRA(int _d, int _d_, int j)
 		_periodicOffsets = new long[1];
         _periodicOffsets[0] =  1;
 
-        _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+        _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
 		_rightRefCoeffs[0].engine().resize(2,0);
 		_rightRefCoeffs[0] =  1.L, 1.L;
 		_split = new long[1];
@@ -120,36 +120,36 @@ MRA<T,Primal,Periodic,CDF>::cardIR(int /*j*/) const
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Periodic,CDF>::rangeI(int j) const
 {
     assert(j>=j0);
-    return Range<int>(1,pow2i<T>(j));
+    return flens::Range<int>(1,pow2i<T>(j));
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Periodic,CDF>::rangeIL(int j) const
 {
     assert(j>=j0);
     // If left index set is empty, return range = {1,0}
-    return Range<int>(1, cardIL());
+    return flens::Range<int>(1, cardIL());
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Periodic,CDF>::rangeII(int j) const
 {
     assert(j>=j0);
-    return Range<int>(1 + cardIL() , pow2i<T>(j) - cardIR());
+    return flens::Range<int>(1 + cardIL() , pow2i<T>(j) - cardIR());
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Periodic,CDF>::rangeIR(int j) const
 {
     assert(j>=j0);
-    return Range<int>(pow2i<T>(j) - std::ceil((d+mu)/2.0 - 1), pow2i<T>(j));
+    return flens::Range<int>(pow2i<T>(j) - std::ceil((d+mu)/2.0 - 1), pow2i<T>(j));
 }
 
 

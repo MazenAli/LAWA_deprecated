@@ -62,12 +62,12 @@ Wavelet<T,Orthogonal,R,Multi>::max_support() const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Orthogonal,R,Multi>::singularSupport(int j, long k) const
 {
     const int typ = _type(k);
     const long shift = _shift(k);
-    DenseVector<Array<T> > result = _singularSupport[typ];
+    flens::DenseVector<flens::Array<T> > result = _singularSupport[typ];
     result += shift;
     
     return pow2i<T>(-j) * result;
@@ -82,7 +82,7 @@ Wavelet<T,Orthogonal,R,Multi>::tic(int j) const
 }
 
 template <typename T>
-DenseVector<Array<long double> > *
+flens::DenseVector<flens::Array<long double> > *
 Wavelet<T,Orthogonal,R,Multi>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
 {
     refinement_j = j + _addRefinementLevel;
@@ -119,11 +119,11 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
             _support = new Support<T>[1];
             _support[0] = Support<T>(0.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[1];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _singularSupport[0].engine().resize(3,0);
             _singularSupport[0] = 0., 0.5, 1.;
 
-            _refCoeffs = new DenseVector<Array<long double> >[1];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _refCoeffs[0].engine().resize(2,0);
             _refCoeffs[0] =  1.L, -1.L;
             _refCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -150,7 +150,7 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
             _support[1] = Support<T>(-1.,1.);
             _support[0] = Support<T>(-1.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[3];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[3];
             _singularSupport[2].engine().resize(9,0);
             _singularSupport[2] = 0., 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.;
             _singularSupport[1].engine().resize(15,0);
@@ -160,7 +160,7 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
 
             _max_support = Support<T>(-1,1);
 
-            _refCoeffs = new DenseVector<Array<long double> >[3];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[3];
             _refCoeffs[2].engine().resize(7,0);
             _refCoeffs[2] =  0.0704344921276534107756L, -0.576367220716899526482L, 0.639023596671335788701L,
                                   1.81444421027701819162L,   -3.31416570156693953276L,  1.08813353643605850361L,
@@ -215,13 +215,13 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
             _support[4] = Support<T>(-1.,1.);
             _support[5] = Support<T>(-1.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[6];
-            _singularSupport[0] = DenseVector<Array<T> >(17);
-            _singularSupport[1] = DenseVector<Array<T> >(17);
-            _singularSupport[2] = DenseVector<Array<T> >(29);
-            _singularSupport[3] = DenseVector<Array<T> >(29);
-            _singularSupport[4] = DenseVector<Array<T> >(25);
-            _singularSupport[5] = DenseVector<Array<T> >(25);
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[6];
+            _singularSupport[0] = flens::DenseVector<flens::Array<T> >(17);
+            _singularSupport[1] = flens::DenseVector<flens::Array<T> >(17);
+            _singularSupport[2] = flens::DenseVector<flens::Array<T> >(29);
+            _singularSupport[3] = flens::DenseVector<flens::Array<T> >(29);
+            _singularSupport[4] = flens::DenseVector<flens::Array<T> >(25);
+            _singularSupport[5] = flens::DenseVector<flens::Array<T> >(25);
             _singularSupport[0] = 0., 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.;
             _singularSupport[1] = 0., 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.;
             _singularSupport[2] = -1., -0.875, -0.75, -0.625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0., 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.;
@@ -231,7 +231,7 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
 
             _max_support = Support<T>(-1,1);
 
-            _refCoeffs = new DenseVector<Array<long double> >[6];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[6];
             _refCoeffs[0].engine().resize(14,0);
             _refCoeffs[0] =                            0.0128266866722189260497L, -0.0559640497163821462537L,
                                  0.201215435407263077173L, -2.44304797151868845934L,    5.01689144219717754102L,
@@ -340,7 +340,7 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
             _support[4] = Support<T>(-1.,1.);
             _support[5] = Support<T>(-1.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[6];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[6];
             _singularSupport[0].engine().resize(9,0);
             _singularSupport[0] = 0., 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.;
             _singularSupport[1].engine().resize(9,0);
@@ -356,7 +356,7 @@ Wavelet<T,Orthogonal,R,Multi>::_initialize(int d)
 
             _max_support = Support<T>(-1,1);
 
-            _refCoeffs = new DenseVector<Array<long double> >[6];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[6];
             _refCoeffs[0].engine().resize(14,0);
             _refCoeffs[0] =                            0.211914898968468518860L, -0.0472397067358769825195L,
                                  0.612324176362161983972L, -3.77233294617792048971L,   5.84290173559537136883L,

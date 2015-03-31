@@ -44,7 +44,7 @@ template <typename X, typename Y>
 void
 mv(cxxblas::Transpose transA, typename X::ElementType alpha,
    const RefinementMatrix<typename X::ElementType,lawa::R,lawa::CDF> &A,
-   const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y)
+   const flens::DenseVector<X> &x, typename X::ElementType beta, flens::DenseVector<Y> &y)
 {
     assert(0);
     typedef typename X::ElementType T;
@@ -52,7 +52,7 @@ mv(cxxblas::Transpose transA, typename X::ElementType alpha,
     assert(alpha==1.);
     assert(x.engine().stride()==1);
 
-    const DenseVector<Array<T> > &a = A.band;
+    const flens::DenseVector<flens::Array<T> > &a = A.band;
     int lx = x.length();
     int la = a.length();
     

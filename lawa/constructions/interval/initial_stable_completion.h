@@ -29,8 +29,8 @@ template <typename T, Construction ConsPrimal, Construction ConsDual>
 void
 initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
                           const MRA<T,Dual,Interval,ConsDual> &mra_,
-                          GeMatrix<FullStorage<T,cxxblas::ColMajor> > &M1,
-                          GeMatrix<FullStorage<T,cxxblas::ColMajor> > &M1_);
+                          flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &M1,
+                          flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &M1_);
 
 } // namespace lawa
 

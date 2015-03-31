@@ -77,7 +77,7 @@ Wavelet<T,Primal,Interval,SparseMulti>::support(int j, long k) const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Primal,Interval,SparseMulti>::singularSupport(int j, long k) const
 {
     if (d==4) {
@@ -92,20 +92,20 @@ Wavelet<T,Primal,Interval,SparseMulti>::singularSupport(int j, long k) const
         if (k!=basis.rangeJ(j).lastIndex()-basis._numLeftParts) {
             int type  = (int)(k % basis._numInnerParts);
             long shift = 2*std::ceil((T(k) / T(basis._numInnerParts)));
-            DenseVector<Array<T> > result = basis._innerSingularSupport[type];
+            flens::DenseVector<flens::Array<T> > result = basis._innerSingularSupport[type];
             result += shift;
             return pow2i<T>(-j) * result;
         }
 
         // right boundary
         long shift = basis.cardJ(j)/2;
-        DenseVector<Array<T> > result = basis._rightSingularSupport[0];
+        flens::DenseVector<flens::Array<T> > result = basis._rightSingularSupport[0];
         result += shift;
         return pow2i<T>(-j) * result;
     }
     else { // Control may reach end of non-void function
         assert(d==4);
-        return DenseVector<Array<T> >();
+        return flens::DenseVector<flens::Array<T> >();
     }
 
 }

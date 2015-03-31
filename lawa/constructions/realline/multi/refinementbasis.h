@@ -100,8 +100,8 @@ class Basis<_T,Orthogonal,R,MultiRefinement>
                 int d;
                 const Basis<_T,Orthogonal,R,MultiRefinement> &refinementbasis;
 
-                DenseVector<Array<long double> > values1;
-                DenseVector<Array<long double> > values2;
+                flens::DenseVector<flens::Array<long double> > values1;
+                flens::DenseVector<flens::Array<long double> > values2;
         };
 
         class IdentityOperator1D {
@@ -116,8 +116,8 @@ class Basis<_T,Orthogonal,R,MultiRefinement>
                 int d;
                 const Basis<_T,Orthogonal,R,MultiRefinement> &refinementbasis;
 
-                DenseVector<Array<long double> > values1;
-                DenseVector<Array<long double> > values2;
+                flens::DenseVector<flens::Array<long double> > values1;
+                flens::DenseVector<flens::Array<long double> > values2;
         };
 
         LaplaceOperator1D  LaplaceOp1D;

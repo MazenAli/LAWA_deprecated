@@ -42,7 +42,7 @@ struct BasisFunction<_T, _Side, Periodic, _Cons>
     virtual PeriodicSupport<T>
     support(int j, long k) const;
 
-    virtual DenseVector<Array<T> >
+    virtual flens::DenseVector<flens::Array<T> >
     singularSupport(int j, long k) const;
 
     virtual T

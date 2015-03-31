@@ -94,7 +94,7 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
         T uAu = u*PP_Au;
         T Error_H_energy = sqrt(fabs(std::pow(H1norm,2.)- 2*fu + uAu));
         Coefficients<Lexicographical,T,Index> Au_M_f;
-        A.apply(w_k,0.,Au_M_f,NoTrans);
+        A.apply(w_k,0.,Au_M_f,cxxblas::NoTrans);
         Au_M_f -= F(0.0001*nu_k);
         file << w_k.size() << " " << numOfIterations << " " << total_time << " " <<  nu_k << " "
                          << Error_H_energy << " " << Au_M_f.norm(2.) << " "  << T(lengthOfResidual)/T(w_k.size())  << std::endl;
@@ -225,17 +225,17 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
     for (const_set_it it=LambdaCol.begin(); it!=LambdaCol.end(); ++it) {
         help1[*it] = 1.;
     }
-    A.apply(help1,0.,help2,NoTrans);
+    A.apply(help1,0.,help2,cxxblas::NoTrans);
     LambdaRow = supp(help2);
     if (assemble_matrix) {
 
 
-        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > B(LambdaRow.size(),LambdaCol.size());
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > B(LambdaRow.size(),LambdaCol.size());
         A.toFlensSparseMatrix(LambdaRow,LambdaCol,B,1);
 
         std::cerr << "      LambdaRow.size() = " << LambdaRow.size() << ", LambdaCol.size() = " << LambdaCol.size() << std::endl;
 
-        DenseVector<Array<T> > g_vec(LambdaRow.size()), x_vec(LambdaCol.size()), Ax_vec(LambdaRow.size());
+        flens::DenseVector<flens::Array<T> > g_vec(LambdaRow.size()), x_vec(LambdaCol.size()), Ax_vec(LambdaRow.size());
         const_coeff_it g_end = g.end();
         const_coeff_it w_end = w.end();
         int row_count=1;
@@ -268,22 +268,22 @@ GHS_NONSYM_ADWAV<T,Index,AdaptiveOperator,RHS,PP_AdaptiveOperator,PP_RHS>
         T alpha_cgls, beta_cgls, gammaPrev_cgls, gamma_cgls;
         Coefficients<Lexicographical,T,Index> r, q, s, p;
 
-        A.apply(w,0.,r,NoTrans);
+        A.apply(w,0.,r,cxxblas::NoTrans);
         r -= g;
         r *= -1.;
-        A.apply(r,0.,LambdaCol,s,Trans);
+        A.apply(r,0.,LambdaCol,s,cxxblas::Trans);
         p = s;
         gammaPrev_cgls = s*s;
         std::cerr << "      gammaPrev = " << gammaPrev_cgls << std::endl;
 
         for (int k=1; k<=1000; k++) {
            q.setToZero();
-           A.apply(p,0.,q,NoTrans);   //q = A*p;
+           A.apply(p,0.,q,cxxblas::NoTrans);   //q = A*p;
            alpha_cgls = gammaPrev_cgls/(q*q);
            w +=   alpha_cgls*p;
            r -=   alpha_cgls*q;
            s.setToZero();
-           A.apply(r,0.,LambdaCol,s,Trans);  // flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+           A.apply(r,0.,LambdaCol,s,cxxblas::Trans);  // flens::blas::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
 
            gamma_cgls = s*s;
 

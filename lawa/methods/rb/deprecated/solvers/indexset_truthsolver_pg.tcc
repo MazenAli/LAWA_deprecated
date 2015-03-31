@@ -142,7 +142,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       timer2.start();
       int numRows = (int)testbasis_set.size();
       int numCols = (int)testbasis_set.size();
-      DenseVector<Array<T> > rhs(numRows), x(numCols), res(numRows), Ax(numRows);
+      flens::DenseVector<flens::Array<T> > rhs(numRows), x(numCols), res(numRows), Ax(numRows);
       int row_count=1;
       
       for (const_set_it row = testbasis_set.begin(); row != testbasis_set.end(); ++row, ++row_count) {
@@ -228,7 +228,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       
       timer2.start();
       int N = (int)testbasis_set.size();
-      DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+      flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
       
       for (const_set_it row = testbasis_set.begin(); row != testbasis_set.end(); ++row, ++row_count) {
@@ -317,7 +317,7 @@ IndexsetTruthSolver_PG<T, TrialBasis, TestBasis, TrialPrec, TestPrec, Index, Com
       
       timer2.start();
       int N = (int)testbasis_set.size();
-      DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+      flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
       int row_count=1;
       
       for (const_set_it row = testbasis_set.begin(); row != testbasis_set.end(); ++row, ++row_count) {

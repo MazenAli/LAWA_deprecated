@@ -126,8 +126,8 @@ eval(const T* mask, int /*length*/, int start, int end, int level)
 
 template <typename X, typename Y>
 void
-evalAtDyadicGrid_Cascade(const DenseVector<X> &sf, int J,
-                         DenseVector<Y> &scaling)
+evalAtDyadicGrid_Cascade(const flens::DenseVector<X> &sf, int J,
+                         flens::DenseVector<Y> &scaling)
 {
     typedef typename X::ElementType T;
     

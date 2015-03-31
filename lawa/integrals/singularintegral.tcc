@@ -3,7 +3,7 @@ namespace lawa {
 
 
 template <typename SingularKernel, typename First, typename Second>
-typename RestrictTo<!IsDual<First>::value and !IsDual<Second>::value, typename First::T>::Type
+typename cxxblas::RestrictTo<!IsDual<First>::value and !IsDual<Second>::value, typename First::T>::Type
 _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral)
 {
 
@@ -19,12 +19,12 @@ _integrate(const SingularIntegral<SingularKernel,First,Second> &singularintegral
     supp_y.l2 *= singularintegral.RightmLeft; supp_y.l2 += singularintegral.left;
 
     //std::cerr << "Integrate: [" << supp_x.l1 << ", " <<supp_x.l2 << "], [" << supp_y.l1 << ", " << supp_y.l2 << "]" << std::endl;
-    DenseVector<Array<T> > SingularPoints_x =
+    flens::DenseVector<flens::Array<T> > SingularPoints_x =
              singularintegral.first.generator(singularintegral.e1).singularSupport(singularintegral.j1,singularintegral.k1);
     SingularPoints_x *= singularintegral.RightmLeft;
     SingularPoints_x += singularintegral.left;
 
-    DenseVector<Array<T> > SingularPoints_y =
+    flens::DenseVector<flens::Array<T> > SingularPoints_y =
             singularintegral.second.generator(singularintegral.e2).singularSupport(singularintegral.j2,singularintegral.k2);
     SingularPoints_y *= singularintegral.RightmLeft;
     SingularPoints_y += singularintegral.left;
@@ -96,8 +96,8 @@ _integrate(const SingularIntegralPP<SingularKernel,FirstPolynomial,SecondPolynom
             //std::cerr << "   Quadratic domain" << std::endl;
             return singularintegral.singularquadrature(a1, b1, a2, b2, (long double)1e-10);
         }
-        DenseVector<Array<T> > SingularPoints_x(2); SingularPoints_x = a1, b1;
-        DenseVector<Array<T> > SingularPoints_y(2); SingularPoints_y = a2, b2;
+        flens::DenseVector<flens::Array<T> > SingularPoints_x(2); SingularPoints_x = a1, b1;
+        flens::DenseVector<flens::Array<T> > SingularPoints_y(2); SingularPoints_y = a2, b2;
 
         std::vector<T> AllSingularPoints_x, AllSingularPoints_y;
         for (int i=SingularPoints_x.firstIndex(); i<=SingularPoints_x.lastIndex(); ++i) {

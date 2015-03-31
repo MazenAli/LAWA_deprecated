@@ -70,22 +70,22 @@ class Basis<_T,Primal,Interval,Primbs>
         cardJR(int j=-1) const;
 
         // ranges of whole, left, inner, right index sets (primal).
-        const Range<int>
+        const flens::Range<int>
         rangeJ(int j) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJL(int j=-1) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJI(int j) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJR(int j=-1) const;
 
         MRA<T,Primal,Interval,Primbs> mra;
         MRA<T,Dual,Interval,Primbs>  mra_;
 
-        RefinementMatrix<T,Interval,Primbs> M1;
+        flens::RefinementMatrix<T,Interval,Primbs> M1;
 
         const int d, d_, mu;   // mu = mu(d) = d&1.
         const int min_j0;      // minimal allowed(!) level;
@@ -95,7 +95,7 @@ class Basis<_T,Primal,Interval,Primbs>
         void
         _calcM1();
             
-        DenseVector<Array<int> > _bc;    // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 

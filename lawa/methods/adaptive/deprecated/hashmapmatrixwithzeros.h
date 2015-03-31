@@ -76,7 +76,7 @@ struct MapMatrixWithZeros
 
     unsigned int NumOfRows, NumOfCols;
     IndexSet<Index> ConsecutiveIndices;
-    flens::DenseVector<Array<T> > PrecValues;
+    flens::DenseVector<flens::Array<T> > PrecValues;
     std::vector<unsigned long> Zeros;
     bool warning_overflow;
     T entrybound;

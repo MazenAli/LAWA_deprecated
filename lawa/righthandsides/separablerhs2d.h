@@ -40,8 +40,8 @@ class SeparableRHS2D : public Rhs2D<T>
     public:
 
         SeparableRHS2D(const Basis2D& _basis, const SeparableFunction2D<T>& _F,
-                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
-                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
+                       const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
+                       const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
                        int order);
 
         T
@@ -58,8 +58,8 @@ class SeparableRHS2D : public Rhs2D<T>
     private:
         const Basis2D& basis;
         const SeparableFunction2D<T>& F;
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
+        const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
+        const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
         
         typedef typename Basis2D::FirstBasisType Basis_x;
         typedef typename Basis2D::SecondBasisType Basis_y;

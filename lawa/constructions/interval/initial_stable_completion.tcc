@@ -26,12 +26,14 @@ template <typename T, Construction ConsPrimal, Construction ConsDual>
 void
 initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
                           const MRA<T,Dual,Interval,ConsDual> &mra_,
-                          GeMatrix<FullStorage<T,cxxblas::ColMajor> > &M1,
-                          GeMatrix<FullStorage<T,cxxblas::ColMajor> > &M1_)
+                          flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &M1,
+                          flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &M1_)
 {
-    typedef GeMatrix<FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
+    using flens::_;
 
-    const RefinementMatrix<T,Interval,ConsPrimal> &M0 = mra.M0;
+    typedef flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > FullColMatrix;
+
+    const flens::RefinementMatrix<T,Interval,ConsPrimal> &M0 = mra.M0;
     const int d = mra.d;
     const int d_ = mra_.d_;
     const int j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
@@ -87,9 +89,9 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
                 }
             }
             FullColMatrix HTmp = H, HInvTmp = HInv;
-            blas::mm(NoTrans,NoTrans,1.,Hi,MM[i],0.,MM[i+1]);
-            blas::mm(NoTrans,NoTrans,1.,Hi,HTmp,0.,H);
-            blas::mm(NoTrans,NoTrans,1.,HInvTmp,HiInv,0.,HInv);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Hi,MM[i],0.,MM[i+1]);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Hi,HTmp,0.,H);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,HInvTmp,HiInv,0.,HInv);
             Hi.engine().fill(0);
         }
 
@@ -129,13 +131,13 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
             }
             FullColMatrix HiInv(size,size);
             HiInv.diag(0) = 2.;
-            cxxblas::geaxpy(cxxblas::ColMajor,NoTrans,size,size,-1.,
+            cxxblas::geaxpy(cxxblas::ColMajor,cxxblas::NoTrans,size,size,-1.,
                             Hi.engine().data(),size,
                             HiInv.engine().data(),size);
             FullColMatrix HTmp = H, HInvTmp = HInv;
-            blas::mm(NoTrans,NoTrans,1.,Hi,MM[0],0.,MM[i+1]);
-            blas::mm(NoTrans,NoTrans,1.,Hi,HTmp,0.,H);
-            blas::mm(NoTrans,NoTrans,1.,HInvTmp,HiInv,0.,HInv);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Hi,MM[0],0.,MM[i+1]);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Hi,HTmp,0.,H);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,HInvTmp,HiInv,0.,HInv);
             Hi.engine().fill(0);
         }
         
@@ -152,40 +154,40 @@ initial_stable_completion(const MRA<T,Primal,Interval,ConsPrimal> &mra,
     //--- finally setting up M1 and M1_ ----------------------------------------
     //--- M1
     FullColMatrix Mj1Tmp, Mj1initial;
-    blas::mm(NoTrans,NoTrans, 1., HInv, F, 0., Mj1Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans, 1., HInv, F, 0., Mj1Tmp);
     Mj1initial = Mj1Tmp(_(Mj1Tmp.firstRow()+mra_._bc(0), 
                           Mj1Tmp.lastRow()-mra_._bc(1)), _ );
 
     FullColMatrix Mj0, Mj0_;
-    const RefinementMatrix<T,Interval,ConsDual> &M0_ = mra_.M0_;
+    const flens::RefinementMatrix<T,Interval,ConsDual> &M0_ = mra_.M0_;
     M0_.setLevel(j);
     densify(cxxblas::NoTrans, M0, Mj0, M0.firstRow(), M0.firstCol());
     densify(cxxblas::NoTrans, M0_, Mj0_, M0.firstRow(), M0.firstCol());
     FullColMatrix Tmp(M0.numRows(), M0_.numRows());
     Tmp.diag(0) = 1;
-    blas::mm(NoTrans,Trans, -1., Mj0, Mj0_, 1., Tmp);
-    blas::mm(NoTrans, NoTrans, 1., Tmp, Mj1initial, 0., M1);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::Trans, -1., Mj0, Mj0_, 1., Tmp);
+    flens::blas::mm(cxxblas::NoTrans, cxxblas::NoTrans, 1., Tmp, Mj1initial, 0., M1);
 
     //--- M1_
     FullColMatrix Mj(pow2i<T>(j+1)+l2-l1-1-mra_._bc(0)-mra_._bc(1),
                      pow2i<T>(j+1)+l2-l1-1-mra_._bc(0)-mra_._bc(1));
     Mj( _ , _(1,M0.numCols())) = Mj0;
     Mj( _ , _(M0.numCols()+1, Mj.lastCol())) = M1;
-    DenseVector<Array<int> > p(Mj.numRows());
+    flens::DenseVector<flens::Array<int> > p(Mj.numRows());
     FullColMatrix MjInv, MjInvTmp = Mj, TransTmp2;
     
     MjInv = inv(Mj);
 
     FullColMatrix Mj1_Tmp = MjInv(_(pow2i<T>(j)+d-1+1-mra_._bc(0)-mra_._bc(1),
                                     pow2i<T>(j+1)+d-1-mra_._bc(0)-mra_._bc(1)), _ );
-    flens::blas::copy(Trans, Mj1_Tmp, M1_);
+    flens::blas::copy(cxxblas::Trans, Mj1_Tmp, M1_);
 
     M1.engine().changeIndexBase(1+mra_._bc(0),1);
     M1_.engine().changeIndexBase(1+mra_._bc(0),1);
 
     // TODO: theoretical foundation for scaling this way!
-    blas::scal(Const<T>::R_SQRT2,M1_);
-    blas::scal(2*Const<T>::R_SQRT2,M1);
+    flens::blas::scal(Const<T>::R_SQRT2,M1_);
+    flens::blas::scal(2*Const<T>::R_SQRT2,M1);
 }
 
 } // namespace lawa

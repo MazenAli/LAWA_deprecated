@@ -31,8 +31,8 @@ evaluate(const Basis& basis, const int J_x, const int J_y, const flens::DenseVec
     T ret = 0;     
 
     /* SF * SF */
-    Range<int> Rx = basis.first.mra.rangeI(j0_x);
-    Range<int> Ry = basis.second.mra.rangeI(j0_y);
+    flens::Range<int> Rx = basis.first.mra.rangeI(j0_x);
+    flens::Range<int> Ry = basis.second.mra.rangeI(j0_y);
     for (int kx = Rx.firstIndex(); kx <= Rx.lastIndex(); ++kx) {
         for(int ky = Ry.firstIndex(); ky <= Ry.lastIndex(); ++ky){
             ret += coeffs(I(XBSpline, j0_x, kx, XBSpline, j0_y, ky)) 

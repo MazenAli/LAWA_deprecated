@@ -10,7 +10,7 @@ LocalRefinement<PrimalBasis>::LocalRefinement(const PrimalBasis &_basis)
 // Non-Periodic version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
 LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T_,Index1D> &u, int j_scaling,
                                            Coefficients<Lexicographical,T_,Index1D> &u_loc_single) const
 {
@@ -68,7 +68,7 @@ LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T_,
 // Periodic version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
 LocalRefinement<PrimalBasis>::reconstruct(const Coefficients<Lexicographical,T_,Index1D> &u, int j_scaling,
                                            Coefficients<Lexicographical,T_,Index1D> &u_loc_single) const
 {
@@ -167,7 +167,7 @@ LocalRefinement<PrimalBasis>::reconstruct(const CoefficientsByLevel<T> &u_bsplin
 // Non-Periodic Version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
 LocalRefinement<PrimalBasis>::reconstructOnlyMultiScaling
                                (const CoefficientsByLevel<T_> &u_scaling, int j,
                                 CoefficientsByLevel<T_> &u_loc_single, int &j_refinement) const
@@ -188,7 +188,7 @@ LocalRefinement<PrimalBasis>::reconstructOnlyMultiScaling
 // Periodic Version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
 LocalRefinement<PrimalBasis>::reconstructOnlyMultiScaling
                                (const CoefficientsByLevel<T_> &u_scaling, int j,
                                 CoefficientsByLevel<T_> &u_loc_single, int &j_refinement) const
@@ -233,7 +233,7 @@ LocalRefinement<PrimalBasis>::reconstructBSpline(int j, long k, T coeff,
 // Non-Periodic Version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
 LocalRefinement<PrimalBasis>::reconstructWavelet(int j, long k, T_ coeff,
                                                   CoefficientsByLevel<T_> &u_loc_single,
                                                   int &j_refinement) const
@@ -253,7 +253,7 @@ LocalRefinement<PrimalBasis>::reconstructWavelet(int j, long k, T_ coeff,
 //Periodic Version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
 LocalRefinement<PrimalBasis>::reconstructWavelet(int j, long k, T_ coeff,
                                                   CoefficientsByLevel<T_> &u_loc_single,
                                                   int &j_refinement) const
@@ -309,7 +309,7 @@ LocalRefinement<PrimalBasis>::decompose_OnlyMultiScaling(const CoefficientsByLev
 // Non-Periodic Version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
 LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T_> &u_loc_single,
                                                  int j, long k) const
 {
@@ -337,7 +337,7 @@ LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T_> &u
 // Periodic Version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
 LocalRefinement<PrimalBasis>::decompose_Scaling(const CoefficientsByLevel<T_> &u_loc_single,
                                                  int j, long k) const
 {
@@ -395,7 +395,7 @@ LocalRefinement<PrimalBasis>::decompose_BSpline(const CoefficientsByLevel<T> &u_
 // Non-Periodic Version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
 LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T_> &u_loc_single,
                                                  int j, long k) const
 {
@@ -423,7 +423,7 @@ LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T_> &u
 // Periodic Version
 template <typename PrimalBasis>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
 LocalRefinement<PrimalBasis>::decompose_Wavelet(const CoefficientsByLevel<T_> &u_loc_single,
                                                  int j, long k) const
 {

@@ -28,14 +28,14 @@ Basis<T,Primal,Periodic,CDF>::Basis(int _d, int _d_, int j)
 {
 	if(d == 2 && d_ == 2){
 
-        _periodicRefCoeffs = new DenseVector<Array<long double> >[1];
+        _periodicRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _periodicRefCoeffs[0].engine().resize(5,0);
         _periodicRefCoeffs[0] = 1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
 
 		_innerOffsets = new long[1];
         _innerOffsets[0] = 0;
 
-        _rightRefCoeffs = new DenseVector<Array<long double> >[2];
+        _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
         _rightRefCoeffs[0].engine().resize(6,0);
         _rightRefCoeffs[0] =  1.L/(4.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), - 3.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(2.L*std::sqrt(2.L)), 1.L/(4.L*std::sqrt(2.L));
 
@@ -125,41 +125,41 @@ Basis<T,Primal,Periodic,CDF>::cardJR(int /*j*/) const
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Periodic,CDF>::rangeJ(int j) const
 {
     assert(j>=j0);
 
-    return Range<int>(1,pow2i<T>(j));
+    return flens::Range<int>(1,pow2i<T>(j));
 }
 
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Periodic,CDF>::rangeJL(int j) const
 {
     assert(j>=j0);
 
-    return Range<int>(1,cardJL());
+    return flens::Range<int>(1,cardJL());
 }
 
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Periodic,CDF>::rangeJI(int j) const
 {
     assert(j>=j0);
 
-    return Range<int>(cardJL() + 1,pow2i<T>(j) - cardJR());
+    return flens::Range<int>(cardJL() + 1,pow2i<T>(j) - cardJR());
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Periodic,CDF>::rangeJR(int j) const
 {
     assert(j>=j0);
 
-    return Range<int>(pow2i<T>(j) - std::ceil((d + d_)/2.0 - 1), pow2i<T>(j));
+    return flens::Range<int>(pow2i<T>(j) - std::ceil((d + d_)/2.0 - 1), pow2i<T>(j));
 }
 
 template <typename T>

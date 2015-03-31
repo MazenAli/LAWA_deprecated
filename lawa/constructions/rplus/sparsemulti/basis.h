@@ -78,7 +78,7 @@ class Basis<_T,Primal,RPlus,SparseMulti>
         const int j0;          // minimal used(!) level.
     
     private:
-        DenseVector<Array<int> > _bc;  // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
         
         mutable int _j;                // the current level.
@@ -93,9 +93,9 @@ class Basis<_T,Primal,RPlus,SparseMulti>
                   *_innerEvaluator;
         Support<T> *_leftSupport, 
                    *_innerSupport;
-        DenseVector<Array<T> > *_leftSingularSupport, 
+        flens::DenseVector<flens::Array<T> > *_leftSingularSupport, 
                                *_innerSingularSupport;
-        DenseVector<Array<T> > _leftScalingFactors, _innerScalingFactors;
+        flens::DenseVector<flens::Array<T> > _leftScalingFactors, _innerScalingFactors;
         
     public:
         Wavelet<T,Primal,RPlus,SparseMulti> psi;

@@ -32,9 +32,9 @@ class SeparableRHS3D
     private:
         const Basis3D& basis;
         const SeparableFunction3D<T>& F;
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z;
+        const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x;
+        const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y;
+        const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z;
         
         typedef typename Basis3D::FirstBasisType Basis_x;
         typedef typename Basis3D::SecondBasisType Basis_y;
@@ -46,9 +46,9 @@ class SeparableRHS3D
 
     public:
         SeparableRHS3D(const Basis3D& _basis, const SeparableFunction3D<T>& _F,
-                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
-                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
-                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z,
+                       const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_x,
+                       const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_y,
+                       const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &deltas_z,
                        int order);
 
         T

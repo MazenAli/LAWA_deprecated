@@ -223,7 +223,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
         //std::cerr << "    Assembling of B started with N=" << N << std::endl;
 
 
-        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > B(N,N);
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > B(N,N);
         Timer time_assemble;
         time_assemble.start();
         A.toFlensSparseMatrix(Lambda,Lambda,B,J);
@@ -238,7 +238,7 @@ GHS_ADWAV<T,Index,AdaptiveOperator,RHS>::GALSOLVE(const IndexSet<Index> &Lambda,
         std::cerr << "      Required time for APPLY: " << time_apply.elapsed() << std::endl;
         r0 = g - APPLY_Aw;
 
-        DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
+        flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Bx(N);
 
         const_coeff_it r0_end = r0.end();
         int row_count=1;

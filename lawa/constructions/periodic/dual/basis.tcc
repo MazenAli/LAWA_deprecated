@@ -64,12 +64,12 @@ Basis<T,Dual,Periodic,CDF>::cardJ_(int j) const
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 Basis<T,Dual,Periodic,CDF>::rangeJ_(int j) const
 {
     assert(j>=j0);
 
-    return Range<int>(0,pow2i<T>(j)-1);
+    return flens::Range<int>(0,pow2i<T>(j)-1);
 }
 
 } // namespace lawa

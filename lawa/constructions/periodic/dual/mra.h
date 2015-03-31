@@ -50,12 +50,12 @@ class MRA<_T,Dual,Periodic,CDF>
         int
         cardI_(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI_(int j) const;
 
         const int d, d_, j0;
         BSpline<T,Dual,Periodic,CDF> phi_;
-        RefinementMatrix<T,Periodic,CDF> M0_;
+        flens::RefinementMatrix<T,Periodic,CDF> M0_;
         
     protected:
         mutable int _j;

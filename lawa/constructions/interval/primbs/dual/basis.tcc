@@ -72,7 +72,7 @@ Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
                       Tmp, Tmp2, Tmp3, Tmp4, Mj1, Mjj1;
         H.diag(0) = 1.;
 
-        DenseVector<Array<T> > x(pow2i<T>(j+1)-d+1), tmp;
+        flens::DenseVector<flens::Array<T> > x(pow2i<T>(j+1)-d+1), tmp;
         for (int i=1; i<=d+1; ++i) {
             x(i) = phiR.a(phiR.a.firstIndex()-1+i);
         }
@@ -87,7 +87,7 @@ Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
                 }
                 tmp = x;
                 x = A*tmp;
-                blas::mm(NoTrans,NoTrans,1.,A,H,0.,Tmp);
+                flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,A,H,0.,Tmp);
                 H = Tmp;
             } else if (i-2*ifloor(i/2.)==0) {
                 for (int k=iceil<int>(1/2.-i/4.); k<=ifloor(pow2i<T>(j)-d/2.-i/4.); ++k) {
@@ -95,7 +95,7 @@ Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
                 }
                 tmp = x;
                 x = A*tmp;
-                blas::mm(NoTrans,NoTrans,1.,A,H,0.,Tmp);
+                flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,A,H,0.,Tmp);
                 H = Tmp;
             }
         }
@@ -142,8 +142,8 @@ Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
             }
         }
 
-        blas::mm(NoTrans,NoTrans,1.,Pj,InvHj,0.,Tmp);
-        blas::mm(NoTrans,NoTrans,1.,Tmp,Fj,0.,Tmp2);
+        flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Pj,InvHj,0.,Tmp);
+        flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,Fj,0.,Tmp2);
 
         Identity.diag(0) = 1.;
         FullColMatrix DM0, DM0_;
@@ -151,13 +151,13 @@ Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
         densify(cxxblas::NoTrans, mra_.M0_, DM0_);
 
         T factor = powii(-1,d+1)*1./b;
-        blas::mm(NoTrans,Trans,1.,DM0,DM0_,0.,Tmp3);
+        flens::blas::mm(cxxblas::NoTrans,cxxblas::Trans,1.,DM0,DM0_,0.,Tmp3);
         Tmp4 = Identity;
-        blas::axpy(NoTrans,-1.,Tmp3,Tmp4);
-        blas::mm(NoTrans,NoTrans,factor,Tmp4,Tmp2,0.,Mj1);
+        flens::blas::axpy(cxxblas::NoTrans,-1.,Tmp3,Tmp4);
+        flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,factor,Tmp4,Tmp2,0.,Mj1);
 
-        blas::mm(Trans,NoTrans,1.,Fj,Hj,0.,Tmp);
-        blas::mm(NoTrans,NoTrans,1.,Tmp,inv(Pj),0.,Tmp2);
+        flens::blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,Fj,Hj,0.,Tmp);
+        flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,inv(Pj),0.,Tmp2);
 
         Mjj1.engine().resize(Tmp2.cols(),Tmp2.rows());
         for (int row=Mjj1.firstRow(); row<=Mjj1.lastRow(); ++row) {
@@ -194,9 +194,9 @@ Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
             }
 
             FullColMatrix Kj, InvKj;
-            blas::mm(Trans,NoTrans,1.,Hjj1,Hj1,0.,Kj);
+            flens::blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,Hjj1,Hj1,0.,Kj);
             InvKj = inv(Kj);
-            blas::mm(NoTrans,NoTrans,2.,Hj1,InvKj,0.,Mj1);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,2.,Hj1,InvKj,0.,Mj1);
             Mjj1 = Hjj1;
         }
 
@@ -208,8 +208,8 @@ Basis<T,Dual,Interval,Primbs>::enforceBoundaryCondition()
             numDualCols += 1;
         }
 
-        blas::scal(Const<T>::R_SQRT2*.5, Mjj1);
-        M1_ = RefinementMatrix<T,Interval,Primbs>(numDualCols, numDualCols, Mjj1, min_j0, min_j0);
+        flens::blas::scal(Const<T>::R_SQRT2*.5, Mjj1);
+        M1_ = flens::RefinementMatrix<T,Interval,Primbs>(numDualCols, numDualCols, Mjj1, min_j0, min_j0);
         setLevel(_j);
     }
 }
@@ -264,7 +264,7 @@ Basis<T,Dual,Interval,Primbs>::cardJ_R(int j) const
 
 // ranges of whole, left, inner, right index sets (primal).
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Dual,Interval,Primbs>::rangeJ_(int j) const
 {
     assert(0);
@@ -273,7 +273,7 @@ Basis<T,Dual,Interval,Primbs>::rangeJ_(int j) const
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Dual,Interval,Primbs>::rangeJ_L(int j) const
 {
     assert(0);
@@ -282,7 +282,7 @@ Basis<T,Dual,Interval,Primbs>::rangeJ_L(int j) const
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Dual,Interval,Primbs>::rangeJ_I(int j) const
 {
     assert(0);
@@ -292,7 +292,7 @@ Basis<T,Dual,Interval,Primbs>::rangeJ_I(int j) const
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Dual,Interval,Primbs>::rangeJ_R(int j) const
 {
     assert(0);
@@ -313,7 +313,7 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
                    Tmp, Tmp2, Tmp3, Tmp4, Mj1, Mjj1;
     H.diag(0) = 1.;
 
-    DenseVector<Array<T> > x(pow2i<T>(min_j0+1)-d+1), tmp;
+    flens::DenseVector<flens::Array<T> > x(pow2i<T>(min_j0+1)-d+1), tmp;
     for (int i=1; i<=d+1; ++i) {
         x(i) = phiR.a(phiR.a.firstIndex()-1+i);
     }
@@ -326,7 +326,7 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
             }
             tmp = x;
             x = A*tmp;
-            blas::mm(NoTrans,NoTrans,1.,A,H,0.,Tmp);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,A,H,0.,Tmp);
             H = Tmp;
         } else if (i-2*ifloor(i/2.)==0) {
             for (int k=iceil<int>(1/2.-i/4.); k<=ifloor(pow2i<T>(min_j0)-d/2.-i/4.); ++k) {
@@ -334,7 +334,7 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
             }
             tmp = x;
             x = A*tmp;
-            blas::mm(NoTrans,NoTrans,1.,A,H,0.,Tmp);
+            flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,A,H,0.,Tmp);
             H = Tmp;
         }
     }
@@ -379,8 +379,8 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
         }
     }
 
-    blas::mm(NoTrans,NoTrans,1.,Pj,InvHj,0.,Tmp);
-    blas::mm(NoTrans,NoTrans,1.,Tmp,Fj,0.,Tmp2);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Pj,InvHj,0.,Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,Fj,0.,Tmp2);
     Identity.diag(0) = 1.;
 
     FullColMatrix DM0, DM0_;
@@ -388,15 +388,15 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
     densify(cxxblas::NoTrans, mra_.M0_, DM0_);
 
     T factor = powii(-1,d+1)*2./b;
-    blas::mm(NoTrans,Trans,1.,DM0,DM0_,0.,Tmp3);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::Trans,1.,DM0,DM0_,0.,Tmp3);
     Tmp4 = Identity;
-    blas::axpy(NoTrans,-1.,Tmp3,Tmp4);
-    blas::mm(NoTrans,NoTrans,factor,Tmp4,Tmp2,0.,Mj1);
+    flens::blas::axpy(cxxblas::NoTrans,-1.,Tmp3,Tmp4);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,factor,Tmp4,Tmp2,0.,Mj1);
 
-    blas::mm(Trans,NoTrans,1.,Fj,Hj,0.,Tmp);
-    blas::mm(NoTrans,NoTrans,1.,Tmp,inv(Pj),0.,Tmp2);
+    flens::blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,Fj,Hj,0.,Tmp);
+    flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,1.,Tmp,inv(Pj),0.,Tmp2);
 
-//    blas::axpy(Trans,2./factor,Tmp2,Mjj1);
+//    flens::blas::axpy(cxxblas::Trans,2./factor,Tmp2,Mjj1);
     Mjj1.engine().resize(Tmp2.cols(),Tmp2.rows());
     for (int row=Mjj1.firstRow(); row<=Mjj1.lastRow(); ++row) {
         for (int col=Mjj1.firstCol(); col<=Mjj1.lastCol(); ++col) {
@@ -432,9 +432,9 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
         }
 
         FullColMatrix Kj, InvKj;
-        blas::mm(Trans,NoTrans,1.,Hjj1,Hj1,0.,Kj);
+        flens::blas::mm(cxxblas::Trans,cxxblas::NoTrans,1.,Hjj1,Hj1,0.,Kj);
         InvKj = inv(Kj);
-        blas::mm(NoTrans,NoTrans,2.,Hj1,InvKj,0.,Mj1);
+        flens::blas::mm(cxxblas::NoTrans,cxxblas::NoTrans,2.,Hj1,InvKj,0.,Mj1);
         Mjj1 = Hjj1;
     }
 
@@ -446,8 +446,8 @@ Basis<T,Dual,Interval,Primbs>::_calcM1_()
         numDualCols += 1;
     }
 
-    blas::scal(Const<T>::R_SQRT2*.5, Mjj1);
-    M1_ = RefinementMatrix<T,Interval,Primbs>(numDualCols,numDualCols,Mjj1,min_j0,min_j0);
+    flens::blas::scal(Const<T>::R_SQRT2*.5, Mjj1);
+    M1_ = flens::RefinementMatrix<T,Interval,Primbs>(numDualCols,numDualCols,Mjj1,min_j0,min_j0);
     setLevel(_j);
 }
 

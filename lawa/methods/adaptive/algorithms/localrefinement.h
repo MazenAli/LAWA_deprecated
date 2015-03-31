@@ -52,12 +52,12 @@ class LocalRefinement
         // Computes the common local refinement of a scaling coefficient vector (including
         // multiscaling!!) and a multilevel wavelet coefficient vector (including multiwavelets!!).
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
         reconstruct(const Coefficients<Lexicographical,T_,Index1D> &u, int j_scaling,
                     Coefficients<Lexicographical,T_,Index1D> &u_loc_single) const;
 
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
         reconstruct(const Coefficients<Lexicographical,T_,Index1D> &u, int j_scaling,
                     Coefficients<Lexicographical,T_,Index1D> &u_loc_single) const;
 
@@ -70,12 +70,12 @@ class LocalRefinement
 
         //Computes the local refinement of a multiscaling representation
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
         reconstructOnlyMultiScaling(const CoefficientsByLevel<T_> &u_scaling, int j,
                                     CoefficientsByLevel<T_> &u_loc_single, int &j_refinement) const;
 
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
         reconstructOnlyMultiScaling(const CoefficientsByLevel<T_> &u_scaling, int j,
                                     CoefficientsByLevel<T_> &u_loc_single, int &j_refinement) const;
 
@@ -87,12 +87,12 @@ class LocalRefinement
 
         //Computes the local refinement of a Wavelet (also multiwavelet!!)
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
         reconstructWavelet(int j, long k, T_ coeff, CoefficientsByLevel<T_> &u_loc_single,
                            int &j_refinement) const;
 
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, void>::Type
         reconstructWavelet(int j, long k, T_ coeff, CoefficientsByLevel<T_> &u_loc_single,
                            int &j_refinement) const;
 
@@ -111,11 +111,11 @@ class LocalRefinement
         // index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and $\Phi_{j+1}$ corresponds
         // to a (local) refinement B-spline vector.
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
         decompose_Scaling(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
 
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
         decompose_Scaling(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
 
         // Computes $M^{\lambda;j,0}^T C where $\lambda$ corresponds to a (refinement)-bspline
@@ -128,11 +128,11 @@ class LocalRefinement
         // (multi)-wavelet index. Here, u_loc_single corresponds to $< \Phi_{j+1},v>$ and
         // $\Phi_{j+1}$ corresponds to a (local) refinement B-spline vector.
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
         decompose_Wavelet(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
 
         template <typename T_>
-        typename RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
+        typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<PrimalBasis>::value,T_>::value, T_>::Type
         decompose_Wavelet(const CoefficientsByLevel<T_> &u_loc_single, int j, long k) const;
 };
 

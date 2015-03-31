@@ -3,8 +3,8 @@ namespace lawa {
 template<typename T, typename Basis2D>
 SeparableRHS2D<T, Basis2D>::SeparableRHS2D
                             (const Basis2D& _basis, const SeparableFunction2D<T>& _F,
-                             const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_x,
-                             const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_y,
+                             const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_x,
+                             const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_y,
                              int order)
     : basis(_basis), F(_F), deltas_x(_deltas_x), deltas_y(_deltas_y),
       integralf_x(F.F_x, basis.first), integralf_y(F.F_y, basis.second)

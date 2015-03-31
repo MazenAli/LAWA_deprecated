@@ -30,6 +30,8 @@ flens::DenseVector<flens::Array<T> >
 RB_System<T,ParamType>::
 get_rb_solution(std::size_t N, ParamType& mu)
 {
+    using flens::_;
+
 	if(N==0){
 		return DenseVectorT(0);
 	}
@@ -42,13 +44,13 @@ get_rb_solution(std::size_t N, ParamType& mu)
 
 	for (std::size_t i = 0; i < thetas_a.size(); ++i) {
 		//A += thetas_a.eval(i,mu) * RB_A_matrices[i](_(1,N), _(1,N));
-		flens::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,N), _(1,N)), A);
+		flens::blas::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,N), _(1,N)), A);
 	}
 
 	DenseVectorT F(N);
 	for (unsigned int i = 0; i < thetas_f.size(); ++i) {
 		//F += thetas_f.eval(i,mu) * RB_F_vectors[i](_(1,N));
-		flens::axpy(thetas_f.eval(i,mu), RB_F_vectors[i](_(1,N)), F);
+		flens::blas::axpy(thetas_f.eval(i,mu), RB_F_vectors[i](_(1,N)), F);
 	}
 
 	DenseVectorT u(N);
@@ -102,6 +104,8 @@ flens::DenseVector<flens::Array<T> >
 RB_System<T,ParamType>::
 get_rb_solution(std::vector<std::size_t> indices, ParamType& mu)
 {
+    using flens::_;
+
 	std::size_t N = indices.size();
 	if(N==0){
 		return DenseVectorT(0);
@@ -118,13 +122,13 @@ get_rb_solution(std::vector<std::size_t> indices, ParamType& mu)
 
 	for (std::size_t i = 0; i < thetas_a.size(); ++i) {
 		//A += thetas_a.eval(i,mu) * RB_A_matrices[i](_(1,N), _(1,N));
-		flens::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,Nmax), _(1,Nmax)), Afull);
+		flens::blas::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,Nmax), _(1,Nmax)), Afull);
 	}
 
 	DenseVectorT Ffull(Nmax);
 	for (std::size_t i = 0; i < thetas_f.size(); ++i) {
 		//F += thetas_f.eval(i,mu) * RB_F_vectors[i](_(1,N));
-		flens::axpy(thetas_f.eval(i,mu), RB_F_vectors[i](_(1,Nmax)), Ffull);
+		flens::blas::axpy(thetas_f.eval(i,mu), RB_F_vectors[i](_(1,Nmax)), Ffull);
 	}
 
 	// Then throw away unnecessary info
@@ -196,21 +200,22 @@ template<typename T, typename ParamType>
 void
 RB_System<T,ParamType>::
 get_rb_LGS(std::size_t N, ParamType& mu, FullColMatrixT& A, DenseVectorT& F){
-    
+    using flens::_;
+
     FullColMatrixT A_(N, N);
 	for (std::size_t i = 0; i < thetas_a.size(); ++i) {
 		//A += thetas_a.eval(i,mu) * RB_A_matrices[i](_(1,N), _(1,N));
-		flens::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,N), _(1,N)), A);
+		flens::blas::axpy(cxxblas::NoTrans, thetas_a.eval(i,mu), RB_A_matrices[i](_(1,N), _(1,N)), A);
 	}
 
     DenseVectorT F_(N);
 	for (unsigned int i = 0; i < thetas_f.size(); ++i) {
 		//F += thetas_f.eval(i,mu) * RB_F_vectors[i](_(1,N));
-		flens::axpy(thetas_f.eval(i,mu), RB_F_vectors[i](_(1,N)), F);
+		flens::blas::axpy(thetas_f.eval(i,mu), RB_F_vectors[i](_(1,N)), F);
 	}
 	
-    flens::copy(F, F_);
-    flens::copy(cxxblas::NoTrans, A, A_);
+    flens::blas::copy(F, F_);
+    flens::blas::copy(cxxblas::NoTrans, A, A_);
 }
 
 template<typename T, typename ParamType>
@@ -527,6 +532,8 @@ void
 RB_System<T,ParamType>::
 read_rb_data(const std::string& directory_name, int nb)
 {
+    using flens::_;
+
 	// Read Nr of BasisFunctions
 	unsigned int n_bf;
 	std::string n_bf_filename = directory_name + "/n_bf.txt";

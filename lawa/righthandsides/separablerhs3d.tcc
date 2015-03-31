@@ -3,9 +3,9 @@ namespace lawa {
 template<typename T, typename Basis3D>
 SeparableRHS3D<T, Basis3D>::SeparableRHS3D
                             (const Basis3D& _basis, const SeparableFunction3D<T>& _F,
-                             const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_x,
-                             const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_y,
-                             const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_z,
+                             const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_x,
+                             const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_y,
+                             const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas_z,
                              int order)
     : basis(_basis), F(_F),
       deltas_x(_deltas_x), deltas_y(_deltas_y), deltas_z(_deltas_z),

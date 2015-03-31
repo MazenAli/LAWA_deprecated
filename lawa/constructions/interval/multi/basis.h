@@ -175,7 +175,7 @@ class Basis<_T,Orthogonal,Interval,Multi>
 
 
    // private:      // should be private one fine day
-        DenseVector<Array<int> > _bc;  // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
                                        // bc(1) = 1 -> Dirichlet BC right.
         
@@ -192,11 +192,11 @@ class Basis<_T,Orthogonal,Interval,Multi>
         Support<T> *_leftSupport, 
                    *_innerSupport, 
                    *_rightSupport;
-        DenseVector<Array<T> > *_leftSingularSupport, 
+        flens::DenseVector<flens::Array<T> > *_leftSingularSupport, 
                                *_innerSingularSupport, 
                                *_rightSingularSupport;
         
-        DenseVector<Array<long double> > *_leftRefCoeffs,
+        flens::DenseVector<flens::Array<long double> > *_leftRefCoeffs,
                                          *_innerRefCoeffs,
                                          *_rightRefCoeffs;
 

@@ -42,7 +42,7 @@ class RefinementMatrix<T,lawa::R,lawa::CDF>
         template <lawa::FunctionSide Side>
             RefinementMatrix(const lawa::Wavelet<T,Side,lawa::R,lawa::CDF> &bw);
 
-        DenseVector<Array<T> > band;
+        flens::DenseVector<flens::Array<T> > band;
 };
 
 template <typename T>
@@ -57,7 +57,7 @@ template <typename X, typename Y>
 void
 mv(cxxblas::Transpose transA, typename X::ElementType alpha,
    const RefinementMatrix<typename X::ElementType,lawa::R,lawa::CDF> &A,
-   const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y);
+   const flens::DenseVector<X> &x, typename X::ElementType beta, flens::DenseVector<Y> &y);
 
 } // namespace flens
 

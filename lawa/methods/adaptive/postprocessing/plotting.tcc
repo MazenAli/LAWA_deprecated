@@ -23,14 +23,14 @@ namespace lawa {
 
 template <typename T, typename Basis>
 void
-getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff, DenseVector<Array<T> > &sing_pts)
+getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff, flens::DenseVector<flens::Array<T> > &sing_pts)
 {
 
     typedef typename Coefficients<Lexicographical,T,Index1D >::const_iterator coeff_it;
     std::list<T> temp;
     for (coeff_it it = coeff.begin(); it != coeff.end(); ++it) {
         
-        DenseVector<Array<T> > bf_singpts = basis.generator((*it).first.xtype).singularSupport((*it).first.j, (*it).first.k);
+        flens::DenseVector<flens::Array<T> > bf_singpts = basis.generator((*it).first.xtype).singularSupport((*it).first.j, (*it).first.k);
 
         for (int i = bf_singpts.firstIndex(); i <= bf_singpts.lastIndex(); ++i) {
             temp.push_back(bf_singpts(i));
@@ -55,7 +55,7 @@ plot(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
     PlotFileName << filename << ".dat";
     std::ofstream plotfile(PlotFileName.str().c_str());
 
-    DenseVector<Array<T> > sing_pts;
+    flens::DenseVector<flens::Array<T> > sing_pts;
     getSingularPoints(basis, coeff, sing_pts);
 
     for (int i=sing_pts.firstIndex(); i<=sing_pts.lastIndex(); ++i) {

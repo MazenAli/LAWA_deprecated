@@ -56,14 +56,14 @@ class Basis<_T,Dual,Periodic,CDF>
         int
         cardJ_(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeJ_(int j) const;
 
         const int d, d_, j0;
         MRA<T,Primal,Periodic,CDF> mra;
         MRA<T,Dual,Periodic,CDF> mra_;
         Wavelet<T,Dual,Periodic,CDF> psi_;
-        RefinementMatrix<T,Periodic,CDF> M1_;
+        flens::RefinementMatrix<T,Periodic,CDF> M1_;
         
     private:
         mutable int _j;

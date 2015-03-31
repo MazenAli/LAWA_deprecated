@@ -90,7 +90,7 @@ struct LocalOperator2D : AbstractLocalOperator2D<typename LocalOperator1::T>{
 
     // ORIGINAL: Non-Periodic version
     template <typename T_>
-    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+    typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
     				and SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
     initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
                                     const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
@@ -99,9 +99,9 @@ struct LocalOperator2D : AbstractLocalOperator2D<typename LocalOperator1::T>{
 
     // Periodic trial basis version
     template <typename T_>
-//    typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+//    typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
 //    				and SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
-    typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+    typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
     initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
                                     const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
                                     Coefficients<Lexicographical,T_,Index2D> &IAv) const;
@@ -109,7 +109,7 @@ struct LocalOperator2D : AbstractLocalOperator2D<typename LocalOperator1::T>{
 
     // NonPeriodic-Periodic version
     template <typename T_>
-    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+    typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
     				and SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
     initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
                                     const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
@@ -135,7 +135,7 @@ struct LocalOperator2D : AbstractLocalOperator2D<typename LocalOperator1::T>{
 
     // ORIGINAL: Non-Periodic version
     template <typename T_>
-    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+    typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
     				and SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
     evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
            const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
@@ -143,14 +143,14 @@ struct LocalOperator2D : AbstractLocalOperator2D<typename LocalOperator1::T>{
 
     // Periodic trial basis version
     template <typename T_>
-    typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+    typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
     evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
            const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
            Coefficients<Lexicographical,T_,Index2D> &UIz) /*const*/;
 
     // NonPeriodic-Periodic version
     template <typename T_>
-    typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+    typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
     				and SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
     evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
            const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,

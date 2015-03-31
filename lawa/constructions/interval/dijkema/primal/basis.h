@@ -73,16 +73,16 @@ class Basis<_T,Primal,Interval,Dijkema>
         cardJR(int j=-1) const;
 
         // ranges of whole, left, inner, right index sets (primal).
-        const Range<int>
+        const flens::Range<int>
         rangeJ(int j) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJL(int j=-1) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJI(int j) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJR(int j=-1) const;
 
         /// Returns the range of indicicated functions wavelets from SecondBasis or
@@ -217,7 +217,7 @@ class Basis<_T,Primal,Interval,Dijkema>
         const int j0;          // minimal used(!) level.
 
     private:
-        DenseVector<Array<int> > _bc;    // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.
                                            // bc(1) = 1 -> Dirichlet BC right.
 
@@ -225,7 +225,7 @@ class Basis<_T,Primal,Interval,Dijkema>
 
         friend class Wavelet<T,Primal,Interval,Dijkema>;
 
-        DenseVector<Array<long double> > *_leftRefCoeffs,
+        flens::DenseVector<flens::Array<long double> > *_leftRefCoeffs,
                                          *_innerRefCoeffs,
                                          *_rightRefCoeffs;
 
@@ -243,7 +243,7 @@ class Basis<_T,Primal,Interval,Dijkema>
         Wavelet<T,Primal,Interval,Dijkema> psi;
         Basis<T,Primal,Interval,Dijkema> &refinementbasis;
 
-        RefinementMatrix<T,Interval,Dijkema> M1;
+        flens::RefinementMatrix<T,Interval,Dijkema> M1;
 
         class LaplaceOperator1D {
             public:
@@ -257,8 +257,8 @@ class Basis<_T,Primal,Interval,Dijkema>
                 int d;
                 const Basis<_T,Primal,Interval,Dijkema> &refinementbasis;
 
-                DenseVector<Array<long double> > outer_values;
-                DenseVector<Array<long double> > inner_values;
+                flens::DenseVector<flens::Array<long double> > outer_values;
+                flens::DenseVector<flens::Array<long double> > inner_values;
         };
 
         class IdentityOperator1D {
@@ -273,8 +273,8 @@ class Basis<_T,Primal,Interval,Dijkema>
                 int d;
                 const Basis<_T,Primal,Interval,Dijkema> &refinementbasis;
 
-                DenseVector<Array<long double> > outer_values;
-                DenseVector<Array<long double> > inner_values;
+                flens::DenseVector<flens::Array<long double> > outer_values;
+                flens::DenseVector<flens::Array<long double> > inner_values;
         };
 
         LaplaceOperator1D LaplaceOp1D;

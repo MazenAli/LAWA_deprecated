@@ -43,18 +43,18 @@ template <typename X, typename Y>
 void
 mv(Transpose transA, typename X::ElementType alpha,
    const RefinementMatrix<typename X::ElementType,lawa::Periodic,lawa::CDF> &A,
-   const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y)
+   const flens::DenseVector<X> &x, typename X::ElementType beta, flens::DenseVector<Y> &y)
 {
     typedef typename X::ElementType T;
 
     assert(alpha==1.);
     assert(x.engine().stride()==1);
 
-    const DenseVector<Array<T> > &a = A.band;
+    const flens::DenseVector<flens::Array<T> > &a = A.band;
     int lx = x.length();
     int la = a.length();
     
-    if (transA==NoTrans) {
+    if (transA==cxxblas::NoTrans) {
         const T *xp = x.engine().data();
         if (beta==0) {
             y.engine().resize(2*lx,x.firstIndex()) || y.engine().fill();
@@ -65,7 +65,7 @@ mv(Transpose transA, typename X::ElementType alpha,
         if (la>ly) {
             // TODO: eliminate z (only needed since y can be a view and 
             // calculations are 0-based. Thus y can not be re-indexed.
-            DenseVector<Array<T> > z = y;
+            flens::DenseVector<flens::Array<T> > z = y;
             z.engine().changeIndexBase(0);
             for (int k=0; k<lx; ++k, ++xp) {
                 int pos = (z.lastIndex() - (-a.firstIndex() % ly) + 1 + 2*k)%ly;
@@ -120,7 +120,7 @@ mv(Transpose transA, typename X::ElementType alpha,
                 }
             }
         } else {
-            DenseVector<Array<T> > ends(2*la-2);
+            flens::DenseVector<flens::Array<T> > ends(2*la-2);
             ends(_(1,la-1)) = x(_(x.firstIndex()+lx-la+1,x.firstIndex()+lx-1));
             ends(_(la,2*la-2)) = x(_(x.firstIndex(),x.firstIndex()+la-2));
             T *iter = y.engine().data();

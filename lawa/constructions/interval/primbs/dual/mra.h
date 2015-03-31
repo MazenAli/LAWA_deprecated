@@ -95,8 +95,8 @@ class MRA<_T,Dual,Interval,Primbs>
     private:
 
         void
-        _orthonormalize(const flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > &L3,
-                        const flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > &LL3);
+        _orthonormalize(const flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &L3,
+                        const flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &LL3);
 
         void
         _Umrechnung1(int d);
@@ -116,7 +116,7 @@ class MRA<_T,Dual,Interval,Primbs>
         void
         _calcM0_();
 
-        flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > W, Mp, Mj, MP, MD, MDD, MDDD, M1, TT;
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > W, Mp, Mj, MP, MD, MDD, MDDD, M1, TT;
 
         flens::DenseVector<flens::Array<int> > _bc;    // the boundary conditions
                                            // bc(0) = 1 -> Dirichlet BC left.

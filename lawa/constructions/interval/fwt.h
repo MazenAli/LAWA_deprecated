@@ -28,39 +28,39 @@ namespace lawa {
 
 template <typename X, typename Y, Construction Cons>
     void
-    decompose(const DenseVector<X> &x, 
+    decompose(const flens::DenseVector<X> &x, 
               const Basis<typename X::ElementType,Dual,Interval,Cons> &basis_, int j,
-              DenseVector<Y> &y);
+              flens::DenseVector<Y> &y);
 
 template <typename X, typename Y, Construction Cons>
     void
-    decompose_(const DenseVector<X> &x,
+    decompose_(const flens::DenseVector<X> &x,
                const Basis<typename X::ElementType,Primal,Interval,Cons> &basis, int j,
-               DenseVector<Y> &y);
+               flens::DenseVector<Y> &y);
 
 template <typename X, typename Y, Construction Cons>
     void
-    reconstruct(const DenseVector<X> &x, 
+    reconstruct(const flens::DenseVector<X> &x, 
                 const Basis<typename X::ElementType,Primal,Interval,Cons> &basis, int j,
-                DenseVector<Y> &y);
+                flens::DenseVector<Y> &y);
 
 template <typename X, typename Y, Construction Cons>
     void
-    reconstruct_(const DenseVector<X> &x,
+    reconstruct_(const flens::DenseVector<X> &x,
                  const Basis<typename X::ElementType,Dual,Interval,Cons> &basis, int j,
-                 DenseVector<Y> &y);
+                 flens::DenseVector<Y> &y);
 
 template <typename X, typename Y, Construction Cons>
     void
-    fwt(const DenseVector<X> &x, 
+    fwt(const flens::DenseVector<X> &x, 
         const Basis<typename X::ElementType,Dual,Interval,Cons> &basis_, int j,
-        DenseVector<Y> &y);
+        flens::DenseVector<Y> &y);
 
 template <typename X, typename Y, Construction Cons>
     void
-    ifwt(const DenseVector<X> &x, 
+    ifwt(const flens::DenseVector<X> &x, 
          const Basis<typename X::ElementType,Primal,Interval,Cons> &basis, int j,
-         DenseVector<Y> &y);
+         flens::DenseVector<Y> &y);
 
 } // namespace lawa
 

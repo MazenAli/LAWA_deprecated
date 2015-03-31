@@ -49,13 +49,13 @@ class BSpline<_T,Orthogonal,R,MultiRefinement>
         Support<T>
         support(int j, long k) const;
 
-        DenseVector<Array<T> >
+        flens::DenseVector<flens::Array<T> >
         singularSupport(int j, long k) const;
 
         T
         tic(int j) const;
 
-        DenseVector<Array<long double> > *
+        flens::DenseVector<flens::Array<long double> > *
         getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
 
         int
@@ -76,8 +76,8 @@ class BSpline<_T,Orthogonal,R,MultiRefinement>
 
         Evaluator                        *_evaluator;
         Support<T>                       *_support;
-        DenseVector<Array<T> >           *_singularSupport;
-        DenseVector<Array<long double> > *_refCoeffs;
+        flens::DenseVector<flens::Array<T> >           *_singularSupport;
+        flens::DenseVector<flens::Array<long double> > *_refCoeffs;
         long                             *_offsets;
         T                                _initialticsize;
         int                              _shiftFactor;

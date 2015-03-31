@@ -30,16 +30,16 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
       min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1), psi(*this), refinementbasis(*this),
       LaplaceOp1D(_d,*this), IdentityOp1D(_d,*this)
 {
-    GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
     const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
-    M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0, cons_j);
+    M1 = flens::RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0, cons_j);
     _j = std::max(min_j0,j);
     setLevel(_j);
 
     if (d==2 && d_==2) {
         // left part
-        _leftRefCoeffs = new DenseVector<Array<long double> >[2];
+        _leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
         _leftRefCoeffs[0].engine().resize(4,0);
         _leftRefCoeffs[0] =  -1.060660171779819194, 0.795495128834866838, -0.176776695296636810, -0.088388347648318405;
         _leftRefCoeffs[1].engine().resize(5,0);
@@ -54,7 +54,7 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
         _leftH1SemiNorms[1] =  std::sqrt(16.5L);
 
         // inner part
-        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _innerRefCoeffs[0].engine().resize(5,0);
         _innerRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _innerOffsets = new long[1];
@@ -65,7 +65,7 @@ Basis<T,Primal,Interval,Dijkema>::Basis(int _d, int _d_, int j)
         _innerH1SemiNorms[0] =  std::sqrt(16.5L);
 
         // inner part
-        _rightRefCoeffs = new DenseVector<Array<long double> >[2];
+        _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
         _rightRefCoeffs[0].engine().resize(5,0);
         _rightRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _rightRefCoeffs[1].engine().resize(4,0);
@@ -128,10 +128,10 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _bc(0) = _bc(1) = 1;
         mra.template enforceBoundaryCondition<BC>();
         mra_.template enforceBoundaryCondition<BC>();
-        GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
         const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
-        M1 = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0, cons_j);
+        M1 = flens::RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1, min_j0, cons_j);
         setLevel(_j);
     }
     // Refinement coefficients only in double prec. available due to missing support of higher
@@ -152,7 +152,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         delete[] _rightH1SemiNorms;
 
         // left part
-        _leftRefCoeffs = new DenseVector<Array<long double> >[2];
+        _leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
         _leftRefCoeffs[0].engine().resize(3,0);
         _leftRefCoeffs[0] =  1.2374368670764579, -0.3535533905932737, -0.1767766952966368;
         _leftRefCoeffs[1].engine().resize(5,0);
@@ -166,7 +166,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _leftH1SemiNorms[0] =  std::sqrt(16.5L);   _leftH1SemiNorms[1] =  std::sqrt(16.5L);
 
         // inner part
-        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _innerRefCoeffs[0].engine().resize(5,0);
         _innerRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _innerOffsets = new long[1];
@@ -177,7 +177,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _innerH1SemiNorms[0] =  std::sqrt(16.5L);
 
         // inner part
-        _rightRefCoeffs = new DenseVector<Array<long double> >[2];
+        _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
         _rightRefCoeffs[0].engine().resize(5,0);
         _rightRefCoeffs[0] =  -0.1767766952966368, -0.3535533905932737, 1.0606601717798211, -0.3535533905932737, -0.1767766952966368;
         _rightRefCoeffs[1].engine().resize(3,0);
@@ -193,7 +193,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
     else if (d==3 && d_==3) {
 
         // left part
-        _leftRefCoeffs = new DenseVector<Array<long double> >[4];
+        _leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[4];
         _leftRefCoeffs[0].engine().resize(7,0);
         _leftRefCoeffs[0] =  0.825002583178343, -0.31011594165461, -0.063691491010539, 0.044358015602397, 0.014032578184197, -0.000847605393676, -0.0002825351312254;
         _leftRefCoeffs[1].engine().resize(7,0);
@@ -220,7 +220,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
 
 
         // inner part
-        _innerRefCoeffs = new DenseVector<Array<long double> >[2];
+        _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
         _innerRefCoeffs[0].engine().resize(8,0);
         _innerRefCoeffs[0] =  0.046875,  0.140625, -0.109375, -0.703125, 0.703125, 0.109375, -0.140625, -0.046875;
         _innerRefCoeffs[1].engine().resize(8,0);
@@ -234,7 +234,7 @@ Basis<T,Primal,Interval,Dijkema>::enforceBoundaryCondition()
         _innerH1SemiNorms[0] =  std::sqrt(362.5L/64.L);
 
         // inner part
-        _rightRefCoeffs = new DenseVector<Array<long double> >[4];
+        _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[4];
         _rightRefCoeffs[0].engine().resize(8,0);
         _rightRefCoeffs[0] =  0.046875, 0.140625, -0.109375, -0.703125, 0.703125, 0.109375, -0.140625, -0.046875;
         _rightRefCoeffs[1].engine().resize(8,0);
@@ -307,7 +307,7 @@ Basis<T,Primal,Interval,Dijkema>::cardJR(int j) const
 
 // ranges of whole, left, inner, right index sets (primal).
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJ(int j) const
 {
     assert(j>=min_j0);
@@ -315,7 +315,7 @@ Basis<T,Primal,Interval,Dijkema>::rangeJ(int j) const
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJL(int j) const
 {
     assert(j>=min_j0);
@@ -323,7 +323,7 @@ Basis<T,Primal,Interval,Dijkema>::rangeJL(int j) const
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJI(int j) const
 {
     assert(j>=min_j0);
@@ -331,7 +331,7 @@ Basis<T,Primal,Interval,Dijkema>::rangeJI(int j) const
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 {
     assert(j>=min_j0);

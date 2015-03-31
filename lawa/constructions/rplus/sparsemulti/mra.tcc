@@ -49,10 +49,10 @@ MRA<T,Primal,RPlus,SparseMulti>::cardIL(int /*j*/) const
 //--- ranges of left index sets. --------------------------
 
 template <typename T>
-Range<long>
+flens::Range<long>
 MRA<T,Primal,RPlus,SparseMulti>::rangeIL(int /*j*/) const
 {
-    return Range<long>(0,0);
+    return flens::Range<long>(0,0);
 }
 
 template <typename T>
@@ -87,7 +87,7 @@ MRA<T,Primal,RPlus,SparseMulti>::enforceBoundaryCondition()
             _leftSupport = new Support<T>[1];
             _leftSupport[0] = Support<T>(0,1);
 
-            _leftSingularSupport = new DenseVector<Array<T> >[1];
+            _leftSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _leftSingularSupport[0] = linspace(0.,1.,2);
 
             _leftScalingFactors.engine().resize(1,0);
@@ -103,7 +103,7 @@ MRA<T,Primal,RPlus,SparseMulti>::enforceBoundaryCondition()
             _innerSupport[0] = Support<T>(-1,1);
             _innerSupport[1] = Support<T>(-1,1);
 
-            _innerSingularSupport = new DenseVector<Array<T> >[2];
+            _innerSingularSupport = new flens::DenseVector<flens::Array<T> >[2];
             _innerSingularSupport[0] = linspace(-1.,1.,3);
             _innerSingularSupport[1] = linspace(-1.,1.,3);
 

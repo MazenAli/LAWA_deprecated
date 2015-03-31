@@ -587,12 +587,12 @@ Coefficients<AbsoluteValue,T,Index>::wtauNorm(T tau) const
 }
 
 template <typename T, typename Index>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Coefficients<AbsoluteValue,T,Index>::norm_sections() const
 {
     typedef typename Coefficients<AbsoluteValue,T,Index>::const_iterator const_it;
 
-    DenseVector<Array<T> > result;
+    flens::DenseVector<flens::Array<T> > result;
 
     if (Coefficients<AbsoluteValue,T,Index>::size() > 0) {
         //result.engine().resizeOrClear(_(0, int(log(T(Coefficients<AbsoluteValue,T,Index>::size()))/log(T(2))+1)));

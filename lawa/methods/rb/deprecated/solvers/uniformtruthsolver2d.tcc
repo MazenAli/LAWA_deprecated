@@ -85,8 +85,8 @@ UniformTruthSolver2D<T, Basis, Prec>::denseVectorToCoefficients(flens::DenseVect
      */
     
     // ScalingFct x ScalingFct
-    Range<int> Rux = b1.mra.rangeI(b1.j0);
-    Range<int> Ruy = b2.mra.rangeI(b2.j0);
+    flens::Range<int> Rux = b1.mra.rangeI(b1.j0);
+    flens::Range<int> Ruy = b2.mra.rangeI(b2.j0);
     for (int kux = Rux.firstIndex(); kux <= Rux.lastIndex(); kux++) {
         for (int kuy = Ruy.firstIndex(); kuy <= Ruy.lastIndex(); kuy++) {
         	Index1D ind_x(b1.j0, kux, XBSpline);

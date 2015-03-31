@@ -89,7 +89,7 @@ Wavelet<T,Primal,RPlus,SparseMulti>::max_support() const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Primal,RPlus,SparseMulti>::singularSupport(int j, long k) const
 {
     if (d==4) {
@@ -105,13 +105,13 @@ Wavelet<T,Primal,RPlus,SparseMulti>::singularSupport(int j, long k) const
         k+=1;
         int type  = (int)((k-3L) % basis._numInnerParts);
         long shift = 2*( k/basis._numInnerParts );
-        DenseVector<Array<T> > result = basis._innerSingularSupport[type];
+        flens::DenseVector<flens::Array<T> > result = basis._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;
     }
     else { // Control may reach end of non-void function
         assert(d==4);
-        return DenseVector<Array<T> > ();
+        return flens::DenseVector<flens::Array<T> > ();
     }
 }
     

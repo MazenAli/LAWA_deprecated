@@ -78,7 +78,7 @@ BSpline<T,Primal,RPlus,SparseMulti>::max_support() const
 
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BSpline<T,Primal,RPlus,SparseMulti>::singularSupport(int j, long k) const
 {
     if (d==4) {
@@ -89,13 +89,13 @@ BSpline<T,Primal,RPlus,SparseMulti>::singularSupport(int j, long k) const
 
         int type  = (int)(k % mra._numInnerParts);
         long shift = (long)std::ceil(T(k) / T(mra._numInnerParts));
-        DenseVector<Array<T> > result = mra._innerSingularSupport[type];
+        flens::DenseVector<flens::Array<T> > result = mra._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;
     }
     else { // Control may reach end of non-void function
         assert(d==4);
-        return DenseVector<Array<T> > ();
+        return flens::DenseVector<flens::Array<T> > ();
     }
 }
 

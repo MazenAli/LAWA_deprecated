@@ -20,11 +20,11 @@ BasisFunction<T,Side,Periodic,Cons>::support(int /*j*/, long /*k*/) const
 }
 
 template <typename T, FunctionSide Side, Construction Cons>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BasisFunction<T,Side,Periodic,Cons>::singularSupport(int /*j*/, long /*k*/) const 
 {
     assert(0);
-    return DenseVector<Array<T> >(); 
+    return flens::DenseVector<flens::Array<T> >(); 
 }
 
 template <typename T, FunctionSide Side, Construction Cons>

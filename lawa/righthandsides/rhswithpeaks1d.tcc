@@ -23,7 +23,7 @@ namespace lawa {
 
 template <typename T, typename Basis>
 RHSWithPeaks1D<T,Basis>::RHSWithPeaks1D(const Basis &_basis, Function<T> _f,
-                                        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
+                                        const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
                                         int order, bool _with_singular_part, bool _with_smooth_part)
     : basis(_basis), f(_f), deltas(_deltas), with_singular_part(_with_singular_part),
       with_smooth_part(_with_smooth_part), integralf(f, basis)
@@ -57,7 +57,7 @@ RHSWithPeaks1D<T,Basis>::operator()(const Index1D &lambda) const
 template <typename T>
 RHSWithPeaks1D_WO_XBSpline<T>::RHSWithPeaks1D_WO_XBSpline
                                (const Wavelet<T,Primal,R,CDF> &_psi, T (*_f)(T),
-                                const DenseVector<Array<T> > &_f_singularPoints,
+                                const flens::DenseVector<flens::Array<T> > &_f_singularPoints,
                                 flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &_deltas,
                                 T _left_bound, T _right_bound, T _h, int _order,
                                 bool _with_singular_part, bool _with_smooth_part)
@@ -65,7 +65,7 @@ RHSWithPeaks1D_WO_XBSpline<T>::RHSWithPeaks1D_WO_XBSpline
   left_bound(_left_bound), right_bound(_right_bound), h(_h), order(_order),
   with_singular_part(_with_singular_part), with_smooth_part(_with_smooth_part)
 {
-    DenseVector<Array<T> > bounds(2);
+    flens::DenseVector<flens::Array<T> > bounds(2);
     bounds(1) = left_bound;
     bounds(2) = right_bound;
 
@@ -148,13 +148,13 @@ RHSWithPeaks1D_WO_XBSpline<T>::operator()(const Index1D &lambda) const
     }
 
     if (with_smooth_part) {
-        DenseVector<Array<T> > psi_singularPoints = psi.singularSupport(lambda.j,lambda.k);
+        flens::DenseVector<flens::Array<T> > psi_singularPoints = psi.singularSupport(lambda.j,lambda.k);
 
         if (lambda.j >= 0) {
             int nFirst  = psi_singularPoints.length(),
                 nSecond = f_singularPoints.length();
 
-            DenseVector<Array<T> > singularPoints(nFirst + nSecond);
+            flens::DenseVector<flens::Array<T> > singularPoints(nFirst + nSecond);
 
             std::merge(psi_singularPoints.engine().data(),
                        psi_singularPoints.engine().data() + nFirst,
@@ -171,7 +171,7 @@ RHSWithPeaks1D_WO_XBSpline<T>::operator()(const Index1D &lambda) const
             int nFirst  = psi_singularPoints.length(),
                 nSecond = f_singularPoints_interval.length();
 
-            DenseVector<Array<T> > singularPoints(nFirst + nSecond);
+            flens::DenseVector<flens::Array<T> > singularPoints(nFirst + nSecond);
 
             std::merge(psi_singularPoints.engine().data(),
                        psi_singularPoints.engine().data() + nFirst,

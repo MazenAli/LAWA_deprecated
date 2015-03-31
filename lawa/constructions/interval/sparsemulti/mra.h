@@ -58,16 +58,16 @@ class MRA<_T,Primal,Interval,SparseMulti>
         int
         cardIR(int j=-1) const;
 
-        Range<int>
+        flens::Range<int>
         rangeI(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIL(int j=-1) const;
 
-        Range<int>
+        flens::Range<int>
         rangeII(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIR(int j) const;
         
         //For adaptive schemes, we may require "long" as index type for local scaling function repr.
@@ -83,16 +83,16 @@ class MRA<_T,Primal,Interval,SparseMulti>
         long
         long_cardIR(int j=-1) const;
 
-        Range<long>
+        flens::Range<long>
         long_rangeI(int j) const;
 
-        Range<long>
+        flens::Range<long>
         long_rangeIL(int j=-1) const;
 
-        Range<long>
+        flens::Range<long>
         long_rangeII(int j) const;
 
-        Range<long>
+        flens::Range<long>
         long_rangeIR(int j) const;
 
 
@@ -113,7 +113,7 @@ class MRA<_T,Primal,Interval,SparseMulti>
         unsigned int _numSplines;
         
     private:
-        DenseVector<Array<int> > _bc;  // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
                                        // bc(1) = 1 -> Dirichlet BC right.
         
@@ -132,10 +132,10 @@ class MRA<_T,Primal,Interval,SparseMulti>
         Support<T> *_leftSupport,
                    *_innerSupport,
                    *_rightSupport;
-        DenseVector<Array<T> > *_leftSingularSupport,
+        flens::DenseVector<flens::Array<T> > *_leftSingularSupport,
                                *_innerSingularSupport,
                                *_rightSingularSupport;
-        DenseVector<Array<T> > _leftScalingFactors,
+        flens::DenseVector<flens::Array<T> > _leftScalingFactors,
                                _innerScalingFactors,
                                _rightScalingFactors;
 };

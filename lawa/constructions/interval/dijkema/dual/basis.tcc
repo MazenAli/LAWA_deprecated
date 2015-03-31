@@ -27,10 +27,10 @@ Basis<T,Dual,Interval,Dijkema>::Basis(int _d, int _d_, int j)
       d(_d), d_(_d_), mu(d&1),
       min_j0(mra_.min_j0), j0(mra_.j0), _bc(2,0), _j(-1), psi_(*this)
 {
-    GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > Mj1, Mj1_;
     initial_stable_completion(mra,mra_,Mj1,Mj1_);
     const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
-    M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0, cons_j);
+    M1_ = flens::RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, Mj1_, min_j0, cons_j);
     _j = std::max(min_j0,j);
     setLevel(_j);
 }
@@ -62,10 +62,10 @@ Basis<T,Dual,Interval,Dijkema>::enforceBoundaryCondition()
         _bc(0) = _bc(1) = 1;
         mra.template enforceBoundaryCondition<BC>();
         mra_.template enforceBoundaryCondition<BC>();
-        GeMatrix<FullStorage<T,ColMajor> > Mj1, Mj1_;
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > Mj1, Mj1_;
         initial_stable_completion(mra,mra_,Mj1,Mj1_);
         const int cons_j = ((d==2) && ((d_==2)||(d_==4))) ? mra_.min_j0+1 : mra_.min_j0;
-        M1_ = RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, 
+        M1_ = flens::RefinementMatrix<T,Interval,Dijkema>(d+d_-2, d+d_-2, 
                                                    Mj1_, min_j0, cons_j);
         setLevel(_j);
     }
@@ -116,34 +116,34 @@ Basis<T,Dual,Interval,Dijkema>::cardJ_R(int /*j*/) const
 
 // ranges of whole, left, inner, right index sets (primal).
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_(int j) const
 {
-    return Range<int>(1,pow2i<int>(j));
+    return flens::Range<int>(1,pow2i<int>(j));
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_L(int j) const
 {
     assert(j>=j0);
-    return Range<int>(1,M1_.left.length());
+    return flens::Range<int>(1,M1_.left.length());
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_I(int j) const
 {
     assert(j>=j0);
-    return Range<int>(M1_.left.length()+1, pow2i<int>(j)-M1_.right.length());
+    return flens::Range<int>(M1_.left.length()+1, pow2i<int>(j)-M1_.right.length());
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Dual,Interval,Dijkema>::rangeJ_R(int j) const
 {
     assert(j>=j0);
-    return Range<int>(pow2i<int>(j)-M1_.right.length()+1, pow2i<int>(j));
+    return flens::Range<int>(pow2i<int>(j)-M1_.right.length()+1, pow2i<int>(j));
 }
 
 } // namespace lawa

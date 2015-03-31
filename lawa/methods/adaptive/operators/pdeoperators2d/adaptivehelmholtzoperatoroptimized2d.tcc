@@ -519,7 +519,7 @@ AdaptiveHelmholtzOperatorOptimized2D<T,Orthogonal,Domain,Multi,Orthogonal,Domain
     T tau = 1.0 / (s + 0.5);
     // here the constant in (7.27) (KU-Wavelet) is estimated with 10
     int k_eps = static_cast<int>(10*log(std::pow(eps, -1.0/s)*std::pow(v.wtauNorm(tau), 1.0/s)) / log(2.0));
-    DenseVector<Array<T> > normsec = v.norm_sections();
+    flens::DenseVector<flens::Array<T> > normsec = v.norm_sections();
     T ErrorEstimateFactor = 1.;
     //std::cout << "eps = " << eps << ", k_eps = " << k_eps << std::endl;
 

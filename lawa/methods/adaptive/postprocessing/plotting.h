@@ -32,7 +32,7 @@ namespace lawa {
 template <typename T, typename Basis>
 void
 getSingularPoints(const Basis &basis, const Coefficients<Lexicographical,T,Index1D> coeff,
-                  DenseVector<Array<T> > &sing_pts);
+                  flens::DenseVector<flens::Array<T> > &sing_pts);
 
 //Plot solution only on singular  points of the solution
 template <typename T, typename Basis, typename Preconditioner>

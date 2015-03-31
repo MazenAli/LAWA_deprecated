@@ -70,16 +70,16 @@ class Basis<_T,Primal,Periodic,CDF>
         int
         cardJR(int j = 0) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJ(int j) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJL(int j) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJI(int j) const;
 
-        const Range<int>
+        const flens::Range<int>
         rangeJR(int j) const;
 
         /// Returns the range of indicated functions from SecondBasis whose supports
@@ -166,7 +166,7 @@ class Basis<_T,Primal,Periodic,CDF>
         MRA<T,Primal,Periodic,CDF> mra;
         MRA<T,Dual,Periodic,CDF> mra_;
         Wavelet<T,Primal,Periodic,CDF> psi;
-        RefinementMatrix<T,Periodic,CDF> M1;
+        flens::RefinementMatrix<T,Periodic,CDF> M1;
         
         Basis<T,Primal,Interval,Dijkema> refinementbasis;
 
@@ -176,7 +176,7 @@ class Basis<_T,Primal,Periodic,CDF>
         friend class Wavelet<T,Primal,Periodic,CDF>;
 
 
-        DenseVector<Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
+        flens::DenseVector<flens::Array<long double> > *_periodicRefCoeffs, *_rightRefCoeffs;
 
         long 	*_innerOffsets, *_split;
         long double *_periodicL2Norms,  *_periodicH1SemiNorms;

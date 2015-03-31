@@ -38,7 +38,7 @@ Wavelet<T,Dual,Interval,Dijkema>::operator()(T x, int j, long k, unsigned short 
     assert(k<=basis_.rangeJ_(j).lastIndex());
     assert(deriv==0);
     
-    const typename DenseVector<Array<T> >::ConstView coeffs = basis_.M1_(j,_,k);
+    const typename flens::DenseVector<flens::Array<T> >::ConstView coeffs = basis_.M1_(j,flens::_,k);
     T ret = 0;
     for (int r=coeffs.firstIndex(); r<=coeffs.lastIndex(); ++r) {
         ret += coeffs(r) * basis_.mra_.phi_(x,j+1,r);

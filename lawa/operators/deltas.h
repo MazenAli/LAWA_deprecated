@@ -30,7 +30,7 @@
 namespace lawa {
 
 template <typename T, typename Basis>
-GeMatrix<FullStorage<T,ColMajor> >
+flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> >
 computeDeltas(const Basis &basis, int j, long k, XType e);
 
 }    //namespace lawa

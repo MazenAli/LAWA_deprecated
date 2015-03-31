@@ -25,11 +25,11 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
             _support = new Support<T>[1];
             _support[0] = Support<T>(0.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[1];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _singularSupport[0].engine().resize(2,0);
             _singularSupport[0] = 0., 1.;
 
-            _refCoeffs = new DenseVector<Array<long double> >[1];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _refCoeffs[0].engine().resize(2,0);
             _refCoeffs[0] = 1.L, 1.L;
             _refCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -57,7 +57,7 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
             _support[2] = Support<T>( 0.,1);
             _support[0] = Support<T>(-1.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[3];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[3];
             _singularSupport[1].engine().resize(3,0);
             _singularSupport[1] = 0., 0.5, 1.;
             _singularSupport[2].engine().resize(5,0);
@@ -69,7 +69,7 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
 
 
 
-            _refCoeffs = new DenseVector<Array<long double> >[3];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[3];
             _refCoeffs[1].engine().resize(3,0);
             _refCoeffs[1] = std::sqrt(3.L)/2.L, std::sqrt(3.L), std::sqrt(3.L)/2.L;
             _refCoeffs[2].engine().resize(3,0);
@@ -116,7 +116,7 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
             _support[4] = Support<T>(-1.,1.);
             _support[5] = Support<T>(-1.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[6];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[6];
             _singularSupport[0].engine().resize(5,0);
             _singularSupport[0] = 0., 0.25, 0.5, 0.75, 1.;
             _singularSupport[1].engine().resize(5,0);
@@ -132,7 +132,7 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
 
             _max_support = Support<T>(-1,1);
 
-            _refCoeffs = new DenseVector<Array<long double> >[6];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[6];
             _refCoeffs[0].engine().resize(6,0);
             _refCoeffs[0] =                                    std::sqrt(15.L/23.L)/2.L, 3.L*std::sqrt(15.L/23.L)/2.L,
                                  2.L*std::sqrt(15.L/23.L), 2.L*std::sqrt(15.L/23.L),     3.L*std::sqrt(15.L/23.L)/2.L,
@@ -210,7 +210,7 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
             _support[4] = Support<T>(-1.,1.);
             _support[5] = Support<T>(-1.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[6];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[6];
             _singularSupport[0].engine().resize(3,0);
             _singularSupport[0] = 0., 0.5, 1.;
             _singularSupport[1].engine().resize(3,0);
@@ -226,7 +226,7 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
 
             _max_support = Support<T>(-1,1);
 
-            _refCoeffs = new DenseVector<Array<long double> >[6];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[6];
             _refCoeffs[0].engine().resize(6,0);
             _refCoeffs[0] =                                    std::sqrt(35.L/13.L)/4.L, 3.L*std::sqrt(35.L/13.L)/4.L,
                                    std::sqrt(35.L/13.L),       std::sqrt(35.L/13.L),     3.L*std::sqrt(35.L/13.L)/4.L,
@@ -329,13 +329,13 @@ BSpline<T,Orthogonal,R,Multi>::max_support() const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BSpline<T,Orthogonal,R,Multi>::singularSupport(int j, long k) const
 {
     const int typ = _type(k);
     const long shift = _shift(k);
     
-    DenseVector<Array<T> > result = _singularSupport[typ];
+    flens::DenseVector<flens::Array<T> > result = _singularSupport[typ];
     result += shift;
     
     return pow2i<T>(-j) * result;    
@@ -350,7 +350,7 @@ BSpline<T,Orthogonal,R,Multi>::tic(int j) const
 }
 
 template <typename T>
-DenseVector<Array<long double> > *
+flens::DenseVector<flens::Array<long double> > *
 BSpline<T,Orthogonal,R,Multi>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
 {
     refinement_j = j + _addRefinementLevel;

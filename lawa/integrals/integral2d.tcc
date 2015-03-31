@@ -30,12 +30,12 @@ _integrate(const Integral2D<Quad,BasisX,BasisY>& integral)
 
     // merge singular points of bspline/wavelet and function to one list.
     // -> implicit assumption: second.singularPoints are sorted!!
-    DenseVector<Array<T> > SingularPoints_phi_x
+    flens::DenseVector<flens::Array<T> > SingularPoints_phi_x
                                   = phi_x.singularSupport(integral.jx,integral.kx);
     int n_phi_x = SingularPoints_phi_x.length(),
         n_F_x   = integral.F.singularPts_x.length();
 
-    DenseVector<Array<T> > AllSingularPoints_x(n_phi_x + n_F_x);
+    flens::DenseVector<flens::Array<T> > AllSingularPoints_x(n_phi_x + n_F_x);
 
     std::merge(SingularPoints_phi_x.engine().data(),
                SingularPoints_phi_x.engine().data() + n_phi_x,
@@ -43,12 +43,12 @@ _integrate(const Integral2D<Quad,BasisX,BasisY>& integral)
                integral.F.singularPts_x.engine().data() + n_F_x,
                AllSingularPoints_x.engine().data());
 
-    DenseVector<Array<T> > SingularPoints_phi_y
+    flens::DenseVector<flens::Array<T> > SingularPoints_phi_y
                                        = phi_y.singularSupport(integral.jy,integral.ky);
     int n_phi_y = SingularPoints_phi_y.length(),
         n_F_y   = integral.F.singularPts_y.length();
 
-    DenseVector<Array<T> > AllSingularPoints_y(n_phi_y + n_F_y);
+    flens::DenseVector<flens::Array<T> > AllSingularPoints_y(n_phi_y + n_F_y);
 
     std::merge(SingularPoints_phi_y.engine().data(),
                SingularPoints_phi_y.engine().data() + n_phi_y,

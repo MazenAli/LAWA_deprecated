@@ -48,7 +48,7 @@ class Wavelet<_T,Primal,Interval,SparseMulti>
         Support<T>
         support(int j, long k) const;
         
-        DenseVector<Array<T> >
+        flens::DenseVector<flens::Array<T> >
         singularSupport(int j, long k) const;
     
         T

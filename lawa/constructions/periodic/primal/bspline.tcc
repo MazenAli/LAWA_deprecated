@@ -126,7 +126,7 @@ BSpline<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, 
 
 	refinement_k_restart = 1;
 
-	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
+	//flens::DenseVector<flens::Array<long double> >* coeffs =  mra._RefCoeffs[0];
 	// Left part
 	if(k <= mra.rangeIL(j).lastIndex()){
 		std::cerr << "Oops! I never expected there to be a left BSpline! " << std::endl;
@@ -140,7 +140,7 @@ BSpline<T,Primal,Periodic,CDF>::getRefinement(int j, long k, int &refinement_j, 
         return &(mra._periodicRefCoeffs[0]);
 	}
 	// Right part
-	//DenseVector<Array<long double> >* coeffs =  mra._RefCoeffs[0];
+	//flens::DenseVector<flens::Array<long double> >* coeffs =  mra._RefCoeffs[0];
 	refinement_k_first = k + mra._rightOffsets[0];
 	split = mra._split[k - mra.rangeIR(j).firstIndex()];
 	refinement_k_restart = 1;

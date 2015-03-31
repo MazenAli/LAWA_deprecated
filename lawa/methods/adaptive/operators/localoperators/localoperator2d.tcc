@@ -174,7 +174,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 //Non-periodic version
 template <typename LocalOperator1, typename LocalOperator2>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
 				and SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
@@ -257,7 +257,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 //		the periodic wavelet/spline may have a split support) )
 template <typename LocalOperator1, typename LocalOperator2>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
                                   const Coefficients<Lexicographical,T_,Index2D> &LIIAv,
@@ -388,7 +388,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 //   (TrialBasis not periodic -> normal support)
 template <typename LocalOperator1, typename LocalOperator2>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
 				and SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::initializeIntermediateVectorIAv(const Coefficients<Lexicographical,T_,Index2D> &v,
@@ -660,7 +660,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 //Non-periodic / Non-periodic  version
 template <typename LocalOperator1, typename LocalOperator2>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
 				and SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
@@ -768,7 +768,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 //		the periodic wavelet/spline may have a split support) )
 template <typename LocalOperator1, typename LocalOperator2>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value, void>::Type
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,
          const Coefficients<Lexicographical,T_,Index1D> &Pe1_UIz,
@@ -912,7 +912,7 @@ LocalOperator2D<LocalOperator1, LocalOperator2>
 //   (TestBasis periodic -> check if k_last < k_first)
 template <typename LocalOperator1, typename LocalOperator2>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename LocalOperator1::TrialWaveletBasis>::value, T_>::value
 				and SFINAE_Wrapper<IsPeriodic<typename LocalOperator1::TestWaveletBasis>::value, T_>::value, void>::Type
 LocalOperator2D<LocalOperator1, LocalOperator2>
 ::evalUI(const Coefficients<Lexicographical,T_,Index2D> &z,

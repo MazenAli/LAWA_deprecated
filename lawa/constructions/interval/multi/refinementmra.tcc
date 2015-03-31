@@ -33,8 +33,8 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
         _numLeftParts = 0;
         //_leftEvaluator = new Evaluator[0];
         //_leftSupport = new Support<T>[0];
-        //_leftSingularSupport = new DenseVector<Array<T> >[0];
-        //_leftRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_leftSingularSupport = new flens::DenseVector<flens::Array<T> >[0];
+        //_leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[0];
         //_leftOffsets = new long[0];
 
         //inner part
@@ -45,11 +45,11 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
         _innerSupport = new Support<T>[1];
         _innerSupport[0] = Support<T>(0.,1.);
 
-        _innerSingularSupport = new DenseVector<Array<T> >[1];
+        _innerSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
         _innerSingularSupport[0].engine().resize(2,0);
         _innerSingularSupport[0] = 0., 1.;
 
-        _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+        _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
         _innerRefCoeffs[0].engine().resize(2,0);
         _innerRefCoeffs[0] = 1.L, 1.L;
         _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -61,8 +61,8 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::MRA(int _d, int j)
         _numRightParts = 0;
         //_rightEvaluator = new Evaluator[0];
         //_rightSupport = new Support<T>[0];
-        //_rightSingularSupport = new DenseVector<Array<T> >[0];
-        //_rightRefCoeffs = new DenseVector<Array<long double> >[0];
+        //_rightSingularSupport = new flens::DenseVector<flens::Array<T> >[0];
+        //_rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[0];
         //_rightOffsets   = new long[0];
     }
     else {
@@ -138,34 +138,34 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::cardIR(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets. --------------------------
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Orthogonal,Interval,MultiRefinement>::rangeI(int j) const
 {
     assert(d==1 || j>=j0);
-    return Range<int>(0,cardI(j)-1);
+    return flens::Range<int>(0,cardI(j)-1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Orthogonal,Interval,MultiRefinement>::rangeIL(int /*j*/) const
 {
-    return Range<int>(0,cardIL() - 1);
+    return flens::Range<int>(0,cardIL() - 1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Orthogonal,Interval,MultiRefinement>::rangeII(int j) const
 {
     assert(d==1 || j>=j0);
-    return Range<int>(cardIL(), cardIL()+cardII(j)-1);
+    return flens::Range<int>(cardIL(), cardIL()+cardII(j)-1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Orthogonal,Interval,MultiRefinement>::rangeIR(int j) const
 {
     assert(d==1 || j>=j0);
-    return Range<int>(cardIL()+cardII(j),cardI(j)-1);
+    return flens::Range<int>(cardIL()+cardII(j),cardI(j)-1);
 }
 
 template <typename T>
@@ -202,8 +202,8 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _numLeftParts = 0;
             //_leftEvaluator = new Evaluator[0];
             //_leftSupport = new Support<T>[0];
-            //_leftSingularSupport = new DenseVector<Array<T> >[0];
-            //_leftRefCoeffs = new DenseVector<Array<long double> >[0];
+            //_leftSingularSupport = new flens::DenseVector<flens::Array<T> >[0];
+            //_leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[0];
             //_leftOffsets = new long[0];
 
             //inner part
@@ -212,10 +212,10 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _innerEvaluator[0] = _linear_refinement_inner_evaluator0;
             _innerSupport = new Support<T>[1];
             _innerSupport[0] = Support<T>(0.,2.);
-            _innerSingularSupport = new DenseVector<Array<T> >[1];
+            _innerSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _innerSingularSupport[0].engine().resize(3,0);
             _innerSingularSupport[0] = 0., 1., 2.;
-            _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+            _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _innerRefCoeffs[0].engine().resize(3,0);
             _innerRefCoeffs[0] = 0.5L, 1.L, 0.5L;
             _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -226,8 +226,8 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _numRightParts = 0;
             //_rightEvaluator = new Evaluator[0];
             //_rightSupport = new Support<T>[0];
-            //_rightSingularSupport = new DenseVector<Array<T> >[0];
-            //_rightRefCoeffs = new DenseVector<Array<long double> >[0];
+            //_rightSingularSupport = new flens::DenseVector<flens::Array<T> >[0];
+            //_rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[0];
             //_rightOffsets = new long[0];
 
             break;
@@ -240,11 +240,11 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _leftEvaluator[0] = _quadratic_refinement_left_evaluator0;
             _leftSupport = new Support<T>[1];
             _leftSupport[0] = Support<T>(0.,2.);
-            _leftSingularSupport = new DenseVector<Array<T> >[1];
+            _leftSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _leftSingularSupport[0].engine().resize(3,0);
             _leftSingularSupport[0] = 0., 1., 2.;
 
-            _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+            _leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _leftRefCoeffs[0].engine().resize(3,0);
             _leftRefCoeffs[0] = 0.5L, 0.75L, 0.25L;
             _leftRefCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -257,11 +257,11 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _innerEvaluator[0] = _quadratic_refinement_inner_evaluator0;
             _innerSupport = new Support<T>[1];
             _innerSupport[0] = Support<T>(0.,3.);
-            _innerSingularSupport = new DenseVector<Array<T> >[1];
+            _innerSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _innerSingularSupport[0].engine().resize(4,0);
             _innerSingularSupport[0] = 0., 1., 2., 3.;
 
-            _innerRefCoeffs = new DenseVector<Array<long double> >[1];
+            _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _innerRefCoeffs[0].engine().resize(4,0);
             _innerRefCoeffs[0] = 0.25L, 0.75L, 0.75L, 0.25L;
             _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -274,11 +274,11 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _rightEvaluator[0] = _quadratic_refinement_right_evaluator0;
             _rightSupport = new Support<T>[1];
             _rightSupport[0] = Support<T>(0.,2.);
-            _rightSingularSupport = new DenseVector<Array<T> >[1];
+            _rightSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _rightSingularSupport[0].engine().resize(3,0);
             _rightSingularSupport[0] = 0., 1., 2.;
 
-            _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+            _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _rightRefCoeffs[0].engine().resize(3,0);
             _rightRefCoeffs[0] = 0.25L, 0.75L, 0.5L;
             _rightRefCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -295,10 +295,10 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _leftEvaluator[0] = _cubic_refinement_left_evaluator0;
             _leftSupport = new Support<T>[1];
             _leftSupport[0] = Support<T>(0.,1.);
-            _leftSingularSupport = new DenseVector<Array<T> >[1];
+            _leftSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _leftSingularSupport[0].engine().resize(2,0);
             _leftSingularSupport[0] = 0., 1.;
-            _leftRefCoeffs = new DenseVector<Array<long double> >[1];
+            _leftRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _leftRefCoeffs[0].engine().resize(3,0);
             _leftRefCoeffs[0] = 0.5L, 0.5L, 0.25L;
             _leftRefCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -313,12 +313,12 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _innerSupport = new Support<T>[2];
             _innerSupport[0] = Support<T>(0.,2.);
             _innerSupport[1] = Support<T>(0.,2.);
-            _innerSingularSupport = new DenseVector<Array<T> >[2];
+            _innerSingularSupport = new flens::DenseVector<flens::Array<T> >[2];
             _innerSingularSupport[0].engine().resize(3,0);
             _innerSingularSupport[0] = 0., 1., 2.;
             _innerSingularSupport[1].engine().resize(3,0);
             _innerSingularSupport[1] = 0., 1., 2.;
-            _innerRefCoeffs = new DenseVector<Array<long double> >[2];
+            _innerRefCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
             _innerRefCoeffs[0].engine().resize(5,0);
             _innerRefCoeffs[0] = 0.25L, 0.625L, 0.75L, 0.25L, 0.125L;
             _innerRefCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -335,10 +335,10 @@ MRA<T,Orthogonal,Interval,MultiRefinement>::enforceBoundaryCondition()
             _rightEvaluator[0] = _cubic_refinement_right_evaluator0;
             _rightSupport = new Support<T>[1];
             _rightSupport[0] = Support<T>(1.,2.);
-            _rightSingularSupport = new DenseVector<Array<T> >[1];
+            _rightSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _rightSingularSupport[0].engine().resize(2,0);
             _rightSingularSupport[0] = 1., 2.;
-            _rightRefCoeffs = new DenseVector<Array<long double> >[1];
+            _rightRefCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _rightRefCoeffs[0].engine().resize(3,0);
             _rightRefCoeffs[0] = 0.25L, 0.5L, 0.5L;
             _rightRefCoeffs[0] *= std::pow(2.L,-0.5L);

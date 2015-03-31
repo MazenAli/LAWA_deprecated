@@ -40,7 +40,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
             for (int j_row=j; j_row<=std::min(j+s_tilde, jmax); ++j_row) {        // realization of matrix compression via level threshold
                 T Pow2i_Mjrow = pow2i<T>(-j_row);
                 if (j_row>=j+2) {
-                    DenseVector<Array<T> > singsupp = phi.singularSupport(j,k);
+                    flens::DenseVector<flens::Array<T> > singsupp = phi.singularSupport(j,k);
                     //cout << "LambdaTilde: Singular support phi_col = " << singpts;
                     for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                         int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;
@@ -93,7 +93,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
             for (int j_row=std::max(j-s_tilde,jmin); j_row<=std::min(j+s_tilde,jmax); ++j_row) {
                 T Pow2i_Mjrow = pow2i<T>(-j_row);
                 if (j_row>=j+1) {
-                    DenseVector<Array<T> > singsupp = psi.optim_singularSupport(j,k);
+                    flens::DenseVector<flens::Array<T> > singsupp = psi.optim_singularSupport(j,k);
                     //cout << "LambdaTilde: Singular support psi_col_" << j << "," << k << " = " << singpts;
                     for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                         int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;
@@ -140,7 +140,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
                 // Inserting all indices corresponding to Wavelets with intersecting support using
                 // a) local compactness  b) matrix compression  c) vanishing moments
                 Wavelet<T,Primal,R> psi_row(d,d_);
-                DenseVector<Array<T> > singpts = phi_col.singularSupport(j,k);
+                flens::DenseVector<flens::Array<T> > singpts = phi_col.singularSupport(j,k);
                 for (int i=singpts.firstIndex(); i<=singpts.lastIndex(); ++i) {
                     int kMin =  ceil(pow2i(jmax)*singpts(i) - psi_row.support(0,0).l2);
                     int kMax = floor(pow2i(jmax)*singpts(i) - psi_row.support(0,0).l1);
@@ -168,7 +168,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &basis,
                 if (d == 2) level_diff = 2;
                 if (d == 3) level_diff = 4;
                 if (jmax >= j+level_diff) {                                                // level difference has to be large enough for vanishing entries due to vanishing moments
-                    DenseVector<Array<T> > singpts = psi_col.singularSupport(j,k);
+                    flens::DenseVector<flens::Array<T> > singpts = psi_col.singularSupport(j,k);
                     //cout << "LambdaTilde: Singular support psi_col_" << j << "," << k << " = " << singpts;
                     for (int i=singpts.firstIndex(); i<=singpts.lastIndex(); ++i) {
                         int kMin =  ceil(pow2i(jmax)*singpts(i) - psi_row.support(0,0).l2);
@@ -244,7 +244,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basi
             T Pow2i_Mjrow = pow2i<T>(-j_row);
 
             if (j_row>=j+2) {
-                DenseVector<Array<T> > singsupp = phi.singularSupport(j,k);
+                flens::DenseVector<flens::Array<T> > singsupp = phi.singularSupport(j,k);
                 for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                     long kMin = floor(pow2i<long double>(j_row)*singsupp(i) - max_support_refwavelet.l2)-1;
                     long kMax =  ceil(pow2i<long double>(j_row)*singsupp(i) - max_support_refwavelet.l1)+1;
@@ -305,7 +305,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,R,Multi> &basi
         for (int j_row=std::max(j-s_tilde,jmin); j_row<=std::min(j+s_tilde,jmax); ++j_row) {
             long double Pow2i_Mjrow = pow2i<long double>(-j_row);
             if (j_row>=j+4) {
-                DenseVector<Array<T> > singsupp = psi.singularSupport(j,k);
+                flens::DenseVector<flens::Array<T> > singsupp = psi.singularSupport(j,k);
 
                 //cout << "LambdaTilde: Singular support psi_col_" << j << "," << k << " = " << singpts;
                 for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
@@ -410,7 +410,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,Interval,Multi
 
 
             if (j_row>=j+4) {
-                DenseVector<Array<T> > singsupp = phi.singularSupport(j,k);
+                flens::DenseVector<flens::Array<T> > singsupp = phi.singularSupport(j,k);
                 for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                     long kMin = floor(pow2i<long>(j_row)*singsupp(i) - max_support.l2)-1;
                     long kMax =  ceil(pow2i<long>(j_row)*singsupp(i) - max_support.l1)+1;
@@ -478,7 +478,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Orthogonal,Interval,Multi
             }
 
             if (j_row>=j+4) {
-                DenseVector<Array<T> > singsupp = psi.singularSupport(j,k);
+                flens::DenseVector<flens::Array<T> > singsupp = psi.singularSupport(j,k);
 
                 //cout << "LambdaTilde: Singular support psi_col_" << j << "," << k << " = " << singpts;
                 for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
@@ -812,7 +812,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Periodic,CDF> &bas
             // a) local compactness  b) matrix compression  c) vanishing moments
             for (int j_row=j; j_row<=std::min(j+s_tilde, jmax); ++j_row) {        // realization of matrix compression via level threshold
                 if (j_row>=j+2) {
-                    DenseVector<Array<T> > singsupp = phi_col.phiR.singularSupport(j,k);
+                    flens::DenseVector<flens::Array<T> > singsupp = phi_col.phiR.singularSupport(j,k);
                     for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                         int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;
                         int kMax =  ceil(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l1)+1;
@@ -880,7 +880,7 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Periodic,CDF> &bas
             // a) local compactness  b) matrix compression  c) vanishing moments
             for (int j_row=std::max(j-s_tilde,jmin); j_row<=std::min(j+s_tilde,jmax); ++j_row) {
                 if (j_row>=j+2) {
-                    DenseVector<Array<T> > singsupp = psi_col.singularSupport(j,k);
+                    flens::DenseVector<flens::Array<T> > singsupp = psi_col.singularSupport(j,k);
                     for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                         int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;
                         int kMax =  ceil(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l1)+1;
@@ -974,8 +974,8 @@ lambdaTilde1d_PDE(const Index1D &lambda, const Basis<T,Primal,Interval,Cons> &ba
                     ++kEnd;
                 }
                 for (int k_row=kStart; k_row<=kEnd; k_row++) {
-                    Range<int> rangeL = basis.rangeJL(j_row);
-                    Range<int> rangeR = basis.rangeJR(j_row);
+                    flens::Range<int> rangeL = basis.rangeJL(j_row);
+                    flens::Range<int> rangeR = basis.rangeJR(j_row);
                     if ( (k_row <= rangeL.lastIndex()) || (k_row >= rangeR.firstIndex()) ) {
                         ret.insert(Index1D(j_row,k_row,XWavelet));
                         continue;
@@ -1082,7 +1082,7 @@ lambdaTilde1d_PDE_WO_XBSpline(const Index1D &lambda, const Basis<T,Primal,R,CDF>
     for (int j_row=std::max(j-s_tilde,jmin); j_row<=std::min(j+s_tilde,jmax); ++j_row) {
         T Pow2i_Mjrow = pow2i<T>(-j_row);
         if (j_row>=j+2) {
-            DenseVector<Array<T> > singsupp = psi.optim_singularSupport(j,k);
+            flens::DenseVector<flens::Array<T> > singsupp = psi.optim_singularSupport(j,k);
             for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                 int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;
                 int kMax =  ceil(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l1)+1;
@@ -1181,8 +1181,8 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,Interval,C
                 ++kEnd;
             }
             for (int k_row=kStart; k_row<=kEnd; k_row++) {
-                Range<int> rangeL = basis.rangeJL(j_row);
-                Range<int> rangeR = basis.rangeJR(j_row);
+                flens::Range<int> rangeL = basis.rangeJL(j_row);
+                flens::Range<int> rangeR = basis.rangeJR(j_row);
                 if ( (k_row <= rangeL.lastIndex()) || (k_row >= rangeR.firstIndex()) ) {
                     ret.insert(Index1D(j_row,k_row,XWavelet));
                     continue;
@@ -1307,7 +1307,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
         for (int j_row=j; j_row<=std::min(j+s_tilde_level, jmax); ++j_row) {        // realization of matrix compression via level threshold
             T Pow2i_Mjrow = pow2i<T>(-j_row);
             if (j_row>j+s_tilde_singsupp) {
-                DenseVector<Array<T> > singsupp = phi.singularSupport(j,k);
+                flens::DenseVector<flens::Array<T> > singsupp = phi.singularSupport(j,k);
                 //cout << "LambdaTilde: Singular support phi_col = " << singpts;
                 for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                     int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;
@@ -1359,7 +1359,7 @@ lambdaTilde1d_WeightedPDE(const Index1D &lambda, const Basis<T,Primal,R,CDF> &ba
         for (int j_row=std::max(j-s_tilde_level,jmin); j_row<=std::min(j+s_tilde_level,jmax); ++j_row) {
             T Pow2i_Mjrow = pow2i<T>(-j_row);
             if (j_row>j+s_tilde_singsupp) {
-                DenseVector<Array<T> > singsupp = psi.optim_singularSupport(j,k);
+                flens::DenseVector<flens::Array<T> > singsupp = psi.optim_singularSupport(j,k);
                 //cout << "LambdaTilde: Singular support psi_col_" << j << "," << k << " = " << singpts;
                 for (int i=singsupp.firstIndex(); i<=singsupp.lastIndex(); ++i) {
                     int kMin = floor(pow2i<T>(j_row)*singsupp(i) - support_refwavelet.l2)-1;

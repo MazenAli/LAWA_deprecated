@@ -68,6 +68,8 @@ template<typename T, typename UniformBasis2D, typename S1_x, typename S1_y,
 flens::DenseVector<flens::Array<T> >
 UniformTensorMatrix2D<T,UniformBasis2D,S1_x,S1_y,S2_x,S2_y>::operator*(const DenseVectorT &v) const
 {
+    using flens::_;
+
     //Timer time;
     //time.start();
     if (v.length()!=_basis.second.mra.cardI(_Jy)*_basis.first.mra.cardI(_Jx)) {
@@ -111,6 +113,8 @@ template<typename T, typename UniformBasis2D, typename S1_x, typename S1_y,
 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
 UniformTensorMatrix2D<T,UniformBasis2D,S1_x,S1_y,S2_x,S2_y>::operator*(const DenseMatrixT &V) const
 {
+    using flens::_;
+
     DenseMatrixT ret(_basis.second.mra.cardI(_Jy), _basis.first.mra.cardI(_Jx));
     if ((V.numRows()!=_basis.second.mra.cardI(_Jy)) || (V.numCols()!=_basis.second.mra.cardI(_Jx)))
     {

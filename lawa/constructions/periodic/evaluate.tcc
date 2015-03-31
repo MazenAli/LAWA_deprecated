@@ -23,7 +23,7 @@ namespace lawa {
 template <typename X>
 typename X::ElementType
 evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, int j,
-         const DenseVector<X> &coeffs, typename X::ElementType x, int deriv)
+         const flens::DenseVector<X> &coeffs, typename X::ElementType x, int deriv)
 {
     typedef typename X::ElementType T;
     assert(j>=mra.j0);
@@ -43,7 +43,7 @@ evaluate(const MRA<typename X::ElementType,Primal,Periodic,CDF> &mra, int j,
 template <typename X>
 typename X::ElementType
 evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis,
-         int J, const DenseVector<X> &coeffs, typename X::ElementType x, 
+         int J, const flens::DenseVector<X> &coeffs, typename X::ElementType x, 
          int deriv)
 {
     typedef typename X::ElementType T;
@@ -56,7 +56,7 @@ evaluate(const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis,
     basis.setLevel(j0);
     T ret = 0;
     int offsetJ = basis.rangeJ(j0).firstIndex()-coeffs.firstIndex();
-    Range<int> range(coeffs.firstIndex(), coeffs.firstIndex() + basis.cardJ(j0) - 1);
+    flens::Range<int> range(coeffs.firstIndex(), coeffs.firstIndex() + basis.cardJ(j0) - 1);
     
     ret += evaluate(basis.mra,j0,coeffs(range),x,deriv);
     Wavelet<T,Primal,Periodic,CDF> psi(basis.d, basis.d_);

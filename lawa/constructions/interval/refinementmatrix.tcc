@@ -30,7 +30,7 @@ RefinementMatrix<T,lawa::Interval,Cons>::RefinementMatrix()
 template <typename T, lawa::Construction Cons>
 RefinementMatrix<T,lawa::Interval,Cons>::RefinementMatrix(
                                 int nLeft, int nRight,
-                                const GeMatrix<FullStorage<T, ColMajor> > &A,
+                                const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &A,
                                 int _min_j0, int cons_j)
     : left(nLeft, (nLeft>0) ? A.firstCol() : 1),
       right(nRight, (nRight>0) ? A.lastCol()-nRight+1 : A.lastCol()+2),
@@ -60,7 +60,7 @@ RefinementMatrix<T,lawa::Interval,Cons>::RefinementMatrix(
 }
 
 template <typename T, lawa::Construction Cons>
-const typename DenseVector<Array<T> >::ConstView
+const typename flens::DenseVector<flens::Array<T> >::ConstView
 RefinementMatrix<T,lawa::Interval,Cons>::operator()(int j, const Underscore<int> &/*u*/,
                                               int col) const
 {
@@ -87,7 +87,7 @@ RefinementMatrix<T,lawa::Interval,Cons>::operator()(int j, const Underscore<int>
     }
 
     if (col>=right.firstIndex()+additionalCols) {
-        const DenseVector<Array<T> > &rightCol = right(col-additionalCols);
+        const flens::DenseVector<flens::Array<T> > &rightCol = right(col-additionalCols);
         return rightCol( _ , rightCol.firstIndex()+additionalRows);
     }
 
@@ -97,14 +97,14 @@ RefinementMatrix<T,lawa::Interval,Cons>::operator()(int j, const Underscore<int>
 }
 
 template <typename T, lawa::Construction Cons>
-Range<int>
+flens::Range<int>
 RefinementMatrix<T,lawa::Interval,Cons>::rows() const
 {
     return _(firstRow(), lastRow());
 }
 
 template <typename T, lawa::Construction Cons>
-Range<int>
+flens::Range<int>
 RefinementMatrix<T,lawa::Interval,Cons>::cols() const
 {
     return _(firstCol(), lastCol());
@@ -186,7 +186,7 @@ RefinementMatrix<T,lawa::Interval,Cons>::setLevel(int j) const
 template <typename T, lawa::Construction Cons>
 void
 RefinementMatrix<T,lawa::Interval,Cons>::_extractMasks(
-                                    const GeMatrix<FullStorage<T,ColMajor> > &A)
+                                    const flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &A)
 {
     // extract left block
     for (int c=A.firstCol(); c<A.firstCol()+left.length(); ++c) {
@@ -268,14 +268,14 @@ template <typename X, lawa::Construction Cons, typename Y>
 void
 mv(Transpose transA, typename X::ElementType alpha,
    const RefinementMatrix<typename X::ElementType,lawa::Interval,Cons> &A,
-   const DenseVector<X> &x, typename X::ElementType beta, DenseVector<Y> &y)
+   const flens::DenseVector<X> &x, typename X::ElementType beta, flens::DenseVector<Y> &y)
 {
     typedef typename X::ElementType T;
     assert(alpha==T(1));
     assert(x.engine().stride()==1);
     assert(y.engine().stride()==1);
 
-    if (transA==NoTrans) {
+    if (transA==cxxblas::NoTrans) {
         assert(A.numCols()==x.length());
 
         if (beta==T(0)) {

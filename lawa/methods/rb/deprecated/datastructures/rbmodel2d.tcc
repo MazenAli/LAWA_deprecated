@@ -135,13 +135,13 @@ RBModel2D<T, TruthModel>::RB_solve(unsigned int N, std::vector<T> param, SolverC
   FullColMatrixT A(N, N);
     for (unsigned int i = 0; i < Q_a(); ++i) {
         //A += (*theta_a[i])(get_current_param()) * RB_A_matrices[i](_(1,N), _(1,N));
-        flens::axpy(cxxblas::NoTrans, (*theta_a[i])(param), RB_A_matrices[i](_(1,N), _(1,N)), A);
+        flens::blas::axpy(cxxblas::NoTrans, (*theta_a[i])(param), RB_A_matrices[i](_(1,N), _(1,N)), A);
     }
 
     DenseVectorT F(N);
     for (unsigned int i = 0; i < Q_f(); ++i) {
         //F += (*theta_f[i])(get_current_param()) * RB_F_vectors[i](_(1,N));
-        flens::axpy((*theta_f[i])(param), RB_F_vectors[i](_(1,N)), F);
+        flens::blas::axpy((*theta_f[i])(param), RB_F_vectors[i](_(1,N)), F);
     }
     
     DenseVectorT u(N);
@@ -172,13 +172,13 @@ RBModel2D<T, TruthModel>::RB_solve(unsigned int N, SolverCall call)
   FullColMatrixT A(N, N);
     for (unsigned int i = 0; i < Q_a(); ++i) {
         //A += (*theta_a[i])(get_current_param()) * RB_A_matrices[i](_(1,N), _(1,N));
-        flens::axpy(cxxblas::NoTrans, (*theta_a[i])(get_current_param()), RB_A_matrices[i](_(1,N), _(1,N)), A);
+        flens::blas::axpy(cxxblas::NoTrans, (*theta_a[i])(get_current_param()), RB_A_matrices[i](_(1,N), _(1,N)), A);
     }
 
     DenseVectorT F(N);
     for (unsigned int i = 0; i < Q_f(); ++i) {
         //F += (*theta_f[i])(get_current_param()) * RB_F_vectors[i](_(1,N));
-        flens::axpy((*theta_f[i])(get_current_param()), RB_F_vectors[i](_(1,N)), F);
+        flens::blas::axpy((*theta_f[i])(get_current_param()), RB_F_vectors[i](_(1,N)), F);
     }
     
     DenseVectorT u(N);

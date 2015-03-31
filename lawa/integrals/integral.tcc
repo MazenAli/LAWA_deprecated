@@ -33,9 +33,9 @@ namespace lawa {
    
 //--- primal * primal or orthogonal * orthogonal
 template <typename First, typename Second>
-//typename RestrictTo<BothPrimal<First,Second>::value
+//typename cxxblas::RestrictTo<BothPrimal<First,Second>::value
 //                    or BothOrthogonal<First,Second>::value, typename First::T>::Type
-typename RestrictTo<!IsDual<First>::value and !IsDual<Second>::value, typename First::T>::Type
+typename cxxblas::RestrictTo<!IsDual<First>::value and !IsDual<Second>::value, typename First::T>::Type
 _integrate(const Integral<Gauss,First,Second> &integral)
 {
     typedef typename First::T T;
@@ -65,7 +65,7 @@ _integrate(const Integral<Gauss,First,Second> &integral)
 
 //--- (primal * dual) or (dual * primal) or (dual * dual) or (dual * orthogonal) or (orthogonal * dual)
 template <QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<IsDual<First>::value or IsDual<Second>::value, typename First::T>::Type
+typename cxxblas::RestrictTo<IsDual<First>::value or IsDual<Second>::value, typename First::T>::Type
 _integrate(const Integral<Quad,First,Second> &integral)
 {
     typedef typename First::T T;
@@ -97,10 +97,10 @@ _integrate_f1(const IntegralF<Quad,First,Second> &integral)
     common.l2 *= integral.RightmLeft;
     common.l2 += integral.left;
 
-    DenseVector<Array<T> > singularPoints;
+    flens::DenseVector<flens::Array<T> > singularPoints;
     if (IsPrimal<First>::value or IsOrthogonal<First>::value) {
         if (p>0) {
-            DenseVector<Array<T> > firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+            flens::DenseVector<flens::Array<T> > firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
 
             firstSingularPoints *= integral.RightmLeft;
             firstSingularPoints += integral.left;
@@ -139,6 +139,8 @@ template <QuadratureType Quad, typename First, typename Second>
 typename First::T
 _integrate_f2(const IntegralF<Quad,First,Second> &integral)
 {
+    using flens::_;
+
     typedef typename First::T T;
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
     const typename Second::BasisFunctionType &second = integral.second.generator(integral.e2);
@@ -154,15 +156,15 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
     common.l2 *= integral.RightmLeft;
     common.l2 += integral.left;
 
-    DenseVector<Array<T> > singularPoints;
+    flens::DenseVector<flens::Array<T> > singularPoints;
     int p = function.singularPoints.length();
 
     if (!BothDual<First,Second>::value) { // we do have (additional) singular points
         // merge singular points of bsplines/wavelets and function to one list.
         // -> implicit assumption: singular points are sorted!
         if (BothPrimal<First,Second>::value or BothOrthogonal<First,Second>::value) {
-            DenseVector<Array<T> > firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
-            DenseVector<Array<T> > secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
+            flens::DenseVector<flens::Array<T> > firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+            flens::DenseVector<flens::Array<T> > secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
 
             firstSingularPoints *= integral.RightmLeft;
             firstSingularPoints += integral.left;
@@ -187,7 +189,7 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
         } else {
             if (IsPrimal<First>::value or IsOrthogonal<First>::value) {
                 if (p>0) {
-                    const DenseVector<Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
+                    const flens::DenseVector<flens::Array<T> > & firstSingularPoints = first.singularSupport(integral.j1,integral.k1);
                     int m = firstSingularPoints.length();
                     singularPoints.engine().resize(m+p);
 
@@ -201,7 +203,7 @@ _integrate_f2(const IntegralF<Quad,First,Second> &integral)
                 }
             } else {
                 if (p>0) {
-                    const DenseVector<Array<T> > & secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
+                    const flens::DenseVector<flens::Array<T> > & secondSingularPoints = second.singularSupport(integral.j2,integral.k2);
                     int n = secondSingularPoints.length();
                     singularPoints.engine().resize(n+p);
 
@@ -246,7 +248,7 @@ _integrand(const Integral<Quad,First,Second> &integral, typename First::T x)
 
 //--- function * primal/dual/orthogonal
 template <QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<PrimalOrDualOrOrthogonal<First>::value, typename First::T>::Type
+typename cxxblas::RestrictTo<PrimalOrDualOrOrthogonal<First>::value, typename First::T>::Type
 _integrand_f1(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {
     const typename First::BasisFunctionType &first = integral.first.generator(integral.e1);
@@ -257,7 +259,7 @@ _integrand_f1(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 
 //--- function * primal/dual/orthogonal * primal/dual/orthogonal
 template <QuadratureType Quad, typename First, typename Second>
-typename RestrictTo<PrimalOrDualOrOrthogonal<First>::value 
+typename cxxblas::RestrictTo<PrimalOrDualOrOrthogonal<First>::value 
                     and PrimalOrDualOrOrthogonal<Second>::value, typename First::T>::Type
 _integrand_f2(const IntegralF<Quad,First,Second> &integral, typename First::T x)
 {

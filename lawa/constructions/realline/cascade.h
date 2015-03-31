@@ -28,8 +28,8 @@ namespace lawa {
 
 template <typename X, typename Y>
 void
-evalAtDyadicGrid_Cascade(const DenseVector<X> &sf, int J,
-                         DenseVector<Y> &scaling);
+evalAtDyadicGrid_Cascade(const flens::DenseVector<X> &sf, int J,
+                         flens::DenseVector<Y> &scaling);
 
 } // namespace lawa
 

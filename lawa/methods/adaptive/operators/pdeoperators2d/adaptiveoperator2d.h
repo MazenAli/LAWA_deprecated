@@ -29,7 +29,7 @@ namespace lawa {
   template <typename T>
   struct AdaptiveOperator2D : Operator2D<T> {
     
-    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> >                  SparseMatrixT;
+    typedef flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> >                  SparseMatrixT;
 
     virtual T
     operator()(const Index2D &row_index, const Index2D &col_index) = 0;

@@ -152,7 +152,7 @@ GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::GALSOLVE(const IndexSet<Index1D> &Lambda,
     //Assemble sparse matrix B
     unsigned long N = Lambda.size();
     //std::cerr << "    Assembling of B started with N=" << N << std::endl;
-    flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > B(N,N);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > B(N,N);
     std::map<Index1D,int,lt<Lexicographical,Index1D> > row_indices;
     int row_count = 1, col_count = 1;
     for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {
@@ -176,7 +176,7 @@ GHS_ADWAV1D<T,Basis,APPLY1D,RHS>::GALSOLVE(const IndexSet<Index1D> &Lambda,
     APPLY_Aw = Apply(w, tol/3.);
     r0 = g - P(APPLY_Aw, Lambda);
 
-    DenseVector<Array<T> > rhs(N), x(N), res(N), Bx(N);
+    flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Bx(N);
     row_count=1;
     const_coeff_it r0_end = r0.end();
     for (const_set_it row=Lambda.begin(); row!=Lambda.end(); ++row, ++row_count) {

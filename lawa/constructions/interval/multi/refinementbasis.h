@@ -99,9 +99,9 @@ class Basis<_T,Orthogonal,Interval,MultiRefinement>
                 int d;
                 const Basis<_T,Orthogonal,Interval,MultiRefinement> &refinementbasis;
 
-                DenseVector<Array<long double> > outer_values;
-                DenseVector<Array<long double> > inner_values1;
-                DenseVector<Array<long double> > inner_values2;
+                flens::DenseVector<flens::Array<long double> > outer_values;
+                flens::DenseVector<flens::Array<long double> > inner_values1;
+                flens::DenseVector<flens::Array<long double> > inner_values2;
         };
 
         class IdentityOperator1D {
@@ -116,9 +116,9 @@ class Basis<_T,Orthogonal,Interval,MultiRefinement>
                 int d;
                 const Basis<_T,Orthogonal,Interval,MultiRefinement> &refinementbasis;
 
-                DenseVector<Array<long double> > outer_values;
-                DenseVector<Array<long double> > inner_values1;
-                DenseVector<Array<long double> > inner_values2;
+                flens::DenseVector<flens::Array<long double> > outer_values;
+                flens::DenseVector<flens::Array<long double> > inner_values1;
+                flens::DenseVector<flens::Array<long double> > inner_values2;
         };
 
 

@@ -32,11 +32,11 @@ BSpline<T,Orthogonal,R,MultiRefinement>
             _support = new Support<T>[1];
             _support[0] = Support<T>(0.,1.);
 
-            _singularSupport = new DenseVector<Array<T> >[1];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _singularSupport[0].engine().resize(2,0);
             _singularSupport[0] = 0., 1.;
 
-            _refCoeffs = new DenseVector<Array<long double> >[1];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _refCoeffs[0].engine().resize(2,0);
             _refCoeffs[0] = 1.L, 1.L;
             _refCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -57,11 +57,11 @@ BSpline<T,Orthogonal,R,MultiRefinement>
             _support = new Support<T>[1];
             _support[0] = Support<T>(0.,2.);
 
-            _singularSupport = new DenseVector<Array<T> >[1];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _singularSupport[0].engine().resize(3,0);
             _singularSupport[0] = 0., 1., 2.;
 
-            _refCoeffs = new DenseVector<Array<long double> >[1];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _refCoeffs[0].engine().resize(3,0);
             _refCoeffs[0] = 0.5L, 1.L, 0.5L;
             _refCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -79,11 +79,11 @@ BSpline<T,Orthogonal,R,MultiRefinement>
             _evaluator[0] = _quadratic_refinement_inner_evaluator0;
             _support = new Support<T>[1];
             _support[0] = Support<T>(0.,3.);
-            _singularSupport = new DenseVector<Array<T> >[1];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _singularSupport[0].engine().resize(4,0);
             _singularSupport[0] = 0., 1., 2., 3.;
 
-            _refCoeffs = new DenseVector<Array<long double> >[1];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[1];
             _refCoeffs[0].engine().resize(4,0);
             _refCoeffs[0] = 0.25L, 0.75L, 0.75L, 0.25L;
             _refCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -102,13 +102,13 @@ BSpline<T,Orthogonal,R,MultiRefinement>
             _support = new Support<T>[2];
             _support[0] = Support<T>(0.,2.);
             _support[1] = Support<T>(0.,2.);
-            _singularSupport = new DenseVector<Array<T> >[2];
+            _singularSupport = new flens::DenseVector<flens::Array<T> >[2];
             _singularSupport[0].engine().resize(3,0);
             _singularSupport[0] = 0., 1., 2.;
             _singularSupport[1].engine().resize(3,0);
             _singularSupport[1] = 0., 1., 2.;
 
-            _refCoeffs = new DenseVector<Array<long double> >[2];
+            _refCoeffs = new flens::DenseVector<flens::Array<long double> >[2];
             _refCoeffs[0].engine().resize(5,0);
             _refCoeffs[0] = 0.25L, 0.625L, 0.75L, 0.25L, 0.125L;
             _refCoeffs[0] *= std::pow(2.L,-0.5L);
@@ -161,13 +161,13 @@ BSpline<T,Orthogonal,R,MultiRefinement>::support(int j, long k) const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BSpline<T,Orthogonal,R,MultiRefinement>::singularSupport(int j, long k) const
 {
     const int type = _type(k);
     const long shift = _shift(k);
 
-    DenseVector<Array<T> > result = _singularSupport[type];
+    flens::DenseVector<flens::Array<T> > result = _singularSupport[type];
     result += shift;
 
     return pow2i<T>(-j) * result;
@@ -182,7 +182,7 @@ BSpline<T,Orthogonal,R,MultiRefinement>::tic(int j) const
 }
 
 template <typename T>
-DenseVector<Array<long double> > *
+flens::DenseVector<flens::Array<long double> > *
 BSpline<T,Orthogonal,R,MultiRefinement>::
 getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const
 {

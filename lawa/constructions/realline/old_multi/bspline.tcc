@@ -36,7 +36,7 @@ BSpline<T,Orthogonal,R,Multi>::BSpline(const int _d)
                 _support[1] = Support<T>( 0,1);
                 _support[2] = Support<T>( 0,1);
 
-                _singularSupport = new DenseVector<Array<T> >[3];
+                _singularSupport = new flens::DenseVector<flens::Array<T> >[3];
                 _singularSupport[0] = linspace(-1.0,1.0,9);
                 _singularSupport[1] = linspace(0.0,1.0,3);
                 _singularSupport[2] = linspace(0.0,1.0,5);
@@ -89,13 +89,13 @@ BSpline<T,Orthogonal,R,Multi>::max_support() const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BSpline<T,Orthogonal,R,Multi>::singularSupport(int j, long k) const
 {
     const int typ = _type(k);
     const long shift = _shift(k);
     
-    DenseVector<Array<T> > result = _singularSupport[typ];
+    flens::DenseVector<flens::Array<T> > result = _singularSupport[typ];
     result += shift;
     
     return pow2i<T>(-j) * result;    

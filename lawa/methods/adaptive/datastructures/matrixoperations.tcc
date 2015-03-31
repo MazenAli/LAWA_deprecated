@@ -179,7 +179,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
 
     Timer timer;
     int N = Lambda.size();
-    flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(N,N);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A_flens(N,N);
     if (useOptimizedAssembling) {
         A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
     }
@@ -190,7 +190,7 @@ CG_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T,In
     if (Lambda.size() > 0) {
       std::cout << "    Build Dense Vectors ..." << std::endl;
       timer.start();
-        DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+        flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
         int row_count=1;
         const_coeff_it f_end = f.end();
         const_coeff_it u_end = u.end();
@@ -240,7 +240,7 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
         typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
 
         int N = Lambda.size();
-        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(N,N);
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A_flens(N,N);
         if (useOptimizedAssembling) {
             A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
         }
@@ -249,7 +249,7 @@ GMRES_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,T
         }
 
         if (Lambda.size() > 0) {
-            DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+            flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
             int row_count=1;
             const_coeff_it f_end = f.end();
             const_coeff_it u_end = u.end();
@@ -287,7 +287,7 @@ GMRESM_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,
     typedef typename Coefficients<Lexicographical,T,Index >::value_type val_type;
     
     int N = Lambda.size();
-    flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(N,N);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A_flens(N,N);
     if (useOptimizedAssembling) {
         A.toFlensSparseMatrix(Lambda, Lambda, A_flens, tol);
     }
@@ -296,7 +296,7 @@ GMRESM_Solve(const IndexSet<Index> &Lambda, MA &A, Coefficients<Lexicographical,
     }
     
     if (Lambda.size() > 0) {
-        DenseVector<Array<T> > rhs(N), x(N), res(N), Ax(N);
+        flens::DenseVector<flens::Array<T> > rhs(N), x(N), res(N), Ax(N);
         int row_count=1;
         const_coeff_it f_end = f.end();
         const_coeff_it u_end = u.end();
@@ -342,7 +342,7 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
 
         int NumOfRows = (int)LambdaRow.size();
         int NumOfCols = (int)LambdaCol.size();
-        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A_flens(NumOfRows,NumOfCols);
         toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
     
   
@@ -356,7 +356,7 @@ GMRES_Solve_PG(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCo
 
 
         if (LambdaRow.size() > 0) {
-            DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
+            flens::DenseVector<flens::Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
             int row_count=1;
             for (const_set_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
                 if (f.count((*row)) > 0) {
@@ -406,11 +406,11 @@ CGLS_Solve(const IndexSet<Index> &LambdaRowOp, const IndexSet<SpaceIndex> &Lambd
     std::cerr << "CGLS_SOLVE called..." << std::endl;
     int NumOfCols = LambdaCol.size();
     int NumOfRows = LambdaRowOp.size() + LambdaRowInitCond.size();
-    flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+    flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A_flens(NumOfRows,NumOfCols);
     toFlensSparseMatrix(A, LambdaRowOp, LambdaRowInitCond, LambdaCol, A_flens);
 
     if (LambdaCol.size() > 0) {
-        DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
+        flens::DenseVector<flens::Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
         int row_count=1;
         const_coeff_it f_end = f.end();
         for (const_set_op_it row=LambdaRowOp.begin(); row!=LambdaRowOp.end(); ++row, ++row_count) {
@@ -458,11 +458,11 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
 
         int NumOfRows = (int)LambdaRow.size();
         int NumOfCols = (int)LambdaCol.size();
-        flens::SparseGeMatrix<flens::extensions::CRS<T,CRS_General> > A_flens(NumOfRows,NumOfCols);
+        flens::SparseGeMatrix<flens::extensions::CRS<T,flens::CRS_General> > A_flens(NumOfRows,NumOfCols);
         toFlensSparseMatrix(A, LambdaRow, LambdaCol, A_flens);
 
         if (LambdaRow.size() > 0) {
-            DenseVector<Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
+            flens::DenseVector<flens::Array<T> > rhs(NumOfRows), x(NumOfCols), res(NumOfRows), Ax(NumOfRows);
             int row_count=1;
             for (const_set_it row=LambdaRow.begin(); row!=LambdaRow.end(); ++row, ++row_count) {
                 if (f.count((*row)) > 0) {
@@ -493,7 +493,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense;
     densify(cxxblas::NoTrans,A_flens,A_dense);
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > U(NumOfRows,NumOfRows),V(NumOfCols,NumOfCols);
-    DenseVector<Array<T> > s(NumOfCols);
+    flens::DenseVector<flens::Array<T> > s(NumOfCols);
     std::cout << "Computing svd..." << std::endl;
     int iterations = svd(A_dense,s,U,V);
     std::cout << " ... finished after " << iterations << std::endl;
@@ -504,7 +504,7 @@ CGLS_Solve(const IndexSet<Index> &LambdaRow, const IndexSet<Index> &LambdaCol,
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > A_dense1;
     densify(cxxblas::NoTrans,A_flens,A_dense1);
     //std::cout << A_dense1 << std::endl;
-    DenseVector<Array<T> > wr(N), wi(N);
+    flens::DenseVector<flens::Array<T> > wr(N), wi(N);
     flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > vl,vr;
     ev(false, false, A_dense1, wr, wi, vl, vr);
     T cB=wr(wr.firstIndex()), CB=wr(wr.lastIndex());

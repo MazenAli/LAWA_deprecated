@@ -23,14 +23,14 @@ namespace lawa {
 
 template <typename X, typename Y>
 void
-decompose(const DenseVector<X> &x, 
+decompose(const flens::DenseVector<X> &x, 
           const Basis<typename X::ElementType,Dual,Periodic,CDF> &basis_, int j,
-          DenseVector<Y> &y)
+          flens::DenseVector<Y> &y)
 {
     assert(j>=basis_.j0);
     typedef typename X::ElementType T;
 
-    DenseVector<Array<T> > sf, w;
+    flens::DenseVector<flens::Array<T> > sf, w;
     sf = transpose(basis_.mra_.M0_) * x;
     w  = transpose(basis_.M1_) * x;
     concatenate(sf,w,y,y.firstIndex());
@@ -38,9 +38,9 @@ decompose(const DenseVector<X> &x,
 
 template <typename X, typename Y>
 void
-reconstruct(const DenseVector<X> &x, 
+reconstruct(const flens::DenseVector<X> &x, 
             const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis, int j,
-            DenseVector<Y> &y)
+            flens::DenseVector<Y> &y)
 {
     assert(j>=basis.j0);
     assert(x.length()%2==0);
@@ -54,22 +54,24 @@ reconstruct(const DenseVector<X> &x,
 
 template <typename X, typename Y>
 void
-fwt(const DenseVector<X> &x, 
+fwt(const flens::DenseVector<X> &x, 
     const Basis<typename X::ElementType,Dual,Periodic,CDF> &basis_, int j,
-    DenseVector<Y> &y)
+    flens::DenseVector<Y> &y)
 {
+    using flens::_;
+
     assert(j>=basis_.j0);
 
-    typedef typename DenseVector<X>::ElementType T;
+    typedef typename flens::DenseVector<X>::ElementType T;
     int n = x.length();
     y.engine().resize(n,x.firstIndex()) || y.engine().fill();
     
-    DenseVector<Array<T> > tmp = x;
+    flens::DenseVector<flens::Array<T> > tmp = x;
     n /= 2;
     int from = x.firstIndex(), middle = from+n-1, to = x.lastIndex();
     for (int l=j; l>=basis_.j0; --l) {
         n /=2;
-        typename DenseVector<Y>::View yview = y(_(from,to));
+        typename flens::DenseVector<Y>::View yview = y(_(from,to));
         decompose(tmp, basis_, l, yview);
         to = middle;
         middle = from + n - 1;
@@ -79,19 +81,21 @@ fwt(const DenseVector<X> &x,
 
 template <typename X, typename Y>
 void
-ifwt(const DenseVector<X> &x, 
+ifwt(const flens::DenseVector<X> &x, 
      const Basis<typename X::ElementType,Primal,Periodic,CDF> &basis, int j,
-     DenseVector<Y> &y)
+     flens::DenseVector<Y> &y)
 {
+    using flens::_;
+
     assert(j>=basis.j0);
     typedef typename X::ElementType T;
     
     int n = x.length() / pow2i<T>(j-basis.j0);
     y = x;
     for (int l=basis.j0; l<=j; ++l) {
-        Range<int> r = _(y.firstIndex(),y.firstIndex()+n-1);
-        typename DenseVector<Y>::View yview = y(r);
-        DenseVector<Array<T> > z = y(r);
+        flens::Range<int> r = _(y.firstIndex(),y.firstIndex()+n-1);
+        typename flens::DenseVector<Y>::View yview = y(r);
+        flens::DenseVector<flens::Array<T> > z = y(r);
         reconstruct(z, basis, l, yview);
         n *= 2;
     }

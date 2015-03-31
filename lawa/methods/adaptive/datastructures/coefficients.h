@@ -260,7 +260,7 @@ struct Coefficients<AbsoluteValue,T,Index> : std::multimap<T,Index,lt<AbsoluteVa
     T
     wtauNorm(T tau) const;
 
-    DenseVector<Array<T> >
+    flens::DenseVector<flens::Array<T> >
     norm_sections() const;
 };
 

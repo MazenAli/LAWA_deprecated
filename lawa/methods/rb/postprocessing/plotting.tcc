@@ -3,7 +3,7 @@
 namespace lawa {
 
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 saveCoeffVector2D(const Coefficients<Lexicographical,T,Index2D> &coeff, const Basis &basis2d, const char* filename)
 {
@@ -37,7 +37,7 @@ saveCoeffVector2D(const Coefficients<Lexicographical,T,Index2D> &coeff, const Ba
 }
 
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 saveCoeffVector2D(const Coefficients<Lexicographical,T,Index2D> &coeff, const Basis &basis2d, const char* filename)
 {

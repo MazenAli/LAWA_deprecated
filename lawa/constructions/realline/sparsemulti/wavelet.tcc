@@ -26,7 +26,7 @@ Wavelet<T,Primal,R,SparseMulti>::Wavelet(int _d)
                 _support[2] = Support<T>( -2.,2.);
                 _support[3] = Support<T>( -2.,2.);
             
-                _singularSupport = new DenseVector<Array<T> >[4];
+                _singularSupport = new flens::DenseVector<flens::Array<T> >[4];
                 _singularSupport[0] = linspace(0.0,2.0,5);
                 _singularSupport[1] = linspace(0.0,2.0,5);
                 _singularSupport[2] = linspace(-2.0,2.0,9);
@@ -66,7 +66,7 @@ Wavelet<T,Primal,R,SparseMulti>::Wavelet(const Basis<T,Primal,R,SparseMulti> &_b
                 _support[2] = Support<T>( -2.,2.);
                 _support[3] = Support<T>( -2.,2.);
 
-                _singularSupport = new DenseVector<Array<T> >[4];
+                _singularSupport = new flens::DenseVector<flens::Array<T> >[4];
                 _singularSupport[0] = linspace(0.0,2.0,5);
                 _singularSupport[1] = linspace(0.0,2.0,5);
                 _singularSupport[2] = linspace(-2.0,2.0,9);
@@ -126,13 +126,13 @@ Wavelet<T,Primal,R,SparseMulti>::max_support() const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Primal,R,SparseMulti>::singularSupport(int j, long k) const
 {
     const int typ = _type(k);
     const long shift = _shift(k);
     
-    DenseVector<Array<T> > result = _singularSupport[typ];
+    flens::DenseVector<flens::Array<T> > result = _singularSupport[typ];
     result += shift;
     
     return pow2i<T>(-j) * result;

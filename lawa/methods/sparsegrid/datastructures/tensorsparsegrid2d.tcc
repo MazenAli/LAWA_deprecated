@@ -316,6 +316,8 @@ template<typename T, typename Basis2D, typename S1_x, typename S1_y, typename S2
 flens::DenseVector<flens::Array<T> >
 TensorSparseGrid2D<T,Basis2D,S1_x,S1_y,S2_x,S2_y>::operator*(const DenseVectorT &x) const
 {
+    using flens::_;
+
     std::vector<DenseMatrixT> y;
     for (int row_block=0; row_block<(int)_sg_blocks.size(); ++row_block) {
         int dim_x = _sg_blocks[row_block][4], dim_y = _sg_blocks[row_block][5];
@@ -362,6 +364,7 @@ TensorSparseGrid2D<T, Basis2D, S1_x, S1_y, S2_x, S2_y>::block_multiplication(int
                                                                              const DenseMatrixT &Xj)
                                                                              const
 {
+    using flens::_;
 
     int dim_Lambda_x =     _sg_blocks[row_block][4], dim_Lambda_y =     _sg_blocks[row_block][5];
     int dim_Lambda_prime_x=_sg_blocks[col_block][4], dim_Lambda_prime_y=_sg_blocks[col_block][5];

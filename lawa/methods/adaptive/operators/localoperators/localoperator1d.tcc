@@ -306,7 +306,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 // Non-Periodic Version
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<TrialBasis>::value, T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<TrialBasis>::value, T_>::value, void>::Type
 LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_splitPhiPi(int l, const CoefficientsByLevel<T_> &c_l, CoefficientsByLevel<T_> &PhiPiCheck1, CoefficientsByLevel<T_> &PhiPiCheck2) const
 {
@@ -355,7 +355,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 // Periodic Version
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<TrialBasis>::value, T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<TrialBasis>::value, T_>::value, void>::Type
 LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_splitPhiPi(int l, const CoefficientsByLevel<T_> &c_l, CoefficientsByLevel<T_> &PhiPiCheck1, CoefficientsByLevel<T_> &PhiPiCheck2) const
 {
@@ -447,7 +447,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 // Non-Periodic Version
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<TestBasis>::value, T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<TestBasis>::value, T_>::value, void>::Type
 LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_splitd(int l, const CoefficientsByLevel<T_> &PsiLambdaCheck_l,
           CoefficientsByLevel<T_> &d1, CoefficientsByLevel<T_> &d2) const
@@ -498,7 +498,7 @@ LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 // Periodic Version
 template <typename TestBasis, typename TrialBasis, typename RefinementBilinearForm, typename BilinearForm>
 template <typename T_>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<TestBasis>::value, T_>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<TestBasis>::value, T_>::value, void>::Type
 LocalOperator1D<TestBasis, TrialBasis, RefinementBilinearForm, BilinearForm>
 ::_splitd(int l, const CoefficientsByLevel<T_> &PsiLambdaCheck_l,
           CoefficientsByLevel<T_> &d1, CoefficientsByLevel<T_> &d2) const

@@ -53,7 +53,7 @@ class Wavelet<_T,Primal,RPlus,SparseMulti>
         Support<T>
         max_support() const;
 
-        DenseVector<Array<T> >
+        flens::DenseVector<flens::Array<T> >
         singularSupport(int j, long k) const;
     
         T

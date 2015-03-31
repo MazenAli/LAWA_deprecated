@@ -41,8 +41,8 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::truth_solve()
     // Construct initial index set, based on splines on minimal level(s)
     IndexSet<Index> InitialLambda;
     if (flens::IsSame<Index2D, Index>::value) {
-        Range<int> R_x = s_adwav.basis.first.mra.rangeI(s_adwav.basis.first.j0);
-        Range<int> R_y = s_adwav.basis.second.mra.rangeI(s_adwav.basis.second.j0);
+        flens::Range<int> R_x = s_adwav.basis.first.mra.rangeI(s_adwav.basis.first.j0);
+        flens::Range<int> R_y = s_adwav.basis.second.mra.rangeI(s_adwav.basis.second.j0);
         for (int k_x = R_x.firstIndex(); k_x <= R_x.lastIndex(); ++k_x) {
             for (int k_y = R_y.firstIndex(); k_y <= R_y.lastIndex(); ++k_y) {
                 Index1D index_x(s_adwav.basis.first.j0, k_x, XBSpline);
@@ -82,8 +82,8 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_F()
     // Construct initial index set, based on splines on minimal level(s)
     IndexSet<Index> InitialLambda;
     if (flens::IsSame<Index2D, Index>::value) {
-        Range<int> R_x = repr_s_adwav_F.basis.first.mra.rangeI(repr_s_adwav_F.basis.first.j0);
-        Range<int> R_y = repr_s_adwav_F.basis.second.mra.rangeI(repr_s_adwav_F.basis.second.j0);
+        flens::Range<int> R_x = repr_s_adwav_F.basis.first.mra.rangeI(repr_s_adwav_F.basis.first.j0);
+        flens::Range<int> R_y = repr_s_adwav_F.basis.second.mra.rangeI(repr_s_adwav_F.basis.second.j0);
         for (int k_x = R_x.firstIndex(); k_x <= R_x.lastIndex(); ++k_x) {
             for (int k_y = R_y.firstIndex(); k_y <= R_y.lastIndex(); ++k_y) {
                 Index1D index_x(repr_s_adwav_F.basis.first.j0, k_x, XBSpline);
@@ -110,8 +110,8 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_A()
     // Construct initial index set, based on splines on minimal level(s)
     IndexSet<Index> InitialLambda;
     if (flens::IsSame<Index2D, Index>::value) {
-        Range<int> R_x = repr_s_adwav_A.basis.first.mra.rangeI(repr_s_adwav_A.basis.first.j0);
-        Range<int> R_y = repr_s_adwav_A.basis.second.mra.rangeI(repr_s_adwav_A.basis.second.j0);
+        flens::Range<int> R_x = repr_s_adwav_A.basis.first.mra.rangeI(repr_s_adwav_A.basis.first.j0);
+        flens::Range<int> R_y = repr_s_adwav_A.basis.second.mra.rangeI(repr_s_adwav_A.basis.second.j0);
         for (int k_x = R_x.firstIndex(); k_x <= R_x.lastIndex(); ++k_x) {
             for (int k_y = R_y.firstIndex(); k_y <= R_y.lastIndex(); ++k_y) {
                 Index1D index_x(repr_s_adwav_A.basis.first.j0, k_x, XBSpline);
@@ -137,8 +137,8 @@ S_ADWAV_TruthSolver<T, Basis, Prec, Index, Compression>::repr_solve_output()
     // Construct initial index set, based on splines on minimal level(s)
     IndexSet<Index> InitialLambda;
     if (flens::IsSame<Index2D, Index>::value) {
-        Range<int> R_x = repr_s_adwav_output.basis.first.mra.rangeI(repr_s_adwav_output.basis.first.j0);
-        Range<int> R_y = repr_s_adwav_output.basis.second.mra.rangeI(repr_s_adwav_output.basis.second.j0);
+        flens::Range<int> R_x = repr_s_adwav_output.basis.first.mra.rangeI(repr_s_adwav_output.basis.first.j0);
+        flens::Range<int> R_y = repr_s_adwav_output.basis.second.mra.rangeI(repr_s_adwav_output.basis.second.j0);
         for (int k_x = R_x.firstIndex(); k_x <= R_x.lastIndex(); ++k_x) {
             for (int k_y = R_y.firstIndex(); k_y <= R_y.lastIndex(); ++k_y) {
                 Index1D index_x(repr_s_adwav_output.basis.first.j0, k_x, XBSpline);

@@ -91,7 +91,7 @@ Wavelet<T,Orthogonal,Interval,Multi>::support(int j, long k) const
 }
 
 template <typename T>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 Wavelet<T,Orthogonal,Interval,Multi>::singularSupport(int j, long k) const
 {
     k -= 1;    
@@ -104,7 +104,7 @@ Wavelet<T,Orthogonal,Interval,Multi>::singularSupport(int j, long k) const
     if (k<basis.cardJL()+basis.cardJI(j)) {
         int type  = (int)((k-basis._numLeftParts) % basis._numInnerParts);
         long shift = iceil<T>((k+1.-basis._numLeftParts)/basis._numInnerParts);
-        DenseVector<Array<T> > result = basis._innerSingularSupport[type];
+        flens::DenseVector<flens::Array<T> > result = basis._innerSingularSupport[type];
         result += shift;
         return pow2i<T>(-j) * result;
     }
@@ -113,7 +113,7 @@ Wavelet<T,Orthogonal,Interval,Multi>::singularSupport(int j, long k) const
     int type  = (int)(k - (basis.cardJ(j)-1 - basis._numRightParts + 1));
     long shift = pow2i<long>(j)-1;
     //long shift = iceil<T>((k+1. - basis._numLeftParts)/basis._numInnerParts);
-    DenseVector<Array<T> > result = basis._rightSingularSupport[type];
+    flens::DenseVector<flens::Array<T> > result = basis._rightSingularSupport[type];
     result += shift;
     return pow2i<T>(-j) * result;
 }
@@ -128,7 +128,7 @@ Wavelet<T,Orthogonal,Interval,Multi>::tic(int j) const
 }
 
 template <typename T>
-DenseVector<Array<long double> > *
+flens::DenseVector<flens::Array<long double> > *
 Wavelet<T,Orthogonal,Interval,Multi>::getRefinement(int j, long k,
                                                     int &refinement_j, long &refinement_k_first,
                                                     long &split, long &refinement_k_restart) const

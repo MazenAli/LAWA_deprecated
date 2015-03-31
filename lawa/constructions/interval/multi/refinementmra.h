@@ -57,16 +57,16 @@ class MRA<_T,Orthogonal,Interval,MultiRefinement>
         cardIR(int j=-1) const;
 
         // ranges of whole left, inner, right index sets.
-        Range<int>
+        flens::Range<int>
         rangeI(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIL(int j=-1) const;
 
-        Range<int>
+        flens::Range<int>
         rangeII(int j) const;
 
-        Range<int>
+        flens::Range<int>
         rangeIR(int j) const;
 
         int
@@ -85,7 +85,7 @@ class MRA<_T,Orthogonal,Interval,MultiRefinement>
         BSpline<T,Orthogonal,Interval,MultiRefinement> phi;
 
     private:
-        DenseVector<Array<int> > _bc;  // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
                                        // bc(1) = 1 -> Dirichlet BC right.
 
@@ -105,12 +105,12 @@ class MRA<_T,Orthogonal,Interval,MultiRefinement>
         Support<T> *_leftSupport,
                    *_innerSupport,
                    *_rightSupport;
-        DenseVector<Array<T> > *_leftSingularSupport,
+        flens::DenseVector<flens::Array<T> > *_leftSingularSupport,
                                *_innerSingularSupport,
                                *_rightSingularSupport;
 
         // Refinement coefficients for representation in B-splines on a higher level
-        DenseVector<Array<long double> > *_leftRefCoeffs,
+        flens::DenseVector<flens::Array<long double> > *_leftRefCoeffs,
                                          *_innerRefCoeffs,
                                          *_rightRefCoeffs;
         long *_leftOffsets,

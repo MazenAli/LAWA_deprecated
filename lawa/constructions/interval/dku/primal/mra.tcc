@@ -221,7 +221,7 @@ MRA<T,Primal,Interval,DKU>::_calcM0()
 {
     using flens::_;
 
-    flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> > Mj0(rangeI(min_j0+1), rangeI(min_j0)),
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > Mj0(rangeI(min_j0+1), rangeI(min_j0)),
                                        Left(_(l-d,2*l+l2-2),_(l-d,l-1)), Right;
 
     for (int r=0; r<d; ++r) {

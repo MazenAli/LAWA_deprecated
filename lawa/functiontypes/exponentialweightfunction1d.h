@@ -32,7 +32,7 @@ struct ExponentialWeightFunction1D
     static T eta;
     static T x1, x2;
     static bool with_precPoints;
-    static DenseVector<Array<T> > singularPoints;
+    static flens::DenseVector<flens::Array<T> > singularPoints;
 
     static void
     setEta(T _eta);

@@ -92,7 +92,7 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _leftSupport[1] = Support<T>(0.,2.);
             _leftSupport[2] = Support<T>(0.,2.);
 
-            _leftSingularSupport = new DenseVector<Array<T> >[3];
+            _leftSingularSupport = new flens::DenseVector<flens::Array<T> >[3];
             _leftSingularSupport[0] = linspace(0.0,2.0,5);
             _leftSingularSupport[1] = linspace(0.0,2.0,5);
             _leftSingularSupport[2] = linspace(0.0,2.0,5);
@@ -115,7 +115,7 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _innerSupport[2] = Support<T>(-2.,2.);
             _innerSupport[3] = Support<T>(-2.,2.);
 
-            _innerSingularSupport = new DenseVector<Array<T> >[4];
+            _innerSingularSupport = new flens::DenseVector<flens::Array<T> >[4];
             _innerSingularSupport[0] = linspace(0.0,2.0,5);
             _innerSingularSupport[1] = linspace(0.0,2.0,5);
             _innerSingularSupport[2] = linspace(-2.0,2.0,9);
@@ -133,7 +133,7 @@ Basis<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _rightSupport = new Support<T>[1];
             _rightSupport[0] = Support<T>(-2.0,0.0);
 
-            _rightSingularSupport = new DenseVector<Array<T> >[1];
+            _rightSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _rightSingularSupport[0] = linspace(-2.0,0.0,5);
 
             _rightScalingFactors.engine().resize(1,0);
@@ -206,35 +206,35 @@ Basis<T,Primal,Interval,SparseMulti>::cardJR(int j) const
 
 // ranges of whole, left, inner, right index sets (primal).
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Interval,SparseMulti>::rangeJ(int j) const
 {
     assert(j>=j0);
-    return Range<int>(1,cardJ(j));
+    return flens::Range<int>(1,cardJ(j));
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Interval,SparseMulti>::rangeJL(int j) const
 {
     assert(j>=j0 or j==-1);
-    return Range<int>(1,cardJL(j));
+    return flens::Range<int>(1,cardJL(j));
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Interval,SparseMulti>::rangeJI(int j) const
 {
     assert(j>=j0);
-    return Range<int>(cardJL(j)+1,cardJL(j)+cardJI(j));
+    return flens::Range<int>(cardJL(j)+1,cardJL(j)+cardJI(j));
 }
 
 template <typename T>
-const Range<int>
+const flens::Range<int>
 Basis<T,Primal,Interval,SparseMulti>::rangeJR(int j) const
 {
     assert(j>=j0);
-    return Range<int>(cardJL(j)+cardJI(j)+1,cardJ(j));
+    return flens::Range<int>(cardJL(j)+cardJI(j)+1,cardJ(j));
 }
 
 
@@ -274,35 +274,35 @@ Basis<T,Primal,Interval,SparseMulti>::long_cardJR(int j) const
 
 // ranges of whole, left, inner, right index sets (primal).
 template <typename T>
-const Range<long>
+const flens::Range<long>
 Basis<T,Primal,Interval,SparseMulti>::long_rangeJ(int j) const
 {
     assert(j>=j0);
-    return Range<long>(1,long_cardJ(j));
+    return flens::Range<long>(1,long_cardJ(j));
 }
 
 template <typename T>
-const Range<long>
+const flens::Range<long>
 Basis<T,Primal,Interval,SparseMulti>::long_rangeJL(int j) const
 {
     assert(j>=j0 or j==-1);
-    return Range<long>(1,long_cardJL(j));
+    return flens::Range<long>(1,long_cardJL(j));
 }
 
 template <typename T>
-const Range<long>
+const flens::Range<long>
 Basis<T,Primal,Interval,SparseMulti>::long_rangeJI(int j) const
 {
     assert(j>=j0);
-    return Range<long>(long_cardJL(j)+1,long_cardJL(j)+long_cardJI(j));
+    return flens::Range<long>(long_cardJL(j)+1,long_cardJL(j)+long_cardJI(j));
 }
 
 template <typename T>
-const Range<long>
+const flens::Range<long>
 Basis<T,Primal,Interval,SparseMulti>::long_rangeJR(int j) const
 {
     assert(j>=j0);
-    return Range<long>(long_cardJL(j)+long_cardJI(j)+1,long_cardJ(j));
+    return flens::Range<long>(long_cardJL(j)+long_cardJI(j)+1,long_cardJ(j));
 }
 
 } // namespace lawa

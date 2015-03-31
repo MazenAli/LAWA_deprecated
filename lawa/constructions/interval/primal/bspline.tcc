@@ -57,7 +57,7 @@ BSpline<T,Primal,Interval,Cons>::support(int j, long k) const
 }
 
 template <typename T, Construction Cons>
-DenseVector<Array<T> >
+flens::DenseVector<flens::Array<T> >
 BSpline<T,Primal,Interval,Cons>::singularSupport(int j, long k) const
 {
     const int tics = (k<mra.d) ? k+1 : (k>pow2i<T>(j)) ? pow2i<T>(j)+mra.d-1-k+2 : mra.d+1;
@@ -81,7 +81,7 @@ BSpline<T,Primal,Interval,Cons>::getRefinementLevel(int j) const
 }
 
 template <typename T, Construction Cons>
-DenseVector<Array<long double> > *
+flens::DenseVector<flens::Array<long double> > *
 BSpline<T,Primal,Interval,Cons>::getRefinement(int j, long k, int &refinement_j, long &refinement_k_first,
 												long &split, long &refinement_k_restart) const
 {
@@ -174,7 +174,7 @@ _evaluateUnitBSpline(int d, T x, int j, long k, unsigned short deriv)
             return 0;
         }
 
-        Array<T> values(d,0);
+        flens::Array<T> values(d,0);
         // initialize correct 'slot'.
         if ((pos<=k) && (pos>=k-d)) {
             values(pos-(k-d)) = 1.;

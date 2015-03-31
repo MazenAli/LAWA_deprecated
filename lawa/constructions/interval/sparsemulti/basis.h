@@ -122,7 +122,7 @@ class Basis<_T,Primal,Interval,SparseMulti>
         unsigned int _numSplines;
     
     private:
-        DenseVector<Array<int> > _bc;  // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
                                        // bc(1) = 1 -> Dirichlet BC right.
         
@@ -141,10 +141,10 @@ class Basis<_T,Primal,Interval,SparseMulti>
         Support<T> *_leftSupport, 
                    *_innerSupport, 
                    *_rightSupport;
-        DenseVector<Array<T> > *_leftSingularSupport, 
+        flens::DenseVector<flens::Array<T> > *_leftSingularSupport, 
                                *_innerSingularSupport, 
                                *_rightSingularSupport;
-        DenseVector<Array<T> > _leftScalingFactors, _innerScalingFactors, _rightScalingFactors;
+        flens::DenseVector<flens::Array<T> > _leftScalingFactors, _innerScalingFactors, _rightScalingFactors;
         
     public:
         Wavelet<T,Primal,Interval,SparseMulti> psi;

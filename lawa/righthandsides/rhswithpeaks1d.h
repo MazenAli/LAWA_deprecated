@@ -39,7 +39,7 @@ class RHSWithPeaks1D
 {
     public:
         RHSWithPeaks1D(const Basis &basis, Function<T> _f,
-                       const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
+                       const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> > &_deltas,
                        int order, bool _with_singular_part=true, bool _with_smooth_part=true);
 
         T
@@ -51,7 +51,7 @@ class RHSWithPeaks1D
     private:
         const Basis &basis;
         Function<T> f;
-        const GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    &deltas;
+        const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >    &deltas;
         bool with_singular_part;
         bool with_smooth_part;
         IntegralF<Gauss, Basis> integralf;
@@ -64,7 +64,7 @@ class RHSWithPeaks1D_WO_XBSpline
     public:
 
         RHSWithPeaks1D_WO_XBSpline(const Wavelet<T,Primal,R,CDF> &_psi,
-                                   T (*_f)(T), const DenseVector<Array<T> > &_f_singularPoints,
+                                   T (*_f)(T), const flens::DenseVector<flens::Array<T> > &_f_singularPoints,
                                    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &_deltas,
                                    T _left_bound, T _right_bound, T _h, int _order,
                                    bool _with_singular_part=true, bool _with_smooth_part=true);
@@ -81,7 +81,7 @@ class RHSWithPeaks1D_WO_XBSpline
 
         const Wavelet<T,Primal,R,CDF> &psi;
         T (*f)(T);
-        const DenseVector<Array<T> > f_singularPoints;
+        const flens::DenseVector<flens::Array<T> > f_singularPoints;
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > &deltas;
         T left_bound, right_bound;
         T h;    //interval length for quadrature
@@ -89,7 +89,7 @@ class RHSWithPeaks1D_WO_XBSpline
         bool with_singular_part;
         bool with_smooth_part;
 
-        DenseVector<Array<T> >       f_singularPoints_interval;
+        flens::DenseVector<flens::Array<T> >       f_singularPoints_interval;
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _knots;
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _weights;
 

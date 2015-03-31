@@ -53,7 +53,7 @@ class Wavelet<_T,Primal,R,SparseMulti>
         Support<T>
         max_support() const;
 
-        DenseVector<Array<T> >
+        flens::DenseVector<flens::Array<T> >
         singularSupport(int j, long k) const;
         
         T
@@ -76,8 +76,8 @@ class Wavelet<_T,Primal,R,SparseMulti>
     
         Evaluator *_evaluator;
         Support<T> *_support;
-        DenseVector<Array<T> > *_singularSupport;
-        DenseVector<Array<T> >  _ScalingFactors;
+        flens::DenseVector<flens::Array<T> > *_singularSupport;
+        flens::DenseVector<flens::Array<T> >  _ScalingFactors;
 
         Support<T> _max_support;
 

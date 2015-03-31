@@ -54,13 +54,13 @@ class Wavelet<_T,Orthogonal,R,Multi>
         Support<T>
         max_support() const;
 
-        DenseVector<Array<T> >
+        flens::DenseVector<flens::Array<T> >
         singularSupport(int j, long k) const;
         
         T
         tic(int j) const;
 
-        DenseVector<Array<long double> > *
+        flens::DenseVector<flens::Array<long double> > *
         getRefinement(int j, long k, int &refinement_j, long &refinement_k_first) const;
 
         int
@@ -85,11 +85,11 @@ class Wavelet<_T,Orthogonal,R,Multi>
     
         Evaluator *_evaluator;
         Support<T> *_support;
-        DenseVector<Array<T> > *_singularSupport;
+        flens::DenseVector<flens::Array<T> > *_singularSupport;
 
         Support<T> _max_support;
 
-        DenseVector<Array<long double> > *_refCoeffs;
+        flens::DenseVector<flens::Array<long double> > *_refCoeffs;
         long double                      *_H1SemiNorms;
         long                             *_offsets;
         T                                _initialticsize;

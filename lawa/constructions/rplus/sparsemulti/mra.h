@@ -49,7 +49,7 @@ class MRA<_T,Primal,RPlus,SparseMulti>
         cardIL(int j=1) const;
         
         // ranges of left index sets.
-        Range<long>
+        flens::Range<long>
         rangeIL(int j=-1) const;
         
         int
@@ -68,7 +68,7 @@ class MRA<_T,Primal,RPlus,SparseMulti>
         BSpline<T,Primal,RPlus,SparseMulti> phi;
         
     private:
-        DenseVector<Array<int> > _bc;  // the boundary conditions
+        flens::DenseVector<flens::Array<int> > _bc;  // the boundary conditions
                                        // bc(0) = 1 -> Dirichlet BC left.
         
         mutable int _j;                // the current level.
@@ -83,9 +83,9 @@ class MRA<_T,Primal,RPlus,SparseMulti>
                   *_innerEvaluator;
         Support<T> *_leftSupport,
                    *_innerSupport;
-        DenseVector<Array<T> > *_leftSingularSupport,
+        flens::DenseVector<flens::Array<T> > *_leftSingularSupport,
                                *_innerSingularSupport;
-        DenseVector<Array<T> > _leftScalingFactors,
+        flens::DenseVector<flens::Array<T> > _leftScalingFactors,
                                _innerScalingFactors;
 };
     

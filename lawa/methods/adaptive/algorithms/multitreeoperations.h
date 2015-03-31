@@ -80,26 +80,26 @@ extendMultiTreeAtBoundary(const Basis &basis, const Coefficients<Lexicographical
 
 // ORIGINAL: Non-Periodic version
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<Basis>::value, T>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<Basis>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index1D &index1d,
                   Coefficients<Lexicographical,T,Index1D>  &v, bool sparsetree=false);
 
 // Periodic version
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<Basis>::value, T>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<Basis>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index1D &index1d,
                   Coefficients<Lexicographical,T,Index1D>  &v, bool sparsetree=false);
 
 // ---- Non-Periodic + returning added indizes
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<Basis>::value, T>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<Basis>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index1D &index1d,
                   Coefficients<Lexicographical,T,Index1D>  &v,
                   IndexSet<Index2D>& diff_v, bool sparsetree=false);
 
 // ---- Periodic + returning added indizes
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<Basis>::value, T>::value, void>::Type
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<Basis>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index1D &index1d,
                   Coefficients<Lexicographical,T,Index1D>  &v,
                   IndexSet<Index2D>& diff_v, bool sparsetree=false);
@@ -109,7 +109,7 @@ completeMultiTree(const Basis &basis, const Index1D &index1d,
 
 // ORIGINAL: Non-Periodic version
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
@@ -117,7 +117,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 
 // Periodic version
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
@@ -125,7 +125,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 
 // Periodic-NonPeriodic version
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
@@ -133,7 +133,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 
 // NonPeriodic-Periodic version
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
@@ -141,7 +141,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 
 // ---- Non-Periodic + returning added indizes
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
@@ -150,7 +150,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 
 // ---- Periodic + returning added indizes
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
@@ -159,7 +159,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 
 // ---- Periodic-NonPeriodic + returning added indizes
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
@@ -168,7 +168,7 @@ completeMultiTree(const Basis &basis, const Index2D &index2d,
 
 // ---- NonPeriodic-Periodic + returning added indizes
 template <typename T, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, T>::value, void>::Type
 completeMultiTree(const Basis &basis, const Index2D &index2d,
                   Coefficients<Lexicographical,T,Index2D>  &v,
@@ -204,25 +204,25 @@ getSparseGridVector(const Basis &basis, Coefficients<Lexicographical,T,Index3D> 
 
 // ORIGINAL: Non-Periodic version
 template <typename Index, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambda);
 
 // Periodic version
 template <typename Index, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambda);
 
 // Periodic-NonPeriodic version
 template <typename Index, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambda);
 
 // Non-Periodic-Periodic version
 template <typename Index, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambda);
 
@@ -230,25 +230,25 @@ extendMultiTree(const Basis &basis, const Index &index2d, IndexSet<Index> &Lambd
 
 // ORIGINAL: Non-Periodic version
 template <typename Index, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
 
 // Periodic version
 template <typename Index, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
 
 // Periodic-NonPeriodic version
 template <typename Index, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<IsPeriodic<typename Basis::FirstBasisType>::value
 					and !IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
 
 // NonPeriodic-Periodic version
 template <typename Index, typename Basis>
-typename RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
+typename cxxblas::RestrictTo<SFINAE_Wrapper<!IsPeriodic<typename Basis::FirstBasisType>::value
 					and IsPeriodic<typename Basis::SecondBasisType>::value, Basis>::value, void>::Type
 extendMultiTree2(const Basis &basis, const Index &index2d, const int offset, IndexSet<Index> &Lambda);
 

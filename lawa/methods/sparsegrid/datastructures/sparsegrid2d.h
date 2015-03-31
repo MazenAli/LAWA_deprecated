@@ -51,7 +51,7 @@ class SparseGrid2D{
         const Basis2D        &basis;
         BilinearForm   &a;
         RHS            &rhs;
-        DenseVector<Array<T> > u;
+        flens::DenseVector<flens::Array<T> > u;
         T J;
         T gamma;
         IndexSet<Index2D>    Lambda;

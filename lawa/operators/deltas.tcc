@@ -1,10 +1,12 @@
 namespace lawa {
 
 template <typename T, typename Basis>
-GeMatrix<FullStorage<T,ColMajor> >
+flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> >
 computeDeltas(const Basis &basis, int j, long k, XType e)
 {
-    GeMatrix<FullStorage<T,ColMajor> > ret;
+    using flens::_;
+
+    flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > ret;
     const typename Basis::BasisFunctionType &varphi=basis.generator(e); //either B-Spline or Wavelet
     int d = basis.d;
 

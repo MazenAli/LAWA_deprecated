@@ -97,7 +97,7 @@ class MRA<_T,Dual,Interval,DKU>
         const int min_j0;      // minimal allowed(!) level;
         const int j0;          // minimal used(!) level.
         
-//        GeMatrix<FullStorage<T,cxxblas::ColMajor> > R_Left, R_Right;
+//        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > R_Left, R_Right;
         flens::RefinementMatrix<T,Interval,DKU> M0_;
         BSpline<T,Dual,Interval,DKU> phi_;
 
@@ -111,7 +111,7 @@ class MRA<_T,Dual,Interval,DKU>
         void
         _calcM0_();
 
-        flens::GeMatrix<flens::FullStorage<T,flens::ColMajor> >
+        flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> >
         _integral0toInfPhiPhi_();
         
         flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > _Alpha, _Beta;

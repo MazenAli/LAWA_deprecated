@@ -91,32 +91,32 @@ MRA<T,Primal,Interval,SparseMulti>::cardIR(int /*j*/) const
 //--- ranges of whole, left, inner, right index sets. --------------------------
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,SparseMulti>::rangeI(int j) const
 {
     assert(j>=j0);
-    return Range<int>(0,cardI(j)-1);
+    return flens::Range<int>(0,cardI(j)-1);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,SparseMulti>::rangeIL(int /*j*/) const
 {
-    return Range<int>(0,0);
+    return flens::Range<int>(0,0);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,SparseMulti>::rangeII(int j) const
 {
-    return Range<int>(1,cardI(j)-2);
+    return flens::Range<int>(1,cardI(j)-2);
 }
 
 template <typename T>
-Range<int>
+flens::Range<int>
 MRA<T,Primal,Interval,SparseMulti>::rangeIR(int j) const
 {
-    return Range<int>(cardI(j)-1,cardI(j)-1);
+    return flens::Range<int>(cardI(j)-1,cardI(j)-1);
 }
 
 
@@ -152,32 +152,32 @@ MRA<T,Primal,Interval,SparseMulti>::long_cardIR(int /*j*/) const
 }
 
 template <typename T>
-Range<long>
+flens::Range<long>
 MRA<T,Primal,Interval,SparseMulti>::long_rangeI(int j) const
 {
     assert(j>=j0);
-    return Range<long>(0,long_cardI(j)-1);
+    return flens::Range<long>(0,long_cardI(j)-1);
 }
 
 template <typename T>
-Range<long>
+flens::Range<long>
 MRA<T,Primal,Interval,SparseMulti>::long_rangeIL(int /*j*/) const
 {
-    return Range<long>(0,0);
+    return flens::Range<long>(0,0);
 }
 
 template <typename T>
-Range<long>
+flens::Range<long>
 MRA<T,Primal,Interval,SparseMulti>::long_rangeII(int j) const
 {
-    return Range<long>(1,long_cardI(j)-2);
+    return flens::Range<long>(1,long_cardI(j)-2);
 }
 
 template <typename T>
-Range<long>
+flens::Range<long>
 MRA<T,Primal,Interval,SparseMulti>::long_rangeIR(int j) const
 {
-    return Range<long>(long_cardI(j)-1,long_cardI(j)-1);
+    return flens::Range<long>(long_cardI(j)-1,long_cardI(j)-1);
 }
 
 
@@ -216,7 +216,7 @@ MRA<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _leftSupport = new Support<T>[1];
             _leftSupport[0] = Support<T>(0,1);
 
-            _leftSingularSupport = new DenseVector<Array<T> >[1];
+            _leftSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _leftSingularSupport[0] = linspace(0.,1.,2);
 
             _leftScalingFactors.engine().resize(1,0);
@@ -232,7 +232,7 @@ MRA<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _innerSupport[0] = Support<T>(-1,1);
             _innerSupport[1] = Support<T>(-1,1);
 
-            _innerSingularSupport = new DenseVector<Array<T> >[2];
+            _innerSingularSupport = new flens::DenseVector<flens::Array<T> >[2];
             _innerSingularSupport[0] = linspace(-1.,1.,3);
             _innerSingularSupport[1] = linspace(-1.,1.,3);
 
@@ -247,7 +247,7 @@ MRA<T,Primal,Interval,SparseMulti>::enforceBoundaryCondition()
             _rightSupport = new Support<T>[1];
             _rightSupport[0] = Support<T>(-1,0);
 
-            _rightSingularSupport = new DenseVector<Array<T> >[1];
+            _rightSingularSupport = new flens::DenseVector<flens::Array<T> >[1];
             _rightSingularSupport[0] = linspace(-1.,0.,2);
 
             _rightScalingFactors.engine().resize(1,0);

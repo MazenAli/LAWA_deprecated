@@ -306,6 +306,8 @@ template <typename SingularIntegral>
 void
 SingularQuadrature<SingularIntegral>::_hp_composite_legendre(int max_n, double sigma, double mu)
 {
+    using flens::_;
+
     int N=0;
     for (int j=0; j<=max_n; ++j) {
         N += std::max((int)(mu*j)+1,1);
