@@ -161,6 +161,11 @@ apply(HTCoeffNode& u, const T& eps)
     }
 
     u.setCoeff(ret);
+    printf("Result frame is\n");
+    for (int l=1; l<=numCols; ++l) {
+        printf("Column %d\n", l);
+        std::cout << ret[l] << std::endl;
+    }
 }
 
 
@@ -174,6 +179,7 @@ testApply(int j, int rank)
     printf("---------           rank=%d             ----------------\n\n", rank);
 
     int count(0);
+    T   scale(30);
     int j0 = basis.j0;
     for (int l=1; l<=rank; ++l) {
         for (int k=basis.mra.rangeI(j0).firstIndex();
@@ -181,7 +187,7 @@ testApply(int j, int rank)
             lawa::XType type = lawa::XBSpline;
             lawa::Index1D lambda(j0, k, type);
             ++count;
-            u(lambda, l) = count;
+            u(lambda, l) = count/scale;
         }
         for (int i=basis.j0; i<=j; ++i) {
             for (int k=basis.rangeJ(i).firstIndex();
@@ -189,7 +195,7 @@ testApply(int j, int rank)
                 lawa::XType type = lawa::XWavelet;
                 lawa::Index1D lambda(i, k, type);
                 ++count;
-                u(lambda, l) = count;
+                u(lambda, l) = count/scale;
             }
         }
     }
