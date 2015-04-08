@@ -50,6 +50,8 @@ struct IndexSet : std::unordered_set<Index, index_hashfunction<Index>, index_eqf
 struct IndexSet : __gnu_cxx::hash_set<Index, index_hashfunction<Index>, index_eqfunction<Index> >
 #endif
 {
+    typedef Index IndexType;
+
     IndexSet(void);
 
     IndexSet(size_t n);

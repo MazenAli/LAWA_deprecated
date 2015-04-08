@@ -1,0 +1,281 @@
+#include <iostream>
+#include <cassert>
+#include <stdlib.h>
+#include <flens/flens.cxx>
+#include <htucker/htucker.h>
+#include <lawa/settings/enum.h>
+#include <lawa/methods/adaptive/datastructures/index.h>
+#include <lawa/methods/adaptive/datastructures/indexset.h>
+#include <lawa/methods/adaptive/datastructures/coefficients.h>
+#include <construction_site/coeffframe.h>
+
+#ifndef LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HTCOEFFNODE_TCC
+#define LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HTCOEFFNODE_TCC 1
+
+namespace lawa
+{
+
+
+template <typename T, typename _Basis, typename _Index>
+HTCoeffNode<T, _Basis, _Index>::HTCoeffNode
+                    (htucker::HTuckerTreeNode<T>& _htnode,
+                    const _Basis& _basis)
+                    :htnode(_htnode),
+                    basis(_basis),
+                    activex(0),
+                    numCols(htnode.getUorB().numCols()){}
+
+
+template <typename T, typename _Basis, typename _Index>
+HTCoeffNode<T, _Basis, _Index>::HTCoeffNode
+                    (const HTCoeffNode<T, _Basis, _Index>& copy)
+                    :htnode(const_cast<htucker::HTuckerTreeNode<T>&>(copy.getNode())),
+                    basis(copy.getBasis()),
+                    activex(0),
+                    numCols(0)
+{
+    std::cerr <<
+"error: HTCoeffNode copy constructor being called!"
+    << std::endl;
+    exit(EXIT_FAILURE);
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+HTCoeffNode<T, _Basis, _Index>::~HTCoeffNode()
+{
+    if (activex) {
+        delete[] activex;
+    }
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+const htucker::HTuckerTreeNode<T>&
+HTCoeffNode<T, _Basis, _Index>::getNode() const
+{
+    return htnode;
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+const IndexSet<_Index>&
+HTCoeffNode<T, _Basis, _Index>::getActivex(const int& col_num) const
+{
+    assert(col_num>=1 && col_num<=(numCols));
+    return activex[col_num-1];
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+int
+HTCoeffNode<T, _Basis, _Index>::getRank() const
+{
+    return numCols;
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+const _Basis&
+HTCoeffNode<T, _Basis, _Index>::getBasis() const
+{
+    return basis;
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+template <SortingCriterion S>
+void
+HTCoeffNode<T, _Basis, _Index>::addCoeff(const CoeffFrame<S, T, _Index>& u)
+{
+    using flens::_;
+    typedef typename CoeffFrame<S, T, _Index>::const_iterator   const_it;
+    typedef flens::GeMatrix<flens::FullStorage<T,
+                            flens::ColMajor>>                   GeMatrix;
+
+    int numRows = htnode.getUorB().numRows();
+    int current(0), max(0);
+
+    assert(numCols>0);
+    for (int i=1; i<=numCols; ++i) {
+        for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
+            activex[i-1].insert((*it).first);
+            current = mapCoeff((*it).first, basis);
+            if (current>max) {
+                max = current;
+            }
+        }
+    }
+
+    GeMatrix& U = const_cast<GeMatrix&>(htnode.getUorB()); // in-place
+    assert(numRows>0);
+    if (max>numRows) {
+        GeMatrix copy(U);
+        U.resize(max, numCols);
+        U(_(1,numRows), _) = copy;
+    }
+
+    for (int i=1; i<=numCols; ++i) {
+        for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
+            current = mapCoeff((*it).first, basis);
+            U(current, i) += (*it).second;
+        }
+    }
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+template <SortingCriterion S>
+void
+HTCoeffNode<T, _Basis, _Index>::setCoeff(const CoeffFrame<S, T, _Index>& u)
+{
+    typedef typename CoeffFrame<S, T, _Index>::const_iterator   const_it;
+    typedef flens::GeMatrix<flens::FullStorage<T,
+                            cxxblas::ColMajor>>                 GeMatrix;
+    numCols = u.numCols();
+    assert (numCols>0);
+    if (activex) {
+        delete[] activex;
+    }
+    activex = new IndexSet<_Index> [numCols];
+
+    int numRows(0), current(0);
+    for (int i=1; i<=numCols; ++i) {
+        for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
+            activex[i-1].insert((*it).first);
+            current = mapCoeff((*it).first, basis);
+            if (current>numRows) {
+                numRows = current;
+            }
+        }
+    }
+
+    assert(numRows>0);
+    GeMatrix& U = const_cast<GeMatrix&>(htnode.getUorB()); // in-place
+    U.resize(numRows, numCols);
+    for (int i=1; i<=numCols; ++i) {
+        for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
+            current = mapCoeff((*it).first, basis);
+            U(current, i) = (*it).second;
+        }
+    }
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+const flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor>>&
+HTCoeffNode<T, _Basis, _Index>::getFrame() const
+{
+    return htnode.getUorB();
+}
+
+
+template<typename T, typename _Basis, typename _Index>
+void
+HTCoeffNode<T, _Basis, _Index>::printActive()
+{
+    std::cout   << "-----   Printing active wavelet indices -----"
+                << std::endl;
+    for (int i=0; i<numCols; ++i)
+    {
+        std::cout << "Column number " << i+1 << std::endl;
+        std::cout << activex[i] << std::endl;
+    }
+    std::cout   << "-----               Done                -----"
+                << std::endl;
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+T
+HTCoeffNode<T, _Basis, _Index>::operator() (const _Index& lambda, const int& col_num) const
+{
+    assert(col_num>=1 && col_num<=numCols);
+
+    typename IndexSet<_Index>::const_iterator found = activex[col_num-1].find(lambda);
+    if (found == activex[col_num-1].end()) {
+        return 0;
+    }
+
+    return getFrame()(mapCoeff(lambda, basis), col_num);
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+typename HTCoeffNode<T, _Basis, _Index>::iterator
+HTCoeffNode<T, _Basis, _Index>::begin(const int& j)
+{
+    assert(j>=1 && j<= numCols);
+    return activex[j-1].begin();
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+typename HTCoeffNode<T, _Basis, _Index>::const_iterator
+HTCoeffNode<T, _Basis, _Index>::cbegin(const int& j) const
+{
+    assert(j>=1 && j<= numCols);
+    return activex[j-1].cbegin();
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+typename HTCoeffNode<T, _Basis, _Index>::iterator
+HTCoeffNode<T, _Basis, _Index>::end(const int& j)
+{
+    assert(j>=1 && j<= numCols);
+    return activex[j-1].end();
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+typename HTCoeffNode<T, _Basis, _Index>::const_iterator
+HTCoeffNode<T, _Basis, _Index>::cend(const int& j) const
+{
+    assert(j>=1 && j<= numCols);
+    return activex[j-1].cend();
+}
+
+
+template <typename _Index, typename _Basis>
+int
+mapCoeff(const _Index&, const _Basis&)
+{
+    std::cerr << "error: mapCoeff not implemented for given Index type" << std::endl;
+    exit(EXIT_FAILURE);
+}
+
+
+template <typename _Basis>
+int
+mapCoeff(const Index1D& lambda, const _Basis& basis)
+{
+    int j       = lambda.j;
+    int k       = lambda.k;
+    XType type  = lambda.xtype;
+    int j0      = basis.j0;
+    int offset  = 0;
+
+    assert(type==XBSpline || type==XWavelet);
+    if (type==XBSpline) {
+        assert(j==j0);
+        assert( k>=basis.mra.rangeI(j).firstIndex() &&
+                k<=basis.mra.rangeI(j).lastIndex());
+        offset -= basis.mra.rangeI(j).firstIndex();
+        ++offset;
+        return k+offset;
+    } else {
+        assert(j>=j0);
+        assert( k>=basis.rangeJ(j).firstIndex() &&
+                k<=basis.rangeJ(j).lastIndex());
+        offset += basis.mra.cardI(j);
+        offset -= basis.rangeJ(j).firstIndex();
+        ++offset;
+        return k+offset;
+    }
+}
+
+
+} // namespace lawa
+
+#endif // LAWA_METHODS_ADAPTIVE_DATASTRUCTURES_HTCOEFFNODE_TCC
