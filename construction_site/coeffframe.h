@@ -25,20 +25,22 @@ class CoeffFrame
 
         ~CoeffFrame();
 
+        // Get methods
         int
         numCols() const;
-
-        Coefficients<S, T, _Index>&
-        operator[] (const int& col_num);
 
         const Coefficients<S, T, _Index>&
         operator[] (const int& col_num) const;
 
+        T
+        operator() (const _Index& lambda, const int& col_num) const;
+
+        // Set methods
+        Coefficients<S, T, _Index>&
+        operator[] (const int& col_num);
+
         T&
         operator() (const _Index& lambda, const int& col_num);
-
-        const T&
-        operator() (const _Index& lambda, const int& col_num) const;
 };
 
 

@@ -77,7 +77,7 @@ CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int& col_num)
 
 
 template <SortingCriterion S, typename T, typename _Index>
-const T&
+T
 CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int& col_num) const
 {
     assert(col_num>=1 && col_num<=numCols_);

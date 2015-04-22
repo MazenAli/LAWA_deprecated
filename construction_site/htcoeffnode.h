@@ -55,6 +55,9 @@ class HTCoeffNode
         void
         printActive();
 
+        bool
+        isActive(const _Index& lambda, const int& col_num) const;
+
         // Iterators over column
         iterator
         begin(const int& j);

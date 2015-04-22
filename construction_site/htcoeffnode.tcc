@@ -29,7 +29,8 @@ HTCoeffNode<T, _Basis, _Index>::HTCoeffNode
 template <typename T, typename _Basis, typename _Index>
 HTCoeffNode<T, _Basis, _Index>::HTCoeffNode
                     (const HTCoeffNode<T, _Basis, _Index>& copy)
-                    :htnode(const_cast<htucker::HTuckerTreeNode<T>&>(copy.getNode())),
+                    :htnode(const_cast  <htucker::HTuckerTreeNode<T>&>
+                                        (copy.getNode())),
                     basis(copy.getBasis()),
                     activex(0),
                     numCols(0)
@@ -88,6 +89,12 @@ template <SortingCriterion S>
 void
 HTCoeffNode<T, _Basis, _Index>::addCoeff(const CoeffFrame<S, T, _Index>& u)
 {
+    if (!activex) {
+        std::cerr   << "HTCoeffNode must be initiliazed via setCoeff!"
+                    << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     using flens::_;
     typedef typename CoeffFrame<S, T, _Index>::const_iterator   const_it;
     typedef flens::GeMatrix<flens::FullStorage<T,
@@ -108,11 +115,15 @@ HTCoeffNode<T, _Basis, _Index>::addCoeff(const CoeffFrame<S, T, _Index>& u)
     }
 
     GeMatrix& U = const_cast<GeMatrix&>(htnode.getUorB()); // in-place
-    assert(numRows>0);
-    if (max>numRows) {
+    if (max>numRows && numRows>0) {
         GeMatrix copy(U);
         U.resize(max, numCols);
         U(_(1,numRows), _) = copy;
+    } else if (numRows==0 && max>0) {
+        U.resize(max, numCols);
+    } else if (numRows==0 && max==0) {
+        U.resize(1, numCols);
+        return;
     }
 
     for (int i=1; i<=numCols; ++i) {
@@ -150,8 +161,12 @@ HTCoeffNode<T, _Basis, _Index>::setCoeff(const CoeffFrame<S, T, _Index>& u)
         }
     }
 
-    assert(numRows>0);
     GeMatrix& U = const_cast<GeMatrix&>(htnode.getUorB()); // in-place
+    if (numRows==0) {
+        U.resize(1, numCols);
+        return;
+    }
+
     U.resize(numRows, numCols);
     for (int i=1; i<=numCols; ++i) {
         for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
@@ -188,16 +203,34 @@ HTCoeffNode<T, _Basis, _Index>::printActive()
 
 template <typename T, typename _Basis, typename _Index>
 T
-HTCoeffNode<T, _Basis, _Index>::operator() (const _Index& lambda, const int& col_num) const
+HTCoeffNode<T, _Basis, _Index>::operator() (const _Index& lambda,
+                                            const int& col_num) const
 {
     assert(col_num>=1 && col_num<=numCols);
 
-    typename IndexSet<_Index>::const_iterator found = activex[col_num-1].find(lambda);
+    typename IndexSet<_Index>:: const_iterator
+                                found = activex[col_num-1].find(lambda);
     if (found == activex[col_num-1].end()) {
         return 0;
     }
 
     return getFrame()(mapCoeff(lambda, basis), col_num);
+}
+
+
+template <typename T, typename _Basis, typename _Index>
+bool
+HTCoeffNode<T, _Basis, _Index>::isActive(   const _Index& lambda,
+                                            const int& col_num) const
+{
+    assert(col_num>=1 && col_num<=numCols);
+    typename IndexSet<_Index>:: const_iterator
+                                found = activex[col_num-1].find(lambda);
+
+    if (found == activex[col_num-1].end()) {
+        return false;
+    }
+    return true;
 }
 
 
@@ -241,7 +274,8 @@ template <typename _Index, typename _Basis>
 int
 mapCoeff(const _Index&, const _Basis&)
 {
-    std::cerr << "error: mapCoeff not implemented for given Index type" << std::endl;
+    std::cerr   << "error: mapCoeff not implemented for given Index type"
+                << std::endl;
     exit(EXIT_FAILURE);
 }
 
