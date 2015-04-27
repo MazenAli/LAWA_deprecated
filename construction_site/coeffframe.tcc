@@ -11,7 +11,7 @@ namespace lawa
 
 
 template <SortingCriterion S, typename T, typename _Index>
-CoeffFrame<S, T, _Index>::CoeffFrame(const int& _numCols_)
+CoeffFrame<S, T, _Index>::CoeffFrame(const int _numCols_)
                                     :numCols_(_numCols_)
 {
     assert(numCols_>0);
@@ -51,7 +51,7 @@ CoeffFrame<S, T, _Index>::numCols() const
 
 template <SortingCriterion S, typename T, typename _Index>
 Coefficients<S, T, _Index>&
-CoeffFrame<S, T, _Index>::operator[] (const int& col_num)
+CoeffFrame<S, T, _Index>::operator[] (const int col_num)
 {
     assert(col_num>=1 && col_num<=numCols_);
     return U[col_num-1];
@@ -60,7 +60,7 @@ CoeffFrame<S, T, _Index>::operator[] (const int& col_num)
 
 template <SortingCriterion S, typename T, typename _Index>
 const Coefficients<S, T, _Index>&
-CoeffFrame<S, T, _Index>::operator[] (const int& col_num) const
+CoeffFrame<S, T, _Index>::operator[] (const int col_num) const
 {
     assert(col_num>=1 && col_num<=numCols_);
     return U[col_num-1];
@@ -69,7 +69,7 @@ CoeffFrame<S, T, _Index>::operator[] (const int& col_num) const
 
 template <SortingCriterion S, typename T, typename _Index>
 T&
-CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int& col_num)
+CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int col_num)
 {
     assert(col_num>=1 && col_num<=numCols_);
     return U[col_num-1][lambda];
@@ -78,7 +78,7 @@ CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int& col_num)
 
 template <SortingCriterion S, typename T, typename _Index>
 T
-CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int& col_num) const
+CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int col_num) const
 {
     assert(col_num>=1 && col_num<=numCols_);
     return U[col_num-1][lambda];

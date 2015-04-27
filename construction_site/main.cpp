@@ -27,12 +27,12 @@ htucker::DimensionIndex di(3, 1);
 
 
 void
-apply(HTCoeffNode& u, const T& eps)
+apply(HTCoeffNode& u, const T eps)
 {
     T c = 0;
     HeHoOp op(basis, c);
 
-    int numCols = u.getRank();
+    int numCols = u.numCols();
     HTCoeffFrame U(numCols), ret(numCols);
 
     typedef typename HTCoeffNode::const_iterator const_it;
@@ -49,9 +49,9 @@ apply(HTCoeffNode& u, const T& eps)
 
 
 void
-addCoefficients(Coefficients& w_p, const int& p,
+addCoefficients(Coefficients& w_p, const int p,
                 lawa::Coefficients<lawa::Bucket,T,lawa::Index1D>& v_bucket,
-                const HTCoeffNode& U, const int& col)
+                const HTCoeffNode& U, const int col)
 {
      typedef typename   lawa::Coefficients<lawa::Bucket,T,
                         lawa::Index1D>::BucketEntry::const_iterator const_it;
@@ -66,7 +66,30 @@ addCoefficients(Coefficients& w_p, const int& p,
 
 
 void
-apply_i(HTCoeffNode& U, const T& eps, const Coefficients& v)
+compContrac(const int i, Coefficients& pi,
+            /*to be replaced integrated into class*/const HTCoeffNode& U)
+{
+    typedef typename HTCoeffNode::const_iterator    active_const_it;
+    typedef typename Coefficients::iterator         coeff_it;
+
+    // Use i to determine node...
+    int dummy = i+1;
+
+    for (int i=1; i<=U.numCols(); ++i) {
+        T sigma2 = U.getNode().getSigma()(i);
+        for (active_const_it it=U.cbegin(i); it!=U.cend(i); ++it) {
+            pi[*it] = std::pow(U(*it, i), 2.)*sigma2;
+        }
+    }
+
+    for (coeff_it it=pi.begin(); it!=pi.end(); ++it) {
+        pi[(*it).first] = std::sqrt((*it).second);
+    }
+}
+
+
+void
+apply_i(HTCoeffNode& U, const T eps, const Coefficients& v)
 {
     typedef typename Coefficients::const_iterator       const_coeff1d_it;
     typedef typename Coefficients::iterator             coeff1d_it;
@@ -88,7 +111,7 @@ apply_i(HTCoeffNode& U, const T& eps, const Coefficients& v)
 
     int l=0;
     int support_size_all_buckets=0;
-    int numCols = U.getRank();
+    int numCols = U.numCols();
     HTCoeffFrame ret(numCols);
 
     for (int i=0; i<(int)v_bucket.buckets.size(); ++i) {
@@ -147,7 +170,7 @@ apply_i(HTCoeffNode& U, const T& eps, const Coefficients& v)
 
 
 void
-buildCoeff(Coefficients& v, const HTCoeffNode& U, const int& col)
+buildCoeff(Coefficients& v, const HTCoeffNode& U, const int col)
 {
     typedef typename HTCoeffNode::const_iterator const_it;
 
@@ -189,7 +212,6 @@ testApply(int j, int rank)
                 lawa::XType type = lawa::XWavelet;
                 if (l==1) offset = 0;
                 lawa::Index1D lambda(i, k+offset, type);
-                ++count;
                 double r = ((double) rand() / (double) RAND_MAX);
                 u(lambda, l) = r;
                 /*if (l!=2 || !flag) {
@@ -215,7 +237,7 @@ testApply(int j, int rank)
     std::cout << ht.getFrame() << std::endl;
 
     printf("\nNow comparing with apply_i\n\n");
-    for (int i=1; i<=copy.getRank(); ++i) {
+    for (int i=1; i<=copy.numCols(); ++i) {
         printf("\n\n\n---###---Using column %d as reference\n---###---", i);
         Coefficients v;
         temp.setCoeff(u);
@@ -230,6 +252,16 @@ testApply(int j, int rank)
 int
 main()
 {
-    testApply(0, 3);
+    htucker::HTuckerTreeNode<T> ht(di);
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  A(3,3);
+    flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >  B(4,4);
+    flens::DenseVector<flens::Array<T> >                        v1(2);
+    flens::DenseVector<flens::Array<T> >                        v2(3);
+    ht.setUorB(A);
+    ht.setUorB(B);
+    ht.setSigma(v1);
+    ht.setSigma(v2);
+    std::cout << ht.getUorB() << std::endl;
+    std::cout << ht.getSigma() << std::endl;
     return 0;
 }

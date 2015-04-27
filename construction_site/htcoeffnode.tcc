@@ -23,7 +23,7 @@ HTCoeffNode<T, _Basis, _Index>::HTCoeffNode
                     :htnode(_htnode),
                     basis(_basis),
                     activex(0),
-                    numCols(htnode.getUorB().numCols()){}
+                    numCols_(htnode.getUorB().numCols()){}
 
 
 template <typename T, typename _Basis, typename _Index>
@@ -33,7 +33,7 @@ HTCoeffNode<T, _Basis, _Index>::HTCoeffNode
                                         (copy.getNode())),
                     basis(copy.getBasis()),
                     activex(0),
-                    numCols(0)
+                    numCols_(0)
 {
     std::cerr <<
 "error: HTCoeffNode copy constructor being called!"
@@ -61,18 +61,18 @@ HTCoeffNode<T, _Basis, _Index>::getNode() const
 
 template <typename T, typename _Basis, typename _Index>
 const IndexSet<_Index>&
-HTCoeffNode<T, _Basis, _Index>::getActivex(const int& col_num) const
+HTCoeffNode<T, _Basis, _Index>::getActivex(const int col_num) const
 {
-    assert(col_num>=1 && col_num<=(numCols));
+    assert(col_num>=1 && col_num<=(numCols_));
     return activex[col_num-1];
 }
 
 
 template <typename T, typename _Basis, typename _Index>
 int
-HTCoeffNode<T, _Basis, _Index>::getRank() const
+HTCoeffNode<T, _Basis, _Index>::numCols() const
 {
-    return numCols;
+    return numCols_;
 }
 
 
@@ -103,8 +103,8 @@ HTCoeffNode<T, _Basis, _Index>::addCoeff(const CoeffFrame<S, T, _Index>& u)
     int numRows = htnode.getUorB().numRows();
     int current(0), max(0);
 
-    assert(numCols>0);
-    for (int i=1; i<=numCols; ++i) {
+    assert(numCols_>0);
+    for (int i=1; i<=numCols_; ++i) {
         for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
             activex[i-1].insert((*it).first);
             current = mapCoeff((*it).first, basis);
@@ -117,16 +117,16 @@ HTCoeffNode<T, _Basis, _Index>::addCoeff(const CoeffFrame<S, T, _Index>& u)
     GeMatrix& U = const_cast<GeMatrix&>(htnode.getUorB()); // in-place
     if (max>numRows && numRows>0) {
         GeMatrix copy(U);
-        U.resize(max, numCols);
+        U.resize(max, numCols_);
         U(_(1,numRows), _) = copy;
     } else if (numRows==0 && max>0) {
-        U.resize(max, numCols);
+        U.resize(max, numCols_);
     } else if (numRows==0 && max==0) {
-        U.resize(1, numCols);
+        U.resize(1, numCols_);
         return;
     }
 
-    for (int i=1; i<=numCols; ++i) {
+    for (int i=1; i<=numCols_; ++i) {
         for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
             current = mapCoeff((*it).first, basis);
             U(current, i) += (*it).second;
@@ -143,15 +143,15 @@ HTCoeffNode<T, _Basis, _Index>::setCoeff(const CoeffFrame<S, T, _Index>& u)
     typedef typename CoeffFrame<S, T, _Index>::const_iterator   const_it;
     typedef flens::GeMatrix<flens::FullStorage<T,
                             cxxblas::ColMajor>>                 GeMatrix;
-    numCols = u.numCols();
-    assert (numCols>0);
+    numCols_ = u.numCols();
+    assert (numCols_>0);
     if (activex) {
         delete[] activex;
     }
-    activex = new IndexSet<_Index> [numCols];
+    activex = new IndexSet<_Index> [numCols_];
 
     int numRows(0), current(0);
-    for (int i=1; i<=numCols; ++i) {
+    for (int i=1; i<=numCols_; ++i) {
         for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
             activex[i-1].insert((*it).first);
             current = mapCoeff((*it).first, basis);
@@ -163,12 +163,12 @@ HTCoeffNode<T, _Basis, _Index>::setCoeff(const CoeffFrame<S, T, _Index>& u)
 
     GeMatrix& U = const_cast<GeMatrix&>(htnode.getUorB()); // in-place
     if (numRows==0) {
-        U.resize(1, numCols);
+        U.resize(1, numCols_);
         return;
     }
 
-    U.resize(numRows, numCols);
-    for (int i=1; i<=numCols; ++i) {
+    U.resize(numRows, numCols_);
+    for (int i=1; i<=numCols_; ++i) {
         for (const_it it=u[i].cbegin(); it!=u[i].cend(); ++it) {
             current = mapCoeff((*it).first, basis);
             U(current, i) = (*it).second;
@@ -191,7 +191,7 @@ HTCoeffNode<T, _Basis, _Index>::printActive()
 {
     std::cout   << "-----   Printing active wavelet indices -----"
                 << std::endl;
-    for (int i=0; i<numCols; ++i)
+    for (int i=0; i<numCols_; ++i)
     {
         std::cout << "Column number " << i+1 << std::endl;
         std::cout << activex[i] << std::endl;
@@ -204,9 +204,9 @@ HTCoeffNode<T, _Basis, _Index>::printActive()
 template <typename T, typename _Basis, typename _Index>
 T
 HTCoeffNode<T, _Basis, _Index>::operator() (const _Index& lambda,
-                                            const int& col_num) const
+                                            const int col_num) const
 {
-    assert(col_num>=1 && col_num<=numCols);
+    assert(col_num>=1 && col_num<=numCols_);
 
     typename IndexSet<_Index>:: const_iterator
                                 found = activex[col_num-1].find(lambda);
@@ -221,9 +221,9 @@ HTCoeffNode<T, _Basis, _Index>::operator() (const _Index& lambda,
 template <typename T, typename _Basis, typename _Index>
 bool
 HTCoeffNode<T, _Basis, _Index>::isActive(   const _Index& lambda,
-                                            const int& col_num) const
+                                            const int col_num) const
 {
-    assert(col_num>=1 && col_num<=numCols);
+    assert(col_num>=1 && col_num<=numCols_);
     typename IndexSet<_Index>:: const_iterator
                                 found = activex[col_num-1].find(lambda);
 
@@ -236,36 +236,36 @@ HTCoeffNode<T, _Basis, _Index>::isActive(   const _Index& lambda,
 
 template <typename T, typename _Basis, typename _Index>
 typename HTCoeffNode<T, _Basis, _Index>::iterator
-HTCoeffNode<T, _Basis, _Index>::begin(const int& j)
+HTCoeffNode<T, _Basis, _Index>::begin(const int j)
 {
-    assert(j>=1 && j<= numCols);
+    assert(j>=1 && j<= numCols_);
     return activex[j-1].begin();
 }
 
 
 template <typename T, typename _Basis, typename _Index>
 typename HTCoeffNode<T, _Basis, _Index>::const_iterator
-HTCoeffNode<T, _Basis, _Index>::cbegin(const int& j) const
+HTCoeffNode<T, _Basis, _Index>::cbegin(const int j) const
 {
-    assert(j>=1 && j<= numCols);
+    assert(j>=1 && j<= numCols_);
     return activex[j-1].cbegin();
 }
 
 
 template <typename T, typename _Basis, typename _Index>
 typename HTCoeffNode<T, _Basis, _Index>::iterator
-HTCoeffNode<T, _Basis, _Index>::end(const int& j)
+HTCoeffNode<T, _Basis, _Index>::end(const int j)
 {
-    assert(j>=1 && j<= numCols);
+    assert(j>=1 && j<= numCols_);
     return activex[j-1].end();
 }
 
 
 template <typename T, typename _Basis, typename _Index>
 typename HTCoeffNode<T, _Basis, _Index>::const_iterator
-HTCoeffNode<T, _Basis, _Index>::cend(const int& j) const
+HTCoeffNode<T, _Basis, _Index>::cend(const int j) const
 {
-    assert(j>=1 && j<= numCols);
+    assert(j>=1 && j<= numCols_);
     return activex[j-1].cend();
 }
 

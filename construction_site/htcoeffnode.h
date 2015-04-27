@@ -18,7 +18,7 @@ class HTCoeffNode
         htucker::HTuckerTreeNode<T>&    htnode;
         const _Basis&                   basis;
         IndexSet<_Index>*               activex;
-        int                             numCols;
+        int                             numCols_;
 
     public:
         typedef typename IndexSet<_Index>::const_iterator   const_iterator;
@@ -38,10 +38,10 @@ class HTCoeffNode
         getNode() const;
 
         const IndexSet<_Index>&
-        getActivex(const int& col_num) const;
+        getActivex(const int col_num) const;
 
         int
-        getRank() const;
+        numCols() const;
 
         const _Basis&
         getBasis() const;
@@ -50,26 +50,26 @@ class HTCoeffNode
         getFrame() const;
 
         T
-        operator() (const _Index& lambda, const int& col_num) const;
+        operator() (const _Index& lambda, const int col_num) const;
 
         void
         printActive();
 
         bool
-        isActive(const _Index& lambda, const int& col_num) const;
+        isActive(const _Index& lambda, const int col_num) const;
 
         // Iterators over column
         iterator
-        begin(const int& j);
+        begin(const int j);
 
         const_iterator
-        cbegin(const int& j) const;
+        cbegin(const int j) const;
 
         iterator
-        end(const int& j);
+        end(const int j);
 
         const_iterator
-        cend(const int& j) const;
+        cend(const int j) const;
 
         // Set methods
         template<SortingCriterion S>

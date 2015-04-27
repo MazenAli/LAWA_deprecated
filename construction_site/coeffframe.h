@@ -19,7 +19,7 @@ class CoeffFrame
         typedef typename Coefficients<S, T, _Index>::iterator        iterator;
         typedef _Index                                               IndexType;
 
-        CoeffFrame(const int& _numCols_);
+        CoeffFrame(const int _numCols_);
 
         CoeffFrame(const CoeffFrame<S, T, _Index>& copy);
 
@@ -30,17 +30,17 @@ class CoeffFrame
         numCols() const;
 
         const Coefficients<S, T, _Index>&
-        operator[] (const int& col_num) const;
+        operator[] (const int col_num) const;
 
         T
-        operator() (const _Index& lambda, const int& col_num) const;
+        operator() (const _Index& lambda, const int col_num) const;
 
         // Set methods
         Coefficients<S, T, _Index>&
-        operator[] (const int& col_num);
+        operator[] (const int col_num);
 
         T&
-        operator() (const _Index& lambda, const int& col_num);
+        operator() (const _Index& lambda, const int col_num);
 };
 
 
