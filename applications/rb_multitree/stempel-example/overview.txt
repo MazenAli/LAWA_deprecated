@@ -1,0 +1,139 @@
+
+Run 1:
+    - Dijkema (2/2) x L2-MW (2,0)
+    - Initial Lambda für adaptive Rechnungen: 
+        SparseGridIndexSet(basis2d,Lambda,2,0,0.2)
+    - x: Neumann, y: Dirichlet 
+    - Weak Greedy mit vollem Tightening bei wiederholter Snapshot-Auswahl (u, A, F)
+    - No Orthogonalization
+    - Tolerances:
+        Snapshots   0.005       (tightened: 0.1)
+        Riesz F     0.0005      (tightened: 0.1)
+        Riesz A     0.0005      (tightened: 0.1)
+    - Inner Solver: adaptiv
+        init_tol    0.0001
+        reduction   0.01
+    - Alphas: std::min(mu[0], 1.); (Datei: auf Level 3x3 berechnet)
+    - Riesz Konstante   2.36
+
+
+Run 2: 	(Run 1 mit Dirichlet-BCs in x und anderem InitialLambda)
+    - Dijkema (2/2) x L2-MW (2,0)
+    - Initial Lambda für adaptive Rechnungen: 
+        SparseGridIndexSet(basis2d,Lambda,3,0,0.2)
+    - x: Dirichlet, y: Dirichlet 
+    - Weak Greedy mit vollem Tightening bei wiederholter Snapshot-Auswahl (u, A, F)
+    - No Orthogonalization
+    - Tolerances:
+        Snapshots   0.005       (tightened: 0.1)
+        Riesz F     0.0005      (tightened: 0.1)
+        Riesz A     0.0005      (tightened: 0.1)
+    - Inner Solver: adaptiv
+        init_tol    0.0001
+        reduction   0.01
+    - Alphas:  std::min(mu[0], 1.); (Datei: auf Level 4x4 berechnet)
+    - Riesz Konstante   2.36
+    
+Run 3: 	(Run 1 mit Dirichlet-BCs in x und höherem Level)
+    - Dijkema (3/3) x L2-MW (3,0)
+    - Initial Lambda für adaptive Rechnungen: 
+        SparseGridIndexSet(basis2d,Lambda,3,0,0.2)
+    - x: Dirichlet, y: Dirichlet 
+    - Weak Greedy mit vollem Tightening bei wiederholter Snapshot-Auswahl (u, A, F)
+    - No Orthogonalization
+    - Tolerances:
+        Snapshots   0.005       (tightened: 0.1)
+        Riesz F     0.0005      (tightened: 0.1)
+        Riesz A     0.0005      (tightened: 0.1)
+    - Inner Solver: adaptiv
+        init_tol    0.0001
+        reduction   0.01
+    - Alphas: std::min(mu[0], 1.); (Datei: auf Level 4x4 berechnet)
+    - Riesz Konstante   2.36
+
+Run 4: 	(Run 2 mit Dirichlet-BCs in x und L2-MWs in beiden Dimensionen)
+    - L2-MW (3,0)x L2-MW (3,0)
+    - Initial Lambda für adaptive Rechnungen: 
+        SparseGridIndexSet(basis2d,Lambda,0,0,0.2)
+    - x: Dirichlet, y: Dirichlet 
+    - Weak Greedy mit vollem Tightening bei wiederholter Snapshot-Auswahl (u, A, F)
+    - No Orthogonalization
+    - Tolerances:
+        Snapshots   0.005       (tightened: 0.1)
+        Riesz F     0.0005      (tightened: 0.1)
+        Riesz A     0.0005      (tightened: 0.1)
+    - Inner Solver: adaptiv
+        init_tol    0.0001
+        reduction   0.01
+    - Alphas: von Run 2
+    - Riesz Konstante   2.36
+
+Run 5: (Run 1 ohne Tightening, grobe Toleranzen)
+    - Dijkema (2/2) x L2-MW (2,0)
+    - Initial Lambda für adaptive Rechnungen: 
+        SparseGridIndexSet(basis2d,Lambda,2,0,0.2)
+    - x: Neumann, y: Dirichlet 
+    - Weak Greedy ohne Tightening
+    - No Orthogonalization
+    - Tolerances:
+        Snapshots   0.5
+        Riesz F     0.005
+        Riesz A     0.005
+    - Inner Solver: adaptiv
+        init_tol    0.0001
+        reduction   0.01
+    - Alphas: std::min(mu[0], 1.);
+    - Riesz Konstante   2.36
+
+Run 6: (Run 5 mit Snapshot-Tightening, grobe Toleranzen)
+    - Dijkema (2/2) x L2-MW (2,0)
+    - Initial Lambda für adaptive Rechnungen: 
+        SparseGridIndexSet(basis2d,Lambda,2,0,0.2)
+    - x: Neumann, y: Dirichlet 
+    - Weak Greedy, nur Snapshot-Tightening
+    - No Orthogonalization
+    - Tolerances:
+        Snapshots   0.5		(tightened with 0.5)
+        Riesz F     0.005
+        Riesz A     0.005
+    - Inner Solver: adaptiv
+        init_tol    0.0001
+        reduction   0.01
+    - Alphas: std::min(mu[0], 1.);
+    - Riesz Konstante   2.36
+
+Run 6b: Run 6 mit tightening factor 0.1
+
+Run 7: Run 1 mit weak direct Greedy
+    - Dijkema (2/2) x L2-MW (2,0)
+    - Initial Lambda für adaptive Rechnungen: 
+        SparseGridIndexSet(basis2d,Lambda,2,0,0.2)
+    - x: Neumann, y: Dirichlet 
+    - Weak Direkt Greedy mit Überprüfung der Äquivalenz-Bed.
+    - No Orthogonalization
+    - Tolerances:
+        Snapshots   0.005       (tightened: 0.1)
+        Riesz F     0.5 
+        Riesz A     0.5
+    - Inner Solver: adaptiv
+        init_tol    0.0001
+        reduction   0.01
+    - Alphas: std::min(mu[0], 1.); (Datei: auf Level 3x3 berechnet)
+    - Riesz Konstante   2.36
+
+Run 8: (Run 6b mit vollem Tightening, grobe Toleranzen)
+    - Dijkema (2/2) x L2-MW (2,0)
+    - Initial Lambda für adaptive Rechnungen: 
+        SparseGridIndexSet(basis2d,Lambda,2,0,0.2)
+    - x: Neumann, y: Dirichlet 
+    - Weak Greedy, nur Snapshot-Tightening
+    - No Orthogonalization
+    - Tolerances:
+        Snapshots   0.5		(tightened with 0.1)
+        Riesz F     0.005	(tightened with 0.1)
+        Riesz A     0.005	(tightened with 0.1)
+    - Inner Solver: adaptiv
+        init_tol    0.0001
+        reduction   0.01
+    - Alphas: std::min(mu[0], 1.);
+    - Riesz Konstante   2.36

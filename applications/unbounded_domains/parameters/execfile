@@ -1,0 +1,7 @@
+./eigenvalues SparseMW 4 4 0 1 1
+./eigenvalues SparseMW 4 4 -1 1 1
+./eigenvalues SparseMW 4 4 -2 1 1
+./eigenvalues SparseMW 4 4 -3 1 1
+./eigenvalues SparseMW 4 4 -4 1 1
+./eigenvalues SparseMW 4 4 -6 1 1
+./eigenvalues SparseMW 4 4 2 1 1
