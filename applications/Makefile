@@ -1,4 +1,4 @@
-SUBDIRS := unbounded_domains new_eval_scheme canutoproject rb_multitree
+SUBDIRS := rb_multitree
 ifdef BOOST_HOME 
 ifdef MPREC_INC_HOME 
 ifdef MPREC_LIB_HOME

@@ -13,11 +13,14 @@ read_paramfile(string paramfilename, vector<ParamType>& v){
     	paramfile.close();
     }
     else{
-    	cerr << "Couldn't open " << paramfile << " for reading!" << endl;
+    	cerr << "Couldn't open " << paramfilename << " for reading!" << endl;
     }
 }
 
 int main (int argc, char* argv[]) {
+// Deprecated code
+// TODO: update or delete!
+#if 0
 
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
@@ -509,6 +512,7 @@ int main (int argc, char* argv[]) {
         cerr << "Couldn't open file " << max_file_name << " for writing! " << endl;
     }
 
+#endif // if 0
     return 0;
 }
 

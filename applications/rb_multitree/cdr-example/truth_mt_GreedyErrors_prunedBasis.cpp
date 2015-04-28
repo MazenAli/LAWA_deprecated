@@ -26,7 +26,7 @@ read_paramfile(string paramfilename, vector<ParamType>& v){
     	paramfile.close();
     }
     else{
-    	cerr << "Couldn't open " << paramfile << " for reading!" << endl;
+    	cerr << "Couldn't open " << paramfilename << " for reading!" << endl;
     }
 }
 

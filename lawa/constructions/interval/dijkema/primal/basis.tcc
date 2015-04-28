@@ -311,7 +311,7 @@ const flens::Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJ(int j) const
 {
     assert(j>=min_j0);
-    return _(1,pow2i<T>(j));
+    return flens::_(1,pow2i<T>(j));
 }
 
 template <typename T>
@@ -319,7 +319,7 @@ const flens::Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJL(int j) const
 {
     assert(j>=min_j0);
-    return _(1,d+d_-2);
+    return flens::_(1,d+d_-2);
 }
 
 template <typename T>
@@ -327,7 +327,7 @@ const flens::Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJI(int j) const
 {
     assert(j>=min_j0);
-    return _(d+d_-1,pow2i<T>(j)-(d+d_-2));
+    return flens::_(d+d_-1,pow2i<T>(j)-(d+d_-2));
 }
 
 template <typename T>
@@ -335,7 +335,7 @@ const flens::Range<int>
 Basis<T,Primal,Interval,Dijkema>::rangeJR(int j) const
 {
     assert(j>=min_j0);
-    return _(pow2i<T>(j)-(d+d_-3),pow2i<T>(j));
+    return flens::_(pow2i<T>(j)-(d+d_-3),pow2i<T>(j));
 }
 
 

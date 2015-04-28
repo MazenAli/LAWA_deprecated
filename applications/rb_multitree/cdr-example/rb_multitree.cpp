@@ -16,10 +16,12 @@ using namespace lawa;
 typedef double T;
 
 int main(){
-
+// This code is deprecated
+// TODO: update or remove!
+/*
 	const int p = 2;
 
-	ThetaStructure<T,p> empty_theta;
+	ThetaStructure<T> empty_theta;
 
 	RB_System<T,p> rb_system(empty_theta,empty_theta);
 
@@ -33,7 +35,7 @@ int main(){
 	}
 	cout << endl;
 
-
+*/
 	return 0;
 }
 

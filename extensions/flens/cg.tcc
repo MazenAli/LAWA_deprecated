@@ -67,6 +67,8 @@ int
 cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
      int maxIterations)
 {
+    using namespace flens;
+    using namespace flens::blas;
     typename _cg<VB>::T alpha, beta, gammaPrev, gamma, b_norm;
     typename _cg<VB>::AuxVector r, q, s, p;
 
@@ -93,7 +95,7 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
     r = A*x;
     r += (-1.)*b;
     r *= -1.;
-    flens::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+    mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
     p = s;
     gammaPrev = s*s;
 #ifdef SOLVER_DEBUG
@@ -111,7 +113,7 @@ cgls(const MA &A, VX &x, const VB &b, typename _cg<VB>::T tol,
         alpha = gammaPrev/(q*q);
         x +=   alpha *p;
         r += (-alpha)*q;
-        flens::mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
+        mv(cxxblas::Trans, typename _cg<VB>::T(1), A, r, typename _cg<VB>::T(0), s);
         gamma = s*s;
         if (sqrt(gamma)<=tol) {
             return k-1;

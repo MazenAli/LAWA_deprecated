@@ -3,6 +3,9 @@
 #include <cstdio>
 
 int main (int argc, char* argv[]) {
+// Deprecated code
+// TODO: update or delete!
+#if 0
 
 	if(argc != 3){
 		cerr << "Usage: " << argv[0] << " inputfolder outputfile" << endl;
@@ -483,7 +486,7 @@ int main (int argc, char* argv[]) {
     rb_base.write_basisfunctions("offline_data_stage8");
     rb_base.write_rieszrepresentors("offline_data_stage8");
 	*/
-
+#endif
     return 0;
 }
 

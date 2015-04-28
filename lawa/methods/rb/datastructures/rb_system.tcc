@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iomanip>
 #include <sys/stat.h>
+#include <lawa/flensforlawa.h>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 
@@ -334,7 +336,7 @@ residual_dual_norm(const DenseVectorT& u_N, ParamType& mu)
 
     DenseVectorT T_AA_T_u = T_AA_T * u_N;
     res_dual_norm += u_N * T_AA_T_u;
-    res_dual_norm += 2. * u_N * T_AF_T;
+    res_dual_norm += 2. * (u_N * T_AF_T);
 
     if(res_dual_norm < 0){
       std::cout << "Warning: Residual dual norm negative: " << std::setprecision(20) << res_dual_norm << std::endl;
@@ -415,7 +417,7 @@ residual_dual_norm(std::vector<std::size_t> indices, const DenseVectorT& u_N, Pa
 
     DenseVectorT T_AA_T_u = T_AA_T * u_N;
     res_dual_norm += u_N * T_AA_T_u;
-    res_dual_norm += 2. * u_N * T_AF_T;
+    res_dual_norm += 2. * (u_N * T_AF_T);
 
     if(res_dual_norm < 0){
       std::cout << "Warning: Residual dual norm negative: " << std::setprecision(20) << res_dual_norm << std::endl;
@@ -733,7 +735,7 @@ void
 RB_System<T,ParamType>::
 remove_basisfunction(std::size_t nb)
 {
-
+    using flens::_;
 	int n_bf = RB_A_matrices[0].numRows();
 
 	if(nb == 1){

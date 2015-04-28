@@ -1,4 +1,8 @@
 #include "cdr_problem.h"
+// Deprecated code
+// TODO: update or delete!
+int main() {return 0;}
+#if 0
 
 int main () {
 
@@ -388,4 +392,4 @@ int main () {
 
     return 0;
 }
-
+#endif

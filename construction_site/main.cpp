@@ -75,10 +75,11 @@ compContrac(const int i, Coefficients& pi,
     // Use i to determine node...
     int dummy = i+1;
 
+    // TODO: Check here if sigmas are squared already!
     for (int i=1; i<=U.numCols(); ++i) {
-        T sigma2 = U.getNode().getSigma()(i);
+        T sigma = U.getNode().getSigma()(i);
         for (active_const_it it=U.cbegin(i); it!=U.cend(i); ++it) {
-            pi[*it] = std::pow(U(*it, i), 2.)*sigma2;
+            pi[*it] = std::pow(U(*it, i)*sigma, 2.);
         }
     }
 

@@ -12,6 +12,11 @@
 #include <lawa/methods/rb/righthandsides/flexiblebilformrhs.h>
 #include <lawa/methods/rb/datastructures/mt_truth.h>
 
+// Deprecate code
+// TODO: update or delete
+int main() {return 0;}
+#if 0
+
 using namespace std;
 using namespace lawa;
 
@@ -413,4 +418,4 @@ int main () {
 
     return 0;
 }
-
+#endif

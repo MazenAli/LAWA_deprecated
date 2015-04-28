@@ -11,6 +11,10 @@
 #include <lawa/methods/adaptive/solvers/multitreeawgm2.h>
 #include <lawa/methods/rb/righthandsides/flexiblebilformrhs.h>
 
+// Deprecated code
+// TODO: update or delete!
+#if 0
+
 using namespace std;
 using namespace lawa;
 
@@ -143,9 +147,10 @@ T theta_diff(const std::array<T,PDim>& mu)
 	return mu[0];
 }
 
+#endif
 
 int main () {
-
+#if 0
 	//===============================================================//
 	//========= PROBLEM SETUP  =======================//
 	//===============================================================//
@@ -429,6 +434,7 @@ int main () {
     time.stop();
     cout << "Solution took " << time.elapsed() << " seconds" << endl;
 
+#endif
     return 0;
 }
 

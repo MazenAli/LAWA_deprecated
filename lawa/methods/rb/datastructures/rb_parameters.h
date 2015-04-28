@@ -22,6 +22,7 @@
 #define LAWA_METHODS_RB_DATASTRUCTURES_RB_PARAMETERS_H_
 
 #include <array>
+#include <lawa/settings/enum.h>
 
 namespace lawa {
 

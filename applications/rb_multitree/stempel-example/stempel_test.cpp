@@ -1,3 +1,8 @@
+// Deprecated code
+// TODO: update or delete!
+int main() {return 0;}
+#if 0
+
 #include "stempel_problem_mw.h"
 #include <fstream>
 #include <sstream>
@@ -473,4 +478,4 @@ int main () {
 
     return 0;
 }
-
+#endif
