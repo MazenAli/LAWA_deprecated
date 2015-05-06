@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <flens/flens.cxx>
 #include <htucker/htucker.h>
 #include <lawa/settings/enum.h>
@@ -18,7 +19,7 @@ class HTCoeffNode
         htucker::HTuckerTreeNode<T>&    htnode;
         const _Basis&                   basis;
         IndexSet<_Index>*               activex;
-        int                             numCols_;
+        std::size_t                     numCols_;
 
     public:
         typedef typename IndexSet<_Index>::const_iterator   const_iterator;
@@ -38,9 +39,9 @@ class HTCoeffNode
         getNode() const;
 
         const IndexSet<_Index>&
-        getActivex(const int col_num) const;
+        getActivex(const std::size_t col_num) const;
 
-        int
+        std::size_t
         numCols() const;
 
         const _Basis&
@@ -50,26 +51,26 @@ class HTCoeffNode
         getFrame() const;
 
         T
-        operator() (const _Index& lambda, const int col_num) const;
+        operator() (const _Index& lambda, const std::size_t col_num) const;
 
         void
         printActive();
 
         bool
-        isActive(const _Index& lambda, const int col_num) const;
+        isActive(const _Index& lambda, const std::size_t col_num) const;
 
         // Iterators over column
         iterator
-        begin(const int j);
+        begin(const std::size_t j);
 
         const_iterator
-        cbegin(const int j) const;
+        cbegin(const std::size_t j) const;
 
         iterator
-        end(const int j);
+        end(const std::size_t j);
 
         const_iterator
-        cend(const int j) const;
+        cend(const std::size_t j) const;
 
         // Set methods
         template<SortingCriterion S>
@@ -83,11 +84,11 @@ class HTCoeffNode
 
 
 template <typename _Index, typename _Basis>
-int
+unsigned long
 mapCoeff(const _Index&, const _Basis&);
 
 template <typename _Basis>
-int
+unsigned long
 mapCoeff(const Index1D& lambda, const _Basis& basis);
 
 

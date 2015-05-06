@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
 
@@ -12,35 +13,35 @@ template <SortingCriterion S, typename T, typename _Index>
 class CoeffFrame
 {
     private:
-        Coefficients<S, T, _Index>*   U;
-        const int       numCols_;
+        Coefficients<S, T, _Index>* U;
+        const std::size_t           numCols_;
     public:
         typedef typename Coefficients<S, T, _Index>::const_iterator  const_iterator;
         typedef typename Coefficients<S, T, _Index>::iterator        iterator;
         typedef _Index                                               IndexType;
 
-        CoeffFrame(const int _numCols_);
+        CoeffFrame(const std::size_t _numCols_);
 
         CoeffFrame(const CoeffFrame<S, T, _Index>& copy);
 
         ~CoeffFrame();
 
         // Get methods
-        int
+        std::size_t
         numCols() const;
 
         const Coefficients<S, T, _Index>&
-        operator[] (const int col_num) const;
+        operator[] (const std::size_t col_num) const;
 
         T
-        operator() (const _Index& lambda, const int col_num) const;
+        operator() (const _Index& lambda, const std::size_t col_num) const;
 
         // Set methods
         Coefficients<S, T, _Index>&
-        operator[] (const int col_num);
+        operator[] (const std::size_t col_num);
 
         T&
-        operator() (const _Index& lambda, const int col_num);
+        operator() (const _Index& lambda, const std::size_t col_num);
 };
 
 

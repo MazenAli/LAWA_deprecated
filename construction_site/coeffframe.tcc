@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <cassert>
 #include <lawa/settings/enum.h>
 #include <lawa/methods/adaptive/datastructures/coefficients.h>
@@ -11,7 +12,7 @@ namespace lawa
 
 
 template <SortingCriterion S, typename T, typename _Index>
-CoeffFrame<S, T, _Index>::CoeffFrame(const int _numCols_)
+CoeffFrame<S, T, _Index>::CoeffFrame(const std::size_t _numCols_)
                                     :numCols_(_numCols_)
 {
     assert(numCols_>0);
@@ -25,7 +26,7 @@ CoeffFrame<S, T, _Index>::CoeffFrame(const CoeffFrame<S, T, _Index>& copy)
 {
     assert(numCols_>0);
     U = new Coefficients<S, T, _Index> [numCols_];
-    for (int i=0; i<numCols_; ++i) {
+    for (std::size_t i=0; i<numCols_; ++i) {
         U[i] = copy[i+1];
     }
 }
@@ -42,7 +43,7 @@ CoeffFrame<S, T, _Index>::~CoeffFrame()
 
 
 template <SortingCriterion S, typename T, typename _Index>
-int
+std::size_t
 CoeffFrame<S, T, _Index>::numCols() const
 {
     return numCols_;
@@ -51,7 +52,7 @@ CoeffFrame<S, T, _Index>::numCols() const
 
 template <SortingCriterion S, typename T, typename _Index>
 Coefficients<S, T, _Index>&
-CoeffFrame<S, T, _Index>::operator[] (const int col_num)
+CoeffFrame<S, T, _Index>::operator[] (const std::size_t col_num)
 {
     assert(col_num>=1 && col_num<=numCols_);
     return U[col_num-1];
@@ -60,7 +61,7 @@ CoeffFrame<S, T, _Index>::operator[] (const int col_num)
 
 template <SortingCriterion S, typename T, typename _Index>
 const Coefficients<S, T, _Index>&
-CoeffFrame<S, T, _Index>::operator[] (const int col_num) const
+CoeffFrame<S, T, _Index>::operator[] (const std::size_t col_num) const
 {
     assert(col_num>=1 && col_num<=numCols_);
     return U[col_num-1];
@@ -69,7 +70,7 @@ CoeffFrame<S, T, _Index>::operator[] (const int col_num) const
 
 template <SortingCriterion S, typename T, typename _Index>
 T&
-CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int col_num)
+CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const std::size_t col_num)
 {
     assert(col_num>=1 && col_num<=numCols_);
     return U[col_num-1][lambda];
@@ -78,7 +79,7 @@ CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int col_num)
 
 template <SortingCriterion S, typename T, typename _Index>
 T
-CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const int col_num) const
+CoeffFrame<S, T, _Index>::operator() (const _Index& lambda, const std::size_t col_num) const
 {
     assert(col_num>=1 && col_num<=numCols_);
     return U[col_num-1][lambda];
