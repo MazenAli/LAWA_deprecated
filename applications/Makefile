@@ -1,4 +1,4 @@
-SUBDIRS := rb_multitree
+SUBDIRS := ls_awgm rb_adaptive
 ifdef BOOST_HOME 
 ifdef MPREC_INC_HOME 
 ifdef MPREC_LIB_HOME
