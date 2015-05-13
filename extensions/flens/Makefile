@@ -1,21 +1,32 @@
 include $(LAWA_HOME)/Makefile.common
 
-DYLIB    = libextensionsflens.$(DYLIB_EXT)
-
 SOURCES  := $(wildcard *.cpp)
 OBJECTS  := $(SOURCES:.cpp=.o)
 DEPS     := $(SOURCES:.cpp=.d)
 
-all: $(DYLIB)
+DYLIB    = libextensionsflens.$(DYLIB_EXT)
+STATLIB  = libextensionsflens.$(STATLIB_EXT)
+
+ifeq ($(TARGET), Darwin)
+	LIB = $(DYLIB)
+else
+	LIB = $(STATLIB)
+endif
+
+all: $(LIB)
 
 $(DYLIB): $(OBJECTS)
 	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o $(LDLIBS)
 	$(CP) $(DYLIB) $(LAWA_HOME)
 
-clean:
-	$(RM) *.o *.d $(DYLIB)
-	$(RMDIR) *.dSYM
+$(STATLIB): $(OBJECTS)
+	ar rus $@ *.o
+	$(CP) $(STATLIB) $(LAWA_HOME)
 
+clean:
+	$(RM) *.o *.d $(DYLIB) $(STATLIB)
+	$(RM) -f *.tmp
+	$(RMDIR) *.dSYM
 
 # automatic dependencies -------------------------------------------------------
 %.d: %.cpp

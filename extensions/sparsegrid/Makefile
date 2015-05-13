@@ -6,14 +6,28 @@ SOURCES  := sandia_rules.cpp sparse_grid_mixed.cpp sparse_grid_open.cpp
 OBJECTS  := $(SOURCES:.cpp=.o)
 DEPS     := $(SOURCES:.cpp=.d)
 
-all: $(DYLIB)
+DYLIB    = libextensionssparsegrid.$(DYLIB_EXT)
+STATLIB  = libextensionssparsegrid.$(STATLIB_EXT)
+
+ifeq ($(TARGET), Darwin)
+	LIB = $(DYLIB)
+else
+	LIB = $(STATLIB)
+endif
+
+all: $(LIB)
 
 $(DYLIB): $(OBJECTS)
-	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) $(OBJECTS) $(LDLIBS)
+	$(CXX) $(CXXDYLIB) $(CXXFLAGS) $(LDFLAGS) -o $(DYLIB) *.o $(LDLIBS)
 	$(CP) $(DYLIB) $(LAWA_HOME)
 
+$(STATLIB): $(OBJECTS)
+	ar rus $@ *.o
+	$(CP) $(STATLIB) $(LAWA_HOME)
+
 clean:
-	$(RM) *.o *.d $(DYLIB)
+	$(RM) *.o *.d $(DYLIB) $(STATLIB)
+	$(RM) -f *.tmp
 	$(RMDIR) *.dSYM
 
 

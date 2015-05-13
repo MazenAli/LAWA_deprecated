@@ -282,6 +282,7 @@ template <typename T>
 flens::GeMatrix<flens::FullStorage<T, cxxblas::ColMajor> >
 MRA<T,Dual,Interval,DKU>::_integral0toInfPhiPhi_()
 {
+    using flens::_;
 
     flens::GeMatrix<flens::FullStorage<T,cxxblas::ColMajor> > I(_(-l2 +1, l-d+d_-1),
                                          _(-l2_+1, l_-1));

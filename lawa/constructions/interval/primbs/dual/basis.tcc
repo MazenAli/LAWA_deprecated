@@ -269,7 +269,7 @@ Basis<T,Dual,Interval,Primbs>::rangeJ_(int j) const
 {
     assert(0);
     assert(j>=min_j0);
-    return _(1,pow2i<T>(j));
+    return flens::_(1,pow2i<T>(j));
 }
 
 template <typename T>
@@ -278,7 +278,7 @@ Basis<T,Dual,Interval,Primbs>::rangeJ_L(int j) const
 {
     assert(0);
     assert(j>=min_j0);
-    return _(1,d+d_-2);
+    return flens::_(1,d+d_-2);
 }
 
 template <typename T>
@@ -287,7 +287,7 @@ Basis<T,Dual,Interval,Primbs>::rangeJ_I(int j) const
 {
     assert(0);
     assert(j>=min_j0);
-    return _(d+d_-1,pow2i<T>(j)-(d+d_-3));
+    return flens::_(d+d_-1,pow2i<T>(j)-(d+d_-3));
     
 }
 
@@ -297,7 +297,7 @@ Basis<T,Dual,Interval,Primbs>::rangeJ_R(int j) const
 {
     assert(0);
     assert(j>=min_j0);
-    return _(pow2i<T>(j)-(d+d_-2),pow2i<T>(j));
+    return flens::_(pow2i<T>(j)-(d+d_-2),pow2i<T>(j));
 
 }
 

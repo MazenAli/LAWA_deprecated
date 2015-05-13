@@ -14,6 +14,9 @@ clean:
 	done;
 	$(RM) libextensionsflens.$(DYLIB_EXT) \
               libextensionssparsegrid.$(DYLIB_EXT) \
-              liblawa.$(DYLIB_EXT)
+              liblawa.$(DYLIB_EXT) \
+              libextensionsflens.$(STATLIB_EXT) \
+              libextensionssparsegrid.$(STATLIB_EXT) \
+              liblawa.$(STATLIB_EXT)
 	$(RM) *.tmp
 # DO NOT DELETE

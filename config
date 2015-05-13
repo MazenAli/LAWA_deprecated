@@ -1,5 +1,5 @@
 TARGET = $(shell uname)
-COMPILER = clang
+COMPILER = gcc
 BLASLAPACK = platform
 
 STANDARD = c11
@@ -9,11 +9,9 @@ ifeq ($(TARGET),Darwin)
   DYLIB_EXT = dylib
   ifeq ($(COMPILER),gcc)
     CC  = gcc
-    ifeq ($(STANDARD),c11) 
-        CXX = g++-mp-4.7
+    CXX = g++
+    ifeq ($(STANDARD),c11)
         CXXFLAGS += -std=c++11
-    else
-        CXX = g++    
     endif
   endif
   ifeq ($(COMPILER),icc)
@@ -23,28 +21,31 @@ ifeq ($(TARGET),Darwin)
   ifeq ($(COMPILER),clang)
     CC  = clang
     CXX = clang++
-    ifeq ($(STANDARD),c11) 
-        CXXFLAGS += -std=c++11  
-    endif  
+    ifeq ($(STANDARD),c11)
+        CXXFLAGS += -std=c++11
+    endif
   endif
   ifeq ($(BLASLAPACK),platform)
     CPPFLAGS += -DWITH_VECLIB
-    LIBS     += -lmpfr -lgmpxx -lgmp -lgmpfrxx
-    LDFLAGS  += -framework Accelerate $(LIBS)
+    # LIBS     += -lmpfr -lgmpxx -lgmp -lgmpfrxx
+    LDFLAGS  += -framework Accelerate
   endif
 endif
 
 ifeq ($(TARGET),Linux)
-  CXXDYLIB  = -shared
-  DYLIB_EXT = so
+  STATLIB_EXT = a
   ifeq ($(COMPILER),gcc)
     CC  = gcc
     CXX = g++
     ifeq ($(BLASLAPACK),platform)
-      CPPFLAGS += -DWITH_ATLAS -DHAVE_CBLAS -I/usr/include
-      LIBS     += -llapack -lblas -lmpfr -lgmpxx -lgmp
-      LDFLAGS  += -L/usr/lib $(LIBS)
+      CPPFLAGS += -DWITH_GOTOBLAS -DHAVE_CBLAS -I/usr/include
+      LDLIBS   += -llapack -lgoto -lcblas -lblas -lgfortran
+      # Multi-Precision stuff -lmpfr -lgmpxx -lgmp
+      LDFLAGS  += -L/usr/lib
     endif
+  endif
+  ifeq ($(STANDARD),c11)
+    CXXFLAGS += -std=c++11
   endif
 endif
 
@@ -85,7 +86,8 @@ endif
 
 ifdef GMPFRXX_HOME
    CPPFLAGS += -I$(GMPFRXX_HOME)
-   LDFLAGS += -L$(GMPFRXX_HOME) -lgmpfrxx
+   LDFLAGS += -L$(GMPFRXX_HOME)
+   LDLIBS  += -lgmpfrxx
 endif
 
 ifdef MPREC_INC_HOME
@@ -93,7 +95,8 @@ ifdef MPREC_INC_HOME
 endif
 
 ifdef MPREC_LIB_HOME
-   LDFLAGS += -L$(MPREC_LIB_HOME) -lmpfr -lgmpxx -lgmp 
+   LDFLAGS += -L$(MPREC_LIB_HOME)
+   LDLIBS  += -lmpfr -lgmpxx -lgmp
 endif
 
 ifdef GSL_INC_HOME
@@ -101,5 +104,6 @@ ifdef GSL_INC_HOME
 endif
 
 ifdef GSL_LIB_HOME
-  LDFLAGS += -L$(GSL_LIB_HOME) -lgsl
+  LDFLAGS += -L$(GSL_LIB_HOME)
+  LDLIBS  += -lgsl
 endif
