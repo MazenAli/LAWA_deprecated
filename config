@@ -1,5 +1,5 @@
 TARGET = $(shell uname)
-COMPILER = gcc
+COMPILER = clang
 BLASLAPACK = platform
 
 STANDARD = c11
